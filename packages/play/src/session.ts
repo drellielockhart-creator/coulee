@@ -7,6 +7,7 @@ import {
   makeContext,
   provisions,
   psyche,
+  restoreSim,
   type Sim,
   social,
   stateHash,
@@ -16,7 +17,7 @@ import { GEN_VERSION } from '@coulee/worldgen';
 import { availableActions, validateCommand } from './actions.ts';
 import { alertFor, type Interrupt, provisionsAlert } from './interrupts.ts';
 import { knownExplain, type ObservationMode, observation } from './observation.ts';
-import { type SessionSpec, sessionSim } from './source.ts';
+import { type SessionSpec, sessionContent, sessionSim } from './source.ts';
 export interface LogStep {
   type: 'command';
   command: Command;
@@ -374,16 +375,16 @@ export class PlaySession {
       known: this.known,
       entries: this.entries,
       metrics: this.metrics,
+      // Retain generated source content so loading does not regenerate a town or run QA.
+      ...(typeof this.configuration.source === 'object' ? { generatedContent: this.sim.content } : {}),
     });
   }
   static load(content: ContentBundle, json: string): PlaySession {
     const saved = JSON.parse(json);
     if (saved.format !== 1 || saved.contentHash !== content.meta.hash) throw new Error('Save format/content mismatch');
-    const session = PlaySession.create(content, saved.spec);
-    if (
-      saved.world.meta.contentHash !== session.sim.content.meta.hash ||
-      saved.world.meta.playerId !== session.playerId
-    )
+    const prepared = saved.generatedContent ?? sessionContent(content, saved.spec).content;
+    const session = new PlaySession(content, saved.spec, restoreSim(prepared, saved.world));
+    if (saved.world.meta.seed !== saved.spec.seed || saved.world.index.actorByKey.play_newcomer !== session.playerId)
       throw new Error('Save world/source mismatch');
     session.sim.world = saved.world;
     session.known = saved.known;
@@ -401,14 +402,14 @@ export class PlaySession {
     copy.metrics = JSON.parse(JSON.stringify(this.metrics));
     return copy;
   }
-  static replay(content: ContentBundle, log: ReplayLog): PlaySession {
+  static replay(content: ContentBundle, log: ReplayLog, mode: ObservationMode = 'fair'): PlaySession {
     const [header, ...steps] = log;
     if (header.type !== 'session' || header.format !== 1 || header.contentHash !== content.meta.hash)
       throw new Error('Replay content/version mismatch');
     const session = PlaySession.create(content, header.spec);
     for (const entry of steps) {
       if (entry.type !== 'command' || entry.before !== session.hash) throw new Error('Replay diverged before command');
-      const result = session.act(entry.command);
+      const result = session.act(entry.command, mode);
       if (!result.ok || session.hash !== entry.after || session.sim.world.time !== entry.end)
         throw new Error('Replay diverged after command');
     }

@@ -16,7 +16,8 @@ export interface SessionSpec {
   pc?: PCSpec;
 }
 
-export function sessionSim(base: ContentBundle, spec: SessionSpec) {
+/** Prepare source content without initializing or stepping a world. */
+export function sessionContent(base: ContentBundle, spec: SessionSpec) {
   if (!Number.isSafeInteger(spec.seed)) throw new Error('Seed must be an integer');
   let content = base;
   let scenarioId: string;
@@ -69,5 +70,10 @@ export function sessionSim(base: ContentBundle, spec: SessionSpec) {
     scenarios: { ...content.scenarios, [scenarioId]: scenario },
     meta: { ...content.meta, hash: hashValue({ base: content.meta.hash, scenario }) },
   };
+  return { content, scenarioId };
+}
+
+export function sessionSim(base: ContentBundle, spec: SessionSpec) {
+  const { content, scenarioId } = sessionContent(base, spec);
   return createSim(content, { scenarioId, seed: spec.seed, withPlayer: true });
 }

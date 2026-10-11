@@ -4,7 +4,7 @@
 
 The public package is pure TypeScript with no IO. `observe('fair' | 'god')`, `act(Command | stableActionId)`, `advance(minutes | {time?, event?, maxMinutes?})`, `save()`, static `load(content, json)`, `fork()`, `commandLog`, `telemetry`, and static `replay(content, log)` are exported. Actions return validation failures without advancing time. Queries are zero-time Commands; other actions occupy an hour because the current core clock is hourly. Activities can lock their duration. Effects of an activity enter the next hourly physiology pass, exactly as in core. An accepted intention can still fail a core check; `warning` reports resource rejection or an unresolved social intention.
 
-`commandLog` is a JSONL header followed by commands with before/after hashes and times. Replay checks each boundary, not only the final hash. Saves include the world, source/PC specification, knowledge history, command log and deterministic telemetry. Forks clone the state and history. Generated-world QA still runs when reconstructing a generated source, so initial creation/load is slower than an authored session.
+`commandLog` is a JSONL header followed by commands with before/after hashes and times. Replay checks each boundary, not only the final hash. Saves include the world, source/PC specification, knowledge history, command log and deterministic telemetry. Forks clone the state and history. Loading restores the world without module initialization; new generated saves also retain prepared source content to avoid regenerating the town and rerunning QA. Older saves remain loadable.
 
 ## CLI
 
@@ -19,6 +19,27 @@ Text accepts displayed numbers, stable IDs, or verbs (`help`). `actions 1`, `act
 JSONL produces exactly one observation per input line, with a `result` field. Send `"look"` to bootstrap, then a returned stable action ID as a JSON string or a complete core Command from `actions[].command`. Invalid JSON/commands produce an observation with `result.ok: false`. No unsolicited startup line appears in JSON mode. `--god` is explicit in every observation.
 
 The log directory contains `commands.jsonl`, `metrics.jsonl`, and `transcript.txt`. Metrics are **designer telemetry**, not fair PC knowledge: purse/household cash, actual energy expenditure from the needs ledger, intake, personal/household spoilage and vermin losses, opinion deltas toward the PC, transmitted rumors about the PC, defense event IDs, chronicle pattern IDs, deaths when supported, idle and deciding **game minutes**. No wall-clock decision time is invented by the deterministic library.
+
+## Playing as an agent
+
+Use stateless sessions when each shell call starts a new process. Run **one command per call**, from the repo root:
+
+```sh
+just run play --session runs/my-playtest --new --scenario iron_ford --seed 42
+just run play --session runs/my-playtest "go Pratt"
+just run play --session runs/my-playtest "buy hardtack 3"
+just run play --session runs/my-playtest "plan"
+just run play --session runs/my-playtest "explain 123"
+just run play --session runs/my-playtest --look
+just run play --session runs/my-playtest --fork runs/alternative
+just run play --session runs/my-playtest --verify
+```
+
+Choose a number from the **previous call's printed menu**, or quote a typed command/stable action ID. `actions 2` shows page 2; the next numbered command uses that page. `help`, `inspect <name>`, `journal`, `wait 2h`, and `wait until 08:00` work as in text mode. `plan` checks provisions; replace `123` with a known event ID printed with an `explain` hint. Queries cost no game time. Waits can stop early on interrupts: read the resulting time and warnings before acting again. `--look` reprints the current observation without recording an action.
+
+Start generated worlds with `--scenario gen:town --seed 7 --world-seed 9`. Fair mode is the default; `--god` at creation persists for all later calls. Report your mode. Exit codes: **0** success, **2** invalid command (reason and current menu; no world change), **1** internal error.
+
+The directory holds `session.json` (world source, seed, PC spec, mode), atomic `save.json` (world and previous menu), `commands.jsonl`, `metrics.jsonl`, and `transcript.txt`. Accepted Commands append to the replay log; help/menu pagination record a zero-time look. Invalid attempts appear only in the transcript; metrics append when game time advances. Use `--fork` before testing alternatives; its destination must be new or empty. `--verify` reconstructs the initial world and replays every accepted command, checking the final saved hash. Attach these files to bug reports; use `just run play --replay runs/my-playtest/commands.jsonl` (add `--god` for god logs) for independent reproduction.
 
 ## Fair knowledge and module gaps
 

@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { loadContentOrThrow } from '@coulee/content';
 import { HELP, PlaySession, parseText, type ReplayLog, renderDetail, renderObservation } from '@coulee/play';
+import { sessionCLI } from './play-session.ts';
 export interface PlayOptions {
   text?: boolean;
   jsonl?: boolean;
@@ -12,9 +13,23 @@ export interface PlayOptions {
   seed: number;
   worldSeed?: number;
   log?: string;
+  session?: string;
+  new?: boolean;
+  look?: boolean;
+  fork?: string;
+  verify?: boolean;
 }
-export async function playCLI(o: PlayOptions): Promise<void> {
+export async function playCLI(o: PlayOptions, command?: string): Promise<void> {
   const content = loadContentOrThrow(['base']);
+  if (o.session) {
+    process.exitCode = sessionCLI(content, o, command);
+    return;
+  }
+  if (command !== undefined || o.new || o.look || o.fork || o.verify) {
+    console.error('Use --session <dir> for a single command, --new, --look, --fork or --verify.');
+    process.exitCode = 2;
+    return;
+  }
   let session = o.replay
     ? PlaySession.replay(
         content,
@@ -22,6 +37,7 @@ export async function playCLI(o: PlayOptions): Promise<void> {
           .trim()
           .split('\n')
           .map((line) => JSON.parse(line)) as ReplayLog,
+        o.god ? 'god' : 'fair',
       )
     : PlaySession.create(content, {
         source: o.scenario,
