@@ -96,7 +96,7 @@ export function placeName(world: World, pid: PlaceId | number | null | undefined
 /** "at Dunleavy's Tavern", or '' when unknown. */
 export function atPlace(world: World, pid: PlaceId | number | null | undefined): string {
   const n = placeName(world, pid);
-  return n ? `at ${n}` : '';
+  return n ? `at ${n.replace(/^The /, 'the ')}` : '';
 }
 
 /** Item display name, falling back to a prettified id. */

@@ -65,7 +65,7 @@ id = "feud_journal"
 on = "feud"
 voice = "journal"
 text = [
-  "More trouble between {families}: {count_word} wrongs now in {span}, by my count. I keep out of it, which in Iron Ford is a labor.",
+  "More trouble between {families}: {count_word} wrongs now in {span}, by my count. I keep out of it, which in {town} is a labor.",
   "The feud between {families} has a name now, and what has a name can be argued over. Everyone has an opinion. I have one and am saving it.",
   "{^families}, again. I am beginning to dread the store for fear of hearing one side's account of the other.",
 ]
@@ -450,7 +450,7 @@ on = "courtship"
 voice = "ballad"
 when = { stage = "betrothed" }
 text = [
-  "{^actor} walked out by the Lantern shore,\nAnd {target} walked out to meet;\nThe moon was high and the road was dry,\nAnd the fiddle was playing sweet.",
+  "{^actor} walked out by the {creek} bank,\nAnd {target} walked out to meet;\nThe moon was high and the road was dry,\nAnd the fiddle was playing sweet.",
 ]
 
 [[template]]

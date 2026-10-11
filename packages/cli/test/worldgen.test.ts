@@ -54,6 +54,19 @@ describe('procedural ford towns', () => {
     },
   );
 
+  it('QA shortage telemetry counts the full stream after retained events have expired', () => {
+    const t = town(42);
+    const sim = createSim(townContent(baseContent(), t), { scenarioId: t.scenario.id, seed: 42 });
+    let shortages = 0;
+    sim.sink = (e) => {
+      if (e.kind === 'provisions.shortage') shortages++;
+    };
+    runHours(sim, 30 * 24);
+    expect(shortages).toBeGreaterThan(0);
+    expect(sim.world.log.events.filter((e) => e.kind === 'provisions.shortage').length).toBeLessThan(shortages);
+    expect(t.report.playtest?.shortages).toBe(shortages);
+  });
+
   it('repeats scenario bytes, place bytes and 30-day run hash; different seeds differ', () => {
     const a = town(7);
     const b = generateTown(baseContent(), { genVersion: GEN_VERSION, seed: 7 });

@@ -175,7 +175,7 @@ export interface TargetPick {
 }
 
 /** Best-scoring target for a rule (ties by id); null when nobody qualifies. */
-export function pickTarget(m: Mind, t: TargetDef): TargetPick | null {
+export function pickTarget(m: Mind, t: TargetDef, opinions?: Map<ActorId, OpinionDims>): TargetPick | null {
   let best: TargetPick | null = null;
   const consider = (id: ActorId, points: number, label: string) => {
     if (points <= 0) return;
@@ -207,7 +207,11 @@ export function pickTarget(m: Mind, t: TargetDef): TargetPick | null {
     default: {
       const temper = m.actor.values.temper ?? 0;
       for (const id of m.known) {
-        const o = opinionOf(m.world, m.actorId, id);
+        let o = opinions?.get(id);
+        if (!o) {
+          o = opinionOf(m.world, m.actorId, id);
+          opinions?.set(id, o);
+        }
         if (t.pick === 'hostile') {
           const max = (t.affection_max ?? -30) + t.temper_slack * temper;
           if (o.affection <= max) consider(id, max - o.affection + 1, `Affection ${o.affection}`);

@@ -138,6 +138,10 @@ export function checkTown(base: ContentBundle, town: Pick<GeneratedTown, 'scenar
 export function playtestTown(content: ContentBundle, town: GeneratedTown): void {
   try {
     const sim = createSim(content, { scenarioId: town.scenario.id, seed: town.report.recipe.seed });
+    let shortages = 0;
+    sim.sink = (e) => {
+      if (e.kind === 'provisions.shortage') shortages++;
+    };
     runHours(sim, 30 * 24);
     const actors = rowsOf(sim.world.actors);
     const alive = actors.filter((a) => a.alive).length;
@@ -152,7 +156,7 @@ export function playtestTown(content: ContentBundle, town: GeneratedTown): void 
       alive,
       population: actors.length,
       deprived,
-      shortages: sim.world.log.events.filter((e) => e.kind === 'provisions.shortage').length,
+      shortages,
     };
     town.report.qa.push({
       check: '30-day survival',

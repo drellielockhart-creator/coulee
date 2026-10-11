@@ -19,6 +19,7 @@ import type { SimContext } from '../sim/context.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { sampleCandidates } from './encounter.ts';
+import { type MemoryDigest, memoryDigests } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
 import { opinionOf } from './opinion.ts';
 import { ageYears, tuningOf } from './tuning.ts';
@@ -103,9 +104,12 @@ export function proposeSocialUrges(world: World, ctx: SimContext, actorId: Actor
     0,
   );
   const found: Array<UrgeProposal & { _t: number; _i: string }> = [];
+  let digests: Map<ActorId, MemoryDigest> | undefined;
+  const getDigests = () => (digests ??= memoryDigests(world, ctx.content, actorId));
   for (const c of sample.candidates) {
     const pair = makePair(world, ctx, actorId, c.id, actor.placeId, here.length - 1);
     if (!pair) continue;
+    pair.cache.digests = getDigests;
     for (const def of urgeDefs(ctx)) {
       const u = def.urge;
       if (!u || requiresFail(pair, def, 'spontaneous') !== null) continue;

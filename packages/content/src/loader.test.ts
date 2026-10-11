@@ -25,6 +25,14 @@ describe('content loader', () => {
     expect(res.bundle?.meta.hash).toMatch(/^[0-9a-f]{64}$/);
   });
 
+  it.each(['Iron Ford', 'Lantern', 'Ridge Road', 'Main Street'])(
+    'rejects scenario proper noun %s in shared chronicle prose',
+    (name) => {
+      const res = withExtra('chronicle/zz_names.toml', `[[lexicon]]\nid = "probe"\nwords = ["Along ${name}"]\n`);
+      expect(res.issues.some((i) => i.message.includes('scenario proper noun'))).toBe(true);
+    },
+  );
+
   it('rejects unknown fields (strict schemas)', () => {
     const res = withExtra(
       'items/zz_typo.toml',

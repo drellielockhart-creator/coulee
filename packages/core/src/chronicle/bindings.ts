@@ -58,7 +58,13 @@ function person(
 
 export function baseBindings(world: World, content: ContentBundle, o: BaseBindingInput): Bindings {
   const cal = calendarAt(o.t as never);
+  const siteId = world.places[o.place]?.siteId ?? content.scenarios[world.meta.scenarioId]?.site;
+  const site = siteId ? content.sites[siteId] : undefined;
   const out: Bindings = {
+    town: site?.name ?? 'the village',
+    main_street: site?.landmarks?.main_street ?? 'the main street',
+    back_road: site?.landmarks?.back_road ?? 'the back road',
+    creek: site?.landmarks?.creek ?? 'creek',
     date: formatDate(o.t as never),
     weekday: WEEKDAY_NAMES[cal.weekday],
     when: whenPhrase(o.t as never),

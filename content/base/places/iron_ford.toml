@@ -12,6 +12,7 @@
 [[site]]
 id = "iron_ford"
 name = "Iron Ford"
+landmarks = { main_street = "Main Street", back_road = "Ridge Road", creek = "Hasp Creek" }
 description = "A mill village of about 260 at the mouth of Lantern Coulee, where Hasp Creek drops into the river bottoms."
 grid = { w = 64, h = 48 }
 tile_ft = 10

@@ -26,6 +26,7 @@ import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { applyEvidence, colorOpinion, ensureBelief, formula } from './evidence.ts';
 import { clamp, sigmoidPermille, view3 } from './intmath.ts';
+import { indexedBelief } from './lookup.ts';
 import { targetLabel } from './misfortune.ts';
 import type { Belief, Evidence, EvidenceType, Prop, PropArg } from './state.ts';
 import { makeGrudge } from './state.ts';
@@ -102,11 +103,7 @@ export function propText(world: World, content: ContentBundle, propId: PropId): 
 }
 
 export function beliefOf(world: World, holderId: ActorId, propId: PropId): Belief | undefined {
-  for (const id of world.belief.beliefsByHolder[holderId] ?? []) {
-    const b = world.belief.beliefs[id];
-    if (b && b.propId === propId) return b;
-  }
-  return undefined;
+  return indexedBelief(world, holderId, propId);
 }
 
 /** Credence 0..100 that `holderId` gives `propId` (0 if no belief). */

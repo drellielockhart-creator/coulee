@@ -378,9 +378,14 @@ describe('Iron Ford integration', () => {
     expect(Object.values(noBuy.world.provisions.households).some((h) => h.rationPct < 100)).toBe(true);
     expect(findNonIntegers(noBuy.world)).toEqual([]);
     const buying = simFor({ seed: 42 });
+    // Errands must run while the integrated venue service is open.
+    buying.world.time = asGameMinute(9 * 60);
     buying.world.provisions.settings.wages = false;
     for (const store of Object.values(buying.world.provisions.stores)) store.restockId = null;
-    const merchant = Object.values(buying.world.provisions.stores).find((s) => s.creditLimitCents > 0);
+    // Select the grocery venue by role; canonical place IDs need not put it before the mill.
+    const merchant = Object.values(buying.world.provisions.stores).find(
+      (s) => s.creditLimitCents > 0 && buying.world.places[s.placeId]?.tags.includes('store'),
+    );
     if (!merchant) throw new Error('No store');
     const household = Object.values(buying.world.households).find((h) => h.id !== merchant.ownerHouseholdId);
     if (!household) throw new Error('No household');

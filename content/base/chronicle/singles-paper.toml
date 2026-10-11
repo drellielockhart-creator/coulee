@@ -106,7 +106,7 @@ voice = "paper"
 when = { cls = "help" }
 headline = "A Neighborly Act"
 text = [
-  "#paper_pleased# that {actor} {act} {target}{_at} {when}. Neighborliness is not yet extinct on the Lantern.",
+  "#paper_pleased# that {actor} {act} {target}{_at} {when}. Neighborliness is not yet extinct on {creek}.",
   "{^actor} {act} {target}{_at} {when}, and asked nothing for it. We note it for the credit of the place.",
 ]
 

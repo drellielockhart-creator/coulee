@@ -7,6 +7,7 @@ import { addOpinionReason, opinionOf, reasonsOf } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { propText } from './api.ts';
 import { clamp, logitStep, mulQ8, view3 } from './intmath.ts';
+import { indexedBelief } from './lookup.ts';
 import type { Belief, Evidence } from './state.ts';
 
 export function formula(
@@ -35,10 +36,8 @@ export function ensureBelief(
 ): Belief {
   world.belief.beliefsByHolder[holderId] ??= [];
   const ids = world.belief.beliefsByHolder[holderId] ?? [];
-  for (const id of ids) {
-    const b = world.belief.beliefs[id];
-    if (b?.propId === propId) return b;
-  }
+  const existing = indexedBelief(world, holderId, propId);
+  if (existing) return existing;
   const prop = world.belief.props[propId];
   const pred = prop && ctx.content.predicates[prop.pred];
   if (prop && pred) prop.suspicious = pred.supernatural || pred.kind_of !== undefined;

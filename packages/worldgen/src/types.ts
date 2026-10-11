@@ -1,6 +1,6 @@
 import type { PlaceDef, ScenarioDef, SiteDef } from '@coulee/content/schema';
 
-export const GEN_VERSION = 1;
+export const GEN_VERSION = 2;
 export interface TownRecipe {
   genVersion: number;
   seed: number;

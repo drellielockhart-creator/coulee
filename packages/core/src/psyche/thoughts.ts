@@ -12,11 +12,12 @@ import { proposeBeliefUrges } from '../belief/api.ts';
 import type { Command } from '../command.ts';
 import type { ExplainTerm } from '../explain.ts';
 import { sumTerms } from '../explain.ts';
-import { asThoughtId, type ThoughtId } from '../ids.ts';
+import { type ActorId, asThoughtId, type ThoughtId } from '../ids.ts';
 import { proposeNeedUrges } from '../needs/api.ts';
 import { proposeProvisionUrges } from '../provisions/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import { proposeSocialUrges } from '../social/api.ts';
+import type { OpinionDims } from '../social/state.ts';
 import { dayIndex } from '../time.ts';
 import { sameUrge, type Urge, type UrgeProposal, urgeLabel } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -177,11 +178,13 @@ export function fillLine(
 
 /** Psyche's own thought rules for this hour, skipping fallbacks other modules already cover. */
 export function ruleCandidates(m: Mind, external: readonly UrgeProposal[]): Candidate[] {
+  // Scoped to gathering: defenses later in the hour can change opinions.
+  const opinions = new Map<ActorId, OpinionDims>();
   const out: Candidate[] = [];
   for (const id of Object.keys(m.content.thoughts ?? {}).sort()) {
     const rule = m.content.thoughts[id];
     if (!rule) continue;
-    const c = ruleCandidate(m, rule);
+    const c = ruleCandidate(m, rule, opinions);
     if (!c) continue;
     if (rule.fallback) {
       const covered = external.some(
@@ -197,7 +200,7 @@ export function ruleCandidates(m: Mind, external: readonly UrgeProposal[]): Cand
   return out;
 }
 
-function ruleCandidate(m: Mind, rule: ThoughtRuleDef): Candidate | null {
+function ruleCandidate(m: Mind, rule: ThoughtRuleDef, opinions: Map<ActorId, OpinionDims>): Candidate | null {
   const w = evalWhen(m, rule.when);
   if (!w.ok) return null;
   const reasons: ExplainTerm[] = [];
@@ -236,7 +239,7 @@ function ruleCandidate(m: Mind, rule: ThoughtRuleDef): Candidate | null {
   }
   let targetId: Thought['targetId'];
   if (rule.target) {
-    const pick = pickTarget(m, rule.target);
+    const pick = pickTarget(m, rule.target, opinions);
     if (!pick) return null;
     targetId = pick.targetId;
     if (pick.add > 0) {
