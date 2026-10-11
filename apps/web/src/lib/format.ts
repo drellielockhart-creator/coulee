@@ -268,3 +268,74 @@ export function supplyWords(kind: string, units: number): string {
       return `${units} ${kind.replaceAll('_', ' ')}`;
   }
 }
+
+// ---------------------------------------------------------------------------------------
+// Psyche bands (11 §1.5 rung 2) and plain meanings (rung 3). Bands follow 10 §5: the ego
+// modifier table in steps of 20, and anxiety bands of 200 (`band = min(4, floor(a / 200))`).
+// ---------------------------------------------------------------------------------------
+
+export type PsycheStat = 'ego' | 'superego' | 'id' | 'anxiety';
+
+const STAT_BANDS: Record<PsycheStat, readonly [string, string, string, string, string]> = {
+  ego: ['frail', 'shaky', 'steady', 'firm', 'iron'],
+  superego: ['lax', 'easy', 'ordinary', 'strict', 'severe'],
+  id: ['meagre', 'mild', 'ordinary', 'keen', 'ravenous'],
+  anxiety: ['calm', 'uneasy', 'anxious', 'fraught', 'at breaking'],
+};
+
+/** Band word for a psyche number: 0–100 stats in fifths, anxiety (0–1000) in steps of 200. */
+export function psycheBand(stat: PsycheStat, value: number): string {
+  const step = stat === 'anxiety' ? 200 : 20;
+  const i = Math.max(0, Math.min(4, Math.floor(value / step)));
+  return STAT_BANDS[stat][i] as string;
+}
+
+/** What a psyche number does, in one plain sentence (rung 3). */
+export const PSYCHE_MEANING: Record<PsycheStat, string> = {
+  ego: 'Out of 100. How much weight reason gets against the voices in every choice: the share of the reality appraisal added to each option.',
+  superego:
+    'Out of 100. How loudly Conscience speaks: the strength of “ought” thoughts and the unease of ignoring them.',
+  id: 'Out of 100. How loudly Appetite speaks: the strength of “want” thoughts.',
+  anxiety:
+    'Out of 1000, in bands of 200. Nerves wear down composure; high enough, they bring on self-deceptions or a fit. They ease with rest and company.',
+};
+
+/** Opinion axis meanings for the rung-3 line under an opinion. */
+export const OPINION_MEANING: Record<'affection' | 'respect' | 'trust' | 'fear', string> = {
+  affection: 'Affection: how warmly they feel (−100 loathing to +100 devoted).',
+  respect: 'Respect: how highly they rate their worth and standing.',
+  trust: 'Trust: whether they believe their word and dealings.',
+  fear: 'Fear: how much they dread them; high fear silences complaints.',
+};
+
+/**
+ * A relationship label reads about the dossier's owner ("child of"), so it goes before the other
+ * person's name: "child of Augusta Pratt", "courting Tobias Vik". Plain nouns ("friend")
+ * read either way and follow the name.
+ */
+export function tieWords(label: string): { before: string; after: string } {
+  if (/\b(of|by|to|with|for)$/.test(label) || /ing$/.test(label)) return { before: `${label} `, after: '' };
+  return { before: '', after: ` · ${label}` };
+}
+
+/** One plain-words line for an arbitration Explain (11 §1.5): who won, over what, and the main reason. */
+export function arbitrationSummary(e: {
+  label: string;
+  total: number;
+  children?: ReadonlyArray<{ label: string; total: number; outcome: string; note?: string }>;
+}): string {
+  const kids = e.children ?? [];
+  const chosen = kids.find((c) => c.outcome === 'chosen');
+  const rival = kids
+    .filter((c) => c !== chosen)
+    .reduce<(typeof kids)[number] | null>((best, c) => (best === null || c.total > best.total ? c : best), null);
+  const head = rival
+    ? `${e.label} won over ${rival.label.toLowerCase()} by ${e.total - rival.total}`
+    : `${e.label} was the only course considered`;
+  const reasons = [...(chosen?.note ?? '').matchAll(/(?:R )?([+−-]\d+) (.+?)(?=; (?:R )?[+−-]\d+ |$)/g)]
+    .map((m) => ({ v: Number((m[1] ?? '0').replace('−', '-')), text: m[2] ?? '' }))
+    .filter((r) => r.v > 0)
+    .sort((a, b) => b.v - a.v || (a.text < b.text ? -1 : a.text > b.text ? 1 : 0));
+  const top = reasons[0];
+  return top ? `${head}. Mostly: ${top.text.replace(/\.$/, '')} (+${top.v}).` : `${head}.`;
+}

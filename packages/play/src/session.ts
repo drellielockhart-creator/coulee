@@ -16,7 +16,7 @@ import {
 } from '@coulee/core';
 import { GEN_VERSION } from '@coulee/worldgen';
 import { availableActions, validateCommand } from './actions.ts';
-import { alertFor, type Interrupt, provisionsAlert } from './interrupts.ts';
+import { alertForEvent, type Interrupt, perceivedEvents, provisionsAlert } from './interrupts.ts';
 import { packKnowledge, unpackKnowledge } from './knowledge.ts';
 import { eventView, type KnownEvent, knownExplain, type ObservationMode, observation } from './observation.ts';
 import { type SessionSpec, sessionContent, sessionSim } from './source.ts';
@@ -281,65 +281,19 @@ export class PlaySession {
 
     step(this.sim, actual);
     const recent = eventsSince(w.log, lastId);
-    let place = prior;
-    const seen: Event[] = [];
-    for (const e of recent) {
-      if (e.kind === 'activity.moved' && e.data.actorId === pc) place = e.data.to;
-      const role = e.roles.find((r) => r.actor === pc);
-      const own =
-        role &&
-        ((e.visibility !== 'secret' && e.visibility !== 'inner') || role.role === 'agent' || role.role === 'subject');
-      const visible =
-        own ||
-        (e.visibility === 'public' && e.place !== undefined && e.place === place) ||
-        (e.kind === 'activity.moved' &&
-          (e.visibility === 'witnessed' || e.visibility === 'public') &&
-          e.place === place);
-      if (
-        visible &&
-        e.kind !== 'psyche.defense' &&
-        !(e.kind === 'belief.tell' && !e.data.noticed && e.data.targetId !== pc)
-      ) {
-        this.known.push(e.id);
-        if (!['needs.changed', 'core.command', 'provisions.water'].includes(e.kind))
-          this.knowledge.push({
-            ...eventView(e, pc, 'fair'),
-            ...(e.kind === 'belief.transmitted'
-              ? { summary: `${e.data.listenerId === pc ? 'Heard' : 'Told'}: ${belief.propText(w, c, e.data.propId)}` }
-              : {}),
-          });
-        seen.push(e);
-      }
+    // Perception and alert classification are shared with the web worker (ADR 0002 §3).
+    const seen: Event[] = perceivedEvents(recent, pc, prior);
+    for (const e of seen) {
+      this.known.push(e.id);
+      if (!['needs.changed', 'core.command', 'provisions.water'].includes(e.kind))
+        this.knowledge.push({
+          ...eventView(e, pc, 'fair'),
+          ...(e.kind === 'belief.transmitted'
+            ? { summary: `${e.data.listenerId === pc ? 'Heard' : 'Told'}: ${belief.propText(w, c, e.data.propId)}` }
+            : {}),
+        });
     }
-    const alerts = seen.map((e) =>
-      alertFor({
-        id: e.id,
-        kind: e.kind,
-        importance: e.importance,
-        participant: e.roles.some((r) => r.actor === pc && r.role !== 'witness'),
-        addressed: e.kind === 'social.interaction' && e.data.targetId === pc,
-        danger:
-          (String(e.kind) === 'core.actor_died' && e.roles.some((r) => r.actor === pc)) ||
-          (e.kind === 'social.interaction' &&
-            !!c.interactions[e.data.interactionId]?.tags.includes('hostile') &&
-            (e.data.targetId === pc || e.data.initiatorId === pc)),
-        arrival:
-          e.kind === 'activity.moved' && (e.data.actorId === pc || (w.chronicle.notoriety[e.data.actorId] ?? 0) >= 50),
-        worseVital:
-          e.kind === 'needs.band_changed' &&
-          e.data.actorId === pc &&
-          (() => {
-            const def = c.needs[e.data.needId];
-            if (def?.kind !== 'physical') return false;
-            if (e.data.layer === 'debt') {
-              const threshold = (label: string) => def.debt?.bands.find((b) => b.label === label)?.at_least ?? 0;
-              return threshold(e.data.to) > threshold(e.data.from);
-            }
-            const threshold = (label: string) => def.bands.find((b) => b.label === label)?.below ?? 1001;
-            return threshold(e.data.to) < threshold(e.data.from);
-          })(),
-      }),
-    );
+    const alerts = seen.map((e) => alertForEvent(w, c, pc, e));
     const after = provisions.readinessOf(w, c, { actorId: pc }, w.time);
     const foodAlert = provisionsAlert(
       before.daysOfFoodTenths,

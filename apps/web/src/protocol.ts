@@ -30,8 +30,51 @@ export type ItemCatalog = ContentBundle['items'];
 
 /** What the player can ask for through `core.urge` (labels only; the sim decides). */
 export interface ActionCatalog {
-  activities: Array<{ id: string; name: string; verb: string; at: string; venue_tags: string[] }>;
+  activities: Array<{
+    id: string;
+    name: string;
+    verb: string;
+    at: string;
+    venue_tags: string[];
+    /** Content flag: the actor sleeps through it (the map draws them indoors, not standing). */
+    asleep: boolean;
+  }>;
   interactions: Array<{ id: string; name: string; label: string; description: string }>;
+}
+
+/**
+ * A snapshot after the first is a patch (11 §5.4 "only changed view models are posted"): actors
+ * and places by id, other slices whole when they changed. Unchanged slices keep their object
+ * identity on the UI thread, so memoized panels and the renderer skip them.
+ */
+export interface VmPatch {
+  time: ViewModel['time'];
+  playerId: ViewModel['playerId'];
+  eventCount: number;
+  /** Full id order of the actors in view (perspective can add or drop people). */
+  actorIds: number[];
+  actors: ViewModel['actors'];
+  placeIds: number[];
+  places: ViewModel['places'];
+  scenario?: ViewModel['scenario'];
+  seed?: number;
+  site?: ViewModel['site'];
+  households?: ViewModel['households'];
+  chronicle?: ViewModel['chronicle'];
+  belief?: ViewModel['belief'];
+}
+
+/**
+ * An auto-pause (11 §1.6) raised by the shared @coulee/play interrupt policy (ADR 0002 §3) on
+ * an event the PC perceived. `text` is display copy built in the worker.
+ */
+export interface Alert {
+  category: string;
+  reason: string;
+  text: string;
+  score: number;
+  eventId?: number;
+  t: number;
 }
 
 export type ToWorker =
@@ -53,13 +96,24 @@ export type FromWorker =
     }
   | {
       type: 'snapshot';
-      vm: ViewModel;
+      /** A full view model (first snapshot, or after the view options change)... */
+      vm?: ViewModel;
+      /** ...or the slices that changed since the last snapshot. */
+      patch?: VmPatch;
       hash: string | null;
       stepMs: number;
       /** Commands queued for the next step (shown as "orders given"). */
       pending: number;
       /** Hours the worker actually stepped for this snapshot (0 = view refresh only). */
       stepped: number;
+      /** Auto-pauses raised during this step; the worker has already stopped the clock. */
+      alerts?: Alert[];
     }
+  /**
+   * Display-only progress through the current game-hour (≈4 Hz while running). The sim steps
+   * hourly; this lets the strip show minutes passing and when the next order applies. It never
+   * feeds back into a Command (11 §1.7).
+   */
+  | { type: 'progress'; t: number; frac: number }
   | { type: 'query_result'; id: number; result: QueryResult }
   | { type: 'error'; message: string };

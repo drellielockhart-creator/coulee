@@ -1,26 +1,39 @@
-import type { ActorView } from '@coulee/core';
-import { useEffect, useRef, useState } from 'react';
+import type { ActorView, ViewModel } from '@coulee/core';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { ActPanel } from './components/ActPanel.tsx';
+import { Book } from './components/Book.tsx';
 import { actorById, placeName, SimCtx, useSimCtx, useVm } from './components/ctx.ts';
 import { KnownTab } from './components/dossier/KnownTab.tsx';
 import { MindTab } from './components/dossier/MindTab.tsx';
 import { NeedsTab } from './components/dossier/NeedsTab.tsx';
 import { OpinionsTab } from './components/dossier/OpinionsTab.tsx';
 import { KitSheet } from './components/KitSheet.tsx';
+import { ActorPeek, PlaceCard, StackChooser } from './components/Peek.tsx';
+import { Settings } from './components/Settings.tsx';
+import { Drawer, Sheet } from './components/Sheet.tsx';
 import { SiteMap } from './components/SiteMap.tsx';
 import { Empty, Tabs } from './components/ui.tsx';
-import { cmd } from './lib/commands.ts';
-import { clockGlyph, clockGlyphTitle, effectiveSpeed, SPEED_LABEL } from './lib/timePolicy.ts';
-import { useLayout } from './lib/useLayout.ts';
-import { SPEED_ORDER } from './protocol.ts';
+import { type Baseline, baselineOf, digestLine } from './lib/digest.ts';
+import {
+  clockGlyph,
+  clockGlyphTitle,
+  displayMinute,
+  effectiveSpeed,
+  SPEED_LABEL,
+  secondsToNextHour,
+} from './lib/timePolicy.ts';
+import { type Layout, useLayout } from './lib/useLayout.ts';
+import { SPEED_ORDER, type Speed } from './protocol.ts';
 import { type DossierTab, useUi } from './state/ui.ts';
-import { useSim } from './useSim.ts';
+import { useProgress, useSim } from './useSim.ts';
 
+/** Short labels so the tab strip is one row at 360 px (11 §2.3: Mind · Body · Of you · Known · Pack). */
 const TABS: { id: DossierTab; label: string }[] = [
   { id: 'mind', label: 'Mind' },
-  { id: 'needs', label: 'Needs' },
-  { id: 'opinions', label: 'Opinions' },
-  { id: 'known', label: 'Memories & Beliefs' },
-  { id: 'pack', label: 'Pack / Pantry' },
+  { id: 'needs', label: 'Body' },
+  { id: 'opinions', label: 'Ties' },
+  { id: 'known', label: 'Known' },
+  { id: 'pack', label: 'Pack' },
 ];
 
 export function App() {
@@ -46,6 +59,37 @@ export function App() {
   );
 }
 
+function panelTitle(
+  vm: ViewModel,
+  panel: string,
+  selected: ActorView | null,
+  place: number | null,
+  book: number | null,
+) {
+  switch (panel) {
+    case 'dossier':
+      return selected?.name ?? 'Dossier';
+    case 'chronicle':
+      return 'Chronicle';
+    case 'people':
+      return `People of ${vm.site?.name ?? vm.scenario.name}`;
+    case 'pack':
+      return 'Your provisions';
+    case 'place':
+      return placeName(vm, place);
+    case 'book':
+      return `${placeName(vm, book)}: the Book`;
+    case 'act':
+      return 'Give an order';
+    case 'settings':
+      return 'Settings';
+    case 'stack':
+      return 'Who do you mean?';
+    default:
+      return 'Places & people';
+  }
+}
+
 function Settlement() {
   const sim = useSimCtx();
   const vm = useVm();
@@ -54,12 +98,14 @@ function Settlement() {
   const [hidden, setHidden] = useState(document.hidden);
   const player = actorById(vm, vm.playerId);
   const selected = actorById(vm, ui.selectedActor) ?? player ?? vm.actors[0] ?? null;
+  const alerted = sim.alerts.length > 0;
   const speed = effectiveSpeed({
     chosen: ui.chosenSpeed,
     sheet: ui.sheet,
     pinned: ui.pinned,
     hidden,
-    desk: layout === 'desk',
+    // Folio and Desk keep the map beside the panels: panels never slow the world there.
+    desk: layout !== 'pocket',
   });
   useEffect(() => {
     const visibility = () => setHidden(document.hidden);
@@ -71,22 +117,26 @@ function Settlement() {
     () => sim.setView({ omniscient: ui.godView, perspective: ui.godView ? null : vm.playerId }),
     [sim.setView, ui.godView, vm.playerId],
   );
-  const panelTitle =
-    ui.panel === 'dossier'
-      ? (selected?.name ?? 'Dossier')
-      : ui.panel === 'chronicle'
-        ? 'Chronicle'
-        : ui.panel === 'people'
-          ? 'People of Iron Ford'
-          : ui.panel === 'pack'
-            ? 'Your provisions'
-            : ui.panel === 'place'
-              ? placeName(vm, ui.selectedPlace)
-              : 'Surroundings';
+  // The worker already stopped the clock on an alert; mirror it in the chosen speed (`❚❚!`).
+  useEffect(() => {
+    if (sim.alerts.length > 0) useUi.getState().setSpeed('paused');
+  }, [sim.alerts]);
+  const chooseSpeed = (s: Speed) => {
+    sim.clearAlerts();
+    ui.setSpeed(s);
+  };
+  const digest = useDigest(vm, hidden, layout === 'pocket' && ui.sheet === 'full');
+
+  const title = panelTitle(vm, ui.panel, selected, ui.selectedPlace, ui.bookPlace);
+  const pocketPeek = layout === 'pocket' && ui.sheet === 'peek';
   const body =
     ui.panel === 'dossier' ? (
       selected ? (
-        <Dossier actor={selected} />
+        pocketPeek ? (
+          <ActorPeek actor={selected} />
+        ) : (
+          <Dossier actor={selected} summary={layout !== 'pocket'} />
+        )
       ) : (
         <Empty>No character selected.</Empty>
       )
@@ -100,32 +150,66 @@ function Settlement() {
       ) : (
         <Empty>No player character in this scenario.</Empty>
       )
+    ) : ui.panel === 'place' && ui.selectedPlace !== null ? (
+      <PlaceCard placeId={ui.selectedPlace} />
+    ) : ui.panel === 'book' ? (
+      <Book placeId={ui.bookPlace} />
+    ) : ui.panel === 'act' ? (
+      <ActPanel />
+    ) : ui.panel === 'settings' ? (
+      <Settings />
+    ) : ui.panel === 'stack' ? (
+      <StackChooser ids={ui.stack} />
     ) : (
       <Surroundings />
     );
+  const subtitle =
+    ui.panel === 'dossier' && selected && !pocketPeek ? (
+      <>
+        {selected.age} · {selected.occupation} · {selected.activity.verb} · {placeName(vm, selected.placeId)}
+      </>
+    ) : null;
   return (
-    <main className={`screen settlement ${layout}`} data-testid="settlement">
+    <main className={`screen settlement ${layout}`} data-testid="settlement" data-layout={layout}>
       <header className="masthead">
-        <div>
-          <h1>Coulee</h1>
+        <div className="title">
+          <h1>{vm.site?.name ?? vm.scenario.name}</h1>
           <span className="sub">Hollin County · Wisconsin</span>
         </div>
         <div className="date">
           <strong>{vm.time.dateText}</strong>
-          <span data-testid="clock" data-time={vm.time.t}>
-            {String(vm.time.hour).padStart(2, '0')}:{String(vm.time.minute).padStart(2, '0')}{' '}
-            <span className="clock-policy" title={clockGlyphTitle(ui.chosenSpeed, speed)}>
-              {clockGlyph(ui.chosenSpeed, speed)}
-            </span>
-          </span>
+          <Clock vm={vm} chosen={ui.chosenSpeed} effective={speed} alerted={alerted} />
         </div>
         <span className="status">
-          {vm.actors.length} souls · {vm.time.moon.replaceAll('_', ' ')} moon
+          {vm.actors.length} in view · {vm.time.moon.replaceAll('_', ' ')} moon
         </span>
+        <button type="button" className="icon settings-btn" aria-label="Settings" onClick={() => ui.open('settings')}>
+          ⚙
+        </button>
       </header>
       <div className="workspace">
         <div className="map-column">
           <SiteMap speed={speed} />
+          <div className="dispatches">
+            {alerted ? (
+              <div className="dispatch alert" role="alert">
+                <span>
+                  <strong>❚❚! Paused:</strong> {sim.alerts.map((a) => a.text).join(' · ')}
+                </span>
+                <button type="button" onClick={() => sim.clearAlerts()}>
+                  OK
+                </button>
+              </div>
+            ) : null}
+            {digest.line ? (
+              <div className="dispatch digest" role="status" data-testid="digest">
+                <span>{digest.line}</span>
+                <button type="button" onClick={digest.dismiss}>
+                  OK
+                </button>
+              </div>
+            ) : null}
+          </div>
           {layout === 'desk' ? (
             <section className="paper chronicle-dock">
               <h2>Chronicle</h2>
@@ -136,17 +220,21 @@ function Settlement() {
         {layout === 'desk' ? (
           <>
             <section className="paper inspector">
-              <h2>{ui.panel === 'none' ? (selected?.name ?? 'People') : panelTitle}</h2>
-              {ui.panel === 'none' ? selected ? <Dossier actor={selected} /> : <People /> : body}
+              <h2>{ui.panel === 'none' ? (selected?.name ?? 'People') : title}</h2>
+              {ui.panel === 'none' ? selected ? <Dossier actor={selected} summary /> : <People /> : body}
             </section>
             <aside className="paper kit-dock">
               <h2>Provisions</h2>
               {player ? <KitSheet actor={player} /> : <Empty>No kit recorded.</Empty>}
             </aside>
           </>
-        ) : ui.panel !== 'none' ? (
-          <Sheet title={panelTitle}>{body}</Sheet>
-        ) : null}
+        ) : ui.panel === 'none' ? null : layout === 'folio' ? (
+          <Drawer title={title}>{body}</Drawer>
+        ) : (
+          <Sheet title={title} subtitle={subtitle}>
+            {body}
+          </Sheet>
+        )}
       </div>
       <footer className="bottom-bar">
         <fieldset className="time-controls" aria-label="Time controls">
@@ -154,96 +242,141 @@ function Settlement() {
             <button
               key={s}
               type="button"
+              className="speed"
               aria-label={s === 'paused' ? 'Pause' : s === 'ultra' ? 'Ultra' : `${SPEED_LABEL[s]} speed`}
               aria-pressed={ui.chosenSpeed === s}
-              onClick={() => ui.setSpeed(s)}
+              onClick={() => chooseSpeed(s)}
             >
               {s === 'ultra' ? 'Ultra' : SPEED_LABEL[s]}
             </button>
           ))}
-          <button type="button" onClick={() => sim.send({ type: 'step', hours: 1 })}>
+          <button
+            type="button"
+            onClick={() => {
+              sim.clearAlerts();
+              sim.send({ type: 'step', hours: 1 });
+            }}
+          >
             +1h
           </button>
         </fieldset>
         <nav className="rail" aria-label="Settlement panels">
-          <button type="button" onClick={() => ui.open('people')}>
-            People
-          </button>
-          <button type="button" onClick={() => ui.open('chronicle')}>
-            Chronicle
-          </button>
+          <RailButton panel="act" label="Act" layout={layout} />
+          <RailButton panel="map" label="Places" layout={layout} />
+          <RailButton panel="people" label="People" layout={layout} />
+          <RailButton panel="chronicle" label="Chronicle" layout={layout} />
           <button
             type="button"
-            onClick={() => {
-              ui.close();
-              if (layout === 'desk') ui.open('map');
-            }}
+            aria-current={ui.panel === 'dossier' && ui.dossierTab === 'pack' && selected?.isPlayer ? 'true' : undefined}
+            onClick={() => (player ? ui.selectActor(player.id, { tab: 'pack', sheet: 'half' }) : ui.open('pack'))}
           >
-            Map
-          </button>
-          <button type="button" onClick={() => (player ? ui.selectActor(player.id, { tab: 'pack' }) : ui.open('pack'))}>
             Pack
           </button>
         </nav>
-        <span className="orders" role="status">
-          {sim.pending > 0
-            ? `${sim.pending} order${sim.pending === 1 ? '' : 's'} awaiting the hour`
-            : 'Orders apply on the next hour'}
-        </span>
+        <OrdersLine pending={sim.pending} effective={speed} chosen={ui.chosenSpeed} alerted={alerted} />
       </footer>
     </main>
   );
 }
 
-function Sheet({ title, children }: { title: string; children: React.ReactNode }) {
+function RailButton({
+  panel,
+  label,
+  layout,
+}: {
+  panel: 'act' | 'map' | 'people' | 'chronicle';
+  label: string;
+  layout: Layout;
+}) {
   const ui = useUi();
-  const ref = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
-    ref.current?.focus();
-    return () => previous?.focus();
-  }, []);
+  const on = ui.panel === panel;
   return (
-    <section
-      ref={ref}
-      tabIndex={-1}
-      className={`paper sheet sheet-${ui.sheet}`}
-      role="dialog"
-      aria-label={title}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') ui.close();
-      }}
+    <button
+      type="button"
+      aria-current={on ? 'true' : undefined}
+      onClick={() => (on && layout !== 'desk' ? ui.close() : ui.open(panel, layout === 'pocket' ? 'half' : undefined))}
     >
-      <header className="sheet-head">
-        <h2>{title}</h2>
-        <div className="sheet-controls">
-          <button type="button" onClick={() => ui.setSheet(ui.sheet === 'full' ? 'half' : 'full')}>
-            {ui.sheet === 'full' ? 'Half' : 'Expand'}
-          </button>
-          {ui.sheet === 'full' ? (
-            <button type="button" aria-pressed={ui.pinned} onClick={() => ui.setPinned(!ui.pinned)}>
-              Keep running
-            </button>
-          ) : null}
-          <button type="button" aria-label="Close sheet" onClick={() => ui.close()}>
-            Close
-          </button>
-        </div>
-      </header>
-      <div className="sheet-body">{children}</div>
-    </section>
+      {label}
+    </button>
   );
 }
 
-export function Dossier({ actor }: { actor: ActorView }) {
+/** HH:MM with display-only minutes through the hour (11 §1.4), plus the policy glyph. */
+function Clock(props: { vm: ViewModel; chosen: Speed; effective: Speed; alerted: boolean }) {
+  const frac = useProgress((s) => s.frac);
+  const { vm } = props;
+  const minute = displayMinute(vm.time.minute, frac);
+  return (
+    <span className="clock" data-testid="clock" data-time={vm.time.t}>
+      {String(vm.time.hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}{' '}
+      <span className="clock-policy" aria-hidden="true">
+        {clockGlyph(props.chosen, props.effective, props.alerted)}
+      </span>
+      <span className="visually-hidden">{clockGlyphTitle(props.chosen, props.effective, props.alerted)}</span>
+    </span>
+  );
+}
+
+/** The status line under the rail: when the next order lands, and which time policy is in force. */
+function OrdersLine(props: { pending: number; effective: Speed; chosen: Speed; alerted: boolean }) {
+  const frac = useProgress((s) => s.frac);
+  const secs = secondsToNextHour(props.effective, frac);
+  const when = secs === null ? 'when the clock runs (▶ or +1h)' : `in ~${secs} s`;
+  const policy =
+    props.chosen !== 'paused' && props.effective !== props.chosen
+      ? ` · ${clockGlyphTitle(props.chosen, props.effective)}`
+      : '';
+  const text = props.alerted
+    ? 'Paused: something needs you'
+    : props.pending > 0
+      ? `${props.pending} order${props.pending === 1 ? '' : 's'} apply ${when}`
+      : `Orders apply on the next hour, ${when}`;
+  return (
+    <span className="orders" role="status">
+      {text}
+      {policy}
+    </span>
+  );
+}
+
+/**
+ * Baseline when the map goes out of sight; a one-line digest when it comes back (11 §1.3).
+ * Cheap: two small objects and one pass over the PC's own view.
+ */
+function useDigest(vm: ViewModel, hidden: boolean, covered: boolean): { line: string | null; dismiss: () => void } {
+  const latest = useRef(vm);
+  latest.current = vm;
+  const base = useRef<Baseline | null>(null);
+  const wasHidden = useRef(false);
+  const [line, setLine] = useState<string | null>(null);
+  const away = hidden || covered;
+  useEffect(() => {
+    const now = latest.current;
+    if (away) {
+      base.current ??= baselineOf(now);
+      if (hidden) wasHidden.current = true;
+      setLine(null);
+    } else if (base.current) {
+      // Closing a full sheet with the clock stopped changes nothing worth a card.
+      const moved = now.time.t !== base.current.t;
+      setLine(moved || wasHidden.current ? digestLine(base.current, now, (id) => placeName(now, id)) : null);
+      base.current = null;
+      wasHidden.current = false;
+    }
+  }, [away, hidden]);
+  return { line, dismiss: () => setLine(null) };
+}
+
+export function Dossier({ actor, summary = true }: { actor: ActorView; summary?: boolean }) {
   const ui = useUi();
+  const vm = useVm();
   return (
     <div className="dossier" data-testid="dossier">
-      <p className="dossier-summary">
-        {actor.age} · {actor.occupation} · {actor.activity.verb}
-        <br />
-        {placeName(useVm(), actor.placeId)}
-      </p>
+      {summary ? (
+        <p className="dossier-summary">
+          {actor.age} · {actor.occupation} · {actor.activity.verb} · {placeName(vm, actor.placeId)}
+        </p>
+      ) : null}
       <Tabs tabs={TABS} value={ui.dossierTab} onChange={ui.setTab} label="Dossier tabs" />
       <div className="tab-content" role="tabpanel" aria-label={TABS.find((t) => t.id === ui.dossierTab)?.label}>
         {ui.dossierTab === 'mind' ? (
@@ -258,7 +391,6 @@ export function Dossier({ actor }: { actor: ActorView }) {
           <KitSheet actor={actor} />
         )}
       </div>
-      <Actions target={actor} />
     </div>
   );
 }
@@ -266,63 +398,92 @@ export function Dossier({ actor }: { actor: ActorView }) {
 export function People() {
   const vm = useVm();
   const ui = useUi();
+  const [q, setQ] = useState('');
+  const needle = q.trim().toLowerCase();
+  const list = [...vm.actors]
+    .filter(
+      (a) =>
+        needle === '' ||
+        a.name.toLowerCase().includes(needle) ||
+        a.occupation.toLowerCase().includes(needle) ||
+        placeName(vm, a.placeId).toLowerCase().includes(needle),
+    )
+    .sort((a, b) => Number(b.isPlayer) - Number(a.isPlayer) || a.id - b.id);
   return (
     <div className="people">
-      <div className="preferences">
-        <label>
-          Mind labels
-          <select
-            value={ui.labelSet}
-            onChange={(e) => ui.setLabelSet(e.target.value === 'clinical' ? 'clinical' : 'period')}
-          >
-            <option value="period">Period</option>
-            <option value="clinical">Clinical</option>
-          </select>
-        </label>
-        <button type="button" aria-pressed={ui.godView} onClick={() => ui.setGodView(!ui.godView)}>
-          God view {ui.godView ? 'on' : 'off'}
-        </button>
-      </div>
+      <label className="field search">
+        <span className="visually-hidden">Find someone</span>
+        <input
+          type="search"
+          placeholder="Find by name, trade or place"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+      </label>
       {vm.actors.length === 0 ? (
         <Empty>No people recorded yet.</Empty>
+      ) : list.length === 0 ? (
+        <Empty>No one matches “{q}”.</Empty>
       ) : (
         <ul className="people-list">
-          {[...vm.actors]
-            .sort((a, b) => Number(b.isPlayer) - Number(a.isPlayer) || a.id - b.id)
-            .map((a) => (
-              <li key={a.id}>
-                <button type="button" data-player={a.isPlayer} onClick={() => ui.selectActor(a.id)}>
-                  <strong>
-                    {a.name}
-                    {a.isPlayer ? ' · you' : ''}
-                  </strong>
-                  <span>
-                    {a.occupation} · {a.activity.verb}
-                  </span>
-                  <small>{placeName(vm, a.placeId)}</small>
-                </button>
-              </li>
-            ))}
+          {list.map((a) => (
+            <li key={a.id}>
+              <button type="button" data-player={a.isPlayer} onClick={() => ui.selectActor(a.id)}>
+                <strong>
+                  {a.name}
+                  {a.isPlayer ? ' · you' : ''}
+                </strong>
+                <span>
+                  {a.occupation} · {a.activity.verb}
+                </span>
+                <small>{placeName(vm, a.placeId)}</small>
+              </button>
+            </li>
+          ))}
         </ul>
       )}
+      {!ui.godView ? (
+        <p className="hint">You know the folk who share your place; others appear as you meet them.</p>
+      ) : null}
     </div>
   );
 }
 
 export function Chronicle() {
   const vm = useVm();
+  const log = useUi((s) => s.godViewLog);
+  const tag: ReactNode =
+    log.length > 0 ? (
+      <p className="warn god-tag" role="note">
+        ◈ God view was used this session (first at {stampOf(log[0] ?? 0)}). Entries since may include what your
+        character could not know.
+      </p>
+    ) : null;
   return vm.chronicle.recent.length === 0 ? (
-    <Empty>The ledger is quiet. Advance an hour to begin its account.</Empty>
+    <>
+      {tag}
+      <Empty>The ledger is quiet. Advance an hour to begin its account.</Empty>
+    </>
   ) : (
-    <ol className="chronicle">
-      {vm.chronicle.recent
-        .slice(-30)
-        .reverse()
-        .map((e) => (
-          <li key={e.id}>{e.text}</li>
-        ))}
-    </ol>
+    <>
+      {tag}
+      <ol className="chronicle">
+        {vm.chronicle.recent
+          .slice(-30)
+          .reverse()
+          .map((e) => (
+            <li key={e.id}>{e.text}</li>
+          ))}
+      </ol>
+    </>
   );
+}
+
+/** Game minutes -> "Day 2, 14:00" (display only). */
+function stampOf(t: number): string {
+  const day = Math.floor(t / 1440) + 1;
+  const m = t % 1440;
+  return `day ${day}, ${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 }
 
 function Surroundings() {
@@ -330,84 +491,25 @@ function Surroundings() {
   const ui = useUi();
   return (
     <div className="surroundings">
-      <h3>Places & people</h3>
       <ul className="people-list">
         {vm.places
-          .filter((p) => ui.selectedPlace === null || ui.panel === 'map' || p.id === ui.selectedPlace)
-          .map((p) => (
-            <li key={p.id}>
-              <strong>{p.name}</strong>
-              <p>
-                {p.kind} · {p.activity.occupantIds.length} present
-              </p>
-              {vm.actors
-                .filter((a) => a.placeId === p.id)
-                .map((a) => (
-                  <button type="button" key={a.id} onClick={() => ui.selectActor(a.id)}>
-                    {a.name} · {a.activity.verb}
-                  </button>
-                ))}
-            </li>
-          ))}
+          .filter((p) => p.kind !== 'road' && p.kind !== 'wild')
+          .map((p) => {
+            const here = vm.actors.filter((a) => a.placeId === p.id);
+            return (
+              <li key={p.id}>
+                <button type="button" className="place-row" onClick={() => ui.selectPlace(p.id)}>
+                  <strong>{p.name}</strong>
+                  <span>
+                    {p.kind}
+                    {p.provisions.stock !== null ? ' · store' : ''}
+                    {here.length > 0 ? ` · ${here.map((a) => a.shortName).join(', ')}` : ''}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
       </ul>
     </div>
-  );
-}
-
-function Actions({ target }: { target: ActorView }) {
-  const sim = useSimCtx();
-  const vm = useVm();
-  const [activity, setActivity] = useState('');
-  const [interaction, setInteraction] = useState('');
-  if (vm.playerId === null) return null;
-  return (
-    <details className="act">
-      <summary>Give an order</summary>
-      <p className="hint">Your character weighs orders alongside appetite and conscience.</p>
-      <label className="field">
-        Activity
-        <select value={activity} onChange={(e) => setActivity(e.target.value)}>
-          <option value="">Choose an activity</option>
-          {sim.actions.activities.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button
-        type="button"
-        disabled={!activity}
-        onClick={() => {
-          if (vm.playerId !== null) sim.command(cmd.doActivity(vm.playerId, activity));
-        }}
-      >
-        Request activity
-      </button>
-      {target.id !== vm.playerId ? (
-        <>
-          <label className="field">
-            Interaction with {target.shortName}
-            <select value={interaction} onChange={(e) => setInteraction(e.target.value)}>
-              <option value="">Choose an interaction</option>
-              {sim.actions.interactions.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            disabled={!interaction}
-            onClick={() => {
-              if (vm.playerId !== null) sim.command(cmd.interact(vm.playerId, interaction, target.id));
-            }}
-          >
-            Request interaction
-          </button>
-        </>
-      ) : null}
-    </details>
   );
 }

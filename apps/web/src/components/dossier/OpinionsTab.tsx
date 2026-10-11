@@ -3,17 +3,27 @@
  * Four axes as diverging bars with band words, reasons listed with their deltas.
  */
 import type { ActorView } from '@coulee/core';
-import { opinionBand, signed } from '../../lib/format.ts';
+import { useState } from 'react';
+import { OPINION_MEANING, opinionBand, signed, tieWords } from '../../lib/format.ts';
 import { useUi } from '../../state/ui.ts';
 import { useVm } from '../ctx.ts';
 import { Bar, Empty, SectionHead } from '../ui.tsx';
 
 const AXES = ['affection', 'respect', 'trust', 'fear'] as const;
 
+/** Fear reads on its own scale: a high number is dread, not warmth. Display only. */
+function fearBand(v: number): string {
+  if (v >= 60) return 'Terrified';
+  if (v >= 20) return 'Afraid';
+  return 'Unafraid';
+}
+
 export function OpinionsTab(props: { actor: ActorView }) {
   const vm = useVm();
   const selectActor = useUi((s) => s.selectActor);
   const a = props.actor;
+  /** Rung 3: tap an opinion's axes to read what each one means (touch has no hover). */
+  const [explained, setExplained] = useState<number | null>(null);
   const ops = [...a.social.opinions].sort(
     (x, y) =>
       (y.targetId === vm.playerId ? 1 : 0) - (x.targetId === vm.playerId ? 1 : 0) ||
@@ -26,14 +36,19 @@ export function OpinionsTab(props: { actor: ActorView }) {
         <>
           <SectionHead>Ties</SectionHead>
           <ul className="ties">
-            {a.social.relationships.map((r) => (
-              <li key={`${r.otherId}-${r.label}`}>
-                <button type="button" className="link" onClick={() => selectActor(r.otherId)}>
-                  {r.otherName}
-                </button>{' '}
-                <span className="sub">{r.label}</span>
-              </li>
-            ))}
+            {a.social.relationships.map((r) => {
+              // The label describes this dossier's owner: "child of Augusta Pratt", not "Augusta … child of".
+              const w = tieWords(r.label);
+              return (
+                <li key={`${r.otherId}-${r.label}`}>
+                  {w.before ? <span className="sub">{w.before}</span> : null}
+                  <button type="button" className="link" onClick={() => selectActor(r.otherId)}>
+                    {r.otherName}
+                  </button>
+                  {w.after ? <span className="sub">{w.after}</span> : null}
+                </li>
+              );
+            })}
           </ul>
         </>
       ) : null}
@@ -49,17 +64,34 @@ export function OpinionsTab(props: { actor: ActorView }) {
               </button>
               {o.label ? <span className="chip">{o.label}</span> : null}
             </header>
-            <div className="axes">
+            <button
+              type="button"
+              className="axes"
+              aria-expanded={explained === o.targetId}
+              aria-label={`Opinion of ${o.targetName}: tap for what each line means`}
+              onClick={() => setExplained(explained === o.targetId ? null : o.targetId)}
+            >
               {AXES.map((ax) => (
-                <div key={ax} className="axis">
+                <span key={ax} className="axis">
                   <span className="k">{ax[0]?.toUpperCase() + ax.slice(1)}</span>
                   <Bar value={o[ax]} min={-100} max={100} diverging label={`${ax} ${o[ax]}`} />
-                  <span className="v" title={opinionBand(o[ax])}>
-                    {signed(o[ax])}
+                  <span className="axis-v">
+                    {signed(o[ax])} <span className="band">{ax === 'fear' ? fearBand(o[ax]) : opinionBand(o[ax])}</span>
                   </span>
-                </div>
+                </span>
               ))}
-            </div>
+            </button>
+            {explained === o.targetId ? (
+              <ul className="axis-meaning" role="note">
+                {AXES.map((ax) => (
+                  <li key={ax}>{OPINION_MEANING[ax]}</li>
+                ))}
+                <li>
+                  Each runs −100 to +100. The words are bands: Cold, Wary, Neutral, Warm, Devoted (fear: Unafraid,
+                  Afraid, Terrified).
+                </li>
+              </ul>
+            ) : null}
             {o.reasons.length > 0 ? (
               <ul className="reasons">
                 {o.reasons.map((r, i) => (

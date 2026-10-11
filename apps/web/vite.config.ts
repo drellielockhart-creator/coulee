@@ -9,7 +9,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: { enabled: false },
-      includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png'],
+      // The glob below already precaches the icons; listing them here again duplicated entries.
       manifest: {
         name: 'Coulee',
         short_name: 'Coulee',
@@ -26,6 +26,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,webp,json,glb,woff2}'],
+        // Blender QA previews (tools/blender) ship in public/ but nothing in the app loads them.
+        globIgnores: ['assets/previews/**'],
         maximumFileSizeToCacheInBytes: 16 * 1024 * 1024,
       },
     }),

@@ -1,7 +1,8 @@
 import type { ActorView, items, provisions } from '@coulee/core';
 import { useState } from 'react';
 import { cmd } from '../lib/commands.ts';
-import { money } from '../lib/format.ts';
+import { bulk, money, weight } from '../lib/format.ts';
+import { useUi } from '../state/ui.ts';
 import { useReadiness } from '../useSim.ts';
 import { useSimCtx, useVm } from './ctx.ts';
 import { Empty, Row, SectionHead } from './ui.tsx';
@@ -97,8 +98,8 @@ export function KitSheet({ actor }: { actor: ActorView }) {
         <p>{household?.name}</p>
       ) : (
         <>
-          <Row k="Carried weight" v={`${(actor.items.totalWeightG / 1000).toFixed(2)} kg`} />
-          <Row k="Bulk" v={(actor.items.totalBulkTenths / 10).toFixed(1)} />
+          <Row k="Carried weight" v={weight(actor.items.totalWeightG)} />
+          <Row k="Bulk" v={bulk(actor.items.totalBulkTenths)} />
           <Row k="Load" v={actor.items.loadBand} />
         </>
       )}
@@ -143,40 +144,33 @@ export function KitSheet({ actor }: { actor: ActorView }) {
               <option value={125}>Extra · 125%</option>
             </select>
           </label>
-          <SectionHead>The store’s Book</SectionHead>
-          <Row k="Purse" v={money(actor.provisions.purseCents)} />
-          {vm.places
-            .filter((p) => p.provisions.stock !== null)
-            .map((p) => (
-              <section key={p.id} className="stock">
-                <h4>{p.name}</h4>
-                {p.provisions.stock?.length === 0 ? (
-                  <Empty>No stock listed.</Empty>
-                ) : (
-                  p.provisions.stock?.map((s) => (
-                    <div className="stock-line" key={s.itemId}>
-                      <span>
-                        {s.name}
-                        <small>
-                          {money(s.priceCents)} · {s.qty} in stock
-                        </small>
-                      </span>
-                      <button type="button" onClick={() => sim.command(cmd.buy(actor.id, p.id, s.defId, 1, false))}>
-                        Buy one
-                      </button>
-                      <button type="button" onClick={() => sim.command(cmd.buy(actor.id, p.id, s.defId, 1, true))}>
-                        On credit
-                      </button>
-                    </div>
-                  ))
-                )}
-              </section>
-            ))}
+          <StoreBooks purseCents={actor.provisions.purseCents} />
         </>
       ) : (
         <p className="hint">Orders are given through your own character.</p>
       )}
     </div>
+  );
+}
+
+/** The Book lives in its own panel (11 §2.6); the Kit Sheet only points to the stores. */
+function StoreBooks({ purseCents }: { purseCents: number }) {
+  const vm = useVm();
+  const openBook = useUi((s) => s.openBook);
+  const stores = vm.places.filter((p) => p.provisions.stock !== null);
+  if (stores.length === 0) return null;
+  return (
+    <>
+      <SectionHead>The store here</SectionHead>
+      <Row k="Purse" v={money(purseCents)} />
+      <div className="store-links">
+        {stores.map((p) => (
+          <button type="button" key={p.id} onClick={() => openBook(p.id)}>
+            {p.name}: the Book
+          </button>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -197,7 +191,7 @@ function StackLine({
     <li className="stack" style={{ paddingLeft: `${Math.min(s.depth, 4) * 10}px` }}>
       <strong>{s.name}</strong>
       <span className="meta">
-        {s.qty} {s.unit} · {(s.weightG / 1000).toFixed(2)} kg · Bulk {(s.bulkTenths / 10).toFixed(1)}
+        {s.qty} {s.unit} · {weight(s.weightG)} · Bulk {bulk(s.bulkTenths)}
         {s.worn ? ' · worn' : ''}
       </span>
       <span className="meta">

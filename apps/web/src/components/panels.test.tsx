@@ -4,12 +4,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { Chronicle, Dossier, People } from '../App.tsx';
 import { useUi } from '../state/ui.ts';
 import type { SimHandle } from '../useSim.ts';
+import { Book } from './Book.tsx';
 import { SimCtx } from './ctx.ts';
 import { KnownTab } from './dossier/KnownTab.tsx';
 import { MindTab } from './dossier/MindTab.tsx';
 import { NeedsTab } from './dossier/NeedsTab.tsx';
 import { OpinionsTab } from './dossier/OpinionsTab.tsx';
 import { KitSheet, ReadinessLedger } from './KitSheet.tsx';
+import { detentAfterDrag } from './Sheet.tsx';
 
 const readiness: provisions.Readiness = {
   kcalOnHand: 0,
@@ -84,7 +86,7 @@ const sim = {
 const render = (node: React.ReactNode, snapshot = vm) =>
   renderToStaticMarkup(<SimCtx.Provider value={{ ...sim, vm: snapshot }}>{node}</SimCtx.Provider>);
 
-afterEach(() => useUi.setState({ dossierTab: 'mind', selectedActor: null, panel: 'none' }));
+afterEach(() => useUi.setState({ dossierTab: 'mind', selectedActor: null, panel: 'none', godViewLog: [] }));
 
 describe('empty module snapshots', () => {
   it('renders all dossier tabs without data or catalog entries', () => {
@@ -132,5 +134,97 @@ describe('empty module snapshots', () => {
     expect(html).toContain('Trout · 0.4 days');
     expect(html).toContain('No fresh food');
     expect(html).toContain('Beans: missing kettle');
+  });
+});
+
+const store = {
+  id: 5,
+  name: 'Pratt & Daughter',
+  kind: 'building',
+  tags: ['store'],
+  activity: { occupantIds: [] },
+  provisions: {
+    open: true,
+    stock: [
+      { itemId: 1, defId: 'haversack', name: 'Haversack', qty: 1, priceCents: 75 },
+      { itemId: 2, defId: 'haversack', name: 'Haversack', qty: 1, priceCents: 75 },
+      { itemId: 3, defId: 'flour', name: 'Flour', qty: 4, priceCents: 5 },
+    ],
+  },
+};
+const items = {
+  haversack: { section: 'packs_bedding', unit: 'each', weight_g: 454, copy: 'Slung at the hip.' },
+  flour: { section: 'provisions', unit: 'lb', weight_g: 454, copy: '' },
+};
+const withStore = { ...vm, places: [store] } as unknown as ViewModel;
+const renderStore = (node: React.ReactNode) =>
+  renderToStaticMarkup(
+    <SimCtx.Provider value={{ ...sim, vm: withStore, items } as unknown as SimHandle}>{node}</SimCtx.Provider>,
+  );
+
+describe('review fixes (pocket UX)', () => {
+  it('keeps the Book out of the Kit Sheet: one link, no buy buttons', () => {
+    const html = renderStore(<KitSheet actor={actor} />);
+    expect(html).not.toContain('Buy one');
+    expect(html).toContain('Pratt &amp; Daughter: the Book');
+  });
+  it('pages the Book by section, one line per item, credit behind a second tap', () => {
+    const html = renderStore(<Book placeId={5} />);
+    expect(html).toContain('Packs &amp; Bedding');
+    expect(html.match(/Haversack/g)?.length).toBe(1);
+    expect(html).toContain('2 in stock');
+    expect(html).not.toContain('Flour');
+    expect(html).toContain('On credit…');
+    expect(html).toContain('1 lb');
+  });
+  it('puts band words beside psyche numbers and opinion values, and reads ties label-first', () => {
+    const mind = render(<MindTab actor={{ ...actor, psyche: { ...actor.psyche, ego: 45, anxiety: 69 } }} />);
+    expect(mind).toContain('steady');
+    expect(mind).toContain('calm');
+    expect(mind).not.toMatch(/title="/);
+    const ties = render(
+      <OpinionsTab
+        actor={{
+          ...actor,
+          social: {
+            ...actor.social,
+            relationships: [{ otherId: 2 as never, otherName: 'Augusta Pratt', label: 'child of' }],
+            opinions: [
+              {
+                targetId: 2 as never,
+                targetName: 'Augusta Pratt',
+                label: null,
+                affection: 30,
+                respect: 0,
+                trust: 0,
+                fear: 0,
+                reasons: [],
+              },
+            ] as never,
+          },
+        }}
+      />,
+    );
+    expect(ties.indexOf('child of')).toBeLessThan(ties.indexOf('Augusta Pratt'));
+    expect(ties).toContain('Warm');
+    expect(ties).toContain('Neutral');
+  });
+  it('dossier tabs use short labels on one row, and the dossier no longer buries the orders', () => {
+    const html = render(<Dossier actor={actor} />);
+    for (const t of ['Mind', 'Body', 'Ties', 'Known', 'Pack']) expect(html).toContain(`>${t}<`);
+    expect(html).not.toContain('Give an order');
+  });
+  it('People has a find field instead of the God view toggle (God view lives in Settings)', () => {
+    const people = render(<People />);
+    expect(people).toContain('type="search"');
+    expect(people).not.toContain('God view');
+    // The confirm + Chronicle tag flow is driven in scripts/screens.ts (store state is client-only).
+  });
+  it('sheet drags step one detent at a time; a small wobble does nothing', () => {
+    expect(detentAfterDrag('peek', -60)).toBe('half');
+    expect(detentAfterDrag('half', -60)).toBe('full');
+    expect(detentAfterDrag('full', 80)).toBe('half');
+    expect(detentAfterDrag('peek', 80)).toBe('closed');
+    expect(detentAfterDrag('half', 10)).toBe('half');
   });
 });
