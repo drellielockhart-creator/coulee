@@ -8,7 +8,7 @@
  * and, from Insight 1, the Shadow.
  */
 import type { ContentBundle } from '../content.ts';
-import type { Explain } from '../explain.ts';
+import { type Explain, visibleExplain } from '../explain.ts';
 import type { ActorId } from '../ids.ts';
 import { type Urge, urgeLabel } from '../urge.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
@@ -110,7 +110,7 @@ export function viewPsycheActor(
       recentDefenses: [],
       persona: p?.persona ?? null,
       shadow: [],
-      presentedTraits: shown,
+      presentedTraits: [...(p?.personaTraits ?? [])],
     };
   }
   const tierOf = (d: string) => content.defenses?.[d as keyof typeof content.defenses]?.tier;
@@ -156,7 +156,7 @@ export function viewPsycheActor(
           urge: chosenDefenseVisible ? urgeLabel(p.chosen.urge) : hiddenDefenseLabel(p.chosen.urge),
           voice: p.chosen.voice,
           compromise: p.chosen.compromise,
-          explain: opts.includeExplain ? p.chosen.explain : null,
+          explain: opts.includeExplain ? visibleExplain(p.chosen.explain, opts.perspective, opts.omniscient) : null,
         }
       : null,
     recentDefenses: p.recentDefenses
@@ -166,7 +166,10 @@ export function viewPsycheActor(
     shadow: canSeeShadow(opts, actorId, p) ? [...p.shadow] : [],
     anxietyBand: BAND_LABELS[anxietyBand(p.anxiety)] ?? 'Easy',
     anxietyPools: { ...p.anxSrc },
-    verdict: p.chosen ? { label: p.chosen.explain.label, mode: p.lastMode } : null,
+    verdict:
+      p.chosen && visibleExplain(p.chosen.explain, opts.perspective, opts.omniscient)
+        ? { label: p.chosen.explain.label, mode: p.lastMode }
+        : null,
     presentedTraits: shown,
     insight: p.insight,
   };

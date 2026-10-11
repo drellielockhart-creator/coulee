@@ -1,0 +1,18 @@
+{
+  "name": "@coulee/play",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Headless play (ADR 0002): PlaySession over core: player actor via Commands, fair observations, interrupts, save/load/fork, replay, telemetry. No IO.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@coulee/content": "workspace:*",
+    "@coulee/core": "workspace:*",
+    "@coulee/worldgen": "workspace:*"
+  }
+}

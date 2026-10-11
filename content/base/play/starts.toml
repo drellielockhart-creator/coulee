@@ -1,0 +1,16 @@
+[[start]]
+id = "newcomer"
+name = "A newcomer with a traveling pack"
+ancestry = "human"
+occupation = "hired_hand"
+purse_cents = 5000
+inventory = [
+  { item = "knapsack_army", qty = 1 },
+  { item = "blanket_wool_3pt", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+  { item = "canteen_tin_wool", qty = 1 },
+  { item = "firewood_armload", qty = 2 },
+  { item = "hardtack", qty = 4 },
+  { item = "pemmican", qty = 3 },
+  { item = "dried_apples", qty = 2 },
+]

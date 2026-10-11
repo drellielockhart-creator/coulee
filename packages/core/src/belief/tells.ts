@@ -80,6 +80,7 @@ export function processTells(world: World, ctx: SimContext): void {
           },
           ctx.rng('suspicion', mixKey(actor.id, observer.id, hashString32(tell.id), 723)),
         );
+        if (!check.success) check.explain.knowledge = 'omniscient';
         check.explain.note = `Possible mundane causes: ${tell.lookalikes}`;
         const eventId = ctx.emit({
           kind: 'belief.tell',

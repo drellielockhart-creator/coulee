@@ -389,9 +389,10 @@ describe('social: views honor perspective (P1)', () => {
     for (const o of other.opinions) {
       expect(o.numbersKnown).toBe(false);
       expect([o.affection, o.respect, o.trust, o.fear]).toEqual([0, 0, 0, 0]);
+      for (const r of o.reasons) expect([r.affection, r.respect, r.trust, r.fear]).toEqual([0, 0, 0, 0]);
     }
     expect(own.opinions.length).toBeGreaterThan(other.opinions.length);
-    expect(other.relationships).toEqual(own.relationships);
+    expect(other.relationships).toEqual(own.relationships.filter((r) => r.otherId === viewer));
   });
 });
 

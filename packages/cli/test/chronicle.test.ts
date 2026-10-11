@@ -1587,6 +1587,7 @@ describe('iron_ford seed 42', () => {
     const sim = createSim(content, { scenarioId: 'iron_ford', seed: 42, logRetention: null });
     runHours(sim, 24 * 30);
     const md30 = chronicle.renderChronicleMarkdown(sim.world, content, 'Iron Ford, Spring 1855: seed 42, 30 days');
+    // Reconciled play: posted shop hours and real tavern board change meals, errands and resulting stories.
     await expect(md30).toMatchFileSnapshot('./__snapshots__/chronicle-iron_ford-42-30d.md');
     assertNoLeak(sim);
     for (const e of nonHeading(sim.world)) noArtifacts(e.text);

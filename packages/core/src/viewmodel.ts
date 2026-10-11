@@ -163,34 +163,42 @@ export function toViewModel(world: World, content: ContentBundle, options: Parti
   const opts: ViewOptions = { ...DEFAULT_VIEW_OPTIONS, ...options };
   const scenario = content.scenarios[world.meta.scenarioId];
   const siteDef = scenario ? content.sites[scenario.site] : undefined;
-  const actors: ActorView[] = idsOf<ActorId>(world.actors).map((id) => {
-    const a = mustGet(world.actors, id, 'actor');
-    const seesTruth = opts.omniscient || opts.perspective === id;
-    const peopleId = seesTruth ? a.ancestryId : a.presentsAsId;
-    return {
-      id,
-      key: a.key,
-      name: displayName(a),
-      shortName: shortName(a),
-      sex: a.sex,
-      age: yearsBetween(a.born, world.time),
-      people: content.peoples[peopleId]?.name ?? peopleId,
-      occupation: content.occupations[a.occupationId]?.name ?? a.occupationId,
-      householdId: a.householdId,
-      placeId: a.placeId,
-      isPlayer: world.meta.playerId === id,
-      alive: a.alive,
-      traits: [...a.traits],
-      conditions: [...a.sheet.conditions],
-      needs: viewNeedsActor(world, content, id, opts),
-      activity: viewActivityActor(world, content, id, opts),
-      psyche: viewPsycheActor(world, content, id, opts),
-      social: viewSocialActor(world, content, id, opts),
-      belief: viewBeliefActor(world, content, id, opts),
-      items: viewItemsActor(world, content, id, opts),
-      provisions: viewProvisionsActor(world, content, id, opts),
-    };
-  });
+  const actors: ActorView[] = idsOf<ActorId>(world.actors)
+    .filter(
+      (id) =>
+        opts.omniscient ||
+        opts.perspective === null ||
+        id === opts.perspective ||
+        world.actors[id]?.placeId === world.actors[opts.perspective]?.placeId,
+    )
+    .map((id) => {
+      const a = mustGet(world.actors, id, 'actor');
+      const seesTruth = opts.omniscient || opts.perspective === id;
+      const peopleId = seesTruth ? a.ancestryId : a.presentsAsId;
+      return {
+        id,
+        key: a.key,
+        name: displayName(a),
+        shortName: shortName(a),
+        sex: a.sex,
+        age: yearsBetween(a.born, world.time),
+        people: content.peoples[peopleId]?.name ?? peopleId,
+        occupation: content.occupations[a.occupationId]?.name ?? a.occupationId,
+        householdId: a.householdId,
+        placeId: a.placeId,
+        isPlayer: world.meta.playerId === id,
+        alive: a.alive,
+        traits: seesTruth || opts.perspective === null ? [...a.traits] : [],
+        conditions: seesTruth || opts.perspective === null ? [...a.sheet.conditions] : [],
+        needs: viewNeedsActor(world, content, id, opts),
+        activity: viewActivityActor(world, content, id, opts),
+        psyche: viewPsycheActor(world, content, id, opts),
+        social: viewSocialActor(world, content, id, opts),
+        belief: viewBeliefActor(world, content, id, opts),
+        items: viewItemsActor(world, content, id, opts),
+        provisions: viewProvisionsActor(world, content, id, opts),
+      };
+    });
   const places: PlaceView[] = idsOf<PlaceId>(world.places).map((id) => {
     const p = mustGet(world.places, id, 'place');
     return {

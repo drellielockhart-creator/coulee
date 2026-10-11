@@ -302,6 +302,9 @@ describe('the Iron Ford scenario (01 §8.3)', () => {
     const sim = createSim(content, { scenarioId: 'iron_ford', seed: 42 });
     const hester = actorByKey(sim, 'hester_fenn');
     const edwin = actorByKey(sim, 'edwin_fenn');
+    const viewer = sim.world.actors[actorByKey(sim, 'gussie_pratt')];
+    const hidden = sim.world.actors[hester];
+    if (viewer && hidden) viewer.placeId = hidden.placeId;
     const outside = toViewModel(sim.world, content, {
       perspective: actorByKey(sim, 'gussie_pratt'),
       omniscient: false,

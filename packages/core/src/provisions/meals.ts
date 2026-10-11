@@ -108,7 +108,7 @@ export function waterAvailable(world: World, content: ContentBundle, holder: Hol
     stacksDeep(world, locationOf(holder)).reduce((n, s) => n + (s.stack.waterMl ?? 0), 0)
   );
 }
-function drawWater(world: World, content: ContentBundle, holder: Holder, ml: number): void {
+export function drawWater(world: World, content: ContentBundle, holder: Holder, ml: number): void {
   if ('householdId' in holder) {
     const h = world.provisions.households[holder.householdId];
     if (h) h.waterMl = Math.max(0, (h.waterMl ?? 0) - ml);

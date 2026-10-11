@@ -6,6 +6,7 @@
  * confinement, shunning prices, defense-made Reasons, belief-colored opinions.
  */
 import {
+  asGameMinute,
   belief,
   chronicle,
   type Event,
@@ -87,6 +88,7 @@ describe('integration rules', () => {
   it('a shunned customer pays the storekeeper’s hard price and gets no credit', () => {
     const sim = simFor({ seed: 3 });
     const w = sim.world;
+    w.time = asGameMinute(8 * 60); // Transactions happen during posted shop hours.
     const store = rowsOf(w.provisions.stores).find((s) => s.restockId !== null);
     if (!store || store.ownerHouseholdId === null) throw new Error('fixture needs an owned store');
     const keeper = w.households[store.ownerHouseholdId]?.headId;

@@ -321,7 +321,7 @@ text = [
 id = "journal_amends"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "amends" }
+when = { cls = "amends", success = true }
 text = [
   "{^actor} and {target} made their peace{_at} {when}. I was glad of it.",
   "A quarrel mended today: {actor} and {target}. It is a small thing and a large one.",
@@ -331,7 +331,7 @@ text = [
 id = "journal_amends_me"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "amends", target_me = true }
+when = { cls = "amends", target_me = true, success = true }
 text = [
   "{^actor} {act} me{_at}. I had meant to hold out longer; I did not have the heart to.",
 ]
@@ -641,4 +641,14 @@ on = "belief.revealed"
 voice = "journal"
 text = [
   "It is no longer whispered. It is said: \"{rumor}.\" I had thought the village slower to make up its mind.",
+]
+
+
+[[template]]
+id = "journal_amends_failed"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "amends", success = false }
+text = [
+  "{^actor} tried to make peace with {target}{_at}. The words did not mend the quarrel.",
 ]

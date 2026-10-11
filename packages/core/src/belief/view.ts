@@ -56,7 +56,7 @@ export function viewBeliefActor(
   const beliefs: BeliefView[] = [];
   for (const id of world.belief.beliefsByHolder[actorId] ?? []) {
     const b = world.belief.beliefs[id];
-    if (!b || (!mayView && (!b.voiced || b.conceal))) continue;
+    if (!b || !mayView) continue;
     beliefs.push({
       id: b.id,
       text: propText(world, content, b.propId),
@@ -68,7 +68,7 @@ export function viewBeliefActor(
   }
   const grudges: GrudgeView[] = [];
   for (const g of rowsOf(world.belief.grudges)) {
-    if (g.holderId !== actorId || (!mayView && !g.public)) continue;
+    if (g.holderId !== actorId || !mayView) continue;
     const t = g.target;
     const targetLabel =
       t.kind === 'actor'
@@ -90,14 +90,22 @@ export function viewBeliefActor(
 }
 
 export function viewBeliefGlobal(world: World, _content: ContentBundle, _opts: ViewOptions): BeliefGlobalView {
+  const full = _opts.omniscient || _opts.perspective === null;
+  const knownFigures = new Set<number>();
+  for (const id of world.belief.beliefsByHolder[_opts.perspective ?? -1] ?? []) {
+    const b = world.belief.beliefs[id];
+    for (const arg of (b ? world.belief.props[b.propId]?.args : []) ?? [])
+      if (arg.kind === 'figure') knownFigures.add(arg.id);
+  }
   return {
-    figures: rowsOf(world.belief.figures).map((f) => ({ id: f.id, name: f.name, notoriety: f.notoriety })),
+    figures: rowsOf(world.belief.figures)
+      .filter((f) => full || knownFigures.has(f.id))
+      .map((f) => ({ id: f.id, name: f.name, notoriety: full ? f.notoriety : 0 })),
     persecutions: world.belief.persecutions
       .filter(
         (p) =>
           _opts.omniscient ||
           _opts.perspective === null ||
-          p.rung >= 2 ||
           (_opts.perspective !== null &&
             p.charges.some((id) =>
               (world.belief.beliefsByHolder[_opts.perspective ?? -1] ?? []).some(
@@ -105,8 +113,13 @@ export function viewBeliefGlobal(world: World, _content: ContentBundle, _opts: V
               ),
             )),
       )
-      .map((p) => ({ targetLabel: targetLabel(world, p.target), rung: p.rung, heat: p.heat, consensus: p.consensus })),
-    misfortune: world.belief.misfortune,
+      .map((p) => ({
+        targetLabel: targetLabel(world, p.target),
+        rung: p.rung,
+        heat: full ? p.heat : 0,
+        consensus: full ? p.consensus : 0,
+      })),
+    misfortune: full ? world.belief.misfortune : 0,
   };
 }
 

@@ -1,0 +1,16 @@
+# Prices in cents; shared by authored and generated venues with these tags.
+[[venue_service]]
+id = "general_store"
+place_tag = "store"
+opens = 6
+closes = 21
+
+[[venue_service]]
+id = "tavern_board"
+place_tag = "tavern"
+keeper_role = "tavern_keeper"
+opens = 6
+closes = 23
+bed_cents = 25
+meal_cents = 20
+meal_share_pct = 35

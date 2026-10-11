@@ -100,6 +100,8 @@ describe('belief integration', () => {
       recentChronicle: 0,
     });
     expect(publicView.beliefs.some((b) => b.conceal)).toBe(false);
+    // Presented ancestry is observable only when the outsider is actually present.
+    outsider.placeId = hidden.placeId;
     const view = toViewModel(sim.world, content, { perspective: outsider.id, omniscient: false });
     const actor = view.actors.find((a) => a.id === hidden.id);
     expect(actor?.people).toBe(content.peoples[hidden.presentsAsId]?.name);

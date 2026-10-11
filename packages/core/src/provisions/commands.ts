@@ -6,6 +6,9 @@ import type { CommandOf } from '../command.ts';
 import type { HouseholdId, ItemId, PlaceId } from '../ids.ts';
 
 export type ProvisionsCommand =
+  | CommandOf<'provisions.board_meal', Record<string, never>>
+  | CommandOf<'provisions.drink', { ml: number }>
+  | CommandOf<'provisions.sell', { placeId: PlaceId; itemId: ItemId; qty: number }>
   | CommandOf<'provisions.buy', { placeId: PlaceId; defId: string; qty: number; onCredit: boolean }>
   | CommandOf<'provisions.eat', { itemId: ItemId; method: string; servings: number }>
   | CommandOf<'provisions.set_rations', { householdId: HouseholdId | null; rationPct: number }>

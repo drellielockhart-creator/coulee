@@ -15,6 +15,7 @@
     "@coulee/content": "workspace:*",
     "@coulee/core": "workspace:*",
     "cac": "^7.0.1",
-    "@coulee/worldgen": "workspace:*"
+    "@coulee/worldgen": "workspace:*",
+    "@coulee/play": "workspace:*"
   }
 }

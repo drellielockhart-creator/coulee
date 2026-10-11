@@ -8,7 +8,7 @@ import { pantryOf, stacksAt } from '../items/api.ts';
 import { type ItemStackView, viewStacks } from '../items/view.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
 import type { World } from '../world.ts';
-import { priceAt, type Readiness, readinessOf } from './api.ts';
+import { priceAt, type Readiness, readinessOf, serviceAt, storeOpen } from './api.ts';
 
 export interface NutritionView {
   kcalToday: number;
@@ -45,6 +45,10 @@ export interface StockLineView {
 }
 
 export interface ProvisionsPlaceView {
+  open?: boolean;
+  hours?: { opens: number; closes: number };
+  bedCents?: number;
+  mealCents?: number;
   /** Store stock with prices, or null if this place is not a store. */
   stock: StockLineView[] | null;
 }
@@ -98,11 +102,18 @@ export function viewProvisionsPlace(
   placeId: PlaceId,
   opts: ViewOptions,
 ): ProvisionsPlaceView {
-  if (
-    !world.provisions.stores[placeId] ||
-    (!opts.omniscient && opts.perspective !== null && world.actors[opts.perspective]?.placeId !== placeId)
-  )
+  if (!opts.omniscient && opts.perspective !== null && world.actors[opts.perspective]?.placeId !== placeId)
     return { stock: null };
+  const service = serviceAt(world, content, placeId);
+  const trade = service
+    ? {
+        open: storeOpen(world, content, placeId),
+        hours: { opens: service.opens, closes: service.closes },
+        ...(service.bed_cents !== undefined ? { bedCents: service.bed_cents } : {}),
+        ...(service.meal_cents !== undefined ? { mealCents: service.meal_cents } : {}),
+      }
+    : {};
+  if (!world.provisions.stores[placeId]) return { stock: null, ...trade };
   const stock = stacksAt(world, { kind: 'place', placeId }).map((s) => ({
     itemId: s.id,
     defId: s.defId,
@@ -110,7 +121,7 @@ export function viewProvisionsPlace(
     qty: s.qty,
     priceCents: priceAt(world, content, placeId, s.defId) ?? 0,
   }));
-  return { stock };
+  return { stock, ...trade };
 }
 
 function unknownReadiness(): Readiness {

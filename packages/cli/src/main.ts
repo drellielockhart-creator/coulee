@@ -15,6 +15,7 @@ import { cac } from 'cac';
 import { findActor, renderDossier } from './dossier.ts';
 import { generateTimedTown, writeGeneratedTown } from './generation.ts';
 import { jsonlFileSink, type RunSpec, runScenario, type WorldSource, writeRunOutputs } from './harness.ts';
+import { type PlayOptions, playCLI } from './play.ts';
 
 const cli = cac('coulee');
 
@@ -218,6 +219,28 @@ cli
       }
       console.log(renderDossier(vm, actor));
     },
+  );
+
+cli
+  .command('play [command]', 'Play a newcomer headlessly (fair knowledge by default)')
+  .option('--text', 'Readable text REPL (default)')
+  .option('--jsonl', 'One JSON Command in, one JSON observation out')
+  .option('--replay <file>', 'Replay commands.jsonl and verify every state hash')
+  .option('--god', 'Reveal ground truth')
+  .option('--scenario <id>', 'Authored id or gen:town', { default: 'iron_ford' })
+  .option('--seed <n>', 'Simulation seed', { default: 42 })
+  .option('--world-seed <n>', 'Independent world generation seed')
+  .option('--log <dir>', 'Write commands, metrics and transcript')
+  .option('--session <dir>', 'Persist a session across separate command calls')
+  .option('--new', 'Create a stateless session')
+  .option('--look', 'Print the current session observation without acting')
+  .option('--fork <dir>', 'Copy the session into a new directory')
+  .option('--verify', 'Replay the session log and compare its saved state hash')
+  .action((command: string | undefined, o: PlayOptions) =>
+    playCLI(o, command).catch((error: unknown) => {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exitCode = 1;
+    }),
   );
 
 cli.help();

@@ -198,6 +198,7 @@ describe('provisions acceptance', () => {
       targets: {},
     };
     newStack(w, 'flour', 100, { kind: 'place', placeId: STORE }, w.time);
+    w.time = asGameMinute(8 * 60); // Shop is open.
     const cashBefore = w.provisions.households[H]?.cashCents ?? 0;
     expect(purchase(w, context(w, content), A, STORE, 'flour', 2, false)).toBe(2);
     expect((w.provisions.households[H]?.cashCents ?? 0) + mustGet(w.provisions.stores, STORE, 'store').tillCents).toBe(

@@ -35,6 +35,13 @@ export interface ChronicleGlobalView {
 export function entryVisibleTo(e: ChronicleEntry, who: { perspective: number | null; omniscient: boolean }): boolean {
   if (who.omniscient) return true;
   if (e.knowledge === 'omniscient' || e.voice === 'epilogue') return false;
+  if (
+    who.perspective !== null &&
+    e.authorId != null &&
+    e.authorId !== who.perspective &&
+    (e.voice === 'journal' || e.voice === 'ledger')
+  )
+    return false;
   if (e.knowledge === 'public') return true;
   if (who.perspective === null) return true;
   return (e.knownBy ?? []).some((k) => (k as number) === who.perspective);

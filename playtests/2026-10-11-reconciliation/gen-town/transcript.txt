@@ -1,0 +1,1131 @@
+1855-04-01 00:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — idling. Purse $50.00. 33°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 172; “actions 1” for full menu pages; “help” for verbs.
+> sleep
+1855-04-01 01:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $49.75. 32°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 797; Hunger 758; Rest 745; Thirst 770; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Sleep
+[231] activity.started — explain 231
+[264] provisions.shortage — explain 264
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 77; “actions 1” for full menu pages; “help” for verbs.
+> wait until 07:00
+Stopped: social.interaction
+1855-04-01 07:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — cooking. Purse $49.75. 33°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 797; Hunger 668; Rest 1000; Thirst 602; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The fire wants minding
+[298] Pray ▸ Honora Sheehan: success
+[299] Chat ▸ Honora Sheehan: success — explain 299
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 199; “actions 1” for full menu pages; “help” for verbs.
+> chat Patrick
+The requested conversation did not take place: the other person may have left or be unavailable.
+Stopped: social.interaction
+1855-04-01 08:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 36°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 794; Hunger 626; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[437] Pray ▸ Timothy Costello: success
+[438] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 223; “actions 1” for full menu pages; “help” for verbs.
+> chat Patrick
+Stopped: needs.band_changed; social.interaction; social.interaction
+[463] Chat ▸ Patrick Sheehan: success
+Resolved: Chat: 975 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 792; Hunger 597 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+Heard: Timothy Costello is of the hidden folk
+[470] Chat ▸ Timothy Costello: success
+[471] Pray ▸ Johanna Sheehan: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> ask about Patrick
+Stopped: social.interaction
+[547] Asked about the news ▸ Patrick Sheehan: success
+Resolved: Ask about the news: 969 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-01 10:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 42°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 568 (Peckish); Rest 867; Thirst 888; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3).
+Conscience: The Sabbath must be kept
+Self-Command: Resolved: Ask about the news
+Heard: Timothy Costello is of the hidden folk
+[550] social.memory_formed
+[551] Lend a hand ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 172; “actions 1” for full menu pages; “help” for verbs.
+> gossip Patrick
+The requested conversation did not take place: the other person may have left or be unavailable.
+1855-04-01 11:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 45°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 788; Hunger 539 (Peckish); Rest 828; Thirst 832; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: no one else.
+Conscience: The Sabbath must be kept
+Self-Command: Resolved: Gossip
+Heard: Timothy Costello is of the hidden folk
+[551] Lend a hand ▸ Ellis Wayfarer: success
+[711] psyche.arbitrated — explain 711
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+13. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 139; “actions 1” for full menu pages; “help” for verbs.
+> meal
+1855-04-01 12:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55. 47°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 786; Hunger 718; Rest 789; Thirst 776; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: no one else.
+Conscience: The Sabbath must be kept
+Self-Command: Resolved: At home
+Heard: Timothy Costello is of the hidden folk
+[899] needs.fed — explain 899
+[900] Tavern meal: $0.20 — explain 900
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+13. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 139; “actions 1” for full menu pages; “help” for verbs.
+> go Crane General
+Stopped: activity.moved
+1855-04-01 13:00 | FAIR | Crane General Store and Outfitter
+Ellis Wayfarer — walking about. Purse $48.50. 49°F, dry.
+Food 6.3 days; Medium, 33.3 kg.
+Vitals: Drink 784; Hunger 821; Rest 750; Thirst 720; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Submit Crane (#1), Silas Crane (#2).
+Conscience: The Sabbath must be kept
+Self-Command: Resolved: Walk
+Heard: Timothy Costello is of the hidden folk
+[1068] Meal: 396 kcal (cold) — explain 1068
+[1069] needs.fed — explain 1069
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to The Wagon Bell Tavern [go:15]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Submit Crane [talk:chat:1]
+13. Introduce oneself: Submit Crane [talk:introduce:1]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 165; “actions 1” for full menu pages; “help” for verbs.
+> introduce Submit
+[1093] Good day ▸ Submit Crane: success
+Resolved: Introduce oneself: 939 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-01 14:00 | FAIR | Crane General Store and Outfitter
+Ellis Wayfarer — at home, at leisure. Purse $48.50. 50°F, dry.
+Food 6.2 days; Medium, 33.3 kg.
+Vitals: Drink 781; Hunger 779; Rest 695; Thirst 640; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Submit Crane (#1), Silas Crane (#2).
+Conscience: The table is laid
+Self-Command: Resolved: Introduce oneself
+Heard: Timothy Costello is of the hidden folk
+[1093] Good day ▸ Submit Crane: success — explain 1093
+[1094] Chat ▸ Submit Crane: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to The Wagon Bell Tavern [go:15]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Submit Crane [talk:chat:1]
+13. Chat: Silas Crane [talk:chat:2]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 189; “actions 1” for full menu pages; “help” for verbs.
+> buy flour 2
+1855-04-01 15:00 | FAIR | Crane General Store and Outfitter
+Ellis Wayfarer — at home, at leisure. Purse $48.40. 50°F, dry.
+Food 6.6 days; Medium, 34.2 kg.
+Vitals: Drink 779; Hunger 750; Rest 656; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Submit Crane (#1), Silas Crane (#2).
+Self-Command: Resolved: At home
+Heard: Timothy Costello is of the hidden folk
+[1159] Pray ▸ Submit Crane: success — explain 1159
+[1176] Bought 2 flour for $0.10 — explain 1176
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to The Wagon Bell Tavern [go:15]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Submit Crane [talk:chat:1]
+13. Chat: Silas Crane [talk:chat:2]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 194; “actions 1” for full menu pages; “help” for verbs.
+> gossip Submit
+[1208] Gossip ▸ Submit Crane: success
+Resolved: Gossip: 395 (Reality 50 × Self-Command 50%, Voices 300 × 100%, Impulse (±100)) -> command
+1855-04-01 16:00 | FAIR | Crane General Store and Outfitter
+Ellis Wayfarer — at home, at leisure. Purse $48.40. 49°F, dry.
+Food 6.6 days; Medium, 34.2 kg.
+Vitals: Drink 777; Hunger 721; Rest 617; Thirst 944; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Submit Crane (#1), Silas Crane (#2).
+Conscience: You don't know that. You're only repeating it.
+Self-Command: Resolved: Gossip
+Heard: Timothy Costello is of the hidden folk
+[1208] Gossip ▸ Submit Crane: success — explain 1208
+[1209] Chat ▸ Silas Crane: success
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to The Wagon Bell Tavern [go:15]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Submit Crane [talk:chat:1]
+13. Chat: Silas Crane [talk:chat:2]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 194; “actions 1” for full menu pages; “help” for verbs.
+> eat hardtack
+Stopped: social.interaction
+1855-04-01 17:00 | FAIR | Crane General Store and Outfitter
+Ellis Wayfarer — at home, at leisure. Purse $48.40. 47°F, dry.
+Food 6.5 days; Medium, 34.2 kg.
+Vitals: Drink 775; Hunger 875; Rest 578; Thirst 888; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Submit Crane (#1), Silas Crane (#2).
+Self-Command: Resolved: At home
+Heard: Timothy Costello is of the hidden folk
+[1293] Meal: 550 kcal (cold) — explain 1293
+[1294] needs.fed — explain 1294
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to The Wagon Bell Tavern [go:15]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Submit Crane [talk:chat:1]
+13. Chat: Silas Crane [talk:chat:2]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 194; “actions 1” for full menu pages; “help” for verbs.
+> insult Submit
+Stopped: social.interaction; social.interaction
+[1344] Insult ▸ Submit Crane: success
+Insult: Ellis Wayfarer → Submit Crane: 13 () vs DC 11 -> success
+1855-04-01 18:00 | FAIR | Crane General Store and Outfitter
+Ellis Wayfarer — at home, at leisure. Purse $48.40. 44°F, dry.
+Food 6.5 days; Medium, 34.2 kg.
+Vitals: Drink 773; Hunger 846; Rest 539; Thirst 832; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Submit Crane (#1), Silas Crane (#2).
+Conscience: The fire wants minding
+Self-Command: Resolved: Insult
+Heard: Timothy Costello is of the hidden folk
+[1344] Insult ▸ Submit Crane: success — explain 1344
+[1345] Chat ▸ Ellis Wayfarer: success
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to The Wagon Bell Tavern [go:15]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Submit Crane [talk:chat:1]
+13. Chat: Silas Crane [talk:chat:2]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 194; “actions 1” for full menu pages; “help” for verbs.
+> apologize Submit
+Stopped: social.interaction
+[1401] Apologize ▸ Submit Crane: failure
+Apologize: Ellis Wayfarer → Submit Crane: 9 (d20 8, Charisma +1) vs DC 13 -> failure
+1855-04-01 19:00 | FAIR | Crane General Store and Outfitter
+Ellis Wayfarer — at home, at leisure. Purse $48.40. 42°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 771; Hunger 1000; Rest 500; Thirst 776; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Submit Crane (#1), Silas Crane (#2).
+Appetite: I keep going over what Submit Crane did.
+Conscience: Is Insult any way to treat a neighbor?
+Self-Command: Resolved: Apologize
+Heard: Timothy Costello is of the hidden folk
+[1535] Meal: 991 kcal (hot) — explain 1535
+[1536] needs.fed — explain 1536
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to The Wagon Bell Tavern [go:15]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Submit Crane [talk:chat:1]
+13. Chat: Silas Crane [talk:chat:2]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 192; “actions 1” for full menu pages; “help” for verbs.
+> sleep
+Stopped: activity.moved
+1855-04-01 20:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $48.15. 40°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 769; Hunger 971; Rest 461; Thirst 720; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: I keep going over what Submit Crane did.
+Conscience: Is Insult any way to treat a neighbor?
+Self-Command: Resolved: Sleep
+Heard: Timothy Costello is of the hidden folk
+[1559] Travel arrival at place #15 — explain 1559
+[1560] activity.started — explain 1560
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 86; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+1855-04-02 00:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $48.15. 33°F, rain.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 769; Hunger 911; Rest 1000; Thirst 608; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[1578] Good day ▸ Patrick Sheehan: success
+[1579] Chat ▸ Patrick Sheehan: success
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 254; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+Stopped: needs.band_changed
+1855-04-02 04:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $48.15. 31°F, dry.
+Food 6.1 days; Medium, 33.4 kg.
+Vitals: Drink 769; Hunger 851; Rest 1000; Thirst 496 (Thirsty); Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[1808] provisions.shortage — explain 1808
+[1831] needs.band_changed — explain 1831
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 254; “actions 1” for full menu pages; “help” for verbs.
+> drink
+1855-04-02 05:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $48.15. 30°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 769; Hunger 836; Rest 1000; Thirst 718; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Self-Command: Resolved: At home
+Heard: Timothy Costello is of the hidden folk
+[1839] needs.band_changed — explain 1839
+[1840] needs.drank — explain 1840
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 254; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+1855-04-02 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $47.95. 39°F, dry.
+Food 6.1 days; Medium, 33.4 kg.
+Vitals: Drink 767; Hunger 985; Rest 1000; Thirst 578; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[2077] Tavern meal: $0.20 — explain 2077
+[2087] psyche.arbitrated — explain 2087
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Honora Sheehan [talk:chat:4]
+13. Chat: Johanna Sheehan [talk:chat:5]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 222; “actions 1” for full menu pages; “help” for verbs.
+> talk:chat:4
+[2169] Chat ▸ Honora Sheehan: success
+Resolved: Chat: 1033 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-02 10:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $47.95. 42°F, dry.
+Food 6.1 days; Medium, 33.4 kg.
+Vitals: Drink 767; Hunger 970; Rest 1000; Thirst 550; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Self-Command: Resolved: Chat
+Heard: Timothy Costello is of the hidden folk
+[2175] Pray ▸ Johanna Sheehan: success
+[2176] Chat ▸ Timothy Costello: success — explain 2176
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Honora Sheehan [talk:chat:4]
+13. Chat: Johanna Sheehan [talk:chat:5]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 222; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+Stopped: social.interaction
+1855-04-02 11:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — working. Purse $47.95. 45°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 765; Hunger 941; Rest 961; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[2227] Chat ▸ Patrick Sheehan: success
+[2228] Good day ▸ Ellis Wayfarer: success
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 279; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+Stopped: social.interaction
+1855-04-02 13:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at table. Purse $47.75. 49°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 755; Hunger 1000; Rest 785; Thirst 744; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[2343] needs.fed — explain 2343
+[2344] Tavern meal: $0.20 — explain 2344
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 279; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+Stopped: social.interaction; social.interaction
+1855-04-02 14:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — working. Purse $47.75. 50°F, dry.
+Food 5.9 days; Medium, 33.4 kg.
+Vitals: Drink 753; Hunger 971; Rest 746; Thirst 688; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[2504] Chat ▸ Patrick Sheehan: success
+[2505] Lend a hand ▸ Patrick Sheehan: success — explain 2505
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 246; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+1855-04-02 18:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — working. Purse $47.75. 44°F, dry.
+Food 5.8 days; Medium, 33.4 kg.
+Vitals: Drink 733; Hunger 719; Rest 394; Thirst 616; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[2651] Chat ▸ Timothy Costello: success
+[2652] Warn ▸ Johanna Sheehan: success
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 279; “actions 1” for full menu pages; “help” for verbs.
+> sleep
+1855-04-02 19:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $47.50. 42°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 728; Hunger 656; Rest 306; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Is Insult any way to treat a neighbor?
+Self-Command: Resolved: Sleep
+Heard: Timothy Costello is of the hidden folk
+[2714] activity.started — explain 2714
+[2842] provisions.prep_failed — explain 2842
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 86; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+1855-04-02 23:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $47.30. 34°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 728; Hunger 866; Rest 866; Thirst 888; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[2877] needs.fed — explain 2877
+[2878] Tavern meal: $0.20 — explain 2878
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 278; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+1855-04-03 03:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $47.30. 32°F, dry.
+Food 6.1 days; Medium, 33.4 kg.
+Vitals: Drink 728; Hunger 806; Rest 1000; Thirst 776; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[3142] provisions.intake — explain 3142
+[3176] provisions.shortage — explain 3176
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 278; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+1855-04-03 07:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — cooking. Purse $47.30. 34°F, dry.
+Food 6.2 days; Medium, 33.4 kg.
+Vitals: Drink 728; Hunger 746; Rest 1000; Thirst 664; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[3278] Chat ▸ Timothy Costello: success — explain 3278
+[3402] provisions.prep_failed — explain 3402
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 279; “actions 1” for full menu pages; “help” for verbs.
+> talk:chat:3
+The requested conversation did not take place: the other person may have left or be unavailable.
+Stopped: social.interaction
+1855-04-03 08:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $47.30. 37°F, dry.
+Food 6.2 days; Medium, 33.4 kg.
+Vitals: Drink 725; Hunger 704; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Self-Command: Resolved: Chat
+Heard: Timothy Costello is of the hidden folk
+[3434] Chat ▸ Ellis Wayfarer: success
+[3435] Warn ▸ Honora Sheehan: success
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 279; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+Stopped: social.interaction
+1855-04-03 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — working. Purse $47.30. 40°F, dry.
+Food 6.1 days; Medium, 33.4 kg.
+Vitals: Drink 723; Hunger 675; Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[3485] Chat ▸ Ellis Wayfarer: success
+[3486] Lend a hand ▸ Honora Sheehan: success
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 279; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+Stopped: social.interaction
+1855-04-03 10:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — working. Purse $47.30. 43°F, dry.
+Food 6.1 days; Medium, 33.4 kg.
+Vitals: Drink 718; Hunger 612; Rest 818; Thirst 816; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[3508] Gossip ▸ Patrick Sheehan: success
+[3509] Chat ▸ Patrick Sheehan: success — explain 3509
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 246; “actions 1” for full menu pages; “help” for verbs.
+> meal
+Stopped: needs.band_changed; social.interaction
+1855-04-03 11:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $47.10. 46°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 713; Hunger 849; Rest 730; Thirst 688; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Self-Command: Resolved: At home
+Heard: Timothy Costello is of the hidden folk
+[3572] needs.fed — explain 3572
+[3573] Tavern meal: $0.20 — explain 3573
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 246; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+Stopped: social.interaction
+1855-04-03 15:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — working. Purse $46.90. 51°F, dry.
+Food 6.1 days; Medium, 33.4 kg.
+Vitals: Drink 701; Hunger 908; Rest 509; Thirst 816; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[3884] Pray ▸ Honora Sheehan: success
+[3885] Chat ▸ Patrick Sheehan: success — explain 3885
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 246; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+Stopped: social.interaction
+1855-04-03 17:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — working. Purse $46.90. 48°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 691; Hunger 782; Rest 333; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[3959] Warn ▸ Patrick Sheehan: success
+[3960] Lend a hand ▸ Patrick Sheehan: success — explain 3960
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 246; “actions 1” for full menu pages; “help” for verbs.
+> sleep
+Stopped: needs.band_changed
+1855-04-03 18:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $46.65. 45°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 686; Hunger 719; Rest 245 (Tired); Thirst 872; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Is Insult any way to treat a neighbor?
+Self-Command: Resolved: Sleep
+Heard: Timothy Costello is of the hidden folk
+[4030] Tavern bed: $0.25 — explain 4030
+[4031] activity.started — explain 4031
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 86; “actions 1” for full menu pages; “help” for verbs.
+> wait 4h
+1855-04-03 22:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $46.45. 37°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 686; Hunger 955; Rest 805; Thirst 760; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[4111] needs.fed — explain 4111
+[4112] Tavern meal: $0.20 — explain 4112
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 279; “actions 1” for full menu pages; “help” for verbs.
+> wait 2h
+1855-04-04 00:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $46.45. 34°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 686; Hunger 925; Rest 1000; Thirst 704; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[4111] needs.fed — explain 4111
+[4112] Tavern meal: $0.20 — explain 4112
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 278; “actions 1” for full menu pages; “help” for verbs.
+> explain 1401
+Apologize: Ellis Wayfarer → Submit Crane: 9 (d20 8, Charisma +1) vs DC 13 -> failure
+1855-04-04 00:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $46.45. 34°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 686; Hunger 925; Rest 1000; Thirst 704; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Timothy Costello is of the hidden folk
+[4111] needs.fed — explain 4111
+[4112] Tavern meal: $0.20 — explain 4112
+Kit: Some food cannot be prepared with the available cookware, fuel, water, or time.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 278; “actions 1” for full menu pages; “help” for verbs.

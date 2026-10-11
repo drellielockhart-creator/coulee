@@ -128,7 +128,11 @@ export function viewSocialActor(
         const ev = eventOfCite(op, i);
         if (ev === null || !viewerEvents?.has(ev as number)) continue;
       }
-      const view: OpinionReasonView = { label: r.label, ...r.delta, since: r.since };
+      const view: OpinionReasonView = {
+        label: r.label,
+        ...(full ? r.delta : { affection: 0, respect: 0, trust: 0, fear: 0 }),
+        since: r.since,
+      };
       if (full) view.weight = reasonStrength(world, actorId, op.targetId, r);
       if (opts.omniscient && r.viaDefense !== undefined) view.viaDefense = r.viaDefense;
       reasons.push(view);
@@ -170,13 +174,15 @@ export function viewSocialActor(
         source: m.source.kind,
       }))
     : [];
-  const relationships = relationshipsOf(world, actorId).map((r) => {
-    const mine = r.a === actorId;
-    const other = mine ? r.b : r.a;
-    const inverse = DIRECTED[r.kind];
-    const label = inverse !== undefined ? (mine ? `${r.kind} of` : inverse) : r.kind;
-    return { otherId: other, otherName: name(other), label };
-  });
+  const relationships = relationshipsOf(world, actorId)
+    .filter((r) => full || r.a === viewer || r.b === viewer)
+    .map((r) => {
+      const mine = r.a === actorId;
+      const other = mine ? r.b : r.a;
+      const inverse = DIRECTED[r.kind];
+      const label = inverse !== undefined ? (mine ? `${r.kind} of` : inverse) : r.kind;
+      return { otherId: other, otherName: name(other), label };
+    });
   return { opinions, memories, relationships };
 }
 

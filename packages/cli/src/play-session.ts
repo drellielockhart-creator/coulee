@@ -1,0 +1,183 @@
+import {
+  appendFileSync,
+  closeSync,
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
+import { join, resolve } from 'node:path';
+import type { ContentBundle } from '@coulee/core';
+import {
+  type AvailableAction,
+  HELP,
+  menuActions,
+  type ObservationMode,
+  PlaySession,
+  parseText,
+  type ReplayLog,
+  renderDetail,
+  renderObservation,
+  type SessionSpec,
+} from '@coulee/play';
+import type { PlayOptions } from './play.ts';
+
+interface Manifest {
+  format: 1;
+  spec: SessionSpec;
+  mode: ObservationMode;
+}
+interface MenuState {
+  page: number;
+  menu: AvailableAction[];
+}
+const files = ['session.json', 'save.json', 'commands.jsonl', 'metrics.jsonl', 'transcript.txt'];
+const jsonl = (rows: unknown[]) => rows.map((row) => JSON.stringify(row) + '\n').join('');
+function save(dir: string, session: PlaySession, menu: MenuState) {
+  const temporary = join(dir, 'save.json.tmp');
+  writeFileSync(temporary, JSON.stringify({ ...JSON.parse(session.save()), cli: menu, finalHash: session.hash }));
+  renameSync(temporary, join(dir, 'save.json'));
+}
+function emptyDirectory(dir: string): boolean {
+  if (existsSync(dir) && readdirSync(dir).length) return false;
+  mkdirSync(dir, { recursive: true });
+  return true;
+}
+
+/** One process, one command. Only accepted core Commands enter the replay log. */
+export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string): 0 | 2 {
+  const dir = resolve(o.session ?? '');
+  const operations = [o.new, o.look, o.fork !== undefined, o.verify, line !== undefined].filter(Boolean).length;
+  if (operations !== 1 || o.jsonl || o.replay || o.log) {
+    console.log('Use --session <dir> with exactly one of --new, --look, --fork <dir>, --verify, or "<command>".');
+    if (existsSync(join(dir, 'session.json'))) printCurrent(content, dir);
+    return 2;
+  }
+  if (o.new && !emptyDirectory(dir)) {
+    console.log('Session directory must be new or empty. Use --look to resume.');
+    if (existsSync(join(dir, 'session.json'))) printCurrent(content, dir);
+    return 2;
+  }
+  const lock = join(dir, '.lock');
+  const fd = openSync(lock, 'wx');
+  closeSync(fd);
+  try {
+    if (o.new) {
+      const session = PlaySession.create(content, {
+        source: o.scenario,
+        seed: Number(o.seed),
+        ...(o.worldSeed === undefined ? {} : { worldSeed: Number(o.worldSeed) }),
+        pc: {
+          name: 'Ellis Wayfarer',
+          kit: 'newcomer',
+          ancestry: content.playStarts.newcomer?.ancestry,
+          lodging: 'tavern',
+        },
+      });
+      const mode = o.god ? 'god' : 'fair';
+      const observation = session.observe(mode);
+      writeFileSync(join(dir, 'session.json'), JSON.stringify({ format: 1, spec: session.spec, mode }));
+      writeFileSync(join(dir, 'commands.jsonl'), jsonl(session.commandLog));
+      writeFileSync(join(dir, 'metrics.jsonl'), '');
+      const text = renderObservation(observation);
+      writeFileSync(join(dir, 'transcript.txt'), text + '\n');
+      save(dir, session, { page: 0, menu: menuActions(observation) });
+      console.log(text);
+      return 0;
+    }
+    const { session, manifest, menu, savedHash } = load(content, dir);
+    const mode = manifest.mode;
+    const observation = session.observe(mode);
+    const invalid = (reason: string): 2 => {
+      const text = `${reason}\n${renderObservation(observation, menu.page)}`;
+      appendFileSync(join(dir, 'transcript.txt'), `${line === undefined ? '' : '> ' + line + '\n'}${text}\n`);
+      console.log(text);
+      return 2;
+    };
+    if (o.god && mode !== 'god') return invalid('Mode is fixed at creation; use --new --god for a god session.');
+    if (o.look) {
+      console.log(renderObservation(observation, menu.page));
+      return 0;
+    }
+    if (o.fork !== undefined) {
+      const target = resolve(o.fork);
+      if (target === dir || !emptyDirectory(target)) return invalid('Fork directory must be new or empty.');
+      for (const file of files) copyFileSync(join(dir, file), join(target, file));
+      console.log(`Forked to ${target}.\n${renderObservation(observation, menu.page)}`);
+      return 0;
+    }
+    if (o.verify) {
+      const log = readFileSync(join(dir, 'commands.jsonl'), 'utf8')
+        .trim()
+        .split('\n')
+        .map((row) => JSON.parse(row)) as ReplayLog;
+      const replayed = PlaySession.replay(content, log, mode);
+      if (replayed.hash !== session.hash || savedHash !== session.hash)
+        throw new Error('Verification failed: replay/save hash mismatch');
+      console.log(`Verified ${log.length - 1} commands; final hash ${session.hash}.`);
+      return 0;
+    }
+    const text = (line ?? '').trim();
+    if (!text || /[\r\n]/.test(text)) return invalid('Supply exactly one nonempty command line.');
+    const [verb, ...args] = text.split(/\s+/);
+    let page = 0;
+    let detail: string | undefined;
+    if (verb?.toLowerCase() === 'help') detail = HELP;
+    else if (verb?.toLowerCase() === 'actions') {
+      page = Number(args[0] ?? 1);
+      if (args.length > 1 || !Number.isSafeInteger(page) || page < 1 || !menuActions(observation, page).length)
+        return invalid('Use actions <page> with an available positive page number.');
+    }
+    const command =
+      detail !== undefined || page > 0
+        ? parseText('look', observation)
+        : /^\d+$/.test(text)
+          ? (menu.menu[Number(text) - 1]?.command ?? 'No such menu number')
+          : parseText(text, observation);
+    if (typeof command === 'string') return invalid(command);
+    const oldCommands = session.commandLog.length;
+    const oldMetrics = session.telemetry.length;
+    const result = session.act(command, mode);
+    if (!result.ok) return invalid(result.reason ?? 'Invalid command');
+    const output = [
+      result.warning,
+      result.interrupts.length ? `Stopped: ${result.interrupts.map((i) => i.reason).join('; ')}` : undefined,
+      detail ?? (result.detail === undefined ? undefined : renderDetail(result.detail)),
+      renderObservation(result.observation, page),
+    ]
+      .filter((part) => part !== undefined)
+      .join('\n');
+    appendFileSync(join(dir, 'commands.jsonl'), jsonl(session.commandLog.slice(oldCommands)));
+    appendFileSync(join(dir, 'metrics.jsonl'), jsonl(session.telemetry.slice(oldMetrics)));
+    appendFileSync(join(dir, 'transcript.txt'), `> ${line}\n${output}\n`);
+    save(dir, session, { page, menu: menuActions(result.observation, page) });
+    console.log(output);
+    return 0;
+  } finally {
+    unlinkSync(lock);
+  }
+}
+
+function load(content: ContentBundle, dir: string) {
+  const manifest = JSON.parse(readFileSync(join(dir, 'session.json'), 'utf8')) as Manifest;
+  if (manifest.format !== 1 || !['fair', 'god'].includes(manifest.mode)) throw new Error('Session format mismatch');
+  const json = readFileSync(join(dir, 'save.json'), 'utf8');
+  const saved = JSON.parse(json);
+  if (JSON.stringify(manifest.spec) !== JSON.stringify(saved.spec) || !saved.cli?.menu)
+    throw new Error('Session metadata/save mismatch');
+  return {
+    session: PlaySession.load(content, json),
+    manifest,
+    menu: saved.cli as MenuState,
+    savedHash: saved.finalHash,
+  };
+}
+function printCurrent(content: ContentBundle, dir: string) {
+  const { session, manifest, menu } = load(content, dir);
+  console.log(renderObservation(session.observe(manifest.mode), menu.page));
+}

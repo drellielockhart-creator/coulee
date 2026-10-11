@@ -443,8 +443,8 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   if (def.transmits_rumor && success) {
     daily.gossip += 1;
     const res = transmit(world, ctx, {
-      speakerId: i,
-      listenerId: tg,
+      speakerId: def.rumor_speaker === 'target' ? tg : i,
+      listenerId: def.rumor_speaker === 'target' ? i : tg,
       placeId: req.placeId,
       channel: channelFor(world, ctx, req.placeId),
       interactionEventId: eventId,

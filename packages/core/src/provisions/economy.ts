@@ -12,6 +12,7 @@ import type { World } from '../world.ts';
 import { priceAt, readinessOf } from './api.ts';
 import { dailyKcal, foodServings, mealExplain, membersOf } from './meals.ts';
 import { RATION_RESTORE_DAYS, RATION_STEPS, SHUNNED, shoppingDays, WOODPILE } from './rules.ts';
+import { storeOpen } from './services.ts';
 
 export function purchase(
   world: World,
@@ -30,6 +31,7 @@ export function purchase(
     !actor?.alive ||
     actor.placeId !== placeId ||
     !store ||
+    !storeOpen(world, ctx.content, placeId, ctx.now) ||
     unitPrice === null ||
     !Number.isInteger(wanted) ||
     wanted <= 0

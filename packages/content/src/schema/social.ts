@@ -395,6 +395,7 @@ export const InteractionSchema = z.strictObject({
   /** Juiciness 0..100 of the resulting event as gossip (04 §8.1). */
   juiciness: int().min(0).max(100).default(0),
   /** Whether this interaction carries a rumor (gossip) through belief.transmit(). */
+  rumor_speaker: z.enum(['initiator', 'target']).optional(),
   transmits_rumor: z.boolean().default(false),
   /** Flag for chronicle/director: big events (04 §11.2). */
   notable: z.boolean().default(false),

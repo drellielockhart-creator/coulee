@@ -343,3 +343,24 @@ success.target_reason = "Stood by me when I was low"
 failure.target_anxiety = -20
 failure.target_memory = "{initiator} tried to cheer me"
 failure.initiator_memory = "Tried to cheer {target}"
+
+[[interaction]]
+id = "ask_about"
+name = "Ask about the news"
+label = "Asked about the news"
+description = "Invite an acquaintance to share what they have heard."
+urge_only = true
+requires = { acquainted = true }
+transmits_rumor = true
+rumor_speaker = "target"
+memory = { kind = "gossip", intensity = 15 }
+minutes = 15
+tags = ["talk"]
+success.initiator_needs = { company = 40 }
+success.target_needs = { company = 40 }
+success.initiator_opinion = { affection = 1 }
+success.target_opinion = { affection = 1 }
+success.initiator_reason = "Took time to speak with me"
+success.target_reason = "Asked after the news"
+success.initiator_memory = "Asked {target} for the news at {place}"
+success.target_memory = "{initiator} asked me for the news at {place}"

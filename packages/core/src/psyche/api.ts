@@ -54,7 +54,7 @@ export function addThought(world: World, ctx: SimContext, actorId: ActorId, prop
         label: r.thought.label,
         subjects: [actorId],
         knowledge: 'self',
-        terms: r.thought.reasons,
+        terms: r.thought.reasons.map((term) => ({ ...term })),
         total: r.thought.intensity,
         outcome: 'surfaced',
       },

@@ -120,6 +120,8 @@ export interface ProvisionsState {
   stores: Table<PlaceId, Store>;
   fires: Table<PlaceId, Fire>;
   settings: ProvisionsSettings;
+  /** Paid bed access, actor -> expiry game minute. Optional for old saves. */
+  beds?: Record<number, { placeId: PlaceId; until: number }>;
 }
 
 export function createProvisionsState(): ProvisionsState {
@@ -196,7 +198,7 @@ export function initProvisionsState(world: World, ctx: InitContext): void {
     if (pid === undefined) continue;
     let owner: HouseholdId | null = null;
     for (const hid of idsOf<HouseholdId>(world.households)) {
-      if (world.households[hid]?.homePlaceId === pid) owner = hid;
+      if (owner === null && world.households[hid]?.homePlaceId === pid) owner = hid;
     }
     // A restock table that names this place applies even if the scenario did not link it.
     const linked = s.restock ?? Object.values(ctx.content.restocks ?? {}).find((r) => r.place === s.place)?.id ?? null;

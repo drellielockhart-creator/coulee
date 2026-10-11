@@ -254,7 +254,7 @@ function emitThought(m: Mind, t: Thought): void {
       label: t.label,
       subjects: [m.actorId],
       knowledge: 'self',
-      terms: t.reasons,
+      terms: t.reasons.map((term) => ({ ...term })),
       total: t.intensity,
       outcome: 'surfaced',
     },

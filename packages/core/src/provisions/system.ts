@@ -6,6 +6,7 @@ import { rootLocation } from '../items/containers.ts';
 import { chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
+import { boardMeal, drinkWater, sell, storeOpen } from './api.ts';
 import { householdDay, purchase, shoppingHour } from './economy.ts';
 import { devicesHour, storageHour } from './environment.ts';
 import { accessibleStack, dueMeal, type Holder, holderOfActor, mealExplain, serveMeal } from './meals.ts';
@@ -31,7 +32,22 @@ export function provisionsSystem(world: World, ctx: SimContext): void {
       continue;
     }
     switch (cmd.kind) {
+      case 'provisions.board_meal':
+        if (boardMeal(world, ctx, actor.id)) ate.add(actor.id);
+        else reject('No meal available: closed, insufficient cash, or kitchen supplies exhausted');
+        break;
+      case 'provisions.drink':
+        if (!drinkWater(world, ctx, actor.id, cmd.data.ml)) reject('Not enough accessible water');
+        break;
+      case 'provisions.sell':
+        if (!sell(world, ctx, actor.id, cmd.data.placeId, cmd.data.itemId, cmd.data.qty))
+          reject('Store cannot buy these goods');
+        break;
       case 'provisions.buy':
+        if (!storeOpen(world, ctx.content, cmd.data.placeId)) {
+          reject('The shop is closed');
+          break;
+        }
         if (!purchase(world, ctx, actor.id, cmd.data.placeId, cmd.data.defId, cmd.data.qty, cmd.data.onCredit))
           reject('Cannot buy: location, stock, cash, or credit limit');
         break;
@@ -120,6 +136,7 @@ export function provisionsSystem(world: World, ctx: SimContext): void {
     if (!meal && !eating) continue;
     // A chosen meal between scheduled meals is a snack; avoid a second full meal within three hours.
     if (!meal && ctx.now - (world.provisions.nutrition[actor.id]?.lastMealAt ?? -10000) < 180) continue;
+    if (eating && boardMeal(world, ctx, actor.id)) continue;
     const group = groups.find(
       (g) => 'householdId' in holder && 'householdId' in g.holder && holder.householdId === g.holder.householdId,
     );

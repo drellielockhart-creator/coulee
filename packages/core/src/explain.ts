@@ -124,3 +124,33 @@ export function explainLine(e: Explain): string {
   const dc = e.dc ? ` vs DC ${e.dc.total}` : '';
   return `${e.label}: ${e.total} (${parts.join(', ')})${dc} -> ${e.outcome}`;
 }
+
+/** Gate every node independently; a public parent never grants access to private children. */
+export function visibleExplain(
+  e: Explain | undefined,
+  perspective: ActorId | null,
+  omniscient = false,
+): Explain | null {
+  if (!e) return null;
+  if (
+    !omniscient &&
+    perspective !== null &&
+    !(
+      e.knowledge === 'public' ||
+      (e.knowledge === 'self' && e.subjects[0] === perspective) ||
+      (e.knowledge === 'participants' && e.subjects.includes(perspective))
+    )
+  )
+    return null;
+  return {
+    ...e,
+    ...(e.children
+      ? {
+          children: e.children.flatMap((child) => {
+            const shown = visibleExplain(child, perspective, omniscient);
+            return shown ? [shown] : [];
+          }),
+        }
+      : {}),
+  };
+}

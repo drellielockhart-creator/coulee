@@ -381,13 +381,6 @@ export const RestockSchema = z.strictObject({
 });
 export type RestockDef = z.output<typeof RestockSchema>;
 
-export const itemsDomains = {
-  items: defineDomain({ dir: 'items', key: 'item', schema: ItemSchema }),
-  mealPlans: defineDomain({ dir: 'provisions', key: 'meal_plan', schema: MealPlanSchema }),
-  rationPolicies: defineDomain({ dir: 'provisions', key: 'ration_policy', schema: RationPolicySchema }),
-  restocks: defineDomain({ dir: 'provisions', key: 'restock', schema: RestockSchema }),
-};
-
 const StackSeedSchema = z.strictObject({
   item: ref(),
   qty: posInt(),
@@ -396,6 +389,33 @@ const StackSeedSchema = z.strictObject({
   worn: z.boolean().default(false),
 });
 export type StackSeed = z.output<typeof StackSeedSchema>;
+
+export const PlayStartSchema = z.strictObject({
+  id: id(),
+  name: z.string(),
+  ancestry: ref(),
+  occupation: ref(),
+  purse_cents: nonNegInt(),
+  inventory: z.array(StackSeedSchema),
+});
+export const VenueServiceSchema = z.strictObject({
+  id: id(),
+  place_tag: id(),
+  keeper_role: id().optional(),
+  opens: nonNegInt().max(23),
+  closes: nonNegInt().max(24),
+  bed_cents: nonNegInt().optional(),
+  meal_cents: nonNegInt().optional(),
+  meal_share_pct: int().min(1).max(100).optional(),
+});
+export const itemsDomains = {
+  venueServices: defineDomain({ dir: 'provisions', key: 'venue_service', schema: VenueServiceSchema }),
+  playStarts: defineDomain({ dir: 'play', key: 'start', schema: PlayStartSchema }),
+  items: defineDomain({ dir: 'items', key: 'item', schema: ItemSchema }),
+  mealPlans: defineDomain({ dir: 'provisions', key: 'meal_plan', schema: MealPlanSchema }),
+  rationPolicies: defineDomain({ dir: 'provisions', key: 'ration_policy', schema: RationPolicySchema }),
+  restocks: defineDomain({ dir: 'provisions', key: 'restock', schema: RestockSchema }),
+};
 
 /** Per-household scenario fields owned by provisions: the pantry / household stores. */
 export const provisionsHouseholdFields = {
@@ -466,6 +486,11 @@ export function itemsRefs(b: ContentBundle): Issue[] {
       'item',
     );
   };
+  for (const st of Object.values(b.playStarts)) {
+    seedRefs(`playStarts:${st.id}`, st.inventory);
+    checkRefs(issues, `playStarts:${st.id}`, 'ancestry', [st.ancestry], b.peoples, 'people');
+    checkRefs(issues, `playStarts:${st.id}`, 'occupation', [st.occupation], b.occupations, 'occupation');
+  }
   for (const mp of Object.values(b.mealPlans)) {
     const sum = mp.meals.reduce((t, m) => t + m.share_pct, 0);
     if (sum !== 100)
