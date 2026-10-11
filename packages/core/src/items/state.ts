@@ -21,6 +21,9 @@ export type ItemLocation =
   /** Inside another stack that is a container. */
   | { kind: 'container'; itemId: ItemId };
 
+/** How a light-giving or fuel-burning device is switched (provisions.light): 'auto' lights when dark and someone is up. */
+export type LitMode = 'auto' | 'on' | 'off';
+
 export interface ItemStack {
   id: ItemId;
   defId: ItemDefId;
@@ -32,8 +35,22 @@ export interface ItemStack {
   wetness: number;
   /** 0..1000 progress toward spoiled (food only; 1000 = spoiled). */
   spoilage: number;
+  /**
+   * Remainder of the spoilage division (03 §3.7.4): `spoilage` gains floor(num/den) each step and
+   * the remainder is carried, so long-keeping food still spoils. 0 <= carry < den.
+   */
+  spoilageCarry: number;
+  /**
+   * Sub-units already used from the top unit of the stack: servings eaten of a food unit, or supply
+   * units (minutes of fire, lamp-minutes, strikes) burned from a fuel/match/oil unit. 0 <= partial < unit size.
+   */
+  partial: number;
+  /** Devices that burn supplies: how the player or the household has set them. */
+  litMode: LitMode;
+  /** True while a device is burning supply this hour (gates its affordances). */
+  lit: boolean;
   createdAt: GameMinute;
-  /** Provenance log (03 §10.1): events that touched this stack. Capped by provisions. */
+  /** Provenance log (03 §10.1): ids of events that touched this stack. Capped by provisions. */
   provenance: number[];
 }
 
@@ -46,6 +63,9 @@ export function createItemsState(): ItemsState {
   return { counters: { item: 0 }, stacks: {} };
 }
 
+/** Keep only the last few provenance entries so a stack's history cannot grow without bound. */
+export const PROVENANCE_CAP = 8;
+
 /** Create a stack (no event; callers emit 'items.created' when it matters). */
 export function newStack(world: World, defId: ItemDefId, qty: number, location: ItemLocation, at: GameMinute): ItemId {
   const id = asItemId(nextId(world.items.counters, 'item'));
@@ -57,10 +77,20 @@ export function newStack(world: World, defId: ItemDefId, qty: number, location: 
     condition: 100,
     wetness: 0,
     spoilage: 0,
+    spoilageCarry: 0,
+    partial: 0,
+    litMode: 'auto',
+    lit: false,
     createdAt: at,
     provenance: [],
   };
   return id;
+}
+
+/** Append an event id to a stack's provenance log, trimming to PROVENANCE_CAP. */
+export function recordProvenance(stack: ItemStack, eventId: number): void {
+  stack.provenance.push(eventId);
+  if (stack.provenance.length > PROVENANCE_CAP) stack.provenance.splice(0, stack.provenance.length - PROVENANCE_CAP);
 }
 
 /**

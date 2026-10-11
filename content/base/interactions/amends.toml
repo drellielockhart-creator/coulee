@@ -1,0 +1,67 @@
+# Amends (04 §10 #23-#24, §9.5). OWNER: module:social.
+# Apologies and forgiveness do not set opinions: they lower the salience of the memories
+# the hostile Reasons cite, so the old insult simply stings less (04 §6.2).
+
+[[interaction]]
+id = "apologize"
+name = "Apologize"
+label = "Apologize"
+description = "Owns a wrong. If it rings true, the old memory loses its edge."
+requires = { acquainted = true, initiator_did = ["insult", "slight", "snub", "mockery", "threat", "fight", "dunning"] }
+volition = [
+  { driver = "did:insult", weight = 40 },
+  { driver = "did:fight", weight = 50 },
+  { driver = "did:threat", weight = 40 },
+  { driver = "did:mockery", weight = 30 },
+  { driver = "did:slight", weight = 25 },
+  { driver = "did:snub", weight = 20 },
+  { driver = "value:piety", weight = 8 },
+  { driver = "value:rancor", weight = -5 },
+  { driver = "opinion:affection", weight = 10 },
+  { driver = "opinion:fear", weight = 10 },
+]
+threshold = 40
+cooldown_hours = 24
+check = { kind = "dc", skill = "persuade", dc = 12, attitude = true }
+memory = { kind = "apology", emotion = "gratitude", intensity = 35 }
+tags = ["amends"]
+urge = { voice = "superego", min_score = 45, label = "Make it right with {target}", norm = "shame" }
+success.soften_target_memories_pct = 40
+success.target_opinion = { affection = 6, trust = 2 }
+success.initiator_anxiety = -60
+success.target_memory = "{initiator} came and apologized"
+success.initiator_memory = "Apologized to {target}"
+success.witness_memory = "{initiator} apologized to {target} at {place}"
+success.target_reason = "Came and apologized"
+failure.target_opinion = { trust = -3 }
+failure.target_memory = "{initiator} said sorry; I didn't believe it"
+failure.initiator_memory = "Apologized to {target}; it wasn't taken"
+failure.target_reason = "An apology that rang hollow"
+
+[[interaction]]
+id = "forgive"
+name = "Forgive"
+label = "Forgive"
+description = "Lets it go. Chronicle-worthy: feuds end this way or not at all."
+requires = { acquainted = true, initiator_remembers = ["apology"] }
+volition = [
+  { driver = "remembers:apology", weight = 40 },
+  { driver = "value:rancor", weight = -10 },
+  { driver = "value:piety", weight = 8 },
+  { driver = "opinion:affection", weight = 10 },
+]
+threshold = 35
+cooldown_hours = 168
+memory = { kind = "forgiveness", emotion = "gratitude", intensity = 40 }
+notable = true
+importance = 40
+tags = ["amends"]
+success.soften_initiator_memories_pct = 60
+success.initiator_opinion = { affection = 5, trust = 3 }
+success.target_opinion = { affection = 5 }
+success.initiator_anxiety = -40
+success.target_memory = "{initiator} forgave me"
+success.initiator_memory = "Forgave {target}"
+success.witness_memory = "{initiator} and {target} made it up at {place}"
+success.target_reason = "Forgave me"
+success.initiator_reason = "We made it up"

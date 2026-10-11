@@ -1,0 +1,200 @@
+# Hostility (04 §10 #7-#9, #25, #33, #39). OWNER: module:social.
+# Tag `displacement` marks interactions a displaced rage can discharge through (10 §7);
+# the defense table in social/tuning.toml picks among them.
+
+[[interaction]]
+id = "slight"
+name = "Slight"
+label = "Slight"
+description = "A curt word, a turned shoulder at the counter."
+requires = { acquainted = true, max_affection = 0, min_age = 8 }
+volition = [
+  { driver = "opinion:affection", weight = -20 },
+  { driver = "value:temper", weight = 8 },
+  { driver = "grudge", weight = 20 },
+  { driver = "condition:drunk", weight = 15 },
+]
+threshold = 20
+cooldown_hours = 12
+memory = { kind = "slight", emotion = "anger", intensity = 25 }
+tags = ["hostile", "displacement"]
+success.target_opinion = { affection = -5 }
+success.target_memory = "{initiator} was short with me at {place}"
+success.initiator_memory = "Was short with {target}"
+success.witness_memory = "{initiator} was short with {target} at {place}"
+success.target_reason = "Was short with me at {place}"
+
+[[interaction]]
+id = "snub"
+name = "Snub"
+label = "Snub"
+description = "Cuts them dead: no greeting, no service, eyes elsewhere (04 §10 #33)."
+requires = { acquainted = true, max_affection = -30, min_age = 12 }
+volition = [
+  { driver = "opinion:affection", weight = -20 },
+  { driver = "grudge", weight = 20 },
+  { driver = "value:parochialism", weight = 5 },
+  { driver = "audience", weight = 5 },
+]
+threshold = 25
+cooldown_hours = 24
+memory = { kind = "snub", emotion = "shame", intensity = 20 }
+tags = ["hostile", "displacement"]
+success.target_opinion = { affection = -3, respect = -2 }
+success.initiator_needs = { company = -10 }
+success.target_memory = "{initiator} cut me dead at {place}"
+success.initiator_memory = "Cut {target} dead"
+success.witness_memory = "{initiator} cut {target} dead at {place}"
+success.target_reason = "Cut me dead at {place}"
+
+[[interaction]]
+id = "mock"
+name = "Mock"
+label = "Mock"
+description = "Makes sport of someone before an audience (10 humor). Laughter carries."
+requires = { acquainted = true, max_affection = 10, min_age = 10 }
+volition = [
+  { driver = "audience", weight = 20 },
+  { driver = "value:temper", weight = 8 },
+  { driver = "grudge", weight = 20 },
+  { driver = "opinion:respect", weight = -20 },
+  { driver = "condition:drunk", weight = 15 },
+]
+threshold = 35
+cooldown_hours = 12
+check = { kind = "opposed", skill = "perform_storytelling", vs = "will" }
+memory = { kind = "mockery", emotion = "shame", intensity = 35 }
+juiciness = 30
+tags = ["hostile", "displacement", "public"]
+success.target_opinion = { affection = -8, fear = 2 }
+success.audience_opinion = { affection = 1 }
+success.target_memory = "{initiator} made sport of me at {place}"
+success.initiator_memory = "Made sport of {target}"
+success.witness_memory = "{initiator} made sport of {target} at {place}"
+success.target_reason = "Made a laughingstock of me at {place}"
+failure.target_opinion = { affection = -4 }
+failure.audience_opinion = { affection = -2 }
+failure.target_memory = "{initiator} tried to make sport of me at {place}"
+failure.initiator_memory = "Tried to make sport of {target}; nobody laughed"
+failure.witness_memory = "{initiator} tried to make sport of {target} at {place}"
+failure.target_reason = "Tried to make a fool of me"
+
+[[interaction]]
+id = "insult"
+name = "Insult"
+label = "Insult"
+description = "Hard words. The target may keep their temper (Will) or swing."
+requires = { acquainted = true, max_affection = -20, waive_opinion_if = ["drunk"], min_age = 12 }
+volition = [
+  { driver = "value:temper", weight = 15 },
+  { driver = "grudge", weight = 40 },
+  { driver = "opinion:affection", weight = -20 },
+  { driver = "opinion:fear", weight = -30 },
+  { driver = "condition:drunk", weight = 20 },
+]
+threshold = 40
+cooldown_hours = 6
+check = { kind = "opposed", skill = "intimidate", vs = "will" }
+memory = { kind = "insult", emotion = "anger", intensity = 50 }
+juiciness = 40
+notable = true
+importance = 35
+tags = ["hostile", "displacement", "public"]
+urge = { voice = "id", min_score = 55, label = "Tell {target} what I think of them", drive = "rage" }
+success.target_opinion = { affection = -15, fear = 5 }
+success.audience_opinion = { fear = 2 }
+success.escalates_to = "fight"
+success.target_thought = { voice = "id", interaction = "insult", intensity = 400, label = "Give {other} back as good as I got", drive = "rage" }
+success.target_memory = "{initiator} insulted me at {place}"
+success.initiator_memory = "Told {target} what I think of them"
+success.witness_memory = "{initiator} insulted {target} at {place}"
+success.target_reason = "Insulted me at {place}"
+failure.target_opinion = { affection = -10, respect = -5 }
+failure.initiator_opinion = { affection = -5 }
+failure.audience_opinion = { respect = -3 }
+failure.target_memory = "{initiator} tried to insult me at {place}; I let it pass"
+failure.initiator_memory = "{target} laughed off my words"
+failure.witness_memory = "{initiator} tried to insult {target} at {place}"
+failure.target_reason = "Ran their mouth at me at {place}"
+failure.initiator_reason = "Laughed me off"
+
+[[interaction]]
+id = "threaten"
+name = "Threaten"
+label = "Threaten"
+description = "\"You'll pay, one way or another.\" Fear if it lands, scorn if it doesn't."
+requires = { acquainted = true, max_affection = -10, waive_opinion_if = ["drunk"], min_age = 14 }
+volition = [
+  { driver = "value:temper", weight = 10 },
+  { driver = "grudge", weight = 30 },
+  { driver = "owed_cents", weight = 20 },
+  { driver = "opinion:fear", weight = -20 },
+  { driver = "condition:drunk", weight = 10 },
+]
+threshold = 45
+cooldown_hours = 24
+check = { kind = "opposed", skill = "intimidate", vs = "will" }
+memory = { kind = "threat", emotion = "fear", intensity = 55 }
+juiciness = 45
+notable = true
+importance = 40
+tags = ["hostile"]
+urge = { voice = "id", min_score = 65, label = "Put the fear of God into {target}", drive = "rage" }
+success.target_opinion = { affection = -10, fear = 20 }
+success.target_anxiety = 150
+success.target_memory = "{initiator} threatened me at {place}"
+success.initiator_memory = "Threatened {target}"
+success.witness_memory = "{initiator} threatened {target} at {place}"
+success.target_reason = "Threatened me"
+failure.target_opinion = { affection = -5, respect = -5 }
+failure.audience_opinion = { respect = -2 }
+failure.target_memory = "{initiator} made threats at me; empty ones"
+failure.initiator_memory = "{target} stared me down"
+failure.witness_memory = "{initiator} made empty threats at {target} at {place}"
+failure.target_reason = "All bluster"
+failure.initiator_reason = "Stared me down"
+
+[[interaction]]
+id = "fight"
+name = "Fight"
+label = "Fight!"
+description = "Fisticuffs (M1: an opposed Athletics check, no injuries yet). Public, remembered."
+requires = { acquainted = true, min_grudge = 50, not_venue_tags = ["church"], min_age = 14, target_min_age = 14 }
+volition = [
+  { driver = "grudge", weight = 50 },
+  { driver = "value:temper", weight = 15 },
+  { driver = "condition:drunk", weight = 25 },
+  { driver = "opinion:fear", weight = -40 },
+  { driver = "venue:tavern", weight = 10 },
+]
+threshold = 60
+cooldown_hours = 24
+check = { kind = "opposed", skill = "athletics", vs = "athletics" }
+memory = { kind = "fight", emotion = "anger", intensity = 75 }
+juiciness = 70
+notable = true
+importance = 55
+visibility = "public"
+minutes = 15
+tags = ["hostile", "violent", "public"]
+urge = { voice = "id", min_score = 75, label = "Knock {target} down", drive = "rage" }
+success.target_opinion = { affection = -10, respect = 3, fear = 10 }
+success.initiator_opinion = { respect = -5 }
+success.target_emotion = "shame"
+success.target_anxiety = 120
+success.audience_opinion = { fear = 3 }
+success.target_memory = "{initiator} knocked me down at {place}"
+success.initiator_memory = "Knocked {target} down at {place}"
+success.witness_memory = "{initiator} knocked {target} down at {place}"
+success.target_reason = "Knocked me down at {place}"
+success.initiator_reason = "Went down easy"
+failure.target_opinion = { affection = -10, respect = -5 }
+failure.initiator_opinion = { respect = 5, fear = 8 }
+failure.initiator_emotion = "shame"
+failure.initiator_anxiety = 120
+failure.audience_opinion = { respect = -3 }
+failure.target_memory = "{initiator} came at me at {place}; I put him down"
+failure.initiator_memory = "{target} put me down at {place}"
+failure.witness_memory = "{target} put {initiator} down at {place}"
+failure.target_reason = "Came at me with fists at {place}"
+failure.initiator_reason = "Put me down in front of everyone"

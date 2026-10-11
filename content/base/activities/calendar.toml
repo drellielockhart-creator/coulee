@@ -1,0 +1,274 @@
+# The human calendar and the daily round (05 §4.3, §4.6). OWNER: module:needs-activities.
+#
+# An observance is active on days that satisfy every `when` condition. Its blocks call
+# actors who pass `who` and (if `attend` is given) win a once-a-day roll:
+#     chance% = base_pct + Σ (value step × value_pct) + Σ trait add      (clamped 0..100)
+# Occupation schedule blocks have priority 20 and sleep 100; a block with a higher priority
+# replaces the occupation's activity for those hours. Hours may be anchored to sunrise/sunset.
+#
+# Seasonal hours (05 §4.2): the same clock hour is a different day in June and January, so the
+# night is two observances.
+
+# ---- The daily round ---------------------------------------------------------------------
+
+[[observance]]
+id = "night_long"
+name = "The long nights"
+description = "Dark by five and cold: early to bed, late to rise (Oct-Apr)."
+when = { months = [10, 11, 12, 1, 2, 3, 4] }
+blocks = [{ from = 21, to = 6, activity = "sleep", priority = 10, duty = 300 }]
+
+[[observance]]
+id = "night_short"
+name = "The short nights"
+description = "Light at four, and the hay won't wait (May-Sep)."
+when = { months = [5, 6, 7, 8, 9] }
+blocks = [{ from = 22, to = 5, activity = "sleep", priority = 10, duty = 300 }]
+
+[[observance]]
+id = "daily_meals"
+name = "Meals"
+description = "Breakfast, dinner at noon, supper at six. Provisions decides what is on the table."
+when = { weekdays = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] }
+blocks = [
+  { from = 6, to = 7, activity = "cook_meal", priority = 38, duty = 350, who = { min_age = 15, max_age = 70, rota = true } },
+  { from = 7, to = 8, activity = "take_meal", priority = 40, duty = 450 },
+  { from = 11, to = 12, activity = "cook_meal", priority = 38, duty = 350, who = { min_age = 15, max_age = 70, rota = true } },
+  { from = 12, to = 13, activity = "take_meal", priority = 40, duty = 450 },
+  { from = 17, to = 18, activity = "cook_meal", priority = 38, duty = 350, who = { min_age = 15, max_age = 70, rota = true } },
+  { from = 18, to = 19, activity = "take_meal", priority = 40, duty = 450 },
+]
+
+[[observance]]
+id = "evening_tavern"
+name = "An evening at the tavern"
+description = "Weekday evenings: the grown and the thirsty. The pious stay home."
+when = { weekdays = ["mon", "tue", "wed", "thu", "fri", "sat"] }
+blocks = [
+  { from = 19, to = 22, activity = "drink_at_tavern", priority = 22, duty = 250, who = { min_age = 18 }, attend = { base_pct = 14, value_pct = { neighborliness = 4, piety = -5, temper = 2 }, trait_pct = { gossip = 8 } } },
+]
+
+[[observance]]
+id = "evening_visiting"
+name = "Visiting"
+description = "Calling on kin and neighbors after supper."
+when = { weekdays = ["mon", "tue", "wed", "thu", "fri", "sat"] }
+blocks = [
+  { from = 19, to = 21, activity = "visit_kin", priority = 22, duty = 250, attend = { base_pct = 14, value_pct = { neighborliness = 6 }, trait_pct = { gossip = 12 } } },
+]
+
+[[observance]]
+id = "school_winter_term"
+name = "The winter term"
+description = "School keeps from November to April, when the farm children can be spared."
+when = { weekdays = ["mon", "tue", "wed", "thu", "fri"], months = [11, 12, 1, 2, 3, 4] }
+blocks = [
+  { from = 9, to = 12, activity = "attend_school", fallback = "keep_house", priority = 50, duty = 600, who = { min_age = 6, max_age = 14 }, attend = { base_pct = 85, value_pct = { thrift = -3 } } },
+  { from = 13, to = 16, activity = "attend_school", fallback = "keep_house", priority = 50, duty = 600, who = { min_age = 6, max_age = 14 }, attend = { base_pct = 85, value_pct = { thrift = -3 } } },
+]
+
+[[observance]]
+id = "school_summer_term"
+name = "The summer term"
+description = "A short summer term for the little ones; the big ones are in the fields."
+when = { weekdays = ["mon", "tue", "wed", "thu", "fri"], months = [6, 7, 8] }
+blocks = [
+  { from = 9, to = 12, activity = "attend_school", fallback = "keep_house", priority = 50, duty = 500, who = { min_age = 6, max_age = 10 }, attend = { base_pct = 60 } },
+]
+
+# ---- The Sabbath, Holy Week, and feast days ----------------------------------------------
+
+[[observance]]
+id = "sabbath"
+name = "The Sabbath"
+description = "Most work stops. Stores are shut; stock must still be fed. Church is the week's gossip hub."
+when = { weekdays = ["sun"] }
+rest_labor = true
+rest_activity = "sabbath_rest"
+exempt_roles = ["preacher"]
+closes = ["store", "smithy", "mill"]
+blocks = [
+  { from = 10, to = 12, activity = "preach_service", priority = 70, duty = 800, who = { roles = ["preacher"] } },
+  { from = 10, to = 12, activity = "attend_church", fallback = "sabbath_rest", priority = 60, duty = 450, norm = "piety", speaker = "The Pastor", duty_values = { piety = 70 }, announce = true, attend = { base_pct = 58, value_pct = { piety = 14 }, trait_pct = { pious = 10 } }, who = { not_roles = ["preacher"] } },
+  { from = 14, to = 17, activity = "visit_kin", priority = 25, duty = 300, attend = { base_pct = 38, value_pct = { neighborliness = 6 }, trait_pct = { gossip = 10 } } },
+  { from = 15, to = 18, activity = "drink_at_tavern", priority = 24, duty = 250, who = { min_age = 18 }, attend = { base_pct = 12, value_pct = { piety = -8, neighborliness = 3 } } },
+  { from = 19, to = 20, activity = "family_devotions", priority = 26, duty = 350, norm = "piety", attend = { base_pct = 45, value_pct = { piety = 14 } } },
+]
+
+[[observance]]
+id = "palm_sunday"
+name = "Palm Sunday"
+description = "The first day of the run, and the start of Holy Week: the pews fill."
+when = { easter_offset = -7 }
+blocks = [
+  { from = 10, to = 12, activity = "attend_church", fallback = "sabbath_rest", priority = 62, duty = 550, norm = "piety", duty_values = { piety = 70 }, announce = true, attend = { base_pct = 70, value_pct = { piety = 12 } }, who = { not_roles = ["preacher"] } },
+]
+
+[[observance]]
+id = "good_friday"
+name = "Good Friday"
+description = "A quiet day. The faithful gather in the evening; trade is slow."
+when = { easter_offset = -2 }
+blocks = [
+  { from = 19, to = 21, activity = "attend_church", fallback = "family_devotions", priority = 55, duty = 500, norm = "piety", duty_values = { piety = 70 }, announce = true, attend = { base_pct = 35, value_pct = { piety = 16 } }, who = { not_roles = ["preacher"] } },
+  { from = 19, to = 21, activity = "preach_service", priority = 70, duty = 800, who = { roles = ["preacher"] } },
+]
+
+[[observance]]
+id = "easter_sunday"
+name = "Easter Sunday"
+description = "Sunrise service, the full church, the feast."
+when = { easter_offset = 0 }
+blocks = [
+  { from = 6, to = 7, activity = "attend_church", priority = 66, duty = 550, norm = "piety", duty_values = { piety = 70 }, attend = { base_pct = 30, value_pct = { piety = 16 } }, who = { not_roles = ["preacher"] } },
+  { from = 10, to = 12, activity = "attend_church", fallback = "sabbath_rest", priority = 65, duty = 600, norm = "piety", duty_values = { piety = 70 }, announce = true, attend = { base_pct = 82, value_pct = { piety = 8 } }, who = { not_roles = ["preacher"] } },
+]
+
+[[observance]]
+id = "fourth_of_july"
+name = "The Fourth of July"
+description = "Oratory, the militia muster, an anvil shot, and a good deal of drink."
+when = { date = { month = 7, day = 4 } }
+announce = true
+rest_labor = true
+rest_activity = "celebrate"
+blocks = [
+  { from = 10, to = 16, activity = "celebrate", fallback = "idle_at_home", priority = 55, duty = 500, announce = true, attend = { base_pct = 80, value_pct = { neighborliness = 5, piety = -3 } } },
+  { from = 20, to = 22, activity = "celebrate", fallback = "idle_at_home", priority = 55, duty = 400, attend = { base_pct = 55 }, who = { min_age = 12 } },
+]
+
+[[observance]]
+id = "thanksgiving"
+name = "Thanksgiving"
+description = "The governor's proclamation: church in the morning, a table of kin in the afternoon."
+when = { weekdays = ["thu"], months = [11], day_range = [24, 30] }
+announce = true
+rest_labor = true
+rest_activity = "sabbath_rest"
+blocks = [
+  { from = 10, to = 11, activity = "attend_church", fallback = "sabbath_rest", priority = 55, duty = 400, norm = "piety", attend = { base_pct = 55, value_pct = { piety = 12 } }, who = { not_roles = ["preacher"] } },
+  { from = 14, to = 16, activity = "take_meal", priority = 55, duty = 600 },
+]
+
+[[observance]]
+id = "christmas"
+name = "Christmas"
+description = "Customs vary by settler group; every house keeps something."
+when = { date = { month = 12, day = 25 } }
+announce = true
+rest_labor = true
+rest_activity = "sabbath_rest"
+blocks = [
+  { from = 10, to = 12, activity = "attend_church", fallback = "sabbath_rest", priority = 58, duty = 500, norm = "piety", duty_values = { piety = 60 }, attend = { base_pct = 70, value_pct = { piety = 12 } }, who = { not_roles = ["preacher"] } },
+  { from = 14, to = 17, activity = "visit_kin", priority = 40, duty = 400, attend = { base_pct = 60, value_pct = { neighborliness = 6 } } },
+]
+
+[[observance]]
+id = "county_fair"
+name = "The county fair"
+description = "Livestock and produce, horse races, a sideshow, and strangers."
+when = { months = [9], day_range = [25, 27] }
+announce = true
+blocks = [
+  { from = 9, to = 17, activity = "celebrate", fallback = "go_to_market", priority = 50, duty = 450, announce = true, attend = { base_pct = 70, value_pct = { neighborliness = 5 } }, who = { not_workplace_tags = ["store", "smithy", "mill", "tavern", "church"] } },
+]
+
+[[observance]]
+id = "election_day"
+name = "Election day"
+description = "The polls at the tavern; faction contests; free whiskey from the candidates."
+when = { weekdays = ["tue"], months = [11], day_range = [2, 8] }
+announce = true
+blocks = [
+  { from = 9, to = 17, activity = "vote_at_polls", fallback = "idle_at_home", priority = 50, duty = 450, announce = true, attend = { base_pct = 80, value_pct = { neighborliness = 3 } }, who = { sexes = ["male"], min_age = 21 } },
+]
+
+# ---- Market, mail and court ---------------------------------------------------------------
+
+[[observance]]
+id = "market_day"
+name = "Market day"
+description = "Saturday: farm families come in; the town's population nearly doubles; prices and rumors peak."
+when = { weekdays = ["sat"] }
+announce = true
+blocks = [
+  { from = 9, to = 14, activity = "go_to_market", fallback = "idle_at_home", priority = 35, duty = 450, announce = true, who = { home_kinds = ["farmstead"], min_age = 12, not_workplace_tags = ["store", "smithy", "mill", "tavern", "church", "school"] }, attend = { base_pct = 80, value_pct = { neighborliness = 5, thrift = 3 } } },
+  { from = 9, to = 14, activity = "go_to_market", fallback = "idle_at_home", priority = 35, duty = 350, who = { not_home_kinds = ["farmstead"], min_age = 12, not_workplace_tags = ["store", "smithy", "mill", "tavern", "church", "school"] }, attend = { base_pct = 40, value_pct = { neighborliness = 6, thrift = 4 }, trait_pct = { gossip = 15 } } },
+]
+
+[[observance]]
+id = "mail_days"
+name = "Mail day"
+description = "The stage comes twice a week: letters, newspapers, news from outside."
+when = { weekdays = ["tue", "fri"] }
+blocks = [
+  { from = 11, to = 13, activity = "fetch_mail", fallback = "idle_at_home", priority = 25, duty = 300, who = { min_age = 12 }, attend = { base_pct = 30, value_pct = { neighborliness = 4, ambition = 4 }, trait_pct = { gossip = 10 } } },
+]
+
+[[observance]]
+id = "court_day"
+name = "Court day"
+description = "The first Monday: the justice sits at the tavern. Land disputes, slander, debts, a crowd."
+when = { weekdays = ["mon"], day_range = [1, 7] }
+announce = true
+blocks = [
+  { from = 10, to = 15, activity = "hold_court", priority = 65, duty = 800, who = { roles = ["jp"] } },
+  { from = 10, to = 15, activity = "attend_court", fallback = "idle_at_home", priority = 30, duty = 350, who = { min_age = 16, not_roles = ["jp"], not_workplace_tags = ["store", "smithy", "mill"] }, attend = { base_pct = 12, value_pct = { neighborliness = 4, rancor = 3 }, trait_pct = { gossip = 15 } } },
+]
+
+# ---- The farm year ---------------------------------------------------------------------
+
+[[observance]]
+id = "sugaring"
+name = "Sugaring-off"
+description = "March-April: the thaw runs the sap. Kettles boil day and night in the sugar bush."
+when = { months = [3, 4], weekdays = ["mon", "tue", "wed", "thu", "fri", "sat"] }
+blocks = [
+  { from = 8, to = 16, activity = "tap_maples", fallback = "tend_stock", priority = 28, duty = 600, who = { home_kinds = ["farmstead"], min_age = 10 }, attend = { base_pct = 70 } },
+]
+
+[[observance]]
+id = "planting"
+name = "Planting"
+description = "April-May: wheat, oats and corn go in as soon as the ground can be worked."
+when = { months = [4, 5, 6], weekdays = ["mon", "tue", "wed", "thu", "fri", "sat"] }
+blocks = [
+  { from_sun = { anchor = "sunrise", offset_h = 0 }, to_sun = { anchor = "sunset", offset_h = 0 }, from = 6, to = 18, activity = "plow_and_plant", fallback = "tend_stock", priority = 30, duty = 650, who = { home_kinds = ["farmstead"], min_age = 12 }, attend = { base_pct = 90 } },
+]
+
+[[observance]]
+id = "haying_and_harvest"
+name = "Haying and harvest"
+description = "June-October: all hands, from first light to dark. Wages are up; hired labor is wanted."
+when = { months = [6, 7, 8, 9, 10], weekdays = ["mon", "tue", "wed", "thu", "fri", "sat"] }
+blocks = [
+  { from_sun = { anchor = "sunrise", offset_h = 0 }, to_sun = { anchor = "sunset", offset_h = 0 }, from = 5, to = 19, activity = "bring_in_crops", fallback = "tend_stock", priority = 30, duty = 700, who = { home_kinds = ["farmstead"], min_age = 12 }, attend = { base_pct = 92 } },
+]
+
+[[observance]]
+id = "threshing"
+name = "Threshing"
+description = "September-October: the machine comes round, and every neighbor lends a hand."
+when = { months = [9, 10], weekdays = ["mon", "tue", "wed", "thu", "fri", "sat"] }
+blocks = [
+  { from = 7, to = 18, activity = "thresh_grain", fallback = "bring_in_crops", priority = 31, duty = 700, who = { home_kinds = ["farmstead"], min_age = 14 }, attend = { base_pct = 60 } },
+]
+
+[[observance]]
+id = "hog_killing"
+name = "Hog-killing week"
+description = "The first hard frost: every household with a pig puts down its winter meat."
+when = { months = [11], day_range = [8, 16], weekdays = ["mon", "tue", "wed", "thu", "fri", "sat"] }
+announce = true
+blocks = [
+  { from = 7, to = 17, activity = "butcher_hogs", fallback = "keep_house", priority = 44, duty = 700, who = { min_age = 12 }, attend = { base_pct = 55, value_pct = { thrift = 6 } } },
+]
+
+[[observance]]
+id = "ice_harvest"
+name = "Ice harvest"
+description = "January-February: saws on the river; the icehouse fills for next summer."
+when = { months = [1, 2], weekdays = ["mon", "tue", "wed", "thu", "fri", "sat"] }
+blocks = [
+  { from = 8, to = 16, activity = "cut_ice", fallback = "tend_stock", priority = 28, duty = 500, who = { min_age = 16 }, attend = { base_pct = 30, value_pct = { thrift = 5 } } },
+]

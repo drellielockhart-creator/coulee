@@ -1,0 +1,53 @@
+[[name_pool]]
+id = "norwegian"
+culture = "norwegian"
+peoples = ["human", "shadow_faekin", "elf"]
+given_female = ["Siri", "Ingrid", "Marit", "Kari", "Ragnhild", "Johanne", "Guri", "Anne", "Gunhild", "Berit", "Sigrid", "Magdalena"]
+given_male = ["Anders", "Tollef", "Ole", "Nils", "Halvor", "Peder", "Kristoffer", "Lars", "Tobias", "Absalon", "Knut", "Gunnar", "Torkel", "Jørgen"]
+family = ["Tveit", "Kvale", "Haugen", "Halvorsen", "Lund", "Moe", "Vik", "Bakken", "Dahl", "Nordby", "Sletten", "Rud"]
+notes = "Farm names (Kvale, Moe, Vik) double as surnames; patronymics (Halvorsen) are fading in America. Haugean laity favor plain biblical names."
+
+[[name_pool]]
+id = "german"
+culture = "german"
+peoples = ["human", "shadow_faekin", "elf", "goblin"]
+given_female = ["Magdalena", "Liesl", "Anneliese", "Gertrud", "Katharina", "Wilhelmine", "Dorothea", "Elisabeth", "Margarethe", "Ottilie"]
+given_male = ["Johann", "Karl", "Konrad", "Wilhelm", "Friedrich", "Heinrich", "Georg", "Matthias", "August", "Jakob", "Ludwig"]
+family = ["Brenner", "Strauss", "Rausch", "Vogt", "Hartmann", "Keller", "Brandt", "Becker", "Roth", "Lindner", "Ziegler"]
+notes = "Mixed Catholic, Lutheran and freethinking (Forty-Eighter) stock; Baden and the Rhineland predominate in the county."
+
+[[name_pool]]
+id = "swiss"
+culture = "swiss"
+peoples = ["human", "shadow_faekin", "elf"]
+given_female = ["Verena", "Barbara", "Anna", "Elsbeth", "Regula", "Susanna"]
+given_male = ["Ulrich", "Rudolf", "Hans", "Jost", "Fridolin", "Samuel", "Gallus"]
+family = ["Zimmermann", "Stauffer", "Baumgartner", "Gerber", "Tschudi", "Kaufmann", "Schlatter"]
+notes = "The Swiss cheese settlement down the valley (03 cheese). Reformed and Anabaptist-leaning."
+
+[[name_pool]]
+id = "cornish"
+culture = "cornish"
+peoples = ["human", "shadow_faekin", "goblin"]
+given_female = ["Loveday", "Demelza", "Wenna", "Tamsin", "Jenifer", "Morwenna", "Keziah", "Honor", "Thomasine", "Grace"]
+given_male = ["Josiah", "Jory", "Bartholomew", "Jago", "Peran", "Mawgan", "Nicholas", "Richard", "Thomas", "Samuel", "Trystan"]
+family = ["Trevenna", "Pascoe", "Penhallow", "Trist", "Carne", "Polglase", "Tregear", "Rowe", "Nance", "Trewin", "Jory", "Hocking"]
+notes = "Cousin Jacks of the lead diggings; Wesleyan Methodist. Goblin pares at Penhallow share these names with their Cornish neighbors, since the pare came over with them (12 §8.4). No comic or diminutive names."
+
+[[name_pool]]
+id = "irish"
+culture = "irish"
+peoples = ["human", "shadow_faekin"]
+given_female = ["Nora", "Brigid", "Mary", "Bridget", "Catherine", "Ellen", "Margaret", "Honora", "Johanna"]
+given_male = ["Michael", "Patrick", "Thomas", "Daniel", "Timothy", "John", "Cornelius", "Dennis"]
+family = ["Dunleavy", "Doyle", "Keane", "Brennan", "Gallagher", "Sheehan", "Moran", "Costello"]
+notes = "Catholic; 1840s famine migration. No goblin in this game gets Irish coding (01 §8.3, 12 §8.1)."
+
+[[name_pool]]
+id = "black_ohio"
+culture = "black_ohio"
+peoples = ["human"]
+given_female = ["Harriet", "Ruth", "Rebecca", "Lucretia", "Sophia", "Delia", "Maria", "Cassandra"]
+given_male = ["Thomas", "Isaiah", "Elijah", "Samuel", "Josiah", "Moses", "Prince", "Daniel", "Nathan"]
+family = ["Glover", "Freeman", "Carter", "Banks", "Lewis", "Cole", "Day", "Jordan"]
+notes = "Free Black settler families from Ohio (01 §8.3). Surnames are as ordinary as anyone's; none is a fae or mystical signifier."

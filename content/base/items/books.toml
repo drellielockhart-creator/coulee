@@ -1,0 +1,162 @@
+# Catalog 03 §6.13 Books & Almanacs. OWNER: module:content-items.
+# Books carry `read`/`write` affordances. The journal stores the character's notes (03 §6.13);
+# its effect on cache markers is a provisions/belief concern, tagged here.
+
+[[item]]
+id = "kittredge_almanack"
+name = "Kittredge's Almanack for the Year"
+section = "books"
+maker = "Kittredge"
+copy = "Moon, tides, and weather for the year, plus the remedy for warts."
+weight_g = 91
+bulk = 0.2
+value_cents = 6
+tags = ["moon_phases", "weather_forecast", "sabbaths"]
+truth = "Weather calls are generated from the seasonal model with seeded error. Usually close. Sometimes a month out."
+materials = [{ material = "paper", pct = 100 }]
+affordances = { read = 1 }
+stackable = false
+
+[[item]]
+id = "pocket_bible"
+name = "Pocket Bible"
+section = "books"
+copy = "The Word in small type. A comfort, and a credential at a stranger's door."
+weight_g = 227
+bulk = 0.2
+value_cents = 50
+tags = ["blessed_if_devout", "social_credential"]
+materials = [{ material = "paper", pct = 80 }, { material = "leather", pct = 20 }]
+affordances = { read = 1 }
+stackable = false
+
+[[item]]
+id = "rusk_domestic_medicine"
+name = "Rusk's Domestic Medicine"
+section = "books"
+copy = "Every family's physician between the doctor's visits."
+weight_g = 1361
+bulk = 2
+value_cents = 300
+tags = ["medicine_reference", "true_effect_lookup"]
+materials = [{ material = "paper", pct = 90 }, { material = "leather", pct = 10 }]
+affordances = { read = 1 }
+stackable = false
+
+[[item]]
+id = "emigrants_guide_upper_mississippi"
+name = "Emigrant's Guide to the Upper Mississippi"
+section = "books"
+copy = "Roads, ferries, landings, and which springs are sweet. Some of it was true once."
+weight_g = 227
+bulk = 0.5
+value_cents = 75
+tags = ["region_knowledge", "some_wrong"]
+materials = [{ material = "paper", pct = 100 }]
+affordances = { read = 1 }
+stackable = false
+
+[[item]]
+id = "county_map_lithographed"
+name = "County map, lithographed"
+section = "books"
+copy = "As surveyed. The coulees not surveyed are left blank, and blank is accurate."
+weight_g = 45
+bulk = 0.1
+value_cents = 50
+tags = ["region_map_surveyed_only"]
+materials = [{ material = "paper", pct = 100 }]
+affordances = { read = 1 }
+stackable = false
+
+[[item]]
+id = "bank_note_detector"
+name = "Bank Note Detector (monthly)"
+section = "books"
+copy = "Lists every bank, its discount, and the counterfeits now circulating. This month's."
+weight_g = 91
+bulk = 0.1
+value_cents = 25
+tags = ["appraise_currency"]
+materials = [{ material = "paper", pct = 100 }]
+affordances = { read = 1 }
+stackable = false
+
+[[item]]
+id = "herbal_botany_manual"
+name = "Herbal & botany manual"
+section = "books"
+copy = "Which root will feed you and which will stop your heart."
+weight_g = 454
+bulk = 1
+value_cents = 150
+tags = ["lore_nature_plus_2"]
+materials = [{ material = "paper", pct = 100 }]
+affordances = { read = 1 }
+stackable = false
+
+[[item]]
+id = "blank_journal_pencils"
+name = "Blank journal & pencils"
+section = "books"
+copy = "For cache locations, debts owed, and the names you must not forget."
+weight_g = 227
+bulk = 0.5
+value_cents = 30
+tags = ["personal_chronicle"]
+materials = [{ material = "paper", pct = 90 }, { material = "leather", pct = 10 }]
+affordances = { write = 1 }
+stackable = false
+
+[[item]]
+id = "long_hidden_friend"
+name = "The Long-Hidden Friend (charm book)"
+section = "books"
+copy = "Charms against fire, theft, wounds, and the evil eye, from the old German."
+weight_g = 91
+bulk = 0.2
+value_cents = 35
+tags = ["folk_magic_recipes", "under_the_counter"]
+materials = [{ material = "paper", pct = 100 }]
+affordances = { read = 1 }
+stackable = false
+
+[[item]]
+id = "spellbook_blank_vellum"
+name = "Spellbook, blank, vellum, 100 pp"
+section = "books"
+copy = "Calf vellum, oilcloth-wrapped. What you write in it is your affair."
+weight_g = 1361
+bulk = 1
+value_cents = 800
+shape = ["fragile"]
+tags = ["spellbook", "wet_ruin"]
+materials = [{ material = "leather", pct = 100 }]
+affordances = { write = 1 }
+stackable = false
+
+[[item]]
+id = "grimoire_used"
+name = "Grimoire, used (contents unknown)"
+section = "books"
+copy = "From an estate. The previous owner will not be needing it. Asking $15 to $60, depending on who is selling."
+weight_g = 1814
+bulk = 2
+value_cents = 1500
+tags = ["spells_unknown", "curses_unknown", "provenance", "under_the_counter"]
+truth = "Holds whatever its last owner wrote in it, and possibly something they did not write."
+materials = [{ material = "leather", pct = 60 }, { material = "paper", pct = 40 }]
+stackable = false
+
+[[item]]
+id = "scribing_ink_quills"
+name = "Scribing ink & quills, set"
+section = "books"
+copy = "Oak-gall ink. Ground powders sold separately and quietly."
+weight_g = 136
+bulk = 0.3
+value_cents = 200
+tags = ["scribe_spells"]
+materials = [{ material = "liquid", pct = 60 }, { material = "other", pct = 40 }]
+affordances = { write = 1 }
+stackable = false

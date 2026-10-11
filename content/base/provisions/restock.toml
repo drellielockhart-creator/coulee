@@ -1,0 +1,21 @@
+# Store restock tables (03 §8.2). OWNER: module:provisions.
+# Pratt & Daughter orders from a Galena wholesaler: every week it tops up to `target_qty` at
+# `wholesale_pct` of value. The owner's cash pays first; the rest goes on the wholesaler's
+# account (the debt that drives Gussie's secret in 01 §8.3). The river is closed Dec-Mar.
+
+[[restock]]
+id = "pratt_wholesale"
+place = "pratt_daughter_outfitters"
+every_days = 7
+wholesale_pct = 70
+river_closed_months = [12, 1, 2, 3]
+river_closed_pct = 25
+lines = [
+  { item = "hardtack", target_qty = 120 },
+  { item = "flour", target_qty = 300, max_delivery = 100 },
+  { item = "salt_pork", target_qty = 80, max_delivery = 40 },
+  { item = "coffee_green", target_qty = 40 },
+  { item = "dried_apples", target_qty = 30 },
+  { item = "lucifers_box", target_qty = 50 },
+  { item = "lard_oil_quart", target_qty = 20 },
+]

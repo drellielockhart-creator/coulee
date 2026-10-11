@@ -1,0 +1,107 @@
+# Catalog 03 §6.11 Rope & Climbing. OWNER: module:content-items.
+# Rope wears per load-bearing use (`wear`). Load ratings are in the copy and the tags, pending a
+# schema field for breaking strength (see report).
+
+[[item]]
+id = "hemp_rope_50ft"
+name = "Hemp rope, ½-in., 50 ft"
+section = "rope_climbing"
+copy = "Tarred hemp. Swells when wet, rots if you let it."
+weight_g = 3629
+bulk = 4
+value_cents = 100
+tags = ["holds_600lb_new", "swells_wet"]
+materials = [{ material = "other", pct = 100 }]
+affordances = { bind = 2, climb = 1 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "manila_rope_50ft"
+name = "Manila rope, ½-in., 50 ft"
+section = "rope_climbing"
+copy = "Lighter and stronger. Holds a man and his regrets."
+weight_g = 2722
+bulk = 3
+value_cents = 150
+tags = ["holds_900lb_new"]
+materials = [{ material = "other", pct = 100 }]
+affordances = { bind = 2, climb = 1 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "rawhide_line_30ft"
+name = "Rawhide line, 30 ft"
+section = "rope_climbing"
+copy = "Shrinks as it dries. Lash something wet and it holds like iron."
+weight_g = 907
+bulk = 1
+value_cents = 60
+tags = ["stretches_wet"]
+materials = [{ material = "rawhide", pct = 100 }]
+affordances = { bind = 1.5 }
+stackable = false
+
+[[item]]
+id = "cord_twine_ball"
+name = "Cord / twine, ball"
+section = "rope_climbing"
+unit = "ball"
+copy = "Snares, lashings, laces, and a hundred small repairs."
+weight_g = 136
+bulk = 0.5
+value_cents = 10
+materials = [{ material = "cotton", pct = 100 }]
+affordances = { bind = 0.5 }
+
+[[item]]
+id = "grapnel_4tine"
+name = "Grappling iron, 4-tine"
+section = "rope_climbing"
+copy = "For bluff faces and second-story windows."
+weight_g = 1814
+bulk = 1
+value_cents = 125
+materials = [{ material = "iron", pct = 100 }]
+affordances = { climb = 2 }
+stackable = false
+
+[[item]]
+id = "iron_spikes_dozen"
+name = "Iron spikes, dozen"
+section = "rope_climbing"
+unit = "dozen"
+copy = "Drive them into a crack in the limestone. Or across a threshold."
+weight_g = 1361
+bulk = 1
+value_cents = 40
+tags = ["ward_line", "anchor"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { climb = 1, ward_fae = 1 }
+
+[[item]]
+id = "rope_ladder_20ft"
+name = "Rope ladder, 20 ft"
+section = "rope_climbing"
+copy = "For the shaft at the old diggings, going down and especially coming up."
+weight_g = 4536
+bulk = 6
+value_cents = 200
+tags = ["climb_easy"]
+materials = [{ material = "other", pct = 100 }]
+affordances = { climb = 1 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "block_tackle_single"
+name = "Block & tackle, single"
+section = "rope_climbing"
+copy = "Haul a wagon out of a slough, or a friend out of a sinkhole."
+weight_g = 3629
+bulk = 3
+value_cents = 300
+materials = [{ material = "iron", pct = 60 }, { material = "wood", pct = 40 }]
+affordances = { haul = 2 }
+stackable = false

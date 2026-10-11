@@ -1,0 +1,92 @@
+# Cultures (12 §13). OWNER: module:content-world.
+# Literacy, language, naming, denominations and foodways belong to the culture an actor was
+# raised in, never to a people (12 ground rule 1, §8.1 pitfalls). Literacy figures are rough
+# 1850s estimates for adults in Wisconsin Territory-era settler communities.
+
+[[culture]]
+id = "yankee"
+name = "Yankee"
+description = "New England, New York and Ohio-Yankee migrants: storekeepers, editors, teachers, surveyors. Restless, literate, Whiggish, mostly Congregationalist or Methodist, with a strong lyceum habit."
+peoples = ["human", "shadow_faekin"]
+languages = ["english"]
+literacy_pct = 92
+name_pools = ["yankee"]
+denominations = [{ id = "congregational", pct = 25 }, { id = "methodist", pct = 25 }, { id = "freethinking", pct = 5 }]
+foodways = { staples = ["flour", "salt_pork", "dried_apples", "beans_dry", "coffee_green"], festive = ["sugar_brown", "molasses_quart"], customs = ["Boiled dinner on wash day", "Salt pork and beans on Saturday night, brown bread Sunday", "Apples kept in the cellar until they are gone, then dried ones"] }
+
+[[culture]]
+id = "norwegian"
+name = "Norwegian"
+description = "Lutheran farm families from the western fjords and Voss/Hardanger. Parish-centered, Haugean pietism running through the laity, farm-names, a nisse in every barn that nobody mentions."
+peoples = ["human", "shadow_faekin", "elf"]
+languages = ["norwegian", "english"]
+literacy_pct = 95
+name_pools = ["norwegian"]
+denominations = [{ id = "lutheran", pct = 70 }, { id = "haugean", pct = 20 }]
+foodways = { staples = ["cornmeal", "salt_pork", "potatoes", "cheese", "coffee_green"], festive = ["butter", "sugar_brown"], customs = ["Porridge in the morning, coffee all day", "Cream porridge for the nisse on Christmas Eve", "Smoked and salted fish when it can be had"] }
+
+[[culture]]
+id = "german"
+name = "German"
+description = "Catholic, Lutheran and freethinking Germans: Baden and Rhineland farmers and tradesmen, with a Forty-Eighter minority of political refugees. Vereine, turners, beer, and a deep-rooted distrust of priests and princes alike."
+peoples = ["human", "shadow_faekin", "elf", "goblin"]
+languages = ["german", "english"]
+literacy_pct = 90
+name_pools = ["german", "swiss"]
+denominations = [{ id = "catholic", pct = 35 }, { id = "lutheran", pct = 35 }, { id = "freethinking", pct = 15 }]
+foodways = { staples = ["flour", "potatoes", "salt_pork", "beans_dry", "coffee_green"], festive = ["butter", "sugar_brown", "eggs"], customs = ["Sauerkraut put up in the fall", "Sunday coffee and cake"] }
+
+[[culture]]
+id = "cornish"
+name = "Cornish"
+description = "Cousin Jacks of the lead diggings: skilled hardrock miners, Wesleyan Methodists, class meetings and hymn-singing, saffron-and-pasty foodways, and the old custom of leaving crusts for the knockers."
+peoples = ["human", "goblin", "shadow_faekin"]
+languages = ["english"]
+literacy_pct = 82
+name_pools = ["cornish"]
+denominations = [{ id = "methodist", pct = 75 }]
+foodways = { staples = ["flour", "potatoes", "salt_pork", "tea"], festive = ["butter", "sugar_brown"], customs = ["Pasty for the underground lunch, with the crust left on the rock for the knockers", "Strong tea, with sugar if there is any"] }
+
+[[culture]]
+id = "irish"
+name = "Irish"
+description = "Catholic Irish, many arrived in the famine years. Tavern, parish and extended kin networks; the target of Know-Nothing nativism in 1854-55. Ordinary people, ordinary tavern keepers."
+peoples = ["human", "shadow_faekin"]
+languages = ["english", "irish"]
+literacy_pct = 62
+name_pools = ["irish"]
+denominations = [{ id = "catholic", pct = 95 }]
+foodways = { staples = ["potatoes", "flour", "salt_pork", "tea"], festive = ["butter", "whiskey_quart"], customs = ["Fish on Fridays and in Lent", "Tea strong enough to stand a spoon in"] }
+
+[[culture]]
+id = "black_ohio"
+name = "Black Ohio settlers"
+description = "Free Black families from Ohio who farm their own land: church, school and horse-trading networks that reach back to the Ohio River towns and forward to the Chicago and Milwaukee communities."
+peoples = ["human"]
+languages = ["english"]
+literacy_pct = 80
+name_pools = ["black_ohio"]
+denominations = [{ id = "methodist", pct = 55 }, { id = "baptist", pct = 30 }]
+foodways = { staples = ["cornmeal", "salt_pork", "beans_dry", "potatoes", "coffee_green"], festive = ["sugar_brown", "molasses_quart", "eggs"], customs = ["Greens and cornbread with the pot likker", "A garden and a smokehouse before a second horse"] }
+
+[[culture]]
+id = "elf_hall"
+name = "Hall elves"
+description = "The renouncers' culture, observed in Hall households: the Catechism (never bargain with the Fair Folk, never speak a sealed name, ring the bell, hallow the food, do not shelter the unrenounced, remember). Literate, careful provisioners, forage only what has been hallowed."
+peoples = ["elf"]
+languages = ["english", "norwegian", "german"]
+literacy_pct = 97
+name_pools = ["elf_hall"]
+denominations = [{ id = "lutheran", pct = 40 }, { id = "catholic", pct = 20 }]
+foodways = { staples = ["flour", "cornmeal", "salt_pork", "dried_apples"], festive = ["butter", "eggs", "cheese"], customs = ["Food from Fae-intensity 2 and above is hallowed with salt and a spoken grace before eating", "A twice-baked rye hearth-loaf is carried on any journey", "Hand-bell rung at doors, wells, and the edges of fields"] }
+
+[[culture]]
+id = "goblin_pare"
+name = "Goblin pares"
+description = "A pare is a working crew with its own friendly-society club: sick fund, burial dues, widows' share, and a club pantry. Mining is skilled labor, never capital. The Accord's courtesies (no whistling underground, crusts for the knockers) are a point of pare honor."
+peoples = ["goblin"]
+languages = ["english", "german"]
+literacy_pct = 85
+name_pools = ["goblin_pare"]
+denominations = [{ id = "methodist", pct = 40 }, { id = "catholic", pct = 25 }]
+foodways = { staples = ["flour", "potatoes", "salt_pork", "tea"], festive = ["butter", "cheese"], customs = ["Eat about two-thirds of a human ration, and carry the rest of the weight as tools", "Cellar and cave stores that spoil more slowly", "Crusts for the knockers"] }

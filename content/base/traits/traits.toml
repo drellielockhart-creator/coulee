@@ -1,4 +1,15 @@
-# Traits with psyche weights. OWNER: module:psyche.
+# Traits with psyche weights (04 §3.2; 10 §3, §7.1). OWNER: module:psyche.
+#
+# Each trait may shift: psyche (ego/superego/id_appetite, 0..100 after summing), 04 values
+# (−3..+3), drive weights and norm strengths (0..100), voice loudness (voice_pct), specific
+# urges (urge_bias), and defense style (defenses, pct; style = 10 × pct/100, 100 = neutral).
+# No people carries a psyche profile (10 §1): traits come from upbringing and temperament.
+#
+# Shadow traits: drives.toml names the trait a projector pins on someone else
+# (rage → hot_tempered, envy → envious, greed → covetous, lust → amorous, sloth → slothful,
+# fear → timid, hunger → drunkard). Acquired traits (10 §7.1): suspicious, zealot.
+
+# ---- Tongue and temper ------------------------------------------------------------------
 
 [[trait]]
 id = "gossip"
@@ -9,22 +20,332 @@ values = { discretion = -2 }
 voice_pct = { id = 120, superego = 90 }
 urge_bias = [{ kind = "interaction", id = "gossip", pct = 200 }]
 defenses = { projection = 150 }
-
-[[trait]]
-id = "pious"
-name = "Pious"
-period_label = "Of a Devout Habit"
-psyche = { superego = 15 }
-values = { piety = 2 }
-voice_pct = { superego = 130 }
-urge_bias = [{ kind = "activity", id = "attend_church", pct = 200 }]
-defenses = { reaction_formation = 150, repression = 130 }
+drives = { envy = 10 }
+norms = { honesty = -10 }
 
 [[trait]]
 id = "hot_tempered"
 name = "Hot-tempered"
 period_label = "Of a Choleric Temper"
+description = "Quick to anger, slow to let it go."
 psyche = { ego = -10, id_appetite = 15 }
 values = { temper = 2 }
 voice_pct = { id = 140 }
 defenses = { displacement = 180 }
+drives = { rage = 20 }
+excludes = ["even_tempered"]
+
+[[trait]]
+id = "even_tempered"
+name = "Even-tempered"
+period_label = "Of an Even Temper"
+description = "Hard to rile; the anger goes somewhere useful."
+psyche = { ego = 10 }
+values = { temper = -1 }
+drives = { rage = -20 }
+defenses = { sublimation = 150, displacement = 60 }
+excludes = ["hot_tempered"]
+
+[[trait]]
+id = "peacemaker"
+name = "Peacemaker"
+period_label = "A Peacemaker"
+description = "Steps between quarrelers; intercedes (04 §3.2)."
+psyche = { ego = 10 }
+drives = { rage = -15 }
+norms = { neighborliness = 15 }
+defenses = { sublimation = 150, displacement = 50 }
+excludes = ["firebrand"]
+
+[[trait]]
+id = "firebrand"
+name = "Firebrand"
+period_label = "A Firebrand"
+description = "Leads the shouting, in print or from the pulpit (04 §3.2)."
+psyche = { superego = 10 }
+voice_pct = { superego = 120 }
+drives = { rage = 15 }
+defenses = { reaction_formation = 150, projection = 130 }
+excludes = ["peacemaker"]
+
+# ---- Conscience -------------------------------------------------------------------------
+
+[[trait]]
+id = "pious"
+name = "Pious"
+period_label = "Of a Devout Habit"
+description = "Prays, keeps the Sabbath, and listens to the preacher."
+psyche = { superego = 15 }
+values = { piety = 2 }
+voice_pct = { superego = 130 }
+urge_bias = [{ kind = "activity", id = "attend_church", pct = 200 }]
+defenses = { reaction_formation = 150, repression = 130 }
+norms = { piety = 20, temperance = 10 }
+
+[[trait]]
+id = "pious_hypocrite"
+name = "Pious Hypocrite"
+period_label = "Pious in Public"
+description = "High public piety, a private vice (04 §3.2). Usually earned, not rolled."
+psyche = { superego = 10 }
+values = { piety = 1 }
+norms = { piety = 15 }
+drives = { greed = 10, lust = 10 }
+defenses = { reaction_formation = 170, projection = 140 }
+
+[[trait]]
+id = "zealot"
+name = "Zealot"
+period_label = "A Zealot"
+description = "Acquired when protesting too much becomes a habit (10 §7.1)."
+psyche = { superego = 15 }
+voice_pct = { superego = 130 }
+norms = { piety = 15, propriety = 10 }
+defenses = { reaction_formation = 160 }
+
+[[trait]]
+id = "scrupulous"
+name = "Scrupulous"
+period_label = "Of a Tender Conscience"
+description = "Every lapse kept and counted."
+psyche = { superego = 10 }
+norms = { honesty = 20, duty = 10 }
+defenses = { repression = 140 }
+
+[[trait]]
+id = "temperance"
+name = "Temperance"
+period_label = "Of the Temperance Persuasion"
+description = "Signed the pledge and wants the Maine Law for Wisconsin."
+norms = { temperance = 35 }
+urge_bias = [{ kind = "activity", id = "drink_at_tavern", pct = 40 }]
+defenses = { reaction_formation = 130 }
+excludes = ["drunkard"]
+
+[[trait]]
+id = "teetotal"
+name = "Teetotal"
+period_label = "Pledged Teetotal"
+description = "Not a drop, not cider, not on doctor's orders."
+norms = { temperance = 45 }
+urge_bias = [{ kind = "activity", id = "drink_at_tavern", pct = 20 }]
+excludes = ["drunkard"]
+
+[[trait]]
+id = "honest"
+name = "Plain-dealing"
+period_label = "A Plain Dealer"
+description = "Says what is so and nothing more."
+norms = { honesty = 25 }
+urge_bias = [{ kind = "interaction", id = "gossip", pct = 60 }]
+
+[[trait]]
+id = "thrifty"
+name = "Thrifty"
+period_label = "Of a Saving Habit"
+description = "Darns, saves string, and counts the coffee beans."
+values = { thrift = 1 }
+norms = { thrift = 20 }
+
+[[trait]]
+id = "neighborly"
+name = "Neighborly"
+period_label = "A Good Neighbor"
+description = "First at the bee, last to speak ill."
+values = { neighborliness = 1 }
+norms = { neighborliness = 20 }
+
+[[trait]]
+id = "industrious"
+name = "Industrious"
+period_label = "Of an Industrious Habit"
+description = "Up before the light, and fretful when idle."
+drives = { sloth = -20 }
+norms = { duty = 15 }
+defenses = { sublimation = 140 }
+excludes = ["slothful"]
+
+[[trait]]
+id = "abolitionist"
+name = "Abolitionist"
+period_label = "Of the Free-Soil Persuasion"
+description = "Holds slavery a sin and says so (04 §3.2)."
+psyche = { superego = 5 }
+norms = { honesty = 10 }
+defenses = { sublimation = 130 }
+tags = ["politics"]
+
+# ---- Appetites and the Hidden Self (shadow traits) --------------------------------------
+
+[[trait]]
+id = "drunkard"
+name = "Drunkard"
+period_label = "Given to Drink"
+description = "The craving is a daily voice (10 §13.1: Drinker)."
+psyche = { ego = -5 }
+drives = { hunger = 15 }
+norms = { temperance = -30 }
+urge_bias = [{ kind = "activity", id = "drink_at_tavern", pct = 200 }]
+defenses = { denial = 170, rationalization = 150 }
+excludes = ["temperance", "teetotal"]
+
+[[trait]]
+id = "slothful"
+name = "Slothful"
+period_label = "Of an Indolent Habit"
+description = "The bed is always warmer than the work."
+drives = { sloth = 25 }
+norms = { duty = -10 }
+excludes = ["industrious"]
+
+[[trait]]
+id = "envious"
+name = "Envious"
+period_label = "Of an Envious Eye"
+description = "Measures every neighbor's fence against their own."
+drives = { envy = 25 }
+defenses = { projection = 140 }
+
+[[trait]]
+id = "covetous"
+name = "Covetous"
+period_label = "Of a Covetous Habit"
+description = "Wants what is on the shelf and in the next man's purse."
+drives = { greed = 25 }
+defenses = { rationalization = 130 }
+
+[[trait]]
+id = "grasping"
+name = "Grasping"
+period_label = "Close-fisted and Grasping"
+description = "Drives a hard bargain and never forgets a cent (04 §3.2)."
+values = { thrift = 1, ambition = 1 }
+drives = { greed = 20 }
+defenses = { rationalization = 150, projection = 120 }
+excludes = ["generous"]
+
+[[trait]]
+id = "generous"
+name = "Open-handed"
+period_label = "Open-handed"
+description = "Lends freely and forgets the sum."
+values = { thrift = -1, neighborliness = 1 }
+drives = { greed = -15 }
+excludes = ["grasping"]
+
+[[trait]]
+id = "amorous"
+name = "Amorous"
+period_label = "Of a Warm Disposition"
+description = "Falls for people easily. One temperament among many; never a vice in the rules (10 §1)."
+drives = { lust = 25 }
+
+[[trait]]
+id = "proud"
+name = "Proud"
+period_label = "Of a Proud Spirit"
+description = "Cannot abide being seen to fail."
+norms = { shame = 15 }
+drives = { envy = 10 }
+defenses = { rationalization = 140, projection = 120 }
+
+# ---- Fear and nerves --------------------------------------------------------------------
+
+[[trait]]
+id = "timid"
+name = "Timid"
+period_label = "Of a Timid Nature"
+description = "Startles at shadows and avoids a quarrel."
+psyche = { ego = -5 }
+drives = { fear = 20, rage = -10 }
+defenses = { denial = 140 }
+
+[[trait]]
+id = "nervous"
+name = "Nervous"
+period_label = "Of a Nervous Constitution"
+description = "Nerves of fiddle-string (10 §12)."
+psyche = { ego = -10 }
+drives = { fear = 15 }
+defenses = { denial = 130, repression = 120 }
+
+[[trait]]
+id = "superstitious"
+name = "Superstitious"
+period_label = "Reads the Signs"
+description = "Salt over the shoulder, iron over the door."
+values = { superstition = 2 }
+drives = { fear = 15 }
+defenses = { projection = 140 }
+excludes = ["skeptic"]
+
+[[trait]]
+id = "skeptic"
+name = "Skeptic"
+period_label = "Of a Skeptical Turn"
+description = "Wants to see it, and then wants it explained (04 §3.2)."
+values = { superstition = -2 }
+drives = { fear = -10 }
+defenses = { rationalization = 150, projection = 70 }
+excludes = ["superstitious"]
+
+[[trait]]
+id = "suspicious"
+name = "Suspicious"
+period_label = "Of a Suspicious Nature"
+description = "Acquired when laying it at others' doors becomes a habit (10 §7.1)."
+drives = { fear = 10 }
+defenses = { projection = 150 }
+
+[[trait]]
+id = "veteran"
+name = "Veteran"
+period_label = "An Old Soldier"
+description = "Mexico or the Black Hawk War; has seen worse (04 §3.2)."
+psyche = { ego = 5 }
+drives = { fear = -10, rage = 5 }
+defenses = { denial = 120, displacement = 120 }
+
+[[trait]]
+id = "debtor"
+name = "Debtor"
+period_label = "In Debt"
+description = "Owes more than the year will bring in (04 §3.2)."
+drives = { fear = 10, greed = 10 }
+norms = { shame = 10 }
+defenses = { denial = 150 }
+
+# ---- Longing ----------------------------------------------------------------------------
+
+[[trait]]
+id = "recluse"
+name = "Recluse"
+period_label = "Keeps Apart"
+description = "Lives alone and likes it, or says so (04 §3.2)."
+values = { neighborliness = -2 }
+drives = { longing = -10, fear = 10 }
+defenses = { denial = 130, repression = 120 }
+
+[[trait]]
+id = "widowed"
+name = "Widowed"
+period_label = "Widowed"
+description = "Grief still keeps a chair at the table."
+drives = { longing = 15 }
+defenses = { repression = 120 }
+
+[[trait]]
+id = "fae_touched"
+name = "Fae-touched"
+period_label = "Fae-touched"
+description = "Has heard the music once and listens for it still (04 §3.2)."
+values = { superstition = 1 }
+drives = { longing = 20 }
+
+[[trait]]
+id = "wag"
+name = "Wag"
+period_label = "A Wag"
+description = "Makes light of it; the joke is a ward (10 §7.2 humor, later)."
+psyche = { ego = 5 }
+defenses = { rationalization = 120, sublimation = 120 }

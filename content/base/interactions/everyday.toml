@@ -1,0 +1,344 @@
+# Everyday sociability (04 §10 #1-#6, #18, #19, #20, #35, #36). OWNER: module:social.
+#
+# Format notes (see packages/content/src/schema/social.ts):
+# - `requires` gates on the initiator's view of the target; opinion gates (min/max
+#   affection, trust, respect, fear, grudge, familiarity) only apply to spontaneous
+#   choices. An urge the psyche (or a player Command) chose skips them and the threshold.
+# - `volition` drivers are summed (integer weights) plus 0..15 noise; the best one over
+#   its `threshold` is chosen for a spontaneous encounter.
+# - Opinion deltas become Reasons that cite the holder's memory, so they fade as the
+#   memory's salience decays (04 §6.2). `volatile = true` uses the fast daily bucket.
+# - Placeholders in texts: {initiator} {target} {place} {cents}.
+
+[[interaction]]
+id = "chat"
+name = "Chat"
+label = "Chat"
+description = "Weather, crops, prices: the glue of a village."
+volition = [
+  { driver = "need:company", weight = 30 },
+  { driver = "opinion:affection", weight = 10 },
+  { driver = "familiarity", weight = 10 },
+]
+memory = { kind = "chat", intensity = 5 }
+minutes = 10
+tags = ["friendly"]
+success.volatile = true
+success.target_opinion = { affection = 3 }
+success.initiator_opinion = { affection = 3 }
+success.initiator_needs = { company = 60 }
+success.target_needs = { company = 60 }
+success.audience = "none"
+success.target_memory = "Passed the time with {initiator} at {place}"
+success.initiator_memory = "Passed the time with {target} at {place}"
+
+[[interaction]]
+id = "introduce"
+name = "Introduce oneself"
+label = "Good day"
+description = "First words with someone new: names, where from, what trade."
+requires = { stranger = true }
+volition = [
+  { driver = "stranger", weight = 40 },
+  { driver = "value:neighborliness", weight = 8 },
+  { driver = "value:parochialism", weight = -8 },
+  { driver = "need:company", weight = 10 },
+]
+threshold = 10
+memory = { kind = "introduction", intensity = 10 }
+minutes = 10
+tags = ["friendly"]
+success.target_opinion = { affection = 3, trust = 2 }
+success.initiator_opinion = { affection = 3, trust = 2 }
+success.initiator_needs = { company = 40 }
+success.target_needs = { company = 40 }
+success.audience = "none"
+success.target_memory = "Made the acquaintance of {initiator} at {place}"
+success.initiator_memory = "Made the acquaintance of {target} at {place}"
+success.target_reason = "Introduced themselves civilly"
+success.initiator_reason = "Civil on first meeting"
+
+[[interaction]]
+id = "gossip"
+name = "Gossip"
+label = "Gossip"
+description = "Passes along something heard. Belief picks the topic and how it mutates."
+requires = { acquainted = true, rumor_available = true }
+volition = [
+  { driver = "rumor", weight = 40 },
+  { driver = "value:discretion", weight = -15 },
+  { driver = "trait:gossip", weight = 20 },
+  { driver = "opinion:trust", weight = 10 },
+  { driver = "need:company", weight = 10 },
+]
+threshold = 20
+memory = { kind = "gossip", intensity = 15 }
+transmits_rumor = true
+minutes = 15
+tags = ["talk"]
+success.initiator_needs = { company = 40 }
+success.target_needs = { company = 40 }
+success.volatile = true
+success.target_opinion = { affection = 1 }
+success.target_memory = "{initiator} told me the news at {place}"
+success.initiator_memory = "Told {target} the news at {place}"
+success.witness_memory = "Heard {initiator} telling {target} the news at {place}"
+
+[[interaction]]
+id = "deep_talk"
+name = "Deep talk"
+label = "Talk long"
+description = "Hopes, fears, the old country, the children: an hour that binds."
+requires = { acquainted = true, min_affection = 20 }
+volition = [
+  { driver = "need:company", weight = 25 },
+  { driver = "opinion:trust", weight = 20 },
+  { driver = "opinion:affection", weight = 20 },
+  { driver = "kin", weight = 10 },
+]
+threshold = 25
+cooldown_hours = 12
+memory = { kind = "kindness", emotion = "joy", intensity = 20 }
+minutes = 60
+tags = ["friendly"]
+success.target_opinion = { affection = 5, trust = 3 }
+success.initiator_opinion = { affection = 5, trust = 3 }
+success.initiator_needs = { company = 120 }
+success.target_needs = { company = 120 }
+success.audience = "none"
+success.target_memory = "Talked a long while with {initiator} at {place}"
+success.initiator_memory = "Talked a long while with {target} at {place}"
+success.target_reason = "We talked long and honest"
+success.initiator_reason = "We talked long and honest"
+
+[[interaction]]
+id = "confide"
+name = "Confide"
+label = "Confide"
+description = "Trades a private worry for trust (04 §3.5). The listener now holds it."
+requires = { acquainted = true, min_trust = 40, min_affection = 30 }
+volition = [
+  { driver = "anxiety", weight = 40 },
+  { driver = "opinion:trust", weight = 20 },
+  { driver = "value:neighborliness", weight = 5 },
+  { driver = "value:discretion", weight = -10 },
+]
+threshold = 40
+cooldown_hours = 72
+memory = { kind = "confidence", emotion = "gratitude", intensity = 35 }
+minutes = 30
+visibility = "private"
+tags = ["friendly", "secret"]
+success.target_opinion = { affection = 3, trust = 10 }
+success.initiator_opinion = { trust = 10 }
+success.initiator_needs = { company = 80 }
+success.target_needs = { company = 80 }
+success.initiator_anxiety = -80
+success.audience = "none"
+success.target_memory = "{initiator} confided in me"
+success.initiator_memory = "Confided in {target}"
+success.target_reason = "Trusted me with a private matter"
+success.initiator_reason = "Kept my confidence"
+
+[[interaction]]
+id = "compliment"
+name = "Compliment"
+label = "Compliment"
+description = "Praise for a fence, a pie, a fine team. Too much reads as flattery."
+requires = { acquainted = true }
+volition = [
+  { driver = "opinion:affection", weight = 15 },
+  { driver = "opinion:respect", weight = 10 },
+  { driver = "value:ambition", weight = 8 },
+  { driver = "need:company", weight = 10 },
+]
+threshold = 20
+cooldown_hours = 24
+check = { kind = "dc", skill = "persuade", dc = 10, attitude = true }
+memory = { kind = "kindness", emotion = "joy", intensity = 10 }
+tags = ["friendly"]
+success.target_opinion = { affection = 4, respect = 1 }
+success.target_memory = "{initiator} paid me a compliment at {place}"
+success.initiator_memory = "Complimented {target}"
+success.target_reason = "Spoke well of my work"
+failure.target_opinion = { trust = -3 }
+failure.memory_kind = "flattery"
+failure.target_memory = "{initiator} laid it on thick at {place}"
+failure.initiator_memory = "Complimented {target}; it fell flat"
+failure.target_reason = "Laid it on thick"
+
+[[interaction]]
+id = "help"
+name = "Help"
+label = "Lend a hand"
+description = "Splitting wood, mending a harness, minding the store an hour. Owed in kind."
+requires = { acquainted = true, min_age = 10 }
+volition = [
+  { driver = "value:neighborliness", weight = 15 },
+  { driver = "favors_owed", weight = 15 },
+  { driver = "opinion:affection", weight = 15 },
+  { driver = "kin", weight = 15 },
+  { driver = "target_need:hunger", weight = 10 },
+  { driver = "target_anxiety", weight = 10 },
+]
+threshold = 40
+cooldown_hours = 24
+memory = { kind = "help", emotion = "gratitude", intensity = 30 }
+minutes = 60
+tags = ["friendly"]
+success.ledger = { favors = 1 }
+success.target_opinion = { affection = 5, trust = 2 }
+success.initiator_needs = { company = 30 }
+success.target_needs = { company = 30 }
+success.target_memory = "{initiator} lent me a hand at {place}"
+success.initiator_memory = "Lent {target} a hand"
+success.witness_memory = "Saw {initiator} help {target} at {place}"
+success.target_reason = "Lent me a hand unasked"
+success.audience_opinion = { respect = 1 }
+
+[[interaction]]
+id = "gift"
+name = "Gift"
+label = "Gift"
+description = "A pie, a twist of tobacco, a ribbon. Makes a debt of the heart."
+requires = { acquainted = true, min_age = 8 }
+volition = [
+  { driver = "opinion:affection", weight = 20 },
+  { driver = "value:ambition", weight = 5 },
+  { driver = "value:thrift", weight = -10 },
+  { driver = "did:insult", weight = 20 },
+  { driver = "did:slight", weight = 15 },
+  { driver = "kin", weight = 10 },
+]
+threshold = 45
+cooldown_hours = 168
+memory = { kind = "gift", emotion = "gratitude", intensity = 30 }
+tags = ["friendly"]
+success.ledger = { favors = 1 }
+success.target_opinion = { affection = 6, trust = 1 }
+success.target_memory = "{initiator} brought me a little something"
+success.initiator_memory = "Brought {target} a little something"
+success.target_reason = "Brought me a gift"
+
+[[interaction]]
+id = "warn"
+name = "Warn"
+label = "Warn"
+description = "\"Mind yourself on the bluff road.\" Carries a rumor, with the warner's credit behind it."
+requires = { acquainted = true, min_affection = 25, rumor_available = true }
+volition = [
+  { driver = "opinion:affection", weight = 25 },
+  { driver = "value:superstition", weight = 10 },
+  { driver = "rumor", weight = 20 },
+  { driver = "kin", weight = 10 },
+]
+threshold = 45
+cooldown_hours = 24
+transmits_rumor = true
+memory = { kind = "warning", emotion = "fear", intensity = 30 }
+tags = ["talk", "friendly"]
+success.target_opinion = { affection = 2, trust = 5 }
+success.target_memory = "{initiator} warned me at {place}"
+success.initiator_memory = "Warned {target}"
+success.target_reason = "Looked out for me"
+
+[[interaction]]
+id = "toast"
+name = "Stand drinks"
+label = "Toast!"
+description = "A round for the house. Everyone present warms a little; some feel obliged."
+requires = { venue_tags = ["tavern"], min_age = 16 }
+volition = [
+  { driver = "value:ambition", weight = 12 },
+  { driver = "need:company", weight = 15 },
+  { driver = "audience", weight = 20 },
+  { driver = "condition:drunk", weight = 15 },
+  { driver = "value:thrift", weight = -10 },
+  { driver = "value:piety", weight = -8 },
+]
+threshold = 40
+cooldown_hours = 48
+check = { kind = "dc", skill = "perform_storytelling", dc = 10 }
+memory = { kind = "toast", emotion = "joy", intensity = 15 }
+importance = 15
+tags = ["friendly", "public"]
+success.audience = "all_present"
+success.audience_opinion = { affection = 3 }
+success.audience_needs = { company = 40 }
+success.target_opinion = { affection = 3 }
+success.target_needs = { company = 40 }
+success.initiator_needs = { company = 80 }
+success.target_memory = "{initiator} stood drinks at {place}"
+success.initiator_memory = "Stood drinks at {place}"
+success.witness_memory = "{initiator} stood drinks at {place}"
+success.target_reason = "Stood a round"
+failure.audience = "all_present"
+failure.audience_opinion = { respect = -1 }
+failure.target_opinion = { respect = -1 }
+failure.target_memory = "{initiator} made a fool of himself proposing a toast"
+failure.initiator_memory = "My toast fell flat at {place}"
+failure.witness_memory = "{initiator} made a fool of himself proposing a toast"
+failure.target_reason = "Made a fool of himself in drink"
+
+[[interaction]]
+id = "tell_tale"
+name = "Tell a tale"
+label = "Spin a yarn"
+description = "The flood of '51, the panther on the Kickapoo, the hodag. Respect if it lands."
+requires = { min_age = 10 }
+volition = [
+  { driver = "value:ambition", weight = 10 },
+  { driver = "need:company", weight = 10 },
+  { driver = "audience", weight = 15 },
+  { driver = "condition:drunk", weight = 10 },
+  { driver = "venue:tavern", weight = 10 },
+]
+threshold = 35
+cooldown_hours = 24
+check = { kind = "dc", skill = "perform_storytelling", dc = 12 }
+memory = { kind = "tale", emotion = "joy", intensity = 15 }
+minutes = 20
+tags = ["talk", "public"]
+success.audience_opinion = { affection = 1, respect = 2 }
+success.target_opinion = { affection = 2, respect = 3 }
+success.target_needs = { company = 40 }
+success.initiator_needs = { company = 40 }
+success.target_memory = "{initiator} told a fine story at {place}"
+success.initiator_memory = "Told a story at {place}"
+success.witness_memory = "{initiator} told a fine story at {place}"
+success.target_reason = "Tells a good story"
+failure.target_opinion = { respect = -3 }
+failure.audience_opinion = { respect = -1 }
+failure.target_memory = "{initiator} told a tall tale at {place}"
+failure.initiator_memory = "Nobody believed my story at {place}"
+failure.witness_memory = "{initiator} told a tall tale at {place}"
+failure.target_reason = "A braggart"
+
+[[interaction]]
+id = "comfort"
+name = "Comfort"
+label = "Comfort"
+description = "A hand on the arm, a cup of coffee, \"it'll come right.\""
+requires = { acquainted = true, target_min_anxiety = 300 }
+volition = [
+  { driver = "target_anxiety", weight = 40 },
+  { driver = "opinion:affection", weight = 20 },
+  { driver = "value:neighborliness", weight = 8 },
+  { driver = "value:piety", weight = 5 },
+  { driver = "kin", weight = 15 },
+]
+threshold = 35
+cooldown_hours = 12
+check = { kind = "dc", skill = "persuade", dc = 10, attitude = true }
+memory = { kind = "comfort", emotion = "gratitude", intensity = 35 }
+minutes = 30
+tags = ["friendly"]
+success.target_opinion = { affection = 8 }
+success.target_anxiety = -120
+success.target_needs = { company = 60 }
+success.target_memory = "{initiator} comforted me at {place}"
+success.initiator_memory = "Comforted {target}"
+success.target_reason = "Stood by me when I was low"
+failure.target_anxiety = -20
+failure.target_memory = "{initiator} tried to cheer me"
+failure.initiator_memory = "Tried to cheer {target}"

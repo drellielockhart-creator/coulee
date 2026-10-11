@@ -1,0 +1,91 @@
+# The escalation ladder (04 §9.2, canonical) and grudge aims (04 §6.3, §9.4).
+# OWNER: module:belief. M1 implements rungs 0-3; 4-6 (Institutional, Hunt, Mob/Trial) come later.
+#
+# Thresholds are scaled by hard times and frightened minds (04 §9.1):
+#   thr' = thr × (1000 − 350·M/1000) × (4000 − A_S) / (1000 × 4000)
+# A rung with a step_interaction needs a Catalyst whose Ego picks that step (04 §9.4).
+# Without fresh fuel a process steps down one rung after 2 × dwell_days.
+
+[[rung]]
+id = "unease"
+rung = 0
+name = "Unease"
+dwell_days = 7
+description = "Private beliefs; nothing visible."
+
+[[rung]]
+id = "whispers"
+rung = 1
+name = "Whispers"
+holders_over_40 = 3
+dwell_days = 3
+juiciness_pct = 150
+target_anxiety_per_day = 20
+description = "Talk spreads; rumors about the target are juicier."
+
+[[rung]]
+id = "accusation"
+rung = 2
+name = "Accusation"
+heat = 150
+dwell_days = 3
+step_interaction = "accuse"
+catalyst_threshold = 40
+juiciness_pct = 150
+target_anxiety_per_day = 60
+description = "A named public accusation; everyone present hears it. The target may defend."
+
+[[rung]]
+id = "shunning"
+rung = 3
+name = "Shunning"
+heat = 300
+consensus_permille = 350
+dwell_days = 7
+step_interaction = "shun_lobby"
+catalyst_threshold = 45
+juiciness_pct = 150
+target_anxiety_per_day = 100
+description = "Credit pulled, prices raised, no help at bees, children kept away."
+
+[[grudge_aim]]
+id = "restitution"
+name = "Restitution"
+direct = ["dun", "confront"]
+covert = "gossip"
+min_intensity = 40
+
+[[grudge_aim]]
+id = "apology"
+name = "An apology"
+direct = ["confront"]
+covert = "gossip"
+min_intensity = 45
+
+[[grudge_aim]]
+id = "humiliation"
+name = "Humiliation"
+direct = ["insult", "slight"]
+covert = "gossip"
+min_intensity = 40
+
+[[grudge_aim]]
+id = "expulsion"
+name = "Drive them out"
+direct = ["slight", "accuse"]
+covert = "gossip"
+min_intensity = 45
+
+[[grudge_aim]]
+id = "harm"
+name = "Harm"
+direct = ["threaten", "insult", "fight"]
+covert = "gossip"
+min_intensity = 55
+
+[[grudge_aim]]
+id = "death"
+name = "Death"
+direct = ["threaten", "fight"]
+covert = "gossip"
+min_intensity = 80

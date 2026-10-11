@@ -1,0 +1,45 @@
+# Hearths and stoves (05 §6.3): where the winter's wood goes. OWNER: module:needs-activities.
+#
+# A hearth is lit while its building is occupied and the air is below `when_below_f`. Each
+# hour lit it burns burn_base + burn_per_10f x (ref_f - air)/10 minutes of fuel (one armload of
+# firewood = 60 minutes of `fire`) taken from the stores of the household that lives there.
+# No wood, no fire, a cold house, a cold bed (needs.toml warmth / sleep_quality).
+# At -10 F a family stove eats an armload every ~2 hours; in April it is one every ~6.
+# First match wins, so specific buildings come before the generic 'home'.
+
+[[hearth]]
+id = "forge_fire"
+name = "Forge fire"
+place_tags = ["smithy"]
+when_below_f = 120
+burn_base = 0
+gain_f = 28
+cap_f = 85
+unlit_gain_f = 6
+fuel_from = "free"
+
+[[hearth]]
+id = "home_stove"
+name = "Cookstove and hearth"
+place_tags = ["home"]
+when_below_f = 58
+burn_base = 12
+burn_per_10f = 4
+ref_f = 40
+gain_f = 38
+cap_f = 68
+unlit_gain_f = 6
+fuel_from = "household"
+
+[[hearth]]
+id = "public_stove"
+name = "Cast-iron stove"
+place_tags = ["church", "school", "tavern", "store", "court"]
+when_below_f = 55
+burn_base = 14
+burn_per_10f = 4
+ref_f = 40
+gain_f = 34
+cap_f = 66
+unlit_gain_f = 5
+fuel_from = "household"

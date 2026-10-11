@@ -208,12 +208,18 @@ export const FoodSchema = z.strictObject({
       spoils_to: ref().optional(),
       /** Attracts vermin in poorly protected storage (mice in the flour). */
       vermin: z.boolean().default(false),
+      /** Where "turning" begins, per-mille of shelf life used (03 §3.7.4). Turning food is edible at a morale cost. */
+      turning_pm: int().min(1).max(999).default(750),
+      /** Freezing ruins it outright (potatoes, eggs, apples) instead of preserving it. */
+      frozen_ruins: z.boolean().default(false),
     })
     .default({
       temperature_pct: { frozen: 5, cold: 50, cool: 100, warm: 170, hot: 300 },
       wet_pct: 200,
       packaging_pct: {},
       vermin: false,
+      turning_pm: 750,
+      frozen_ruins: false,
     }),
   /** Ways to make it edible. Must include at least one; 'raw' means edible as-is. */
   prep: z.array(PrepSchema).min(1),
@@ -223,6 +229,10 @@ export const FoodSchema = z.strictObject({
   /** Alcohol by volume, percent (whiskey ~45). */
   alcohol_pct: pct().default(0),
   stimulant: z.boolean().default(false),
+  /** Fae fare: true kcal is 0 whatever it looks like (03 §3.6/§3.7.2). Hook for the fae/belief modules. */
+  fae_food: z.boolean().default(false),
+  /** What cultural norms can object to: 'fae_grown', 'pork', 'meat_friday'... Norms live in psyche. */
+  taboo_tags: z.array(id()).default([]),
 });
 export type FoodDef = z.output<typeof FoodSchema>;
 
@@ -286,8 +296,96 @@ export const ItemSchema = z.strictObject({
 });
 export type ItemDef = z.output<typeof ItemSchema>;
 
+/**
+ * A day's meals (03 §3.7.6): when they happen and what share of the day's kcal each carries.
+ * `household` is used at home, `trail` on the trail (two hot meals and a cold noon piece).
+ * Core falls back to built-in copies of these two when the content table is empty.
+ */
+export const MealPlanSchema = z.strictObject({
+  id: id(),
+  name: z.string().min(1),
+  description: z.string().default(''),
+  meals: z
+    .array(
+      z.strictObject({
+        id: id(),
+        name: z.string().min(1),
+        /** Hour of day the meal is served (0..23). */
+        hour: int().min(0).max(23),
+        /** Share of the day's kcal, percent. All meals of a plan sum to 100. */
+        share_pct: posInt().max(100),
+        /** A cold meal: no fire is lit (a noon piece eaten walking). Only raw-edible foods. */
+        cold: z.boolean().default(false),
+      }),
+    )
+    .min(1),
+});
+export type MealPlanDef = z.output<typeof MealPlanSchema>;
+
+/**
+ * An eat-order policy (03 §3.7.6): integer weights for how a mess picks what to serve.
+ * Every weight is a multiplier in tenths (10 = neutral); the Explain names each term.
+ */
+export const RationPolicySchema = z.strictObject({
+  id: id(),
+  name: z.string().min(1),
+  description: z.string().default(''),
+  weights: z
+    .strictObject({
+      /** Use up what turns soonest. */
+      spoils_first: nonNegInt().max(100).default(10),
+      /** Prefer foods and preparations that lift spirits. */
+      morale: nonNegInt().max(100).default(10),
+      /** Avoid what was just eaten; rotate groups. */
+      variety: nonNegInt().max(100).default(10),
+      /** Prefer calories per gram (shed weight first). */
+      lightness: nonNegInt().max(100).default(0),
+      /** Prefer cheap calories. */
+      thrift: nonNegInt().max(100).default(10),
+      /** Reach for fresh food when scurvy is gathering. */
+      fresh_need: nonNegInt().max(100).default(10),
+    })
+    .default({ spoils_first: 10, morale: 10, variety: 10, lightness: 0, thrift: 10, fresh_need: 10 }),
+  /** Item tags held back unless nothing else will do ("save the pemmican"). */
+  reserve_tags: z.array(id()).default([]),
+});
+export type RationPolicyDef = z.output<typeof RationPolicySchema>;
+
+/**
+ * How a store is resupplied from its wholesaler (03 §8.2): every `every_days` days it orders
+ * up to `target_qty` of each line, paid from the owner's cash and then on the wholesaler's
+ * credit. The river closes the supply line in winter.
+ */
+export const RestockSchema = z.strictObject({
+  id: id(),
+  /** Place id of the store. */
+  place: ref(),
+  every_days: posInt().default(7),
+  /** Wholesale cost as a percent of value_cents. */
+  wholesale_pct: ratePct().default(70),
+  /** Months (1..12) when the river is closed and deliveries shrink. */
+  river_closed_months: z.array(int().min(1).max(12)).default([12, 1, 2, 3]),
+  /** Percent of the usual delivery that still arrives while the river is closed. */
+  river_closed_pct: pct().default(25),
+  lines: z
+    .array(
+      z.strictObject({
+        item: ref(),
+        /** Stock level the order tops up to. */
+        target_qty: posInt(),
+        /** Largest single delivery of this line (omit = no cap). */
+        max_delivery: posInt().optional(),
+      }),
+    )
+    .default([]),
+});
+export type RestockDef = z.output<typeof RestockSchema>;
+
 export const itemsDomains = {
   items: defineDomain({ dir: 'items', key: 'item', schema: ItemSchema }),
+  mealPlans: defineDomain({ dir: 'provisions', key: 'meal_plan', schema: MealPlanSchema }),
+  rationPolicies: defineDomain({ dir: 'provisions', key: 'ration_policy', schema: RationPolicySchema }),
+  restocks: defineDomain({ dir: 'provisions', key: 'restock', schema: RestockSchema }),
 };
 
 const StackSeedSchema = z.strictObject({
@@ -304,6 +402,10 @@ export const provisionsHouseholdFields = {
   pantry: z.array(StackSeedSchema).default([]),
   /** Household cash, cents. */
   cash_cents: nonNegInt().default(0),
+  /** Where the pantry is kept: sets the storage temperature (kitchen shelves, root cellar, springhouse). */
+  storage: z.enum(['indoor', 'cellar', 'springhouse']).default('indoor'),
+  /** Eat-order policy id (a ration_policy record); omit for the default. */
+  ration_policy: ref().optional(),
 };
 
 /** Per-actor scenario fields owned by provisions: what the actor carries/wears. */
@@ -321,6 +423,10 @@ export const provisionsScenarioFields = {
         items: z.array(StackSeedSchema).default([]),
         /** Price multiplier vs value_cents at this store, percent (03 §8.1). */
         markup_pct: ratePct().default(100),
+        /** Largest tab the keeper will let one customer run, cents (01 §8.3 / 03 §8.5). */
+        credit_limit_cents: nonNegInt().default(3000),
+        /** Restock table id (a restock record) for this store; omit if the shelves are never refilled. */
+        restock: ref().optional(),
       }),
     )
     .default([]),
@@ -360,7 +466,37 @@ export function itemsRefs(b: ContentBundle): Issue[] {
       'item',
     );
   };
+  for (const mp of Object.values(b.mealPlans)) {
+    const sum = mp.meals.reduce((t, m) => t + m.share_pct, 0);
+    if (sum !== 100)
+      issues.push({ where: `mealPlans:${mp.id}`, path: 'meals', message: `shares sum to ${sum}, not 100` });
+  }
+  for (const r of Object.values(b.restocks)) {
+    const where = `restocks:${r.id}`;
+    checkRefs(issues, where, 'place', [r.place], b.places, 'place');
+    checkRefs(
+      issues,
+      where,
+      'lines.item',
+      r.lines.map((l) => l.item),
+      b.items,
+      'item',
+    );
+  }
   for (const s of Object.values(b.scenarios)) {
+    for (const h of s.households) {
+      checkRefs(
+        issues,
+        `scenarios:${s.id}/households:${h.key}`,
+        'ration_policy',
+        [h.ration_policy],
+        b.rationPolicies,
+        'ration policy',
+      );
+    }
+    for (const st of s.stocks) {
+      checkRefs(issues, `scenarios:${s.id}/stocks:${st.place}`, 'restock', [st.restock], b.restocks, 'restock table');
+    }
     for (const h of s.households) seedRefs(`scenarios:${s.id}/households:${h.key}`, h.pantry);
     for (const a of s.actors) seedRefs(`scenarios:${s.id}/actors:${a.key}`, a.inventory);
     for (const st of s.stocks) {

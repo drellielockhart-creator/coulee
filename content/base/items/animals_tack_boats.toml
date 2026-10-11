@@ -1,0 +1,186 @@
+# Catalog 03 §6.14 Animals, Tack & Boats. OWNER: module:content-items.
+# Live animals are listed as items so the Outfitter's stock and the 03 rows are complete. Their
+# weight is the animal's, and their `tags` carry the actor role (mount, pack, haul, milk). Whether
+# livestock should instead be actor templates is an open schema question (see report).
+# Fodder is a supply (animal-days, 03 §3.8). Oats: 5 horse-days per bushel per 03 §6.14.
+
+[[item]]
+id = "saddle_horse_sound"
+name = "Saddle horse, sound"
+section = "animals_tack_boats"
+copy = "Sound of wind and limb, so the seller swears."
+weight_g = 408000
+bulk = 0
+value_cents = 8000
+tags = ["livestock", "mount", "price_range_50_150"]
+stackable = false
+
+[[item]]
+id = "canadian_horse_hardy"
+name = "Canadian horse, hardy"
+section = "animals_tack_boats"
+copy = "Small, ugly, tireless. Eats bark if it must."
+weight_g = 362874
+bulk = 0
+value_cents = 6500
+tags = ["livestock", "mount", "pack", "winter_hardy", "eats_bark"]
+stackable = false
+
+[[item]]
+id = "draft_horse"
+name = "Draft horse"
+section = "animals_tack_boats"
+copy = "For the plow and the wagon, not the trail."
+weight_g = 725760
+bulk = 0
+value_cents = 12000
+tags = ["livestock", "haul"]
+stackable = false
+
+[[item]]
+id = "mule"
+name = "Mule"
+section = "animals_tack_boats"
+copy = "More sense than a horse and more opinions."
+weight_g = 408000
+bulk = 0
+value_cents = 9000
+tags = ["livestock", "pack_225", "sure_footed"]
+stackable = false
+
+[[item]]
+id = "oxen_yoke_two"
+name = "Oxen, yoke of two"
+section = "animals_tack_boats"
+unit = "yoke"
+copy = "Slow as Sunday and twice as reliable."
+weight_g = 1270000
+bulk = 0
+value_cents = 7000
+tags = ["livestock", "haul", "grazers", "two_actors"]
+stackable = false
+
+[[item]]
+id = "hound"
+name = "Hound"
+section = "animals_tack_boats"
+copy = "Good nose, bad manners."
+weight_g = 22680
+bulk = 0
+value_cents = 500
+tags = ["livestock", "track", "alarm"]
+stackable = false
+
+[[item]]
+id = "milk_goat"
+name = "Milk goat"
+section = "animals_tack_boats"
+copy = "A quart a day and a hatred of fences."
+weight_g = 27216
+bulk = 0
+value_cents = 300
+tags = ["livestock", "milk"]
+stackable = false
+
+[[item]]
+id = "riding_saddle"
+name = "Riding saddle"
+section = "animals_tack_boats"
+copy = "Hand-stitched; the tree fits most horses."
+weight_g = 11340
+bulk = 10
+value_cents = 1500
+tags = ["tack", "enables_riding"]
+affordances = { saddle = 1 }
+stackable = false
+
+[[item]]
+id = "pack_saddle_sawbuck"
+name = "Pack saddle, sawbuck"
+section = "animals_tack_boats"
+copy = "Two crossbucks and the patience to load them even."
+weight_g = 9072
+bulk = 8
+value_cents = 500
+tags = ["tack", "enables_pack"]
+affordances = { pack = 1 }
+stackable = false
+
+[[item]]
+id = "bridle_and_bit"
+name = "Bridle & bit"
+section = "animals_tack_boats"
+copy = "Snaffle bit, plain headstall."
+weight_g = 907
+bulk = 0.5
+value_cents = 200
+tags = ["tack"]
+materials = [{ material = "steel", pct = 80 }, { material = "leather", pct = 20 }]
+stackable = false
+
+[[item]]
+id = "horse_blanket"
+name = "Horse blanket"
+section = "animals_tack_boats"
+copy = "A cold horse is a lame horse by morning."
+weight_g = 1814
+bulk = 4
+value_cents = 150
+tags = ["animal_insulation"]
+materials = [{ material = "wool", pct = 100 }]
+affordances = { insulate = 10 }
+stackable = false
+
+[[item]]
+id = "oats_bushel"
+name = "Oats, bushel"
+section = "animals_tack_boats"
+unit = "bushel"
+copy = "Your horse will thank you. Your mule will expect it."
+weight_g = 14515
+bulk = 16
+value_cents = 35
+tags = ["feed"]
+materials = [{ material = "food", pct = 100 }]
+supply = { kind = "fodder", units = 5 }
+
+[[item]]
+id = "handcart"
+name = "Handcart"
+section = "animals_tack_boats"
+copy = "As pulled across the plains by the faithful."
+weight_g = 27216
+bulk = 30
+value_cents = 600
+tags = ["roads_only"]
+materials = [{ material = "wood", pct = 90 }, { material = "iron", pct = 10 }]
+stackable = false
+container = { capacity_g = 113400, capacity_bulk = 40, carry = "fixed" }
+
+[[item]]
+id = "skiff_flat_14"
+name = "Skiff, flat-bottom, 14 ft"
+section = "animals_tack_boats"
+copy = "Rows on the sloughs, poles up the creeks."
+weight_g = 54432
+bulk = 60
+value_cents = 800
+tags = ["boat", "river"]
+shape = ["long"]
+materials = [{ material = "wood", pct = 100 }]
+affordances = { float = 2 }
+stackable = false
+
+[[item]]
+id = "bark_canoe_16"
+name = "Bark canoe, 16 ft (trade)"
+section = "animals_tack_boats"
+copy = "Two men can carry it, and it will carry them both and a winter's furs."
+weight_g = 27216
+bulk = 40
+value_cents = 1500
+tags = ["boat", "portage"]
+shape = ["long"]
+materials = [{ material = "bark", pct = 100 }]
+affordances = { float = 2 }
+stackable = false

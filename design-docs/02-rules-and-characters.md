@@ -4,8 +4,8 @@
 > - **Peoples (C5).** §12 now covers the four canon peoples (human, elf, shadow-faekin, goblin) per `12`, with a revised TOML schema, rules hooks for each field, and the concealment/Explain rule. Placeholder peoples are gone. Josiah and Grete are now human.
 > - **Alignment → psyche (P7, C3).** Will = base + WIS + **Composure** (`10` §5.3). Morale is a Will save that books anxiety, and Panicked is a `10` Fit. Combat intent and the NPC policy chooser read ego arbitration. New Calling **Dream-Reader**; Hardships and feats hooked to `10`. Faith standing, temptation/terror tags, and a Protection-from-Evil analogue keyed to live urges (Hedge of Good Intent).
 > - **T0 clock (C21).** §7 is restated in integer **tenths of a game-second** (0–599 within the canonical game-minute), per `07` §3.4.
-> - **Witch weaknesses (C27).** *Unhallowed* is removed. The Witch, Fae-Touched and the Iron-Sick Hardship now feed **weakness offsets** into `06`'s Drift-keyed triggers, with `03`'s Iron Presence as an input.
-> - **Curse DC (C29).** §10.6 sets one formula for `06` to use. Protections and the catalog stay with `06`; witch power (C30) is clarified.
+> - **Witch weaknesses (C27).** *Unhallowed* is removed, the Witch's weaknesses point to `06` §3.8.1, and the Fae-Touched and the old Iron-Sick Hardship (now *Marked by the Hill*) feed **weakness offsets** into `06`'s Drift-keyed triggers, with `03`'s Iron Presence as an input.
+> - **Curse DC (C29).** §10.6 sets one formula for `06` to use. Protections and the catalog stay with `06`. Witch power (C30) follows `06`: one currency (Woe), two sinks, with this doc setting the Power from Woe exchange rates; curses grant XP only when they overcome something.
 > - **New skill: Gather Information** (gap #1, C20), §4.5. Lore (Old Peoples) is renamed **Lore (History)** (C10); Lore (Mental Philosophy) and Trade (Cartography) are added.
 > - **Weapons and armor (gap #2, C35).** §9.10 stats `03` §6.7–6.8's arms and armor.
 > - **Survival hooks (C22–C26, C38, C48).** C(STR) table (§11.1); stage effects keyed to `05`'s thresholds and the code's 0–1000 needs; scurvy and lean-diet conditions; one **Bound → Longing → Wasting** chain for fae food (§11.2). Wet no longer double-counts against cold.
@@ -67,7 +67,7 @@ Every rule in this doc must specify how it resolves at each tier. This is the mo
 
 #### Example: the same check at T0 and T1 — climbing a 40 ft bluff path
 - **Rule:** Athletics (climb). Moving at ¼ speed, you make one check per 10 ft climbed. Fail by 1–4 and you make no progress. Fail by 5 or more and you fall from your current height (1d6 per 10 ft, with a Wound check, §8).
-- **T0:** Mae (Athletics +4) climbs a wet limestone face, DC 15 (base 10, +5 wet). The game makes 4 checks, one every ~6 s while she climbs. Each check has a 30% chance of a "fall" result: she falls if her total is 10 or less (fails by 5+), which means a natural 1–6. The rolls go 13 (17, up to 10 ft), 15 (19, up to 20 ft), 5 (9, fails by 6) → she falls from 20 ft: 2d6 Vigor, no automatic wound at exactly 20 ft (§8.6). The player watched it happen and could have chosen "Careful" (double time, +2) or "Steady" (take 10; §3.4, not allowed here because the rock was wet and her footing was under stress).
+- **T0:** Mae (Athletics +4) climbs a wet limestone face, DC 15 (base 10, +5 wet). The game makes 4 checks, one every ~6 s while she climbs. Each check has a 30% chance of a "fall" result: she falls if her total is 10 or less (fails by 5+), which means a natural 1–6. The rolls go 13 (17, up to 10 ft), 15 (19, up to 20 ft), 5 (9, fails by 6) → she falls from 20 ft: 2d6 Vigor (fall wounds from dice of 6 start above 20 ft, §8.6). The player watched it happen and could have chosen "Careful" (double time, +2) or "Steady" (take 10; §3.4, not allowed here because the rock was wet and her footing was under stress).
 - **T1:** Off-screen, Mae's brother Abel (+4) takes the same bluff path as part of a "go to the ridge field" activity. Per-check fall chance is p = 6/20 = 300‰ and exposure is N = 4, so P(at least one fall) = 1 − 0.7⁴ ≈ 760‰ (computed as `65536 − ipowQ16(65536 − pQ16, 4)`, §1.4). The engine rolls once against that. If he falls, it rolls the height uniformly over 10–40 ft and resolves the damage and Wound check using the real tables. If the sheet had a rope and he knew to use it, the policy layer would have chosen Careful or a safer route, as an actual person would. That is the point: **T1 agents also choose risk policies**. They don't just take outcomes.
 
 The result is the same. The cost is roughly 1/50th of the CPU.
@@ -378,7 +378,7 @@ Beyond abilities, ranks, and BAB, a prerequisite can be **a world fact**: "has s
 | **Hedge Dabbler** | WIS or CHA 11 | Learn 2 cantrips from the Folk list; cast each 3/day. The catalog gateway for non-casters. |
 | **Quiet Casting** | Caster 1 | Cast with no verbal component: +1 slot level, or +2 Concentration DC for folk/fae. |
 | **Lingering Spell** | Caster 1 | ×2 duration: +1 slot level. |
-| **Charm-Maker** ◆ | Caster 1 or Herbalism 4 | Make charms (one-use spell objects; see §10.3) of spells you know; cost = spell level × $5 + ingredients. |
+| **Charm-Maker** ◆ | Caster 1 or Herbalism 4 | Make charms (one-use spell objects; see §10.3) of spells you know; materials cost $0.10–$0.40 × spell level (C34). |
 | **Almanac Reckoning** | Lore (Almanac) 4 | When you cast or work under a favorable sign (§10.2), +1 caster level or +2 on the check. |
 
 **Fae**
@@ -458,9 +458,9 @@ Hit dice are maxed at level 1. After that, roll or take the average (option).
 - **Almanacker:** Arcane prepared casting (INT) from an **Almanac** (spellbook). *Reckoning* (1): sees the current sign, phase, and hour; spells cast under a favorable conjunction get +1 CL (§10.2). *Scribe* (1): Charm-Maker for arcane spells. *Schoolhouse* (3): teach a class. Students gain practice marks in Literacy/Lore, you gain opinion and $, and a student can become a future apprentice actor. *Ephemeris* (5): predict weather 3 days out with no check; weather-dependent DCs drop by 2 for you. Familiar? **[OPEN]**: proposing that familiars belong to the Witch and Fae-Touched only.
 - **Cunning Folk:** Folk casting via **charms** (§10.3; WIS). *Wise in Herbs* (1): Herbalism and Medicine class skills; +2 each. *Unwitching* (1): Spellcraft to identify a curse and its *maker's sign*; ritual counter-curse (§10.6). This is the witch's natural enemy. *Called Upon* (2): settlements with you as resident send people for help (a stream of jobs, opinion, and payment in goods). *Root and Bough* (4): speak with plants once per day. *Witch-Bottle* (6): ward a household against curses for a season.
 - **Fae-Touched:** Fae spontaneous casting (CHA), spells known like a sorcerer; power varies with Fae intensity (§10.4). *Glamour* (1): cantrip-level illusions at will in Fae intensity ≥ 2. *Hill-Marked* (1) **[revised, C27]**: a **weakness offset of +20** into `06`'s Drift-keyed triggers (§12.4), so at Drift 20 you feel iron as a Drift-40 actor does; `03`'s Iron Presence scales it. This replaces the old class-specific *Iron-Sick* rule. *Between* (3): you count as fae *or* mortal, whichever is better, for wards and Guest-Right (doesn't stack with a shadow-faekin's Kin's Guest-Right; use the better). *Changeling's Luck* (5): once per day, reroll any d20.
-- **Witch:** see 06 for the loop. Rules side: Fae spontaneous casting (CHA). *Prince's Mark* (1): sworn to the Court and sensed by Second Sight. *Familiar* (1): a beast actor with its own sheet and mind that shares senses within 1 mile. *Curse Rites* (1): learns curse rites (§10.6) as a separate catalog. *Pact-Bound* (1) **[revised, C27; replaces *Unhallowed*]**: the witch's weaknesses (iron, salt, bells, consecrated ground, running water) are **`06`'s** (§3.8.1): a *nature* track keyed to Drift plus any weakness offset (§12.4), with `03`'s Iron Presence as an input, and a *claim* track keyed to Drift plus the Pact's mark. Her Origin sets her starting Drift, and a Geas can add an absolute prohibition from day one (`06` §3.3). This doc adds no separate witch weakness, so the numbers live in one place and an adventurer at the same Drift suffers the same way (P4). *Two Consciences* (1): the introjected Prince, a `pact`-sourced superego voice carrying Behests and the Tithe (`10` §13.3), which argues with her old conscience. *Witch's Road* (3): move at full speed through any natural terrain in Fae intensity ≥ 1 and leave no trail for mundane trackers. *Power from Woe* (1+) **[revised, C30]**: one currency, two sinks (`06` §3.6). Woe is `06`'s single power currency, spent through `06`'s menu (Gifts, Favor, Workings, Mercies, self-healing) *and* through this class sink, so there's no parallel resource. The witch keeps one spell engine (fae spell points, shared with Fae-Touched). **[PROPOSAL] Exchange rates** (`06` asked `02` to set them; integers in centi-Woe):
+- **Witch:** see 06 for the loop. Rules side: Fae spontaneous casting (CHA). *Prince's Mark* (1): sworn to the Court and sensed by Second Sight. *Familiar* (1): a beast actor with its own sheet and mind that shares senses within 1 mile. *Curse Rites* (1): learns curse rites (§10.6) as a separate catalog. *Pact-Bound* (1) **[revised, C27; replaces *Unhallowed*]**: the witch's weaknesses (iron, salt, bells, consecrated ground, running water) are **`06`'s** (`06` §3.8.1): a *nature* track keyed to Drift plus any weakness offset (§12.4), with `03`'s Iron Presence as an input, and a *claim* track keyed to Drift plus the Pact's mark. Her Origin sets her starting Drift, and a Geas can add an absolute prohibition from day one (`06` §3.3). This doc adds no separate witch weakness, so the numbers live in one place and an adventurer at the same Drift suffers the same way (P4). *Two Consciences* (1): the introjected Prince, a `pact`-sourced superego voice carrying Behests and the Tithe (`10` §13.3), which argues with her old conscience. *Witch's Road* (3): move at full speed through any natural terrain in Fae intensity ≥ 1 and leave no trail for mundane trackers. *Power from Woe* (1+) **[revised, C30]**: one currency, two sinks (`06` §3.6). Woe is `06`'s single power currency, spent through `06`'s menu (Gifts, Favor, Workings, Mercies, self-healing) *and* through this class sink, so there's no parallel resource. The witch keeps one spell engine (fae spell points, shared with Fae-Touched). **[PROPOSAL] Exchange rates** (`06` asked `02` to set them; integers in centi-Woe):
   - **Spell points:** 300 centi-Woe (3 Woe) restores 1 fae spell point, at most `level` points per day. One low curse's daily yield buys roughly one point.
-  - **Rite DC:** 500 centi-Woe (5 Woe) per +1, at most +2 per rite. This is the `woe` term in §10.6's formula.
+  - **Rite DC:** 500 centi-Woe (5 Woe) per +1, at most +2 per rite. This is the Woe boost term in §10.6's formula.
   - **Fuel a rite:** a rite's Woe cost, if any, is `06`'s catalog data.
   Rates are content constants so `06` can rebalance them against the Tithe without touching rules code.
 
@@ -741,23 +741,35 @@ There are four traditions. They share a **spell catalog** (the PHB chapter Ellie
 | Tradition | Who | Engine | Limiter | World interaction |
 |---|---|---|---|---|
 | **Arcane (Almanac)** | Almanacker | Vancian prepared slots from the Almanac | Slots per day; literacy; the book can be lost or burned | Conjunction timing (§10.2) |
-| **Divine** | Circuit Rider | Prepared slots chosen at dawn prayer; whole list available | Slots; *Faith* standing: deeds against the congregation's norms reduce slots until atoned (04 links) | Stronger on consecrated ground (+1 CL), weaker in high Fae intensity |
+| **Divine** | Circuit Rider | Prepared slots chosen at dawn prayer; whole list available | Slots; *Faith* standing (below) | Stronger on consecrated ground (+1 CL), weaker in high Fae intensity |
 | **Folk** | Cunning Folk, Mountebank, Hedge Dabbler | **Charms**: spells bound into physical objects in advance (§10.3); Mountebanks cast a few spontaneously | Active charm capacity; ingredients cost money | Charms are inventory items: tradeable, stealable, rumor-worthy |
 | **Fae** | Fae-Touched, Witch | Spontaneous from spells known; power scales with **Fae intensity** | Daily spell points; Iron and church weaken it | Strongest in deep Wilds; nearly dead in a mill town |
+
+**Faith standing (re-keyed to the psyche, `10` §13.1).** A Circuit Rider loses one prepared slot of their highest level for each open **breach**, until atoned. A breach is either an act that violated a `church`-sourced norm *and became known* to the congregation (a public deed, so `04` carries it), or private, unatoned guilt, meaning moral anxiety over 300 attributable to such a norm. **Atonement** is confession (the `04`/`10` Confess interaction), restitution, or an undoing act. No alignment is stored; the congregation's knowledge and the preacher's own conscience do the work.
+
+**Fae intensity curve for every tradition [PROPOSAL, C17; Ellie's call in Q7].** `01` §5.3 frames arcane magic as "measuring and naming", which is strongest where the world is known, and folk magic as strongest where it isn't. Adopting that as mechanics, on the same per-tile FI field:
+
+| FI at the caster's tile | 0 | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|---|
+| Arcane CL | +1 | 0 | 0 | −1 | −1 | −2 |
+| Divine CL (off consecrated ground) | 0 | 0 | 0 | −1 | −1 | −2 |
+| Folk (charm DC) | 0 | 0 | 0 | +1 | +1 | +2 |
+
+Fae magic keeps its own, steeper curve (§10.4). If Ellie adopts `01`'s lyceum identity, the Almanacker keeps its conjunctions and gains this curve. Whether settled clergy need their own class (a Pastor alongside the Circuit Rider) is still open (C17, Q6).
 
 ### 10.2 Arcane: Almanac reckoning
 The Almanacker prepares like a 3.5 wizard. Slots by level follow the 3.5 wizard table truncated at 6th (the 6th-level slot comes at 11). **Conjunctions:** each spell has an affinity (Moon, Sun, Dawn/Dusk, a season, a weekday). Casting under it gives +1 CL, and +2 with Almanac Reckoning. Casting against it (e.g., a Sun spell at new-moon midnight) requires a Spellcraft DC 15 or the slot is lost. This makes the calendar (00 Time) matter mechanically, and it makes the Almanacker a *planner*.
 
 ### 10.3 Folk: charms
-A charm is a physical object: a written charm-letter, charm bag, horseshoe nail, knotted cord, or witch bottle. Making one costs 10 min × spell level, ingredients ($2–$5 × level, often foraged via Herbalism), and a Trade/Herbalism or caster check (DC 10 + 2 × level). Charms sit in inventory and are triggered with a 3 s action (or automatically for wards). **Active charm capacity** (how many you can keep "live" at once) = caster level + WIS mod. Non-casters with Charm-Maker can make only cantrip/1st-level charms. **Charms are sellable**, which gives the Cunning Folk an economic role (03) and gives Mountebanks something to fake (a fake charm needs Deceive vs. Spellcraft).
+A charm is a physical object: a written charm-letter, charm bag, horseshoe nail, knotted cord, or witch bottle. Making one costs 10 min × spell level, ingredients ($0.10–$0.40 × level, often foraged via Herbalism; revised ~10× down to match `03`'s folk-ward prices, C34), and a Trade/Herbalism or caster check (DC 10 + 2 × level). Charms sit in inventory and are triggered with a 3 s action (or automatically for wards). **Active charm capacity** (how many you can keep "live" at once) = caster level + WIS mod. Non-casters with Charm-Maker can make only cantrip/1st-level charms. **Charms are sellable**, which gives the Cunning Folk an economic role (03) and gives Mountebanks something to fake (a fake charm needs Deceive vs. Spellcraft). At the revised prices a 1st-level charm sells for roughly $0.25–$0.50, about half a day's wage and in the range of `03`'s witch bottle ($0.40) and Himmelsbrief ($0.50), so ordinary households really do buy them. `03`'s price model sets the actual market price.
 
 ### 10.4 Fae: tidal power
-The caster has **spell points** per day = 3.5 sorcerer slot totals converted at 1/level (cantrips free). The effective cost of a spell = level − (Fae intensity − 2), minimum 1. In deep Wilds (FI 5) a 3rd-level spell costs 1 point. In a town (FI 0) it costs 5. Within 10 ft of cold iron: +2 cost. On consecrated ground: Will DC 15 + spell level or the spell fizzles. Fae magic is tied to place, which is the RimWorld lesson that terrain should matter.
+The caster has **spell points** per day = 3.5 sorcerer slot totals converted at 1/level (cantrips free). The effective cost of a spell = max(1, level − (Fae intensity − 2)). In deep Wilds (FI 5) a 3rd-level spell costs 1 point. In a town (FI 0) it costs 5. Within 10 ft of an Iron Presence ≥ 5 (`03` §3.3; cold iron counts ×3 if adopted): +2 cost. On consecrated ground: Will DC 15 + spell level or the spell fizzles. These are costs on the *magic*, and they apply to every fae caster. Whether the caster's own *body* also suffers near iron or on holy ground is a separate question, answered by `06`'s Drift-keyed weaknesses (§12.4). Fae magic is tied to place, which is the RimWorld lesson that terrain should matter.
 
 > **Challenge to 00 — Fae intensity granularity.** 00 defines Fae intensity as a *map* property. For the rules to work (iron, hedgerows, a church at the edge of the woods, a fairy ring in a pasture), it needs to be a **per-tile scalar field** with a map-level baseline, the way RimWorld does temperature or fertility. A farm at the edge of the Wilds then has a gradient. I recommend 01/05/07 adopt "map baseline + tile field."
 
-### 10.5 Spell catalog (sample, 22 spells)
-Tradition key: **A** arcane, **D** divine, **F** folk, **Fa** fae. CT = casting time. Saves are DC 10 + level + casting mod.
+### 10.5 Spell catalog (sample, 23 spells)
+Tradition key: **A** arcane, **D** divine, **F** folk, **Fa** fae. CT = casting time. Saves are DC 10 + level + casting mod. Will saves include Composure, and spells tagged *(temptation)* or *(terror)* follow §3.7.
 
 | Lvl | Spell | Trad. | CT | Range / Duration | Effect |
 |---|---|---|---|---|---|
@@ -770,16 +782,17 @@ Tradition key: **A** arcane, **D** divine, **F** folk, **Fa** fae. CT = casting 
 | 1 | **Sure Path** | A F | 1 min | Self + 4 / 4 hrs | +4 Wayfinding; immune to mundane getting-lost; vs. fae misleading, an opposed CL check. |
 | 1 | **Keep Dry** | A F | 1 min | Touch / 8 hrs | One person's gear and powder stay dry; ford or rain without the Wet condition (below chest depth). |
 | 1 | **Snare of Roots** | F Fa | 3 s | 60 ft, 2-tile radius / 1 min | Roots grab: Reflex or Entangled; Athletics DC 15 to break. |
-| 1 | **Fair Words** | Fa | 3 s | 30 ft / 1 hr | Will or the target regards you as a trusted acquaintance (charm-person analogue); 04 records a false-friend memory when it ends. |
+| 1 | **Fair Words** *(temptation)* | Fa | 3 s | 30 ft / 1 hr | Will or the target regards you as a trusted acquaintance (charm-person analogue); 04 records a false-friend memory when it ends. |
 | 1 | **Iron Nail Ward** | D F | 10 min | A doorway / 1 night | Fae and spirits can't cross without Will DC (spell DC + 2); breaking it alerts you. |
+| 1 | **Hedge of Good Intent** | D F | 10 min | A threshold or camp ring / 1 night | The Protection-from-Evil analogue, re-keyed from alignment to the psyche (`10` §13.1): any actor whose **current arbitrated urge** is to harm someone inside can't cross without a Will save, and you learn that *someone* tried, not who (the Explain stays gated). A thief, a jealous neighbor, or a fae with mischief in mind is stopped. A soldier on duty or a doctor with a lancet isn't, because their urge isn't harm. |
 | 2 | **Find the Lost** | A D F | 10 min | 1 mile / 1 hr | Sense direction to a named object or a person you've met; blocked by running water (Fa: also by iron). |
 | 2 | **Bottomland Fog** | A Fa | 6 s | 120 ft, 6-tile radius / 10 min | Dense fog (50% concealment); damps powder (misfires use Wet). |
 | 2 | **Break Fever** | D F | 1 min | Touch | New Fort save vs. one disease or infection at +4; on success, regress one stage. |
 | 2 | **Owl's Eyes** | A F Fa | 3 s | Touch / 1 hr | See in moonlight as in day; darkness = dim. |
-| 3 | **Speak to the Departed** | D F | 10 min | Grave or corpse / 5 questions | The dead answer from their memories (04 data!), in character, possibly lying if they held a grudge. |
+| 3 | **Speak to the Departed** | D F | 10 min | Grave or corpse / 5 questions | The dead answer from their memories (04 data!), in character, possibly lying if they held a grudge. Repressed memories (`10` §7.2) surface only as riddles. |
 | 3 | **Call the Wind** | A D | 1 min | 1 mile / 1 hr | Shift wind direction and strength one step; clears smoke and fog; affects boats and fire spread. |
-| 3 | **Glamour of Seeming** | Fa | 6 s | 120 ft / concentration + 1 min | A full-sense illusion of a person, creature, or place; Read People/Perception vs. Will to disbelieve; Second Sight sees through. |
-| 3 | **Unbinding** | D F | 10 min | Touch | End a curse or charm whose rank ≤ CL/2 (CL check vs. 11 + maker CL otherwise). The Unwitching core. |
+| 3 | **Glamour of Seeming** | Fa | 6 s | 120 ft / concentration + 1 min | A full-sense illusion of a person, creature, or place; Read People/Perception vs. Will to disbelieve; Second Sight sees through (shadow-faekin's See the Seam gives +4, §12). A glamour wearing the target's soul-image is +2 DC and *(temptation)* (`10` §8.4). |
+| 3 | **Unbinding** | D F | 10 min | Touch | End a charm whose level ≤ floor(CL/2), or a curse whose maker's level ≤ floor(CL/2). Otherwise, a CL check (d20 + CL) vs. 11 + maker's level. The Unwitching core; `06`'s backlash rules apply to the maker. |
 | 4 | **Walk the Green Road** | Fa | 1 min | Self + 4 / travel | Enter a fae road at a fairy ring/sinkhole; travel 1 day's distance in 1 hr; Fae Courtesy DC 20 or arrive somewhere else (05 event). |
 | 4 | **Wall of Brambles** | F Fa | 6 s | 120 ft, 6×1 tiles / 10 min | Thorny hedge: blocks movement; 2d6 + Light wound to pass through. |
 | 5 | **Bind by Name** | A Fa | 1 hr | Unlimited, needs true name / until broken | Compel one task from a being whose true name you know (Will each week to resist). Witch counterpart in 06. |
@@ -787,66 +800,206 @@ Tradition key: **A** arcane, **D** divine, **F** folk, **Fa** fae. CT = casting 
 **Spell slots per day (Almanacker/Circuit Rider) [PROPOSAL]:** use the 3.5 wizard/cleric tables truncated at 12th level. Bonus slots from a high casting ability as in 3.5.
 
 ### 10.6 Curse hooks (for 06)
-Curses are a **separate catalog of Rites**, not spells, because they run on a different loop. They are long-casting, target-linked, and suffering-yielding. The rules interface 06 should build on **[PROPOSAL]**:
-- **Link:** a rite needs a link to the target (a strand of hair, a footprint, a spoken name, a gift accepted, something they ate). Link quality modifies the DC (−4 to +4).
-- **Rite DC** = 10 + rite rank + witch CHA + link quality. The target saves with Will (some curses: Fort). Protections add bonuses: a horseshoe over the door +1, a witch-bottle +4, a church member in good standing +2, Iron Nail Ward blocks entirely while active.
-- **Effect primitives** are the vocabulary 06 composes curses from, and each must map to existing systems: condition imposition (Sickened, Fatigued), a need modifier (04), luck (−2 to a skill family), an opinion shift between two actors (04), a disease (§8.7), livestock or crop yield (05), or an object property (milk sours, powder fails).
-- **Signs:** every curse leaves **signs** (detectable by Spellcraft, Unwitching, or Lore (Fae)) that point to the *witch's maker-sign*. This feeds the villagers' investigation and hunt. The sign strength is a dial 06 can tune.
-- **Woe:** the curse's yield into 06's resource = a function of the victim's mood damage (04). Rules only promise that the damage is measured on 04's mood scale.
+Curses are a **separate catalog of Rites**, not spells, because they run on a different loop. They are long-casting, target-linked, and suffering-yielding. **Ownership (C29):** `06` owns the catalog, links and their bonuses, timing, protections, Trace, backlash, and the Woe economy. **This doc owns the one DC formula** and the effect-primitive vocabulary.
+
+- **Link:** a rite needs a link to the target (true name, blood or hair, an accepted gift, worn clothing, footprint soil, a threshold crossed, eye contact, a common name). `06` §3.5's link table sets the bonus (+0 to +6) and range.
+- **Rite DC [PROPOSAL, the single formula]:**
+
+  `Rite DC = 10 + floor(caster level / 2) + CHA mod + link (06, +0..+6) + timing (06) + Gifts (06) + Woe boost (0..+2, §6.3)`
+
+  - **Why this shape.** It's the 3.5 shape for a class ability: half level plus the casting ability, the same pattern a Keelman's Boast uses. `06`'s interim *full* witch level outruns every save in the game by level 6, since a typical villager is level 1–3 with Will +0..+3. `02`'s old *rite rank* needed a rank field the catalog never used. CHA keeps the rite tied to the same ability as the witch's fae casting, and any actor with a Pact or the right feat uses the same formula (P2, P4).
+  - **Worked check:** Grete (Witch 1, CHA +2), worn-clothing link +3, dark moon +1: 10 + 0 + 2 + 3 + 1 = **16**. `10` §15.3's interim figure was 15. A level-6 witch with CHA +3, a hair link (+4), and good timing (+2) reaches 10 + 3 + 3 + 4 + 2 = 22 before Gifts: hard but beatable for a pious, protected household.
+  - **The save:** Will (some curses: Fort), which includes the target's **Composure** (§3.7). A calm, skeptical mind resists better than a frightened one, and that matches `10`'s reading of Woe: curses on the frightened pay most.
+  - **Protections** are `06`'s one table (`06` §3.5: horseshoe +2 household, Bible +2 vs. dream curses, church member in good standing +2, iron in the threshold breaks crossing links, a witch bottle reflects, and so on), stocked as items in `03`'s catalog. This doc's earlier protection values are withdrawn. Iron Nail Ward and Hedge of Good Intent (§10.5) are spells, and they work as protections where `06`'s table names them.
+- **Effect primitives** are the vocabulary `06` composes curses from. `06`'s **Malady** is a bundle of these plus Mind effects, and the code calls them effect primitives. Each must map to an existing system: condition imposition (Sickened, Fatigued), a need modifier (`05`/`10`), a Thought or anxiety charge (`10`), a dream (`10` §9), luck (−2 to a skill family), an opinion shift between two actors (`04`), a disease (§8.7), livestock or crop yield (`05`), or an object property (milk sours, powder fails).
+- **Signs:** every curse leaves **signs** (detectable by Spellcraft, Unwitching, or Lore (Fae)) that point to the *witch's maker-sign*. This feeds the villagers' investigation (Gather Information, §4.5) and the hunt. The sign strength is a dial `06` can tune.
+- **Woe:** `06` owns the formula (Suffering × Belief × Attribution, in centi-Woe), read through the victim's psyche (`10` §13.3). Rules only promise that conditions and wounds a curse causes are tagged with their cause, so the attribution is exact.
+- **Timing at T0:** a rite is an Activity measured in game-minutes. While a site is live, its progress advances on the sub-minute clock, so a dog waking mid-rite interrupts it at a real instant (§7.0).
 
 ---
 
 ## 11. Needs and survival: rules hooks only
-05 owns ecology and weather, and 04 owns the Mind. These are the hooks the rules expose:
+**Division of labor [DECISION: lead calls, C24, C48]:**
+- **`05`** owns the physiology: kcal and water burn, fatigue accrual, the thresholds on each need meter, spoilage physics, and the nutrition windows (how many days of low Fresh accrue scurvy risk).
+- **`03`** owns the item fields: kcal, protein and fat, Fresh, shelf life, preparation. Pantries are household inventories in `03`'s item model.
+- **`10`** owns what needs *say*: the need-to-drive registry (`10` §3.4), so a hungry actor hears Appetite, and **monotony** as a mood thought.
+- **This doc** owns what each stage *does* to checks, Vigor, and the body: the conditions.
 
-| Need | Tracks | Rules effect by stage |
+Needs are on the ADR's 0–1000 scale (1000 = satisfied). The thresholds below are the code's current bands (`content/base/needs/needs.toml`) as placeholders until `05` restates its 0–100 values ×10.
+
+| Need | Meter (`05` rates) | Stage → rules effect |
 |---|---|---|
-| **Rest** | Hours awake, exertion | 18 hrs awake or forced march → **Fatigued** (−2 STR/DEX, can't run). 24+ or march overtime → **Exhausted** (−6 STR/DEX, half speed). Fort DC 10 +1/hr past threshold to avoid the next step. |
-| **Hunger** | Calories vs. labor (05 rates) | 1 day **Hungry** (Vigor recovery ½). 3+ days **Starving**: CON check DC 10 +1/day or 1d6 nonlethal that can't heal until fed (3.5 starvation shape). Weekly −1 STR. |
-| **Thirst** | Water vs. heat and labor | After 1 day + CON hrs: CON check hourly → nonlethal. |
-| **Warmth** | Temperature band vs. insulation, Wet | §8.6 exposure steps. |
-| **Load** | Weight vs. STR carry table (3.5 numbers, 03) | Light / Medium (−3 check penalty, max DEX +3, speed −10) / Heavy (−6, +1, speed −10, ×3 run). Swim penalty doubled. |
-| **Intoxication** | Drinks vs. CON | Tipsy (+2 morale, −1) → Drunk (−4 DEX/WIS checks, +4 morale) → Insensible. Hungover next day: Fatigued until noon. |
-| **Fae longing** | Exposure to fae food, music, beauty | A 04 need that, when unmet, gives mood debuffs. Rules: −2 Will vs. fae effects at high longing. |
+| **Rest** | Fatigue accrual by waking hours and exertion | **Tired** (< 300) → **Fatigued** (−2 STR/DEX, can't run). **Exhausted** (< 120) → **Exhausted** (−6 STR/DEX, half speed). Past `05`'s 40 waking hours: Fort DC 10, +1 per hour, to stay awake. |
+| **Hunger** | kcal intake vs. burn (`05` §6.1; `03` kcal per item; goblins 70% via `kcal_pct`, §12) | **Peckish** (< 600): no rules effect; an Appetite thought (`10`). **Hungry** (< 300): Vigor recovery ½, −1 on STR- and CON-based checks. **Starving** (< 100): daily Fort DC 10 (+1 per day starving) or 1d6 nonlethal that can't heal until fed (3.5 starvation shape); −1 STR per week; Self-Command −1 per week (`10` §3.1). |
+| **Thirst** | Water vs. heat and labor (`05` §6.2, ~4× hunger's pace) | **Thirsty** → Fatigued; **Parched** → hourly CON check DC 10 (+1/hr) or 1d6 nonlethal. |
+| **Nutrition** | Diet history over `05`'s window (provisions' `scurvy` and protein/fat counters) | **Scurvy** and **Lean** stages, §11.3. |
+| **Warmth** | `05` effective temperature vs. comfort band | §8.6 exposure steps. |
+| **Load** | Carried weight vs. **C(STR)** (§11.1) | `03` §4 owns the bands (Unburdened … Staggering) and their penalties. This doc owns C(STR) and size. Swim penalties are doubled (§4.1). |
+| **Drink** (vice need, `10` §3.4) | Drinks vs. CON | **Tipsy** (−1 checks; +1 Will vs. `terror`) → **Drunk** (−4 DEX/WIS checks; +2 Will vs. `terror`, −2 vs. `temptation`; the superego quiets, `10` §4.2; Persona slips, `10` §8.1) → **Insensible**. **Hungover** next day: Fatigued until noon. |
+| **Fae longing** | `06` sets the gain (fae food, music, beauty); `10` routes it to the `longing` drive | The **Bound → Longing → Wasting** chain, §11.2. |
 
-All conditions that need stages cause appear in §13.
+All conditions these stages cause appear in §13. **Implementation note:** the code's Rest band "Tired" has no condition yet. It should set `fatigued` (§16).
+
+### 11.1 Carrying capacity C(STR) **[DECISION: 02 owns it, C22] [PROPOSAL: values]**
+C is the 3.5 heavy-load ceiling, which `03`'s bands read as "Load / C". Values are stored in **grams** (integers); pounds are shown for reading.
+
+| STR | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| C (lb) | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 100 |
+
+| STR | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| C (lb) | 115 | 130 | 150 | 175 | 200 | 230 | 260 | 300 | 350 | 400 |
+
+- Above 20: `C(s) = 4 × C(s − 10)`.
+- **Size and body plan** multiply, in integer per-cent: Small ×75 (goblins, `12` §8.5), Medium ×100, Large ×200, quadruped ×150 (pack animals; `03` §4.4).
+- **Pack Mule** feat: as if STR + 4.
+- `03`'s placeholder "C ≈ 100 lb at average STR" is STR 10. The *Greenhorn's Outfit* (~65 lb) is therefore 65% of C, Medium, for STR 10, as `03` says it should be. For Josiah's STR 13 (C 150) it's 43%, just over the Light line.
+
+### 11.2 The fae-food chain: Bound → Longing → Wasting **[PROPOSAL, C26]**
+Four docs had partial specs: `01`'s *Bound*, this doc's *Fae-Sickness*, `05`'s 50% nutrition, and `06`'s Drift gain. They become one condition chain owned here, with inputs from the others:
+
+| Stage | Enters when | Rules effect | Inputs from others |
+|---|---|---|---|
+| **Bound** | The actor eats or drinks in Faerie, or accepts fae food or a fae kiss | Mortal food satisfies hunger at 50% for the duration (7–42 days, rolled as `7 × 1d6`). The fae-longing need starts falling. Fae food tells others something (`12` §6.6) | `05`: the 50% nutrition effect. `06`: the Drift gain per meal. `10`: a `longing` thought |
+| **Longing** | Bound, and the fae-longing need < 300 | −2 Will vs. fae effects; sleep quality −20 (`05`); dream receptivity +10 (`10` §9.2). The actor tries to go back (an urge) | `10`: drive intensity; `04`: others notice "pining" |
+| **Wasting** | Longing for 14+ days, or a second fae meal while Bound | 1 WIS and 1 CON damage per week, which doesn't recover while Wasting; Vigor recovery ½ | `06`: Drift +1 per week Wasting |
+
+- **Recovery:** the chain ends when the Bound duration lapses *and* the need is back above 300, or through Unbinding (a CL check vs. DC 15 + the Fae intensity where the food was taken), a cunning-folk cure (`06` §3.10), or a return to Faerie, which ends it and adds Drift (`06`).
+- **Peoples (`12` §10.2):** the chain advances at `bound_rate_pct`, 50% for shadow-faekin. Elves' food taboo is superego content (`12` §5.5), not a rate.
+- All durations are integer game-minutes, with per-week effects at day rollover.
+
+### 11.3 Nutrition conditions: scurvy and lean diet **[PROPOSAL, C48]**
+`00` P8 says food is not one number. `05` keeps the counters (the provisions module already has a 0–1000 `scurvy` risk accumulator that rises on low-Fresh days and falls with fresh food), and this doc defines what the stages do. Thresholds are content data.
+
+| Condition | Enters at | Effect |
+|---|---|---|
+| **Listless** (scurvy I) | scurvy ≥ 400 | Fatigue accrual ×5/4; −1 STR- and CON-based checks |
+| **Scorbutic** (scurvy II) | ≥ 650 | Wounds heal at ½ rate and Blood doesn't recover. Each day, a healed Serious-or-worse wound has a 10‰ chance to reopen as Light (a historical symptom) |
+| **Scurvy-sick** (scurvy III) | ≥ 850 | Exhausted; −2 Fort; infection DCs +2 (§8.5) |
+| **Scurvy, dying** (IV) | 1000 | Daily Fort DC 15 or Wound Burden +2 (the §8.4 death path) |
+| **Lean** ("rabbit starvation") | `05` flags 7+ days with fat under its threshold share of kcal | Hungry's effects regardless of kcal; after 14 more days, Starving's |
+
+Stages fall back as the accumulator drops, and fresh food (wild greens, sauerkraut, cave mushrooms, `03`/`12`) drops it fast. **Monotony** is a mood thought (`10`/`04`) with no rules effect beyond mood. The provisions planner shows "No fresh food: scurvy in ~5 weeks" by calling these same thresholds (`07` §3.6: forecast = outcome).
 
 ---
 
-## 12. Ancestry hooks **[DECISION: data slot only]**
-No peoples are designed here. The engine reads an **Ancestry** record. Proposed schema:
+## 12. Peoples (ancestry) **[DECISION: four peoples, data-driven] [PROPOSAL: everything past the roster, from `12`]**
 
-```yaml
-ancestry:
-  id: placeholder_people_a
-  ability_mods: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 }   # guideline: net +0, max ±2 each
-  size: medium            # small / medium / large; drives Defense, grapple, carry, reach
-  speed_ft: 30
-  body_plan: humanoid     # location table for wounds (§8.4); quadruped, winged, etc.
-  senses: [normal]        # low_light, darkvision_60, scent, tremorsense, second_sight
-  lifespan:               # aging thresholds in years: middle, old, venerable, max_roll
-    middle: 35
-    old: 53
-    venerable: 70
-    max_roll: 2d20
-  maturity_age: 15
-  traits:                 # rule-hook tags, each a small engine feature
-    - cold_iron_sensitive: false
-    - cold_tolerance_steps: 0
-    - fae_notice_mod: 0
-    - fae_intensity_comfort: [0, 2]   # mood effects outside this range
-  bonus_skills: { }       # e.g., riverwork: 2
-  bonus_feat_choices: [ ] # restricted upbringing list
-  languages: { native: [], literacy_default: 0.4 }   # literacy base rate for NPC generation
-  diet: omnivore          # food system hooks (05)
-  social_tags: [ ]        # 04 uses these for prejudice/affinity opinion priors (careful: design-sensitive)
-  magic_affinity: { arcane: 0, divine: 0, folk: 0, fae: 0 }   # CL mods or spell-point mods
-  population_priors: { }  # occupation and ability distribution shifts for NPC generation
+### 12.1 What's decided, and who owns what
+**[DECISION, Ellie 2026-10-10]** There are four playable peoples: **humans**, **elves**, **shadow-faekin** (hidden, somewhat between humans and elves), and **goblins**. Those one-liners are everything Ellie has said. All the lore and the per-people values below are `12`'s **[PROPOSAL]**s, and her own lore overrides them.
+
+| Concern | Owner |
+|---|---|
+| Lore, origins, culture-free per-people values (the §12.3 table) | `12` |
+| The schema, and how each field enters a check, a condition, or a body | **02** (this section) |
+| Fae weakness curves (iron, salt, bells, holy ground, running water), Drift | `06`. Peoples supply offsets and floors only (C27) |
+| Psyche | `10`. **Peoples have no psyche fields.** Superego packages belong to *cultures* (`12` §5.7, §8.7) |
+| Group opinion priors, prejudice, the persecution ladder | `04` (data from `12` §11) |
+| kcal burn | `05`, reading `kcal_pct` |
+
+### 12.2 Ground rules adopted as schema constraints **[PROPOSAL, from `12` §1]**
+1. **Peoples are not cultures.** Language, literacy, faith, foodways, names, and norms live on a separate **culture** record. A people record never carries `literacy_pct` or languages.
+2. **Ability modifiers touch only STR, DEX, and CON, at ±1 each, netting to 0.** INT, WIS, and CHA modifiers must be 0. Humans get a floating +1 instead. The content validator enforces this (lint error on INT/WIS/CHA, warning if the sum ≠ 0 for non-floating peoples).
+3. **Differences are bodily or metaphysical, never moral or intellectual:** size, senses, lifespan, diet, and how Faerie treats a people.
+4. **No class restrictions or favored classes** (§6.1). Any people can be a witch (`12` §10.2).
+5. **Prejudice is belief data, never ground truth.** No rule makes a prejudice true.
+6. **No blood fractions.** Mixed parentage is binary per child, rolled deterministically from the household seed (`12` §5.3, §13).
+
+### 12.3 The four peoples at a glance **[PROPOSAL, `12` §10]**
+
+| | Human | Elf | Shadow-faekin | Goblin |
+|---|---|---|---|---|
+| Ability mods | +1 floating (player's choice) | DEX +1, CON −1 | none | CON +1, STR −1 |
+| Size / speed | Medium / 30 | Medium / 30 | Medium / 30 | **Small** / 25 |
+| Senses | normal | low-light | low-light | darkvision 60 ft |
+| Lifespan (maturity / middle / old / venerable / max) | 15 / 35 / 53 / 70 / +2d20 | 25 / 70 / 110 / 150 / +3d20 | 18 / 50 / 80 / 105 / +2d20 | 14 / 40 / 60 / 80 / +2d10 |
+| Bonuses | +1 Upbringing feat; +4 skill points at level 1 | — | Fae Courtesy +2 | Trade (Mining) +2 |
+| Traits (rule hooks, §12.5) | adaptable | renounced, the_pull | see_the_seam, kin_guest_right, dream_true | deep_sense, accord_standing |
+| kcal % of baseline | 100 | 100 | 100 | 70 |
+| Concealed | no | no | **yes**, presents as human or elf | no |
+| Weakness offset (into `06`) | 0 | −10 | +30 | 0 |
+| Drift floor / gain % below 40 / at 40+ | 0 / 100 / 100 | 0 / 50 / 200 | 10 / 100 / 100 | 0 / 100 / 100 |
+| Bound-chain rate % (§11.2) | 100 | 100 | 50 | 100 |
+
+### 12.4 Schema (TOML, `content/base/peoples/`) **[PROPOSAL; replaces the old YAML slot]**
+
+```toml
+[[people]]
+id = "goblin"                     # ids are canon: human, elf, shadow_faekin, goblin (ADR)
+name = "Goblin"
+plural = "Goblins"
+ability_mods = { str = -1, con = 1 }          # STR/DEX/CON only, each in -1..1 (lint)
+floating_mod = 0                  # humans: 1, placed at creation (see the note below)
+size = "small"                    # small / medium / large: Defense, attack, grapple, carry, reach (§9.9, §11.1)
+speed_ft = 25
+body_plan = "humanoid"            # wound location table (§8.4)
+senses = ["darkvision"]           # normal | low_light | darkvision | scent | second_sight
+darkvision_ft = 60
+maturity_age = 14
+lifespan = { middle = 40, old = 60, venerable = 80, max_roll = "2d10" }
+skill_bonus = { trade_mining = 2 }
+bonus_upbringing_feats = 0        # humans: 1
+bonus_skill_points_l1 = 0         # humans: 4
+traits = ["deep_sense", "accord_standing"]    # resolved against content/base/traits
+kcal_pct = 70                     # read by 05's burn and the provisions planner
+diet = "omnivore"
+concealed = false                 # shadow_faekin: true
+passes_as = []                    # shadow_faekin: ["human", "elf"]
+
+[people.fae]                      # inputs to 06; 06 owns the curves (C27)
+drift_floor = 0
+drift_gain_pct = [[0, 100], [40, 100]]        # band table: [from_drift, pct]
+weakness_drift_offset = 0
+bound_rate_pct = 100
+fae_notice_mod = 0
+fi_comfort = { min = 0, max = 2 }
+fi_comfort_underground = { min = 0, max = 4 }
+name_targeting_mod = -4           # deep-name; elves' sealed name is also -4
+
+[people.inheritance]
+mode = "binary_per_child"         # no blood fractions
+chance_pct_one_parent = 50
 ```
 
-**Balance budget [PROPOSAL]:** each ancestry gets ~6 "points": +1 ability = 1, a sense = 1–2, a skill bonus = 0.5, a trait per its tag cost, and drawbacks refund. This is a design aid, not an engine rule.
+**The floating mod.** `12` gives humans "+1 floating, the player's choice". To keep ground rule 2 for NPC generation, an NPC human's floating +1 is drawn from occupation priors. **[OPEN]** Whether a PC human may put it on INT, WIS, or CHA. I recommend allowing it, since it's a personal choice rather than a people trait, but `12`'s rule reads stricter.
 
-**[OPEN]** Should social_tags (prejudice priors) exist at all? Period-accurate frontier bigotry is a serious content decision with real-world echoes. 04 and Ellie should decide how, or whether, opinion priors key on ancestry.
+**Removed from the old slot:** `cold_iron_sensitive` (replaced by `weakness_drift_offset`, C27), `languages` and `literacy_default` (moved to culture), `social_tags` (group priors live in `04`, keyed by the holder's culture and the target's *believed* people, `12` §11), `magic_affinity` (no people has one), and `cold_tolerance_steps` (no people needs one yet).
+
+**Weakness offsets in general.** A weakness offset is a number added to an actor's Drift *only* for `06`'s weakness triggers. It comes from a people (above), from the Fae-Touched's Hill-Marked (+20, §6.3), or from the Marked by the Hill Hardship (+40, §5.4). **[PROPOSAL]** Offsets from different sources don't stack; the highest applies, and `06` §3.8.1 can override this. So a shadow-faekin Fae-Touched counts as Drift + 30, not + 50.
+
+### 12.5 How each field enters the rules
+
+| Field / trait | Rules effect | Where |
+|---|---|---|
+| `ability_mods`, floating | Added at creation; never INT/WIS/CHA for a people | §2 |
+| `size` | Small: +1 Defense and attack, +4 Stealth, −4 grapple, carry ×¾, weapon dice one step down | §9.9, §9.10, §11.1 |
+| `senses` | Low-light reads moonlight as dusk; darkvision ignores darkness within range | §3.3 |
+| `lifespan` | Aging categories and their ability shifts; death roll at venerable + `max_roll` | §2.2 |
+| `kcal_pct` | Multiplies `05`'s burn, so a goblin's ration lasts 1/0.7 as long | §11 |
+| `fae.*` | Inputs to `06` (weaknesses, Drift) and to §11.2's Bound chain | §11.2, `06` |
+| `fae_notice_mod` | Adds to how far and how vividly fae perceive you (with CHA, §2.1) | `05` encounters |
+| `renounced` (elf) | +2 Will vs. fae enchantment (Charmed, Glamoured, Fascinated by fae music); −4 to effects that target the sealed name | §3.7, §10.5 |
+| `the_pull` (elf) | At FI ≥ 3, an hourly Id `longing` thought (intensity 40 + 10 per FI step above 3) feeding fae longing | `10`, §11.2 |
+| `see_the_seam` (faekin) | +4 Perception vs. glamour; no FI overlay (unlike Second Sight) | §5.3, §10.5 |
+| `kin_guest_right` (faekin) | Counts as fae for hospitality and thresholds in fae dwellings; doesn't stack with Fae-Touched's *Between* | §6.3 |
+| `dream_true` (faekin) | Their dreams from Faerie more often carry real information | `10` §9 |
+| `deep_sense` (goblin) | +2 Perception for bad air, unsound rock, and water behind a face | §3.3 |
+| `accord_standing` (goblin) | The Under-Court treats the goblin as party to the Accord (`04` opinions, knocker warnings) | `12` §8.5 |
+| `adaptable` (human) | +1 Upbringing feat, +4 skill points at level 1 | §5.1, §4.2 |
+
+### 12.6 Concealment and the Explain rule (shadow-faekin) **[PROPOSAL, from `12` §7]**
+A shadow-faekin is one actor with a concealed attribute: `ancestryId` is the ground truth, `presentsAsId` is what strangers assume, and the actor may hold the Secret `Is(self, shadow_faekin)` (`04` §3.5). The rules consequences:
+- **No new skill.** Concealment uses Disguise (appearance and manner), Will (involuntary tells such as the iron flinch, against DCs in `12` §7.2), and Deceive (explaining things away). Persona strain and slips are `10` §8.1.
+- **Explains must not out anyone (P1).** Any modifier term that comes from a people's trait (See the Seam +4, Kin's Guest-Right) carries `knowledge: 'self'` on the Explain, or `'omniscient'` if the actor doesn't know what they are (`12` §7.7's *knows / suspects / doesn't know*). Observers see only what they perceive: a flinch, a glance at the glamour, a fae's greeting. They never see a "Shadow-faekin" line in a check breakdown. This is a hard requirement on `core`'s Explain and on `11`'s "show the math" sheet.
+- **Tells and tests** are `12` §7.2 and §7.5. They're checks under this chapter's rules, rolled on the existing `suspicion` stream at T1 (hourly) and per triggering action on the sub-minute clock at T0.
+- **Discovery** enters `04`'s persecution ladder at rung 1 (`12` §7.6). This doc adds nothing to the ladder.
+- **Framing** (folkloric vs. psychological vs. explicit social analogy) is Ellie's decision (`12` Q6, `10` Q4). Nothing in the rules depends on which option she picks.
+
+### 12.7 Balance and prejudice
+**Balance budget [PROPOSAL]:** each people gets roughly 4–6 "points": +1 ability = 1, a sense = 1–2, a skill bonus = 0.5, a trait per its tag cost, and drawbacks refund. `12` §10.3 prices the four at about 5 / 4.5 / 4 / 5, with the human's majority status and the faekin's concealment burden left unpriced. It's a design aid, not an engine rule. **[OPEN, `12` Q4]** The alternative is a no-ability-mods variant (elves +1 Perception, goblins +1 Athletics instead).
+
+**Prejudice [OPEN, `12` §11, `12` Q8].** The old `social_tags` question is now `12`'s options P1 (full) / P2 (redirect onto fantasy peoples) / P3 (restrained both, recommended there) / P4 (none), plus a **Prejudice dial** (0–150%) in `06`'s settings. The rules side is the same under every option: priors enter `04` opinions and attribution, are scaled by the dial in integer per-cent, and never alter a check's DC directly. The one exception is **Gather Information**, where an asker who's an Outsider to the crowd takes `04`'s Outsider term (§4.5).
 
 ---
 
@@ -855,20 +1008,24 @@ ancestry:
 | Condition | Rules effect | Sim notes / typical cause |
 |---|---|---|
 | **Unready** | No DEX to Defense; vulnerable to Low Blow | Start of combat, surprised, asleep-waking |
-| **Shaken** | −2 attacks, saves, checks | Failed morale, Intimidate |
+| **Shaken** | −2 attacks, saves, checks; +50 anxiety when imposed by morale | Failed morale, Intimidate |
 | **Frightened** | Shaken + moves away from source | Dread creatures |
-| **Panicked** | Flees; drops items 50%; can't attack | Morale fail by 10+ |
-| **Fatigued** | −2 STR/DEX; can't run | No sleep, march, Boast, fever |
-| **Exhausted** | −6 STR/DEX; half speed | Fatigue worsened, hypothermia |
-| **Hungry / Starving** | See §11 | |
+| **Panicked** | Flees; drops items 50%; can't attack. A `10` **Fit** (flight); for the PC, forced only if "Fits can take the wheel" is on (§9.8) | Morale fail by 10+ (+200 anxiety) |
+| **In a Fit** | The actor acts out a `10` §6 episode chosen by the dominant drive (weeping, a binge, a rage, flight, religious mania, stillness) for its duration; discharges 400 anxiety; always notable to witnesses | Anxiety above `10`'s Fit threshold and a failed Will save |
+| **Fatigued** | −2 STR/DEX; can't run | Rest need "Tired", march, Boast, fever, Listless |
+| **Exhausted** | −6 STR/DEX; half speed | Rest need "Exhausted", hypothermia, Scurvy-sick |
+| **Hungry / Starving** | See §11 | Hunger need bands (`05` thresholds) |
 | **Thirsty / Parched** | See §11 | |
-| **Wet** | Cold exposure +1 step; firearms use the Wet misfire column unless protected; −2 Stealth (squelch) | Fording, rain, swimming; dries 1 hr by a fire / 4 hrs in air |
+| **Listless / Scorbutic / Scurvy-sick** | See §11.3 | Scurvy accumulator (provisions) |
+| **Lean** | Hungry's effects regardless of kcal (§11.3) | Too little fat in the diet |
+| **Bound / Longing / Wasting** | See §11.2 | Fae food or drink, a fae kiss |
+| **Wet** | Firearms use the Wet misfire column unless protected; −2 Stealth (squelch). Its cold effect is inside `05`'s effective temperature, not a separate step (§8.6) | Fording, rain, swimming; dries 1 hr by a fire / 4 hrs in air (`03` §3.5 material rates) |
 | **Chilled** | −2 DEX and fine checks | Cold exposure |
 | **Hypothermic** | Exhausted; Burden +2; Concentration DC 15 for any task | Cold exposure worsened |
 | **Overheated / Heatstroke** | Mirrors Chilled/Hypothermic | Summer labor |
 | **Bleeding (slow/fast/severe)** | Blood loss per minute | Wounds |
 | **Pale / Faint** | −1 / −2 and Fatigued | Blood loss |
-| **Staggered** | One action per 6 s; half speed | Wound Burden ≥ CON/2 |
+| **Staggered** | One action per 60 tenths; half speed | Wound Burden ≥ floor(CON/2) |
 | **Spent** | Every hit wounds | Vigor 0 |
 | **Dying** | Unconscious; Fort DC 10 (+1 per check) every minute to stabilize; fail by 5+ → dead | Vital Critical wound, Burden ≥ CON, bleed-out |
 | **Unconscious** | Helpless | Nonlethal ≥ Vigor, Collapse |
@@ -879,7 +1036,7 @@ ancestry:
 | **Grabbed / Held / Pinned** | §9.6 | |
 | **Entangled** | −2 attack, −4 DEX; half speed | Snare of Roots, brush, nets |
 | **Sickened** | −2 attack, damage, checks, saves | Bad food, curses |
-| **Nauseated** | Move only | Milk sickness, fae-sickness |
+| **Nauseated** | Move only | Milk sickness, Wasting |
 | **Fevered** | Fatigued; −2 INT/WIS checks | Infection, ague |
 | **Tipsy / Drunk / Insensible / Hungover** | §11 | |
 | **Fascinated** | Stands and attends; −4 Perception | Patter, fae music |
@@ -889,77 +1046,83 @@ ancestry:
 | **Encumbered (Med/Heavy)** | §11 | |
 | **Hidden** | Unseen; attacks from Hidden target Unready | Stealth success |
 | **Cursed** | Per curse (06); always has detectable signs | Witch rites |
-| **Iron-Sick** | −2 all checks while touching or near cold iron | Fae-Touched, some ancestries |
+| **Iron-Sick** | The condition `06`'s iron trigger imposes. Its numbers are `06`'s (at the Drift-40 band, −2 while touching iron), scaled by `03`'s Iron Presence and skin contact | Effective Drift (Drift + the highest weakness offset, §12.4) at or above `06`'s threshold |
+| **Salt-Stung / Bell-Ache / Hallowed-Barred / Water-Barred** | Placeholders for `06`'s other weakness conditions; `06` §3.8.1 sets their effects | Same trigger rule as Iron-Sick, or the Pact's claim track |
 
 ---
 
 ## 14. Worked examples
 
-### 14.1 Adventurer: Josiah Penhallow, Woodsrunner 1
-A Cornish miner's son out of the lead diggings who took to the woods instead. Outfitter's Standard (25 points). Ancestry: placeholder human-equivalent (all mods 0).
+Names and places here are **illustrative, not canon** (C7). The names pass will move them into `01`'s Hollin County. Readstown is a real town, so it shouldn't stay on-map (`01` §3.2).
 
-| STR 13 (+1) | DEX 15 (+2) | CON 14 (+2) | INT 10 (+0) | WIS 12 (+1) | CHA 8 (−1) |
+### 14.1 Adventurer: Josiah Penhallow, Woodsrunner 1
+A Cornish miner's son out of the lead diggings who took to the woods instead. He grew up in a mixed human-and-goblin pare (`12` §9, hook 3). Outfitter's Standard (25 points). People: **human** (floating +1 on WIS, 12 → 13; no change to the modifier, but it opens Cool Head and Second Sight later).
+
+| STR 13 (+1) | DEX 15 (+2) | CON 14 (+2) | INT 10 (+0) | WIS 13 (+1) | CHA 8 (−1) |
 |---|---|---|---|---|---|
-| cost 5 | 8 | 6 | 2 | 4 | 0 | 
+| cost 5 | 8 | 6 | 2 | 4 (+1 human) | 0 | 
 
 Total 25. The creator shows this cost row live, because point buy should show its math.
 
-- **Vigor** 8 + 2 = **10**. **WT 14** (7 vs. Wounding). Blood 14. Defense 10 + 2 + 1 (heavy wool coat) = **13**. BAB +1. Fort +4, Ref +4, Will +1. Initiative +2.
-- **Skill points:** (6 + 0) × 4 = 24. Woodcraft 4 (+5), Tracking 4 (+5), Riverwork 2 (+3 STR / +3 WIS), Swim 2 (+3), Stealth 4 (+6), Perception 4 (+5), Trapping 2 (+2), Athletics 2 (+3).
-- **Feats:** Steady Aim (L1); **Upbringing**: Prospector's Nose (miner's son). **Quarry:** wolves & dogs.
+- **Vigor** 8 + 2 = **10**. **WT 14** (7 vs. Wounding). Blood 14. Defense 10 + 2 + 1 (heavy wool coat) = **13**. BAB +1. Fort +4, Ref +4. Initiative +2. C(STR 13) = 150 lb.
+- **Psyche seed** (`10` §3.1): Self-Command 40 + 4 (WIS +1) + 0 (level 1) + 3 (chapel upbringing) = **47**, egoMod 0. Anxiety starts at 0, so **Will = 0 + 1 + 0 = +1** at rest. Out on a hard expedition, Nerves of 200–399 make it +0.
+- **Skill points:** (6 + 0) × 4 = 24, + 4 (human) = 28. Woodcraft 4 (+5), Tracking 4 (+5), Riverwork 2 (+3 STR / +3 WIS), Swim 2 (+3), Stealth 4 (+6), Perception 4 (+5), Trapping 2 (+2), Athletics 2 (+3), Trade (Mining) 2 (+3), Gather Information 1 (cross-class, 2 points; −1+1 = +0).
+- **Feats:** Steady Aim (L1); **Upbringing**: Prospector's Nose (miner's son) and, as a human, **Hard Traveler** (a second Upbringing feat). **Quarry:** wolves & dogs.
 - **Outfit** ($50 budget, see 03): flintlock long rifle (secondhand, $14), powder horn + 1 lb powder + 5-lb lead bar ($1.25), oilcloth gunlock cover ($0.50), hatchet ($0.65), 3-point wool blanket ($3), flint, steel & char tin ($0.25), canteen ($0.75), tarred-canvas haversack ($0.75), 5 days of hardtack and bacon (~$0.70), 50 ft of hemp rope ($1)... and the $1.25 brogans versus $0.50 moccasins question, which is exactly the catalog agony 00 wants.
 
 ### 14.2 Witch: Grete Vosberg, Witch 1
-A German dairy farmer's widow in Kettle Coulee who took the Prince's bargain during the cholera summer. Homestead Roll: 15, 14, 13, 12, 10, 9.
+A German dairy farmer's widow in Kettle Coulee who took the Prince's bargain during the cholera summer (Origin: Desperation, `06` §3.3). Homestead Roll: 15, 14, 13, 12, 10, 9. People: **human** (floating +1 on DEX, 12 → 13; modifier unchanged).
 
-| STR 9 (−1) | DEX 12 (+1) | CON 13 (+1) | INT 10 (+0) | WIS 14 (+2) | CHA 15 (+2) |
+| STR 9 (−1) | DEX 13 (+1) | CON 13 (+1) | INT 10 (+0) | WIS 14 (+2) | CHA 15 (+2) |
 |---|---|---|---|---|---|
 
-- Vigor 6 + 1 = **7**. WT 13. Defense 11. BAB +0. Fort +3, Ref +0, Will +4.
-- Skills (4 + 0) × 4 = 16: Herbalism 4 (+6), Fae Courtesy 4 (+6), Stealth 2 (+3), Lore (Fae) 2 (+2), Trade (Dairying) 2 (+2), Read People 2 (+4).
-- Feats: **Name-Keeper** (L1); Upbringing: **Iron Gut** (farm life). Hardship: **Wanted** (Kettle Coulee believes she poisoned the Ahrens' well) → bonus feat **Second Sight**.
-- Class: Prince's Mark; Familiar (a one-eyed barn cat, its own actor); Curse Rites known: 2 (06). Spells known: Wisp-Light, Kindle, Fair Words, Snare of Roots. Spell points 3/day. **Unhallowed:** she can't cast within sight of the Lutheran steeple without a Will check.
+- Vigor 6 + 1 = **7**. WT 13. Defense 11. BAB +0. Fort +3, Ref +0.
+- **Psyche** (`10`): Self-Command 40 + 8 = 48 (egoMod 0); strictness 70 (a German Lutheran mother's catechism). Since the binding she carries **two consciences** (Mother, and the Prince's `pact` norm), so her Nerves rarely drop below 200: **Will = 2 + 2 − 1 = +3** most days, and +4 on a rare easy one.
+- Skills (4 + 0) × 4 = 16, + 4 (human) = 20: Herbalism 4 (+6), Fae Courtesy 4 (+6), Stealth 2 (+3), Lore (Fae) 2 (+2), Trade (Dairying) 4 (+4), Read People 2 (+4), Animal Handling 2 (+4).
+- Feats: **Name-Keeper** (L1); Upbringing: **Iron Gut** (farm life) and **Light Sleeper** (human's second). Hardship: **Wanted** (Kettle Coulee believes she poisoned the Ahrens' well) → bonus feat **Second Sight**.
+- Class: Prince's Mark; Familiar (a one-eyed barn cat, its own actor); Curse Rites known: 2 (06). Spells known: Wisp-Light, Kindle, Fair Words, Snare of Roots. Spell points 3/day. **Pact-Bound:** her weaknesses are `06`'s at her Drift. Desperation starts her Drift higher than most (`06` sets the number). Below 40 the Lutheran bell is only a sound; at 40 it starts to ache, and at 60 she can't set foot in the churchyard. She feels that coming before the village sees it.
+- **Her first rite** (§10.6): Sour the Milk on the Hartmanns with a threshold link (+2), any night (+0): DC 10 + 0 + 2 + 2 = **14**. Frau Hartmann's Will +1 with Composure 0, plus a horseshoe over the door (+2, `06`), means she resists on 11+ (50%).
 
 ### 14.3 T0 scene: Rush Creek at dusk, then the hodag
-**Setup.** Late April. Three days of rain have put Rush Creek at flood stage. Josiah (Wet: no, Fatigued: no, Load: Light, 28 lb) reaches the old ford at 7:40 pm, and the sun set at 7:52. Fae intensity at the ford tile is 2. Wind is from the NW.
+**Setup.** Late April. Three days of rain have put Rush Creek at flood stage. Josiah (Wet: no, Fatigued: no, Load: Unburdened, 28 lb = 19% of C 150) reaches the old ford at 7:40 pm, and the sun set at 7:52. Fae intensity at the ford tile is 2. Wind is from the NW.
 
 **1. Reading the water.** Josiah auto-uses Riverwork (WIS) to read the ford: base time 1 min, Steady allowed (no threat present). 10 + 3 = 13 vs. DC 10. He learns the ford's crossing DC: **Riverwork (STR) DC 19** = 10 (wade, waist-deep) + 5 (rising) + 2 (dusk) + 2 (debris in the current). If he fails by 5+ he's **swept** (Swim DC 20 in current, carried d4 × 30 ft per 6 s toward the next riffle). The UI shows every term.
 
 **2. The player's options** (paused):
 - **Steady:** 10 + 3 = 13 < 19. Steady isn't enough, and the UI shows that.
-- **Normal:** needs a 16+ (25%). Swept on 10 or less (50%). Bad odds.
+- **Normal:** needs a 16+ (25%). Swept on 11 or less (55%). Bad odds.
 - **Work It Through to find a better crossing:** Riverwork take-20 at 20 × 1 min = 20 min. It's dark by then (+5 for darkness replaces the +2 for dusk), but he finds the shoals 200 yd upstream: base DC 5 (knee-deep riffle) + 5 + 5 + 2 = **17**.
 - **Rope:** tie off on a sycamore and use the rope as a handline: +4 (an aid item, 03), and a swept result becomes "lose your grip, Swim DC 15 to hold the line".
 
-The player chooses to Work It Through plus the rope. DC 17, bonus +3 +4 = +7, needs 10+ (55%). Swept on a 4 or less (20%), but the rope turns that into a Swim check. He also spends 1 min wrapping the rifle lock in the oilcloth, because powder protection must be *declared*.
+The player chooses to Work It Through plus the rope. DC 17, bonus +3 +4 = +7, needs 10+ (55%). Swept on a 5 or less (25%), but the rope turns that into a Swim check. He also spends 1 min wrapping the rifle lock in the oilcloth, because powder protection must be *declared*.
 
-**3. The crossing.** It takes 2 checks (the shoal is 2 segments). Rolls 14 (21, pass) and 4 (11, fails by 6 → swept, but roped → Swim DC 15: rolls 12 + 3 = 15, holds). He's waist-deep for 40 s. Water temperature is 46°F, so **cold shock**: Fort DC 15: he rolls 16 + 4 = 20 and is fine. He's **Wet**. The air is 41°F with a wet wool coat: the exposure band moves from Mild → Cold, with Fort checks every 10 min. Practice: the Riverwork DC (17) is inside his learning window (3 + 3 to 3 + 18), so +1 mark. Swim also gets +1 mark.
+**3. The crossing.** It takes 2 checks (the shoal is 2 segments). Rolls 14 (21, pass) and 4 (11, fails by 6 → swept, but roped → Swim DC 15: rolls 12 + 3 = 15, holds). He's waist-deep for 40 s. Water temperature is 46°F, so **cold shock**: Fort DC 15: he rolls 16 + 4 = 20 and is fine. He's **Wet**. The air is 41°F, and `05`'s effective temperature now counts the wet penalty and his wool coat at 50% of its insulation, so the deficit moves from Mild to **Cold**, with Fort checks every 10 min. Practice: the Riverwork DC (17) is inside his learning window (3 + 3 to 3 + 18), so +1 mark. Swim also gets +1 mark.
 
 **4. Camp or push on?** He's Wet in Cold exposure. At 8:10 pm the first Fort check comes up 9 + 4 = 13 < 15, and he's **Chilled** (−2 DEX). The player decides to make a fire. Woodcraft (fire) in wet conditions is DC 15, Normal: 11 + 5 = 16 ✓. Kindling takes 10 min. Drying takes 1 hour.
 
-**5. The hodag.** It's 8:35 pm. The hodag (a CR 3 Large beast with Feed intent from 05's hunger state, Stealth +6, Defense 15 including +4 natural armor, CON 16) works upwind toward the fire. Josiah is tending the fire, so the sim uses his passive Perception: 10 + 5 − 2 (dark beyond the firelight) = 13. That's against the hodag's Stealth roll of 11 + 6 = 17, so **Josiah is surprised.** Chilled (−2 DEX score) drops his DEX mod to +1. He rolls Initiative 9 + 1 = 10, a delay of (30 − 10) × 0.1 = 2.0 s, plus 3 s for surprise = **5.0 s Unready**. The hodag rolls Initiative 15 and acts at 1.5 s. It is a **Dread** creature.
+**5. The hodag.** It's 8:35 pm. The hodag (a CR 3 Large beast with Feed intent from 05's hunger state, Stealth +6, Defense 15 including +4 natural armor, CON 16) works upwind toward the fire. Josiah is tending the fire, so the sim uses his passive Perception: 10 + 5 − 2 (dark beyond the firelight) = 13. That's against the hodag's Stealth roll of 11 + 6 = 17, so **Josiah is surprised.** Chilled (−2 DEX score) drops his DEX mod to +1. He rolls Initiative 9 + 1 = 10, a delay of max(3, 30 − 10) = 20 tenths, plus 30 for surprise = **50 tenths (5.0 s) Unready**. The hodag rolls Initiative 15 and acts at 15 tenths. It is a **Dread** creature. Hostility beginning is an interrupt: the sim auto-pauses and, under `11`'s proposed default, drops to Tactical (1 game-second per real second; C21(b) is open). Times below are tenths after hostility began, which is instant `T0Instant = minute × 600 + tenth`.
 
-- *t = 1.5 s:* The hodag charges from 40 ft (+2 for the charge) with a horn gore at +7. Josiah is Unready, so his Defense is 11 (no DEX). The hodag rolls 13 + 9 = 22 and hits for 1d8 + 5 = 9. His Vigor drops from 10 to 1. Horns have the Wounding property, so his WT is halved to 7. The 9 damage meets that, so the excess over 3 becomes Wound damage: 6 points, **Serious**. The location roll is 12: **left arm**. That gives −2 to two-handed use and a slow bleed (Blood −1/min). The first wound plus a Dread creature triggers a morale check: Will DC 10 + Threat 6 = 16. He rolls 17 + 1 = 18 and holds **steady**. On a failure he could have panicked straight back into the creek.
-- *t = 5.0 s:* Josiah's first action, and the player pauses. The options:
+- *t = 15 (1.5 s):* The hodag charges from 40 ft (+2 for the charge) with a horn gore at +7. Josiah is Unready, so his Defense is 11 (no DEX). The hodag rolls 13 + 9 = 22 and hits for 1d8 + 5 = 9. His Vigor drops from 10 to 1. Horns have the Wounding property, so his WT is halved to 7. The 9 damage meets that, so the excess over 3 becomes Wound damage: 6 points, **Serious**. The location roll is 12: **left arm**. That gives −2 to two-handed use and a slow bleed (Blood −1/min). The first wound plus a Dread creature triggers a morale save (`terror`): Will DC 10 + Threat 6 = 16. His Will is +1 (WIS) + 0 (base) + Composure −1: egoMod 0, but the crossing and the cold have his Nerves at about 260, band 1. He rolls 17 + 0 = 17 and holds **steady**, so no anxiety is booked. The Explain reads "Will +1 · Self-Command +0 · Nerves −1". Had he failed by 10+, he'd have Panicked, which is a `10` Fit: a flight straight back into the creek. For the PC that's forced only if "Fits can take the wheel" is on (§9.8).
+- *t = 50 (5.0 s):* Josiah's first action, and the player pauses. The options:
   - fire the rifle at point-blank (this provokes an AoO; −2 for the arm)
   - wave a burning brand (STR-based Intimidate, +4 vs. animals because of the fire, against the hodag's morale)
   - dive back into the creek (the hodag's data lists Swim −4)
 - He fires. The AoO resolves first, during the shot's windup. Josiah is now Ready, so his Defense is 12 (10 + 1 DEX + 1 coat). The hodag rolls 6 + 7 = 13 and hits for 7. That takes his Vigor from 1 to 0, so the 6-point overflow becomes Wound damage. The WT test gives 7 − 3 = 4, and the larger value is used (§8.3): 6 points, **Serious**, location 5, **torso**, slow bleed. His Burden is 2 + 2 = 4 against CON 14 (Staggered at 7). He is **Spent** but still on his feet.
 - The shot itself: +1 BAB, +1 DEX, −2 arm, and no Steady Aim because the player wouldn't spend 3 s aiming, for a total of +0. At point-blank the ball ignores the hodag's natural armor, so it's against Defense 11. The natural 15 isn't in the misfire range of 1–2; he uses the dry column because the oilcloth was declared. The total of 15 **hits** for 1d10 = 8. The hodag's WT of 16 is halved to 8, so 8 − 4 = 4 Wound points, **Light**, on the right foreleg. A smoke cloud spawns. The sound event carries about a mile, and the Haugen farm across the ridge hears it. That's a T1 event, which becomes a rumor.
-- The hodag makes its own morale check, triggered by its first wound and by gunfire it isn't used to. The DC is 10 + Threat 3 = 13. It has Will +3 and takes −2 because it is a Feed-intent animal that has been wounded. It rolls 6, for a total of 7. That fails by 6, so it **falls back** into the dark beyond the smoke.
-- Josiah bandages both slow bleeds. He's untrained, but Medicine allows untrained use at DC ≤ 10. The arm succeeds (13). The torso fails (8), and the retry a minute later succeeds (14). He builds up the fire. He reloads behind the sycamore, not in the open (35 s). Without Light Sleeper, he sleeps at −10 Perception. If the hodag gets hungry enough (05), it may come back.
+- The hodag makes its own morale check, triggered by its first wound and by gunfire it isn't used to. The DC is 10 + Threat 3 = 13. It has Will +3 (a beast's Composure 0, §3.7) and takes −2 because it is a Feed-intent animal that has been wounded. It rolls 6, for a total of 7. That fails by 6, so it **falls back** into the dark beyond the smoke.
+- Josiah bandages both slow bleeds. He's untrained, but Medicine allows untrained use at DC ≤ 10. The arm succeeds (13). The torso fails (8), and the retry a minute later succeeds (14). He builds up the fire. He reloads behind the sycamore, not in the open (350 tenths). Without Light Sleeper, he sleeps at −10 Perception. If the hodag gets hungry enough (05), it may come back. His mind keeps score too: two wounds and a Dread creature add real anxiety (`10` §6), and that night a defense such as isolation of affect may fire. `10` §15.2 follows his next days.
 
-**Aftermath.** Josiah drove the hodag off, which counts as overcoming it. That's a CR 3 threat at L1, worth 300 × 1.5² ≈ **675 XP**. The ford was a CR 2 peril, worth 300 × 1.5 = **450**. His total of 1,125 makes him **level 2** after one very bad night. That's probably too fast **[OPEN: tune the peril XP down]**. He also earned practice marks in Riverwork and Swim. Each of his two Serious wounds needs a daily infection save: Fort +4 vs. DC 8 + 4 (Serious) + 2 (river water; a bite or gore counts the same) = **14**, minus 2 if he keeps clean dressings on. That means a real chance of fever on Thursday, out in the Wilds, three days from the Outfitter. That's the story he'll tell.
+**Aftermath.** Josiah drove the hodag off, which counts as overcoming it. That's a CR 3 threat at L1, worth 300 × 1 × 2250‰ = **675 XP** (§1.4). The ford was a CR 2 peril, worth 300 × 1500‰ = **450**. His total of 1,125 makes him **level 2** after one very bad night. That's probably too fast **[OPEN: tune the peril XP down]**. He also earned practice marks in Riverwork and Swim. Each of his two Serious wounds needs a daily infection save: Fort +4 vs. DC 8 + 4 (Serious) + 2 (river water; a bite or gore counts the same) = **14**, minus 2 if he keeps clean dressings on. That means a real chance of fever on Thursday, out in the Wilds, three days from the Outfitter. That's the story he'll tell.
 
 ### 14.4 The same kind of event at T1: Ole Haugen goes to Readstown
 Ole Haugen (Hand 2, Riverwork +4, Swim +2, Perception +3, Vigor 11, CON 12, an old shotgun) has the **activity** "Travel: Haugen farm → Readstown store, 3 hrs, departs 6 pm" on the same evening, crossing Rush Creek 2 miles downstream. The region is T1 because Josiah's site is the only one promoted to T0.
 
 1. **Route hazards** come from 05's segment data: [ford: Rush Creek, conditions averaged over the hour = DC 19 at the main ford], [encounter roll: Wilds edge, Fae intensity 1–2].
-2. **Policy:** Ole's traits are Cautious and Stubborn (04). The policy chooser compares P(swept) at the main ford for his +4 against a DC of 19 (swept on 9 or less on the die = 45%) and decides to take the alternative: "walk up to the footlog" (+40 min, which pushes his arrival to dark). This is the same choice Josiah made, made by policy. *If his Cautious trait had been Reckless, he'd have taken Rush or Normal at the ford.*
-3. **Footlog crossing:** Acrobatics (balance) DC 15 (wet log, dark), base 2 segments. Ole has +1. He falls if he fails by 5+, which means a roll of 8 or less: 40% per segment. Over 2 exposures that's a 1 − 0.6² ≈ 64% chance of a fall. With no threat present he could Steady, but 10 + 1 = 11 < 15, so he wouldn't fall and wouldn't get across either. The policy chooser looks at both numbers and Ole turns back. The activity resolves as **Setback: did not cross; went home; mood −3 "flooded out"**. No dice were rolled at all. That's realistic, because most farmers stayed home when the creek was up.
-4. Suppose instead that Ole's brother-in-law Torvald (Reckless, Riverwork +6) makes the crossing on the same night. The T1 engine rolls **once** for the ford band at the main ford: DC 19, Normal policy. The bands come from margins. **Pass** (total ≥ 19, a roll of 13+): 40%. **Struggle** (total 15–18, a roll of 9–12): 20%, leaving him wet and cold with +1 practice mark. **Swept** (total ≤ 14, a roll of 8 or less): 40%. The roll is a 7: **Swept**. Next comes one roll on the calibrated rescue table for Swim +3 against DC 20, with 3 exposures before the riffle. That table is **Reached bank** 70%, **Reached bank, exhausted, lost gear** 22%, and **Drowned** 8%, all fitted from T0 runs. The roll comes up **Reached bank**. The engine records the Wet and Chilled conditions and rolls one cold-shock Fort. If the result had been "Drowned," the director (05) might be offered a promotion: "body found at the Rush Creek mill dam", and the Chronicle and the rumor system would carry it.
+2. **Policy:** Ole's psyche (`10`): Self-Command 55, and his Cautious trait sets his `fear` drive at 65 (Stubborn is an `04` trait). The arbitration's reality appraisal uses P(swept) at the main ford for his +4 against DC 19 (swept on a natural 10 or less = 500‰), and his Dread voice agrees, so he takes the alternative: "walk up to the footlog" (+40 min, which pushes his arrival to dark). This is the same choice Josiah made, made by policy. *With a Reckless trait (low `fear`, high `idAppetite`), the voices would have pushed for Rush or Normal at the ford.*
+3. **Footlog crossing:** Acrobatics (balance) DC 15 (wet log, dark), base 2 segments. Ole has +1. He falls if he fails by 5+ (a total of 10 or less), which means a roll of 9 or less: 450‰ per segment. Over 2 exposures that's 1 − 0.55² ≈ 698‰, about a 70% chance of a fall (`ipowQ16`, §1.4). With no threat present he could Steady, but 10 + 1 = 11 < 15, so he wouldn't fall and wouldn't get across either. The policy chooser looks at both numbers and Ole turns back. The activity resolves as **Setback: did not cross; went home**, plus a mood −3 thought, "flooded out" (`10`). No dice were rolled at all. That's realistic, because most farmers stayed home when the creek was up.
+4. Suppose instead that Ole's brother-in-law Torvald (Reckless trait, Riverwork +6) makes the crossing on the same night. The T1 engine rolls **once** for the ford band at the main ford: DC 19, Normal policy. The bands come from margins. **Pass** (total ≥ 19, a roll of 13+): 40%. **Struggle** (total 15–18, a roll of 9–12): 20%, leaving him wet and cold with +1 practice mark. **Swept** (total ≤ 14, a roll of 8 or less): 40%. The roll is a 7: **Swept**. Next comes one roll on the calibrated rescue table for Swim +3 against DC 20, with 3 exposures before the riffle. That table is **Reached bank** 70%, **Reached bank, exhausted, lost gear** 22%, and **Drowned** 8%, all fitted from T0 runs. The roll comes up **Reached bank**. The engine records the Wet and Chilled conditions and rolls one cold-shock Fort. If the result had been "Drowned," the director (05) might be offered a promotion: "body found at the Rush Creek mill dam", and the Chronicle and the rumor system would carry it.
 5. **Encounter roll** for Torvald's route segment at the Wilds edge: P(encounter) from the 05 ecology state, here the hungry hodag (which T0 and T1 share as one actor). If the hodag is engaged at T0 with Josiah at that time, it's unavailable. That's **consistency**: an actor exists in exactly one tier. Otherwise the **skirmish abstraction** resolves the fight:
-   - Each side's **Threat Value** = expected damage per 6 s × expected rounds to break morale, computed from the sheets via the same attack, Defense, and morale functions (07 caches these per pairing).
+   - Each side's **Threat Value** = expected damage per 60 tenths × expected rounds to break morale, computed in integers (damage in tenths of a point, odds in per-mille) from the sheets via the same attack, Defense, and morale functions, with Composure read from each side's psyche. `07` caches these per pairing.
    - One roll on a band table derived from the T0 Monte Carlo for "Hand 2 with a shotgun vs. hodag CR 3, surprised, night": Unharmed (10%), Drove it off (25%), Wounded and drove it off (35%), Fled wounded (20%), Killed (10%).
    - The wound result uses the *real* wound pipeline: one hit, roll damage, WT test, location, severity. So the wound Torvald carries home is a real wound object that can later get infected at T1 (daily infection saves continue as cheap daily rolls).
    - Outputs: Memory ("the hodag at Rush Creek", vivid), Rumor ("the hodag's back on Rush Creek"; 04 mutation may make it "two hodags"), Opinion (+ toward Josiah if Torvald heard his shot and later learns it was him), and XP credited (the band "Drove it off" = overcome → CR 3 XP at Hand level).
@@ -969,15 +1132,49 @@ Ole Haugen (Hand 2, Riverwork +4, Swim +2, Perception +3, Vigor 11, CON 12, an o
 
 ## 15. Open questions for Ellie
 
+Numbers 1–12 keep their old meaning so `08`'s links still land. Closed items are marked.
+
 1. **Level cap:** is 12 right for v1? Do you want an E6-style "levels 1–6, then feats only" gritty option instead? Or the full 1–20 eventually?
 2. **Ability names:** keep the classic six names (my recommendation) or rename them to fit the period?
 3. **Practice:** do you like the hybrid points-plus-practice approach? Is "practice ignores cross-class" too generous?
 4. **Vigor + Wounds:** is the wound system's lethality (firearms halve WT) in the right place? Should a single musket ball be able to kill a level-1 character outright? Currently it's possible but rare: it takes a crit to the head or torso.
-5. **Alignment:** OK to drop it entirely in favor of 04's minds and deed tags?
-6. **Classes:** is the starter nine right? Any you'd swap (a Lawman? a Lumberjack-type? a Schoolmarm distinct from the Almanacker)? Should non-witches ever be able to *become* Witches mid-run through the Prince's offer?
-7. **Magic traditions:** four engines (slots, slots plus faith, charms, tidal spell points) is a lot to build. Would you trade one away for scope, e.g., fold Divine into Arcane mechanics?
+5. ~~**Alignment**~~ **Closed (Ellie, 2026-10-10):** replaced by the Freud/Jung psyche (`00` P7, `10`). This doc reads Composure for Will and morale (§3.7, §9.8) and keys "evil"-sensitive magic to live urges (§10.5).
+6. **Classes:** is the starter nine right? Any you'd swap (a Lawman? a Lumberjack-type? a Schoolmarm distinct from the Almanacker? a settled Pastor beside the Circuit Rider, C17)? Should non-witches ever be able to *become* Witches mid-run through the Prince's offer?
+7. **Magic traditions:** four engines (slots, slots plus faith, charms, tidal spell points) is a lot to build. Would you trade one away for scope, e.g., fold Divine into Arcane mechanics? And do you want `01`'s Fae-intensity curve (arcane weakens and folk strengthens as FI rises, §10.1) and its "lyceum" framing for the Almanacker (C17)?
 8. **Gunpowder and fae:** should fae magic or high Fae intensity make powder unreliable ("the Fair Folk hate the stink of it")? It's a strong flavor lever with big balance effects.
-9. **Morale for the player:** should the *player* character ever be forced to flee by a failed morale check (RimWorld-style mental breaks), or should it be advisory (penalties only)? I lean toward forcing it only at "Panicked," with an option to turn that off.
-10. **Ancestry and prejudice:** should 04 opinion priors be able to key on ancestry? (See §12.)
+9. **Morale for the player** (merged with `10` Q1): failed morale is advisory with an anxiety cost by default, and only a Panicked result (a Fit) can take control, behind a "Fits can take the wheel" setting. My recommendation is on in Frontier and off in Settler (§9.8). OK?
+10. **Prejudice** (moved to `12` Q8): P1 / P2 / P3 *(`12`'s rec)* / P4, plus a Prejudice dial. The rules side works under any of them (§12.7).
 11. **Spell catalog size target:** how many spells at launch? I'd suggest ~120 across levels 0–6, plus ~30 curse rites in 06.
-12. **Curse XP:** do witches level from curses (XP) as well as gaining Woe, or should Woe be their *only* progression, with levels coming from other deeds?
+12. **Curse XP** (C30): this doc and `06` now agree that a curse grants XP only when it *overcomes* something (a protected target, a hunt turned), and that Woe is the reward for harm itself (§6.6). Confirm, or make Woe the witch's only progression.
+13. **Gather Information** (gap #1): a new CHA skill (§4.5) as `09` recommends, rather than Persuade + Lore (Local) or a Read People interaction. OK?
+14. **Rite DC** (C29): `10 + floor(level/2) + CHA mod + link + timing + Gifts + Woe boost` (§10.6). It's lower than `06`'s interim full-level form at high levels, so a level-6 witch can still be resisted. OK, or would you rather curses scale harder?
+15. **T0 resolution and Tactical** (C21): tenth-of-a-second timing (§7.0), with combat automatically pausing and dropping to Tactical speed when hostility begins (`11` §2.11)? Same question as `07` Q1.
+16. **Weakness offsets** (C27): Fae-Touched +20, Marked by the Hill +40, peoples per `12`, highest-wins rather than stacking (§12.4)? `06` §3.8.1 has the final say on how offsets combine.
+17. **The human floating +1:** may a PC place it on INT, WIS, or CHA, or only STR/DEX/CON like other peoples' mods (§12.4)?
+18. **Armor Turn** (gap #2): armor that subtracts from *Wound* damage on covered locations, besides adding Defense (§9.10). Worth the extra rule, or keep Defense only?
+19. **Psyche for beasts and fae** (for `10`): beasts with an `egoStrength` and fear-only anxiety, fae with a fixed Composure 0 (§3.7)?
+
+---
+
+## 16. Implementation notes (checked 2026-10-10 against `packages/` and `content/`)
+
+The doc is the design target. These are divergences for the module owners; no code was edited.
+
+**Aligned already:**
+- `core/src/checks.ts` matches §3: ties succeed; no auto-success or failure on skill checks; natural 1/20 for saves and attacks; opposed checks with the defender winning ties and a passive 10 + mod; the five time policies with integer `timePct` (Rush 50, Careful 200, Steady take-10, Work It Through take-20 at 2000); trained-only skills failing above DC 10 at 0 ranks; and an `Explain` on everything.
+- `content/base/skills/skills.toml` uses this doc's names and abilities.
+- `content/base/needs/needs.toml` uses hunger bands at 600 / 300 / 100 with `hungry` and `starving` conditions, the same thresholds §11 uses.
+- The provisions module already keeps a 0–1000 `scurvy` and `monotony` accumulator and protein/fat/fresh intake (§11.3). Toggling the conditions is still a stub.
+- `rng.ts` has the `psyche` and `suspicion` streams that §3.7 and §12.6 need.
+
+**Divergences (code → doc):**
+1. **Missing skills:** `gather_information` (CHA, §4.5), `lore_history` (replaces "Old Peoples", C10), `lore_mental_philosophy`, and `trade_cartography`. The skill domain is foundation-owned, so it's a request via `docs/impl/MODULES.md`.
+2. **Riverwork's ability.** `skillTerms` picks the better of `ability` and `alt_ability` for every use. That's right for Intimidate, but Riverwork's ability depends on the *task* (STR to pole, WIS to read water, §4.1). `ActorCheckSpec` needs an optional `ability` override that callers set per task.
+3. **Will has no Composure.** `saveTerms('will')` returns the WIS term only (and no class base, which arrives with classes). Add a psyche-provided `composureTerms(actor)` (egoMod and band as two named terms, `knowledge: 'self'`), and tag saves `temptation` or `terror` for the strictness term. The psyche module should export egoMod/band from its `api.ts`, so checks don't read psyche state directly.
+4. **Rest band "Tired" sets no condition.** It should set `fatigued` (§11).
+5. **`Sheet.literate: boolean`.** §4.1 has literacy per script (`literacy: string[]`), and NPC literacy rates come from the culture record, not the people (`12` §13).
+6. **Peoples schema.** See `12` §13. From this doc's side: replace `cold_iron_sensitive` with the `[people.fae]` block (§12.4); move `literacy_pct` and `languages` to a culture record; add `max_roll`, `darkvision_ft`, `kcal_pct`, `traits`, `skill_bonus`, `floating_mod`, `bonus_upbringing_feats`, `bonus_skill_points_l1`, and `inheritance`; restrict `ability_mods` for peoples to STR/DEX/CON in −1..1, with a lint that the non-floating sum is 0.
+7. **Site tile size.** `SiteSchema.tile_ft` defaults to 10, but reach, AoO adjacency, and range-increment conversions here assume 5-ft tiles (`05`, §9.9). `11` flagged the same thing.
+8. **No T0 sub-clock yet.** `time.ts` is minutes-only, which is right for M1. M6 combat needs `tenth` and `T0Instant` (`07` §3.4), and RNG keyed by instant (§1.4).
+9. **No weapon or armor fields.** `schema/items.ts` has an `armor` section but no stat block. Add the optional `weapon` and `armor` blocks from §9.10, with integer values and `reload_tenths`.
+10. **Explain knowledge for people traits.** When people-trait terms land, they must carry `knowledge: 'self'` (or `'omniscient'` for an actor who doesn't know), or a check breakdown will out a shadow-faekin (§12.6).

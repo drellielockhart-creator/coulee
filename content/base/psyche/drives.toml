@@ -1,0 +1,86 @@
+# Drives: the Id's voices (10 §3.2). OWNER: module:psyche.
+#
+# weight = 50 + Σ value × coefficient + trait shifts (+ scenario override), clamped 0..100.
+# An Id thought's intensity is base × (50 + idAppetite)/100 × weight/50 (10 §4.2 #1, ×10 scale).
+# `forbidden` drives are the ones conscience disowns: frustrated, they charge the Shadow
+# (the Hidden Self) and become the content of projection (10 §7.2, §8.2).
+# `shadow_traits` name the trait a projector pins on someone else ("she's the envious one").
+
+[[drive]]
+id = "hunger"
+name = "Hunger"
+period_label = "Appetite"
+description = "Food and drink, cravings for coffee, tobacco and liquor (10 §3.2)."
+shadow_traits = ["drunkard"]
+relief_tags = ["eat", "drink_water"]
+needs = [{ need = "hunger", at = 600 }, { need = "thirst", at = 600 }, { need = "drink", at = 500 }]
+
+[[drive]]
+id = "lust"
+name = "Desire"
+period_label = "Amativeness"
+description = "Attraction and the wish to be near someone. One drive among eight; never a diagnosis (10 §1)."
+forbidden = true
+shadow_traits = ["amorous"]
+relief_tags = ["court", "company"]
+
+[[drive]]
+id = "rage"
+name = "Rage"
+period_label = "Choler"
+description = "Insult, grudge, pain and frustration wanting an outlet."
+forbidden = true
+displaceable = true
+values = { temper = 10 }
+shadow_traits = ["hot_tempered"]
+relief_tags = ["aggress"]
+
+[[drive]]
+id = "sloth"
+name = "Sloth"
+period_label = "Ease"
+description = "Rest and warmth deficits, wet weather, the warm bed on a cold morning."
+shadow_traits = ["slothful"]
+relief_tags = ["rest", "warm"]
+needs = [{ need = "rest", at = 600 }, { need = "warmth", at = 650 }]
+
+[[drive]]
+id = "greed"
+name = "Greed"
+period_label = "Acquisitiveness"
+description = "Money, goods, debt and the sight of a full shelf."
+forbidden = true
+values = { ambition = 10, thrift = 5 }
+shadow_traits = ["covetous"]
+relief_tags = ["earn", "trade"]
+
+[[drive]]
+id = "fear"
+name = "Fear"
+period_label = "Cautiousness"
+description = "Threats, debts, the dark, Dread things. Its frustration is realistic anxiety (10 §6)."
+anxiety_pool = "real"
+displaceable = true
+values = { superstition = 5 }
+shadow_traits = ["timid"]
+relief_tags = ["home"]
+needs = [{ need = "security", at = 500 }]
+
+[[drive]]
+id = "envy"
+name = "Envy"
+period_label = "the Evil Eye"
+description = "A neighbor's prosperity, a rival's standing."
+forbidden = true
+values = { ambition = 8 }
+shadow_traits = ["envious"]
+relief_tags = ["slander"]
+needs = [{ need = "standing", at = 500 }]
+
+[[drive]]
+id = "longing"
+name = "Longing"
+period_label = "Pining"
+description = "Grief, homesickness, loneliness, and fae music heard too long (10 §3.2)."
+relief_tags = ["company"]
+needs = [{ need = "company", at = 500 }]

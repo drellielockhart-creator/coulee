@@ -1,0 +1,92 @@
+# Catalog 03 §6.2 Shelter. OWNER: module:content-items.
+# Shelter affordance magnitudes follow 03 §3.2 (fly 2, wall tent 4). Bulk and weight per 03 §6.2.
+
+[[item]]
+id = "oilcloth_fly_8x10"
+name = "Oiled-canvas fly, 8×10"
+section = "shelter"
+copy = "String it between two trees and the weather becomes something that happens to other people."
+weight_g = 4082
+bulk = 10
+value_cents = 300
+tags = ["waterproof"]
+materials = [{ material = "oilcloth", pct = 100 }]
+affordances = { shelter = 2 }
+stackable = false
+
+[[item]]
+id = "wall_tent_9x9"
+name = "Wall tent, 9×9, with fly"
+section = "shelter"
+copy = "For the gentleman with a mule. Room to stand and to be miserable standing up."
+weight_g = 20412
+bulk = 60
+value_cents = 1200
+tags = ["large", "waterproof"]
+shape = ["soft"]
+materials = [{ material = "canvas", pct = 90 }, { material = "wood", pct = 10 }]
+affordances = { shelter = 4 }
+stackable = false
+
+[[item]]
+id = "tent_poles_pegs"
+name = "Tent poles & pegs, set"
+section = "shelter"
+copy = "Cut your own in any woodlot, or carry these and save the hour."
+weight_g = 3629
+bulk = 6
+value_cents = 75
+shape = ["long"]
+materials = [{ material = "wood", pct = 100 }]
+stackable = false
+
+[[item]]
+id = "oilcloth_groundsheet"
+name = "Oilcloth ground sheet"
+section = "shelter"
+copy = "The ground is wet. It is always wet."
+weight_g = 1814
+bulk = 4
+value_cents = 100
+tags = ["waterproof", "ground"]
+materials = [{ material = "oilcloth", pct = 100 }]
+affordances = { shelter = 0.5 }
+stackable = false
+
+[[item]]
+id = "mosquito_bar"
+name = "Mosquito bar (netting)"
+section = "shelter"
+copy = "June in the river bottoms will teach you the price of this item. Learn it here instead."
+weight_g = 454
+bulk = 1
+value_cents = 50
+tags = ["insect_ward"]
+materials = [{ material = "cotton", pct = 100 }]
+stackable = false
+
+[[item]]
+id = "snowshoes_pair"
+name = "Snowshoes, ash & rawhide, pair"
+section = "shelter"
+unit = "pair"
+copy = "Bear-paw pattern for timber. You will walk like a duck and live like a man."
+weight_g = 1814
+bulk = 8
+value_cents = 250
+shape = ["long"]
+tags = ["snow_travel"]
+materials = [{ material = "wood", pct = 60 }, { material = "rawhide", pct = 40 }]
+stackable = false
+
+[[item]]
+id = "canvas_bucket"
+name = "Canvas bucket"
+section = "shelter"
+copy = "Folds flat. Waters a horse, douses a fire."
+weight_g = 454
+bulk = 1
+value_cents = 35
+materials = [{ material = "canvas", pct = 100 }]
+stackable = false
+container = { capacity_g = 7500, capacity_bulk = 8, liquid_ml = 7500, protects = ["splashproof"], carry = "pack" }

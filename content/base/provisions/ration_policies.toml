@@ -1,0 +1,35 @@
+# Eat-order policies (03 §3.7.6). OWNER: module:provisions.
+# Weights are tenths-multipliers (10 = neutral, 0 = ignore, 20 = double). A mess scores every
+# food it could serve, adds the weighted terms, and serves from the top. Every term is named in
+# the meal's Explain. `reserve_tags` hold items back unless nothing else will do.
+
+[[ration_policy]]
+id = "spoils_first"
+name = "Spoils first"
+description = "Use what turns soonest. The default, and the one a careful housekeeper follows."
+weights = { spoils_first = 20, morale = 10, variety = 10, lightness = 0, thrift = 10, fresh_need = 10 }
+
+[[ration_policy]]
+id = "lightest_first"
+name = "Lightest first"
+description = "Eat the dense, heavy food first and shed weight from the pack."
+weights = { spoils_first = 5, morale = 5, variety = 5, lightness = 30, thrift = 0, fresh_need = 10 }
+
+[[ration_policy]]
+id = "best_morale_first"
+name = "Best morale first"
+description = "Whatever keeps spirits up, until it is gone."
+weights = { spoils_first = 5, morale = 30, variety = 15, lightness = 0, thrift = 0, fresh_need = 10 }
+
+[[ration_policy]]
+id = "save_the_pemmican"
+name = "Save the pemmican"
+description = "Hold the no-fire trail rations in reserve for the day there is no fire."
+weights = { spoils_first = 20, morale = 10, variety = 10, lightness = 0, thrift = 10, fresh_need = 10 }
+reserve_tags = ["trail_ration"]
+
+[[ration_policy]]
+id = "thrifty"
+name = "Thrifty"
+description = "The cheapest calories first. A hard winter's policy."
+weights = { spoils_first = 15, morale = 0, variety = 5, lightness = 0, thrift = 40, fresh_need = 10 }

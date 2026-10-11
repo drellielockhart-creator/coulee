@@ -1,4 +1,16 @@
-# Activities (T1 abstracted blocks). OWNER: module:needs-activities.
+# Activities (T1 abstracted blocks, one game-hour at a time). OWNER: module:needs-activities.
+#
+# Occupation schedules (content/base/occupations, content-world) and the human calendar
+# (calendar.toml here) reference these ids. Never rename one; add a new id instead.
+#
+# `needs` are deltas per hour (positive satisfies). Costs of living come from `labor`:
+# heavy labor burns hunger/thirst/rest faster (needs.toml labor_pct).
+# Tags the sim reads: labor (stops on the Sabbath), essential (stock must still be fed),
+# meal, cook, commerce (a shopping hour), worship, school, leisure, chore, travel.
+# `yields`/`tool`/`check` are real production: the goods land in the household's stores or the
+# actor's kit. Items marked `optional` are ignored if content/base/items doesn't carry them.
+
+# ---- Basic life --------------------------------------------------------------------------
 
 [[activity]]
 id = "sleep"
@@ -7,16 +19,20 @@ verb = "sleeping"
 at = "home"
 labor = "rest"
 asleep = true
-needs = { rest = 110 }
+needs = { rest = 110, security = 8 }
 min_hours = 4
+duty_label = "It is late; the day starts early"
 
 [[activity]]
-id = "work"
-name = "Work"
-verb = "working"
-at = "workplace"
-labor = "heavy"
-sociability = 20
+id = "idle_at_home"
+name = "At home"
+verb = "at home, at leisure"
+description = "No call on the hour: darning, whittling, sitting on the step."
+at = "home"
+labor = "rest"
+needs = { company = 5 }
+sociability = 10
+tags = ["leisure"]
 
 [[activity]]
 id = "keep_house"
@@ -24,26 +40,342 @@ name = "Keep house"
 verb = "keeping house"
 at = "home"
 labor = "light"
+needs = { security = 4 }
 sociability = 10
+tags = ["chore"]
 
 [[activity]]
 id = "take_meal"
 name = "Take a meal"
 verb = "at table"
+description = "Breakfast, dinner at noon, supper. Provisions feeds whoever is at table (the pantry, the pot, the fire)."
 at = "home"
 labor = "rest"
-needs = { company = 30 }
+needs = { company = 30, faith = 10 }
 sociability = 40
+tags = ["meal"]
+duty_label = "The table is laid"
 
 [[activity]]
-id = "drink_at_tavern"
-name = "Drink at the tavern"
-verb = "drinking at the tavern"
-at = "venue"
-venue_tags = ["tavern"]
+id = "cook_meal"
+name = "Cook"
+verb = "cooking"
+description = "Dinner does not make itself: fire, kettle, and a person to mind them."
+at = "home"
+labor = "light"
+needs = { company = 10 }
+sociability = 15
+skill = "trade_cookery"
+tags = ["cook", "chore"]
+duty_label = "The fire wants minding"
+
+[[activity]]
+id = "fetch_water"
+name = "Fetch water"
+verb = "fetching water"
+at = "home"
+labor = "light"
+needs = { thirst = 450 }
+tags = ["chore"]
+
+[[activity]]
+id = "sit_by_fire"
+name = "Sit by the fire"
+verb = "warming by the fire"
+at = "home"
 labor = "rest"
-needs = { company = 80 }
+needs = { company = 10 }
+sociability = 25
+tags = ["leisure"]
+
+# ---- Work: the town ----------------------------------------------------------------------
+
+[[activity]]
+id = "work"
+name = "Work"
+verb = "working"
+description = "The general working day at one's own post."
+at = "workplace"
+labor = "heavy"
+needs = { standing = 3 }
+sociability = 20
+tags = ["labor"]
+
+[[activity]]
+id = "keep_shop"
+name = "Keep the shop"
+verb = "minding the counter"
+at = "workplace"
+labor = "light"
+needs = { standing = 4, company = 25 }
+sociability = 65
+skill = "bargain"
+tags = ["labor", "commerce"]
+duty_label = "The store won't mind itself"
+
+[[activity]]
+id = "forge_iron"
+name = "Work the forge"
+verb = "working the forge"
+at = "workplace"
+labor = "heavy"
+needs = { standing = 3 }
+sociability = 20
+skill = "trade_smithing"
+tags = ["labor"]
+duty_label = "The forge won't tend itself"
+
+[[activity]]
+id = "mill_grain"
+name = "Run the mill"
+verb = "running the mill"
+at = "workplace"
+labor = "heavy"
+needs = { standing = 3 }
+sociability = 25
+skill = "trade_milling"
+tags = ["labor"]
+duty_label = "The stones are turning; someone must feed the hopper"
+
+[[activity]]
+id = "tend_bar"
+name = "Keep the tavern"
+verb = "keeping the tavern"
+at = "workplace"
+labor = "light"
+needs = { standing = 3, company = 30 }
 sociability = 80
+tags = ["labor", "commerce"]
+
+[[activity]]
+id = "ferry_crossing"
+name = "Work the ferry"
+verb = "working the ferry"
+at = "workplace"
+labor = "heavy"
+needs = { standing = 3 }
+sociability = 30
+skill = "riverwork"
+tags = ["labor"]
+
+[[activity]]
+id = "teach_school"
+name = "Keep school"
+verb = "keeping school"
+at = "workplace"
+labor = "light"
+needs = { standing = 4 }
+sociability = 50
+tags = ["labor", "school"]
+
+[[activity]]
+id = "attend_school"
+name = "Attend school"
+verb = "at school"
+at = "venue"
+venue_tags = ["school"]
+labor = "light"
+needs = { company = 25 }
+sociability = 60
+tags = ["school"]
+duty_label = "The school bell"
+
+[[activity]]
+id = "preach_service"
+name = "Lead the service"
+verb = "leading the service"
+at = "workplace"
+labor = "light"
+needs = { faith = 200, standing = 8 }
+sociability = 70
+min_hours = 2
+tags = ["worship", "labor"]
+norm = "piety"
+
+[[activity]]
+id = "hold_court"
+name = "Hold court"
+verb = "sitting in judgment"
+at = "venue"
+venue_tags = ["court"]
+labor = "light"
+needs = { standing = 8 }
+sociability = 60
+min_hours = 2
+tags = ["labor"]
+
+# ---- Work: the farm year (05 §4.3) --------------------------------------------------------
+
+[[activity]]
+id = "tend_stock"
+name = "Tend stock"
+verb = "tending the stock"
+description = "Milking, mucking out, feeding and watering. It cannot wait for the Sabbath."
+at = "home"
+labor = "light"
+needs = { standing = 2 }
+sociability = 10
+skill = "animal_handling"
+tags = ["labor", "essential", "chore"]
+duty_label = "The stock won't wait"
+yields = [
+  { item = "milk", tenths_per_hour = 15, optional = true },
+  { item = "eggs", tenths_per_hour = 20, optional = true },
+]
+
+[[activity]]
+id = "tend_garden"
+name = "Work the garden"
+verb = "working the garden"
+at = "home"
+labor = "light"
+needs = { standing = 2 }
+sociability = 15
+skill = "trade_farming"
+tags = ["labor", "chore"]
+months = [5, 10]
+check = { skill = "trade_farming", dc = 10 }
+yields = [
+  { item = "garden_greens", tenths_per_hour = 10, months = [5, 9], optional = true },
+  { item = "potatoes", tenths_per_hour = 40, months = [9, 10], optional = true },
+]
+chore = { supply = "food", below_days = 6, intensity = 450, label = "The larder is low: the garden wants work" }
+
+[[activity]]
+id = "plow_and_plant"
+name = "Plow and plant"
+verb = "plowing and planting"
+at = "workplace"
+labor = "heavy"
+needs = { standing = 3 }
+sociability = 15
+skill = "trade_farming"
+months = [4, 6]
+tags = ["labor"]
+duty_label = "The ground is ready; the seed won't plant itself"
+
+[[activity]]
+id = "bring_in_crops"
+name = "Cut hay and harvest"
+verb = "cutting and gathering the crop"
+at = "workplace"
+labor = "heavy"
+needs = { standing = 4 }
+sociability = 25
+skill = "trade_farming"
+months = [6, 10]
+tags = ["labor"]
+duty_label = "The crop is ripe; weather is coming"
+
+[[activity]]
+id = "thresh_grain"
+name = "Thresh grain"
+verb = "threshing"
+at = "workplace"
+labor = "heavy"
+needs = { standing = 4 }
+sociability = 35
+skill = "trade_farming"
+months = [8, 11]
+tags = ["labor"]
+
+[[activity]]
+id = "tap_maples"
+name = "Boil sap"
+verb = "sugaring off"
+description = "Maple sugaring in the thaw: collect sap, tend the boiling kettle through the night."
+at = "venue"
+venue_tags = ["woods", "wild"]
+labor = "heavy"
+needs = { standing = 3 }
+sociability = 30
+months = [3, 4]
+tags = ["labor"]
+check = { skill = "woodcraft", dc = 10 }
+yields = [{ item = "maple_sugar", tenths_per_hour = 15, optional = true }]
+
+[[activity]]
+id = "butcher_hogs"
+name = "Butcher hogs"
+verb = "killing and putting down pork"
+description = "Hog-killing week: scald, scrape, cut, salt. A year's meat is made or ruined in three days."
+at = "home"
+labor = "heavy"
+needs = { standing = 5, company = 20 }
+sociability = 45
+skill = "trade_farming"
+months = [11, 12]
+tags = ["labor"]
+check = { skill = "trade_farming", dc = 12 }
+yields = [{ item = "salt_pork", tenths_per_hour = 180 }]
+
+[[activity]]
+id = "cut_ice"
+name = "Cut ice"
+verb = "cutting river ice"
+at = "venue"
+venue_tags = ["landing", "river", "pond"]
+labor = "heavy"
+needs = { standing = 3 }
+sociability = 35
+months = [1, 2]
+tags = ["labor"]
+
+[[activity]]
+id = "chop_wood"
+name = "Chop wood"
+verb = "splitting firewood"
+description = "The woodpile is the winter. Without an axe it is a long, poor job."
+at = "home"
+labor = "heavy"
+needs = { standing = 2 }
+sociability = 10
+skill = "athletics"
+months = [9, 4]
+tags = ["labor", "chore"]
+tool = { affordance = "chop", full_tenths = 20, bare_pct = 25 }
+yields = [{ item = "firewood_armload", tenths_per_hour = 12 }]
+chore = { supply = "fuel", below_days = 10, intensity = 750, label = "The woodpile is low" }
+
+[[activity]]
+id = "forage_greens"
+name = "Forage"
+verb = "foraging in the coulee"
+description = "Ramps, morels and wild greens in the hungry gap: the first fresh food after the root cellar gives out."
+at = "venue"
+venue_tags = ["woods", "wild", "meadow"]
+labor = "light"
+needs = { standing = 1 }
+sociability = 15
+skill = "herbalism"
+months = [4, 6]
+tags = ["labor", "chore"]
+check = { skill = "herbalism", dc = 12 }
+yields = [
+  { item = "ramps", tenths_per_hour = 30, optional = true },
+  { item = "morels", tenths_per_hour = 15, months = [4, 5], optional = true },
+  { item = "wild_greens", tenths_per_hour = 30, optional = true },
+]
+chore = { supply = "food", below_days = 5, intensity = 650, min_age = 10, label = "The larder is bare: go and forage" }
+
+[[activity]]
+id = "fish_creek"
+name = "Fish"
+verb = "fishing"
+at = "venue"
+venue_tags = ["landing", "creek", "river"]
+labor = "light"
+needs = { company = 10 }
+sociability = 30
+skill = "fishing"
+months = [4, 10]
+tags = ["labor", "chore"]
+tool = { affordance = "fish", full_tenths = 10, bare_pct = 20 }
+check = { skill = "fishing", dc = 12 }
+yields = [{ item = "fresh_trout", tenths_per_hour = 25, optional = true }]
+chore = { supply = "food", below_days = 4, intensity = 600, label = "Nothing in the larder: fish for supper" }
+
+# ---- Church, community, calendar ----------------------------------------------------------
 
 [[activity]]
 id = "attend_church"
@@ -52,6 +384,122 @@ verb = "at church"
 at = "venue"
 venue_tags = ["church"]
 labor = "rest"
-needs = { faith = 300, company = 40 }
+needs = { faith = 300, company = 40, standing = 6 }
 sociability = 60
 min_hours = 2
+tags = ["worship"]
+norm = "piety"
+duty_label = "The Sabbath must be kept"
+
+[[activity]]
+id = "family_devotions"
+name = "Family devotions"
+verb = "at family prayers"
+at = "home"
+labor = "rest"
+needs = { faith = 180, security = 20, company = 15 }
+sociability = 20
+tags = ["worship"]
+norm = "piety"
+
+[[activity]]
+id = "sabbath_rest"
+name = "Keep the Sabbath"
+verb = "keeping the Sabbath quietly"
+description = "No work but the necessary: a chapter, a nap, a walk after service."
+at = "home"
+labor = "rest"
+needs = { faith = 60, company = 25, rest = 25 }
+sociability = 20
+tags = ["leisure"]
+norm = "sabbath"
+
+[[activity]]
+id = "drink_at_tavern"
+name = "Drink at the tavern"
+verb = "drinking at the tavern"
+at = "venue"
+venue_tags = ["tavern"]
+labor = "rest"
+needs = { company = 80, drink = 250, thirst = 150 }
+sociability = 80
+tags = ["leisure"]
+
+[[activity]]
+id = "visit_kin"
+name = "Pay a call"
+verb = "calling on kin and neighbors"
+at = "kin"
+labor = "rest"
+needs = { company = 90, faith = 5 }
+sociability = 85
+min_hours = 2
+tags = ["leisure"]
+
+[[activity]]
+id = "go_to_market"
+name = "Go to market"
+verb = "at market"
+description = "Saturday: farmers come in to sell and buy; the whole town talks."
+at = "venue"
+venue_tags = ["market", "store", "street"]
+labor = "light"
+needs = { company = 70, standing = 6 }
+sociability = 90
+min_hours = 2
+tags = ["commerce"]
+
+[[activity]]
+id = "fetch_mail"
+name = "Call for the mail"
+verb = "waiting on the mail"
+at = "venue"
+venue_tags = ["post", "store"]
+labor = "rest"
+needs = { company = 30 }
+sociability = 70
+tags = ["commerce"]
+
+[[activity]]
+id = "attend_court"
+name = "Attend court"
+verb = "at the justice's court"
+at = "venue"
+venue_tags = ["court"]
+labor = "rest"
+needs = { company = 30, standing = 4 }
+sociability = 75
+min_hours = 2
+
+[[activity]]
+id = "vote_at_polls"
+name = "Vote"
+verb = "at the polls"
+at = "venue"
+venue_tags = ["court", "tavern"]
+labor = "rest"
+needs = { company = 60, standing = 12 }
+sociability = 85
+min_hours = 2
+
+[[activity]]
+id = "celebrate"
+name = "Celebrate"
+verb = "celebrating"
+description = "A public holiday: oratory, music, an anvil shot, too much beer."
+at = "venue"
+venue_tags = ["green", "square", "street"]
+labor = "rest"
+needs = { company = 120, drink = 80, standing = 4 }
+sociability = 95
+min_hours = 2
+tags = ["leisure"]
+
+[[activity]]
+id = "travel_on_foot"
+name = "Walk"
+verb = "walking"
+at = "anywhere"
+labor = "heavy"
+sociability = 10
+tags = ["travel"]

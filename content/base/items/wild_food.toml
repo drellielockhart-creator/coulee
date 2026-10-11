@@ -1,0 +1,165 @@
+# Wild food worth having (00 P8: fresh trout, morels; plus ramps, greens, venison, cave mushrooms).
+# OWNER: module:content-items. Forage and game are not in 03 §6 but are priced/located by the
+# Iron Ford site. Fresh food is the scurvy answer: fresh 40+ is "fresh food" in 03 §3.7.3.
+
+[[item]]
+id = "trout_fresh"
+name = "Brook trout, fresh"
+section = "wild_food"
+copy = "Out of the spring run at dawn; in the pan by breakfast or in the ground by supper."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 6
+tags = ["perishable"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 640
+protein_g = 90
+fat_g = 30
+fresh = 45
+group = "fish"
+servings = 2
+morale = 3
+shelf_life_days = 2
+spoilage = { temperature_pct = { frozen = 2, cold = 30, cool = 100, warm = 250, hot = 500 }, wet_pct = 100 }
+prep = [
+  { method = "fry", minutes = 15, fire_minutes = 15, cookware = ["cook"], morale = 2 },
+  { method = "roast", minutes = 25, fire_minutes = 25, batch_servings = 4, morale = 1 },
+]
+
+[[item]]
+id = "morels_fresh"
+name = "Morels, fresh"
+section = "wild_food"
+copy = "Found under the elms in April, if the elms were not cut. Cook them. Never eat them raw."
+unit = "lb"
+weight_g = 454
+bulk = 0.5
+value_cents = 40
+tags = ["perishable", "forage"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 140
+protein_g = 14
+fat_g = 2
+fresh = 60
+group = "fungus"
+servings = 4
+morale = 3
+shelf_life_days = 4
+spoilage = { temperature_pct = { frozen = 20, cold = 40, cool = 100, warm = 250, hot = 500 }, wet_pct = 200 }
+prep = [
+  { method = "fry", minutes = 10, fire_minutes = 10, cookware = ["cook"], morale = 3 },
+]
+
+[[item]]
+id = "ramps_fresh"
+name = "Ramps (wild leek), fresh"
+section = "wild_food"
+copy = "The first green in the spring woods, and the whole valley smells of them for a week. Your breath will say so too."
+unit = "lb"
+weight_g = 454
+bulk = 0.5
+value_cents = 4
+tags = ["perishable", "forage"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 115
+protein_g = 6
+fat_g = 1
+fresh = 90
+group = "vegetable"
+servings = 4
+morale = 2
+shelf_life_days = 7
+spoilage = { temperature_pct = { frozen = 20, cold = 40, cool = 100, warm = 200, hot = 300 }, wet_pct = 200 }
+prep = [
+  { method = "raw", minutes = 0, morale = 3 },
+  { method = "fry", minutes = 6, fire_minutes = 6, cookware = ["cook"], morale = 2 },
+]
+
+[[item]]
+id = "wild_greens"
+name = "Wild greens, gathered"
+section = "wild_food"
+copy = "Lamb's quarters, dock, dandelion, and whatever the herb-wife called sweet. Gather them before the bloom, and wash them in the spring."
+unit = "lb"
+weight_g = 454
+bulk = 0.5
+value_cents = 1
+tags = ["perishable", "forage"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 130
+protein_g = 14
+fat_g = 2
+fresh = 90
+group = "vegetable"
+servings = 6
+morale = 1
+shelf_life_days = 5
+spoilage = { temperature_pct = { frozen = 20, cold = 40, cool = 100, warm = 220, hot = 350 }, wet_pct = 150 }
+prep = [
+  { method = "raw", minutes = 0, morale = 0 },
+  { method = "boil", minutes = 15, fire_minutes = 15, batch_servings = 8, cookware = ["boil"], water_ml = 100, morale = 1 },
+]
+
+[[item]]
+id = "venison_fresh"
+name = "Venison, dressed"
+section = "wild_food"
+copy = "Hung two days in the cold, then cut. Lean as a fence rail, and the fat is the only thing that will keep you warm in January."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 8
+tags = ["perishable", "game"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 650
+protein_g = 120
+fat_g = 15
+fresh = 40
+group = "meat"
+servings = 2
+morale = 0
+shelf_life_days = 3
+spoilage = { temperature_pct = { frozen = 3, cold = 30, cool = 100, warm = 250, hot = 500 }, wet_pct = 150, packaging_pct = { cool_storage = 80, brine = 40 } }
+prep = [
+  { method = "raw", minutes = 0, morale = -3 },
+  { method = "fry", minutes = 15, fire_minutes = 15, cookware = ["cook"], morale = 2 },
+  { method = "roast", minutes = 60, fire_minutes = 60, batch_servings = 8, morale = 2 },
+]
+
+[[item]]
+id = "cave_mushrooms"
+name = "Cave mushrooms, gathered"
+section = "wild_food"
+copy = "Pale caps from the dark end of the limestone, where the water runs cold. Some of them are only mushrooms. Ask who taught you which."
+unit = "lb"
+weight_g = 454
+bulk = 0.5
+value_cents = 15
+tags = ["perishable", "forage", "cave"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 110
+protein_g = 9
+fat_g = 1
+fresh = 50
+group = "fungus"
+servings = 4
+morale = 0
+shelf_life_days = 2
+spoilage = { temperature_pct = { frozen = 20, cold = 50, cool = 100, warm = 250, hot = 500 }, wet_pct = 200 }
+prep = [
+  { method = "fry", minutes = 12, fire_minutes = 12, cookware = ["cook"], morale = 1 },
+  { method = "boil", minutes = 20, fire_minutes = 20, batch_servings = 6, cookware = ["boil"], water_ml = 200, morale = 0, check = { skill = "lore_nature", dc = 12 } },
+]

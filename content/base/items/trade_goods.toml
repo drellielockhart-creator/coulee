@@ -1,0 +1,16 @@
+# Trade goods that are not food. OWNER: module:content-items.
+# Salt is a preservative, a ward line, and a trade good (03 §6.4, §6.12). It is not a food item
+# (no `food` block), so it lives here rather than in provisions.
+
+[[item]]
+id = "salt_lb"
+name = "Salt, lb"
+section = "trade_goods"
+unit = "lb"
+copy = "Seasons meat, cures hides, keeps certain visitors outside the circle."
+weight_g = 454
+bulk = 0.5
+value_cents = 3
+tags = ["ward_line"]
+materials = [{ material = "salt", pct = 100 }]
+affordances = { preserve = 1, ward_fae = 1 }

@@ -11,7 +11,7 @@ _Written 2026-10-10, when we paused for the 5-hour usage limit. The status table
 | Headless play + playtesting (ADR 0002) | **Not started.** |
 | Procgen readiness + town-site generator (ADR 0003) | **Not started.** |
 
-Status line (updated at pause): _see bottom of file_
+Status line (updated at pause): see **Actual pause state** below. It supersedes the table above.
 
 ## Restart order
 
@@ -50,3 +50,21 @@ just assets                                             # rebuild Blender low-po
 - `design-docs/08-open-questions.md`, `09-consistency-notes.md`
 - `docs/impl/MODULES.md` (module contracts), `docs/impl/STATUS.md` (written by the fix phase), `docs/impl/BACKLOG.md`
 - `docs/impl/workflows/*.js`: the workflow scripts used so far
+
+---
+
+## Actual pause state (final, 2026-10-10 evening)
+
+We hit the usage limit earlier than planned, so both workflows were **stopped mid-flight**:
+
+- **Design docs: essentially complete.** 10-psyche, 11-interface, 12-peoples, and the TypeScript rewrite of 07 are written. 01–06 were revised to match the decisions, and the stale-reference sweep ran. **The final "refresh" agent (rewriting 08/09 + README) was interrupted.** Check whether 08/09 still mention Rust/Godot or unanswered peoples questions, and if so re-run just that step (the last agent in `docs/impl/workflows/02-docs-v2.js`). The README table may lack 10–12.
+- **Implementation:**
+  - **M0 foundation is committed on `main`** (`f2e3b38`, `just check` green, 41 tests).
+  - The **content-items** module (about 200 catalog items as TOML) finished.
+  - The other **nine modules were interrupted partway**: needs-activities, psyche, social, belief, provisions, chronicle, content-world, web, assets. Their partial work is committed on branch **`wip/modules-2026-10-10`** and is likely not compiling yet.
+  - **Integrate, Review and Fix never ran.**
+
+### Revised Step 1 (replaces Step 1 above)
+> Read `NEXT_SESSION.md`, `CLAUDE.md`, `docs/impl/MODULES.md`, and the ADRs. We're on branch `wip/modules-2026-10-10`, where nine module agents were interrupted mid-work. For each module in MODULES.md, assess how complete it is against its acceptance criteria (Haiku or Sonnet can do the assessment), then finish the incomplete ones in parallel (same model assignments as `docs/impl/workflows/01-build-slice.js`, with the same exclusive file ownership). Then run that script's Integrate → Review → Fix phases. Merge to `main` once `just check` is green and the Iron Ford run is deterministic.
+
+Then do Step 2 (headless play + procgen + playtests) and Step 3 (Ellie's decisions) as written above.

@@ -1,0 +1,264 @@
+# Catalog 03 §6.5 Tools. OWNER: module:content-items.
+# Affordance magnitudes per 03 §6.5 (chop 3 for the Hollister felling axe, and so on).
+# Cutting tools' `wear` is per use. Gun oil is a supply (maintenance applications).
+
+[[item]]
+id = "felling_axe_hollister"
+name = "Felling axe (Hollister & Sons)"
+section = "tools"
+maker = "Hollister & Sons"
+copy = "Ground true at Pittsburgh. Will drop a ten-inch oak before the coffee boils."
+weight_g = 2268
+bulk = 6
+value_cents = 150
+quality = "good"
+shape = ["long"]
+materials = [{ material = "steel", pct = 60 }, { material = "wood", pct = 40 }]
+affordances = { chop = 3, cut = 1, hammer = 1 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "hatchet_belt"
+name = "Hatchet / belt axe"
+section = "tools"
+copy = "Kindling, tent pegs, and the last argument."
+weight_g = 680
+bulk = 2
+value_cents = 65
+materials = [{ material = "steel", pct = 60 }, { material = "wood", pct = 40 }]
+affordances = { chop = 2, cut = 1, hammer = 1 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "butcher_knife"
+name = "Butcher knife, sheath"
+section = "tools"
+copy = "Plain as a fence post and twice as useful."
+weight_g = 227
+bulk = 0.5
+value_cents = 50
+materials = [{ material = "iron", pct = 80 }, { material = "leather", pct = 20 }]
+affordances = { cut = 2 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "clasp_knife"
+name = "Clasp knife (jackknife)"
+section = "tools"
+copy = "Lives in the pocket and goes everywhere you do."
+weight_g = 113
+bulk = 0.1
+value_cents = 35
+materials = [{ material = "steel", pct = 90 }, { material = "bone", pct = 10 }]
+affordances = { cut = 1 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "clasp_knife_brauer"
+name = "Clasp knife, Brauer two-blade"
+section = "tools"
+maker = "Brauer Brothers"
+copy = "Milwaukee steel. A boy's first fortune."
+weight_g = 113
+bulk = 0.1
+value_cents = 90
+quality = "good"
+materials = [{ material = "steel", pct = 90 }, { material = "bone", pct = 10 }]
+affordances = { cut = 1.5 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "bucksaw"
+name = "Bucksaw"
+section = "tools"
+copy = "For the man who means to stay the winter."
+weight_g = 1814
+bulk = 6
+value_cents = 125
+shape = ["long"]
+materials = [{ material = "steel", pct = 50 }, { material = "wood", pct = 50 }]
+affordances = { saw = 3 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "spade"
+name = "Spade"
+section = "tools"
+copy = "Graves, latrines, and the occasional fortune."
+weight_g = 2268
+bulk = 5
+value_cents = 90
+shape = ["long"]
+materials = [{ material = "iron", pct = 60 }, { material = "wood", pct = 40 }]
+affordances = { dig = 3 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "miners_pick_penhallow"
+name = "Pick, miner's (Penhallow & Trist)"
+section = "tools"
+maker = "Penhallow & Trist"
+copy = "Cornish pattern for the lead diggings. Limestone yields to it, eventually."
+weight_g = 2722
+bulk = 5
+value_cents = 125
+shape = ["long"]
+materials = [{ material = "steel", pct = 80 }, { material = "wood", pct = 20 }]
+affordances = { dig = 2, pry = 2 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "crowbar_3ft"
+name = "Crowbar, 3 ft"
+section = "tools"
+copy = "For doors that should open and lids that shouldn't."
+weight_g = 3629
+bulk = 3
+value_cents = 75
+shape = ["long"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { pry = 3 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "claw_hammer"
+name = "Claw hammer"
+section = "tools"
+copy = "Every cabin begins with one."
+weight_g = 680
+bulk = 1
+value_cents = 40
+materials = [{ material = "steel", pct = 60 }, { material = "wood", pct = 40 }]
+affordances = { hammer = 2, pry = 1 }
+stackable = false
+
+[[item]]
+id = "cut_nails_lb"
+name = "Cut nails, lb"
+section = "tools"
+unit = "lb"
+copy = "Ten-penny. A pocketful has uses beyond carpentry."
+weight_g = 454
+bulk = 0.5
+value_cents = 6
+tags = ["building"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { ward_fae = 0.5 }
+
+[[item]]
+id = "auger_1inch"
+name = "Auger, 1-inch"
+section = "tools"
+copy = "Bores the holes for pegs, traps, and tapping maples."
+weight_g = 907
+bulk = 1
+value_cents = 60
+materials = [{ material = "iron", pct = 80 }, { material = "wood", pct = 20 }]
+affordances = { bore = 1 }
+stackable = false
+
+[[item]]
+id = "whetstone"
+name = "Whetstone"
+section = "tools"
+copy = "A dull knife is how men lose fingers."
+weight_g = 227
+bulk = 0.1
+value_cents = 15
+materials = [{ material = "stone", pct = 100 }]
+affordances = { maintain_edge = 2 }
+
+[[item]]
+id = "gun_oil_tin"
+name = "Gun oil / neatsfoot oil, small tin"
+section = "tools"
+copy = "Keeps the rust off the barrel and the crack out of the boot."
+weight_g = 136
+bulk = 0.1
+value_cents = 15
+tags = ["maintenance"]
+materials = [{ material = "liquid", pct = 60 }, { material = "tinplate", pct = 40 }]
+affordances = { maintain = 1 }
+supply = { kind = "gun_oil", units = 20 }
+
+[[item]]
+id = "sewing_kit"
+name = "Sewing kit (\"housewife\")"
+section = "tools"
+copy = "Needles, thread, buttons, and the memory of whoever rolled it."
+weight_g = 91
+bulk = 0.3
+value_cents = 25
+materials = [{ material = "cotton", pct = 60 }, { material = "steel", pct = 30 }, { material = "other", pct = 10 }]
+affordances = { sew = 1 }
+
+[[item]]
+id = "awl_waxed_thread"
+name = "Awl & waxed thread"
+section = "tools"
+copy = "For harness, boots, and the sole that's flapping."
+weight_g = 91
+bulk = 0.2
+value_cents = 20
+materials = [{ material = "steel", pct = 80 }, { material = "wax", pct = 20 }]
+affordances = { sew = 1, pierce = 1 }
+
+[[item]]
+id = "pocket_compass"
+name = "Pocket compass"
+section = "tools"
+copy = "True north, ordinarily. Note when it isn't."
+weight_g = 91
+bulk = 0.2
+value_cents = 100
+tags = ["fae_sensitive"]
+materials = [{ material = "brass", pct = 80 }, { material = "glass", pct = 20 }]
+affordances = { navigate = 1 }
+stackable = false
+
+[[item]]
+id = "spyglass_brass"
+name = "Spyglass, brass, 3-draw"
+section = "tools"
+copy = "Three draws of brass. See the smoke before the smoke sees you."
+weight_g = 680
+bulk = 1
+value_cents = 600
+shape = ["fragile"]
+materials = [{ material = "brass", pct = 80 }, { material = "glass", pct = 20 }]
+affordances = { sight = 1 }
+stackable = false
+
+[[item]]
+id = "pocket_watch_silver"
+name = "Pocket watch, silver case"
+section = "tools"
+copy = "Keeps railroad time. If it runs fast in the hollow, trust the watch."
+weight_g = 136
+bulk = 0.2
+value_cents = 700
+tags = ["fae_sensitive"]
+materials = [{ material = "silver", pct = 60 }, { material = "steel", pct = 40 }]
+affordances = { timekeeping = 1 }
+stackable = false
+
+[[item]]
+id = "slate_pencil"
+name = "Slate & pencil"
+section = "tools"
+copy = "For tallies, notes, and messages you don't want to keep."
+weight_g = 454
+bulk = 1
+value_cents = 10
+tags = ["erasable"]
+materials = [{ material = "stone", pct = 90 }, { material = "wood", pct = 10 }]
+affordances = { write = 1 }

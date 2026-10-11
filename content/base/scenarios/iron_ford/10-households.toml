@@ -1,0 +1,414 @@
+# Households and pantries. Quantities: lb for solids, quart for liquids, each otherwise.
+# Spring larders differ on purpose (P8): the Outfitter and the mill are flush, the parish and the
+# Glover farm are comfortable, a printer's family lives on subscriptions in kind, and the Fenns
+# of the lower coulee have days, not weeks. Nobody has fresh greens and fruit; dried apples,
+# sauerkraut and sprouting potatoes are the scurvy line.
+
+[[households]]
+key = "pratt"
+name = "The Pratts"
+home = "pratt_daughter_outfitters"
+head = "gussie_pratt"
+note = "Prosperous on paper. Pantry is the family's own; the shelves downstairs are for sale."
+cash_cents = 4200
+pantry = [
+  { item = "provisions_box_vermin", qty = 1 },
+  { item = "flour", qty = 60, in = "provisions_box_vermin" },
+  { item = "cornmeal", qty = 20, in = "provisions_box_vermin" },
+  { item = "beans_dry", qty = 14, in = "provisions_box_vermin" },
+  { item = "sugar_brown", qty = 10 },
+  { item = "coffee_green", qty = 8 },
+  { item = "tea", qty = 3 },
+  { item = "stoneware_crock_2gal", qty = 1 },
+  { item = "butter", qty = 6, in = "stoneware_crock_2gal" },
+  { item = "brine_keg_10gal", qty = 1 },
+  { item = "salt_pork", qty = 30, in = "brine_keg_10gal" },
+  { item = "potatoes", qty = 40 },
+  { item = "dried_apples", qty = 10 },
+  { item = "cheese", qty = 8 },
+  { item = "eggs", qty = 18 },
+  { item = "molasses_quart", qty = 3 },
+  { item = "vinegar_quart", qty = 2 },
+  { item = "oysters_tinned", qty = 6 },
+  { item = "firewood_armload", qty = 40 },
+  { item = "lard_oil_quart", qty = 4 },
+  { item = "camp_kettle_pair", qty = 1 },
+  { item = "frying_pan", qty = 1 },
+  { item = "dutch_oven_10qt", qty = 1 },
+  { item = "coffee_mill_hand", qty = 1 },
+  { item = "tin_cup", qty = 4 },
+  { item = "tin_plate", qty = 4 },
+]
+
+[[households]]
+key = "brenner"
+name = "The Brenners"
+home = "brenner_house"
+head = "johann_brenner"
+note = "Heavy labor, German cooking, steady wages. Owes Pratt for iron stock."
+cash_cents = 1800
+pantry = [
+  { item = "flour_sack_25lb", qty = 1 },
+  { item = "flour", qty = 25, in = "flour_sack_25lb" },
+  { item = "flour", qty = 8 },
+  { item = "cornmeal", qty = 10 },
+  { item = "brine_keg_10gal", qty = 1 },
+  { item = "salt_pork", qty = 22, in = "brine_keg_10gal" },
+  { item = "sauerkraut_lb", qty = 14 },
+  { item = "potatoes", qty = 30 },
+  { item = "beans_dry", qty = 6 },
+  { item = "coffee_green", qty = 3 },
+  { item = "butter", qty = 2 },
+  { item = "eggs", qty = 9 },
+  { item = "whiskey_quart", qty = 2 },
+  { item = "firewood_armload", qty = 20 },
+  { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+]
+
+[[households]]
+key = "tveit"
+name = "The Tveits"
+home = "parsonage"
+head = "anders_tveit"
+note = "A pastor's larder fills from parish gifts (Pastor's Tithe) and thins when members quarrel."
+cash_cents = 900
+pantry = [
+  { item = "flour", qty = 30 },
+  { item = "cornmeal", qty = 8 },
+  { item = "potatoes", qty = 35 },
+  { item = "klippfisk", qty = 10 },
+  { item = "flatbrod", qty = 8 },
+  { item = "salt_pork", qty = 12 },
+  { item = "cheese", qty = 6 },
+  { item = "butter", qty = 5 },
+  { item = "eggs", qty = 12 },
+  { item = "coffee_green", qty = 6 },
+  { item = "dried_apples", qty = 5 },
+  { item = "firewood_armload", qty = 25 },
+  { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+]
+
+[[households]]
+key = "kvale"
+name = "The Kvales (Kvale Ridge)"
+home = "kvale_farm"
+head = "siri_kvale"
+note = "A working Ridge farm: modest, cold-stored, a cow fresh in milk. Siri's following brings in gifts."
+cash_cents = 1100
+pantry = [
+  { item = "cornmeal", qty = 35 },
+  { item = "flour", qty = 15 },
+  { item = "flatbrod", qty = 20 },
+  { item = "klippfisk", qty = 6 },
+  { item = "potatoes", qty = 45 },
+  { item = "salt_pork", qty = 18 },
+  { item = "milk_quart", qty = 10 },
+  { item = "butter", qty = 4 },
+  { item = "cheese", qty = 5 },
+  { item = "beans_dry", qty = 5 },
+  { item = "coffee_green", qty = 4 },
+  { item = "firewood_armload", qty = 30 },
+  { item = "frying_pan", qty = 1 },
+]
+
+[[households]]
+key = "trevenna"
+name = "The Trevennas"
+home = "trevenna_house"
+head = "josiah_trevenna"
+note = "Cornish table: potatoes, pork, saffron-less pasties, strong tea. Indebted to the company."
+cash_cents = 2600
+pantry = [
+  { item = "flour", qty = 38 },
+  { item = "potatoes", qty = 50 },
+  { item = "brine_keg_10gal", qty = 1 },
+  { item = "salt_pork", qty = 24, in = "brine_keg_10gal" },
+  { item = "tea", qty = 4 },
+  { item = "butter", qty = 3 },
+  { item = "pasty", qty = 6 },
+  { item = "dried_apples", qty = 4 },
+  { item = "beans_dry", qty = 4 },
+  { item = "sugar_brown", qty = 3 },
+  { item = "firewood_armload", qty = 25 },
+  { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+  { item = "candles_tallow_lb", qty = 4 },
+]
+
+[[households]]
+key = "whitcomb"
+name = "Whitcomb's Survey Party"
+home = "dunleavys_tavern"
+head = "amos_whitcomb"
+note = "Lodging at the tavern; crew stores are the field rations (hardtack, pork, beans) for the line up the coulee."
+cash_cents = 12000
+pantry = [
+  { item = "provisions_box_vermin", qty = 1 },
+  { item = "hardtack", qty = 40, in = "provisions_box_vermin" },
+  { item = "flour", qty = 20, in = "provisions_box_vermin" },
+  { item = "beans_dry", qty = 12, in = "provisions_box_vermin" },
+  { item = "pemmican", qty = 6, in = "provisions_box_vermin" },
+  { item = "salt_pork", qty = 20 },
+  { item = "coffee_green", qty = 6 },
+  { item = "tea", qty = 2 },
+  { item = "sugar_brown", qty = 4 },
+  { item = "dried_apples", qty = 8 },
+  { item = "camp_kettle_pair", qty = 2 },
+  { item = "frying_pan", qty = 2 },
+  { item = "coffee_mill_hand", qty = 1 },
+]
+
+[[households]]
+key = "moe"
+name = "The Moes (Kvale Ridge)"
+home = "moe_farm"
+head = "kristoffer_moe"
+note = "A Hall household. Elven provisioning: a bigger larder, hearth-loaves, nothing foraged unhallowed above Fae intensity 2."
+cash_cents = 3400
+pantry = [
+  { item = "provisions_box_vermin", qty = 1 },
+  { item = "flour", qty = 60, in = "provisions_box_vermin" },
+  { item = "hearth_loaf", qty = 5 },
+  { item = "cornmeal", qty = 25 },
+  { item = "brine_keg_10gal", qty = 1 },
+  { item = "salt_pork", qty = 28, in = "brine_keg_10gal" },
+  { item = "klippfisk", qty = 12 },
+  { item = "potatoes", qty = 50 },
+  { item = "dried_apples", qty = 14 },
+  { item = "cheese", qty = 8 },
+  { item = "butter", qty = 4 },
+  { item = "eggs", qty = 16 },
+  { item = "beans_dry", qty = 10 },
+  { item = "coffee_green", qty = 5 },
+  { item = "tea", qty = 2 },
+  { item = "firewood_armload", qty = 30 },
+  { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+]
+
+[[households]]
+key = "dunleavy"
+name = "The Dunleavys"
+home = "dunleavys_tavern"
+head = "michael_dunleavy"
+note = "The tavern's kitchen feeds the family, lodgers and the Saturday trade. Potatoes by the barrel."
+cash_cents = 3800
+pantry = [
+  { item = "flour", qty = 45 },
+  { item = "cornmeal", qty = 20 },
+  { item = "potatoes", qty = 70 },
+  { item = "brine_keg_10gal", qty = 1 },
+  { item = "salt_pork", qty = 30, in = "brine_keg_10gal" },
+  { item = "beans_dry", qty = 12 },
+  { item = "cheese", qty = 8 },
+  { item = "eggs", qty = 24 },
+  { item = "butter", qty = 4 },
+  { item = "tea", qty = 4 },
+  { item = "coffee_green", qty = 6 },
+  { item = "sugar_brown", qty = 4 },
+  { item = "milk_quart", qty = 6 },
+  { item = "whiskey_quart", qty = 6 },
+  { item = "vinegar_quart", qty = 2 },
+  { item = "firewood_armload", qty = 50 },
+  { item = "dutch_oven_10qt", qty = 1 },
+  { item = "frying_pan", qty = 2 },
+  { item = "camp_kettle_pair", qty = 2 },
+  { item = "tin_cup", qty = 12 },
+  { item = "tin_plate", qty = 12 },
+]
+
+[[households]]
+key = "bell"
+name = "The Bells"
+home = "sentinel_print_shop"
+head = "horace_bell"
+note = "A newspaper lives on subscriptions in kind: cornmeal, eggs and cordwood when nobody has cash."
+cash_cents = 1500
+pantry = [
+  { item = "cornmeal", qty = 20 },
+  { item = "flour", qty = 15 },
+  { item = "salt_pork", qty = 8 },
+  { item = "potatoes", qty = 25 },
+  { item = "beans_dry", qty = 6 },
+  { item = "coffee_green", qty = 3 },
+  { item = "molasses_quart", qty = 2 },
+  { item = "eggs", qty = 6 },
+  { item = "firewood_armload", qty = 12 },
+  { item = "frying_pan", qty = 1 },
+]
+
+[[households]]
+key = "hurd"
+name = "Captain Hurd"
+home = "hurd_house"
+head = "elias_hurd"
+note = "A bachelor veteran with a pension-sized larder and a militia store of hardtack nobody has opened."
+cash_cents = 2200
+pantry = [
+  { item = "hardtack", qty = 14 },
+  { item = "salt_pork", qty = 14 },
+  { item = "flour", qty = 20 },
+  { item = "beans_dry", qty = 5 },
+  { item = "coffee_green", qty = 4 },
+  { item = "whiskey_quart", qty = 3 },
+  { item = "potatoes", qty = 12 },
+  { item = "firewood_armload", qty = 15 },
+  { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+]
+
+[[households]]
+key = "stoughton"
+name = "Miss Stoughton"
+home = "schoolhouse"
+head = "clara_stoughton"
+note = "Teacher's room behind the schoolhouse; she takes Sunday dinner with the Pratts and the rest from her shelf."
+cash_cents = 700
+pantry = [
+  { item = "flour", qty = 5 },
+  { item = "tea", qty = 1 },
+  { item = "dried_apples", qty = 3 },
+  { item = "cheese", qty = 2 },
+  { item = "sugar_brown", qty = 2 },
+  { item = "hardtack", qty = 4 },
+  { item = "firewood_armload", qty = 8 },
+  { item = "tin_cup", qty = 1 },
+  { item = "tin_plate", qty = 1 },
+  { item = "frying_pan", qty = 1 },
+]
+
+[[households]]
+key = "glover"
+name = "The Glovers"
+home = "glover_farm"
+head = "thomas_glover"
+note = "The best-kept larder on the lower slope: smokehouse, cellar, springhouse, a good garden. Cash-poor, land-rich."
+cash_cents = 5200
+pantry = [
+  { item = "provisions_box_vermin", qty = 1 },
+  { item = "cornmeal", qty = 40, in = "provisions_box_vermin" },
+  { item = "flour", qty = 40 },
+  { item = "brine_keg_10gal", qty = 1 },
+  { item = "salt_pork", qty = 45, in = "brine_keg_10gal" },
+  { item = "potatoes", qty = 70 },
+  { item = "beans_dry", qty = 20 },
+  { item = "sauerkraut_lb", qty = 10 },
+  { item = "dried_apples", qty = 14 },
+  { item = "eggs", qty = 30 },
+  { item = "milk_quart", qty = 20 },
+  { item = "butter", qty = 8 },
+  { item = "molasses_quart", qty = 3 },
+  { item = "coffee_green", qty = 6 },
+  { item = "firewood_armload", qty = 40 },
+  { item = "frying_pan", qty = 2 },
+  { item = "dutch_oven_10qt", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+]
+
+[[households]]
+key = "haugen"
+name = "The Haugens"
+home = "haugen_house"
+head = "tollef_haugen"
+note = "The miller's toll fills the bins: flour and meal in plenty, little that is green."
+cash_cents = 6100
+pantry = [
+  { item = "provisions_box_vermin", qty = 1 },
+  { item = "flour", qty = 60, in = "provisions_box_vermin" },
+  { item = "flour", qty = 80 },
+  { item = "cornmeal", qty = 120 },
+  { item = "salt_pork", qty = 25 },
+  { item = "potatoes", qty = 30 },
+  { item = "klippfisk", qty = 8 },
+  { item = "flatbrod", qty = 10 },
+  { item = "butter", qty = 5 },
+  { item = "cheese", qty = 6 },
+  { item = "eggs", qty = 20 },
+  { item = "coffee_green", qty = 8 },
+  { item = "firewood_armload", qty = 35 },
+  { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+]
+
+[[households]]
+key = "fenn"
+name = "The Fenns (lower coulee)"
+home = "fenn_farm"
+head = "edwin_fenn"
+note = "A failing farm in its eleventh year in the county. The larder is days, not weeks: sprouted potatoes, a bag of meal, the last of the pork. Compare the Glovers upslope. No credit is owed anywhere because none has been asked for."
+cash_cents = 150
+pantry = [
+  { item = "flour", qty = 8 },
+  { item = "cornmeal", qty = 12 },
+  { item = "salt_pork", qty = 3 },
+  { item = "potatoes", qty = 20 },
+  { item = "beans_dry", qty = 3 },
+  { item = "eggs", qty = 6 },
+  { item = "molasses_quart", qty = 1 },
+  { item = "firewood_armload", qty = 6 },
+  { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+]
+
+[[households]]
+key = "pascoe"
+name = "The Penhallow Pare (Pascoe and Strauss)"
+home = "penhallow_row"
+head = "bartholomew_pascoe"
+note = "The pare's club pantry is a household inventory: sick fund, burial dues and a share for widows. A real safety net in a hard winter, and a real conflict when a non-member family starves nearby. Goblins eat about 70% of a human ration."
+cash_cents = 1900
+pantry = [
+  { item = "provisions_box_vermin", qty = 1 },
+  { item = "flour", qty = 50, in = "provisions_box_vermin" },
+  { item = "beans_dry", qty = 25, in = "provisions_box_vermin" },
+  { item = "brine_keg_10gal", qty = 1 },
+  { item = "salt_pork", qty = 40, in = "brine_keg_10gal" },
+  { item = "potatoes", qty = 80 },
+  { item = "tea", qty = 6 },
+  { item = "cheese", qty = 10 },
+  { item = "butter", qty = 4 },
+  { item = "pasty", qty = 8 },
+  { item = "miners_crib", qty = 6 },
+  { item = "cave_mushrooms", qty = 4 },
+  { item = "molasses_quart", qty = 2 },
+  { item = "firewood_armload", qty = 40 },
+  { item = "candles_tallow_lb", qty = 10 },
+  { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+]
+
+[[households]]
+key = "vance"
+name = "Mr. Vance"
+home = "dunleavys_tavern"
+head = "lucius_vance"
+note = "A lodger at the tavern, here on the Galena house's business."
+cash_cents = 0
+pantry = [
+  { item = "tea", qty = 1 },
+  { item = "hardtack", qty = 3 },
+  { item = "sugar_brown", qty = 1 },
+]
+
+[[households]]
+key = "hatch"
+name = "The Hatches (ferry)"
+home = "ferryman_house"
+head = "lemuel_hatch"
+note = "Poor river folk: fish when the fish run, a barrel of meal, little else. The ferry fare is mostly in kind."
+cash_cents = 340
+pantry = [
+  { item = "cornmeal", qty = 25 },
+  { item = "flour", qty = 14 },
+  { item = "salt_pork", qty = 5 },
+  { item = "potatoes", qty = 22 },
+  { item = "trout_fresh", qty = 4 },
+  { item = "eggs", qty = 8 },
+  { item = "coffee_green", qty = 2 },
+  { item = "whiskey_quart", qty = 1 },
+  { item = "firewood_armload", qty = 20 },
+  { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+]

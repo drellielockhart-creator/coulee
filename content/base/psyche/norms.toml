@@ -1,0 +1,150 @@
+# Norms: the Superego's content (10 §3.3). OWNER: module:psyche.
+#
+# strength = base + Σ value × coefficient + trait shifts (+ scenario override), clamped 0..100.
+# 04 reads them back as Values: view = clamp(-3, 3, floorDiv(strength - 50, 15)).
+# A prohibition thought's intensity is relevance×10 × (50 + strictness)/100 × strength/50,
+# plus min(300, 50 × onlookers) for public norms. Lines: {option} = the forbidden option.
+
+[[norm]]
+id = "duty"
+name = "Duty"
+period_label = "Diligence"
+description = "Work comes first; you keep your hours and your word."
+speaker = "Father"
+source = "parent"
+base = 55
+forbids = [
+  { tags = ["leisure", "carouse"], relevance = 40, when = { scheduled_tags = ["labor"] } },
+  { tags = ["rest"], relevance = 30, when = { scheduled_tags = ["labor"] } },
+]
+lines = [
+  "There's work wanting, and you're thinking of {option}?",
+  "Daylight's for working. {option} can wait.",
+]
+
+[[norm]]
+id = "piety"
+name = "Piety"
+period_label = "Veneration"
+description = "Church, prayer, and the Sabbath kept."
+speaker = "the Pastor"
+source = "church"
+base = 50
+values = { piety = 15 }
+forbids = [
+  { tags = ["labor", "trade"], relevance = 60, when = { sabbath = true } },
+  { tags = ["carouse"], relevance = 40 },
+]
+lines = [
+  "Remember the Sabbath day, to keep it holy.",
+  "Is {option} how a Christian spends the Lord's time?",
+]
+
+[[norm]]
+id = "temperance"
+name = "Temperance"
+period_label = "Temperance"
+description = "Liquor ruins homes. Held hard in 1855, the year of the Maine Law fight."
+speaker = "Mother"
+source = "parent"
+base = 50
+values = { piety = 8, temper = -4 }
+forbids = [{ tags = ["drink"], relevance = 50 }]
+lines = [
+  "Wine is a mocker, strong drink is raging.",
+  "Not one glass. You know where one glass goes.",
+]
+
+[[norm]]
+id = "propriety"
+name = "Propriety"
+period_label = "Decorum"
+description = "What is fitting: no scenes, no forwardness, no raised voices."
+speaker = "Mother"
+source = "parent"
+base = 50
+values = { discretion = 8 }
+public = true
+forbids = [
+  { tags = ["aggress"], relevance = 50 },
+  { tags = ["court"], relevance = 30 },
+]
+lines = [
+  "Mind your tongue. We don't make scenes.",
+  "{option}? Think how it looks.",
+]
+
+[[norm]]
+id = "shame"
+name = "Shame"
+period_label = "Approbativeness"
+description = "Exposure: what the neighbors see and say (10 §3.3)."
+speaker = "the neighbors"
+source = "community"
+base = 45
+values = { discretion = 5 }
+public = true
+forbids = [{ tags = ["aggress", "carouse"], relevance = 30, when = { audience_min = 1 } }]
+lines = [
+  "What will people say?",
+  "Everyone's watching. Everyone will hear of it.",
+]
+
+[[norm]]
+id = "neighborliness"
+name = "Neighborliness"
+period_label = "Benevolence"
+description = "Bees, barn raisings, and not speaking ill of the people you need come harvest."
+speaker = "the neighbors"
+source = "community"
+base = 50
+values = { neighborliness = 15 }
+forbids = [
+  { tags = ["aggress"], relevance = 40 },
+  { tags = ["slander"], relevance = 30 },
+]
+lines = [
+  "You'll need them come threshing.",
+  "Is {option} any way to treat a neighbor?",
+]
+
+[[norm]]
+id = "thrift"
+name = "Thrift"
+period_label = "Frugality"
+description = "Waste not, want not; a penny saved."
+speaker = "Mother"
+source = "parent"
+base = 50
+values = { thrift = 15 }
+forbids = [{ tags = ["carouse", "spend"], relevance = 40 }]
+lines = [
+  "Waste not, want not.",
+  "Money down your throat is money gone.",
+]
+
+[[norm]]
+id = "honesty"
+name = "Honesty"
+period_label = "Conscientiousness"
+description = "Plain dealing and no false witness."
+speaker = "Father"
+source = "parent"
+base = 50
+values = { ambition = -4 }
+forbids = [{ tags = ["slander"], relevance = 40 }]
+lines = [
+  "Thou shalt not bear false witness.",
+  "You don't know that. You're only repeating it.",
+]
+
+[[norm]]
+id = "our_own"
+name = "Our Own"
+period_label = "Adhesiveness"
+description = "We look after our own (04 Parochialism, folded per 10 §3.3)."
+speaker = "the old folks"
+source = "community"
+base = 50
+values = { parochialism = 15 }
+lines = ["Stick with your own kind."]

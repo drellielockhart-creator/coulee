@@ -55,6 +55,12 @@ export const ScenarioActorSchema = z.strictObject({
   values: valuesBlock(),
   languages: z.array(id()).default([]),
   literate: z.boolean().default(true),
+  /** Culture id (content/base/cultures): language, literacy, foodways, naming. */
+  culture: ref().optional(),
+  /** Display house-name for elves ("of Sølvklokke Hall", 12 §5.4). */
+  house_name: z.string().optional(),
+  /** Private name (elven sealed name, goblin deep-name, faekin dusk-name): fills `true_name` (01 §4.5). */
+  true_name: z.string().optional(),
   /** Designer notes (from 01 §8.3): never read by the sim. */
   notes: z.string().optional(),
   ...psycheActorFields,
@@ -120,6 +126,7 @@ export function scenarioRefs(b: ContentBundle): Issue[] {
       const w = `${where}/actors:${a.key}`;
       checkRefs(issues, w, 'ancestry', [a.ancestry, a.presents_as], b.peoples, 'people');
       checkRefs(issues, w, 'occupation', [a.occupation], b.occupations, 'occupation');
+      checkRefs(issues, w, 'culture', [a.culture], b.cultures, 'culture');
       checkRefs(issues, w, 'household', [a.household], householdKeys, 'household key');
       checkRefs(issues, w, 'place', [a.place], b.places, 'place');
       checkRefs(issues, w, 'skills', Object.keys(a.skills), b.skills, 'skill');

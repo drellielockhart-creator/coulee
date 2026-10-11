@@ -1,50 +1,78 @@
-# Peoples (ADR 0001 "Peoples"; 02 §12). OWNER: module:content-world.
-# Placeholder mechanics until 12-peoples.md lands.
+# Peoples (ADR 0001 "Peoples"; 12-peoples.md §10 and §13 "Divergences"). OWNER: module:content-world.
+# Rules for this file (12 §1, §8.1):
+#   - No sim code compares against these ids. It reads fields.
+#   - Ability mods are STR/DEX/CON +-1 only, and apply only to generated census actors (ADR 0003);
+#     hand-authored scenario actors carry final scores.
+#   - Literacy is a culture field (content/base/cultures), not a people field.
+#   - No people here is good or evil by birth, and none maps to a real-world ethnicity.
 
 [[people]]
 id = "human"
 name = "Human"
 plural = "Humans"
-description = "The settler majority."
+description = "The settler majority, and the people the 1855 world is built around."
 maturity_age = 15
-lifespan = { middle = 35, old = 53, venerable = 70 }
+lifespan = { middle = 35, old = 53, venerable = 70, max_roll = "2d20" }
+traits = ["adaptable"]
 languages = ["english"]
-literacy_pct = 60
+# +1 floating ability (player's choice) is a chargen rule, not data.
+fae = { drift_floor = 0, drift_gain_pct = [[0, 100], [40, 100]], weakness_drift_offset = 0, bound_rate_pct = 100 }
+fae_notice_mod = 0
+fae_comfort = { min = 0, max = 2 }
 
 [[people]]
 id = "elf"
 name = "Elf"
 plural = "Elves"
-description = "Established in the civilized world of humans and elves."
-maturity_age = 30
-lifespan = { middle = 120, old = 200, venerable = 300 }
-fae_notice_mod = 1
-fae_comfort = { min = 0, max = 3 }
+description = "Renouncers: a people who, long ago, turned their backs on Faerie and swore at the Halls. Neighbors and in-laws of the settlers, mixed in rather than in enclaves, long-lived and bound by the Hall Catechism."
+ability_mods = { dex = 1, con = -1 }
+senses = ["normal", "low_light"]
+maturity_age = 25
+lifespan = { middle = 70, old = 110, venerable = 150, max_roll = "3d20" }
+traits = ["renounced", "the_pull"]
 languages = ["english"]
-literacy_pct = 80
+fae = { drift_floor = 0, drift_gain_pct = [[0, 50], [40, 200]], weakness_drift_offset = -10, bound_rate_pct = 100, name_target_mod = -4, pull_from_fi = 3 }
+inheritance = { mode = "binary_per_child", chance_pct_one_parent = 50 }
+fae_notice_mod = -2
+fae_comfort = { min = 0, max = 2 }
 
 [[people]]
 id = "shadow_faekin"
 name = "Shadow-faekin"
 plural = "Shadow-faekin"
-description = "Hidden, somewhere between humans and elves. Concealed by default; others know only through beliefs."
+description = "Descendants of the unrenounced who stayed hidden among settlers. They pass as human or elf and keep a quiet code: keep the secret, shelter your own, never name another. Concealed by default; others learn the truth only through beliefs, tells, and tests."
 concealed = true
 passes_as = ["human", "elf"]
+senses = ["normal", "low_light"]
 maturity_age = 18
-lifespan = { middle = 50, old = 80, venerable = 110 }
+lifespan = { middle = 50, old = 80, venerable = 105, max_roll = "2d20" }
+traits = ["see_the_seam", "kin_guest_right", "dream_true"]
+skill_bonuses = { fae_courtesy = 2 }
+languages = ["english"]
+# Weakness offset +30 replaces the old boolean; the boolean stays true for older readers.
 cold_iron_sensitive = true
+fae = { drift_floor = 10, drift_gain_pct = [[0, 100], [40, 100]], weakness_drift_offset = 30, bound_rate_pct = 50, counts_as_fae_indoors = true }
+inheritance = { mode = "binary_per_child", chance_pct_one_parent = 50 }
 fae_notice_mod = 2
 fae_comfort = { min = 1, max = 4 }
-languages = ["english"]
 
 [[people]]
 id = "goblin"
 name = "Goblin"
 plural = "Goblins"
+description = "A people of the deep country with their own old treaties: skilled miners, well-diggers and quarrymen, organized in pares with friendly-society clubs. Adults with full dignity. They keep the Accord's courtesies (no whistling underground, crusts for the knockers) as a point of honor."
+ability_mods = { str = -1, con = 1 }
 size = "small"
 speed_ft = 25
-senses = ["normal", "low_light"]
-maturity_age = 12
-lifespan = { middle = 30, old = 45, venerable = 60 }
+senses = ["normal", "darkvision"]
+darkvision_ft = 60
+maturity_age = 14
+lifespan = { middle = 40, old = 60, venerable = 80, max_roll = "2d10" }
+kcal_pct = 70
+traits = ["deep_sense", "accord_standing"]
+skill_bonuses = { trade_mining = 2 }
 languages = ["english"]
-literacy_pct = 30
+fae = { drift_floor = 0, drift_gain_pct = [[0, 100], [40, 100]], weakness_drift_offset = 0, bound_rate_pct = 100, name_target_mod = -4, comfort_underground = { min = 0, max = 4 } }
+inheritance = { mode = "binary_per_child", chance_pct_one_parent = 50 }
+fae_notice_mod = 0
+fae_comfort = { min = 0, max = 2 }

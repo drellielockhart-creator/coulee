@@ -1,0 +1,94 @@
+# Defenses (10 §7.2; the seven of DEFENSE_IDS for M1). OWNER: module:psyche.
+#
+# Fire when anxiety ≥ Θ = 250 + 3E at the end of an arbitration, at most once an hour.
+# Candidates need a matching trigger (fit 1-3, computed in core/src/psyche/defenses.ts from
+# the anxiety pools, live thoughts, the Shadow and recent acts); weight = style × fit.
+# Labels are unconscious by definition: 'omniscient' until Insight (10 §1, §8.5).
+# Lines: the masked thought the defense leaves behind; {target}, {trait}.
+
+[[defense]]
+id = "repression"
+name = "Repression"
+period_label = "Putting it out of mind"
+description = "A shameful memory or wish is pushed down. It stops cueing thoughts and feeds the Hidden Self."
+tier = "neurotic"
+min_ego = 25
+relief = 200
+pools = ["moral", "neur"]
+importance = 30
+lines = ["Best not to think of it.", "That's done and gone. Least said."]
+
+[[defense]]
+id = "denial"
+name = "Denial"
+period_label = "Won't hear of it"
+description = "A rising threat is not real: no rationing, no doctor, no flight. Fear thoughts fall to a quarter."
+tier = "immature"
+relief = 150
+pools = ["real"]
+importance = 30
+lines = ["It's nothing. It'll pass.", "There's nothing wrong. Nothing at all."]
+
+[[defense]]
+id = "projection"
+name = "Projection"
+period_label = "Laying it at another's door"
+description = "The disowned wish is seen in someone else: a belief forms that they have it."
+tier = "immature"
+relief = 250
+pools = ["neur", "moral"]
+needs_shadow = 30
+acts = ["gossip"]
+importance = 45
+acquired_trait = "suspicious"
+lines = ["It's {target} who's {trait}. Anyone can see it.", "{target} has a look about them. {trait}, I'd say."]
+
+[[defense]]
+id = "displacement"
+name = "Displacement"
+period_label = "Kicking the dog"
+description = "Anger at someone too strong to cross comes out on someone safer."
+tier = "immature"
+relief = 200
+pools = ["neur", "real"]
+acts = ["insult"]
+importance = 40
+lines = ["And {target} can keep out of my way, too.", "{target}'s always underfoot."]
+
+[[defense]]
+id = "rationalization"
+name = "Rationalization"
+period_label = "Special pleading"
+description = "After acting against conscience: they had it coming; anyone would have done it."
+tier = "neurotic"
+min_ego = 25
+relief = 150
+pools = ["moral"]
+importance = 30
+lines = ["{target} had it coming.", "Anyone would have done the same."]
+
+[[defense]]
+id = "reaction_formation"
+name = "Reaction formation"
+period_label = "Protesting too much"
+description = "A forbidden wish flips into a crusade against its object."
+tier = "neurotic"
+min_ego = 25
+relief = 300
+pools = ["neur", "moral"]
+acts = ["gossip", "insult"]
+importance = 45
+acquired_trait = "zealot"
+lines = ["Someone ought to speak to {target} about their ways.", "I'll not stand by while {target} carries on so."]
+
+[[defense]]
+id = "sublimation"
+name = "Sublimation"
+period_label = "Putting it to work"
+description = "The drive is spent on work or worship instead. Mature, and not always benign (10 §7.2)."
+tier = "mature"
+min_ego = 55
+relief = 200
+pools = ["neur", "real"]
+importance = 30
+lines = ["Better to put it into the work.", "Use it. Don't waste it."]

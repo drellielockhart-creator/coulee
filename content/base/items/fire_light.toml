@@ -1,0 +1,193 @@
+# Catalog 03 §6.3 Fire & Light, plus firewood (03 §3.8). OWNER: module:content-items.
+# Supply kinds (03 §3.8): fire (fire-minutes), match (strikes), lamp_oil (lamp-minutes),
+# candle (candle-minutes), torch (torch-minutes). `consumes` is per hour while lit.
+
+[[item]]
+id = "firewood_armload"
+name = "Armload of firewood"
+section = "fire_light"
+copy = "Split oak and dry ash. One armload keeps a cook-fire going about an hour."
+unit = "armload"
+weight_g = 9072
+bulk = 20
+value_cents = 2
+tags = ["flammable"]
+materials = [{ material = "wood", pct = 100 }]
+supply = { kind = "fire", units = 60 }
+
+[[item]]
+id = "lucifers_box"
+name = "Lucifers (friction matches), box of 100"
+section = "fire_light"
+copy = "Strike anywhere. Strike only where you mean to."
+unit = "box of 100"
+weight_g = 45
+bulk = 0.1
+value_cents = 5
+tags = ["wet_ruin", "flammable"]
+materials = [{ material = "wood", pct = 80 }, { material = "paper", pct = 20 }]
+affordances = { ignite = 2 }
+supply = { kind = "match", units = 100 }
+
+[[item]]
+id = "match_safe"
+name = "Match safe, tinned brass, screw lid"
+section = "fire_light"
+copy = "A small thing to carry. The difference between a fire and a funeral."
+weight_g = 91
+bulk = 0.1
+value_cents = 25
+materials = [{ material = "brass", pct = 100 }]
+stackable = false
+container = { capacity_g = 60, capacity_bulk = 0.5, protects = ["waterproof", "crushproof"], carry = "pocket" }
+
+[[item]]
+id = "flint_steel_char_tin"
+name = "Flint, steel & char tin"
+section = "fire_light"
+copy = "Your grandfather's method, and it still works when the matches don't."
+weight_g = 227
+bulk = 0.3
+value_cents = 25
+tags = ["wet_ok"]
+materials = [{ material = "steel", pct = 80 }, { material = "tinplate", pct = 20 }]
+affordances = { ignite = 1, tinder = 1 }
+
+[[item]]
+id = "burning_glass"
+name = "Burning glass"
+section = "fire_light"
+copy = "Needs only the sun, which in November you may not have."
+weight_g = 91
+bulk = 0.1
+value_cents = 40
+tags = ["sun_only"]
+shape = ["fragile"]
+materials = [{ material = "glass", pct = 100 }]
+affordances = { ignite = 1 }
+stackable = false
+
+[[item]]
+id = "tinder_pouch"
+name = "Tinder pouch: birch bark & fatwood"
+section = "fire_light"
+copy = "Pitch pine split fine. Lights in the drizzle."
+weight_g = 136
+bulk = 0.3
+value_cents = 5
+tags = ["flammable"]
+materials = [{ material = "wood", pct = 70 }, { material = "bark", pct = 30 }]
+affordances = { tinder = 2 }
+
+[[item]]
+id = "candles_tallow_lb"
+name = "Tallow candles, lb (6)"
+section = "fire_light"
+unit = "lb"
+copy = "Smoky and honest. Mice will eat them if you don't."
+weight_g = 454
+bulk = 1
+value_cents = 15
+tags = ["vermin_eats"]
+materials = [{ material = "tallow", pct = 100 }]
+affordances = { light = 1 }
+supply = { kind = "candle", units = 2520 }
+
+[[item]]
+id = "candles_spermaceti_lb"
+name = "Spermaceti candles, lb"
+section = "fire_light"
+unit = "lb"
+copy = "Clean flame from the whale fishery. For reading, and for impressing a widow."
+weight_g = 454
+bulk = 1
+value_cents = 40
+materials = [{ material = "wax", pct = 100 }]
+affordances = { light = 1.5 }
+supply = { kind = "candle", units = 2880 }
+
+[[item]]
+id = "tin_lantern_pierced"
+name = "Tin lantern, pierced"
+section = "fire_light"
+copy = "Throws stars on the walls. Will not blow out."
+weight_g = 680
+bulk = 3
+value_cents = 50
+tags = ["wind_proof"]
+materials = [{ material = "tinplate", pct = 100 }]
+affordances = { light = 1.5 }
+consumes = [{ kind = "lamp_oil", per = "hour", units = 60 }]
+stackable = false
+
+[[item]]
+id = "glass_lantern_fenwick"
+name = "Glass lantern, lard-oil (Fenwick)"
+section = "fire_light"
+maker = "Fenwick Lamp Co."
+copy = "Fenwick's patent. See ten paces in a cave and keep both hands for climbing."
+weight_g = 1361
+bulk = 4
+value_cents = 150
+shape = ["fragile"]
+tags = ["glass"]
+materials = [{ material = "tinplate", pct = 60 }, { material = "glass", pct = 40 }]
+affordances = { light = 3 }
+consumes = [{ kind = "lamp_oil", per = "hour", units = 60 }]
+stackable = false
+
+[[item]]
+id = "lard_oil_quart"
+name = "Lard oil"
+section = "fire_light"
+unit = "quart"
+copy = "Pressed from honest pork."
+weight_g = 907
+bulk = 1
+value_cents = 30
+tags = ["flammable"]
+materials = [{ material = "liquid", pct = 100 }]
+supply = { kind = "lamp_oil", units = 600 }
+
+[[item]]
+id = "camphene_pint"
+name = "Camphene burning fluid, pint"
+section = "fire_light"
+unit = "pint"
+copy = "Burns twice as bright as lard oil. Fill the lamp *cold*."
+weight_g = 454
+bulk = 1
+value_cents = 25
+tags = ["explosive", "flammable"]
+materials = [{ material = "liquid", pct = 100 }]
+supply = { kind = "lamp_oil", units = 360 }
+
+[[item]]
+id = "sticking_tommy"
+name = "Miner's candlestick (sticking tommy)"
+section = "fire_light"
+maker = "Penhallow & Trist"
+copy = "Drives into a timber or a crack in the limestone. Penhallow & Trist, as used at Mineral Point."
+weight_g = 227
+bulk = 0.1
+value_cents = 20
+tags = ["light_holder"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { pierce = 1 }
+consumes = [{ kind = "candle", per = "hour", units = 60 }]
+stackable = false
+
+[[item]]
+id = "pitch_torch_3"
+name = "Pitch torch, set of 3"
+section = "fire_light"
+unit = "set of 3"
+copy = "Crude, and visible from the next ridge."
+weight_g = 1361
+bulk = 3
+value_cents = 10
+shape = ["long"]
+tags = ["smoky", "visible"]
+materials = [{ material = "wood", pct = 80 }, { material = "other", pct = 20 }]
+affordances = { light = 2 }
+supply = { kind = "torch", units = 90 }

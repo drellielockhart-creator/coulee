@@ -274,7 +274,7 @@ This is the witch's equivalent of Outfitter shopping: **a catalog of bargains**.
 | Revenge | `rage` | "Your anger": `rage` drive can't fall below 60 | 5 |
 | Inheritance | (none) superego `duty` toward the line, an inherited norm | "Your blood line": the pact norm's speaker is "Grandmother" as well as the Prince | 10 |
 | The Stolen Child | `longing` | "Your child": the Prince's commands carry the child's voice when she hesitates | 5 |
-| The Accused | `fear`, plus a seeded identification style ("if they call me witch...") | "Your reputation": the accusers' Figure of her can't decay below rung 2 while bound | 5 |
+| The Accused | `fear`, plus a seeded identification style ("if they call me witch...") | "Your reputation": the persecution process on her name in the accusers' settlement can't step down below rung 2 while she's bound | 5 |
 | Ambition | `greed` / `envy` | "Your heart": Affection toward anyone capped at +40 | 10 |
 
 People modifiers then apply (Drift floor 10 for faekin; `12` §10.2).
@@ -722,6 +722,47 @@ The posse, the witch-finder, and the bounty hunter are **adventurer-shaped NPCs*
 
 **[DECISION, `00` P5]** "Choose a soul" is in: the player may *play as* an existing NPC (the previous run's widow, a random villager) as well as a newcomer. Any actor's sheet is playable, which constrains `07` (every actor, including census-materialized ones, must be fully playable). **[PROPOSAL]** Choosing a soul skips creation screens 4–15 and shows the actor's sheet and Ties as they stand. The psyche comes as the sim built it, so the Shadow stays hatched (P1), and a concealed faekin's self-knowledge is whatever the actor believed.
 
+### 5.5 Peoples across modes
+
+**[DECISION]** The four peoples are canon. Everything below that goes beyond Ellie's one-liners is `12`'s **[PROPOSAL]** lore applied to modes, and her own lore overrides it. **[PROPOSAL]** Every people can play either mode, and none has a mode-exclusive rule. Peoples reach this doc only as data: a Drift floor, Drift-gain bands, a weakness offset, ration and carry multipliers, senses, and culture-level superego content (which comes from Upbringing, not people, `12` §1).
+
+| People | Adventurer angle | Witch angle | The Prince (`12` Q13, open) |
+|---|---|---|---|
+| **Human** | The default. No concealment burden and no ancestry-keyed suspicion; the Outfitter's Book is written for them | The mob's default suspects are *others*. The human witch watches her neighbors accuse the faekin-seeming widow instead | His thesis is about them: their surveys, plows, and bells do the Ice's work |
+| **Elf** | Hall culture's forage taboo means more stores and a heavier pack (P8). Glamour-resistant. Natural Iron Warden or survey hand. A legacy people (long-lived) | An apostate's return is the best story, so he covets them. Strict Hall superego means high anxiety and frequent defenses. The Lapse doubles Drift gain at 40+, so Departure looms. Elf offset −10 keeps iron bearable while claim rises (§3.8.1) | Covets |
+| **Goblin** | Cave and mine specialist: darkvision saves lamp oil, Deep Sense, knockers warn a goblin in good standing. Eats 70% of a human ration but carries ¾ the load, an honest tradeoff the Readiness panel shows | An **Accord crisis**: the Under-Court may sanction the whole pare, so the goblin community has a strong motive to find its own witch quietly, before the humans do. Revenge and Debt Origins fit | Contempt and wariness; harming a goblin is an incident with the Under-Court |
+| **Shadow-faekin** | §5.5.1 | §5.5.1 | Courts them as kin |
+
+#### 5.5.1 Playing shadow-faekin, in both modes
+
+**[DECISION, ADR]** Shadow-faekin are concealed by default, pass as human or elf, and are known to others only through beliefs. **[PROPOSAL, `12` §7]** Concealment is **one identity with a hidden attribute**: a Secret `Is(self, faekin)` plus a `presentsAs` people, not a second identity. Covers and aliases stay Figures (§3.9). The mechanics this doc touches:
+
+- **Self-knowledge** (a creation choice, §7.1): *knows*, *suspects*, or *doesn't know*. Under "doesn't know," tells and weaknesses appear to the player as **unexplained experiences** (the hatchet makes her hands ache; dogs won't settle; she dreams true) and the epilogue confirms the truth (P1).
+- **Tells and lookalikes** (`12` §7.2): iron flinch, shadow lag, bell ache, a fae greeting in front of witnesses, Unaging, dream speech. Every tell has mundane lookalikes, and every Drift-20 tell from §3.8.1 is the same event, so a drifted human and a faekin read alike.
+- **Weaknesses** (§3.8.1): +30 nature offset and a Drift floor of 10, so a baseline faekin sits at E 40: iron discomfort at IP 6+, salt stings, bell ache. Heritage adds no **claim**, so faekin can attend church, cross the creek, and live ordinary lives. That's what makes passing possible.
+- **Persona strain** (`10` §8.1, `12` §7.7): hours in company presenting falsely add anxiety by local hostility. A Lantern upbringing (the Quiet) lowers it. Strain is the cost of concealment, never a moral fault, and no Insight reveal labels passing a defense.
+- **Discovery** enters `04`'s ladder at rung 1 on the faekin's own process (`12` §7.6), never at an accusation rung, since being faekin isn't an act. Disclosure by Confide trades the secret for Trust. Coming out is a public event that some households and towns accept.
+
+**Adventurer.**
+- **The Outfitter has a secret column.** An adventurer's kit is mostly iron: rifle, hatchet, kettle, traps. At E 40, IP 6+ costs −1 on every check. Brass-fitted tools, a gourd canteen, horn spoons, and gloves (`12` §7.3) cost money, weigh differently, and are weak tells to anyone who knows to look. This is the catalog feeling with something to hide. The Readiness panel shows the iron cost only as the character understands it.
+- **The best guide into Faerie.** See the Seam, Kin's Guest-Right, and Fae Courtesy make faekin superb in fae country. But a fae who greets you as kin in front of your hirelings has just made them witnesses, and hirelings talk in the tavern (§2.4, "Telling the tale").
+- **Town in a witch scare.** Superstitious priors rise with uncanny events (`12` §7.4), ordeals get demanded of anyone odd, and the iron-key test catches a faekin about half the time and a nervous human about one time in ten. A faekin adventurer is a lookalike magnet in someone else's witch-hunt (§5.3).
+- **Fitting Ambitions:** Fleeing the Past (a pursuer who knew you in a county where you didn't age), Fae-touched (a missing year, and the fae who know your dusk-name), Missing Person (a Lantern cousin).
+
+**Witch.**
+- **Double concealment.** A faekin witch hides two things that the village's attribution treats as mutually reinforcing (`12` §11.3). A cover Persona protects her witch identity; nothing protects her heritage but discipline.
+- **The hardest start**, by the numbers: E 40 and K 35 from day one, so she's both Unhallowed and iron-sore (§3.8.1). The compensations come from Faerie: the Bound chain runs at half rate, so fae food tempts her less dangerously, and See the Seam and Guest-Right make the Prince's country easier. That's how he courts her.
+- **"Doesn't know" meets the Prince.** At the first audience in play (the 4:00–8:00 beat in §9.2), the Prince, who can't speak insincerely, greets her unhedged as *kinswoman*. It's a self-knowledge event in the first ten minutes, delivered by the one being whose word she can't doubt and shouldn't trust.
+- **Fitting Origins:** The Accused and Desperation, because revealed faekin are where the Prince's structural recruitment happens (`12` §6.2, §3.2 point 7).
+- **The Lantern as allies.** Lantern houses shelter a faekin in trouble, no questions asked. Sheltering a faekin *witch* puts the whole Lantern at risk, which is a moral cost she sees and they may not.
+
+**Framing [OPEN; `12` Q6, `10` Q4, `11` Q7].** Concealment under persecution echoes real histories, racial passing above all, which was live in 1855. The three docs offer converging options and deliberately leave the choice to Ellie:
+- `12`: F1 folkloric vocabulary + F2 universal-psychological framing, avoiding F3 (explicit social analogy); no real-race terms (`12` uses the placeholder verb "going plain"), no blood fractions, no tragic-by-default arc, sensitivity readers.
+- `11`: (a) fae-forward words + (b) the neutral identity model underneath, and no gamified exposure meter.
+- `10`: A, passing under prejudice; B, concealment as a covenant (strain comes from fae Law, not fear); or C, per World.
+
+This doc's text uses fae-forward vocabulary as a **working default only**. The mechanics above are identical under every option; option B changes only the *source* of strain. Two rules hold whatever she picks: the Director never seeds faekin exposure (§1.4), and `01`'s authored Black settler households are never faekin in authored content (`12` §6.3).
+
 ---
 
 ## 6. Additional modes (sketches)
@@ -731,7 +772,7 @@ These fall out of the same engine. None are in scope for v1; listing them tests 
 | Mode | Premise | Loop | New systems needed |
 |---|---|---|---|
 | **Homesteader** | Prove up a claim: clear, build, farm, survive winters, raise a family | RimWorld base-building at a single home site; town trips for supplies; the wilds encroach | Building/crops depth (05), family as companions |
-| **Changeling** | You're a fae child raised as human, and you're starting to notice | Social-sim-heavy; hide your nature (Drift starts high), discover your Court, choose a side | Few: Drift, suspicion, Pact |
+| **Coming of Age** (was "Changeling"; [PROPOSAL, `12` Q12]) | You're a shadow-faekin raised human or elf who doesn't know, or who knows and has kept it hidden, and you're starting to notice | Social-sim-heavy: tells you can't explain, a Lantern that recognizes you, a Hall that would expel you, the Prince's courtship. Hide, disclose, or go under the hill | Few: the concealment system (§5.5.1), Drift, suspicion, Pact. Literal changelings stay unplayable (`12` §4, `01` Q13) |
 | **Circuit Rider** (preacher or doctor) | Ride a circuit of settlements, tending souls or bodies | Travel loop between hearths; social sim as main gameplay; fae and witch troubles as "cases" | Congregations as a reputation variant |
 | **Cunning-Folk** | Village wise-woman or -man selling charms and counter-curses | Service economy: diagnose (real curse? natural? scapegoat?), counter-curse, avoid accusation yourself | Witch mode's systems from the other side |
 | **Witch-Finder** | A traveling hunter of witches, honest or fraud | Investigation; the dark mirror of witch mode, and a sharp lens on the theme | Investigation UI on top of 04 rumors |
@@ -742,47 +783,101 @@ These fall out of the same engine. None are in scope for v1; listing them tests 
 
 ## 7. Character creation, screen by screen
 
-**[PROPOSAL]** One flow with mode-specific branches. Every screen has **Randomize** (RimWorld-style) and a **Show the math** panel (P1). The whole flow should take 3–10 minutes, or 30 seconds with "Quick start" (random within mode, straight to play).
+**[PROPOSAL]** One flow with mode-specific branches. Every screen has **Randomize** (RimWorld-style) and a **Show the math** panel (P1). The whole flow should take 3–10 minutes, or 30 seconds with "Quick start" (random within mode, straight to play). **[DECISION]** No alignment screen and no morality pick: the inner life is set up on screen 13 (§7.5).
 
 ### 7.1 Shared screens
 
 | # | Screen | Contents |
 |---|---|---|
-| 1 | **World** | New World (seed, region size, Fae intensity overall, starting year) or Existing World (pick one; choose time skip; see its Chronicle) |
+| 1 | **World** | New World (seed, **World size**: Small / Standard / Large, about 400 / 800 / 1,500 named actors, `11` §5.6, recorded in the World and never varied by device; overall Fae intensity; content toggles that become World flags, §3.2) or Existing World (pick one; choose time skip; see its Chronicle). **[DECISION]** No start-year choice: every new World begins in spring 1855 (`00`, C6). Generation is procedural, with curated seeds such as Iron Ford (ADR 0003) |
 | 2 | **Mode** | Adventurer / Witch / (future modes). One-paragraph pitch each, with difficulty note |
-| 3 | **Storyteller & difficulty** | Director personality (05), difficulty preset, save mode (§8), content toggles |
+| 3 | **Storyteller & difficulty** | Director personality (05), difficulty preset, save mode (§8), per-run content settings (psyche label set, "Show the rung") |
 | 4 | → mode branch | See below |
-| 9 | **People** | Ancestry slot (data-driven; Ellie's roster TBD), sex/gender, age band, appearance |
-| 10 | **Abilities** | Point-buy (default), roll 4d6-drop-lowest, or Hard Country 3d6-in-order (02 §2.2; rolled methods get a Chronicle tag), with ancestry modifiers |
+| 9 | **People** | Human, elf, shadow-faekin, or goblin (`12`, read from content; no lore invented by the UI). Sex and gender, age band (lifespans per `12` §10.1), appearance. **Shadow-faekin** adds two choices: **presents as** (human or elf) and **self-knowledge** (knows / suspects / doesn't know, §5.5.1). The People card shows what each choice changes, including the weakness offset (§3.8.1) |
+| 9b | **Upbringing** | **Culture** (Old Country, language, literacy) and **congregation** (Haugean, Norwegian Synod, Methodist, Catholic, Yankee Congregational, freethinker, a Hall, the Lantern, a goblin Club...). Peoples are not cultures (`12` §1): a Norwegian Lutheran elf and a Norwegian Lutheran human share this screen's options. Sets the **superego package** (norms and their speakers), `superegoStrictness` prior, name pool, and foodways (the starting larder, P8) |
+| 10 | **Abilities** | Point-buy (default), roll 4d6-drop-lowest, or Hard Country 3d6-in-order (02 §2.2; rolled methods get a Chronicle tag), then people modifiers: STR/DEX/CON at ±1 only, never INT/WIS/CHA (`12` §1; humans place a floating +1) |
 | 11 | **Class** | Class or class-like progression (02; "Callings" in 02 are prestige classes, chosen later). Witch mode restricts or adds options (e.g., Witch class, Hedge-Witch variant) |
-| 12 | **Skills & Feats** | Catalog-style (feeds feeling #1). Background sets some pre-picks |
-| 13 | **Traits** | 2–3 Mind traits (04) with a "conflicting traits" check, RimWorld-style |
-| 14 | **Ties** | 2–4 pre-seeded relationships, generated by Background/Origin, editable: a sister in town, an old rival, a lover left behind. These become real actors |
-| 15 | **Review** | PHB-style character sheet + one-paragraph generated biography. "Begin" |
+| 12 | **Skills & Feats** | Catalog-style (feeds feeling #1). Background sets some pre-picks and the Upbringing feat list |
+| 13 | **Temperament & Conscience** | The psyche setup (§7.5): 2–3 traits with a "conflicting traits" check (RimWorld-style), loud and quiet drives, norm strengths, Self-Command, and the **Persona** ("the face you show"). The Shadow isn't chosen. Period labels by default (Appetites / Conscience / Self-Command / Countenance), clinical on request |
+| 14 | **Ties** | 2–4 pre-seeded relationships, generated by Background/Origin, editable: a sister in town, an old rival, a lover left behind. These become real actors, and parents and pastors among them become the **speakers** of Superego voices ("Mother: Waste not") |
+| 15 | **Review** | PHB-style character sheet + one-paragraph generated biography. "Begin". The psyche shows as the character knows it: Thoughts, Self-Command, Persona, a hatched Shadow |
 
 ### 7.2 Adventurer branch
 
 | # | Screen | Contents |
 |---|---|---|
-| 4 | **Background** | Where you came from: Yankee clerk, Cornish miner, discharged soldier, farm daughter, failed seminarian, river pilot, … Sets skills, contacts, and **starting dollars** (e.g., $20–$150; 03 owns the numbers) |
+| 4 | **Background** | Where you came from (the §7.4 table): Yankee clerk, lead miner, discharged soldier, farm daughter, failed seminarian, river pilot, … Sets skills, contacts, the Upbringing feat list, and **starting dollars** (e.g., $20–$150; 03 owns the numbers) |
 | 5 | **Ambition(s)** | Pick 1 (or 2 at higher difficulty for more pressure). Shows what it seeds |
 | 6 | **Threshold Town** | Choose or randomize which town you arrive at; shows its institutions |
 | 7 | **Arrival** | How you arrive: steamboat, wagon, on foot, already living there. Affects starting goods (a trunk vs. a pack) and who knows you |
 | 8 | **Debts & assets** | Optional: borrow money (creates a creditor), or carry an heirloom (sell it or keep it) |
 
-Then the shared screens (9–15). **No gear screen**: you arrive with clothes, a pack or trunk, and dollars. Shopping is the first act of play.
+Then the shared screens (9–15). **No gear screen**: you arrive with clothes, a pack or trunk, and dollars. Shopping is the first act of play. The **provisions** you arrive with are a day or two of whatever your Upbringing eats (flatbrød, a pasty, hearth-loaf, dried apples), so the planner has something to show from the first minute.
 
 ### 7.3 Witch branch
 
 | # | Screen | Contents |
 |---|---|---|
-| 4 | **Former life** | Who you were before: farmwife, midwife, schoolmistress, servant girl, widow, miller's son. Sets skills and Ties (people who knew you, now dangerous) |
-| 5 | **Origin** | The Pact story (§3.3) |
-| 6 | **Pact Terms** | Tithe rate / Geas / Boon (§3.3) |
-| 7 | **The Prince** | Meet him: generated temperament and first agenda, shown through a short scene. Randomize allowed |
-| 8 | **Familiar & Hut** | Choose familiar species; choose hut location from 3 generated candidates (Concealment vs. proximity to a settlement vs. Fae intensity) |
+| 4 | **Former life** | Who you were before: a Background from the §7.4 table (farmwife, midwife, schoolmistress, servant girl, widow, miller's son...). Sets skills and Ties (people who knew you, now dangerous). Instead of a purse she has **what she took when she left** (§7.4) |
+| 5 | **Origin** | The Pact story (§3.3). Shows the drive it keys, the Hold's clamp on the psyche, and starting Drift |
+| 6 | **Pact Terms** | Tithe rate / Geas / Boon (§3.3). The Review of this screen shows her starting **claim** and the weaknesses it brings (§3.8.1) |
+| 7 | **The Prince** | Meet him: his fixed character with this World's temperament overlay and first agenda, shown through a short scene, in a dream or at the stone ring. Randomize applies to the overlay and agenda only. The scene installs the **pact norm** (§3.3), so her first Inner Voices panel already has his line in it |
+| 8 | **Familiar & Hut** | Choose familiar species; choose hut location from 3 generated candidates (Concealment vs. proximity to a settlement vs. Fae intensity vs. foraging and water) |
 
-Then shared 9–15, with the Class screen preset to the Witch class.
+Then shared 9–15, with the Class screen preset to the Witch class. Screen 13 shows both consciences: the one she grew up with, and the Prince's.
+
+### 7.4 Backgrounds: one table (C31)
+
+**[PROPOSAL]** `06` owns the single Background table. `03` contributes the purse, money form, and possessions columns (`03` §7.2's numbers are canonical), and `02` contributes the Upbringing feat lists. Witch "former lives" are rows of the same table, not a second system. A Background is *what you did*; it's independent of people and of Upbringing (culture and congregation, screen 9b).
+
+| Background | Purse (`03`) | Modes | Notes |
+|---|---|---|---|
+| Farmhand / hired man / farm daughter | $25 | A, W | Upbringing feats from `02` (e.g., Iron Gut) |
+| Lead miner | $35 (part scrip) | A, W | Goblin pares and Cornish crews (`12` §8.3); Prospector's Nose |
+| Raftsman / river pilot | $40 | A, W | Waterman or Raftsman |
+| Discharged soldier | $30 | A | Specie back pay |
+| Itinerant preacher / failed seminarian | $20 | A | Hospitality in Hearths; carries a congregation's norms strongly |
+| Peddler | $30 | A, W | Mobile; a natural cover Persona for a witch |
+| Schoolteacher / clerk | $55 | A, W | The schoolmistress former life |
+| Widow(er), homestead sold | $90 | A, W | "A horse *or* a grievance" (`03`), and the grievance can seed a Revenge Origin |
+| Remittance man | $150 | A | Eastern drafts |
+| Farmwife | (see below) | W, A | New row; a farm household's skills; Ties to a spouse who'll look for her |
+| Midwife | (see below) | W, A | New row; Medicine and Herbalism; the Hag archetype fits her in villagers' eyes (`10` §8.3) |
+| Servant / hired girl | (see below) | W, A | New row |
+| Miller's son | (see below) | W, A | New row; knows the dam the Prince hates |
+
+"(see below)": the new rows need purses from `03`. Placeholder $20–$40.
+
+**What the witch took when she left [PROPOSAL].** A witch has no purse. She starts with **25% of her Background's purse** (integer cents, rounded down), the clothes she wore, and **three items** chosen from her former household's inventory. The choices are a P8 decision: seed potatoes or a wedding ring, a knife or a shawl. Margarethe takes a shawl, a knife, her ring, and a sack of seed potatoes (§9.2). What she took is missing from that household's pantry, and they notice.
+
+### 7.5 Psyche setup (screen 13) [PROPOSAL; `10` owns the model]
+
+The psyche replaces alignment. Screen 13 sets the **starting values** of `10`'s model. Everything else (Thoughts, anxiety, defenses) emerges in play.
+
+| Element | How it's set | Source |
+|---|---|---|
+| **Norms** (superego content) | Seeded from Upbringing (9b) and congregation, with speakers taken from Ties (Mother, the Pastor, the Hall-reader). The player may strengthen or weaken up to three norms by ±15 | `10` §3.3; `12` §5.7, §8.7 for Hall and Pare packages |
+| `superegoStrictness` | Congregation prior (Haugean 70, freethinker 30), then traits, then ±10 by player choice | `10` §3.1 |
+| **Drives** (Id temperament) | All start at 50. Pick up to two **loud** drives (+20) and one **quiet** drive (−20), or Randomize. `idAppetite` = 50 ± a 3d6-shaped roll, then traits | `10` §3.1–3.2 |
+| `egoStrength` (Self-Command) | Computed, not picked: `40 + 4 × WIS mod + floor(level / 2) + upbringing + traits`, clamped 5–95. Shown with its Explain | `10` §3.1 (WIS seeding is `10` Q6, open) |
+| **Traits** | 2–3, each carrying voice weights, urge biases, and defense styles (data) | `10` §7.1, content `traits` |
+| **Persona** | "The face you show": a label plus presented norms and traits. Its gap from the private self is **strain** (`10` §8.1). A shadow-faekin's presents-as people (screen 9) rides on it | `10` §8.1, `11` §2.9 |
+| **Shadow** | **Not chosen.** Derived from the gap between loud drives and strong norms that forbid them. Starts hatched | `10` §8.2; `11` Q6 asks whether the player may know it from the start |
+| **Soul-image** | Generated from the qualities the character most lacks, of any gender or form | `10` §8.4 (option A, open) |
+| **Complexes** | At most one, seeded by Background, Origin, or a Hardship such as *Haunted* | `10` §8.3, §13.1 |
+| **Witch additions** | The Origin's keyed drive (+20), the Hold's clamp, and the pact norm (§3.3) | `10` §13.3 |
+
+**No people gets a psyche profile** (`10` §1, `12` §1). Psyche priors come from culture, congregation, household, and traits. The People screen changes none of them.
+
+**What the player sees.** Screen 13 previews a sample **Inner Voices** panel for a typical evening, so the choice is felt rather than read: *Appetite: "Eat the apples. All of them."* · *Mother: "Waste not, want not."* · *Self-Command: half the apples, then the ration.* Defense styles aren't shown: they're unconscious by definition and appear only with Insight (`10` §8.5). Show the math covers every computed number.
+
+### 7.6 Pocket, Desk, and headless creation [PROPOSAL; `11` §2.9 owns layout]
+
+- **Pocket:** each screen is **one decision** with a thumb-zone Next. Screens are grouped into `11`'s four chapters (*The World · Your Story · Yourself · Your People and Ties*), and `11` decides which chapter Upbringing sits in. **Quick start** is the first button. **🎲 Randomize** applies to the current screen; long-press randomizes everything from here on.
+- **The People screen** on a phone is a 2×2 card grid. The shadow-faekin card reads "(hidden)" and opens the presents-as and self-knowledge choices beneath it. Wording follows whatever framing Ellie picks (§5.5.1).
+- **Desk** shows the flow as a two-page spread with the live character sheet on the right.
+- **Every number** on every screen (ability mods, Self-Command, weakness bands, starting claim, purse) is a core query with an Explain. The UI computes nothing (`11` §1.7).
+- **Headless (ADR 0002):** every creation choice is a **Command** (`create.setPeople`, `create.setUpbringing`, `create.setDrives`, ...), and Randomize is a seeded command (the stream is `07`'s call; `census` is the nearest existing one), so agent playtesters can create characters, and a seed plus the command list reproduces a character exactly.
 
 ---
 
@@ -796,12 +891,13 @@ Then shared 9–15, with the Class screen preset to the Witch class.
 |---|---|---|
 | Wilds lethality | Fae and beast danger, Fae intensity scaling | Both |
 | Frontier hardship | Prices, wages, weather severity, disease | Both |
-| Social memory | How long memories and grudges last; rumor reach | Both |
+| Social memory | How long memories and grudges last (scales `04`'s τ as an integer per-cent); rumor reach. It never touches fae grudges and bargain memories, which don't decay (`10` §10), or the uncanny-grudge floor if C12 option (a) is adopted | Both |
+| Provisions | Spoilage rates and burn rates, as integer per-cent on `05`'s tables (90–120%). P8 stays on: food is never abstracted away | Both |
 | Prince's appetite | Tithe minimums, punishment severity, Behest frequency | Witch |
-| Village resolve | Speed of suspicion → hunt; witch-finder frequency | Witch |
+| Village resolve | Speed of suspicion → hunt (scales `04`'s rung thresholds); witch-finder frequency | Witch |
 | Debt pressure | Creditor patience, interest | Adventurer |
 
-Presets: **Settler** (gentle), **Frontier** (intended), **Driftless Winter** (hard), **Custom**.
+Presets: **Settler** (gentle), **Frontier** (intended), **Driftless Winter** (hard), **Custom**. Sliders are integers stored in the World, so a share-a-seed run reproduces exactly.
 
 ### 8.2 Save modes
 
@@ -813,12 +909,17 @@ Presets: **Settler** (gentle), **Frontier** (intended), **Driftless Winter** (ha
 
 **[PROPOSAL]** Save mode is fixed at run start and can only go *down* in commitment (Commitment → Free saves), never up.
 
+**Mechanism [DECISION, `07` §7.1, `11` §4.3].** A save is a snapshot plus the command journal in browser storage (OPFS, indexed in IndexedDB). Commands are journaled *before* their effects are shown, so in Commitment mode a force-quit on a phone can't undo a death. Free saves are snapshots the player names. Second Wind needs nothing special: the rescue is an ordinary sim outcome.
+
 ### 8.3 Accessibility
 
-- **Pause on events** (configurable by event type), adjustable game speed including slower than 1×.
+`11` §2.14 and §6 own the settings screens and accessibility plumbing. This doc owns which *game* options exist:
+- **Pause on events** (`11` §1.6's auto-pause matrix and alert scores), adjustable game speed including Tactical ½ and slower than 1×.
 - **Show the math** everywhere (P1); also an accessibility feature.
-- Text scaling, high-contrast and colorblind-safe palettes for map overlays (Fae intensity, suspicion heatmaps), full keyboard remapping, no time-pressured QTE-style inputs.
-- **Content toggles** (§3.2): child harm, sexual-content-adjacent curses (Tie the Knot, Turn the Heart), on-screen mob violence, animal harm detail, spiders/insect fae.
+- Text scaling, high-contrast and colorblind-safe palettes for map overlays (Fae intensity, suspicion heatmaps, the Iron overlay), full keyboard remapping, one-thumb play on phones, no time-pressured QTE-style inputs.
+- **Content toggles** (§3.2): child harm, sexual-content-adjacent curses (Tie the Knot, Turn the Heart), the `lust` drive and Fits (`10` Q13), on-screen mob violence, animal harm detail, spiders/insect fae, and the Prejudice dial. Toggles that change what can happen are World flags; toggles that change only depiction can change mid-run with a Chronicle tag.
+- **Psyche labels:** period (default) or clinical (`10` §12).
+- **"Show the rung"** for persecution labels (§3.9).
 - **Combat assist:** auto-resolve or AI-controlled tactical combat for players here for the story.
 - **Reading aids:** Chronicle and rumor text with optional plain-language summaries.
 
@@ -826,15 +927,17 @@ Presets: **Settler** (gentle), **Frontier** (intended), **Driftless Winter** (ha
 
 ## 9. The first 30 minutes
 
+Names and places here are **illustrative, not canon** (C7). Both examples are set in a *generated* World, which is why the Threshold Town is Prairie Landing with Halvorsen's as its Outfitter rather than `01`'s Iron Ford and Pratt's (C8, C46). Prices follow `03`.
+
 ### 9.1 Adventurer: "Forty-Three Dollars"
 
-*Character: Ada Kessler, 24, former schoolteacher from Ohio. Background: Clerk. Ambition: Missing Person (her brother Henry came west two years ago; his letters stopped last fall). Arrives by steamboat at Prairie Landing, a Threshold Town where the Kickapoo-analogue river meets the big one.*
+*Character: Ada Kessler, 24, human, former schoolteacher from Ohio. Upbringing: Yankee Congregational (thrift and temperance norms strong; Mother speaks for both). Background: Schoolteacher / clerk. Loud drives: fear and longing. Ambition: Missing Person (her brother Henry came west two years ago; his letters stopped last fall). Arrives by steamboat at Prairie Landing, a Threshold Town where the Kickapoo-analogue river meets the big one.*
 
 **0:00–3:00.** Ada steps off the steamboat at dusk in late April. The camera pulls up to the top-down view: a muddy levee, a warehouse, a dozen frame buildings, a church spire, and beyond it all the dark green wall of the bluffs. A tooltip: *Fae intensity is low here. It rises as you go up the coulees.* She has $43.15, a carpetbag, and Henry's last letter (an item, readable). The letter mentions "the Lindqvist place up Rush Coulee" and "a man named Doyle who knows where the silver is."
 
 **3:00–6:00.** She takes a room at the boarding house ($0.50/night with supper). The landlady, Mrs. Eberhardt, has an opinion of her already ("schoolteacher from Ohio": respectable, soft). At supper, the player sees the social layer for the first time: three boarders, one of whom (a surly Cornish miner) recognizes Henry's name and goes quiet. A small icon: *Rumor learned: "Henry Kessler owed money to Doyle."* Ada's Mind gets a worry.
 
-**6:00–15:00. The Outfitter.** Morning. Halvorsen's Outfitting & General Merchandise. This is the set-piece (03). The counter, the shelves, the catalog UI with weights and prices. Mr. Halvorsen suggests a list "for a lady going up the coulees" (a tutorial nudge, with his own opinions baked in). The player wants: a blanket roll ($3.00), canteen ($0.75), a hatchet ($0.65), a used Kentucky long rifle ($14.00) or a cheaper fowling piece ($7.00), powder and shot, a lantern ($1.50), oil, matches, hardtack, bacon, coffee, a rope, and maybe a horseshoe charm (the first hint that the store sells against Faerie). $43 doesn't cover it. The player stares at the encumbrance bar and the budget. Feeling #1, delivered. She ends up with the fowling piece, no lantern (candles instead), and $6.40 left. Halvorsen offers $10 credit "against your brother's good name." Henry had credit here, apparently, and owed $11. Accept? She does. A creditor relationship is born.
+**6:00–15:00. The Outfitter.** Morning. Halvorsen's Outfitting & General Merchandise. This is the set-piece (03). The counter, the shelves, the catalog UI with weights and prices. Mr. Halvorsen suggests a list "for a lady going up the coulees" (a tutorial nudge, with his own opinions baked in). The player wants: a blanket roll ($3.00), canteen ($0.75), a hatchet ($0.65), a used Kentucky long rifle ($14.00) or a cheaper fowling piece ($7.00), powder and shot, a lantern ($1.50), oil, matches, hardtack, bacon, coffee, a rope, and maybe a horseshoe charm (the first hint that the store sells against Faerie). $43 doesn't cover it. The player stares at the encumbrance bar and the budget, and at the provisions line, which the core recomputes with every item: *"Food 4 d at full rations · the bread molds by Saturday · coffee needs fire and a pot."* Feeling #1, delivered, and P8 with it. Her Inner Voices weigh in from the corner: *Mother: "Waste not, want not"* against *Dread: "What if you're out there a week?"* She ends up with the fowling piece, no lantern (candles instead), more hardtack than she'd like, and $6.40 left. Halvorsen offers $10 credit "against your brother's good name." Henry had credit here, apparently, and owed $11. Accept? She does. A creditor relationship is born.
 
 **15:00–20:00.** She finds the claims office, where a clerk looks up the Lindqvist claim on a map (a map item, purchasable for $0.50, which reveals the region-map route). She asks around for Doyle: a tavern-keeper says he went up Rush Coulee in March and "hasn't come down, which isn't unusual for Doyle." The rumor system now has two leads that may be the same lead.
 
@@ -844,7 +947,7 @@ Presets: **Settler** (gentle), **Frontier** (intended), **Driftless Winter** (ha
 
 ### 9.2 Witch: "The Bill Comes Due"
 
-*Character: Margarethe Vogel, 38, farm wife. Former life: Farmwife. Origin: Debt (two winters ago, her husband Karl lay dying of lung fever; she went to the stone ring on Sugar Bluff at midnight and asked). Pact Terms: standard Tithe, Geas "never refuse a request made three times," Boon "Hare-shape." The Prince's temperament: Capricious. Familiar: a hare that is not quite a hare. Hut: a collapsed charcoal-burner's cabin in Hollow Coulee, three miles from the Vogel farm.*
+*Character: Margarethe Vogel, 38, human, farm wife. Upbringing: German Lutheran (Mother and the Pastor speak; piety and duty strong). Former life: Farmwife. Origin: Debt (two winters ago, her husband Karl lay dying of lung fever; she went to the stone ring on Sugar Bluff at midnight and asked). Keyed drive: fear. Hold: her name (Persona control −20). Pact Terms: standard Tithe, Geas "never refuse a request made three times," Boon "Hare-shape." Starting Drift 5, claim 30: Unhallowed, with no iron trouble. The Prince's temperament overlay: Capricious. Familiar: a hare that is not quite a hare. Hut: a collapsed charcoal-burner's cabin in Hollow Coulee, three miles from the Vogel farm.*
 
 **0:00–4:00.** Opening scene, short, in-engine, top-down: the Vogel farm at night. Karl, healthy, asleep. Margarethe at the window. A tall shape at the edge of the woods. The text is minimal: *"He said he would come for the payment when the debt was ripe. Karl lived. The bill is due."* She walks out into the dark. The player takes control as she reaches the treeline. (She left; Karl will wake to find her gone, a memory and a grief that 04 tracks. Karl is an actor. He will look for her.)
 
@@ -852,35 +955,127 @@ Presets: **Settler** (gentle), **Frontier** (intended), **Driftless Winter** (ha
 
 **8:00–14:00. The hut.** Hollow Coulee. A survival tutorial in disguise: the cabin is half-collapsed; she has a shawl, a knife, her wedding ring, a sack of seed potatoes she took from the cellar. Clear the debris, lay a fire, forage (wild leeks, morels in late April, nettles). The hare familiar appears: it has a Mind, an opinion of her (curious), and a stat block. A Concealment meter for the hut appears, low.
 
-**14:00–20:00. The first curse.** Night. She walks (or, in hare-shape, runs, which costs a little Drift) to the Hartmann farm. The site map at night: sleeping dog (Perception check vs. her Stealth), lit kitchen window, the dairy shed. Curse menu: **Sour the Milk** (threshold link: she must touch the pail) or **Hold the Butter** (pin in the dasher). The tooltip shows the math: save DC, expected Woe, Trace. She chooses Sour the Milk. The ritual is a 10-minute Activity with a progress bar; the dog stirs once. Done. She slips away.
+**14:00–20:00. The first curse.** Night. She walks (or, in hare-shape, runs, which costs a little Drift) to the Hartmann farm. The site map at night: sleeping dog (Perception check vs. her Stealth), lit kitchen window, the dairy shed. Curse menu: **Sour the Milk** (threshold link: she must touch the pail) or **Hold the Butter** (pin in the dasher). The Working card shows the math: save DC, expected Woe, Trace, and the names of the four Hartmanns who'll bear it. Her Inner Voices split: *The Prince: "The moon fills. Remember what you owe."* against *the Pastor: "Thou shalt not."* The verdict line reads *Self-Command: do it, and quickly*, and the moral anxiety it books is visible. She chooses Sour the Milk. The ritual is a 10-minute Activity with a progress bar; the dog stirs once. Done. She slips away.
 
-**20:00–25:00.** Time skips to morning. A small "remote view" panel (the familiar watching, or a summary) shows Frau Hartmann finding the milk sour. Her Mind: *annoyed*, Belief: *Unaware (×0.25)*. Woe/day: 0.5. The player sees immediately: *this won't pay the Tithe.* The UI's Belief column explains why. To make Woe, people must **believe**. Options surface naturally: repeat it until they suspect, curse something bigger, or **make them believe**, which requires being seen, or leaving a sign, or a rumor. The core tension, taught in five minutes.
+**20:00–25:00.** Time skips to morning. A small "remote view" panel (the familiar watching) shows Frau Hartmann finding the milk sour and blaming the heat. In the Woe ledger, which is the Pact's sense and so legitimately Margarethe's knowledge, the Hartmann line reads *Belief: Unaware (25%)*, 0.50 Woe/day. The player sees immediately: *this won't pay the Tithe.* The ledger's Belief column explains why. To make Woe, people must **believe**. Options surface naturally: repeat it until they suspect, curse something bigger, or **make them believe**, which requires being seen, or leaving a sign, or a rumor. The core tension, taught in five minutes.
 
-**25:00–30:00.** She goes to the Hartmann farm again the next night and this time leaves a sign: a knot of black thread on the gate. Frau Hartmann finds it, and her Belief jumps to *Believes cursed (×1.5)*. Woe rises. But she tells her neighbor, Frau Lindqvist, who tells her husband, who says: *"Margarethe Vogel left her husband in the night two weeks ago. Went into the woods. Make of that what you will."* The suspicion panel for the Bear Creek community opens for the first time and shows a list of suspects. Margarethe's name is there. So is the name of old Widow Brandt, who lives alone and keeps goats, and was seen near the Hartmann place picking mushrooms. The first scapegoat has appeared without the player doing anything. The hare looks at Margarethe. The Chronicle: *"In the spring of '55, Margarethe Vogel paid the first installment on her husband's life."*
+**25:00–30:00.** She goes to the Hartmann farm again the next night and this time leaves a sign: a knot of black thread on the gate. Frau Hartmann finds it, and her Belief jumps to *Believes cursed (150%)*. Woe rises. But she tells her neighbor, Frau Lindqvist, who tells her husband, and the hare, crouched under the Lindqvists' kitchen window, hears him say: *"Margarethe Vogel left her husband in the night two weeks ago. Went into the woods. Make of that what you will."* The suspicion panel for the Bear Creek community opens for the first time and shows the suspects *Margarethe has learned of* (P1): her own name, and the name of old Widow Gerlach, who lives alone, keeps goats, and was seen near the Hartmann place picking mushrooms. The label by Bear Creek on the region map reads **Whispered**. The first scapegoat has appeared without the player doing anything: the Hag archetype and Frau Hartmann's long envy of the widow's goats did it (`10` §7.2, §8.3), and the epilogue will say so. The hare looks at Margarethe. The Chronicle: *"In the spring of '55, Margarethe Vogel paid the first installment on her husband's life."*
 
 ---
 
 ## 10. Challenges to 00
 
-1. **Run-end categories (minor).** P5 says runs end by death or retirement. Propose adding **departure** (becoming fae, imprisonment under the hill, emigration) as a third category, since departed characters persist in the World differently (§1.3).
-2. **"Curse" in the glossary is defined as witch-mode-only.** P4 itself says to check whether a mode feature is secretly a general system. Propose redefining **Curse** in 00 as *"a ritual act that applies a malady to a target through a sympathetic link; the witch's main verb, available to any actor with the means"*, and adding **Woe**, **Tithe**, **Pact**, **Drift**, **Patron**, **Behest**, **Ambition**, and **Origin** to the shared vocabulary.
-3. **Single protagonist and legacy.** Not a contradiction, but "Choose a soul" (play any existing actor in a World, §5.4) should be recognized in 00 as a legacy option, since it constrains 07's data model (every actor must be fully playable).
+1. **Run-end categories.** ~~Propose adding departure.~~ **Accepted:** `00` P5 now names death, retirement, or departure.
+2. **"Curse" as a general system.** **Mostly accepted:** `00` now defines Curse as a general system and adds **Woe**, **Tithe**, **Gleaning**, and **Drift**. Still proposed for the glossary: **Pact**, **Patron**, **Behest**, **Ambition**, **Origin**, **Claim** (§3.8.1), and **Weakness**.
+3. **Single protagonist and legacy.** **Accepted:** `00` P5 now allows a new character "or any existing NPC". `07` carries the constraint (every actor, census-materialized included, must be fully playable).
+4. **New, minor: `00`'s vocabulary still says "persona"** in the Grudge, Notoriety, and Reputation entries (C4). They should read "Figure", since Persona now means the Jungian mask.
 
 ---
 
 ## 11. Open questions for Ellie
 
+Unchanged or reworded from the first draft:
+
 1. **Tone for witch mode:** A (tragic folk horror, recommended), B (dark power fantasy with consequences), or C (ambiguous magic)? See §3.2.
 2. **Is the witch always "she"?** Recommend player choice, with the sim's bias model making gender matter.
-3. **Is the Prince one fixed character or a generated actor per World?** (§3.4) Recommend a generated temperament with a fixed role.
+3. **The Prince:** OK with `01`'s fixed character plus a per-World temperament overlay (Capricious / Jealous / Melancholy / Exacting / Wry) and generated agendas, with Hungry and Cold dropped? (§3.4, C15)
 4. **Name for the resource:** Woe (recommended), Teind, Sorrow, Bane, or something of yours?
 5. **Content limits:** Should changeling swaps and death curses exist at all, be toggleable, or be NPC-only (the Prince does them, the witch only enables)?
 6. **How evil can the obedient path be?** Is there a ceiling (e.g., no mass-casualty Workings like plague), or does the sim allow it with consequences?
 7. **Adventurer starting money and debt:** comfortable with $20–$150 by Background and optional borrowing? (03 owns the numbers.)
 8. **Companion cap:** 2 people + 1 animal for v1, OK?
-9. **"Choose a soul":** should players be able to play any existing NPC in a World?
-10. **Time skip between runs:** offer 0/1/5/20 years? Should the 1830s–1870s span itself advance (the railroad arriving as an era change)?
-11. **Which mode for the vertical slice?** This doc assumes the engine ships first (P4) and suggests adventurer as the first playable mode with one NPC witch running at T1 (§5.1). That exercises the curse system without needing all of witch mode's UI. Agree?
+9. ~~"Choose a soul"~~ (decided in `00` P5).
+10. **Time skip between runs:** offer 0/1/5/20 years from the fixed spring-1855 start? Later eras (the railroad) arrive only through skips (C6).
+11. **Which mode for the vertical slice?** `07` now plans M7 (adventurer) before M8 (witch), with an NPC witch exercising curses earlier in the M2 harness. Agree?
 12. **Real history references** (Salem, Bridget Cleary, the York hex murder, Pennsylvania-German powwow): use them as background research only, or allow in-world analogues (e.g., an in-world almanac of famous witch cases)?
-13. **Indigenous peoples of the Driftless (the Ho-Chunk homeland):** this doc deliberately avoids casting any real Indigenous people as "outcasts," "fae," or witches. Coordinate with 01 on how (and whether) the setting represents them.
+13. **Indigenous peoples of the Driftless (the Ho-Chunk homeland):** this doc deliberately avoids casting any real Indigenous people as "outcasts," "fae," or witches. The flint "elf arrow" is gone (C10). Coordinate with 01 on how (and whether) the setting represents them.
 14. **Drift as a universal stat:** do you like adventurers slowly becoming fae as a long-term risk and reward?
+
+New in this revision:
+
+15. **Weakness tracks (§3.8.1):** accept the nature/claim split, with heritage feeding only nature and the Pact feeding only claim? Pact mark +25 and +5 per moon of Arrears?
+16. **Faekin offset:** +30 (recommended, now safe under the split) or +25 (`12` Q10)?
+17. **Fairy-Shot:** rename the curse (recommended, since "elf-shot" now slurs a playable people), or keep "Elf-Shot" as the in-world folk name only?
+18. **Curse XP (C30):** curses give XP only when they overcome something; Behests, defiance, and individuation are story beats. OK?
+19. **Dream-Sending (#31):** may a mortal witch's sent dream *lie*, unlike a fae's? It's the cleanest answer to why the Court needs a mortal (C14).
+20. **The PC offered a Pact mid-run** (§5.1): may an adventurer become a witch without starting a new run?
+21. **Backgrounds (§7.4):** one table owned here, with witch former lives as rows? And the witch's "what she took" (25% of the purse plus three items)?
+22. **Psyche setup (§7.5):** two loud drives, one quiet, ±15 on three norms, ±10 strictness. Too much choice for a 3–10 minute flow, or too little?
+23. **Witch label display:** which target the label reads when a Figure and the witch's name are on different rungs (§3.9). The proposal is "the highest linked rung, with per-target detail".
+24. **Peoples and the Prince:** should he covet elves, court faekin, and disdain goblins, or have no preferences (`12` Q13)?
+25. **Shadow-faekin framing:** see §5.5.1. No recommendation from this doc; `12` and `11` lean toward fae-forward words over a neutral identity model.
+26. **Coming of Age mode** (was Changeling, §6): adopt the re-pitch?
+
+---
+
+## 12. Implementation notes (checked 2026-10-10 against `packages/` and `content/`)
+
+The build team is working now, so this is a snapshot. The **doc is the design target**: these notes record divergences rather than conforming to the code. No code was edited.
+
+**What exists.** There's no modes, curse, Woe, Pact, or Drift code yet; `07` §11.2 plans `rules/curses.ts` and `rules/drift.ts`. I read `content/base/peoples/peoples.toml`, `content/src/schema/{world,scenario,psyche,items,social,belief}.ts`, `content/base/beliefs/predicates.toml`, `core/src/{rng,time}.ts`, `core/src/belief/{state,system,api}.ts`, and `core/src/psyche/{state,view}.ts`.
+
+**Aligned:**
+- **Iron Presence input.** Items carry `materials: [{ material, pct }]` with `iron`, `cold_iron`, `steel`, and `tinplate`, plus integer `weight_g`. Ferrous mass, and therefore IP, is computable from data without new fields (cold iron ×3 if `03` adopts the tier).
+- **Concealment.** `PeopleSchema.concealed` + `passes_as`, scenario `presents_as`, and the actor's `presentsAsId` are exactly the presents-as choice on screen 9 (§7.1). The `faekin` predicate ("{0} is of the hidden folk") matches fae-forward wording.
+- **Persecution.** A per-target escalation process with rungs exists in `belief/state.ts`, and `witch` and `is_figure` predicates exist. That's the right shape for §3.9's labels.
+- **Trace and secrecy.** Evidence type `curse_symptom` (`social.ts`) and event visibility `secret` ("a curse... unseen", `events/base.ts`) are what a curse's Trace needs.
+- **Moon.** `time.ts` computes moon phase with integer math, so the full-moon Tithe and moon-timed curses need nothing new.
+- **RNG streams.** `checks` (saves, Will vs. weaknesses), `suspicion` (Trace, tells), and `psyche` (dream landing) cover this doc. No new stream is needed.
+
+**Divergences (code should move toward the doc):**
+
+| # | Code today | This doc | Suggested change (owner's call) |
+|---|---|---|---|
+| 1 | `PeopleSchema.cold_iron_sensitive: boolean`; `shadow_faekin.cold_iron_sensitive = true` | No per-people iron rule. A **weakness offset** feeds the nature track (§3.8.1) | Replace with `weakness_drift_offset: int` (human 0, elf −10, faekin +30, goblin 0), `drift_floor`, and `drift_gain_pct` bands, matching `12` §13 |
+| 2 | Escalation `rung` is 0..3 ("M2 scope") | Labels map rungs 0–6; **Known** (4) and **Hunted** (5–6) are unreachable until rungs extend | Keep the label mapping data-driven over 0–6 now, so the M8 extension needs no UI change |
+| 3 | `belief/api.ts` stub: one 0..100 score for "concealed/fae/witch" suspicion | Three distinct props that reinforce but never merge: `faekin(x)`, `witch(x)`, and Drift tells as evidence | Split the helper per predicate; a single scalar would merge faekin revelation into witch notoriety, which §3.9 forbids |
+| 4 | No `bewitched(victim)` or `caused(agent, misfortune)` predicate | Woe's Belief tiers read both (§3.6) | Add both predicates (supernatural, high juiciness) |
+| 5 | Scenario actor `sex: female \| male` only | Screen 9 offers sex and gender; `04`'s bias reads how the community *perceives* an actor | **[OPEN]** Whether a presented-gender field (parallel to `presents_as`) is wanted. A design call, not a code fix |
+| 6 | Psyche seed defaults `ego/superego/id_appetite = 50` | Self-Command is computed from WIS, level, upbringing, and traits; strictness from congregation (§7.5) | Creation should write computed values rather than rely on defaults |
+| 7 | `persona: string` label; `shadow: TraitId[]`; actor `values` (`04`'s nine) | Persona as a struct with presented norms and strain; Shadow as charges; norms from Upbringing (`10` §14.5) | Follows `10`'s migration; creation screen 13 targets `10`'s model |
+| 8 | `psyche/view.ts` exposes `shadow` and recent defenses to the perspective actor | The creation Review and play show a **hatched** Shadow and no defense labels until Insight (P1) | `10` §14.5 item 4 already flags this |
+| 9 | `peoples.toml` `literacy_pct` per people | Literacy belongs to the Upbringing/culture record (screen 9b) | Matches `12` §13; move to `cultures/*.toml` |
+| 10 | No `kcal_pct` or `carry_pct` per people | Goblin rations 70%, carry ¾ feed the planner (§5.5) | Add both as integer per-cent fields |
+
+**Contracts this doc needs (for `07`'s planned modules):**
+- **Actor fields:** `drift` (0–100 int); `pact?: { patron, origin, hold, terms, pactNorm, arrears }`; `woe` in centi-Woe; a per-(sufferer, curse) carry.
+- **Content domains:** `curses` (the §3.7 catalog: target kind, link kinds, components as item ids, timing, effect primitives, Trace, backlash, counters, mundane lookalikes, content-toggle tags); `origins`; `gifts`; `weaknesses` (the two track tables and the IP table as data); `ordeals` (shared shape with `12`'s tests).
+- **Queries** for `11`: `curseForecast(plan)`, `weaknessAt(actor, place, kit)`, and `creationPreview(draft)`, each returning an Explain.
+- **Commands** for ADR 0002: every creation step (§7.6), `curse.plan` / `curse.begin`, `woe.spend`, and `tithe.pay`.
+
+---
+
+## 13. Consistency items (`09`) addressed here
+
+| ID | Status in this doc |
+|---|---|
+| **C2** | Creation and curse UI defer layout to `11` §2.9 and §2.13; §7.6 adds pocket and headless rules |
+| **C3** | No alignment anywhere; psyche setup per `10` (§7.5); witch psyche (§3.3, §3.11) |
+| **C5** | Four peoples at creation (§7.1) and in both modes (§5.5); Changeling mode re-pitched (§6); "human and elven company" fixed (§3.1) |
+| **C6** | No start-year choice; eras only via time skips (§5.4, §7.1, Q10) |
+| **C7** | Partly: examples labeled illustrative; the Brandt collisions removed (Penhallow in §1.2, Widow Gerlach in §9.2). A full names pass still waits on `01` |
+| **C8 / C46** | Threshold Town is a worldgen role; Iron Ford is the fixture and default seed; Halvorsen's stays as the generated-World example (§2.2, §9) |
+| **C9** | World size chosen on screen 1, never by device (§7.1) |
+| **C10** | Flint artifact removed; the curse is Fairy-Shot with a fae-made bolt (§3.7 #15) |
+| **C12** | Partly: the Social-memory slider never touches fae or uncanny grudges (§8.1); the option itself is `01`/`04`'s |
+| **C13** | No witchcraft statute; legal rungs process mundane charges only (§3.2, §3.9, §3.12) |
+| **C14** | Partly: the witch as the Court's loophole (§3.4, #28, #31); `01` owns the rule's scope |
+| **C15** | `01`'s fixed Prince with a mood overlay; sadistic temperaments dropped (§3.4) |
+| **C16** | Rival patrons are the Hearth, Under, and Alder Courts (§3.4, §3.11) |
+| **C19** | Tithe monthly at the full moon; Lammas Behest; `01`'s festival names (§3.4, §3.5, §3.6) |
+| **C21** | Rituals in game-minutes, with T0 sub-minute interruption (§3.5) |
+| **C26** | Fae food: `06` supplies only the Drift gain (§3.8) |
+| **C27** | **Resolved here:** the two-track weakness system (§3.8.1); `02` Unhallowed = the claim-30 row; `03` IP is the input |
+| **C29** | `06` owns the catalog and the one protection table; `02` owns the DC formula; Malady = effect primitives (§3.5) |
+| **C30** | One currency with two sinks; curse XP only for overcoming (§3.6) |
+| **C31** | One Background table owned here (§7.4) |
+| **C36** | The Prince's opinion uses `04`'s dimensions; desire is a drive (§3.4) |
+| **C38** | `06` owns fae-longing *gain* (§3.8) |
+| **C41** | **Resolved here:** witch-facing labels mapped onto `04` rungs 0–6, no `06` ladder (§3.9) |
+| **C42** | Placeholder notoriety thresholds pending `04`'s tier table (§2.3, §2.8) |
+| **C43** | Director nudges go through carriers; never seeds faekin exposure (§1.4) |
+| **C44** | Truth column only in the epilogue (§1.2) |
+| **C45** | Woe is the single fae currency (§3.6) |
+| **C47** | Covers are Personas seen as Figures; faekin heritage is a hidden attribute, not a cover (§3.9, §5.5.1) |
+| **C48** | P8 in both loops: provisions at creation, the witch's larder, Cellar-Blight and Bad Bread on `05`'s spoilage tables (§2.4, §3.7, §3.10) |
+| **C49** | Woe, habituation, Drift gains, weaknesses, and sliders in integers and lookup tables (§3.6, §3.8, §8.1) |

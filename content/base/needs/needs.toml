@@ -1,46 +1,189 @@
 # Needs (0..1000, 1000 = satisfied). OWNER: module:needs-activities.
-# Minimal seed; module agents flesh out rates per 05 §6 / 02 §11 / 04 §3.3.
+#
+# Registry per 10 §3.4; physical rates per 05 §6 / 02 §11; social per 04 §3.3.
+# Bands: the band with the smallest `below` that still exceeds the value applies, so list
+# them highest first. A band's `condition` is switched on the actor's sheet while it applies.
+# Calibration notes (so the numbers can be audited, P1/P8):
+#   hunger  3 kcal/point. Decay 42/h awake at light labor; a normal day (16 h awake, 8 h
+#           asleep at 70% labor x 50% asleep) burns ~790 points = ~2,370 kcal (05 §6.1: 2,400).
+#           Heavy labor x1.5. +20% below 20 F. Missing a day puts you ~790 points behind.
+#   thirst  2 ml/point. Decay 80/h: ~3 L on a normal day; +40% in July heat and under labor.
+#   rest    Awake 55/h (about 18 h to Tired); sleep restores 110/h, so 8 h sleep = 16 h awake.
+#           Heavy work costs 160%, a cold or hungry bed restores less (05 §6.4).
 
 [[need]]
 id = "hunger"
 name = "Hunger"
 kind = "physical"
-description = "Calories against labor (05 §6.1). Fed by provisions via needs.feed()."
+description = "Calories against labor (05 §6.1). Fed by provisions via needs.feed(): 3 kcal to the point."
 initial = 800
-decay_per_hour = 40
+decay_per_hour = 42
 asleep_pct = 50
+labor_pct = { rest = 70, light = 100, heavy = 150 }
+intake = { unit = "kcal", per_point = 3 }
+temperature_pct = [{ below_f = 20, pct = 120, label = "Bitter cold" }]
 bands = [
   { below = 600, label = "Peckish" },
   { below = 300, label = "Hungry", condition = "hungry" },
   { below = 100, label = "Starving", condition = "starving" },
 ]
+urges = [{ activity = "take_meal", below = 600, ceiling = 900, drive = "hunger", label = "Hungry: eat something" }]
+
+[need.debt]
+cap = 6000
+repay_pct = 50
+bands = [
+  { at_least = 1500, label = "Gaunt", condition = "gaunt" },
+  { at_least = 4000, label = "Wasting", condition = "wasting" },
+]
+
+[[need]]
+id = "thirst"
+name = "Thirst"
+kind = "physical"
+description = "Water against heat and labor (05 §6.2): 3 L a day, 5 in July. Dehydration runs far faster than hunger."
+initial = 850
+decay_per_hour = 80
+asleep_pct = 50
+labor_pct = { rest = 70, light = 100, heavy = 160 }
+intake = { unit = "ml", per_point = 2 }
+temperature_pct = [
+  { above_f = 80, pct = 130, label = "Warm day" },
+  { above_f = 90, pct = 140, label = "Heat" },
+]
+bands = [
+  { below = 500, label = "Thirsty", condition = "thirsty" },
+  { below = 200, label = "Parched", condition = "parched" },
+]
+access = { place_tags = ["home", "water", "tavern", "store", "smithy", "mill", "church", "school"], below = 600, per_hour = 700 }
+urges = [{ activity = "fetch_water", below = 600, ceiling = 900, drive = "hunger", label = "Parched: a drink of water" }]
+
+[need.debt]
+cap = 3000
+repay_pct = 50
+bands = [{ at_least = 600, label = "Dehydrated", condition = "dehydrated" }]
 
 [[need]]
 id = "rest"
 name = "Rest"
 kind = "physical"
+description = "Hours awake and exertion (05 §6.4). Sleep restores about twice what waking costs."
 initial = 800
-decay_per_hour = 45
+decay_per_hour = 55
 asleep_pct = 0
+labor_pct = { rest = 70, light = 100, heavy = 160 }
 bands = [
-  { below = 300, label = "Tired" },
+  { below = 300, label = "Tired", condition = "fatigued" },
   { below = 120, label = "Exhausted", condition = "exhausted" },
 ]
+urges = [{ activity = "sleep", below = 600, ceiling = 800, drive = "sloth", label = "Weary: a bed would be welcome" }]
+sleep_quality = [
+  { need = "warmth", below = 450, pct = -25, label = "A cold bed" },
+  { need = "warmth", below = 200, pct = -35, label = "Shivering" },
+  { need = "hunger", below = 300, pct = -15, label = "Hungry belly" },
+  { need = "thirst", below = 300, pct = -10, label = "Dry mouth" },
+  { need = "security", below = 300, pct = -20, label = "Uneasy sleep" },
+]
+
+[need.debt]
+cap = 4000
+repay_pct = 50
+bands = [{ at_least = 1500, label = "Sleep-starved", condition = "sleep_starved" }]
+
+[[need]]
+id = "warmth"
+name = "Warmth"
+kind = "physical"
+description = "Weather against clothing, work and the woodpile (05 §6.3). A house without wood is a cold house."
+initial = 900
+decay_per_hour = 0
+asleep_pct = 100
+bands = [
+  { below = 650, label = "Chilly" },
+  { below = 450, label = "Cold", condition = "chilled" },
+  { below = 200, label = "Freezing", condition = "hypothermic" },
+]
+urges = [{ activity = "sit_by_fire", below = 650, ceiling = 900, drive = "sloth", label = "Cold: get in by the fire" }]
+
+[need.exposure]
+comfort_f = 62
+base_insulation_f = 24
+activity_f = { rest = 0, light = 6, heavy = 14 }
+asleep_f = 10
+loss_per_degree = 6
+max_loss_per_hour = 220
+regain_per_hour = 100
+
+[need.debt]
+cap = 3000
+repay_pct = 40
+bands = [{ at_least = 500, label = "Deep chill", condition = "deep_chill" }]
 
 [[need]]
 id = "company"
 name = "Company"
 kind = "social"
+description = "Talk, laughter, being among people (04 §3.3). The neighborly feel its lack sooner."
 initial = 700
 decay_per_hour = 15
 asleep_pct = 0
-bands = [{ below = 250, label = "Lonely" }]
+value_pct = [{ value = "neighborliness", per_step_pct = 20 }]
+bands = [
+  { below = 500, label = "Restless" },
+  { below = 250, label = "Lonely" },
+]
+urges = [
+  { activity = "visit_kin", below = 500, ceiling = 750, drive = "longing", label = "Lonely: pay a call" },
+  { activity = "drink_at_tavern", below = 400, ceiling = 600, drive = "longing", label = "Lonely: the tavern will have somebody" },
+]
+
+[[need]]
+id = "standing"
+name = "Standing"
+kind = "social"
+description = "Being someone in the neighborhood: respected work, a seat in the pew, credit at the store (04)."
+initial = 650
+decay_per_hour = 2
+asleep_pct = 100
+bands = [{ below = 350, label = "Overlooked" }]
+
+[[need]]
+id = "security"
+name = "Security"
+kind = "social"
+description = "Feeling safe in the dark, among neighbors, in debt, near the hollow. Frights knock it down; time and a safe bed mend it."
+initial = 800
+decay_per_hour = 0
+asleep_pct = 100
+recovery = { toward = 800, per_hour = 6 }
+bands = [
+  { below = 500, label = "Uneasy" },
+  { below = 250, label = "Afraid" },
+]
+urges = [{ activity = "keep_house", below = 500, ceiling = 600, drive = "fear", label = "Uneasy: stay close to home" }]
 
 [[need]]
 id = "faith"
 name = "Faith & Ritual"
 kind = "spiritual"
+description = "Worship, grace at table, the Sabbath kept (04). The pious run down faster without it."
 initial = 700
 decay_per_hour = 4
 asleep_pct = 100
-bands = [{ below = 250, label = "Unmoored" }]
+value_pct = [{ value = "piety", per_step_pct = 20 }]
+bands = [
+  { below = 400, label = "Wanting church" },
+  { below = 250, label = "Unmoored" },
+]
+urges = [{ activity = "family_devotions", below = 400, ceiling = 550, drive = "longing", label = "Unmoored: a prayer, a chapter" }]
+
+[[need]]
+id = "drink"
+name = "Drink"
+kind = "physical"
+description = "A taste for the bottle, the pipe, the strong cup (10 §3.4 vice need). It builds slowly and a tavern evening satisfies it."
+initial = 800
+decay_per_hour = 3
+asleep_pct = 0
+bands = [{ below = 300, label = "Hankering" }]
+urges = [{ activity = "drink_at_tavern", below = 350, ceiling = 650, drive = "hunger", label = "Hankering for a drink" }]

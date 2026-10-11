@@ -1,0 +1,86 @@
+# Faith and conscience (04 §10 #29, #30, #38). OWNER: module:social.
+
+[[interaction]]
+id = "preach_at"
+name = "Preach at"
+label = "Preach"
+description = "Scripture at the worldly: conviction for some, resentment for others."
+requires = { acquainted = true, initiator_values = { piety = 2 }, min_age = 14 }
+volition = [
+  { driver = "value:piety", weight = 15 },
+  { driver = "target_value:piety", weight = -10 },
+  { driver = "venue:church", weight = 10 },
+  { driver = "sabbath", weight = 10 },
+]
+threshold = 45
+cooldown_hours = 72
+check = { kind = "dc", skill = "perform_preaching", dc = 12, attitude = true }
+memory = { kind = "sermon", emotion = "awe", intensity = 25 }
+tags = ["faith"]
+success.target_needs = { faith = 80 }
+success.target_opinion = { respect = 3 }
+success.target_anxiety = 40
+success.target_memory = "{initiator} spoke to me of my soul at {place}"
+success.initiator_memory = "Spoke to {target} of their soul"
+success.target_reason = "Cares for my soul"
+failure.target_opinion = { affection = -4 }
+failure.target_memory = "{initiator} preached at me at {place}"
+failure.initiator_memory = "Preached at {target}; hard ground"
+failure.target_reason = "Preached at me"
+
+[[interaction]]
+id = "pray_with"
+name = "Pray with"
+label = "Pray"
+description = "Kneels together, at church or at home."
+requires = { acquainted = true, venue_tags = ["church", "home"] }
+volition = [
+  { driver = "value:piety", weight = 15 },
+  { driver = "target_value:piety", weight = 10 },
+  { driver = "sabbath", weight = 15 },
+  { driver = "opinion:affection", weight = 10 },
+  { driver = "target_anxiety", weight = 10 },
+]
+threshold = 40
+cooldown_hours = 24
+memory = { kind = "prayer", emotion = "awe", intensity = 15 }
+minutes = 20
+tags = ["faith", "friendly"]
+success.target_needs = { faith = 60 }
+success.initiator_needs = { faith = 60 }
+success.target_opinion = { affection = 3 }
+success.initiator_opinion = { affection = 3 }
+success.target_anxiety = -40
+success.initiator_anxiety = -40
+success.audience = "none"
+success.target_memory = "Prayed with {initiator}"
+success.initiator_memory = "Prayed with {target}"
+success.target_reason = "We pray together"
+success.initiator_reason = "We pray together"
+
+[[interaction]]
+id = "confess"
+name = "Confess"
+label = "Confess"
+description = "Unburdens the conscience to someone trusted (10 §13.2). Relief now; leak risk later."
+requires = { acquainted = true, min_trust = 30, min_age = 12 }
+volition = [
+  { driver = "anxiety", weight = 50 },
+  { driver = "value:piety", weight = 10 },
+  { driver = "value:discretion", weight = -10 },
+  { driver = "opinion:trust", weight = 20 },
+]
+threshold = 50
+cooldown_hours = 168
+memory = { kind = "confession", emotion = "shame", intensity = 45 }
+visibility = "private"
+minutes = 30
+tags = ["faith", "secret"]
+success.initiator_anxiety = -150
+success.target_opinion = { affection = 2, trust = 5 }
+success.initiator_opinion = { trust = 5 }
+success.audience = "none"
+success.target_memory = "{initiator} unburdened their conscience to me"
+success.initiator_memory = "Unburdened my conscience to {target}"
+success.target_reason = "Opened their heart to me"
+success.initiator_reason = "Heard me out"

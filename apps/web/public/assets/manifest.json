@@ -1,0 +1,1130 @@
+{
+  "version": 1,
+  "generator": "tools/blender/build_assets.py",
+  "units": "meters",
+  "axes": "glTF: +Y up, front of buildings and beings faces +Z, origin at ground center of the main body",
+  "palette": {
+    "antler": "#ccb894",
+    "ash": "#66615c",
+    "bark": "#544233",
+    "bark_dark": "#3d3026",
+    "barn_red": "#8c3b2e",
+    "barn_red_dark": "#6e2e26",
+    "birch_bark": "#ded9c9",
+    "birch_leaf": "#94a65c",
+    "birch_mark": "#383330",
+    "black_coat": "#302e30",
+    "boot": "#403026",
+    "brass": "#b89447",
+    "calico_red": "#9e4c47",
+    "canvas": "#d4c4a1",
+    "canvas_shade": "#b2a382",
+    "coal": "#212124",
+    "cow_pink": "#cc998c",
+    "cow_red": "#8f4f36",
+    "cow_white": "#e3dbc9",
+    "cream": "#dbcca3",
+    "deer_belly": "#d6c2a3",
+    "deer_brown": "#996e4a",
+    "dolomite": "#c2b08c",
+    "dolomite_dark": "#91856e",
+    "dolomite_light": "#dbcfb0",
+    "door": "#574030",
+    "earth": "#735e47",
+    "elf_cream": "#d6ccad",
+    "elf_green": "#618061",
+    "ember": "#db6e29",
+    "faekin_indigo": "#474c66",
+    "felt_hat": "#574738",
+    "fieldstone": "#8c8780",
+    "flame": "#f2b83d",
+    "glass": "#2e3640",
+    "glass_lit": "#cca85c",
+    "grass": "#7a8f59",
+    "grass_blade": "#859957",
+    "grass_blade_dry": "#a8a366",
+    "gravel": "#a39987",
+    "hair_blond": "#bd9e61",
+    "hair_brown": "#4c3626",
+    "hair_dark": "#261f1c",
+    "hair_goblin": "#3d3324",
+    "hair_gold": "#ccad66",
+    "hair_red": "#854229",
+    "hair_silver": "#ccccc7",
+    "hay": "#c7ab5c",
+    "hay_dark": "#9e8547",
+    "homespun": "#b8a885",
+    "hoof": "#332b26",
+    "iron": "#38383d",
+    "iron_ore": "#804730",
+    "iron_rust": "#945433",
+    "limestone": "#ccbfa1",
+    "limestone_dark": "#a89c82",
+    "linsey_ochre": "#b2914f",
+    "loden_green": "#576b4c",
+    "maple_leaf": "#859145",
+    "maple_leaf_light": "#a3ab57",
+    "moss": "#73854c",
+    "mule_brown": "#755c4a",
+    "mule_muzzle": "#bda88a",
+    "oak_leaf": "#617845",
+    "oak_leaf_dark": "#455c36",
+    "oak_leaf_light": "#809452",
+    "ochre": "#c2a366",
+    "paint_white": "#e0dbcc",
+    "pale_water": "#809eb2",
+    "pine": "#365440",
+    "pine_dark": "#264236",
+    "pine_light": "#4c6e4c",
+    "preview_bg": "#e8e0cc",
+    "preview_pad": "#cccca8",
+    "roof": "#4c3d38",
+    "rope": "#a89166",
+    "sage": "#8c997a",
+    "shingle": "#786352",
+    "shingle_light": "#947d61",
+    "shrub": "#546e42",
+    "shrub_dark": "#405738",
+    "shutter_green": "#526b57",
+    "skin_elf": "#e6d1bd",
+    "skin_faekin": "#c7b5b0",
+    "skin_goblin": "#85965e",
+    "skin_goblin_dark": "#708052",
+    "skin_light": "#d9ad91",
+    "skin_mid": "#b88c6e",
+    "slate": "#667382",
+    "slate_blue": "#667a8c",
+    "slate_light": "#7a858f",
+    "stone": "#9e998c",
+    "timber": "#6b4c33",
+    "water": "#5c7da3",
+    "wolf_dark": "#575452",
+    "wolf_gray": "#85827a",
+    "wolf_light": "#c2baa8",
+    "wood_cut": "#ccad80",
+    "wood_dark": "#4c382b",
+    "wood_gray": "#998f80",
+    "wood_light": "#ad8a61",
+    "wood_mid": "#70543d",
+    "wood_weathered": "#85735e",
+    "wool_blue": "#4c6180",
+    "wool_brown": "#6b523d",
+    "wool_gray": "#757573"
+  },
+  "aliases": {
+    "outfitter": "store",
+    "white_pine": "pine"
+  },
+  "models": [
+    {
+      "id": "barn",
+      "category": "building",
+      "file": "models/barn.glb",
+      "preview": "previews/barn.png",
+      "tris": 192,
+      "bytes": 16176,
+      "size": {
+        "x": 10.5,
+        "y": 11.2,
+        "z": 14.53
+      },
+      "center": {
+        "x": 0.0,
+        "z": 0.265
+      },
+      "tags": [
+        "farm",
+        "barn",
+        "livestock"
+      ],
+      "description": "Gambrel-roofed bank barn: red board siding, X-braced doors, hayloft door, cupola, stone foundation.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 9.6,
+        "z": 13.0
+      }
+    },
+    {
+      "id": "cabin",
+      "category": "building",
+      "file": "models/cabin.glb",
+      "preview": "previews/cabin.png",
+      "tris": 408,
+      "bytes": 32972,
+      "size": {
+        "x": 6.87,
+        "y": 4.67,
+        "z": 6.55
+      },
+      "center": {
+        "x": 0.185,
+        "z": 0.525
+      },
+      "tags": [
+        "home",
+        "log"
+      ],
+      "description": "Squared-log cabin with a stone chimney, shingle roof and a little stoop.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 5.6,
+        "z": 4.4
+      }
+    },
+    {
+      "id": "church",
+      "category": "building",
+      "file": "models/church.glb",
+      "preview": "previews/church.png",
+      "tris": 440,
+      "bytes": 34980,
+      "size": {
+        "x": 8.3,
+        "y": 14.8,
+        "z": 16.96
+      },
+      "center": {
+        "x": 0.0,
+        "z": -0.02
+      },
+      "tags": [
+        "church",
+        "worship",
+        "landmark"
+      ],
+      "description": "Lutheran church: white clapboard nave, square tower, belfry and slate spire.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 7.4,
+        "z": 11.4
+      }
+    },
+    {
+      "id": "farmstead",
+      "category": "building",
+      "file": "models/farmstead.glb",
+      "preview": "previews/farmstead.png",
+      "tris": 708,
+      "bytes": 59136,
+      "size": {
+        "x": 14.495,
+        "y": 5.86,
+        "z": 9.008
+      },
+      "center": {
+        "x": -1.003,
+        "z": 0.104
+      },
+      "tags": [
+        "farm",
+        "home"
+      ],
+      "description": "Hill farmstead: farmhouse, smokehouse, corn crib, haystack and a well.",
+      "aliases": []
+    },
+    {
+      "id": "house",
+      "category": "building",
+      "file": "models/house.glb",
+      "preview": "previews/house.png",
+      "tris": 472,
+      "bytes": 38052,
+      "size": {
+        "x": 11.66,
+        "y": 6.67,
+        "z": 8.15
+      },
+      "center": {
+        "x": 1.73,
+        "z": 0.675
+      },
+      "tags": [
+        "home",
+        "framed"
+      ],
+      "description": "Framed clapboard house: stone foundation, slate roof, porch, kitchen ell.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 7.2,
+        "z": 5.6
+      }
+    },
+    {
+      "id": "landing",
+      "category": "building",
+      "file": "models/landing.glb",
+      "preview": "previews/landing.png",
+      "tris": 712,
+      "bytes": 54412,
+      "size": {
+        "x": 9.6,
+        "y": 4.22,
+        "z": 11.007
+      },
+      "center": {
+        "x": 0.0,
+        "z": 0.597
+      },
+      "tags": [
+        "ferry",
+        "river",
+        "dock"
+      ],
+      "description": "Ferry landing: plank deck on pilings, approach ramp, ferryman's hut, lantern post and mooring posts.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 9.6,
+        "z": 4.6
+      }
+    },
+    {
+      "id": "mill",
+      "category": "building",
+      "file": "models/mill.glb",
+      "preview": "previews/mill.png",
+      "tris": 1318,
+      "bytes": 114772,
+      "size": {
+        "x": 17.0,
+        "y": 9.5,
+        "z": 10.45
+      },
+      "center": {
+        "x": 3.05,
+        "z": 0.625
+      },
+      "tags": [
+        "mill",
+        "workplace",
+        "landmark"
+      ],
+      "description": "Haugen's grist mill: limestone ground story, timber upper, hoist, overshot waterwheel and flume.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 10.4,
+        "z": 8.2
+      }
+    },
+    {
+      "id": "print_shop",
+      "category": "building",
+      "file": "models/print_shop.glb",
+      "preview": "previews/print_shop.png",
+      "tris": 470,
+      "bytes": 37544,
+      "size": {
+        "x": 6.085,
+        "y": 7.32,
+        "z": 9.52
+      },
+      "center": {
+        "x": 0.043,
+        "z": 0.56
+      },
+      "tags": [
+        "print",
+        "press",
+        "workplace"
+      ],
+      "description": "Sentinel print shop: narrow two-story false front, wide display window, stovepipe.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 5.4,
+        "z": 8.0
+      }
+    },
+    {
+      "id": "schoolhouse",
+      "category": "building",
+      "file": "models/schoolhouse.glb",
+      "preview": "previews/schoolhouse.png",
+      "tris": 304,
+      "bytes": 25732,
+      "size": {
+        "x": 6.8,
+        "y": 7.0,
+        "z": 9.6
+      },
+      "center": {
+        "x": 0.0,
+        "z": 0.3
+      },
+      "tags": [
+        "school",
+        "civic"
+      ],
+      "description": "One-room schoolhouse: red clapboard, bell cupola, tall windows.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 6.0,
+        "z": 8.0
+      }
+    },
+    {
+      "id": "smithy",
+      "category": "building",
+      "file": "models/smithy.glb",
+      "preview": "previews/smithy.png",
+      "tris": 438,
+      "bytes": 35416,
+      "size": {
+        "x": 8.4,
+        "y": 6.12,
+        "z": 8.2
+      },
+      "center": {
+        "x": 0.0,
+        "z": -0.0
+      },
+      "tags": [
+        "smithy",
+        "workshop",
+        "forge"
+      ],
+      "description": "Smithy at the ford: open-fronted forge shed, big stone chimney, anvil and quench trough.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 7.4,
+        "z": 6.4
+      }
+    },
+    {
+      "id": "store",
+      "category": "building",
+      "file": "models/store.glb",
+      "preview": "previews/store.png",
+      "tris": 880,
+      "bytes": 71748,
+      "size": {
+        "x": 9.6,
+        "y": 6.18,
+        "z": 13.35
+      },
+      "center": {
+        "x": 0.1,
+        "z": 1.175
+      },
+      "tags": [
+        "store",
+        "outfitter",
+        "shop"
+      ],
+      "description": "General store and outfitter: false front, boardwalk, signboard, goods out front.",
+      "aliases": [
+        "outfitter"
+      ],
+      "core_footprint": {
+        "x": 8.4,
+        "z": 10.4
+      }
+    },
+    {
+      "id": "tavern",
+      "category": "building",
+      "file": "models/tavern.glb",
+      "preview": "previews/tavern.png",
+      "tris": 920,
+      "bytes": 72076,
+      "size": {
+        "x": 10.965,
+        "y": 8.92,
+        "z": 10.15
+      },
+      "center": {
+        "x": 0.088,
+        "z": 0.875
+      },
+      "tags": [
+        "tavern",
+        "court",
+        "inn"
+      ],
+      "description": "Two-story tavern with a gallery porch, chimneys at both ends and a hanging sign.",
+      "aliases": [],
+      "core_footprint": {
+        "x": 9.2,
+        "z": 7.0
+      }
+    },
+    {
+      "id": "birch",
+      "category": "nature",
+      "file": "models/birch.glb",
+      "preview": "previews/birch.png",
+      "tris": 316,
+      "bytes": 34324,
+      "size": {
+        "x": 2.994,
+        "y": 7.3,
+        "z": 2.679
+      },
+      "center": {
+        "x": 0.147,
+        "z": 0.026
+      },
+      "tags": [
+        "tree",
+        "hardwood"
+      ],
+      "description": "Paper birch: white trunk with dark lenticels, slender light crown.",
+      "aliases": []
+    },
+    {
+      "id": "bluff_rock",
+      "category": "nature",
+      "file": "models/bluff_rock.glb",
+      "preview": "previews/bluff_rock.png",
+      "tris": 204,
+      "bytes": 22028,
+      "size": {
+        "x": 12.155,
+        "y": 7.595,
+        "z": 7.005
+      },
+      "center": {
+        "x": 0.078,
+        "z": 0.503
+      },
+      "tags": [
+        "stone",
+        "bluff",
+        "landform"
+      ],
+      "description": "Bluff face: tall stepped dolomite cliff with a green brow, the coulee wall.",
+      "aliases": []
+    },
+    {
+      "id": "dolomite_outcrop",
+      "category": "nature",
+      "file": "models/dolomite_outcrop.glb",
+      "preview": "previews/dolomite_outcrop.png",
+      "tris": 112,
+      "bytes": 12004,
+      "size": {
+        "x": 4.55,
+        "y": 2.817,
+        "z": 3.049
+      },
+      "center": {
+        "x": 0.082,
+        "z": 0.025
+      },
+      "tags": [
+        "stone",
+        "bluff"
+      ],
+      "description": "Stratified dolomite outcrop with a cap of moss and grass.",
+      "aliases": []
+    },
+    {
+      "id": "grass_tuft",
+      "category": "nature",
+      "file": "models/grass_tuft.glb",
+      "preview": "previews/grass_tuft.png",
+      "tris": 28,
+      "bytes": 4304,
+      "size": {
+        "x": 0.32,
+        "y": 0.55,
+        "z": 0.264
+      },
+      "center": {
+        "x": 0.004,
+        "z": -0.015
+      },
+      "tags": [
+        "plant",
+        "dressing"
+      ],
+      "description": "Tuft of prairie grass, for ground dressing.",
+      "aliases": []
+    },
+    {
+      "id": "maple",
+      "category": "nature",
+      "file": "models/maple.glb",
+      "preview": "previews/maple.png",
+      "tris": 292,
+      "bytes": 32228,
+      "size": {
+        "x": 5.327,
+        "y": 7.302,
+        "z": 4.181
+      },
+      "center": {
+        "x": 0.093,
+        "z": -0.101
+      },
+      "tags": [
+        "tree",
+        "hardwood",
+        "sugar"
+      ],
+      "description": "Sugar maple: dense rounded crown, fresh spring green.",
+      "aliases": []
+    },
+    {
+      "id": "oak",
+      "category": "nature",
+      "file": "models/oak.glb",
+      "preview": "previews/oak.png",
+      "tris": 468,
+      "bytes": 51652,
+      "size": {
+        "x": 7.282,
+        "y": 6.616,
+        "z": 5.957
+      },
+      "center": {
+        "x": 0.064,
+        "z": -0.123
+      },
+      "tags": [
+        "tree",
+        "hardwood"
+      ],
+      "description": "Bur oak of the oak savanna: broad, spreading crown on a short trunk.",
+      "aliases": []
+    },
+    {
+      "id": "pine",
+      "category": "nature",
+      "file": "models/pine.glb",
+      "preview": "previews/pine.png",
+      "tris": 104,
+      "bytes": 10072,
+      "size": {
+        "x": 4.182,
+        "y": 12.1,
+        "z": 4.29
+      },
+      "center": {
+        "x": 0.109,
+        "z": -0.0
+      },
+      "tags": [
+        "tree",
+        "conifer",
+        "pine"
+      ],
+      "description": "Eastern white pine: tall, layered whorls of dark needles.",
+      "aliases": [
+        "white_pine"
+      ]
+    },
+    {
+      "id": "rock",
+      "category": "nature",
+      "file": "models/rock.glb",
+      "preview": "previews/rock.png",
+      "tris": 60,
+      "bytes": 7936,
+      "size": {
+        "x": 2.025,
+        "y": 0.834,
+        "z": 1.307
+      },
+      "center": {
+        "x": 0.107,
+        "z": 0.037
+      },
+      "tags": [
+        "stone"
+      ],
+      "description": "Glacial erratic and fieldstone cluster.",
+      "aliases": []
+    },
+    {
+      "id": "shrub",
+      "category": "nature",
+      "file": "models/shrub.glb",
+      "preview": "previews/shrub.png",
+      "tris": 240,
+      "bytes": 28464,
+      "size": {
+        "x": 2.093,
+        "y": 0.874,
+        "z": 1.456
+      },
+      "center": {
+        "x": 0.092,
+        "z": -0.016
+      },
+      "tags": [
+        "plant",
+        "brush"
+      ],
+      "description": "Hazel and dogwood thicket.",
+      "aliases": []
+    },
+    {
+      "id": "barrel",
+      "category": "prop",
+      "file": "models/barrel.glb",
+      "preview": "previews/barrel.png",
+      "tris": 114,
+      "bytes": 9564,
+      "size": {
+        "x": 0.618,
+        "y": 0.76,
+        "z": 0.618
+      },
+      "center": {
+        "x": 0.0,
+        "z": 0.0
+      },
+      "tags": [
+        "storage",
+        "supplies"
+      ],
+      "description": "Cooperage barrel: pork, flour, whiskey, cider.",
+      "aliases": []
+    },
+    {
+      "id": "bridge",
+      "category": "prop",
+      "file": "models/bridge.glb",
+      "preview": "previews/bridge.png",
+      "tris": 264,
+      "bytes": 21668,
+      "size": {
+        "x": 8.8,
+        "y": 1.87,
+        "z": 3.0
+      },
+      "center": {
+        "x": 0.0,
+        "z": -0.0
+      },
+      "tags": [
+        "crossing"
+      ],
+      "description": "Plank footbridge with iron bar rails over Hasp Creek.",
+      "aliases": []
+    },
+    {
+      "id": "campfire",
+      "category": "prop",
+      "file": "models/campfire.glb",
+      "preview": "previews/campfire.png",
+      "tris": 398,
+      "bytes": 40732,
+      "size": {
+        "x": 1.8,
+        "y": 1.392,
+        "z": 1.695
+      },
+      "center": {
+        "x": -0.0,
+        "z": -0.185
+      },
+      "tags": [
+        "camp",
+        "fire",
+        "cooking"
+      ],
+      "description": "Stone-ringed cookfire with a tripod and iron kettle.",
+      "aliases": []
+    },
+    {
+      "id": "crate",
+      "category": "prop",
+      "file": "models/crate.glb",
+      "preview": "previews/crate.png",
+      "tris": 234,
+      "bytes": 19352,
+      "size": {
+        "x": 1.652,
+        "y": 1.38,
+        "z": 0.932
+      },
+      "center": {
+        "x": 0.36,
+        "z": -0.0
+      },
+      "tags": [
+        "storage",
+        "supplies"
+      ],
+      "description": "Slatted shipping crate with a smaller one stacked on top.",
+      "aliases": []
+    },
+    {
+      "id": "fence",
+      "category": "prop",
+      "file": "models/fence.glb",
+      "preview": "previews/fence.png",
+      "tris": 70,
+      "bytes": 6548,
+      "size": {
+        "x": 3.18,
+        "y": 1.25,
+        "z": 0.14
+      },
+      "center": {
+        "x": 0.0,
+        "z": -0.0
+      },
+      "tags": [
+        "fence",
+        "boundary"
+      ],
+      "description": "Split-rail fence segment, 3 m long.",
+      "aliases": []
+    },
+    {
+      "id": "ford",
+      "category": "prop",
+      "file": "models/ford.glb",
+      "preview": "previews/ford.png",
+      "tris": 200,
+      "bytes": 20992,
+      "size": {
+        "x": 9.0,
+        "y": 0.307,
+        "z": 8.4
+      },
+      "center": {
+        "x": 0.0,
+        "z": -0.0
+      },
+      "tags": [
+        "crossing",
+        "water"
+      ],
+      "description": "The iron ford: rust-red ore bars across a shallow creek bed, with stepping stones.",
+      "aliases": []
+    },
+    {
+      "id": "hay_bale",
+      "category": "prop",
+      "file": "models/hay_bale.glb",
+      "preview": "previews/hay_bale.png",
+      "tris": 96,
+      "bytes": 8596,
+      "size": {
+        "x": 1.047,
+        "y": 0.92,
+        "z": 0.686
+      },
+      "center": {
+        "x": 0.0,
+        "z": -0.058
+      },
+      "tags": [
+        "storage",
+        "forage"
+      ],
+      "description": "Two bales of hay, stacked.",
+      "aliases": []
+    },
+    {
+      "id": "sack",
+      "category": "prop",
+      "file": "models/sack.glb",
+      "preview": "previews/sack.png",
+      "tris": 288,
+      "bytes": 31988,
+      "size": {
+        "x": 0.956,
+        "y": 0.639,
+        "z": 0.935
+      },
+      "center": {
+        "x": 0.068,
+        "z": 0.095
+      },
+      "tags": [
+        "storage",
+        "supplies"
+      ],
+      "description": "Tied cloth sack: flour, meal, beans.",
+      "aliases": []
+    },
+    {
+      "id": "tent",
+      "category": "prop",
+      "file": "models/tent.glb",
+      "preview": "previews/tent.png",
+      "tris": 111,
+      "bytes": 10084,
+      "size": {
+        "x": 3.46,
+        "y": 1.98,
+        "z": 3.86
+      },
+      "center": {
+        "x": 0.0,
+        "z": -0.0
+      },
+      "tags": [
+        "camp",
+        "shelter"
+      ],
+      "description": "Canvas wall tent with ridge pole, guy ropes and stakes.",
+      "aliases": []
+    },
+    {
+      "id": "wagon",
+      "category": "prop",
+      "file": "models/wagon.glb",
+      "preview": "previews/wagon.png",
+      "tris": 826,
+      "bytes": 67120,
+      "size": {
+        "x": 5.485,
+        "y": 2.378,
+        "z": 2.06
+      },
+      "center": {
+        "x": -0.668,
+        "z": 0.0
+      },
+      "tags": [
+        "transport",
+        "supplies"
+      ],
+      "description": "Canvas-topped emigrant wagon with a load of barrels and sacks.",
+      "aliases": []
+    },
+    {
+      "id": "woodpile",
+      "category": "prop",
+      "file": "models/woodpile.glb",
+      "preview": "previews/woodpile.png",
+      "tris": 226,
+      "bytes": 17212,
+      "size": {
+        "x": 2.24,
+        "y": 0.9,
+        "z": 1.483
+      },
+      "center": {
+        "x": 0.37,
+        "z": 0.093
+      },
+      "tags": [
+        "fuel",
+        "firewood"
+      ],
+      "description": "Cordwood stack with a chopping block and axe.",
+      "aliases": []
+    },
+    {
+      "id": "child",
+      "category": "figure",
+      "file": "models/child.glb",
+      "preview": "previews/child.png",
+      "tris": 264,
+      "bytes": 24940,
+      "size": {
+        "x": 0.402,
+        "y": 1.215,
+        "z": 0.289
+      },
+      "center": {
+        "x": 0.003,
+        "z": 0.006
+      },
+      "tags": [
+        "actor",
+        "human",
+        "child"
+      ],
+      "description": "Child at about 1.15 m: bigger head, short legs, no hat.",
+      "aliases": []
+    },
+    {
+      "id": "elf",
+      "category": "figure",
+      "file": "models/elf.glb",
+      "preview": "previews/elf.png",
+      "tris": 250,
+      "bytes": 21828,
+      "size": {
+        "x": 0.682,
+        "y": 2.013,
+        "z": 0.457
+      },
+      "center": {
+        "x": 0.0,
+        "z": 0.0
+      },
+      "tags": [
+        "actor",
+        "elf",
+        "fae"
+      ],
+      "description": "Elf: tall, slender, long hair and a long green coat; pointed ears.",
+      "aliases": []
+    },
+    {
+      "id": "goblin",
+      "category": "figure",
+      "file": "models/goblin.glb",
+      "preview": "previews/goblin.png",
+      "tris": 292,
+      "bytes": 27272,
+      "size": {
+        "x": 0.798,
+        "y": 1.224,
+        "z": 0.31
+      },
+      "center": {
+        "x": 0.0,
+        "z": 0.05
+      },
+      "tags": [
+        "actor",
+        "goblin",
+        "fae"
+      ],
+      "description": "Goblin: short and broad, big ears, practical patched clothing.",
+      "aliases": []
+    },
+    {
+      "id": "person",
+      "category": "figure",
+      "file": "models/person.glb",
+      "preview": "previews/person.png",
+      "tris": 272,
+      "bytes": 22828,
+      "size": {
+        "x": 0.645,
+        "y": 1.783,
+        "z": 0.553
+      },
+      "center": {
+        "x": 0.004,
+        "z": -0.0
+      },
+      "tags": [
+        "actor",
+        "human"
+      ],
+      "description": "Base adult in homespun, vest and a felt hat; the common human.",
+      "aliases": []
+    },
+    {
+      "id": "shadow_faekin",
+      "category": "figure",
+      "file": "models/shadow_faekin.glb",
+      "preview": "previews/shadow_faekin.png",
+      "tris": 272,
+      "bytes": 22844,
+      "size": {
+        "x": 0.648,
+        "y": 1.892,
+        "z": 0.579
+      },
+      "center": {
+        "x": 0.003,
+        "z": -0.0
+      },
+      "tags": [
+        "actor",
+        "faekin",
+        "fae"
+      ],
+      "description": "Shadow faekin: reads as human; a shade too tall, hands a little long, eyes too dark.",
+      "aliases": []
+    },
+    {
+      "id": "cow",
+      "category": "animal",
+      "file": "models/cow.glb",
+      "preview": "previews/cow.png",
+      "tris": 440,
+      "bytes": 43492,
+      "size": {
+        "x": 0.921,
+        "y": 1.563,
+        "z": 2.72
+      },
+      "center": {
+        "x": -0.017,
+        "z": 0.198
+      },
+      "tags": [
+        "animal",
+        "livestock",
+        "cow"
+      ],
+      "description": "Red-and-white dairy cow, the homestead's quiet engine.",
+      "aliases": []
+    },
+    {
+      "id": "deer",
+      "category": "animal",
+      "file": "models/deer.glb",
+      "preview": "previews/deer.png",
+      "tris": 388,
+      "bytes": 37204,
+      "size": {
+        "x": 0.54,
+        "y": 2.1,
+        "z": 2.11
+      },
+      "center": {
+        "x": 0.0,
+        "z": 0.185
+      },
+      "tags": [
+        "animal",
+        "game",
+        "deer"
+      ],
+      "description": "White-tailed buck, antlers in velvet.",
+      "aliases": []
+    },
+    {
+      "id": "mule",
+      "category": "animal",
+      "file": "models/mule.glb",
+      "preview": "previews/mule.png",
+      "tris": 440,
+      "bytes": 42052,
+      "size": {
+        "x": 1.401,
+        "y": 2.2,
+        "z": 2.477
+      },
+      "center": {
+        "x": 0.0,
+        "z": 0.257
+      },
+      "tags": [
+        "animal",
+        "livestock",
+        "pack",
+        "mule"
+      ],
+      "description": "Pack mule with a sawbuck saddle and two sacks; the frontier's freight.",
+      "aliases": []
+    },
+    {
+      "id": "wolf",
+      "category": "animal",
+      "file": "models/wolf.glb",
+      "preview": "previews/wolf.png",
+      "tris": 328,
+      "bytes": 31152,
+      "size": {
+        "x": 0.38,
+        "y": 1.08,
+        "z": 2.09
+      },
+      "center": {
+        "x": 0.005,
+        "z": 0.095
+      },
+      "tags": [
+        "animal",
+        "predator",
+        "wolf"
+      ],
+      "description": "Timber wolf, gray, head low.",
+      "aliases": []
+    }
+  ]
+}

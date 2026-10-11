@@ -1,0 +1,88 @@
+# Tells (12 §7.2): events that count as Observation evidence on a kind predicate (04 §5.8).
+# OWNER: module:belief.
+#
+# A tell fires for an actor truly of the predicate's `kind_of` people who is passing as
+# something else (true_permille_per_hour), and as a LOOKALIKE for anyone else under the same
+# conditions (lookalike_permille_per_hour). Observers can't tell the two apart: that's where
+# false accusations come from. Rolls use the `suspicion` stream, hourly at T1.
+# Unaging, fae greetings and habit gear wait for apparent age, fae actors and iron load (M2+).
+
+[[tell]]
+id = "iron_flinch"
+name = "Iron flinch"
+text = "{0} flinched from the iron"
+predicate = "faekin"
+strength = 25
+true_permille_per_hour = 90
+lookalike_permille_per_hour = 4
+lookalikes = "a burn, palsy, nerves; anyone far gone in Drift"
+place_tags_any = ["smithy", "ford", "mill"]
+suppress = { kind = "save", id = "will", dc = 10 }
+observe = { skill = "perception", dc = 10, add_disguise = true }
+
+[[tell]]
+id = "shadow_lag"
+name = "Shadow lag"
+text = "{0}'s shadow seemed to lag behind"
+predicate = "faekin"
+strength = 40
+true_permille_per_hour = 120
+lookalike_permille_per_hour = 5
+lookalikes = "fog and bad light; glamour nearby"
+min_fae_intensity = 3
+hours = { from = 17, to = 23 }
+observe = { skill = "perception", dc = 15 }
+
+[[tell]]
+id = "bell_ache"
+name = "Bell ache"
+text = "{0} winced at the church bell"
+predicate = "faekin"
+strength = 15
+true_permille_per_hour = 350
+lookalike_permille_per_hour = 15
+lookalikes = "a migraine, a hangover"
+place_tags_any = ["church"]
+sabbath_only = true
+hours = { from = 8, to = 12 }
+suppress = { kind = "save", id = "will", dc = 12 }
+observe = { skill = "read_people", dc = 12 }
+
+[[tell]]
+id = "dream_speech"
+name = "Dream speech"
+text = "{0} talked in a tongue nobody knew, asleep"
+predicate = "faekin"
+strength = 35
+true_permille_per_hour = 12
+lookalike_permille_per_hour = 2
+lookalikes = "fever; sleep-talk in an Old Country language"
+asleep = true
+household_only = true
+observe = { skill = "perception", dc = 10 }
+
+[[tell]]
+id = "animal_unease"
+name = "Animal unease"
+text = "a horse shied from {0}"
+predicate = "faekin"
+strength = 10
+true_permille_per_hour = 40
+lookalike_permille_per_hour = 8
+lookalikes = "anyone animals dislike"
+place_tags_any = ["landing", "farm", "stable", "smithy"]
+suppress = { kind = "skill", id = "animal_handling", dc = 12 }
+observe = { skill = "perception", dc = 10 }
+
+[[tell]]
+id = "glamour_reaction"
+name = "Glamour reaction"
+text = "{0} stared at something nobody else could see"
+predicate = "faekin"
+strength = 20
+true_permille_per_hour = 25
+lookalike_permille_per_hour = 2
+lookalikes = "Second Sight, madness, drink"
+min_fae_intensity = 2
+suppress = { kind = "save", id = "will", dc = 12 }
+observe = { skill = "read_people", dc = 15 }

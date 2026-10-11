@@ -1,0 +1,144 @@
+# Catalog 03 §6.9 Medicine & Remedies. OWNER: module:content-items.
+# DECISION (P1): period remedies have TRUE simulated effects. `affordances` are the true effects
+# (heal_bleed, heal_pain, heal_ague...); `truth` is the hidden description shown once the
+# character knows it (03 §3.6). Dose supplies are per 03 §3.8 (laudanum 2 oz ≈ 16 doses).
+# The carbolic row in 03 is omitted: it is not period (1867).
+
+[[item]]
+id = "linen_bandages"
+name = "Linen bandages, roll"
+section = "medicine"
+copy = "Clean linen, boiled. Keep it in the oilcloth."
+weight_g = 91
+bulk = 0.2
+value_cents = 15
+truth = "Boiled linen binds bleeding as well as anything in the Book. Unboiled linen carries the fever in with it."
+materials = [{ material = "linen", pct = 100 }]
+affordances = { heal_bleed = 1 }
+stackable = false
+
+[[item]]
+id = "lint_plaster"
+name = "Lint & sticking plaster"
+section = "medicine"
+copy = "For blisters and the small calamities."
+weight_g = 45
+bulk = 0.1
+value_cents = 10
+materials = [{ material = "linen", pct = 60 }, { material = "other", pct = 40 }]
+affordances = { heal_bleed = 0.5 }
+
+[[item]]
+id = "laudanum_2oz"
+name = "Laudanum, 2 oz"
+section = "medicine"
+copy = "Tincture of opium. A teaspoon for the toothache, and no more."
+weight_g = 136
+bulk = 0.3
+value_cents = 25
+tags = ["addictive", "overdose_risk"]
+truth = "Tincture of opium. Eases pain for a while, builds a need, and an overdose stops the breath."
+materials = [{ material = "liquid", pct = 100 }]
+affordances = { heal_pain = 2 }
+supply = { kind = "dose", units = 16 }
+
+[[item]]
+id = "quinine_1oz"
+name = "Quinine sulfate, 1 oz"
+section = "medicine"
+copy = "Dear as silver and worth it. The river bottoms will give you the ague."
+weight_g = 45
+bulk = 0.1
+value_cents = 300
+truth = "A real antimalarial. It breaks the ague when the ague is malaria, which in the river bottoms it usually is."
+materials = [{ material = "powder", pct = 100 }]
+affordances = { heal_ague = 3 }
+supply = { kind = "dose", units = 15 }
+
+[[item]]
+id = "calomel_packet"
+name = "Calomel, packet"
+section = "medicine"
+copy = "The physician's mainstay."
+weight_g = 14
+bulk = 0.1
+value_cents = 15
+tags = ["harmful"]
+truth = "Mercurous chloride. It purges, and with repeated doses it poisons: the gums, the teeth, the nerves."
+materials = [{ material = "powder", pct = 100 }]
+affordances = { purge = 1 }
+
+[[item]]
+id = "pelham_restorative"
+name = "Dr. Pelham's Universal Restorative"
+section = "medicine"
+maker = "Dr. Pelham (patent)"
+copy = "Cures catarrh, dyspepsia, female complaint, melancholy, and the bloody flux."
+weight_g = 227
+bulk = 0.5
+value_cents = 75
+tags = ["patent_medicine", "morale_plus"]
+truth = "About thirty percent alcohol and a trace of opium. Lifts the spirits. Heals nothing."
+materials = [{ material = "liquid", pct = 100 }]
+
+[[item]]
+id = "horse_liniment"
+name = "Horse & Human Liniment"
+section = "medicine"
+copy = "For the stiff leg, on either species."
+weight_g = 227
+bulk = 0.5
+value_cents = 35
+truth = "A counterirritant: camphor and turpentine, with soap to make it cling. Works on the surface of the complaint."
+materials = [{ material = "liquid", pct = 100 }]
+affordances = { heal_sprain = 0.5 }
+
+[[item]]
+id = "mustard_plaster"
+name = "Mustard plaster"
+section = "medicine"
+copy = "Draws the cold out of the chest."
+weight_g = 45
+bulk = 0.1
+value_cents = 10
+truth = "Burns if left on past the first hour, and blisters the skin of the careless."
+materials = [{ material = "other", pct = 100 }]
+affordances = { heal_chest = 0.5 }
+
+[[item]]
+id = "snakeroot_dried"
+name = "Snakeroot, dried"
+section = "medicine"
+copy = "For the rattlesnake bite."
+weight_g = 45
+bulk = 0.1
+value_cents = 10
+tags = ["folk_remedy"]
+truth = "Does nothing against venom; folk belief only. Cows that graze the white snakeroot give milk that sickens people. Timber rattlers live on the bluffs. This won't help."
+materials = [{ material = "other", pct = 100 }]
+
+[[item]]
+id = "willow_bark"
+name = "Willow bark, dried"
+section = "medicine"
+copy = "Steep and drink bitter."
+weight_g = 45
+bulk = 0.1
+value_cents = 5
+truth = "Salicin: a mild pain reliever and fever-breaker. Slow, and bitter enough to believe."
+materials = [{ material = "bark", pct = 100 }]
+affordances = { heal_pain = 0.5, heal_fever = 0.5 }
+
+[[item]]
+id = "surgeons_pocket_case"
+name = "Surgeon's pocket case"
+section = "medicine"
+copy = "Lancets, probe, forceps, and a curved needle. Courage not included."
+weight_g = 454
+bulk = 1
+value_cents = 600
+tags = ["enables_medicine"]
+truth = "Enables the Medicine skill for surgery and ball extraction. The skill, not the case, is the cure."
+materials = [{ material = "steel", pct = 80 }, { material = "wood", pct = 20 }]
+affordances = { surgery = 1, pierce = 1 }
+stackable = false

@@ -1,0 +1,813 @@
+# Provisions: purchased food, from 03 §6.4 plus the P8 foods and foodways (00 P8, 12 §5.5, §8.6).
+# OWNER: module:content-items. Every entry here has a `food` block with at least one prep.
+#
+# Units: lb (or quart, each) so servings and prep are sane. Prices are per unit (03 §6.4).
+# Food fields per unit: kcal, protein_g, fat_g, fresh (0-100 per serving), servings (meal-sized).
+# Prep: minutes, fire_minutes and cookware are per BATCH (batch_servings servings); water_ml per serving.
+# Spoilage: temperature_pct per band (frozen/cold/cool/warm/hot), wet_pct while wetness > 20,
+# packaging_pct per protection class (03 §3.7.4). `frozen` values above 100 approximate
+# "spoils to ruin on freezing" (potatoes, eggs, apples) until provisions adds a frozen_ruins field.
+# Calorie figures are real-world values for the foodstuff; shelf lives are period folk estimates.
+
+[[item]]
+id = "hardtack"
+name = "Hardtack (ship's biscuit)"
+section = "provisions"
+copy = "Soak before trying your teeth on it."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 8
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1650
+protein_g = 40
+fat_g = 6
+fresh = 0
+group = "bread"
+servings = 3
+morale = -1
+shelf_life_days = 540
+spoilage = { wet_pct = 500, packaging_pct = { airtight = 30, waterproof = 60, vermin_proof = 40 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0, morale = -2 },
+  { method = "soak", minutes = 30, water_ml = 250 },
+  { method = "fry", minutes = 15, fire_minutes = 15, cookware = ["cook"], morale = 2 },
+]
+
+[[item]]
+id = "flour"
+name = "Flour, fine milled"
+section = "provisions"
+copy = "Fine milled at the falls. Keep it dry, keep it from the mice, keep it."
+unit = "lb"
+weight_g = 454
+bulk = 0.6
+value_cents = 5
+tags = ["wet_spoil"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1650
+protein_g = 46
+fat_g = 5
+fresh = 0
+group = "grain"
+servings = 3
+morale = 0
+shelf_life_days = 240
+spoilage = { wet_pct = 600, packaging_pct = { airtight = 40, vermin_proof = 70 }, vermin = true }
+prep = [
+  { method = "bake", minutes = 90, fire_minutes = 60, cookware = ["bake"], water_ml = 120, morale = 2, check = { skill = "trade_cookery", dc = 10 } },
+  { method = "fry", minutes = 30, fire_minutes = 30, cookware = ["cook"], water_ml = 120, morale = 1 },
+]
+
+[[item]]
+id = "cornmeal"
+name = "Cornmeal"
+section = "provisions"
+copy = "Johnnycake, mush, or bait."
+unit = "lb"
+weight_g = 454
+bulk = 0.6
+value_cents = 3
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1600
+protein_g = 36
+fat_g = 8
+fresh = 0
+group = "grain"
+servings = 3
+morale = 0
+shelf_life_days = 180
+spoilage = { wet_pct = 500, packaging_pct = { airtight = 40, vermin_proof = 60 }, vermin = true }
+prep = [
+  { method = "boil", minutes = 25, fire_minutes = 25, cookware = ["boil"], water_ml = 300, morale = 1 },
+  { method = "fry", minutes = 30, fire_minutes = 30, cookware = ["cook"], water_ml = 60, morale = 2 },
+]
+
+[[item]]
+id = "parched_corn"
+name = "Parched corn"
+section = "provisions"
+copy = "Kernels toasted till they split, eaten dry from the sack or boiled down to mush. Needs no fire to carry and none to eat, if you don't mind your jaw."
+unit = "lb"
+weight_g = 454
+bulk = 0.8
+value_cents = 4
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1700
+protein_g = 42
+fat_g = 18
+fresh = 0
+group = "grain"
+servings = 4
+morale = -2
+shelf_life_days = 730
+spoilage = { wet_pct = 400, packaging_pct = { airtight = 30, vermin_proof = 60 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0, kcal_pct = 85, morale = -2 },
+  { method = "boil", minutes = 40, fire_minutes = 40, cookware = ["boil"], water_ml = 250, morale = 1 },
+]
+
+[[item]]
+id = "pemmican"
+name = "Pemmican"
+section = "provisions"
+copy = "Dried meat pounded with fat. A pound feeds a working man a day."
+unit = "lb"
+weight_g = 454
+bulk = 0.5
+value_cents = 30
+tags = ["dense"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 2600
+protein_g = 136
+fat_g = 227
+fresh = 0
+group = "meat"
+servings = 3
+morale = 0
+shelf_life_days = 730
+spoilage = { wet_pct = 300, packaging_pct = { airtight = 30, waterproof = 40 }, vermin = false }
+prep = [
+  { method = "raw", minutes = 0, morale = 0 },
+  { method = "boil", minutes = 20, fire_minutes = 20, batch_servings = 6, cookware = ["boil"], water_ml = 300, morale = 2 },
+]
+
+[[item]]
+id = "salt_pork"
+name = "Bacon / side pork, salt-cured"
+section = "provisions"
+copy = "Salt-cured. Melts in summer, keeps in winter."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 12
+tags = ["perishable"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 3400
+protein_g = 30
+fat_g = 370
+fresh = 0
+group = "meat"
+servings = 4
+morale = 0
+shelf_life_days = 120
+spoilage = { temperature_pct = { frozen = 2, cold = 30, cool = 100, warm = 220, hot = 450 }, wet_pct = 150, packaging_pct = { brine = 10, airtight = 50 }, vermin = false }
+prep = [
+  { method = "raw", minutes = 0, morale = -3 },
+  { method = "fry", minutes = 15, fire_minutes = 15, cookware = ["cook"], morale = 2 },
+  { method = "boil", minutes = 60, fire_minutes = 60, batch_servings = 8, cookware = ["boil"], water_ml = 400, morale = 1 },
+]
+
+[[item]]
+id = "coffee_green"
+name = "Coffee, green beans"
+section = "provisions"
+copy = "The frontier runs on it."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 14
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 0
+protein_g = 0
+fat_g = 0
+fresh = 0
+group = "beverage"
+servings = 40
+morale = 0
+shelf_life_days = 365
+spoilage = { wet_pct = 300, packaging_pct = { airtight = 40 } }
+prep = [
+  { method = "roast", minutes = 25, fire_minutes = 20, cookware = ["cook"], yields = "coffee_roasted", morale = 0 },
+]
+
+[[item]]
+id = "coffee_roasted"
+name = "Coffee, roasted beans"
+section = "provisions"
+copy = "Brown, oily, and smelling like the Sabbath. Still not drinkable whole."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 18
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 0
+protein_g = 0
+fat_g = 0
+fresh = 0
+group = "beverage"
+servings = 40
+morale = 0
+shelf_life_days = 180
+spoilage = { wet_pct = 300, packaging_pct = { airtight = 40 } }
+prep = [
+  { method = "grind", minutes = 10, cookware = ["grind"], yields = "coffee_ground", morale = 0 },
+]
+
+[[item]]
+id = "coffee_ground"
+name = "Coffee, ground"
+section = "provisions"
+copy = "Ground coffee keeps for a week, and then it tastes of the can."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 20
+tags = ["perishable"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 0
+protein_g = 0
+fat_g = 0
+fresh = 0
+group = "beverage"
+servings = 40
+morale = 0
+stimulant = true
+shelf_life_days = 7
+spoilage = { wet_pct = 400, packaging_pct = { airtight = 30, waterproof = 50 } }
+prep = [
+  { method = "brew", minutes = 40, fire_minutes = 30, batch_servings = 12, cookware = ["boil"], water_ml = 250, morale = 4 },
+]
+
+[[item]]
+id = "tea"
+name = "Tea, black"
+section = "provisions"
+copy = "For those raised otherwise."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 60
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 0
+protein_g = 0
+fat_g = 0
+fresh = 0
+group = "beverage"
+servings = 100
+morale = 2
+shelf_life_days = 730
+spoilage = { wet_pct = 300, packaging_pct = { airtight = 40 } }
+stimulant = true
+prep = [
+  { method = "brew", minutes = 10, fire_minutes = 5, batch_servings = 20, cookware = ["boil"], water_ml = 250, morale = 2 },
+]
+
+[[item]]
+id = "sugar_brown"
+name = "Sugar, brown"
+section = "provisions"
+copy = "A little sweetness in the wilderness."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 8
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1700
+protein_g = 0
+fat_g = 0
+fresh = 0
+group = "sweet"
+servings = 20
+morale = 2
+shelf_life_days = 1000
+spoilage = { wet_pct = 300, packaging_pct = { airtight = 30 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0 },
+]
+
+[[item]]
+id = "dried_apples"
+name = "Dried apples"
+section = "provisions"
+copy = "Pie for the homesick."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 10
+tags = ["anti_scurvy"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1100
+protein_g = 4
+fat_g = 1
+fresh = 30
+group = "fruit"
+servings = 6
+morale = 2
+shelf_life_days = 270
+spoilage = { wet_pct = 400, packaging_pct = { airtight = 40, waterproof = 50 } }
+prep = [
+  { method = "raw", minutes = 0 },
+  { method = "boil", minutes = 30, fire_minutes = 30, batch_servings = 8, cookware = ["boil"], water_ml = 200, morale = 3 },
+]
+
+[[item]]
+id = "beans_dry"
+name = "Beans, dry"
+section = "provisions"
+copy = "Nourishing, if you have six hours and a fire."
+unit = "lb"
+weight_g = 454
+bulk = 0.5
+value_cents = 4
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1560
+protein_g = 95
+fat_g = 7
+fresh = 0
+group = "legume"
+servings = 3
+morale = 0
+shelf_life_days = 365
+spoilage = { wet_pct = 200, packaging_pct = { airtight = 30, vermin_proof = 60 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0, kcal_pct = 0, morale = -4 },
+  { method = "boil", minutes = 240, fire_minutes = 240, batch_servings = 12, cookware = ["boil"], water_ml = 350, morale = 1 },
+]
+
+[[item]]
+id = "cheese"
+name = "Cheese, Swiss"
+section = "provisions"
+copy = "From the Swiss settlement down the valley."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 12
+tags = ["perishable"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1800
+protein_g = 115
+fat_g = 150
+fresh = 10
+group = "dairy"
+servings = 4
+morale = 2
+shelf_life_days = 120
+spoilage = { temperature_pct = { frozen = 10, cold = 40, cool = 100, warm = 250, hot = 500 }, wet_pct = 200, packaging_pct = { waterproof = 60, airtight = 50 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0, morale = 2 },
+  { method = "fry", minutes = 5, fire_minutes = 5, cookware = ["cook"], morale = 3 },
+]
+
+[[item]]
+id = "whiskey_quart"
+name = "Whiskey"
+section = "provisions"
+copy = "Medicine, currency, mistake."
+unit = "quart"
+weight_g = 1134
+bulk = 1
+value_cents = 25
+tags = ["trade_good"]
+affordances = { antiseptic = 0.5 }
+materials = [{ material = "liquid", pct = 100 }]
+
+[item.food]
+kcal = 2080
+protein_g = 0
+fat_g = 0
+fresh = 0
+group = "beverage"
+servings = 16
+morale = 3
+shelf_life_days = 3650
+spoilage = { wet_pct = 100 }
+liquid_ml = 946
+alcohol_pct = 45
+prep = [
+  { method = "raw", minutes = 0 },
+]
+
+[[item]]
+id = "molasses_quart"
+name = "Molasses"
+section = "provisions"
+copy = "Thick, dark, and tasting of the cane fields. Sweetens bread, cures a cold, and draws ants."
+unit = "quart"
+weight_g = 1361
+bulk = 1
+value_cents = 15
+tags = ["sticky"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 3870
+protein_g = 0
+fat_g = 0
+fresh = 0
+group = "sweet"
+servings = 30
+morale = 1
+shelf_life_days = 1000
+spoilage = { wet_pct = 150, packaging_pct = { airtight = 30 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0 },
+]
+
+[[item]]
+id = "vinegar_quart"
+name = "Vinegar, cider"
+section = "provisions"
+copy = "Sour enough to pickle a hog's head, and to clean a wound if you have nothing better."
+unit = "quart"
+weight_g = 1000
+bulk = 1
+value_cents = 10
+affordances = { preserve = 1 }
+materials = [{ material = "liquid", pct = 100 }]
+
+[item.food]
+kcal = 20
+protein_g = 0
+fat_g = 0
+fresh = 0
+group = "condiment"
+servings = 60
+morale = 0
+shelf_life_days = 3650
+spoilage = { wet_pct = 100 }
+liquid_ml = 946
+hydrates = true
+prep = [
+  { method = "raw", minutes = 0 },
+]
+
+[[item]]
+id = "sauerkraut_lb"
+name = "Sauerkraut"
+section = "provisions"
+copy = "Cabbage that has been patient. Eat it sour, and eat it all winter."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 5
+tags = ["anti_scurvy"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 90
+protein_g = 5
+fat_g = 0
+fresh = 60
+group = "vegetable"
+servings = 4
+morale = 1
+shelf_life_days = 180
+spoilage = { temperature_pct = { frozen = 400, cold = 60, cool = 100, warm = 180, hot = 300 }, wet_pct = 100, packaging_pct = { brine = 30, airtight = 60, cool_storage = 80 } }
+prep = [
+  { method = "raw", minutes = 0, morale = 1 },
+  { method = "fry", minutes = 15, fire_minutes = 15, cookware = ["cook"], morale = 2 },
+]
+
+[[item]]
+id = "butter"
+name = "Butter, salted"
+section = "provisions"
+copy = "Tallow's better-off cousin. Melts on the bread in July and rules the cellar in January."
+unit = "lb"
+weight_g = 454
+bulk = 0.5
+value_cents = 18
+tags = ["perishable"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 3250
+protein_g = 4
+fat_g = 368
+fresh = 0
+group = "fat"
+servings = 16
+morale = 2
+shelf_life_days = 60
+spoilage = { temperature_pct = { frozen = 5, cold = 40, cool = 100, warm = 220, hot = 400 }, wet_pct = 200, packaging_pct = { brine = 30, airtight = 40, cool_storage = 60 } }
+prep = [
+  { method = "raw", minutes = 0, kcal_pct = 100, morale = 2 },
+  { method = "fry", minutes = 3, fire_minutes = 3, cookware = ["cook"], morale = 1 },
+]
+
+[[item]]
+id = "potatoes"
+name = "Potatoes"
+section = "provisions"
+copy = "Hilled in May, dug in October, and sprouting by the first of April."
+unit = "lb"
+weight_g = 454
+bulk = 0.5
+value_cents = 1
+tags = ["cellar_crop"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 350
+protein_g = 9
+fat_g = 0
+fresh = 30
+group = "vegetable"
+servings = 3
+morale = 1
+shelf_life_days = 150
+spoilage = { temperature_pct = { frozen = 1000, cold = 60, cool = 100, warm = 200, hot = 350 }, wet_pct = 150, packaging_pct = { cool_storage = 60 } }
+prep = [
+  { method = "boil", minutes = 30, fire_minutes = 30, batch_servings = 8, cookware = ["boil"], water_ml = 150, morale = 1 },
+  { method = "bake", minutes = 60, fire_minutes = 60, cookware = ["bake"], morale = 2 },
+]
+
+[[item]]
+id = "eggs"
+name = "Eggs"
+section = "provisions"
+copy = "Waterglassed in October, fresh in March if the hens were kind."
+unit = "each"
+weight_g = 57
+bulk = 0.1
+value_cents = 1
+tags = ["perishable"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 75
+protein_g = 6
+fat_g = 5
+fresh = 10
+group = "egg"
+servings = 1
+morale = 1
+shelf_life_days = 21
+spoilage = { temperature_pct = { frozen = 300, cold = 20, cool = 100, warm = 200, hot = 400 }, wet_pct = 100, packaging_pct = { waterproof = 60, airtight = 40, brine = 40 } }
+prep = [
+  { method = "raw", minutes = 0, morale = -1 },
+  { method = "boil", minutes = 10, fire_minutes = 10, batch_servings = 12, cookware = ["boil"], morale = 2 },
+  { method = "fry", minutes = 5, fire_minutes = 5, cookware = ["cook"], morale = 2 },
+]
+
+[[item]]
+id = "milk_quart"
+name = "Milk, whole"
+section = "provisions"
+copy = "Warm from the cow in the morning. By the second day in July, it is something else."
+unit = "quart"
+weight_g = 975
+bulk = 1
+value_cents = 6
+tags = ["perishable"]
+materials = [{ material = "liquid", pct = 100 }]
+
+[item.food]
+kcal = 620
+protein_g = 32
+fat_g = 36
+fresh = 10
+group = "dairy"
+servings = 4
+morale = 1
+shelf_life_days = 2
+spoilage = { temperature_pct = { frozen = 300, cold = 30, cool = 100, warm = 250, hot = 500 }, wet_pct = 100, packaging_pct = { cool_storage = 60 }, spoils_to = "clabber_quart" }
+liquid_ml = 946
+hydrates = true
+prep = [
+  { method = "raw", minutes = 0, morale = 1 },
+  { method = "boil", minutes = 10, fire_minutes = 10, batch_servings = 8, cookware = ["boil"], morale = 1 },
+]
+
+[[item]]
+id = "clabber_quart"
+name = "Clabber"
+section = "provisions"
+copy = "Milk that has thought it over. Eaten with sugar, or fed to the hogs."
+unit = "quart"
+weight_g = 975
+bulk = 1
+value_cents = 3
+tags = ["perishable"]
+materials = [{ material = "liquid", pct = 100 }]
+
+[item.food]
+kcal = 600
+protein_g = 30
+fat_g = 36
+fresh = 0
+group = "dairy"
+servings = 4
+morale = -1
+shelf_life_days = 5
+spoilage = { temperature_pct = { frozen = 300, cold = 30, cool = 100, warm = 250, hot = 500 }, wet_pct = 100 }
+liquid_ml = 946
+prep = [
+  { method = "raw", minutes = 0, morale = -1 },
+]
+
+[[item]]
+id = "oysters_tinned"
+name = "Oysters, tinned (1 lb tin)"
+section = "provisions"
+copy = "Baltimore pack, sealed in the tin. A treat that needs a knife and a steady hand to open."
+unit = "tin"
+weight_g = 540
+bulk = 1
+value_cents = 35
+tags = ["tinned", "open_tin"]
+materials = [{ material = "food", pct = 84 }, { material = "tinplate", pct = 16 }]
+
+[item.food]
+kcal = 310
+protein_g = 32
+fat_g = 11
+fresh = 0
+group = "fish"
+servings = 2
+morale = 3
+shelf_life_days = 730
+spoilage = { temperature_pct = { frozen = 5, cold = 100, cool = 100, warm = 100, hot = 150 }, wet_pct = 100, packaging_pct = { airtight = 5, waterproof = 5 } }
+prep = [
+  { method = "raw", minutes = 5, morale = 3 },
+  { method = "fry", minutes = 5, fire_minutes = 5, cookware = ["cook"], morale = 5 },
+]
+
+[[item]]
+id = "hearth_loaf"
+name = "Hearth-loaf, twice-baked rye"
+section = "provisions"
+copy = "Twice-baked rye with a salt crust. It keeps three weeks dry, and the old people say it keeps you on the path for as long."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 14
+tags = ["ward_bread", "perishable"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1300
+protein_g = 40
+fat_g = 10
+fresh = 0
+group = "bread"
+servings = 3
+morale = 1
+shelf_life_days = 21
+spoilage = { wet_pct = 500, packaging_pct = { airtight = 50, waterproof = 60 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0, morale = 1 },
+  { method = "fry", minutes = 10, fire_minutes = 10, cookware = ["cook"], morale = 2 },
+]
+
+[[item]]
+id = "flatbrod"
+name = "Flatbrød"
+section = "provisions"
+copy = "Thin as a shingle, light in the pack, and it keeps for months. A superb trail bread."
+unit = "lb"
+weight_g = 454
+bulk = 0.5
+value_cents = 15
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1360
+protein_g = 40
+fat_g = 8
+fresh = 0
+group = "bread"
+servings = 4
+morale = 0
+shelf_life_days = 300
+spoilage = { wet_pct = 300, packaging_pct = { airtight = 40, waterproof = 50 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0, morale = 1 },
+]
+
+[[item]]
+id = "klippfisk"
+name = "Klippfisk (salt-dried cod)"
+section = "provisions"
+copy = "Split, salted, and dried hard as a board. Soak it overnight, or it will soak you."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 14
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1300
+protein_g = 300
+fat_g = 25
+fresh = 0
+group = "fish"
+servings = 4
+morale = 0
+shelf_life_days = 365
+spoilage = { wet_pct = 200, packaging_pct = { airtight = 40 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0, kcal_pct = 60, morale = -4 },
+  { method = "soak", minutes = 720, water_ml = 250, morale = 0 },
+  { method = "boil", minutes = 30, fire_minutes = 30, batch_servings = 8, cookware = ["boil"], water_ml = 150, morale = 2 },
+]
+
+[[item]]
+id = "pasty"
+name = "Pasty, Cornish"
+section = "provisions"
+copy = "Beef, potato and turnip in a thick crimped crust. Carry it inside your coat and it is still warm at noon."
+unit = "each"
+weight_g = 454
+bulk = 0.5
+value_cents = 8
+tags = ["perishable"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 1000
+protein_g = 25
+fat_g = 50
+fresh = 25
+group = "mixed"
+servings = 1
+morale = 3
+shelf_life_days = 2
+spoilage = { temperature_pct = { frozen = 30, cold = 40, cool = 100, warm = 200, hot = 400 }, wet_pct = 200, packaging_pct = { waterproof = 60, airtight = 60 } }
+prep = [
+  { method = "raw", minutes = 0, morale = 2 },
+  { method = "bake", minutes = 15, fire_minutes = 15, cookware = ["bake"], morale = 3 },
+]
+
+[[item]]
+id = "miners_crib"
+name = "Miner's crib, packed dinner"
+section = "provisions"
+copy = "Bread, cold bacon, a pasty if the wife was generous, and something sweet if she was kind. Eaten underground by a candle."
+unit = "each"
+weight_g = 680
+bulk = 1
+value_cents = 20
+tags = ["perishable"]
+materials = [{ material = "food", pct = 90 }, { material = "tinplate", pct = 10 }]
+
+[item.food]
+kcal = 1700
+protein_g = 50
+fat_g = 60
+fresh = 15
+group = "mixed"
+servings = 1
+morale = 2
+shelf_life_days = 1
+spoilage = { wet_pct = 200, packaging_pct = { airtight = 60, waterproof = 60 }, vermin = true }
+prep = [
+  { method = "raw", minutes = 0, morale = 1 },
+  { method = "bake", minutes = 15, fire_minutes = 15, cookware = ["bake"], morale = 2 },
+]
+
+[[item]]
+id = "bread_heel"
+name = "Bread heel, fresh"
+section = "provisions"
+copy = "Keep it in your pocket. Keep it fresh. Don't eat it."
+unit = "each"
+weight_g = 91
+bulk = 0.2
+value_cents = 1
+tags = ["ward_bread", "perishable"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 300
+protein_g = 9
+fat_g = 1
+fresh = 0
+group = "bread"
+servings = 1
+morale = -2
+shelf_life_days = 6
+spoilage = { wet_pct = 500, packaging_pct = { airtight = 40, waterproof = 60 } }
+prep = [
+  { method = "raw", minutes = 0, morale = -3 },
+]

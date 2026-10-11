@@ -1,0 +1,114 @@
+# Compromise and sublimation templates (10 §5.3). OWNER: module:psyche.
+#
+# Compromise: when the two best options are within 200 and voiced by opposite agencies (or
+# the winner is opposed by the other agency), the ego tries d20 + egoMod - band ≥
+# 10 + floor(tension/100). On success the template's result is chosen, and the frustrated
+# thoughts of each side keep id_pct / superego_pct of their satisfaction (less anxiety).
+#
+# Sublimation: a drive frustrated 3+ hours running, E ≥ 55: d20 + egoMod ≥ 12 turns it into
+# the template's urge, and the drive's frustration is spent.
+
+[[compromise]]
+id = "bite_at_the_bench"
+label = "A quick bite, then back to it"
+id_side = { drives = ["hunger"], tags = ["eat"] }
+superego_side = { norms = ["duty"], tags = ["labor"] }
+result = { kind = "side", side = "id" }
+id_pct = 80
+superego_pct = 50
+
+[[compromise]]
+id = "go_but_slowly"
+label = "Drags out to it, slow about it"
+id_side = { drives = ["sloth"], tags = ["rest"] }
+superego_side = { norms = ["duty"], tags = ["labor"] }
+result = { kind = "side", side = "superego" }
+id_pct = 40
+superego_pct = 70
+
+[[compromise]]
+id = "talk_not_fists"
+label = "Says it behind their back instead"
+id_side = { drives = ["rage"], tags = ["aggress"] }
+superego_side = { norms = ["propriety", "neighborliness", "shame"] }
+result = { kind = "interaction", id = "gossip", target = "none" }
+id_pct = 50
+superego_pct = 60
+
+[[compromise]]
+id = "medicinal_dram"
+label = "One glass, medicinally"
+id_side = { tags = ["drink"] }
+superego_side = { norms = ["temperance", "thrift", "piety"] }
+result = { kind = "side", side = "id" }
+id_pct = 60
+superego_pct = 40
+
+[[compromise]]
+id = "supper_not_tavern"
+label = "Company at the supper table instead of the tavern"
+id_side = { drives = ["longing", "hunger"], tags = ["carouse"] }
+superego_side = { norms = ["temperance", "thrift", "duty", "piety"] }
+result = { kind = "activity", id = "take_meal" }
+id_pct = 50
+superego_pct = 70
+
+[[compromise]]
+id = "hymns_not_courting"
+label = "Sings it out in the hymns"
+id_side = { drives = ["lust"] }
+superego_side = { norms = ["propriety", "piety"] }
+result = { kind = "activity", id = "attend_church" }
+id_pct = 40
+superego_pct = 80
+
+[[compromise]]
+id = "pray_then_rest"
+label = "Church first, then the Sabbath rest"
+id_side = { drives = ["sloth"] }
+superego_side = { norms = ["piety"], tags = ["worship"] }
+result = { kind = "side", side = "superego" }
+id_pct = 40
+superego_pct = 90
+
+[[sublimation]]
+id = "rage_into_work"
+drive = "rage"
+urge = { kind = "activity", id = "work" }
+when = { hours = { from = 6, to = 20 }, sabbath = false }
+label = "Works the anger out with the day's labor"
+
+[[sublimation]]
+id = "envy_into_work"
+drive = "envy"
+urge = { kind = "activity", id = "work" }
+when = { hours = { from = 6, to = 20 }, sabbath = false }
+label = "Resolves to outwork the lot of them"
+
+[[sublimation]]
+id = "greed_into_work"
+drive = "greed"
+urge = { kind = "activity", id = "work" }
+when = { hours = { from = 6, to = 21 }, sabbath = false }
+label = "Puts in extra hours; money is money"
+
+[[sublimation]]
+id = "fear_into_chores"
+drive = "fear"
+urge = { kind = "activity", id = "keep_house" }
+when = { hours = { from = 6, to = 22 } }
+label = "Sees to the bolts, the woodpile and the lamp oil"
+
+[[sublimation]]
+id = "lust_into_hymns"
+drive = "lust"
+urge = { kind = "activity", id = "attend_church" }
+when = { hours = { from = 8, to = 21 } }
+label = "Sings it out in the hymns"
+
+[[sublimation]]
+id = "longing_into_letters"
+drive = "longing"
+urge = { kind = "activity", id = "keep_house" }
+when = { hours = { from = 7, to = 22 } }
+label = "Writes a long letter home by the lamp"

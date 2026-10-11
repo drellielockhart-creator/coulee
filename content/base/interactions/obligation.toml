@@ -1,0 +1,117 @@
+# Obligation: lending, borrowing, repaying, dunning (04 §10 #13-#16; 04 §6.1 ledger).
+# OWNER: module:social.
+#
+# `ledger` writes the Obligation ledger (positive = the target now owes the initiator).
+# Hunger drives borrowing, so a short pantry becomes debts, dunning, and grudges.
+# M1: the ledger is the record of the debt; cash does not change hands until provisions
+# exposes a purse-transfer API (see the module report).
+
+[[interaction]]
+id = "lend"
+name = "Lend"
+label = "Lend"
+description = "Offers a little money to someone who looks short. Creates a debt."
+requires = { acquainted = true, min_age = 16, target_min_age = 16, min_affection = 10 }
+volition = [
+  { driver = "target_need:hunger", weight = 30 },
+  { driver = "value:neighborliness", weight = 10 },
+  { driver = "value:thrift", weight = -10 },
+  { driver = "opinion:affection", weight = 20 },
+  { driver = "kin", weight = 10 },
+]
+threshold = 45
+cooldown_hours = 168
+memory = { kind = "loan", emotion = "gratitude", intensity = 30 }
+tags = ["money", "friendly"]
+success.ledger = { cents = 100 }
+success.target_opinion = { affection = 5, trust = 3 }
+success.target_memory = "{initiator} lent me {cents} when I was short"
+success.initiator_memory = "Lent {target} {cents}"
+success.target_reason = "Lent me {cents} when I was short"
+
+[[interaction]]
+id = "borrow"
+name = "Borrow"
+label = "Borrow"
+description = "Asks for the loan of a little money against hard times."
+requires = { acquainted = true, min_age = 16, target_min_age = 16 }
+volition = [
+  { driver = "need:hunger", weight = 35 },
+  { driver = "value:thrift", weight = -10 },
+  { driver = "opinion:trust", weight = 15 },
+  { driver = "kin", weight = 15 },
+  { driver = "owes", weight = -20 },
+]
+threshold = 40
+cooldown_hours = 168
+check = { kind = "dc", skill = "persuade", dc = 12, attitude = true }
+memory = { kind = "loan", emotion = "gratitude", intensity = 30 }
+tags = ["money"]
+urge = { voice = "id", min_score = 55, label = "Ask {target} for the loan of a little money", drive = "fear" }
+success.ledger = { cents = -150 }
+success.initiator_opinion = { affection = 5 }
+success.target_memory = "{initiator} borrowed {cents} off me"
+success.initiator_memory = "Borrowed {cents} off {target}"
+success.initiator_reason = "Lent me {cents} when I asked"
+failure.memory_kind = "rejection"
+failure.intensity_pct = 60
+failure.initiator_opinion = { affection = -3 }
+failure.target_memory = "{initiator} asked me for money; I said no"
+failure.initiator_memory = "{target} turned me down for a loan"
+failure.initiator_reason = "Turned me away when I asked"
+
+[[interaction]]
+id = "repay"
+name = "Repay"
+label = "Repay"
+description = "Squares accounts. Trust follows."
+requires = { initiator_owes = true }
+volition = [
+  { driver = "owes", weight = 40 },
+  { driver = "value:thrift", weight = 5 },
+  { driver = "value:piety", weight = 5 },
+  { driver = "opinion:trust", weight = 10 },
+]
+threshold = 40
+cooldown_hours = 24
+memory = { kind = "repayment", emotion = "gratitude", intensity = 30 }
+tags = ["money"]
+urge = { voice = "superego", min_score = 45, label = "Settle up with {target}", norm = "duty", spoken_by_target = true }
+success.settle = "initiator_debt"
+success.target_opinion = { affection = 3, trust = 10 }
+success.target_memory = "{initiator} paid back what was owed"
+success.initiator_memory = "Paid {target} back"
+success.target_reason = "Paid back what was owed"
+
+[[interaction]]
+id = "dun"
+name = "Dun"
+label = "Dun"
+description = "Demands payment. In front of others it shames; the debtor remembers."
+requires = { target_owes = true, min_age = 16 }
+volition = [
+  { driver = "owed_cents", weight = 40 },
+  { driver = "value:thrift", weight = 15 },
+  { driver = "opinion:affection", weight = -10 },
+  { driver = "grudge", weight = 10 },
+]
+threshold = 45
+cooldown_hours = 48
+check = { kind = "dc", skill = "intimidate", dc = 12 }
+memory = { kind = "dunning", emotion = "shame", intensity = 35 }
+juiciness = 30
+tags = ["money", "hostile"]
+urge = { voice = "superego", min_score = 50, label = "Remind {target} what is owed", norm = "thrift" }
+success.target_opinion = { affection = -4 }
+success.target_anxiety = 60
+success.target_thought = { voice = "superego", interaction = "repay", intensity = 500, label = "Pay what you owe {other}", norm = "duty", spoken_by_other = true }
+success.target_memory = "{initiator} dunned me for {cents} at {place}"
+success.initiator_memory = "Dunned {target} for {cents}"
+success.witness_memory = "{initiator} dunned {target} for money at {place}"
+success.target_reason = "Dunned me at {place}"
+failure.target_opinion = { affection = -6, respect = -2 }
+failure.target_memory = "{initiator} badgered me about money at {place}"
+failure.initiator_memory = "{target} put me off again"
+failure.witness_memory = "{initiator} badgered {target} about money at {place}"
+failure.target_reason = "Badgered me about money"
+failure.initiator_reason = "Puts me off"

@@ -1,6 +1,13 @@
 # Iron Ford site and places (01 §8.2). OWNER: module:content-world.
 # Grid is in tiles (tile_ft feet each), origin top-left; x grows east, y grows south.
-# Hasp Creek runs north -> south down the middle; the street runs alongside it.
+# Hasp Creek runs north -> south at x=32; the single street (x=26) runs beside it; the iron ford is
+# where the street's road crosses the creek (y=14) and the Ridge road climbs east. Lantern Coulee
+# comes down from the north-west (upper coulee, Huldra's Shelf, the Cold Stair), the bluffs frame
+# west and east, the river bottoms and ferry landing are at the bottom (south).
+# Penhallow Diggings and the Kvale Ridge farms are drawn at the east edge so the first scenario
+# is playable on one map; worldgen templates (ADR 0003) will split them into their own sites.
+# MODEL IDS used (for module:assets): mill, smithy, store, tavern, church, cabin, house, print_shop,
+# schoolhouse, landing, barn, farmstead, ford. Places without `model` render as boxes.
 
 [[site]]
 id = "iron_ford"
@@ -11,10 +18,200 @@ tile_ft = 10
 fae_intensity = 1
 
 [[place]]
+id = "west_bluff"
+site = "iron_ford"
+name = "West Bluff"
+kind = "wild"
+description = "Limestone bluff above the coulee mouth; timber rattlers on the warm ledges, badger holes in the talus."
+tags = ["wild", "bluff"]
+x = 0
+y = 0
+w = 5
+h = 44
+fae_intensity = 1
+
+[[place]]
+id = "east_bluff"
+site = "iron_ford"
+name = "East Bluff"
+kind = "wild"
+description = "Oak-and-hickory bluff on the Kvale Ridge side."
+tags = ["wild", "bluff"]
+x = 59
+y = 0
+w = 5
+h = 44
+
+[[place]]
+id = "river_bottoms"
+site = "iron_ford"
+name = "River Bottoms"
+kind = "wild"
+description = "Bottomland, slough and the river channel below the landing. Ague country."
+tags = ["wild", "river", "water"]
+x = 0
+y = 44
+w = 64
+h = 4
+fae_intensity = 2
+
+[[place]]
+id = "hasp_creek"
+site = "iron_ford"
+name = "Hasp Creek"
+kind = "outdoor"
+description = "The spring-fed trout creek that drives the mill and runs the length of the village."
+tags = ["water", "creek"]
+x = 32
+y = 0
+w = 2
+h = 42
+
+[[place]]
+id = "lantern_spring"
+site = "iron_ford"
+name = "Lantern Spring"
+kind = "wild"
+description = "Head of Lantern Coulee. Wisps at night; the Prince's court is held here."
+tags = ["wild", "court", "fae"]
+x = 6
+y = 0
+w = 5
+h = 4
+fae_intensity = 5
+
+[[place]]
+id = "lantern_coulee_upper"
+site = "iron_ford"
+name = "Upper Lantern Coulee"
+kind = "wild"
+description = "Narrow wooded coulee above Huldra's Shelf."
+tags = ["wild", "coulee", "fae"]
+x = 11
+y = 0
+w = 9
+h = 4
+fae_intensity = 4
+
+[[place]]
+id = "cold_stair"
+site = "iron_ford"
+name = "The Cold Stair"
+kind = "wild"
+description = "An algific slope with an erratic boulder: ice in July. A refuge from fae, and cold storage for anyone brave enough."
+tags = ["wild", "algific", "cold", "fae"]
+x = 5
+y = 5
+w = 5
+h = 5
+fae_intensity = 3
+
+[[place]]
+id = "huldras_shelf"
+site = "iron_ford"
+name = "Huldra's Shelf"
+kind = "wild"
+description = "Goat prairie where huldre cattle graze; their bells carry at dusk. The survey line runs here."
+tags = ["wild", "goat_prairie", "fae"]
+x = 12
+y = 5
+w = 8
+h = 5
+fae_intensity = 3
+
+[[place]]
+id = "lower_coulee"
+site = "iron_ford"
+name = "Lower Lantern Coulee"
+kind = "outdoor"
+description = "Failing farms, hazel brush and a wagon track down to the village."
+tags = ["coulee", "outdoor"]
+x = 10
+y = 10
+w = 14
+h = 14
+fae_intensity = 2
+
+[[place]]
+id = "river_road"
+site = "iron_ford"
+name = "River Road"
+kind = "road"
+description = "Road along the bottoms to the county seat."
+tags = ["road", "outdoor"]
+x = 2
+y = 40
+w = 60
+h = 2
+
+[[place]]
+id = "main_street"
+site = "iron_ford"
+name = "Main Street"
+kind = "road"
+description = "The single street, laid along Hasp Creek."
+tags = ["street", "outdoor"]
+x = 26
+y = 7
+w = 2
+h = 35
+
+[[place]]
+id = "iron_ford"
+site = "iron_ford"
+name = "The Iron Ford"
+kind = "outdoor"
+description = "The ford where a cartload of iron bars lies in the creek bed, maintained every spring. A literal iron threshold between town and Faerie."
+tags = ["ford", "water", "landmark", "iron"]
+x = 28
+y = 14
+w = 8
+h = 2
+model = "ford"
+fae_intensity = 0
+
+[[place]]
+id = "ridge_road"
+site = "iron_ford"
+name = "Ridge Road"
+kind = "road"
+description = "Climbs from the ford up to Kvale Ridge."
+tags = ["road", "outdoor"]
+x = 36
+y = 14
+w = 24
+h = 2
+
+[[place]]
+id = "mill_dam"
+site = "iron_ford"
+name = "Mill Dam"
+kind = "outdoor"
+description = "Log-crib dam and millpond. The mill never floods, which Tollef Haugen attributes to good dry-stone work."
+tags = ["dam", "water", "outdoor"]
+x = 30
+y = 7
+w = 5
+h = 1
+
+[[place]]
+id = "village_green"
+site = "iron_ford"
+name = "Village Green"
+kind = "yard"
+description = "Muster ground, Fourth of July picnics, and where charivaris begin."
+tags = ["yard", "outdoor", "muster"]
+x = 34
+y = 17
+w = 4
+h = 4
+
+[[place]]
 id = "haugen_mill"
 site = "iron_ford"
 name = "Haugen's Grist Mill"
 kind = "building"
+description = "Overshot wheel, two runs of stone. A saucer of cream sits behind the hopper."
 tags = ["mill", "workplace"]
 x = 30
 y = 2
@@ -24,25 +221,52 @@ capacity = 8
 model = "mill"
 
 [[place]]
+id = "haugen_house"
+site = "iron_ford"
+name = "Haugen House"
+kind = "house"
+tags = ["home"]
+x = 38
+y = 3
+w = 4
+h = 3
+capacity = 6
+model = "house"
+
+[[place]]
 id = "brenner_smithy"
 site = "iron_ford"
 name = "Brenner's Smithy"
 kind = "building"
+description = "At the ford. Brenner re-sets the iron bars every spring."
 tags = ["smithy", "workplace"]
-x = 24
-y = 12
+x = 28
+y = 10
 w = 4
 h = 4
 capacity = 6
 model = "smithy"
 
 [[place]]
+id = "brenner_house"
+site = "iron_ford"
+name = "Brenner House"
+kind = "house"
+tags = ["home"]
+x = 22
+y = 10
+w = 3
+h = 3
+capacity = 6
+model = "cabin"
+
+[[place]]
 id = "pratt_daughter_outfitters"
 site = "iron_ford"
 name = "Pratt & Daughter, Outfitters"
 kind = "building"
-description = "The Outfitter. General store, post office counter, and the town's ledger of debts."
-tags = ["store", "outfitter", "workplace", "home"]
+description = "The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation."
+tags = ["store", "outfitter", "workplace", "home", "post_office"]
 x = 20
 y = 18
 w = 5
@@ -55,8 +279,8 @@ id = "dunleavys_tavern"
 site = "iron_ford"
 name = "Dunleavy's Tavern"
 kind = "building"
-description = "Tavern, and the justice of the peace's court."
-tags = ["tavern", "court", "workplace"]
+description = "Tavern, lodging, and the justice of the peace's court."
+tags = ["tavern", "court", "workplace", "home"]
 x = 20
 y = 24
 w = 5
@@ -65,11 +289,67 @@ capacity = 30
 model = "tavern"
 
 [[place]]
+id = "sentinel_print_shop"
+site = "iron_ford"
+name = "Iron Ford Sentinel Print Shop"
+kind = "building"
+description = "Albion press and cases of type; the editor sleeps in the loft."
+tags = ["print", "workplace", "home"]
+x = 28
+y = 18
+w = 4
+h = 3
+capacity = 6
+model = "print_shop"
+
+[[place]]
+id = "schoolhouse"
+site = "iron_ford"
+name = "Schoolhouse"
+kind = "building"
+description = "One room, a stove, a teacher's room behind it, and wards chalked over the door."
+tags = ["school", "workplace", "home"]
+x = 28
+y = 24
+w = 4
+h = 4
+capacity = 30
+model = "schoolhouse"
+
+[[place]]
+id = "hurd_house"
+site = "iron_ford"
+name = "Hurd House"
+kind = "house"
+tags = ["home"]
+x = 22
+y = 31
+w = 3
+h = 3
+capacity = 4
+model = "house"
+
+[[place]]
+id = "town_springhouse"
+site = "iron_ford"
+name = "Town Springhouse"
+kind = "building"
+description = "A stone springhouse over the village spring; milk, butter and meat keep cool here."
+tags = ["springhouse", "cold", "storage"]
+x = 34
+y = 26
+w = 3
+h = 2
+capacity = 4
+model = "cabin"
+
+[[place]]
 id = "lutheran_church"
 site = "iron_ford"
 name = "Iron Ford Lutheran Church"
 kind = "building"
-tags = ["church", "workplace"]
+description = "Frame church. The bell was cast by an elven founder in Prairie du Chien."
+tags = ["church", "lutheran", "workplace"]
 x = 38
 y = 22
 w = 4
@@ -78,37 +358,225 @@ capacity = 80
 model = "church"
 
 [[place]]
-id = "brenner_house"
+id = "parsonage"
 site = "iron_ford"
-name = "Brenner House"
+name = "Parsonage"
 kind = "house"
 tags = ["home"]
-x = 26
-y = 8
+x = 44
+y = 22
 w = 3
 h = 3
-capacity = 6
-model = "cabin"
+capacity = 5
+model = "house"
+
+[[place]]
+id = "trevenna_house"
+site = "iron_ford"
+name = "Trevenna House"
+kind = "house"
+description = "A Cornish household. The Methodist meeting gathers in the front parlor."
+tags = ["home", "church", "meeting", "methodist"]
+x = 36
+y = 31
+w = 4
+h = 3
+capacity = 20
+model = "house"
 
 [[place]]
 id = "ferry_landing"
 site = "iron_ford"
 name = "Ferry Landing"
 kind = "landing"
-tags = ["landing", "outdoor"]
+description = "Flatboat ferry across the slough; steamboats sound for the wood-yard."
+tags = ["landing", "outdoor", "workplace"]
 x = 28
 y = 42
 w = 6
 h = 4
+capacity = 0
 model = "landing"
 
 [[place]]
-id = "main_street"
+id = "ferryman_house"
 site = "iron_ford"
-name = "Main Street"
-kind = "road"
-tags = ["street", "outdoor"]
-x = 26
-y = 7
-w = 2
-h = 35
+name = "Ferryman's House"
+kind = "house"
+tags = ["home"]
+x = 24
+y = 41
+w = 3
+h = 3
+capacity = 4
+model = "cabin"
+
+[[place]]
+id = "wood_yard"
+site = "iron_ford"
+name = "Wood-yard"
+kind = "yard"
+description = "Cordwood racked for the steamboats."
+tags = ["woodyard", "workplace", "outdoor"]
+x = 36
+y = 40
+w = 6
+h = 4
+capacity = 0
+
+[[place]]
+id = "fenn_farm"
+site = "iron_ford"
+name = "Fenn Farm"
+kind = "farmstead"
+description = "A failing lower-coulee farm, eleven years in the county. Thin soil, thin fences, a spring that has never gone dry."
+tags = ["home", "farm", "workplace"]
+x = 13
+y = 14
+w = 4
+h = 3
+capacity = 6
+model = "farmstead"
+
+[[place]]
+id = "fenn_fields"
+site = "iron_ford"
+name = "Fenn Fields"
+kind = "field"
+tags = ["field", "farm", "outdoor"]
+x = 13
+y = 18
+w = 8
+h = 5
+
+[[place]]
+id = "glover_farm"
+site = "iron_ford"
+name = "Glover Farm"
+kind = "farmstead"
+description = "The best spring farm on the lower slope: a stone springhouse, a good barn, horses."
+tags = ["home", "farm", "workplace"]
+x = 6
+y = 26
+w = 4
+h = 3
+capacity = 8
+model = "farmstead"
+
+[[place]]
+id = "glover_barn"
+site = "iron_ford"
+name = "Glover Barn"
+kind = "building"
+tags = ["barn", "farm", "workplace"]
+x = 11
+y = 26
+w = 3
+h = 3
+capacity = 6
+model = "barn"
+
+[[place]]
+id = "glover_spring"
+site = "iron_ford"
+name = "Glover Spring"
+kind = "outdoor"
+description = "The slope spring. The Glovers never plowed above it."
+tags = ["spring", "water", "outdoor"]
+x = 3
+y = 24
+w = 3
+h = 3
+fae_intensity = 2
+
+[[place]]
+id = "glover_fields"
+site = "iron_ford"
+name = "Glover Fields"
+kind = "field"
+tags = ["field", "farm", "outdoor"]
+x = 6
+y = 30
+w = 10
+h = 6
+
+[[place]]
+id = "kvale_farm"
+site = "iron_ford"
+name = "Kvale Farm"
+kind = "farmstead"
+description = "A Kvale Ridge farm. A saucer of porridge on the barn sill, and nobody remarks on it."
+tags = ["home", "farm", "workplace"]
+x = 52
+y = 30
+w = 4
+h = 3
+capacity = 8
+model = "farmstead"
+
+[[place]]
+id = "moe_farm"
+site = "iron_ford"
+name = "Moe Farm"
+kind = "farmstead"
+description = "An elven household on the Ridge. Hand-bell at the door, salt on the sill."
+tags = ["home", "farm", "workplace"]
+x = 52
+y = 36
+w = 4
+h = 3
+capacity = 8
+model = "farmstead"
+
+[[place]]
+id = "kvale_ridge_church"
+site = "iron_ford"
+name = "Kvale Ridge Church"
+kind = "building"
+description = "The Ridge parish church. Its pastor is Tveit, who rides up on alternate Sundays."
+tags = ["church", "lutheran", "workplace"]
+x = 54
+y = 24
+w = 4
+h = 5
+capacity = 60
+model = "church"
+
+[[place]]
+id = "kvale_fields"
+site = "iron_ford"
+name = "Kvale Ridge Fields"
+kind = "field"
+tags = ["field", "farm", "outdoor"]
+x = 45
+y = 30
+w = 6
+h = 10
+
+[[place]]
+id = "penhallow_diggings"
+site = "iron_ford"
+name = "Penhallow Diggings"
+kind = "building"
+description = "Half-abandoned Cornish lead mine. Upper drifts are worked; lower drifts are flooded and knocker-held. A Galena company wants a steam pump here."
+tags = ["mine", "workplace", "underground"]
+x = 50
+y = 3
+w = 8
+h = 6
+capacity = 20
+fae_intensity = 3
+
+[[place]]
+id = "penhallow_row"
+site = "iron_ford"
+name = "Penhallow Row"
+kind = "house"
+description = "Row of miners' cottages where the goblin pare lives. The club pantry is kept in the end cottage."
+tags = ["home", "goblin_pare"]
+x = 50
+y = 12
+w = 6
+h = 3
+capacity = 12
+model = "house"

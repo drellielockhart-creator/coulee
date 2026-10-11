@@ -1,9 +1,11 @@
 /**
  * Belief state: propositions, beliefs with credence + evidence, rumors (lineages), Figures,
- * Grudges, community suspicion & escalation (04 §5, §8, §9). OWNER: module:belief.
+ * Grudges, misfortunes, community suspicion & escalation (04 §5, §6.3, §8, §9).
+ * OWNER: module:belief.
  *
- * Integer scales: credence 0..100, evidence weight in hundredths, juiciness/notoriety/
- * grudge intensity 0..100, heat unbounded int, consensus 0..1000, rung 0..3 (M2 scope).
+ * Integer scales: credence 0..100 (+ Q8 logit carry −127..127), evidence weight Q8,
+ * juiciness/notoriety/grudge intensity 0..100, heat unbounded int, consensus 0..1000,
+ * misfortune pressure M 0..1000 per mille, rung 0..3 (M1 scope of the 0..6 ladder).
  */
 import type { PredicateId } from '../content.ts';
 import {
@@ -11,6 +13,7 @@ import {
   asFigureId,
   asGrudgeId,
   type BeliefId,
+  type EventId,
   type FigureId,
   type GrudgeId,
   type HouseholdId,
@@ -24,6 +27,7 @@ import {
 import type { InitContext } from '../sim/context.ts';
 import type { GameMinute } from '../time.ts';
 import type { World } from '../world.ts';
+import { seedBeliefs } from './seed.ts';
 
 export type PropArg =
   | { kind: 'actor'; id: ActorId }
@@ -31,7 +35,9 @@ export type PropArg =
   | { kind: 'figure'; id: FigureId }
   | { kind: 'place'; id: PlaceId }
   | { kind: 'text'; value: string }
-  | { kind: 'number'; value: number };
+  | { kind: 'number'; value: number }
+  /** A runtime misfortune record (`world.belief.misfortunes`). */
+  | { kind: 'misfortune'; id: number };
 
 export interface Prop {
   id: PropId;
@@ -41,7 +47,7 @@ export interface Prop {
   key: string;
 }
 
-/** 04 §5.2 evidence types. */
+/** 04 §5.2 evidence types (+ `dream`, `defense` per this revision). */
 export type EvidenceType =
   | 'observation'
   | 'overheard'
@@ -54,7 +60,9 @@ export type EvidenceType =
   | 'lie_received'
   | 'confabulation'
   | 'implant'
-  | 'seed';
+  | 'seed'
+  | 'dream'
+  | 'defense';
 
 export interface Evidence {
   type: EvidenceType;
@@ -62,11 +70,13 @@ export interface Evidence {
   dir: 1 | -1;
   memoryId: MemoryId | null;
   sourceId: ActorId | null;
-  /** Weight in hundredths (2.5 -> 250). */
+  /** Weight in Q8 (256 = 1.0) after trust, plausibility and novelty. */
   weight: number;
   at: GameMinute;
   /** Rumor lineage for novelty discounting (04 §5.3). */
   rumorId: RumorId | null;
+  /** For type 'defense': which defense produced it (omniscient, 04 §3.6). */
+  defense?: string;
 }
 
 export interface Belief {
@@ -74,14 +84,28 @@ export interface Belief {
   holderId: ActorId;
   propId: PropId;
   credence: number;
-  /** Capped, top-k by weight. */
+  /** Capped (EVIDENCE_CAP), strongest kept. */
   evidence: Evidence[];
   firstHeard: GameMinute;
   firstSourceId: ActorId | null;
-  /** Asserted publicly (harder to retract). */
+  /** Asserted publicly (harder to retract; decays at half rate). */
   voiced: boolean;
   /** Secret or deliberately not repeated (04 §3.5). */
   conceal: boolean;
+  /** Q8 logit residual below one credence point (04 §5.3), −127..127. */
+  carry: number;
+  /** The rumor lineage this holder associates with the belief (heard it in, or started it). */
+  rumorId: RumorId | null;
+  /** Rumor id -> how many tellings from that lineage were heard (novelty; never evicted). */
+  echoes: Record<number, number>;
+  /** Whom the holder has told (the "unknown_to_L" estimate, 04 §8.3), capped. */
+  toldTo: ActorId[];
+  /** Last time evidence arrived (for fading). */
+  lastEvidenceAt: GameMinute;
+  /** Has crossed credence 50 at some point (belief.formed emitted once). */
+  formed: boolean;
+  /** `10` denial: supporting evidence counts at pct% until `until` (04 §5.3). */
+  clamp?: { pct: number; until: GameMinute; banked: number };
 }
 
 export interface RumorVariant {
@@ -97,7 +121,11 @@ export interface Rumor {
   originId: ActorId | null;
   bornAt: GameMinute;
   variants: RumorVariant[];
+  /** 0..1000 per mille (content juiciness ×10 at birth). */
   juiciness: number;
+  /** Number of tellings so far. */
+  tellings: number;
+  lastToldAt: GameMinute;
 }
 
 export interface Figure {
@@ -107,28 +135,55 @@ export interface Figure {
   description: string;
   /** Ground truth (never read by actors' decision code). */
   trulyId: ActorId | null;
+  /** 0..100: max(base, share of adults who think of this figure). */
   notoriety: number;
+  /** Authored floor for notoriety. */
+  baseNotoriety: number;
+  /** Actors the community's Consensus has attached this figure to (`belief.figure_attached`). */
+  attachedIds: ActorId[];
 }
 
 export type GrudgeTarget =
   | { kind: 'actor'; id: ActorId }
   | { kind: 'household'; id: HouseholdId }
-  | { kind: 'figure'; id: FigureId };
+  | { kind: 'figure'; id: FigureId }
+  /** "Whoever did this": an unknown culprit of one misfortune (04 §5.4). */
+  | { kind: 'unknown'; misfortuneId: number };
+
+export type GrudgeAim = 'restitution' | 'apology' | 'humiliation' | 'expulsion' | 'harm' | 'death';
 
 export interface Grudge {
   id: GrudgeId;
   holderId: ActorId;
   target: GrudgeTarget;
-  founding: Array<{ kind: 'memory' | 'belief' | 'seed'; id: number | null; label: string }>;
+  founding: Array<{ kind: 'memory' | 'belief' | 'seed' | 'misfortune' | 'grudge'; id: number | null; label: string }>;
   intensity: number;
-  aim: 'restitution' | 'apology' | 'humiliation' | 'expulsion' | 'harm' | 'death';
+  aim: GrudgeAim;
   patienceDays: number;
   public: boolean;
   inheritedFrom: GrudgeId | null;
   since: GameMinute;
+  /** Milli-points of intensity below 1 (fixed-point decay). */
+  residue: number;
+  /** C12: uncanny grudges keep a floor; 'none' never decays (fae holders). */
+  decay: 'normal' | 'floor' | 'none';
+  decayFloor: number;
+  /** Founded by a defense (projection, displacement, reaction formation): Heat ×125/100. */
+  viaDefense: string | null;
+  lastRehearsedAt: GameMinute;
+  /** The unknown culprit this grudge was once aimed at, after attribution found a face. */
+  retargetedFrom: number | null;
 }
 
-/** Escalation process on one target (04 §9.2), M2 scope rungs 0..3. */
+/** One rung change in a process's history. */
+export interface PersecutionStep {
+  rung: number;
+  at: GameMinute;
+  catalystId: ActorId | null;
+  eventId: EventId | null;
+}
+
+/** Escalation process on one target (04 §9.2). M1 scope: rungs 0..3. */
 export interface Persecution {
   target: GrudgeTarget;
   rung: number;
@@ -137,10 +192,61 @@ export interface Persecution {
   /** 0..1000 */
   consensus: number;
   leaderIds: ActorId[];
+  /** Process id (stable). */
+  id: number;
+  /** What the target is believed guilty of or to be (04 §9.2 charge set), strongest first. */
+  charges: PropId[];
+  /** Some believed charge is an act (lifts the identity-only cap). */
+  actAttributed: boolean;
+  /** Distinct holders of any charge above 40. */
+  holdersOver40: number;
+  history: PersecutionStep[];
+  /** Last time something fed the process (new holders, heat rising, an attributed misfortune). */
+  lastFuelAt: GameMinute;
+  /** A Catalyst ready to take the next step (proposed as an urge until taken or stale). */
+  pending: { rung: number; catalystId: ActorId; score: number; since: GameMinute } | null;
+  /** Actors complying with a shunning (rung 3). */
+  shunnerIds: ActorId[];
+  /** A Revealed event fired for a kind charge (12 §7.6). */
+  revealed: boolean;
+  /** Day index of the last stub-mode volition roll (one per day). */
+  lastFallbackDay: number;
+}
+
+/** A misfortune that struck a household (04 §3.3, §5.4). */
+export interface Misfortune {
+  id: number;
+  kindId: string;
+  householdId: HouseholdId;
+  victimId: ActorId | null;
+  at: GameMinute;
+  placeId: PlaceId | null;
+  /** Ground truth: who really did it (null = natural). Read only by epilogue/god views. */
+  culpritId: ActorId | null;
+  /** The `befell(household, misfortune)` news prop. */
+  propId: PropId;
+  eventId: EventId | null;
+  /** Per-believer attribution results (04 §5.4), latest per holder. */
+  attributions: Array<{ holderId: ActorId; leader: GrudgeTarget | null; sharePermille: number; at: GameMinute }>;
+}
+
+/** Commons row (04 §5.5): prevalence among adults of credence > 50. */
+export interface CommonsRow {
+  prevalence: number;
+  assumed: boolean;
+  since: GameMinute;
 }
 
 export interface BeliefState {
-  counters: { prop: number; belief: number; rumor: number; figure: number; grudge: number };
+  counters: {
+    prop: number;
+    belief: number;
+    rumor: number;
+    figure: number;
+    grudge: number;
+    misfortune: number;
+    process: number;
+  };
   props: Table<PropId, Prop>;
   propByKey: Record<string, PropId>;
   beliefs: Table<BeliefId, Belief>;
@@ -152,11 +258,16 @@ export interface BeliefState {
   persecutions: Persecution[];
   /** Settlement misfortune pressure M, 0..1000 (04 §3.3). */
   misfortune: number;
+  /** Milli residue of M for fixed-point decay. */
+  misfortuneResidue: number;
+  misfortunes: Table<number, Misfortune>;
+  /** prop id -> Commons row (04 §5.5), recomputed daily. */
+  commons: Record<number, CommonsRow>;
 }
 
 export function createBeliefState(): BeliefState {
   return {
-    counters: { prop: 0, belief: 0, rumor: 0, figure: 0, grudge: 0 },
+    counters: { prop: 0, belief: 0, rumor: 0, figure: 0, grudge: 0, misfortune: 0, process: 0 },
     props: {},
     propByKey: {},
     beliefs: {},
@@ -166,13 +277,44 @@ export function createBeliefState(): BeliefState {
     grudges: {},
     persecutions: [],
     misfortune: 0,
+    misfortuneResidue: 0,
+    misfortunes: {},
+    commons: {},
   };
 }
 
+/** A fresh grudge row with defaults for the bookkeeping fields. */
+export function makeGrudge(
+  world: World,
+  g: Pick<Grudge, 'holderId' | 'target' | 'founding' | 'intensity' | 'aim' | 'public' | 'since'> &
+    Partial<Pick<Grudge, 'inheritedFrom' | 'decay' | 'decayFloor' | 'viaDefense' | 'patienceDays'>>,
+): Grudge {
+  const id = asGrudgeId(nextId(world.belief.counters, 'grudge'));
+  const row: Grudge = {
+    id,
+    holderId: g.holderId,
+    target: g.target,
+    founding: g.founding,
+    intensity: Math.max(0, Math.min(100, Math.round(g.intensity))),
+    aim: g.aim,
+    patienceDays: g.patienceDays ?? 30,
+    public: g.public,
+    inheritedFrom: g.inheritedFrom ?? null,
+    since: g.since,
+    residue: 0,
+    decay: g.decay ?? 'normal',
+    decayFloor: g.decayFloor ?? 0,
+    viaDefense: g.viaDefense ?? null,
+    lastRehearsedAt: g.since,
+    retargetedFrom: null,
+  };
+  world.belief.grudges[id] = row;
+  return row;
+}
+
 /**
- * Seed from the scenario: figures and grudges here; beliefs/secrets are interned by the
- * belief module's own seeding (STUB below leaves them to module:belief, which must map
- * PropSeed args via the predicate's arg kinds).
+ * Seed from the scenario: figures, grudges, beliefs, secrets, past misfortunes, and the
+ * self-knowledge of concealed peoples (12 §7.1: the Secret `Is(self, kind)`; household knows).
  */
 export function initBeliefState(world: World, ctx: InitContext): void {
   const st = world.belief;
@@ -187,6 +329,8 @@ export function initBeliefState(world: World, ctx: InitContext): void {
       description: f.description,
       trulyId: f.truly !== undefined ? (world.index.actorByKey[f.truly] ?? null) : null,
       notoriety: f.notoriety,
+      baseNotoriety: f.notoriety,
+      attachedIds: [],
     };
   }
   for (const g of ctx.scenario.grudges) {
@@ -204,20 +348,15 @@ export function initBeliefState(world: World, ctx: InitContext): void {
             ? { kind: 'figure', id: figure }
             : null;
     if (!target) continue;
-    const id = asGrudgeId(nextId(st.counters, 'grudge'));
-    st.grudges[id] = {
-      id,
+    makeGrudge(world, {
       holderId,
       target,
       founding: [{ kind: 'seed', id: null, label: g.founding }],
       intensity: g.intensity,
       aim: g.aim,
-      patienceDays: 30,
       public: g.public,
-      inheritedFrom: null,
       since: ctx.now,
-    };
+    });
   }
-  // STUB: module:belief seeds ctx.scenario.beliefs / ctx.scenario.secrets here, and the
-  // concealed-people suspicion priors (shadow_faekin: everyone else's belief is absent).
+  seedBeliefs(world, ctx, figureByKey);
 }

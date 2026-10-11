@@ -1,0 +1,25 @@
+# Meal plans (03 §3.7.6, 05 §6.1). OWNER: module:provisions.
+# `household` is the plan at home: breakfast, dinner at noon, supper. The hours match the
+# `take_meal` blocks in occupations.toml. `trail` is the plan for anyone eating from a kit
+# out in the wild: two hot meals and a cold noon piece eaten walking (no fire, raw-edible only).
+# Shares of the day's kcal sum to 100 in each plan.
+
+[[meal_plan]]
+id = "household"
+name = "Three meals at table"
+description = "Breakfast at six, dinner at noon, supper at six."
+meals = [
+  { id = "breakfast", name = "Breakfast", hour = 6, share_pct = 25 },
+  { id = "dinner", name = "Dinner", hour = 12, share_pct = 40 },
+  { id = "supper", name = "Supper", hour = 18, share_pct = 35 },
+]
+
+[[meal_plan]]
+id = "trail"
+name = "Trail fare"
+description = "A hot breakfast, a cold noon piece, and a camp supper."
+meals = [
+  { id = "breakfast", name = "Camp breakfast", hour = 6, share_pct = 30 },
+  { id = "noon_piece", name = "Noon piece", hour = 12, share_pct = 20, cold = true },
+  { id = "supper", name = "Camp supper", hour = 18, share_pct = 50 },
+]

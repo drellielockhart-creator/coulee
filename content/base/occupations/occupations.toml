@@ -1,26 +1,62 @@
 # Occupations and schedules. OWNER: module:content-world (schema: module:needs-activities).
+# Generated once from a template, then edited by hand. Schedule semantics: first matching block wins;
+# `from > to` wraps midnight; unmatched hours idle at home. Methodists/Haugeans attend church by
+# nearest venue tagged 'church' (Lutheran church, Trevenna's parlor, Kvale Ridge church).
 
 [[occupation]]
 id = "storekeeper"
 name = "Storekeeper"
+description = "Keeps the Outfitter: stock, ledger, post office counter, credit."
 workplace_tags = ["store"]
 wage_cents_per_day = 100
-skills = ["bargain"]
+skills = ["bargain", "read_people"]
 roles = ["storekeeper"]
 schedule = [
-  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 7, to = 18, activity = "work" },
-  { from = 22, to = 6, activity = "sleep", duty = 300 },
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 7, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 19, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "shop_clerk"
+name = "Shop clerk"
+description = "Minds the counter, weighs out flour, keeps the tally slate."
+workplace_tags = ["store"]
+wage_cents_per_day = 50
+skills = ["bargain"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 8, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
 ]
 
 [[occupation]]
 id = "blacksmith"
 name = "Blacksmith"
+description = "Smith, farrier and keeper of the ford iron."
 workplace_tags = ["smithy"]
 wage_cents_per_day = 125
 skills = ["trade_smithing"]
+roles = ["smith", "ford_warden"]
 schedule = [
-  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 18, activity = "work" },
   { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { days = ["sat"], from = 19, to = 21, activity = "drink_at_tavern", duty = 200 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
 ]
 
 [[occupation]]
@@ -28,6 +64,407 @@ id = "scholar"
 name = "Student"
 description = "Studying, helping at home."
 schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 350 },
   { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 8, to = 16, activity = "keep_house" },
   { from = 22, to = 6, activity = "sleep", duty = 300 },
+]
+
+[[occupation]]
+id = "child"
+name = "Child"
+description = "Too young for work."
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 300 },
+  { from = 19, to = 7, activity = "sleep", duty = 300 },
+  { from = 7, to = 19, activity = "keep_house", duty = 100 },
+]
+
+[[occupation]]
+id = "miller"
+name = "Miller"
+description = "Runs the grist mill and dam. Takes the miller's toll in kind."
+workplace_tags = ["mill"]
+wage_cents_per_day = 110
+skills = ["trade_milling"]
+roles = ["miller"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "tavern_keeper_jp"
+name = "Tavern keeper and justice of the peace"
+description = "Keeps the house, and holds court in the common room on petty-session days."
+workplace_tags = ["tavern"]
+wage_cents_per_day = 100
+skills = ["read_people", "lore_law"]
+roles = ["tavern_keeper", "jp"]
+schedule = [
+  { from = 1, to = 8, activity = "sleep", duty = 300 },
+  { from = 8, to = 9, activity = "take_meal", duty = 300 },
+  { from = 9, to = 24, activity = "work", duty = 550 },
+]
+
+[[occupation]]
+id = "pastor"
+name = "Pastor"
+description = "University-trained Lutheran pastor serving two congregations."
+workplace_tags = ["church", "lutheran"]
+wage_cents_per_day = 60
+skills = ["lore_scripture", "perform_preaching"]
+roles = ["preacher"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "work", duty = 700 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 8, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 17, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "lay_preacher"
+name = "Lay preacher"
+description = "Haugean elder: exhorts without ordination, holds house meetings."
+skills = ["perform_preaching", "lore_scripture"]
+roles = ["preacher"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 7, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 17, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "mine_captain"
+name = "Mine captain"
+description = "Captain of the Penhallow Diggings: crew, pump, tribute and wages."
+workplace_tags = ["mine"]
+wage_cents_per_day = 150
+skills = ["trade_mining", "lore_local"]
+roles = ["mine_captain", "class_leader"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 17, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "miner"
+name = "Miner"
+description = "Skilled underground work: drilling, blasting, timbering."
+workplace_tags = ["mine"]
+wage_cents_per_day = 110
+skills = ["trade_mining"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 17, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "accord_speaker"
+name = "Accord-speaker"
+description = "Miner who also keeps the pare's courtesies with the Under-Court and is called first when a drift goes wrong."
+workplace_tags = ["mine"]
+wage_cents_per_day = 110
+skills = ["trade_mining", "fae_courtesy"]
+roles = ["accord_speaker"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 17, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "surveyor"
+name = "Surveyor"
+description = "Deputy surveyor running section lines up the coulee."
+wage_cents_per_day = 200
+skills = ["wayfinding", "lore_nature"]
+roles = ["surveyor"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { days = ["tue", "thu"], from = 19, to = 21, activity = "drink_at_tavern", duty = 150 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "chainman"
+name = "Chainman"
+description = "Carries the chain and the flags for the survey party."
+wage_cents_per_day = 75
+skills = ["wayfinding"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "missing"
+name = "Missing"
+description = "Gone from the survey line. Whatever holds them is not an employer."
+schedule = [
+  { from = 0, to = 24, activity = "work", duty = 0 },
+]
+
+[[occupation]]
+id = "editor_printer"
+name = "Editor and printer"
+description = "Sets, prints and writes the Iron Ford Sentinel."
+workplace_tags = ["print"]
+wage_cents_per_day = 90
+skills = ["trade_printing", "persuade"]
+roles = ["editor"]
+schedule = [
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { days = ["fri"], from = 19, to = 21, activity = "drink_at_tavern", duty = 150 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 7, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 19, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "schoolteacher"
+name = "Schoolteacher"
+description = "Teaches reading, figures and wards to the district's children."
+workplace_tags = ["school"]
+wage_cents_per_day = 60
+skills = ["lore_scripture", "spellcraft"]
+roles = ["teacher"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 8, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 16, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "farmer"
+name = "Farmer"
+description = "Field, stock, orchard and woodlot, in season."
+workplace_tags = ["farm"]
+wage_cents_per_day = 70
+skills = ["trade_farming"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "hall_reader"
+name = "Hall-reader and farmer"
+description = "Farms; keeps the copy of the Roll and leads the Midsummer Renewal."
+workplace_tags = ["farm"]
+wage_cents_per_day = 70
+skills = ["trade_farming", "lore_scripture"]
+roles = ["hall_reader"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "farm_wife"
+name = "Farm wife"
+description = "Dairy, garden, hens, spinning, and a share of every harvest."
+workplace_tags = ["farm"]
+wage_cents_per_day = 50
+skills = ["trade_cookery", "trade_sewing"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 7, to = 12, activity = "work", duty = 500 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 500 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "housewife"
+name = "Housewife"
+description = "Keeps house in town: cooking, washing, sewing, small trade."
+wage_cents_per_day = 30
+skills = ["trade_cookery", "trade_sewing"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 7, to = 12, activity = "work", duty = 500 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 500 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "hired_hand"
+name = "Hired hand"
+description = "Day labor, apprentice work, and whatever needs doing."
+wage_cents_per_day = 75
+skills = ["athletics"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "militia_captain"
+name = "Militia captain"
+description = "Part-time. Musters the company in spring and fall; the rest of the year he is a householder with a story."
+wage_cents_per_day = 30
+skills = ["intimidate", "lore_local"]
+roles = ["militia_captain"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { days = ["sat"], from = 13, to = 21, activity = "drink_at_tavern", duty = 250 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 8, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 16, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "pellar"
+name = "Pellar"
+description = "Cornish cunning-folk: charms warts, sets bones, finds lost things, lifts overlooking."
+wage_cents_per_day = 20
+skills = ["herbalism", "medicine", "lore_fae"]
+roles = ["pellar"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 8, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 17, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "woodyard_cutter"
+name = "Wood-yard cutter"
+description = "Cuts and stacks cordwood for the steamboats."
+workplace_tags = ["woodyard"]
+wage_cents_per_day = 90
+skills = ["athletics", "woodcraft"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "ferryman"
+name = "Ferryman"
+description = "Runs the flatboat ferry across the slough and the main channel."
+workplace_tags = ["landing"]
+wage_cents_per_day = 80
+skills = ["riverwork", "swim"]
+roles = ["ferryman"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+  { days = ["sat"], from = 19, to = 21, activity = "drink_at_tavern", duty = 150 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 21, activity = "keep_house", duty = 200 },
+]
+
+[[occupation]]
+id = "land_agent"
+name = "Land agent"
+description = "Agent of a Galena house: collects notes, advances money, buys claims."
+wage_cents_per_day = 120
+skills = ["bargain", "persuade", "read_people"]
+roles = ["land_agent"]
+schedule = [
+  { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { from = 22, to = 6, activity = "sleep", duty = 300 },
+  { from = 19, to = 22, activity = "drink_at_tavern", duty = 150 },
+  { from = 6, to = 7, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 9, to = 12, activity = "work", duty = 550 },
+  { from = 12, to = 13, activity = "take_meal", duty = 300 },
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 17, activity = "work", duty = 550 },
+  { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  { from = 19, to = 22, activity = "keep_house", duty = 200 },
 ]

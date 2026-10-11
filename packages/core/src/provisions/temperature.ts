@@ -7,6 +7,7 @@
  * linearly interpolated by day, plus a fixed diurnal curve. No randomness yet.
  */
 import type { TempBand } from '../content.ts';
+import { mixKey, rng } from '../rng.ts';
 import type { CalendarInfo } from '../time.ts';
 
 /** Mean daily temperature by month (index 0 = January), °F. */
@@ -51,4 +52,29 @@ export function tempBand(f: number): TempBand {
   if (f < 70) return 'cool';
   if (f < 85) return 'warm';
   return 'hot';
+}
+
+/**
+ * Chance that a given day is a rain day, per mille, by month (index 0 = January). A rain day has
+ * one spell of rain of 2..8 hours starting somewhere in the day. Deterministic in (seed, day).
+ */
+export const RAIN_DAY_PERMILLE = [150, 150, 250, 330, 380, 400, 380, 380, 340, 280, 250, 170] as const;
+
+/** Salt for the rain draws so they never collide with other weather-stream users. */
+const SALT_RAIN = 0x7261696e;
+
+/** The day's rain spell: start hour and length, or null on a dry day. Pure in (seed, dayIndex, month). */
+export function rainSpell(seed: number, dayIdx: number, month: number): { start: number; hours: number } | null {
+  const r = rng(seed, 'weather', dayIdx, mixKey(dayIdx, SALT_RAIN));
+  if (!r.chancePermille(RAIN_DAY_PERMILLE[month - 1] as number)) return null;
+  const hours = r.int(2, 8);
+  const start = r.int(0, 23);
+  return { start, hours };
+}
+
+/** Is it raining during this hour? A spell is clipped at midnight. */
+export function isRaining(seed: number, cal: CalendarInfo): boolean {
+  const spell = rainSpell(seed, cal.dayIndex, cal.month);
+  if (spell && cal.hour >= spell.start && cal.hour < spell.start + spell.hours) return true;
+  return false;
 }

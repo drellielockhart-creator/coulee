@@ -1,0 +1,219 @@
+# Catalog 03 §6.7 ammunition, powder and ignition (the consumable supplies, 03 §3.8).
+# OWNER: module:content-items. Supply units: powder_gr (grains), percussion_cap (caps),
+# flint_strike (strikes), ball_<caliber> (balls), shot_oz (ounces), patch (patches),
+# arrow (arrows), cartridge_69 (paper cartridges). Units per item are per the item's `unit`.
+# Cast-ball bags (not a 03 row) are added so every `consumes` kind has a source (see report).
+
+[[item]]
+id = "arrows_iron_dozen"
+name = "Arrows, dozen, iron-headed"
+section = "ammunition"
+unit = "dozen"
+copy = "Barbed for game."
+weight_g = 454
+bulk = 2
+value_cents = 75
+tags = ["ammo", "iron_heads"]
+materials = [{ material = "wood", pct = 70 }, { material = "iron", pct = 30 }]
+supply = { kind = "arrow", units = 12 }
+
+[[item]]
+id = "arrows_flint_dozen"
+name = "Arrows, dozen, flint/bone-headed"
+section = "ammunition"
+unit = "dozen"
+copy = "No iron in them, for hunting where iron isn't welcome."
+weight_g = 454
+bulk = 2
+value_cents = 60
+tags = ["ammo", "no_iron"]
+materials = [{ material = "wood", pct = 70 }, { material = "stone", pct = 30 }]
+supply = { kind = "arrow", units = 12 }
+
+[[item]]
+id = "black_powder_canister"
+name = "Black powder, rifle grade, lb (canister)"
+section = "ammunition"
+unit = "canister"
+copy = "Keep it dry, keep it away from the fire, keep it away from fools."
+weight_g = 454
+bulk = 0.5
+value_cents = 40
+tags = ["wet_ruin", "explosive", "powder"]
+materials = [{ material = "powder", pct = 100 }]
+supply = { kind = "powder_gr", units = 7000 }
+
+[[item]]
+id = "powder_horn"
+name = "Powder horn"
+section = "ammunition"
+copy = "Scraped thin enough to see the level through."
+weight_g = 227
+bulk = 1
+value_cents = 50
+materials = [{ material = "horn", pct = 100 }]
+stackable = false
+container = { capacity_g = 454, capacity_bulk = 1, protects = ["splashproof"], carry = "belt" }
+
+[[item]]
+id = "powder_flask_copper"
+name = "Powder flask, copper (Carrow & Tuck)"
+section = "ammunition"
+maker = "Carrow & Tuck"
+copy = "Measures the charge. Doesn't sweat in rain."
+weight_g = 272
+bulk = 0.5
+value_cents = 100
+tags = ["measure"]
+materials = [{ material = "copper", pct = 100 }]
+stackable = false
+container = { capacity_g = 454, capacity_bulk = 0.5, protects = ["waterproof"], carry = "belt" }
+
+[[item]]
+id = "lead_bar_5lb"
+name = "Lead, bar, 5 lb"
+section = "ammunition"
+unit = "bar"
+copy = "Mined fifty miles from here. Cast your own."
+weight_g = 2268
+bulk = 0.5
+value_cents = 35
+tags = ["cast_bullets"]
+materials = [{ material = "lead", pct = 100 }]
+
+[[item]]
+id = "bullet_mould"
+name = "Bullet mould (specify caliber)"
+section = "ammunition"
+copy = "Twelve balls an hour by a good fire."
+weight_g = 227
+bulk = 0.1
+value_cents = 40
+tags = ["cast_tool", "caliber_specified"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { cast = 1 }
+stackable = false
+
+[[item]]
+id = "patches_box"
+name = "Patches & patch box"
+section = "ammunition"
+copy = "Greased linen. A ball without a patch is a prayer."
+weight_g = 91
+bulk = 0.2
+value_cents = 15
+materials = [{ material = "linen", pct = 100 }]
+supply = { kind = "patch", units = 100 }
+
+[[item]]
+id = "percussion_caps_tin"
+name = "Percussion caps, tin of 100"
+section = "ammunition"
+unit = "tin of 100"
+copy = "Without these, your rifle is a club."
+weight_g = 45
+bulk = 0.1
+value_cents = 30
+tags = ["wet_ruin"]
+materials = [{ material = "copper", pct = 100 }]
+supply = { kind = "percussion_cap", units = 100 }
+
+[[item]]
+id = "gun_flints_dozen"
+name = "Gun flints, dozen"
+section = "ammunition"
+unit = "dozen"
+copy = "English flint, good for forty strikes each."
+weight_g = 91
+bulk = 0.1
+value_cents = 10
+materials = [{ material = "stone", pct = 100 }]
+affordances = { ignite = 1 }
+supply = { kind = "flint_strike", units = 480 }
+
+[[item]]
+id = "shot_no4_5lb"
+name = "Shot, No. 4 birdshot, 5 lb"
+section = "ammunition"
+unit = "bag"
+copy = "Partridge and teal."
+weight_g = 2268
+bulk = 0.5
+value_cents = 40
+tags = ["shotgun"]
+materials = [{ material = "lead", pct = 100 }]
+supply = { kind = "shot_oz", units = 80 }
+
+[[item]]
+id = "paper_cartridges_69"
+name = "Paper cartridges, .69, ten"
+section = "ammunition"
+unit = "packet of 10"
+copy = "Bite, pour, ram. Faster than a horn."
+weight_g = 454
+bulk = 0.5
+value_cents = 25
+tags = ["wet_ruin", "faster_reload"]
+materials = [{ material = "paper", pct = 80 }, { material = "powder", pct = 20 }]
+supply = { kind = "cartridge_69", units = 10 }
+
+[[item]]
+id = "silver_ball_cast"
+name = "Silver ball, cast, each"
+section = "ammunition"
+unit = "each"
+copy = "Ask no questions about why you'd want one, and we'll ask none about why we stock them."
+weight_g = 23
+bulk = 0.1
+value_cents = 75
+tags = ["silver"]
+materials = [{ material = "silver", pct = 100 }]
+supply = { kind = "ball_54", units = 1 }
+
+[[item]]
+id = "cast_balls_36_bag"
+name = "Cast balls, .36, bag of 50"
+section = "ammunition"
+unit = "bag of 50"
+copy = "Cast to the mould at the forge, sorted by hand. Lead enough for a long hunting season."
+weight_g = 567
+bulk = 0.2
+value_cents = 40
+materials = [{ material = "lead", pct = 100 }]
+supply = { kind = "ball_36", units = 50 }
+
+[[item]]
+id = "cast_balls_45_bag"
+name = "Cast balls, .45, bag of 50"
+section = "ammunition"
+unit = "bag of 50"
+copy = "Cast to the mould at the forge, sorted by hand. Lead enough for a long hunting season."
+weight_g = 998
+bulk = 0.3
+value_cents = 50
+materials = [{ material = "lead", pct = 100 }]
+supply = { kind = "ball_45", units = 50 }
+
+[[item]]
+id = "cast_balls_54_bag"
+name = "Cast balls, .54, bag of 50"
+section = "ammunition"
+unit = "bag of 50"
+copy = "Cast to the mould at the forge, sorted by hand. Lead enough for a long hunting season."
+weight_g = 1361
+bulk = 0.4
+value_cents = 60
+materials = [{ material = "lead", pct = 100 }]
+supply = { kind = "ball_54", units = 50 }
+
+[[item]]
+id = "cast_balls_69_bag"
+name = "Cast balls, .69, bag of 50"
+section = "ammunition"
+unit = "bag of 50"
+copy = "Cast to the mould at the forge, sorted by hand. Lead enough for a long hunting season."
+weight_g = 2268
+bulk = 0.5
+value_cents = 80
+materials = [{ material = "lead", pct = 100 }]
+supply = { kind = "ball_69", units = 50 }

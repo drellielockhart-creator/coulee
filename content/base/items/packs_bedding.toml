@@ -1,0 +1,146 @@
+# Catalog 03 §6.1 Packs & Bedding. OWNER: module:content-items.
+# Units: weight_g per unit (lb * 453.6, rounded), value_cents per unit (Outfitter price at the
+# river-town reference, 03 §8.1), bulk in Bulk (1 Bulk ~ 1 quart of awkward volume).
+# Containers: capacity_bulk is the 03 "cap" column; capacity_g is a weight-capacity estimate.
+# Insulation for bedding is `affordances.insulate` in °F of comfort-band extension (05 §6.3).
+# Worn insulation is `wearable.insulation` in °F (03 points × 5, anchored to 05 §6.3).
+
+[[item]]
+id = "haversack_tarred"
+name = "Haversack, tarred canvas"
+section = "packs_bedding"
+copy = "Slung at the hip for the day's bread and powder. Tarred against a passing shower, not a river."
+weight_g = 454
+bulk = 1
+value_cents = 75
+materials = [{ material = "canvas", pct = 100 }]
+stackable = false
+container = { capacity_g = 6000, capacity_bulk = 8, protects = ["splashproof"], carry = "sling" }
+
+[[item]]
+id = "knapsack_army"
+name = "Knapsack, painted canvas, army pattern"
+section = "packs_bedding"
+copy = "Of the pattern carried to Mexico. Painted black; the straps will find your collarbones."
+weight_g = 1361
+bulk = 2
+value_cents = 150
+materials = [{ material = "canvas", pct = 90 }, { material = "leather", pct = 10 }]
+stackable = false
+container = { capacity_g = 13600, capacity_bulk = 20, protects = ["splashproof"], carry = "pack" }
+
+[[item]]
+id = "pack_board_tumpline"
+name = "Pack board & tumpline"
+section = "packs_bedding"
+copy = "The portager's friend. Load it high, put the strap across your brow, and keep your eyes on your feet."
+weight_g = 2268
+bulk = 5
+value_cents = 250
+shape = ["rigid"]
+materials = [{ material = "wood", pct = 80 }, { material = "rawhide", pct = 20 }]
+stackable = false
+container = { capacity_g = 22680, capacity_bulk = 45, carry = "pack" }
+
+[[item]]
+id = "ash_splint_basket"
+name = "Ash-splint pack basket"
+section = "packs_bedding"
+copy = "Woven of pounded black ash. Will not crush your eggs nor your lantern glass."
+weight_g = 1361
+bulk = 2
+value_cents = 125
+materials = [{ material = "wood", pct = 100 }]
+stackable = false
+container = { capacity_g = 20000, capacity_bulk = 30, protects = ["crushproof"], carry = "pack" }
+
+[[item]]
+id = "saddlebags_leather"
+name = "Saddlebags, leather, pair"
+section = "packs_bedding"
+unit = "pair"
+copy = "Galena-tanned. Fit any saddle with a tree worth the name."
+weight_g = 2722
+bulk = 4
+value_cents = 350
+materials = [{ material = "leather", pct = 100 }]
+stackable = false
+container = { capacity_g = 18000, capacity_bulk = 28, carry = "animal" }
+
+[[item]]
+id = "blanket_wool_3pt"
+name = "Blanket, wool, 3-point"
+section = "packs_bedding"
+copy = "Three points woven at the edge, three good nights in October."
+weight_g = 2268
+bulk = 8
+value_cents = 300
+tags = ["wool"]
+materials = [{ material = "wool", pct = 100 }]
+affordances = { insulate = 10 }
+stackable = false
+
+[[item]]
+id = "blanket_wool_4pt_haugen"
+name = "Blanket, wool, 4-point heavy (Haugen)"
+section = "packs_bedding"
+copy = "Spun in the coulees from coulee sheep. Stays warm wet, as wool should."
+maker = "Haugen Woolen Mill"
+weight_g = 3175
+bulk = 10
+value_cents = 450
+tags = ["wool"]
+materials = [{ material = "wool", pct = 100 }]
+affordances = { insulate = 15 }
+stackable = false
+
+[[item]]
+id = "buffalo_robe"
+name = "Buffalo robe"
+section = "packs_bedding"
+copy = "Hair side in. Sleeping in one, a man forgets January for a few hours."
+weight_g = 5443
+bulk = 16
+value_cents = 500
+tags = ["heavy"]
+materials = [{ material = "fur", pct = 100 }]
+affordances = { insulate = 25 }
+stackable = false
+
+[[item]]
+id = "gum_blanket"
+name = "Gum blanket (india-rubber)"
+section = "packs_bedding"
+copy = "Goodyear's process. A floor in the mud, a roof in the rain, a poncho between. Cracks in hard frost."
+weight_g = 1361
+bulk = 3
+value_cents = 225
+tags = ["waterproof", "cracks_below_0f"]
+materials = [{ material = "gum", pct = 100 }]
+affordances = { shelter = 1, ground = 1 }
+stackable = false
+
+[[item]]
+id = "bed_tick"
+name = "Bed tick, ticking cloth"
+section = "packs_bedding"
+copy = "Stuff with dry leaves and sleep off the frozen ground."
+weight_g = 680
+bulk = 2
+value_cents = 40
+tags = ["stuffable"]
+materials = [{ material = "cotton", pct = 100 }]
+affordances = { insulate = 5 }
+stackable = false
+
+[[item]]
+id = "blanket_straps"
+name = "Blanket straps & pins"
+section = "packs_bedding"
+copy = "Two straps and a horse-blanket pin. Holds a bedroll through a laurel thicket."
+weight_g = 45
+bulk = 0.1
+value_cents = 15
+materials = [{ material = "leather", pct = 80 }, { material = "iron", pct = 20 }]
+affordances = { bind = 1 }
+stackable = false

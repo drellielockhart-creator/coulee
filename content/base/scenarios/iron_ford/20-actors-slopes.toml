@@ -1,0 +1,230 @@
+# The slopes and the ridge: Glover farm, the Fenns of the lower coulee, the Kvales and the Moes
+# of Kvale Ridge. Abilities are final scores. Elves carry final scores, not ancestry mods.
+
+[[actors]]
+key = "thomas_glover"
+given = "Thomas"
+family = "Glover"
+sex = "male"
+age = 46
+ancestry = "human"
+culture = "black_ohio"
+occupation = "farmer"
+household = "glover"
+workplace = "glover_farm"
+abilities = { str = 14, dex = 11, con = 14, int = 12, wis = 14, cha = 12 }
+skills = { trade_farming = 8, animal_handling = 5, lore_local = 3, fae_courtesy = 3, persuade = 2 }
+traits = ["pious"]
+values = { piety = 2, thrift = 3, neighborliness = 2, discretion = 2, rancor = 1, ambition = 1 }
+languages = ["english"]
+psyche = { ego = 65, superego = 60, id_appetite = 30 }
+persona = "the careful farmer who owns his land"
+anxiety = 350
+notes = "Owns the best spring farm on the lower slope. Whitcomb's new line throws the claim into doubt. The family never plowed the spring slope: that is a thing they do, not a thing they are."
+purse_cents = 300
+
+[[actors]]
+key = "harriet_glover"
+given = "Harriet"
+family = "Glover"
+sex = "female"
+age = 43
+ancestry = "human"
+culture = "black_ohio"
+occupation = "farm_wife"
+household = "glover"
+workplace = "glover_farm"
+abilities = { str = 10, dex = 12, con = 12, int = 14, wis = 14, cha = 14 }
+skills = { bargain = 8, animal_handling = 6, fae_courtesy = 4, read_people = 5, persuade = 3, trade_cookery = 4 }
+values = { thrift = 2, neighborliness = 2, discretion = 3, ambition = 2, superstition = 0 }
+languages = ["english"]
+psyche = { ego = 70, superego = 55, id_appetite = 40 }
+persona = "the county's sharpest horse trader"
+anxiety = 300
+notes = "Keeps the courtesies a Norwegian neighbor taught her, and once bargained shrewdly with the spring's tenant. A learned practice, never an inherited gift, a special sight, or a mystical tie."
+purse_cents = 400
+
+[[actors]]
+key = "isaiah_glover"
+given = "Isaiah"
+family = "Glover"
+sex = "male"
+age = 17
+ancestry = "human"
+culture = "black_ohio"
+occupation = "farmer"
+household = "glover"
+workplace = "glover_barn"
+abilities = { str = 13, dex = 13, con = 13, int = 12, wis = 11, cha = 12 }
+skills = { trade_farming = 4, animal_handling = 4, athletics = 2 }
+values = { ambition = 2, neighborliness = 1, superstition = -1 }
+languages = ["english"]
+psyche = { ego = 50, superego = 50, id_appetite = 55 }
+persona = "the Glovers' eldest"
+notes = "Wants to read law. Walks the survey line's stakes at night to see where they are."
+purse_cents = 30
+
+[[actors]]
+key = "edwin_fenn"
+given = "Edwin"
+family = "Fenn"
+sex = "male"
+age = 52
+ancestry = "shadow_faekin"
+presents_as = "human"
+culture = "yankee"
+occupation = "farmer"
+household = "fenn"
+workplace = "fenn_farm"
+abilities = { str = 12, dex = 12, con = 11, int = 12, wis = 14, cha = 11 }
+skills = { trade_farming = 4, woodcraft = 4, fae_courtesy = 5, stealth = 3, herbalism = 3 }
+values = { discretion = 3, thrift = 2, neighborliness = -1, parochialism = 1, superstition = 1, rancor = 1 }
+languages = ["english"]
+psyche = { ego = 55, superego = 70, id_appetite = 30 }
+persona = "the quiet farmer of the lower coulee"
+shadow = ["gossip"]
+anxiety = 550
+needs = { hunger = 640 }
+true_name = "Linden-who-waits"
+notes = "Shadow-faekin passing as a human Yankee. Keeps to the Lantern, shelters no one, and has been in the county eleven years. Keeps the quiet code: keep the secret, shelter your own, never name another. The family has never needed credit and will not ask for it."
+purse_cents = 10
+
+[[actors]]
+key = "minnie_fenn"
+given = "Minerva"
+family = "Fenn"
+nickname = "Minnie"
+sex = "female"
+age = 48
+ancestry = "human"
+culture = "yankee"
+occupation = "farm_wife"
+household = "fenn"
+workplace = "fenn_farm"
+abilities = { str = 9, dex = 11, con = 12, int = 12, wis = 13, cha = 12 }
+skills = { trade_cookery = 5, trade_sewing = 4, herbalism = 3, read_people = 3 }
+values = { thrift = 3, discretion = 3, neighborliness = 1, piety = 1 }
+languages = ["english"]
+psyche = { ego = 55, superego = 65, id_appetite = 30 }
+persona = "the farm wife who stretches a bag of meal"
+anxiety = 500
+needs = { hunger = 600 }
+notes = "A human who knows what her husband and daughter are, and loves them. Has started rationing herself first."
+purse_cents = 5
+
+[[actors]]
+key = "hester_fenn"
+given = "Hester"
+family = "Fenn"
+sex = "female"
+age = 29
+ancestry = "shadow_faekin"
+presents_as = "human"
+culture = "yankee"
+occupation = "hired_hand"
+household = "fenn"
+workplace = "fenn_farm"
+abilities = { str = 11, dex = 14, con = 11, int = 12, wis = 14, cha = 13 }
+skills = { woodcraft = 5, herbalism = 4, fae_courtesy = 5, stealth = 4, perception = 4, trade_farming = 3 }
+values = { discretion = 3, neighborliness = 1, ambition = 1, superstition = 0 }
+languages = ["english"]
+psyche = { ego = 50, superego = 60, id_appetite = 45 }
+persona = "the farm daughter who looks nineteen"
+shadow = ["hot_tempered"]
+anxiety = 500
+needs = { hunger = 620 }
+true_name = "Wren-of-the-hush"
+notes = "Shadow-faekin, passing as human. Has started not aging like her friends: that is her family's pressing worry. Digs ginseng and sells to the ferry trade. Not a villain, not a victim: a young woman with a hard secret and a hungry house."
+purse_cents = 15
+
+[[actors]]
+key = "siri_kvale"
+given = "Siri"
+family = "Kvale"
+sex = "female"
+age = 60
+ancestry = "human"
+culture = "norwegian"
+occupation = "lay_preacher"
+household = "kvale"
+workplace = "kvale_farm"
+abilities = { str = 10, dex = 10, con = 12, int = 13, wis = 15, cha = 14 }
+skills = { perform_preaching = 8, lore_scripture = 7, persuade = 5, read_people = 4, medicine = 2 }
+traits = ["pious"]
+values = { piety = 3, parochialism = 1, rancor = 1, neighborliness = 2, temper = 1 }
+languages = ["norwegian", "english"]
+psyche = { ego = 65, superego = 80, id_appetite = 25 }
+persona = "the Haugean lay preacher"
+anxiety = 250
+notes = "Haugean lay preacher whose small Ridge following is fervent. Her splitting of the parish is draining Tveit's power. Sincerely holds that she is serving the parish, not undermining it."
+purse_cents = 50
+
+[[actors]]
+key = "halvor_kvale"
+given = "Halvor"
+family = "Kvale"
+sex = "male"
+age = 35
+ancestry = "human"
+culture = "norwegian"
+occupation = "farmer"
+household = "kvale"
+workplace = "kvale_farm"
+abilities = { str = 14, dex = 11, con = 13, int = 11, wis = 12, cha = 11 }
+skills = { trade_farming = 6, animal_handling = 4, woodcraft = 3, fae_courtesy = 2 }
+traits = ["pious"]
+values = { piety = 2, thrift = 2, superstition = 2, parochialism = 2, discretion = 2 }
+languages = ["norwegian", "english"]
+psyche = { ego = 50, superego = 65, id_appetite = 40 }
+persona = "his mother's son"
+notes = "Farms the Ridge place. Puts porridge out for the nisse and does not say so."
+purse_cents = 80
+
+[[actors]]
+key = "kristoffer_moe"
+given = "Kristoffer"
+family = "Moe"
+sex = "male"
+age = 83
+ancestry = "elf"
+culture = "elf_hall"
+occupation = "hall_reader"
+household = "moe"
+workplace = "moe_farm"
+abilities = { str = 10, dex = 12, con = 11, int = 14, wis = 15, cha = 12 }
+skills = { lore_scripture = 7, lore_fae = 6, trade_farming = 5, fae_courtesy = 5, concentration = 5, perform_storytelling = 4 }
+traits = ["pious"]
+values = { piety = 3, parochialism = 2, discretion = 3, rancor = 1, superstition = 1, neighborliness = 1 }
+languages = ["english", "norwegian", "german"]
+psyche = { ego = 65, superego = 85, id_appetite = 15 }
+persona = "the Hall-reader of the Ridge"
+shadow = ["hot_tempered"]
+anxiety = 650
+house_name = "of Sølvklokke Hall"
+true_name = "Aevreth-in-bell"
+notes = "Keeps the Roll and leads the Midsummer Renewal. Remembers Bad Axe (he was 60 in 1832), and tells it differently from Captain Hurd. Forbids anyone to bargain for the missing chainman. The Catechism against his daughter."
+purse_cents = 120
+
+[[actors]]
+key = "johanne_moe"
+given = "Johanne"
+family = "Moe"
+sex = "female"
+age = 41
+ancestry = "elf"
+culture = "elf_hall"
+occupation = "farmer"
+household = "moe"
+workplace = "moe_farm"
+abilities = { str = 9, dex = 14, con = 10, int = 12, wis = 13, cha = 14 }
+skills = { trade_farming = 4, perform_fiddle = 4, fae_courtesy = 4, perception = 4, lore_fae = 3 }
+values = { piety = 1, ambition = 1, neighborliness = 1, discretion = 2 }
+languages = ["english", "norwegian"]
+psyche = { ego = 45, superego = 65, id_appetite = 55 }
+persona = "the Hall-reader's quiet daughter"
+shadow = ["gossip"]
+anxiety = 750
+house_name = "of Sølvklokke Hall"
+true_name = "Sel-who-answers"
+notes = "Came home from Huldra's Shelf humming tunes nobody taught her. At Drift 38. Sublimates into hymn-tunes and grafting. The Pull is real, and so is her father's Catechism."
+purse_cents = 30

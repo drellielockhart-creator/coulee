@@ -1,0 +1,197 @@
+# Figures (rumor identities), beliefs, secrets and grudges. OWNER: module:content-world,
+# using belief's scenario fields. Actors are scenario keys. Starting credences are deliberately low:
+# the town has not yet decided anything about anyone.
+
+[[figures]]
+key = "bluff_witch"
+name = "the Bluff Witch"
+description = "A figure of campfire talk: a woman on the West Bluff who is said to dance with the wisps and sour the milk of those who cross her. Nobody has ever named her. Whoever she is, she is not any one person yet."
+notoriety = 12
+
+[[figures]]
+key = "lantern_lady"
+name = "the Lantern Lady"
+description = "What the lower coulee says about the lights at night. Some say she leads people astray; others say she leads them home."
+notoriety = 20
+
+# --- Beliefs (what actors currently hold, voiced or not)
+
+[[beliefs]]
+holder = "nora_dunleavy"
+prop = { pred = "faekin", args = ["brigid_dunleavy"] }
+credence = 35
+voiced = false
+note = "Changeling fear: the baby cries at the iron nails above the door, she thinks. The baby is human. A real child is being harmed by this."
+
+[[beliefs]]
+holder = "elias_hurd"
+prop = { pred = "is_figure", args = ["loveday_trevenna", "bluff_witch"] }
+credence = 30
+voiced = true
+note = "Hurd needs a name for the threat he is certain is out there."
+
+[[beliefs]]
+holder = "ingrid_tveit"
+prop = { pred = "faekin", args = ["clara_stoughton"] }
+credence = 15
+voiced = false
+note = "The schoolhouse wards, the gauges: too much knowing, too little prayer."
+
+[[beliefs]]
+holder = "mercy_bell"
+prop = { pred = "deals_with_fae", args = ["gussie_pratt"] }
+credence = 12
+voiced = false
+note = "She noticed leaf-litter in the Pratts' till tray when she changed a five-dollar note."
+
+[[beliefs]]
+holder = "kristoffer_moe"
+prop = { pred = "deals_with_fae", args = ["lydia_pratt"] }
+credence = 20
+voiced = true
+note = "He thinks her lyceum bargaining-spells could draw the Prince's eye to the missing man."
+
+# --- Secrets (true propositions the holder conceals)
+
+[[secrets]]
+holder = "gussie_pratt"
+prop = { pred = "deals_with_fae", args = ["gussie_pratt"] }
+known_by = []
+note = "Last fall fairy gold paid for a winter's flour and turned to oak leaves in her till. She buys fae goods quietly."
+
+[[secrets]]
+holder = "gussie_pratt"
+prop = { pred = "owes", args = ["gussie_pratt", "lucius_vance", 21500] }
+known_by = ["lucius_vance"]
+note = "A Galena wholesale house holds her note; Vance is its agent."
+
+[[secrets]]
+holder = "josiah_trevenna"
+prop = { pred = "owes", args = ["josiah_trevenna", "lucius_vance", 31000] }
+known_by = ["lucius_vance", "loveday_trevenna"]
+
+[[secrets]]
+holder = "tollef_haugen"
+prop = { pred = "deals_with_fae", args = ["tollef_haugen"] }
+known_by = ["ragnhild_haugen"]
+note = "He lies to Pastor Tveit about the nisse."
+
+[[secrets]]
+holder = "harriet_glover"
+prop = { pred = "deals_with_fae", args = ["harriet_glover"] }
+known_by = ["thomas_glover"]
+note = "She once bargained shrewdly with the spring's tenant. A thing she did, not a thing she is."
+
+[[secrets]]
+holder = "edwin_fenn"
+prop = { pred = "faekin", args = ["edwin_fenn"] }
+known_by = ["minnie_fenn", "hester_fenn"]
+note = "Passes as a human Yankee farmer."
+
+[[secrets]]
+holder = "hester_fenn"
+prop = { pred = "faekin", args = ["hester_fenn"] }
+known_by = ["edwin_fenn", "minnie_fenn"]
+note = "Passes as human. She has begun not to age like her friends."
+
+[[secrets]]
+holder = "ragnhild_haugen"
+prop = { pred = "deals_with_fae", args = ["ragnhild_haugen"] }
+known_by = ["tollef_haugen"]
+note = "She sets out the nisse's cream every night."
+
+[[secrets]]
+holder = "johanne_moe"
+prop = { pred = "deals_with_fae", args = ["johanne_moe"] }
+known_by = []
+note = "She is not bargaining; she hums what she hears on the Shelf. But the Catechism does not distinguish."
+
+# --- Grudges
+
+[[grudges]]
+holder = "johann_brenner"
+target = "anders_tveit"
+intensity = 55
+aim = "humiliation"
+founding = "Years of sermons against freethinkers, and the pastor's refusal to bury his unbaptized first child in the churchyard."
+public = true
+
+[[grudges]]
+holder = "anders_tveit"
+target = "johann_brenner"
+intensity = 50
+aim = "apology"
+founding = "The Sentinel letters, which he believes are costing him the village."
+public = true
+
+[[grudges]]
+holder = "siri_kvale"
+target = "anders_tveit"
+intensity = 40
+aim = "apology"
+founding = "He called her house meetings disorder from the pulpit."
+public = true
+
+[[grudges]]
+holder = "anders_tveit"
+target = "siri_kvale"
+intensity = 45
+aim = "apology"
+founding = "She drew half the Ridge from the parish church, and he cannot be seen to resent it."
+public = false
+
+[[grudges]]
+holder = "thomas_glover"
+target = "lucius_vance"
+intensity = 40
+aim = "restitution"
+founding = "Vance offered less than a third of the spring farm's value, then mentioned the survey line."
+public = false
+
+[[grudges]]
+holder = "harriet_glover"
+target = "lucius_vance"
+intensity = 45
+aim = "humiliation"
+founding = "He tried to trade her down in front of her own horse."
+public = false
+
+[[grudges]]
+holder = "elias_hurd"
+target = "bluff_witch"
+intensity = 35
+aim = "expulsion"
+founding = "He has been telling the town for a season that something is out there. A threat he cannot name is no use to him."
+public = true
+
+[[grudges]]
+holder = "elias_hurd"
+target = "horace_bell"
+intensity = 25
+aim = "humiliation"
+founding = "Bell printed the other survivors' account of Bad Axe."
+public = true
+
+[[grudges]]
+holder = "johann_brenner"
+target = "gussie_pratt"
+intensity = 20
+aim = "apology"
+founding = "She dunned him in front of customers."
+public = false
+
+[[grudges]]
+holder = "bartholomew_pascoe"
+target = "lucius_vance"
+intensity = 30
+aim = "apology"
+founding = "The company courts another pare without asking the Penhallow pare's Accord-speaker."
+public = false
+
+[[grudges]]
+holder = "kristoffer_moe"
+target = "lydia_pratt"
+intensity = 20
+aim = "apology"
+founding = "He blames her letters and lyceum bargaining for drawing the Prince's eye to a Hall-sworn boy."
+public = false

@@ -1,0 +1,838 @@
+# Relationships (structural edges; 04 §7) and seed opinions with reasons. OWNER: module:content-world.
+# Directed kinds read "a is <kind> of b": parent: a is parent of b; creditor: a is owed by b.
+
+[[relationships]]
+a = "gussie_pratt"
+b = "lydia_pratt"
+kind = "parent"
+
+[[relationships]]
+a = "johann_brenner"
+b = "magdalena_brenner"
+kind = "spouse"
+
+[[relationships]]
+a = "johann_brenner"
+b = "karl_brenner"
+kind = "parent"
+
+[[relationships]]
+a = "magdalena_brenner"
+b = "karl_brenner"
+kind = "parent"
+
+[[relationships]]
+a = "anders_tveit"
+b = "ingrid_tveit"
+kind = "spouse"
+
+[[relationships]]
+a = "michael_dunleavy"
+b = "nora_dunleavy"
+kind = "spouse"
+
+[[relationships]]
+a = "michael_dunleavy"
+b = "brigid_dunleavy"
+kind = "parent"
+
+[[relationships]]
+a = "nora_dunleavy"
+b = "brigid_dunleavy"
+kind = "parent"
+
+[[relationships]]
+a = "horace_bell"
+b = "mercy_bell"
+kind = "spouse"
+
+[[relationships]]
+a = "tollef_haugen"
+b = "ragnhild_haugen"
+kind = "spouse"
+
+[[relationships]]
+a = "thomas_glover"
+b = "harriet_glover"
+kind = "spouse"
+
+[[relationships]]
+a = "thomas_glover"
+b = "isaiah_glover"
+kind = "parent"
+
+[[relationships]]
+a = "harriet_glover"
+b = "isaiah_glover"
+kind = "parent"
+
+[[relationships]]
+a = "edwin_fenn"
+b = "minnie_fenn"
+kind = "spouse"
+
+[[relationships]]
+a = "edwin_fenn"
+b = "hester_fenn"
+kind = "parent"
+
+[[relationships]]
+a = "minnie_fenn"
+b = "hester_fenn"
+kind = "parent"
+
+[[relationships]]
+a = "siri_kvale"
+b = "halvor_kvale"
+kind = "parent"
+
+[[relationships]]
+a = "kristoffer_moe"
+b = "johanne_moe"
+kind = "parent"
+
+[[relationships]]
+a = "josiah_trevenna"
+b = "loveday_trevenna"
+kind = "spouse"
+
+[[relationships]]
+a = "josiah_trevenna"
+b = "jory_trevenna"
+kind = "parent"
+
+[[relationships]]
+a = "loveday_trevenna"
+b = "jory_trevenna"
+kind = "parent"
+
+[[relationships]]
+a = "bartholomew_pascoe"
+b = "demelza_pascoe"
+kind = "spouse"
+
+[[relationships]]
+a = "lemuel_hatch"
+b = "abigail_hatch"
+kind = "spouse"
+
+[[relationships]]
+a = "gussie_pratt"
+b = "lydia_pratt"
+kind = "employer"
+
+[[relationships]]
+a = "johann_brenner"
+b = "karl_brenner"
+kind = "employer"
+note = "Apprentice son."
+
+[[relationships]]
+a = "horace_bell"
+b = "eli_crane"
+kind = "employer"
+note = "Printer's devil, bound for six years."
+
+[[relationships]]
+a = "tollef_haugen"
+b = "josiah_trevenna"
+kind = "patron"
+note = "Haugen flour has fed the Penhallow crew on trust in lean months."
+
+[[relationships]]
+a = "amos_whitcomb"
+b = "joel_pike"
+kind = "employer"
+
+[[relationships]]
+a = "amos_whitcomb"
+b = "tobias_vik"
+kind = "employer"
+
+[[relationships]]
+a = "amos_whitcomb"
+b = "ezra_sloat"
+kind = "employer"
+
+[[relationships]]
+a = "josiah_trevenna"
+b = "jory_trevenna"
+kind = "employer"
+
+[[relationships]]
+a = "josiah_trevenna"
+b = "konrad_strauss"
+kind = "employer"
+note = "Cash wage; Konrad also owes the pare's club."
+
+[[relationships]]
+a = "josiah_trevenna"
+b = "bartholomew_pascoe"
+kind = "employer"
+note = "Pascoe is the pare's Accord-speaker and Trevenna's senior hand."
+
+[[relationships]]
+a = "gussie_pratt"
+b = "johann_brenner"
+kind = "creditor"
+amount_cents = 640
+note = "Iron stock bought on account."
+
+[[relationships]]
+a = "gussie_pratt"
+b = "horace_bell"
+kind = "creditor"
+amount_cents = 380
+note = "Paper, ink and type on account."
+
+[[relationships]]
+a = "gussie_pratt"
+b = "lemuel_hatch"
+kind = "creditor"
+amount_cents = 210
+note = "Winter staples on the tab."
+
+[[relationships]]
+a = "gussie_pratt"
+b = "halvor_kvale"
+kind = "creditor"
+amount_cents = 450
+note = "Seed corn and a plow point."
+
+[[relationships]]
+a = "gussie_pratt"
+b = "anders_tveit"
+kind = "creditor"
+amount_cents = 190
+note = "Parsonage books and candles."
+
+[[relationships]]
+a = "gussie_pratt"
+b = "elias_hurd"
+kind = "creditor"
+amount_cents = 730
+note = "Militia stores, and rye and tobacco, on account."
+
+[[relationships]]
+a = "lucius_vance"
+b = "gussie_pratt"
+kind = "creditor"
+amount_cents = 21500
+note = "The Galena house holds her note. She has told no one."
+
+[[relationships]]
+a = "lucius_vance"
+b = "josiah_trevenna"
+kind = "creditor"
+amount_cents = 31000
+note = "The company's advances against the Penhallow lease."
+
+[[relationships]]
+a = "tollef_haugen"
+b = "lemuel_hatch"
+kind = "creditor"
+amount_cents = 90
+note = "Meal for the ferry family in the winter."
+
+[[relationships]]
+a = "thomas_glover"
+b = "edwin_fenn"
+kind = "neighbor"
+note = "Upslope and down the coulee; speak civilly, no more."
+
+[[relationships]]
+a = "harriet_glover"
+b = "minnie_fenn"
+kind = "friend"
+note = "Harriet sends over an egg or two and never mentions it."
+
+[[relationships]]
+a = "tollef_haugen"
+b = "halvor_kvale"
+kind = "cousin"
+note = "Second cousins through Voss."
+
+[[relationships]]
+a = "tollef_haugen"
+b = "siri_kvale"
+kind = "in_law"
+note = "Siri's late husband was Tollef's cousin."
+
+[[relationships]]
+a = "anders_tveit"
+b = "siri_kvale"
+kind = "rival"
+note = "The split in the parish, and the pulpit it shaped."
+
+[[relationships]]
+a = "johann_brenner"
+b = "anders_tveit"
+kind = "rival"
+note = "The Sentinel letters."
+
+[[relationships]]
+a = "elias_hurd"
+b = "horace_bell"
+kind = "rival"
+note = "Bell prints corrections of the Bad Axe story."
+
+[[relationships]]
+a = "josiah_trevenna"
+b = "loveday_trevenna"
+kind = "congregant_with"
+
+[[relationships]]
+a = "josiah_trevenna"
+b = "gussie_pratt"
+kind = "congregant_with"
+
+[[relationships]]
+a = "kristoffer_moe"
+b = "anders_tveit"
+kind = "congregant_with"
+note = "Attends the parish church, by custom, on the Ridge."
+
+[[relationships]]
+a = "lydia_pratt"
+b = "tobias_vik"
+kind = "courting"
+note = "Never said aloud. Letters were exchanged."
+
+[[relationships]]
+a = "clara_stoughton"
+b = "lydia_pratt"
+kind = "friend"
+note = "Lydia borrows her lyceum pamphlets."
+
+[[relationships]]
+a = "clara_stoughton"
+b = "mercy_bell"
+kind = "friend"
+
+[[relationships]]
+a = "amos_whitcomb"
+b = "thomas_glover"
+kind = "neighbor"
+note = "The survey line cuts across the claim."
+
+[[relationships]]
+a = "bartholomew_pascoe"
+b = "loveday_trevenna"
+kind = "friend"
+note = "Old Cornish custom between neighbors; she brings the pare herbs."
+
+[[relationships]]
+a = "konrad_strauss"
+b = "jory_trevenna"
+kind = "friend"
+note = "Share a drift and a fiddle."
+
+[[relationships]]
+a = "demelza_pascoe"
+b = "loveday_trevenna"
+kind = "friend"
+
+[[relationships]]
+a = "magdalena_brenner"
+b = "mercy_bell"
+kind = "friend"
+
+[[relationships]]
+a = "ingrid_tveit"
+b = "nora_dunleavy"
+kind = "friend"
+note = "Both newer mothers, one Catholic and one Lutheran."
+
+[[relationships]]
+a = "lucius_vance"
+b = "amos_whitcomb"
+kind = "friend"
+note = "Dines with him at the tavern; useful to both."
+
+[[relationships]]
+a = "johanne_moe"
+b = "lydia_pratt"
+kind = "neighbor"
+
+[[relationships]]
+a = "lucius_vance"
+b = "michael_dunleavy"
+kind = "lodger"
+note = "Takes the front room at the tavern."
+
+[[opinions]]
+from = "johann_brenner"
+to = "gussie_pratt"
+reason = "Dunned him in front of customers"
+affection = -10
+respect = 15
+trust = -5
+fear = 0
+
+[[opinions]]
+from = "gussie_pratt"
+to = "johann_brenner"
+reason = "Pays late but pays in good work"
+affection = 5
+respect = 20
+trust = 10
+fear = 0
+
+[[opinions]]
+from = "johann_brenner"
+to = "anders_tveit"
+reason = "Calls his letters sermons in disguise"
+affection = -35
+respect = 10
+trust = -25
+fear = 0
+
+[[opinions]]
+from = "anders_tveit"
+to = "johann_brenner"
+reason = "Public mocking of the faith and the pastor"
+affection = -35
+respect = 15
+trust = -30
+fear = 0
+
+[[opinions]]
+from = "anders_tveit"
+to = "siri_kvale"
+reason = "She has drawn half the Ridge from his pulpit"
+affection = -25
+respect = 25
+trust = -20
+fear = 5
+
+[[opinions]]
+from = "siri_kvale"
+to = "anders_tveit"
+reason = "Too learned, too cold, and wrong about the Spirit"
+affection = -20
+respect = 15
+trust = -25
+fear = 0
+
+[[opinions]]
+from = "thomas_glover"
+to = "lucius_vance"
+reason = "A man who tells you what your land is worth"
+affection = -30
+respect = 5
+trust = -45
+fear = 5
+
+[[opinions]]
+from = "harriet_glover"
+to = "lucius_vance"
+reason = "Smiles like a man pricing your teeth"
+affection = -35
+respect = 10
+trust = -50
+fear = 0
+
+[[opinions]]
+from = "lucius_vance"
+to = "harriet_glover"
+reason = "The sharpest trader in the county, and the obstacle"
+affection = -5
+respect = 40
+trust = -15
+fear = 0
+
+[[opinions]]
+from = "thomas_glover"
+to = "amos_whitcomb"
+reason = "His line is the law on the ground"
+affection = -15
+respect = 15
+trust = -15
+fear = 0
+
+[[opinions]]
+from = "amos_whitcomb"
+to = "thomas_glover"
+reason = "Honest man on a doubtful claim"
+affection = 10
+respect = 25
+trust = 10
+fear = 0
+
+[[opinions]]
+from = "lydia_pratt"
+to = "tobias_vik"
+reason = "Gave her his copy of a book of verse"
+affection = 60
+respect = 40
+trust = 45
+fear = 0
+
+[[opinions]]
+from = "tobias_vik"
+to = "lydia_pratt"
+reason = "Laughs at his seriousness, kindly"
+affection = 55
+respect = 30
+trust = 40
+fear = 0
+
+[[opinions]]
+from = "gussie_pratt"
+to = "lydia_pratt"
+reason = "Her only child; sharper than she lets on"
+affection = 70
+respect = 50
+trust = 35
+fear = 0
+
+[[opinions]]
+from = "lydia_pratt"
+to = "gussie_pratt"
+reason = "Watches the till too closely and says too little"
+affection = 50
+respect = 35
+trust = 15
+fear = 0
+
+[[opinions]]
+from = "josiah_trevenna"
+to = "lucius_vance"
+reason = "Pays the wages and sends the letters"
+affection = -5
+respect = 15
+trust = -20
+fear = 15
+
+[[opinions]]
+from = "lucius_vance"
+to = "josiah_trevenna"
+reason = "Competent, loyal, and superstitious"
+affection = 10
+respect = 25
+trust = 5
+fear = 0
+
+[[opinions]]
+from = "josiah_trevenna"
+to = "bartholomew_pascoe"
+reason = "Best hand in the drifts; knows the courtesies"
+affection = 55
+respect = 60
+trust = 65
+fear = 0
+
+[[opinions]]
+from = "bartholomew_pascoe"
+to = "josiah_trevenna"
+reason = "Leaves the crusts, and means it"
+affection = 45
+respect = 40
+trust = 55
+fear = 0
+
+[[opinions]]
+from = "bartholomew_pascoe"
+to = "lucius_vance"
+reason = "Would bring in another pare without asking ours"
+affection = -30
+respect = 0
+trust = -55
+fear = 5
+
+[[opinions]]
+from = "nora_dunleavy"
+to = "michael_dunleavy"
+reason = "Does not see what she sees in the cradle"
+affection = 15
+respect = 5
+trust = -15
+fear = 0
+
+[[opinions]]
+from = "michael_dunleavy"
+to = "nora_dunleavy"
+reason = "Frightened for her, and frightened by her"
+affection = 50
+respect = 10
+trust = 30
+fear = 0
+
+[[opinions]]
+from = "elias_hurd"
+to = "horace_bell"
+reason = "Prints the corrections to the Bad Axe story"
+affection = -35
+respect = -5
+trust = -35
+fear = 0
+
+[[opinions]]
+from = "horace_bell"
+to = "elias_hurd"
+reason = "A good man with a better story"
+affection = -10
+respect = 10
+trust = -10
+fear = 0
+
+[[opinions]]
+from = "elias_hurd"
+to = "loveday_trevenna"
+reason = "Does charms; a Methodist who knows too much"
+affection = -20
+respect = 10
+trust = -30
+fear = 0
+
+[[opinions]]
+from = "loveday_trevenna"
+to = "elias_hurd"
+reason = "Brags a great deal for a man who ran"
+affection = -15
+respect = -5
+trust = -20
+fear = 5
+
+[[opinions]]
+from = "clara_stoughton"
+to = "horace_bell"
+reason = "Has not measured what he is sure of"
+affection = -15
+respect = 10
+trust = -10
+fear = 0
+
+[[opinions]]
+from = "horace_bell"
+to = "clara_stoughton"
+reason = "Intelligent, and wasted on stories"
+affection = 25
+respect = 35
+trust = 15
+fear = 0
+
+[[opinions]]
+from = "ingrid_tveit"
+to = "clara_stoughton"
+reason = "The wards on the schoolhouse door troubled her"
+affection = -10
+respect = 10
+trust = -20
+fear = 5
+
+[[opinions]]
+from = "tollef_haugen"
+to = "anders_tveit"
+reason = "His pastor, whom he lies to out of kindness"
+affection = 20
+respect = 30
+trust = -10
+fear = 0
+
+[[opinions]]
+from = "anders_tveit"
+to = "tollef_haugen"
+reason = "A good man with a miller's luck he can't explain"
+affection = 20
+respect = 25
+trust = 10
+fear = 0
+
+[[opinions]]
+from = "gussie_pratt"
+to = "edwin_fenn"
+reason = "Pays cash, never owes, never asks"
+affection = 10
+respect = 15
+trust = 5
+fear = 0
+
+[[opinions]]
+from = "edwin_fenn"
+to = "gussie_pratt"
+reason = "Charges fairly; keeps her counsel"
+affection = 5
+respect = 15
+trust = 10
+fear = 0
+
+[[opinions]]
+from = "hester_fenn"
+to = "lydia_pratt"
+reason = "Talks to her at the counter without once asking odd questions"
+affection = 35
+respect = 20
+trust = 30
+fear = 0
+
+[[opinions]]
+from = "minnie_fenn"
+to = "harriet_glover"
+reason = "The egg and the kind word that mean more than she will say"
+affection = 45
+respect = 35
+trust = 50
+fear = 0
+
+[[opinions]]
+from = "johanne_moe"
+to = "kristoffer_moe"
+reason = "Her father; the Catechism he keeps"
+affection = 15
+respect = 30
+trust = -15
+fear = 10
+
+[[opinions]]
+from = "kristoffer_moe"
+to = "johanne_moe"
+reason = "His daughter, and the one he is most afraid for"
+affection = 65
+respect = 30
+trust = 10
+fear = 0
+
+[[opinions]]
+from = "kristoffer_moe"
+to = "lydia_pratt"
+reason = "Her mail-order nonsense endangers a missing man"
+affection = -20
+respect = 5
+trust = -30
+fear = 0
+
+[[opinions]]
+from = "amos_whitcomb"
+to = "lydia_pratt"
+reason = "A bright girl who writes to my lost man"
+affection = 15
+respect = 20
+trust = 15
+fear = 0
+
+[[opinions]]
+from = "amos_whitcomb"
+to = "kristoffer_moe"
+reason = "Will not even help look for the boy"
+affection = -25
+respect = 15
+trust = -35
+fear = 0
+
+[[opinions]]
+from = "mercy_bell"
+to = "gussie_pratt"
+reason = "Knows what everyone owes, and says nothing"
+affection = 10
+respect = 20
+trust = -5
+fear = 5
+
+[[opinions]]
+from = "eli_crane"
+to = "horace_bell"
+reason = "Brought him in out of the cold; wants him to stop writing"
+affection = 30
+respect = 40
+trust = 30
+fear = 0
+
+[[opinions]]
+from = "karl_brenner"
+to = "johann_brenner"
+reason = "Wants his father's hands; fears his father's temper"
+affection = 35
+respect = 45
+trust = 25
+fear = 10
+
+[[opinions]]
+from = "isaiah_glover"
+to = "amos_whitcomb"
+reason = "Moves the stakes in the daylight and the dark"
+affection = -20
+respect = 10
+trust = -25
+fear = 0
+
+[[opinions]]
+from = "hester_fenn"
+to = "edwin_fenn"
+reason = "Her father; they tell no one what they are"
+affection = 75
+respect = 50
+trust = 70
+fear = 0
+
+[[opinions]]
+from = "halvor_kvale"
+to = "siri_kvale"
+reason = "His mother. Sometimes a mother is a congregation"
+affection = 55
+respect = 40
+trust = 30
+fear = 0
+
+[[opinions]]
+from = "konrad_strauss"
+to = "lucius_vance"
+reason = "Pays a driller more than the club does"
+affection = -5
+respect = 5
+trust = -30
+fear = 0
+
+[[opinions]]
+from = "demelza_pascoe"
+to = "lucius_vance"
+reason = "A man who counts the club pantry in cash"
+affection = -25
+respect = 0
+trust = -40
+fear = 0
+
+[[opinions]]
+from = "joel_pike"
+to = "amos_whitcomb"
+reason = "Pays the wages, wants more than he can give"
+affection = 5
+respect = 15
+trust = 5
+fear = 0
+
+[[opinions]]
+from = "lemuel_hatch"
+to = "gussie_pratt"
+reason = "Carries the tab, and is polite about it"
+affection = 5
+respect = 15
+trust = 0
+fear = 0
+
+[[opinions]]
+from = "michael_dunleavy"
+to = "elias_hurd"
+reason = "Buys a round and tells the story again"
+affection = 20
+respect = -5
+trust = -5
+fear = 0
+
+[[opinions]]
+from = "ragnhild_haugen"
+to = "tollef_haugen"
+reason = "Loves him and the nisse, in that order"
+affection = 45
+respect = 30
+trust = 35
+fear = 0
+
+[[opinions]]
+from = "tollef_haugen"
+to = "josiah_trevenna"
+reason = "A decent Cornishman; owes the mill for flour"
+affection = 20
+respect = 25
+trust = 20
+fear = 0

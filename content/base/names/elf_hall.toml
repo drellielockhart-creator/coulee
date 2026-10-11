@@ -1,0 +1,13 @@
+# Elves share their country's pool, weighted toward saints', apostles' and Old Testament names:
+# the renouncers chose "names with church in them" (12 §5.4). No invented Tolkien-style names.
+
+[[name_pool]]
+id = "elf_hall"
+culture = "elf_hall"
+peoples = ["elf"]
+given_female = ["Johanne", "Magdalena", "Susanna", "Elisabeth", "Maria", "Marta", "Rebekka", "Dorothea", "Agnes"]
+given_male = ["Kristoffer", "Absalon", "Tobias", "Johannes", "Matthias", "Simon", "Andreas", "Bartolomeus", "Jakob", "Josef"]
+family = ["Moe", "Vik", "Lund", "Rud", "Sletten", "Keller", "Zimmermann"]
+house_names = ["of Sølvklokke Hall", "of Kirkeberg Hall", "of St. Brendan's Hall", "of Marienglocke Hall", "of Sandhill Hall"]
+private_names = ["Aevreth-in-bell", "Sel-who-answers", "Oriel-of-the-grafted-bough", "Ennith-at-the-salt", "Harrow-who-keeps", "Imbra-at-the-door"]
+notes = "Given name: household language, saint-weighted. Surname: national custom (use the Norwegian, German or Swiss pool). House-name: formal, naming the Hall sworn at. Private (sealed) name is given at the Renewal and never spoken; it fills true_name, and name-targeting fae effects take -4 against it."

@@ -1,0 +1,270 @@
+# Catalog 03 §6.7 Arms (weapons and launchers). OWNER: module:content-items.
+# Combat stats (damage, range, accuracy) are owned by 02. Here: weight, bulk, handling tags,
+# and the per-USE supply burn (`consumes`, 03 §3.8). Reload times are tags `reload_<n>s`
+# until provisions/02 add a field (see report). Gunpowder is `powder_gr` grains per shot;
+# balls are `ball_<caliber>`; caps are `percussion_cap`; flints are `flint_strike`.
+# The supplies these consume are in ammunition.toml.
+
+[[item]]
+id = "bowie_knife"
+name = "Bowie knife"
+section = "arms"
+copy = "Arkansas pattern. Kitchen, camp, and the other thing."
+weight_g = 454
+bulk = 1
+value_cents = 200
+tags = ["weapon"]
+materials = [{ material = "steel", pct = 90 }, { material = "wood", pct = 10 }]
+affordances = { cut = 2, chop = 0.5 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "cavalry_saber"
+name = "Cavalry saber, surplus"
+section = "arms"
+copy = "Dragoon pattern. Useless for chores, alarming in a doorway."
+weight_g = 1361
+bulk = 3
+value_cents = 400
+tags = ["weapon"]
+shape = ["long"]
+materials = [{ material = "steel", pct = 90 }, { material = "leather", pct = 10 }]
+affordances = { cut = 2 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "sword_cane"
+name = "Sword-cane"
+section = "arms"
+copy = "A gentleman's walking stick until it isn't."
+weight_g = 680
+bulk = 1
+value_cents = 600
+tags = ["weapon", "concealed"]
+materials = [{ material = "steel", pct = 70 }, { material = "wood", pct = 30 }]
+affordances = { pierce = 1, cut = 1 }
+stackable = false
+wear = 1
+
+[[item]]
+id = "smoothbore_musket_surplus"
+name = "Smoothbore musket, surplus flintlock, .69"
+section = "arms"
+copy = "Fought the British. Will fight a deer. Hits what it is pointed near."
+weight_g = 4536
+bulk = 8
+value_cents = 600
+shape = ["long"]
+tags = ["firearm", "misfire_wet_high", "reload_20s"]
+materials = [{ material = "iron", pct = 70 }, { material = "wood", pct = 30 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 110 },
+  { kind = "ball_69", per = "use", units = 1 },
+  { kind = "flint_strike", per = "use", units = 1 },
+]
+
+[[item]]
+id = "percussion_musket"
+name = "Percussion musket (converted)"
+section = "arms"
+copy = "Converted to caps, so it fires in drizzle more often than not."
+weight_g = 4536
+bulk = 8
+value_cents = 900
+shape = ["long"]
+tags = ["firearm", "reload_20s"]
+materials = [{ material = "iron", pct = 70 }, { material = "wood", pct = 30 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 110 },
+  { kind = "ball_69", per = "use", units = 1 },
+  { kind = "percussion_cap", per = "use", units = 1 },
+]
+
+[[item]]
+id = "squirrel_rifle_36"
+name = "Squirrel rifle, .36"
+section = "arms"
+copy = "Small ball, little powder, fine for the pot."
+weight_g = 3175
+bulk = 7
+value_cents = 1200
+shape = ["long"]
+tags = ["firearm", "accurate", "reload_30s"]
+materials = [{ material = "iron", pct = 65 }, { material = "wood", pct = 35 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 35 },
+  { kind = "ball_36", per = "use", units = 1 },
+  { kind = "percussion_cap", per = "use", units = 1 },
+]
+
+[[item]]
+id = "kentucky_long_rifle"
+name = "Kentucky long rifle, flint, .45 (old)"
+section = "arms"
+copy = "Long, elegant, and older than you. Patched with care."
+weight_g = 4082
+bulk = 9
+value_cents = 1400
+shape = ["long"]
+tags = ["firearm", "accurate", "antique", "reload_35s"]
+materials = [{ material = "iron", pct = 60 }, { material = "wood", pct = 40 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 60 },
+  { kind = "ball_45", per = "use", units = 1 },
+  { kind = "flint_strike", per = "use", units = 1 },
+  { kind = "patch", per = "use", units = 1 },
+]
+
+[[item]]
+id = "plains_rifle_ostrander"
+name = "Plains rifle, half-stock .54 (Ostrander)"
+section = "arms"
+maker = "Ostrander Rifle Works"
+copy = "Drops an elk at two hundred yards. Built in St. Louis for men who could not afford to miss."
+weight_g = 4763
+bulk = 8
+value_cents = 2500
+quality = "good"
+shape = ["long"]
+tags = ["firearm", "accurate", "heavy_ball", "reload_30s"]
+materials = [{ material = "iron", pct = 55 }, { material = "wood", pct = 45 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 90 },
+  { kind = "ball_54", per = "use", units = 1 },
+  { kind = "percussion_cap", per = "use", units = 1 },
+  { kind = "patch", per = "use", units = 1 },
+]
+
+[[item]]
+id = "fowling_piece_12ga"
+name = "Fowling piece, single, 12 ga."
+section = "arms"
+copy = "Ducks, partridge, and anything at twelve paces."
+weight_g = 3175
+bulk = 8
+value_cents = 700
+shape = ["long"]
+tags = ["firearm", "shot_or_ball", "reload_20s"]
+materials = [{ material = "iron", pct = 65 }, { material = "wood", pct = 35 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 80 },
+  { kind = "shot_oz", per = "use", units = 1 },
+  { kind = "percussion_cap", per = "use", units = 1 },
+]
+
+[[item]]
+id = "double_barrel_12ga"
+name = "Double-barrel shotgun, 12 ga."
+section = "arms"
+copy = "Two answers before you need to reload."
+weight_g = 3629
+bulk = 8
+value_cents = 1800
+shape = ["long"]
+tags = ["firearm", "two_shots", "reload_40s"]
+materials = [{ material = "iron", pct = 65 }, { material = "wood", pct = 35 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 80 },
+  { kind = "shot_oz", per = "use", units = 1 },
+  { kind = "percussion_cap", per = "use", units = 1 },
+]
+
+[[item]]
+id = "pistol_single_percussion"
+name = "Single-shot percussion pistol"
+section = "arms"
+copy = "For the coat pocket and the last resort."
+weight_g = 907
+bulk = 1
+value_cents = 500
+tags = ["firearm", "reload_20s"]
+materials = [{ material = "iron", pct = 65 }, { material = "wood", pct = 35 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 25 },
+  { kind = "ball_45", per = "use", units = 1 },
+  { kind = "percussion_cap", per = "use", units = 1 },
+]
+
+[[item]]
+id = "pepperbox_pistol"
+name = "Pepperbox pistol, 4-barrel"
+section = "arms"
+copy = "Fires four times. Occasionally all at once."
+weight_g = 907
+bulk = 1
+value_cents = 800
+tags = ["firearm", "four_shots", "chain_fire_risk", "reload_120s"]
+materials = [{ material = "iron", pct = 65 }, { material = "wood", pct = 35 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 25 },
+  { kind = "ball_36", per = "use", units = 1 },
+  { kind = "percussion_cap", per = "use", units = 1 },
+]
+
+[[item]]
+id = "revolver_carrow_36"
+name = "Revolver, .36 six-shot (Carrow & Tuck)"
+section = "arms"
+maker = "Carrow & Tuck"
+copy = "Six shots, patent cylinder. The finest pocket artillery in the Union."
+weight_g = 1179
+bulk = 1
+value_cents = 2400
+tags = ["firearm", "six_shot", "reload_90s"]
+materials = [{ material = "steel", pct = 75 }, { material = "wood", pct = 25 }]
+stackable = false
+consumes = [
+  { kind = "powder_gr", per = "use", units = 25 },
+  { kind = "ball_36", per = "use", units = 1 },
+  { kind = "percussion_cap", per = "use", units = 1 },
+]
+
+[[item]]
+id = "hunting_bow_hickory"
+name = "Hunting bow, hickory"
+section = "arms"
+copy = "Quiet. Ask anyone it's been used on."
+weight_g = 907
+bulk = 4
+value_cents = 300
+shape = ["long"]
+tags = ["bow", "silent", "no_iron", "reload_2s"]
+materials = [{ material = "wood", pct = 100 }]
+stackable = false
+consumes = [{ kind = "arrow", per = "use", units = 1 }]
+
+[[item]]
+id = "crossbow_old_country"
+name = "Crossbow, old-country"
+section = "arms"
+copy = "Brought over in a trunk. Silent as a closed door."
+weight_g = 3629
+bulk = 6
+value_cents = 1000
+shape = ["long"]
+tags = ["silent", "reload_25s"]
+materials = [{ material = "steel", pct = 60 }, { material = "wood", pct = 40 }]
+stackable = false
+
+[[item]]
+id = "gun_case_oiled_leather"
+name = "Gun case, oiled leather"
+section = "arms"
+copy = "Keeps the lock dry through a river crossing."
+weight_g = 454
+bulk = 1
+value_cents = 75
+tags = ["waterproof", "gun_case", "draw_plus_3s"]
+materials = [{ material = "leather", pct = 100 }]
+stackable = false

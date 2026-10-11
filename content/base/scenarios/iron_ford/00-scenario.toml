@@ -1,0 +1,91 @@
+# Iron Ford, spring 1855 (01 §8). OWNER: module:content-world.
+# A scenario directory: all *.toml files here are merged (arrays concatenated).
+#   00-scenario.toml    header, tensions
+#   10-households.toml  households, pantries, cash (P8: every larder differs)
+#   20-actors-*.toml    forty characters, in households
+#   30-social.toml      relationships and opinions with reasons
+#   40-belief.toml      figures, beliefs, secrets, grudges
+#   50-stocks.toml      store and springhouse stock
+# Design note: April 1 1855 is a Sunday. Spring is the lean season: cellars are low, nothing
+# green has come up, hens are only starting to lay, and the first ramps are two weeks out.
+
+id = "iron_ford"
+name = "Iron Ford, Spring 1855"
+description = "A mill village at the mouth of Lantern Coulee, where the ford is paved with iron. Forty people, seventeen households, one lean April."
+site = "iron_ford"
+start = "1855-04-01"
+player = "lydia_pratt"
+
+[[tensions]]
+key = "pratt_debt"
+summary = "Gussie Pratt holds credit on half the town while owing a Galena wholesale house she cannot pay. Last fall fairy gold paid for a winter's flour and turned to oak leaves in her till. Nobody knows either thing."
+actors = ["gussie_pratt", "lucius_vance", "lydia_pratt"]
+
+[[tensions]]
+key = "brenner_vs_tveit"
+summary = "The freethinking smith and the Lutheran pastor feud in public through letters to the Sentinel. Brenner owes the ford its iron; Tveit owes the parish its authority. Neither can afford to lose."
+actors = ["johann_brenner", "anders_tveit", "horace_bell"]
+
+[[tensions]]
+key = "tveit_vs_kvale"
+summary = "The parish is split by the Haugean lay preacher Siri Kvale. Her small Ridge following is fervent; Tveit's congregation is wavering, and his power to ward the village is draining with it."
+actors = ["anders_tveit", "siri_kvale", "halvor_kvale", "ingrid_tveit"]
+
+[[tensions]]
+key = "glovers_vs_speculator"
+summary = "Whitcomb's new survey line throws the Glover claim in doubt, and a Galena speculator is circling their spring farm. Whitcomb is caught between the law of the survey and the people it ruins."
+actors = ["thomas_glover", "harriet_glover", "isaiah_glover", "lucius_vance", "amos_whitcomb"]
+
+[[tensions]]
+key = "lydia_and_the_chainman"
+summary = "Lydia Pratt is sweet on Whitcomb's young chainman Tobias Vik, an elf, who has been missing in the coulee for nine days. The Prince took him as a deserter rather than as prey, and the Hall-reader forbids anyone to bargain for him."
+actors = ["lydia_pratt", "tobias_vik", "kristoffer_moe", "amos_whitcomb"]
+
+[[tensions]]
+key = "trevenna_between"
+summary = "Captain Trevenna owes the Galena company that wants a steam pump at Penhallow, and he leaves crusts in the drifts for the knockers the company does not believe in. His wife is a pellar. The pare's Accord-speaker has not been consulted about any of it."
+actors = ["josiah_trevenna", "loveday_trevenna", "bartholomew_pascoe", "lucius_vance"]
+
+[[tensions]]
+key = "nora_changeling_fear"
+summary = "Nora Dunleavy knows changeling lore and watches her new baby too closely. The sim should show what that does to a real child, and to a marriage. Dunleavy is an ordinary tavern keeper who sees his wife's fear and does not know what to do with it."
+actors = ["nora_dunleavy", "michael_dunleavy", "brigid_dunleavy"]
+
+[[tensions]]
+key = "hurd_needs_an_enemy"
+summary = "Captain Hurd's standing rests on being the town's protector, and his war story grows with each telling. A town with no threat has no use for him. He will lead any hunt."
+actors = ["elias_hurd", "horace_bell", "loveday_trevenna"]
+
+[[tensions]]
+key = "stoughton_wrongly_suspected"
+summary = "Clara Stoughton is a human lyceum wizard whose measurements of Fae intensity make Iron Ford nervous. The more she measures the more a frightened town reads it as a defense. She is not faekin."
+actors = ["clara_stoughton", "horace_bell", "ingrid_tveit", "elias_hurd"]
+
+[[tensions]]
+key = "hall_readers_daughter"
+summary = "Johanne Moe came home from Huldra's Shelf humming tunes nobody taught her. She is at Drift 38 and her father keeps the Catechism that says what comes next."
+actors = ["johanne_moe", "kristoffer_moe"]
+
+[[tensions]]
+key = "penhallow_new_pare"
+summary = "The Galena company's agent wants a steam pump at Penhallow and talks of bringing in a new pare for its Accord standing without asking Trevenna's. The Accord-speaker has not been asked."
+actors = ["bartholomew_pascoe", "lucius_vance", "josiah_trevenna", "demelza_pascoe"]
+
+[[tensions]]
+key = "millers_nisse"
+summary = "Tollef Haugen's mill never floods because of the nisse he keeps fed with cream and porridge. He lies to Pastor Tveit about it, and Ragnhild is tired of the lie."
+actors = ["tollef_haugen", "ragnhild_haugen", "anders_tveit"]
+
+[[tensions]]
+key = "fenns_lean_april"
+summary = "The Fenns of the lower coulee are in their eleventh year in the county, keep to themselves, and are eight days from an empty larder. Edwin will not ask Pratt for credit. Their eldest has started not aging like her friends."
+actors = ["edwin_fenn", "minnie_fenn", "hester_fenn", "gussie_pratt"]
+
+[[tensions]]
+key = "glover_courtesies"
+summary = "The spring tenant has been courteous to the Glovers for years. The reason is something they did, never something they are: they never plowed the spring slope, Harriet keeps the courtesies a Norwegian neighbor taught her, and she once bargained shrewdly. If the town learned, the wrong people would call it witchcraft."
+actors = ["harriet_glover", "thomas_glover"]
+
+# [Placeholder: Ho-Chunk neighbor or trader]. 01 §2 and §8.3: a ginseng and fur buyer with ties to
+# Pratt and a view on the surveyors. NO actor is authored here. Name and details wait for
+# consultation; do not invent them.

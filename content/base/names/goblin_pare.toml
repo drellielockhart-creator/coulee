@@ -1,0 +1,20 @@
+# Goblin naming (12 §8.4): public names from the Cornish and German pools; deep-names are
+# private and fill true_name. No comic or diminutive names, no hoard or coin coding.
+
+[[name_pool]]
+id = "goblin_pare"
+culture = "goblin_pare"
+peoples = ["goblin"]
+given_female = ["Demelza", "Wenna", "Gertrud", "Anneliese", "Keziah", "Morwenna", "Dorothea"]
+given_male = ["Bartholomew", "Konrad", "Jory", "Matthias", "Peran", "Wilhelm", "Jakob"]
+family = ["Pascoe", "Strauss", "Carne", "Rausch", "Trewin", "Polglase", "Keller"]
+house_names = ["of the Penhallow pare", "of the Dolcoath pare", "of the Hartz pare"]
+private_names = ["Kern-under-stone", "Dewin-of-the-low-drift", "Marrow-in-the-seam", "Tolven-who-answers", "Hendra-at-the-sump", "Gwyn-of-the-third-level"]
+notes = "A deep-name is given underground at a child's first descent. Name-targeting fae effects take -4 against it (12 §10.2). Public name is the family's Cornish or German name."
+
+[[name_pool]]
+id = "faekin_dusk"
+culture = "faekin_private"
+peoples = ["shadow_faekin"]
+private_names = ["Wren-of-the-hush", "Sorrel-at-gloaming", "Linden-who-waits", "Tansy-between", "Fenn-at-first-star", "Rowan-in-the-seam"]
+notes = "Faekin go by their presenting community's common names in public (12 §6.5). A dusk-name is whispered at a household's own hearth and never written. It fills true_name."

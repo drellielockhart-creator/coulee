@@ -1,27 +1,39 @@
 # Proposition predicates (04 §5.1). OWNER: module:belief.
+#
+# Arg 0 is the subject: the person (or Figure) the claim is about.
+# juiciness 0..100 (gossip value), valence −100..100 (how the claim colors the subject),
+# prior = starting credence of someone who has never considered it (04 §5.3).
+# charge = can open a persecution process on the subject; act = it's a deed, not an identity
+# (identity-only processes can't climb past rung 4, 04 §9.2).
+# Mutation links (04 §8.5): exaggerates_to, supernaturalizes_to, moralizes_to, truncates_to.
+
+# ---- Witchcraft, the fae, and kind ------------------------------------------------------
 
 [[predicate]]
 id = "witch"
 args = ["actor"]
 text = "{0} is a witch"
+description = "Holds a pact with something under the bluffs; lays curses."
 juiciness = 90
 valence = -90
 supernatural = true
+prior = 3
+charge = true
+magic = true
+moralizes_to = ["sabbath_breaker", "loose"]
 
 [[predicate]]
 id = "faekin"
 args = ["actor"]
 text = "{0} is of the hidden folk"
+description = "Is(x, kind:shadow_faekin). Kind props carry no act (04 §5.8); valence is how the community colors it in 1855."
 juiciness = 80
 valence = -50
 supernatural = true
-
-[[predicate]]
-id = "owes"
-args = ["actor", "actor", "number"]
-text = "{0} owes {1} {2} cents"
-juiciness = 25
-valence = -10
+prior = 2
+charge = true
+kind_of = "shadow_faekin"
+projects = ["fae_longing", "longing"]
 
 [[predicate]]
 id = "deals_with_fae"
@@ -30,9 +42,260 @@ text = "{0} trades with the Fair Folk"
 juiciness = 75
 valence = -60
 supernatural = true
+prior = 5
+charge = true
+magic = true
+exaggerates_to = "witch"
+
+[[predicate]]
+id = "keeps_charms"
+args = ["actor"]
+text = "{0} keeps charms and hex-signs"
+description = "Folk warding; harmless, but the superstitious read it as knowing too much."
+juiciness = 35
+valence = -15
+supernatural = true
+prior = 15
+magic = true
+exaggerates_to = "deals_with_fae"
 
 [[predicate]]
 id = "is_figure"
 args = ["actor", "figure"]
 text = "{0} is {1}"
+description = "IsFigure(actor, figure): who wears a rumor identity (04 §5.7)."
 juiciness = 85
+valence = -40
+prior = 3
+charge = true
+
+# ---- Misfortune and blame (04 §5.4) -------------------------------------------------------
+
+[[predicate]]
+id = "befell"
+args = ["household", "misfortune"]
+text = "{1}"
+description = "News: a misfortune struck a household. The attribution engine runs on it."
+juiciness = 40
+prior = 30
+truncates_to = "hard_luck"
+
+[[predicate]]
+id = "hard_luck"
+args = ["household"]
+text = "{0} have had hard luck"
+juiciness = 15
+valence = -5
+prior = 30
+
+[[predicate]]
+id = "caused"
+args = ["agent", "misfortune"]
+text = "{0} is behind it: {1}"
+description = "Caused(c, m), the mundane reading: poison, spite, neglect."
+juiciness = 70
+valence = -70
+prior = 10
+charge = true
+act = true
+supernaturalizes_to = "cursed"
+moralizes_to = ["drinks", "sabbath_breaker"]
+
+[[predicate]]
+id = "cursed"
+args = ["agent", "misfortune"]
+text = "{0} laid a curse: {1}"
+description = "Caused(c, m), the uncanny reading."
+juiciness = 90
+valence = -90
+supernatural = true
+prior = 5
+charge = true
+act = true
+magic = true
+moralizes_to = ["sabbath_breaker", "loose", "envious"]
+
+[[predicate]]
+id = "stole_from"
+args = ["actor", "household"]
+text = "{0} has been stealing from {1}"
+juiciness = 60
+valence = -60
+prior = 10
+charge = true
+act = true
+moralizes_to = ["drinks"]
+
+# ---- Sins and failings (Moralization targets; projection targets) -------------------------
+
+[[predicate]]
+id = "envious"
+args = ["actor"]
+text = "{0} is eaten up with envy"
+description = "The evil eye starts here (10 §7.2: envy -> dried cows, stolen luck)."
+juiciness = 40
+valence = -35
+prior = 15
+projects = ["envy"]
+
+[[predicate]]
+id = "grasping"
+args = ["actor"]
+text = "{0} is grasping and close"
+juiciness = 30
+valence = -30
+prior = 20
+projects = ["greed"]
+
+[[predicate]]
+id = "drinks"
+args = ["actor"]
+text = "{0} drinks"
+juiciness = 45
+valence = -35
+prior = 20
+exaggerates_to = "drunkard"
+projects = ["thirst_for_drink"]
+
+[[predicate]]
+id = "drunkard"
+args = ["actor"]
+text = "{0} is a drunkard"
+juiciness = 55
+valence = -55
+prior = 10
+
+[[predicate]]
+id = "sabbath_breaker"
+args = ["actor"]
+text = "{0} doesn't keep the Sabbath"
+juiciness = 35
+valence = -30
+prior = 20
+
+[[predicate]]
+id = "loose"
+args = ["actor"]
+text = "{0} is loose in her conduct"
+description = "Period slander; Moralization's favorite sin."
+juiciness = 70
+valence = -55
+prior = 10
+projects = ["lust"]
+
+[[predicate]]
+id = "violent"
+args = ["actor"]
+text = "{0} has a violent streak"
+juiciness = 50
+valence = -45
+prior = 15
+projects = ["rage"]
+
+[[predicate]]
+id = "liar"
+args = ["actor"]
+text = "{0} is a liar"
+juiciness = 45
+valence = -45
+prior = 15
+
+# ---- Money, love, trouble ----------------------------------------------------------------
+
+[[predicate]]
+id = "owes"
+args = ["actor", "actor", "number"]
+text = "{0} owes {1} {2} cents"
+juiciness = 25
+valence = -10
+prior = 25
+truncates_to = "in_debt"
+
+[[predicate]]
+id = "in_debt"
+args = ["actor"]
+text = "{0} is in debt over the ears"
+juiciness = 40
+valence = -25
+prior = 20
+
+[[predicate]]
+id = "hidden_debt"
+args = ["actor", "text"]
+text = "{0} secretly owes money to {1}"
+description = "A concealed debt (Gussie Pratt's Galena wholesaler)."
+juiciness = 65
+valence = -35
+prior = 10
+truncates_to = "in_debt"
+
+[[predicate]]
+id = "courting"
+args = ["actor", "actor"]
+text = "{0} is courting {1}"
+juiciness = 50
+prior = 20
+
+[[predicate]]
+id = "adulterous"
+args = ["actor", "actor"]
+text = "{0} is carrying on with {1}"
+juiciness = 85
+valence = -70
+prior = 5
+charge = true
+act = true
+
+[[predicate]]
+id = "quarreled"
+args = ["actor", "actor"]
+text = "{0} and {1} have fallen out"
+juiciness = 40
+valence = -10
+prior = 25
+
+[[predicate]]
+id = "has_trait"
+args = ["actor", "text"]
+text = "{0} is {1}"
+description = "Fallback for a projected trait with no predicate of its own."
+juiciness = 25
+valence = -20
+prior = 15
+
+[[predicate]]
+id = "deserved"
+args = ["actor"]
+text = "{0} had it coming"
+description = "Rationalization's justification belief (10 §7.2; 04 §9.6)."
+juiciness = 30
+valence = -40
+prior = 10
+
+[[predicate]]
+id = "framed"
+args = ["actor", "actor"]
+text = "{0} framed {1}"
+juiciness = 80
+valence = -70
+prior = 5
+charge = true
+act = true
+
+# ---- Praise (consistency in plausibility; the respected resist bad props) -----------------
+
+[[predicate]]
+id = "pious"
+args = ["actor"]
+text = "{0} is a godly soul"
+juiciness = 10
+valence = 50
+prior = 30
+
+[[predicate]]
+id = "honest_dealer"
+args = ["actor"]
+text = "{0} deals honest"
+juiciness = 10
+valence = 40
+prior = 30

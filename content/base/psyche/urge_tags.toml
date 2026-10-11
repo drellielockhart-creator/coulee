@@ -1,0 +1,60 @@
+# How the psyche reads options (10 §5.2: a norm forbids an option by its tags; a drive is
+# relieved by them). OWNER: module:psyche. Merged with each activity's or interaction's own
+# `tags`, so other modules can tag their records directly instead of adding rows here.
+#
+# Tag vocabulary: labor earn trade spend | rest warm home chores | eat drink drink_water |
+# company talk court | leisure carouse | worship | aggress quarrel slander
+
+[[urge_tag]]
+id = "act_sleep"
+kind = "activity"
+ref = "sleep"
+tags = ["rest", "home"]
+
+[[urge_tag]]
+id = "act_work"
+kind = "activity"
+ref = "work"
+tags = ["labor", "earn"]
+
+[[urge_tag]]
+id = "act_keep_house"
+kind = "activity"
+ref = "keep_house"
+tags = ["labor", "home", "chores"]
+
+[[urge_tag]]
+id = "act_take_meal"
+kind = "activity"
+ref = "take_meal"
+tags = ["eat", "home", "company"]
+
+[[urge_tag]]
+id = "act_drink_at_tavern"
+kind = "activity"
+ref = "drink_at_tavern"
+tags = ["drink", "carouse", "leisure", "company", "spend"]
+
+[[urge_tag]]
+id = "act_attend_church"
+kind = "activity"
+ref = "attend_church"
+tags = ["worship", "company"]
+
+[[urge_tag]]
+id = "int_chat"
+kind = "interaction"
+ref = "chat"
+tags = ["company", "talk"]
+
+[[urge_tag]]
+id = "int_gossip"
+kind = "interaction"
+ref = "gossip"
+tags = ["talk", "slander"]
+
+[[urge_tag]]
+id = "int_insult"
+kind = "interaction"
+ref = "insult"
+tags = ["aggress", "quarrel"]

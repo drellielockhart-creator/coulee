@@ -1,0 +1,280 @@
+# Memory kinds (04 §4.3). OWNER: module:social.
+#
+# Salience decays daily with integer fixed-point steps (no exp):
+#   negative: tau = tau_days × (50 + intensity) × (4 + Rancor) / 200
+#   positive: tau = tau_days × (50 + intensity) × (20 + 3·Neighborliness) / 1000
+#   neutral:  tau = tau_days × (50 + intensity) / 50
+# At intensity 50 and neutral dispositions each works out to 2 × tau_days.
+# `floor` is the salience floor at intensity 100, scaled by intensity: a dead child (100)
+# never drops below its floor; a petty misfortune (20) keeps a fifth of it.
+# `summary` is the gist of a consolidated Summary memory: {other}, {count}, {since}.
+
+[[memory_kind]]
+id = "chat"
+name = "Small talk"
+valence = "positive"
+tau_days = 2
+summary = "Passed the time with {other} {count} times since {since}"
+
+[[memory_kind]]
+id = "introduction"
+name = "First meeting"
+valence = "neutral"
+tau_days = 10
+consolidate = false
+
+[[memory_kind]]
+id = "gossip"
+name = "Gossip"
+valence = "neutral"
+tau_days = 6
+summary = "Swapped talk with {other} {count} times since {since}"
+
+[[memory_kind]]
+id = "kindness"
+name = "Kindness"
+valence = "positive"
+tau_days = 20
+summary = "{other} has been kind to me {count} times since {since}"
+
+[[memory_kind]]
+id = "confidence"
+name = "A confidence"
+valence = "positive"
+tau_days = 45
+floor = 60
+consolidate = false
+
+[[memory_kind]]
+id = "flattery"
+name = "Flattery"
+valence = "positive"
+tau_days = 5
+summary = "{other} has buttered me up {count} times since {since}"
+
+[[memory_kind]]
+id = "help"
+name = "Help"
+valence = "positive"
+tau_days = 25
+summary = "{other} has lent a hand {count} times since {since}"
+
+[[memory_kind]]
+id = "gift"
+name = "Gift"
+valence = "positive"
+tau_days = 25
+summary = "{other} has brought me something {count} times since {since}"
+
+[[memory_kind]]
+id = "loan"
+name = "Loan"
+valence = "positive"
+tau_days = 30
+summary = "Money passed between me and {other} {count} times since {since}"
+
+[[memory_kind]]
+id = "repayment"
+name = "Repayment"
+valence = "positive"
+tau_days = 30
+summary = "{other} has squared accounts {count} times since {since}"
+
+[[memory_kind]]
+id = "debt"
+name = "Debt"
+valence = "negative"
+tau_days = 40
+floor = 80
+
+[[memory_kind]]
+id = "dunning"
+name = "Dunned"
+valence = "negative"
+tau_days = 15
+summary = "{other} has dunned me {count} times since {since}"
+
+[[memory_kind]]
+id = "courtship"
+name = "Courtship"
+valence = "positive"
+tau_days = 30
+summary = "{other} has been sweet on me {count} times since {since}"
+
+[[memory_kind]]
+id = "rejection"
+name = "Rejection"
+valence = "negative"
+tau_days = 30
+floor = 60
+summary = "{other} has turned me away {count} times since {since}"
+
+[[memory_kind]]
+id = "betrothal"
+name = "Betrothal"
+valence = "positive"
+tau_days = 3650
+floor = 500
+consolidate = false
+
+[[memory_kind]]
+id = "slight"
+name = "Slight"
+valence = "negative"
+tau_days = 5
+summary = "{other} has slighted me {count} times since {since}"
+
+[[memory_kind]]
+id = "snub"
+name = "Snub"
+valence = "negative"
+tau_days = 7
+summary = "{other} has cut me {count} times since {since}"
+
+[[memory_kind]]
+id = "mockery"
+name = "Mockery"
+valence = "negative"
+tau_days = 10
+floor = 40
+summary = "{other} has made sport of me {count} times since {since}"
+
+[[memory_kind]]
+id = "insult"
+name = "Insult"
+valence = "negative"
+tau_days = 10
+floor = 60
+summary = "{other} has insulted me {count} times since {since}"
+
+[[memory_kind]]
+id = "humiliation"
+name = "Humiliation"
+valence = "negative"
+tau_days = 30
+floor = 150
+summary = "{other} has shamed me {count} times since {since}"
+
+[[memory_kind]]
+id = "threat"
+name = "Threat"
+valence = "negative"
+tau_days = 25
+floor = 100
+summary = "{other} has threatened me {count} times since {since}"
+
+[[memory_kind]]
+id = "fight"
+name = "Fight"
+valence = "negative"
+tau_days = 40
+floor = 150
+summary = "{other} and I have come to blows {count} times since {since}"
+
+[[memory_kind]]
+id = "theft"
+name = "Theft"
+valence = "negative"
+tau_days = 60
+floor = 200
+
+[[memory_kind]]
+id = "lie"
+name = "Lie"
+valence = "negative"
+tau_days = 40
+floor = 100
+
+[[memory_kind]]
+id = "accusation"
+name = "Accusation"
+valence = "negative"
+tau_days = 90
+floor = 250
+consolidate = false
+
+[[memory_kind]]
+id = "apology"
+name = "Apology"
+valence = "positive"
+tau_days = 20
+summary = "{other} has said sorry {count} times since {since}"
+
+[[memory_kind]]
+id = "forgiveness"
+name = "Forgiveness"
+valence = "positive"
+tau_days = 40
+floor = 80
+consolidate = false
+
+[[memory_kind]]
+id = "warning"
+name = "Warning"
+valence = "positive"
+tau_days = 15
+
+[[memory_kind]]
+id = "comfort"
+name = "Comfort"
+valence = "positive"
+tau_days = 20
+summary = "{other} has comforted me {count} times since {since}"
+
+[[memory_kind]]
+id = "confession"
+name = "Confession"
+valence = "neutral"
+tau_days = 60
+floor = 100
+consolidate = false
+
+[[memory_kind]]
+id = "prayer"
+name = "Prayer"
+valence = "positive"
+tau_days = 7
+summary = "Prayed with {other} {count} times since {since}"
+
+[[memory_kind]]
+id = "sermon"
+name = "Preaching"
+valence = "neutral"
+tau_days = 7
+summary = "{other} has preached at me {count} times since {since}"
+
+[[memory_kind]]
+id = "toast"
+name = "Toast"
+valence = "positive"
+tau_days = 4
+summary = "{other} has stood drinks {count} times since {since}"
+
+[[memory_kind]]
+id = "tale"
+name = "A tale"
+valence = "neutral"
+tau_days = 5
+summary = "{other} has spun yarns {count} times since {since}"
+
+[[memory_kind]]
+id = "misfortune"
+name = "Misfortune"
+valence = "negative"
+tau_days = 90
+floor = 300
+consolidate = false
+
+[[memory_kind]]
+id = "curse_symptom"
+name = "Sign of a curse"
+valence = "negative"
+tau_days = 90
+floor = 300
+consolidate = false
+
+[[memory_kind]]
+id = "other"
+name = "Other"
+valence = "neutral"
+tau_days = 7

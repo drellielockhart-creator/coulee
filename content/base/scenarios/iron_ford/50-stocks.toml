@@ -1,0 +1,101 @@
+# Store and cold-storage stock. Pratt & Daughter is the village's wholesale source; flour comes
+# in 25-lb sacks, coffee in green beans. Spring stock is thin on anything fresh.
+
+[[stocks]]
+place = "pratt_daughter_outfitters"
+markup_pct = 100
+items = [
+  { item = "hardtack", qty = 120 },
+  { item = "flour", qty = 300 },
+  { item = "flour_sack_25lb", qty = 10 },
+  { item = "cornmeal", qty = 150 },
+  { item = "salt_pork", qty = 80 },
+  { item = "pemmican", qty = 24 },
+  { item = "parched_corn", qty = 20 },
+  { item = "coffee_green", qty = 40 },
+  { item = "tea", qty = 15 },
+  { item = "sugar_brown", qty = 60 },
+  { item = "dried_apples", qty = 30 },
+  { item = "beans_dry", qty = 60 },
+  { item = "cheese", qty = 25 },
+  { item = "whiskey_quart", qty = 24 },
+  { item = "molasses_quart", qty = 10 },
+  { item = "vinegar_quart", qty = 8 },
+  { item = "oysters_tinned", qty = 20 },
+  { item = "lucifers_box", qty = 50 },
+  { item = "match_safe", qty = 6 },
+  { item = "flint_steel_char_tin", qty = 6 },
+  { item = "tinder_pouch", qty = 10 },
+  { item = "candles_tallow_lb", qty = 20 },
+  { item = "candles_spermaceti_lb", qty = 6 },
+  { item = "lard_oil_quart", qty = 20 },
+  { item = "camphene_pint", qty = 6 },
+  { item = "glass_lantern_fenwick", qty = 2 },
+  { item = "tin_lantern_pierced", qty = 4 },
+  { item = "camp_kettle_pair", qty = 4 },
+  { item = "canteen_tin_wool", qty = 6 },
+  { item = "canteen_gourd", qty = 4 },
+  { item = "frying_pan", qty = 6 },
+  { item = "dutch_oven_10qt", qty = 1 },
+  { item = "tin_cup", qty = 20 },
+  { item = "tin_plate", qty = 20 },
+  { item = "coffee_mill_hand", qty = 3 },
+  { item = "stoneware_crock_2gal", qty = 4 },
+  { item = "brine_keg_10gal", qty = 2 },
+  { item = "tin_canister_10lb", qty = 6 },
+  { item = "oilcloth_bag", qty = 12 },
+  { item = "provisions_box_vermin", qty = 2 },
+  { item = "haversack_tarred", qty = 4 },
+  { item = "knapsack_army", qty = 3 },
+  { item = "pack_board_tumpline", qty = 2 },
+  { item = "ash_splint_basket", qty = 4 },
+  { item = "blanket_wool_3pt", qty = 6 },
+  { item = "blanket_wool_4pt_haugen", qty = 4 },
+  { item = "gum_blanket", qty = 4 },
+  { item = "oilcloth_fly_8x10", qty = 3 },
+  { item = "wall_tent_9x9", qty = 1 },
+  { item = "oilcloth_groundsheet", qty = 4 },
+  { item = "canvas_bucket", qty = 4 },
+  { item = "felling_axe_hollister", qty = 3 },
+  { item = "hatchet_belt", qty = 5 },
+  { item = "butcher_knife", qty = 4 },
+  { item = "clasp_knife", qty = 6 },
+  { item = "bucksaw", qty = 2 },
+  { item = "spade", qty = 3 },
+  { item = "miners_pick_penhallow", qty = 4 },
+  { item = "claw_hammer", qty = 4 },
+  { item = "cut_nails_lb", qty = 40 },
+  { item = "whetstone", qty = 6 },
+  { item = "sewing_kit", qty = 8 },
+  { item = "pocket_compass", qty = 2 },
+  { item = "spyglass_brass", qty = 1 },
+  { item = "slate_pencil", qty = 6 },
+]
+
+[[stocks]]
+place = "dunleavys_tavern"
+markup_pct = 120
+items = [
+  { item = "whiskey_quart", qty = 30 },
+  { item = "eggs", qty = 20 },
+  { item = "bread_heel", qty = 12 },
+]
+
+[[stocks]]
+place = "haugen_mill"
+markup_pct = 80
+items = [
+  { item = "flour", qty = 220 },
+  { item = "cornmeal", qty = 180 },
+  { item = "flour_sack_25lb", qty = 6 },
+]
+
+[[stocks]]
+place = "town_springhouse"
+markup_pct = 100
+items = [
+  { item = "milk_quart", qty = 14 },
+  { item = "butter", qty = 8 },
+  { item = "cheese", qty = 10 },
+  { item = "eggs", qty = 12 },
+]

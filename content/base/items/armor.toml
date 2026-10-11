@@ -1,0 +1,81 @@
+# Catalog 03 §6.8 Armor (and why it's rare). OWNER: module:content-items.
+# Armor is worn: `wearable.slot` body_mid / body_outer. Iron Presence comes from `materials`
+# (03 §3.3). Protection values are 02's to apply; the tags carry the class (03 §6.8).
+
+[[item]]
+id = "quilted_jack"
+name = "Quilted jack, cotton-wadded"
+section = "armor"
+copy = "Will turn a knife and a cold wind. Hot as Hades in summer."
+weight_g = 2722
+bulk = 3
+value_cents = 300
+tags = ["armor_light"]
+materials = [{ material = "cotton", pct = 100 }]
+stackable = false
+wearable = { slot = "body_mid", insulation = 5, wet_retention_pct = 10 }
+
+[[item]]
+id = "smoked_hide_jerkin"
+name = "Smoked-hide jerkin, moose"
+section = "armor"
+copy = "Traded down from the north woods. Quiet, and no iron to trouble anyone."
+weight_g = 3175
+bulk = 3
+value_cents = 500
+tags = ["armor_light", "no_iron", "wet_heavy"]
+materials = [{ material = "leather", pct = 100 }]
+stackable = false
+wearable = { slot = "body_mid", insulation = 3, wet_retention_pct = 40 }
+
+[[item]]
+id = "buff_coat"
+name = "Buff coat, thick oil-tanned leather"
+section = "armor"
+copy = "Your great-grandfather's cavalry wore these. Wolves can't get through it."
+weight_g = 4082
+bulk = 4
+value_cents = 800
+tags = ["armor_medium_light"]
+materials = [{ material = "leather", pct = 100 }]
+stackable = false
+wearable = { slot = "body_outer", insulation = 10, wet_retention_pct = 50 }
+
+[[item]]
+id = "plate_insert_vest"
+name = "Plate-insert vest"
+section = "armor"
+copy = "Steel plates sewn behind the lining. For the man who expects a knife and not a rifle."
+weight_g = 5443
+bulk = 4
+value_cents = 1000
+tags = ["armor_medium", "iron_plate"]
+materials = [{ material = "steel", pct = 50 }, { material = "linen", pct = 30 }, { material = "leather", pct = 20 }]
+stackable = false
+wearable = { slot = "body_mid", insulation = 5, wet_retention_pct = 10 }
+
+[[item]]
+id = "cuirass_heirloom"
+name = "Cuirass, heirloom (old-country cuirassier)"
+section = "armor"
+copy = "Breast and back, from some emperor's war. You will be noticed."
+weight_g = 8165
+bulk = 6
+value_cents = 2000
+tags = ["armor_heavy", "conspicuous", "heirloom"]
+materials = [{ material = "steel", pct = 80 }, { material = "leather", pct = 20 }]
+stackable = false
+wearable = { slot = "body_outer", insulation = 0, wet_retention_pct = 0 }
+
+[[item]]
+id = "mail_shirt_old_country"
+name = "Mail shirt, old-country"
+section = "armor"
+copy = "Ten thousand rings, riveted by hand. A fae's nightmare, and a sweat bath."
+weight_g = 9979
+bulk = 6
+value_cents = 3000
+tags = ["armor_medium_heavy", "iron_heavy"]
+materials = [{ material = "iron", pct = 90 }, { material = "leather", pct = 10 }]
+stackable = false
+wearable = { slot = "body_mid", insulation = 0, wet_retention_pct = 0 }

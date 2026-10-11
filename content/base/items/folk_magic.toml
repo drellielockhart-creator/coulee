@@ -1,0 +1,228 @@
+# Catalog 03 §6.12 Folk-Magic & Fae Protection, plus the hand-bell from 12 §5.5 (foodways items).
+# OWNER: module:content-items. Wards are real in the sim, low and situational (03 §6.12):
+# `ward_fae` magnitude is the base strength; cold iron multiplies by 3 via materials (03 §3.3).
+# Hidden true strengths per Court are data for 06 and 01; not encoded here yet.
+
+[[item]]
+id = "rock_salt_5lb"
+name = "Rock salt, 5 lb"
+section = "folk_magic"
+copy = "A ring of it round your bedroll. The Norwegians swear by it and so do the Irish."
+weight_g = 2268
+bulk = 0.5
+value_cents = 12
+tags = ["ward_circle", "ward_line"]
+materials = [{ material = "salt", pct = 100 }]
+affordances = { ward_fae = 1, preserve = 1 }
+
+[[item]]
+id = "iron_nails_pocketful"
+name = "Iron nails, pocketful"
+section = "folk_magic"
+copy = "Carry three in the left pocket. Every child in the county knows why."
+weight_g = 227
+bulk = 0.3
+value_cents = 3
+materials = [{ material = "iron", pct = 100 }]
+affordances = { ward_fae = 1 }
+
+[[item]]
+id = "horseshoe_worn"
+name = "Horseshoe, worn"
+section = "folk_magic"
+copy = "Hung points up. One you find yourself is luckier."
+weight_g = 454
+bulk = 0.5
+value_cents = 10
+tags = ["luck", "hang_points_up"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { ward_fae = 1 }
+stackable = false
+
+[[item]]
+id = "cold_iron_knife_brauer"
+name = "Cold-iron knife (Brauer, cold-hammered)"
+section = "folk_magic"
+maker = "Brauer Brothers"
+copy = "Hammered cold, never quenched. Holds a poor edge and a great reputation."
+weight_g = 227
+bulk = 0.5
+value_cents = 350
+tags = ["cold_iron"]
+materials = [{ material = "cold_iron", pct = 100 }]
+affordances = { cut = 1, ward_fae = 3 }
+stackable = false
+wear = 2
+
+[[item]]
+id = "cold_iron_nail_ring"
+name = "Cold-iron horseshoe-nail ring"
+section = "folk_magic"
+copy = "Bent from a nail, worn on the finger. Small, cheap, and they notice it."
+weight_g = 14
+bulk = 0.1
+value_cents = 100
+tags = ["cold_iron"]
+materials = [{ material = "cold_iron", pct = 100 }]
+affordances = { ward_fae = 1 }
+stackable = false
+wearable = { slot = "hands", insulation = 0, wet_retention_pct = 50 }
+
+[[item]]
+id = "rowan_red_thread_cross"
+name = "Rowan-and-red-thread cross"
+section = "folk_magic"
+copy = "Two twigs of mountain ash bound with red. Sewn in a hem or hung in a window."
+weight_g = 14
+bulk = 0.1
+value_cents = 10
+tags = ["rowan"]
+materials = [{ material = "rowan", pct = 90 }, { material = "cotton", pct = 10 }]
+affordances = { ward_fae = 1 }
+
+[[item]]
+id = "red_thread_skein"
+name = "Red thread, skein"
+section = "folk_magic"
+copy = "For binding charms and for mending."
+weight_g = 14
+bulk = 0.1
+value_cents = 3
+tags = ["charm_making"]
+materials = [{ material = "cotton", pct = 100 }]
+affordances = { bind = 0.5 }
+
+[[item]]
+id = "st_johns_wort_sachet"
+name = "St. John's wort sachet"
+section = "folk_magic"
+copy = "Gathered on the right night. Ask the herb-wife which."
+weight_g = 14
+bulk = 0.1
+value_cents = 10
+tags = ["midsummer"]
+materials = [{ material = "other", pct = 100 }]
+affordances = { ward_fae = 0.5, see_true = 1 }
+
+[[item]]
+id = "holed_silver_dime"
+name = "Holed silver dime on a string"
+section = "folk_magic"
+copy = "Ten cents of silver and five cents of labor. Worn at the throat."
+weight_g = 6
+bulk = 0.1
+value_cents = 15
+tags = ["silver_charm"]
+materials = [{ material = "silver", pct = 90 }, { material = "other", pct = 10 }]
+affordances = { ward_fae = 1 }
+stackable = false
+wearable = { slot = "neck", insulation = 0, wet_retention_pct = 50 }
+
+[[item]]
+id = "brass_bell_small"
+name = "Brass bell, small"
+section = "folk_magic"
+copy = "Like a church bell, smaller. Ring it when the woods go quiet."
+weight_g = 91
+bulk = 0.2
+value_cents = 15
+tags = ["noisy", "breaks_lesser_glamour"]
+materials = [{ material = "brass", pct = 100 }]
+affordances = { signal = 1, ward_fae = 1 }
+
+[[item]]
+id = "hand_bell_bronze"
+name = "Hand-bell, bronze"
+section = "folk_magic"
+copy = "Rung before the grace and before the door is barred. The old people say a short ring holds the line a while."
+weight_g = 454
+bulk = 0.5
+value_cents = 35
+tags = ["noisy", "short_line_ward"]
+materials = [{ material = "copper", pct = 100 }]
+affordances = { signal = 1, ward_fae = 1 }
+stackable = false
+
+[[item]]
+id = "witch_bottle_stoneware"
+name = "Witch bottle, stoneware"
+section = "folk_magic"
+copy = "Fill it as your grandmother told you. Bury it at the door."
+weight_g = 680
+bulk = 1.5
+value_cents = 40
+shape = ["fragile"]
+tags = ["buried"]
+materials = [{ material = "ceramic", pct = 100 }]
+affordances = { ward_curse = 1 }
+stackable = false
+container = { capacity_g = 900, capacity_bulk = 1, carry = "fixed" }
+
+[[item]]
+id = "himmelsbrief"
+name = "Himmelsbrief (heaven-letter)"
+section = "folk_magic"
+copy = "Copied in a fair German hand. Carry it and be protected against sword, shot, and the evil thing."
+weight_g = 14
+bulk = 0.1
+value_cents = 50
+tags = ["blessed_if_believed", "ward_shot"]
+truth = "Paper and a prayer. It is only as strong as the bearer believes it, and the sim knows exactly how much that is."
+materials = [{ material = "paper", pct = 100 }]
+affordances = { ward_shot = 1 }
+stackable = false
+
+[[item]]
+id = "hex_sign_barnboard"
+name = "Hex sign, painted barn-board"
+section = "folk_magic"
+copy = "Rosettes and distelfinks. Nails to the barn; leans against a tent."
+weight_g = 2722
+bulk = 6
+value_cents = 150
+shape = ["long"]
+tags = ["camp_ward"]
+materials = [{ material = "wood", pct = 90 }, { material = "other", pct = 10 }]
+affordances = { ward_fae = 1 }
+stackable = false
+
+[[item]]
+id = "holy_water_vial"
+name = "Holy water, vial"
+section = "folk_magic"
+copy = "Blessed by Father Doyle. He does not know we sell it."
+weight_g = 91
+bulk = 0.1
+value_cents = 25
+tags = ["blessed"]
+materials = [{ material = "liquid", pct = 100 }]
+affordances = { ward_fae = 1, harm_fae = 0.5 }
+stackable = false
+container = { capacity_g = 60, capacity_bulk = 0.1, liquid_ml = 30, protects = ["splashproof"], carry = "pocket" }
+
+[[item]]
+id = "hag_stone"
+name = "Hag stone (holed stone)"
+section = "folk_magic"
+copy = "Found in a creekbed, worn clean through. Look through it, if you dare."
+weight_g = 136
+bulk = 0.3
+value_cents = 100
+tags = ["rare"]
+materials = [{ material = "stone", pct = 100 }]
+affordances = { see_true = 2 }
+stackable = false
+
+[[item]]
+id = "knapped_flint_blade"
+name = "Knapped flint blade"
+section = "folk_magic"
+copy = "Turned up by the plow. Sharp as anything, and no iron in it."
+weight_g = 91
+bulk = 0.2
+value_cents = 25
+shape = ["fragile"]
+tags = ["no_iron"]
+materials = [{ material = "stone", pct = 100 }]
+affordances = { cut = 1 }
+stackable = false

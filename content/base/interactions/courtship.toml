@@ -1,0 +1,120 @@
+# Courtship (04 §10 #10-#12). OWNER: module:social.
+# `eligible` reads social/tuning.toml: courtship_min_age, courtship_opposite_sex, and that
+# neither party is married or betrothed elsewhere, and they are not kin.
+
+[[interaction]]
+id = "flirt"
+name = "Flirt"
+label = "Flirt"
+description = "A look held a beat long, a joke at the well. Rebuffs are gossip."
+requires = { eligible = true }
+volition = [
+  { driver = "attraction", weight = 45 },
+  { driver = "need:company", weight = 10 },
+  { driver = "opinion:affection", weight = 15 },
+  { driver = "value:piety", weight = -5 },
+]
+threshold = 35
+cooldown_hours = 24
+check = { kind = "dc", skill = "persuade", dc = 12, attitude = true }
+memory = { kind = "courtship", emotion = "joy", intensity = 30 }
+juiciness = 35
+tags = ["courtship"]
+success.target_opinion = { affection = 6 }
+success.initiator_opinion = { affection = 3 }
+success.initiator_needs = { company = 60 }
+success.target_needs = { company = 60 }
+success.target_memory = "{initiator} made eyes at me at {place}"
+success.initiator_memory = "{target} smiled back at me at {place}"
+success.witness_memory = "{initiator} was sweet on {target} at {place}"
+success.target_reason = "Has a way about them"
+success.initiator_reason = "Smiled back at me"
+failure.memory_kind = "rejection"
+failure.intensity_pct = 80
+failure.initiator_emotion = "shame"
+failure.initiator_opinion = { affection = -3 }
+failure.target_memory = "{initiator} made eyes at me; I paid no mind"
+failure.initiator_memory = "{target} paid me no mind at {place}"
+failure.witness_memory = "{target} gave {initiator} the cold shoulder at {place}"
+failure.initiator_reason = "Gave me the cold shoulder"
+
+[[interaction]]
+id = "court"
+name = "Court"
+label = "Walk out"
+description = "Asks to walk out together: Sunday afternoons, the singing school, the porch."
+requires = { eligible = true, acquainted = true, min_affection = 30, min_familiarity = 200, no_relationship = "courting" }
+volition = [
+  { driver = "attraction", weight = 30 },
+  { driver = "opinion:affection", weight = 30 },
+  { driver = "value:ambition", weight = 5 },
+]
+threshold = 50
+cooldown_hours = 72
+check = { kind = "dc", skill = "persuade", dc = 14, attitude = true }
+memory = { kind = "courtship", emotion = "joy", intensity = 50 }
+juiciness = 50
+notable = true
+importance = 45
+visibility = "public"
+minutes = 60
+tags = ["courtship"]
+urge = { voice = "id", min_score = 60, label = "Ask to walk out with {target}", drive = "longing" }
+success.add_relationship = "courting"
+success.target_opinion = { affection = 8, trust = 4 }
+success.initiator_opinion = { affection = 5 }
+success.initiator_needs = { company = 100 }
+success.target_needs = { company = 100 }
+success.target_memory = "{initiator} asked to walk out with me, and I said yes"
+success.initiator_memory = "{target} agreed to walk out with me"
+success.witness_memory = "{initiator} and {target} are walking out"
+success.target_reason = "Courting me"
+success.initiator_reason = "Said yes to me"
+failure.memory_kind = "rejection"
+failure.initiator_emotion = "shame"
+failure.initiator_opinion = { affection = -5 }
+failure.target_memory = "{initiator} came calling; I sent them off"
+failure.initiator_memory = "{target} turned me away"
+failure.witness_memory = "{target} turned {initiator} away"
+failure.initiator_reason = "Turned me away"
+
+[[interaction]]
+id = "propose"
+name = "Propose"
+label = "Propose!"
+description = "Asks for a hand in marriage after weeks of walking out."
+requires = { relationship = "courting", relationship_min_days = 14, min_affection = 60 }
+volition = [
+  { driver = "opinion:affection", weight = 40 },
+  { driver = "attraction", weight = 20 },
+  { driver = "value:ambition", weight = 5 },
+]
+threshold = 60
+cooldown_hours = 168
+check = { kind = "dc", skill = "persuade", dc = 15, attitude = true }
+memory = { kind = "betrothal", emotion = "joy", intensity = 80 }
+juiciness = 70
+notable = true
+importance = 70
+visibility = "public"
+minutes = 60
+tags = ["courtship"]
+urge = { voice = "id", min_score = 70, label = "Ask for {target}'s hand", drive = "longing" }
+success.remove_relationship = "courting"
+success.add_relationship = "betrothed"
+success.target_opinion = { affection = 10, trust = 10 }
+success.initiator_opinion = { affection = 10, trust = 10 }
+success.target_memory = "{initiator} asked for my hand and I said yes"
+success.initiator_memory = "{target} said yes"
+success.witness_memory = "{initiator} and {target} are promised"
+success.target_reason = "We are promised"
+success.initiator_reason = "We are promised"
+failure.remove_relationship = "courting"
+failure.memory_kind = "rejection"
+failure.intensity_pct = 90
+failure.initiator_emotion = "shame"
+failure.initiator_opinion = { affection = -10 }
+failure.target_memory = "{initiator} asked for my hand; I could not"
+failure.initiator_memory = "{target} refused me"
+failure.witness_memory = "{target} refused {initiator}"
+failure.initiator_reason = "Refused my hand"

@@ -1,17 +1,12 @@
-# Name pools. OWNER: module:content-world.
+# Name pools. OWNER: module:content-world. Faekin draw from their presenting community's pool
+# (12 §6.5); goblins use the Cornish and German pools (12 §8.4); elves use their country's
+# pool (see elf_hall.toml for the saint-weighted additions).
 
 [[name_pool]]
 id = "yankee"
 culture = "yankee"
-peoples = ["human"]
-given_female = ["Augusta", "Lydia", "Clara", "Harriet", "Prudence", "Mercy"]
-given_male = ["Amos", "Horace", "Elias", "Josiah", "Thomas", "Ezra"]
-family = ["Pratt", "Whitcomb", "Bell", "Hurd", "Stoughton", "Glover"]
-
-[[name_pool]]
-id = "norwegian"
-culture = "norwegian"
-peoples = ["human"]
-given_female = ["Siri", "Ingrid", "Marit", "Kari", "Ragnhild"]
-given_male = ["Anders", "Tollef", "Ole", "Nils", "Halvor"]
-family = ["Tveit", "Kvale", "Haugen", "Halvorsen", "Lund"]
+peoples = ["human", "shadow_faekin"]
+given_female = ["Augusta", "Lydia", "Clara", "Harriet", "Prudence", "Mercy", "Abigail", "Minerva", "Hester", "Submit", "Temperance", "Lucinda", "Sarah", "Hannah", "Betsey", "Experience", "Thankful"]
+given_male = ["Amos", "Horace", "Elias", "Josiah", "Thomas", "Ezra", "Lemuel", "Lucius", "Silas", "Obed", "Eli", "Wendell", "Joel", "Cyrus", "Asa", "Hiram", "Jedediah"]
+family = ["Pratt", "Whitcomb", "Bell", "Hurd", "Stoughton", "Glover", "Fenn", "Vance", "Hatch", "Pike", "Sloat", "Crane", "Dade", "Whitlock", "Pruitt", "Ames", "Tolliver", "Bascom", "Alden", "Lowe"]
+notes = "New England, New York and Ohio-Yankee stock. Biblical and virtue names for women; ordinary scriptural names for men."

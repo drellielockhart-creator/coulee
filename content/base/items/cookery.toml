@@ -1,0 +1,184 @@
+# Catalog 03 §6.4 cookware rows, plus the packaging that P8 food storage depends on
+# (03 §3.4, §3.7.4, §3.9): crocks, kegs, tins, oilcloth bags, a vermin-proof box, a flour sack.
+# Cookware is found by AFFORDANCE (boil, cook, bake, grind), never by id (03 §3.7.5).
+# OWNER: module:content-items.
+
+[[item]]
+id = "tin_cup"
+name = "Tin cup"
+section = "cookery"
+copy = "Drink from it, cook in it, bang it on the table when the coffee's late."
+weight_g = 136
+bulk = 1
+value_cents = 10
+tags = ["noisy"]
+materials = [{ material = "tinplate", pct = 100 }]
+affordances = { boil = 0.5 }
+stackable = false
+container = { capacity_g = 300, capacity_bulk = 0.5, liquid_ml = 300, carry = "belt" }
+
+[[item]]
+id = "tin_plate"
+name = "Tin plate"
+section = "cookery"
+copy = "Will outlast your appetite."
+weight_g = 181
+bulk = 1
+value_cents = 8
+tags = ["noisy"]
+materials = [{ material = "tinplate", pct = 100 }]
+stackable = false
+
+[[item]]
+id = "frying_pan"
+name = "Frying pan, sheet iron"
+section = "cookery"
+copy = "Bacon, then cornbread in the grease. The whole of frontier cookery."
+weight_g = 1134
+bulk = 3
+value_cents = 50
+materials = [{ material = "iron", pct = 100 }]
+affordances = { cook = 1 }
+stackable = false
+
+[[item]]
+id = "dutch_oven_10qt"
+name = "Dutch oven, cast iron, 10 qt"
+section = "cookery"
+copy = "Bakes bread in a hole in the ground. Too heavy to carry and too good to leave."
+weight_g = 6350
+bulk = 6
+value_cents = 175
+tags = ["heavy"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { bake = 1 }
+stackable = false
+
+[[item]]
+id = "camp_kettle_pair"
+name = "Camp kettle, nesting pair"
+section = "cookery"
+copy = "One for water, one for whatever you catch."
+weight_g = 1361
+bulk = 4
+value_cents = 75
+tags = ["noisy", "nests"]
+materials = [{ material = "tinplate", pct = 100 }]
+affordances = { boil = 1 }
+stackable = false
+container = { capacity_g = 4000, capacity_bulk = 3, liquid_ml = 3800, carry = "pack" }
+
+[[item]]
+id = "coffee_mill_hand"
+name = "Coffee mill, hand"
+section = "cookery"
+copy = "Green beans keep for a year. Ground coffee keeps for a week."
+weight_g = 907
+bulk = 2
+value_cents = 60
+materials = [{ material = "iron", pct = 60 }, { material = "wood", pct = 40 }]
+affordances = { grind = 1 }
+stackable = false
+
+[[item]]
+id = "canteen_tin_wool"
+name = "Canteen, tin, wool-covered, 2 qt"
+section = "cookery"
+copy = "Wet the wool and the water stays cool. The cork will want replacing."
+weight_g = 454
+bulk = 3
+value_cents = 75
+materials = [{ material = "tinplate", pct = 80 }, { material = "wool", pct = 20 }]
+stackable = false
+container = { capacity_g = 1900, capacity_bulk = 2, liquid_ml = 1900, protects = ["waterproof"], carry = "sling" }
+
+[[item]]
+id = "canteen_gourd"
+name = "Canteen, gourd"
+section = "cookery"
+copy = "No iron in it, if that worries you."
+weight_g = 227
+bulk = 3
+value_cents = 30
+tags = ["no_iron"]
+shape = ["fragile"]
+materials = [{ material = "other", pct = 100 }]
+stackable = false
+container = { capacity_g = 1900, capacity_bulk = 2, liquid_ml = 1900, carry = "sling" }
+
+# --- Packaging for provisions (P8: protection is packaging, 03 §3.4 and §3.7.4) ---------
+
+[[item]]
+id = "flour_sack_25lb"
+name = "Flour sack, cotton, 25 lb"
+section = "cookery"
+copy = "Retied at the mouth, patched at the corner. Every sack in the valley has a patch and a story."
+weight_g = 227
+bulk = 1
+value_cents = 10
+materials = [{ material = "cotton", pct = 100 }]
+stackable = false
+container = { capacity_g = 11340, capacity_bulk = 14, carry = "pack" }
+
+[[item]]
+id = "tin_canister_10lb"
+name = "Tin canister, airtight, 10 lb"
+section = "cookery"
+copy = "Solder-sealed. Opened with a knife, and never without one."
+weight_g = 680
+bulk = 3
+value_cents = 120
+tags = ["tinned"]
+materials = [{ material = "tinplate", pct = 100 }]
+stackable = false
+container = { capacity_g = 4536, capacity_bulk = 6, protects = ["airtight", "vermin_proof"], carry = "pack" }
+
+[[item]]
+id = "stoneware_crock_2gal"
+name = "Stoneware crock, 2-gallon, lidded"
+section = "cookery"
+copy = "Kraut, lard, or eggs in waterglass. Keep the lid on and the mice off."
+weight_g = 3629
+bulk = 8
+value_cents = 90
+shape = ["fragile"]
+materials = [{ material = "ceramic", pct = 100 }]
+stackable = false
+container = { capacity_g = 7600, capacity_bulk = 8, protects = ["airtight"], carry = "fixed" }
+
+[[item]]
+id = "brine_keg_10gal"
+name = "Brine keg, oak, 10 gal"
+section = "cookery"
+copy = "Salt pork lives here. Salt water goes in; the pork stays under it."
+weight_g = 9072
+bulk = 40
+value_cents = 200
+materials = [{ material = "wood", pct = 100 }]
+stackable = false
+container = { capacity_g = 37000, capacity_bulk = 40, protects = ["brine", "waterproof"], carry = "fixed" }
+
+[[item]]
+id = "oilcloth_bag"
+name = "Oilcloth bag, tied"
+section = "cookery"
+copy = "The bread-bag of every river trip. Tie it twice and it will still leak at the seam."
+weight_g = 227
+bulk = 1
+value_cents = 60
+tags = ["waterproof"]
+materials = [{ material = "oilcloth", pct = 100 }]
+stackable = false
+container = { capacity_g = 4500, capacity_bulk = 4, protects = ["waterproof", "splashproof"], carry = "pack" }
+
+[[item]]
+id = "provisions_box_vermin"
+name = "Provisions box, pine, vermin-proof"
+section = "cookery"
+copy = "Lid lined with tin, corners dovetailed. Mice have been known to give up."
+weight_g = 4536
+bulk = 20
+value_cents = 350
+materials = [{ material = "wood", pct = 90 }, { material = "tinplate", pct = 10 }]
+stackable = false
+container = { capacity_g = 45000, capacity_bulk = 40, protects = ["vermin_proof", "airtight"], carry = "fixed" }

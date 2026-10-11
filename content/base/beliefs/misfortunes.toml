@@ -1,0 +1,134 @@
+# Misfortune kinds (04 §3.3 pressure M; §5.4 attribution). OWNER: module:belief.
+#
+# severity: per mille added to the settlement's misfortune pressure M (decays τ = 30 days).
+# base_permille_per_household_day: ambient frontier bad luck until 05's world sim owns the
+#   physics (dead stock, sick children, spoiled stores). Other modules can also report one
+#   through belief.reportMisfortune(); provisions' spoiled cellar is the obvious caller.
+# uncanny: the superstitious read it as a curse; attribution forms `cursed`, not `caused`.
+# motive_traits: a projected trait that supplies a motive (10 §7.2: envy -> dried cows).
+# Text slots: {0} = household name, {1} = victim name.
+
+[[misfortune]]
+id = "cow_died"
+name = "A cow sickened and died"
+text = "{0}' best cow sickened and died"
+uncanny = true
+severity = 120
+base_permille_per_household_day = 3
+juiciness = 60
+anxiety = 180
+security_delta = -200
+memory_intensity = 70
+motive_traits = ["envy", "greed"]
+aim = "expulsion"
+
+[[misfortune]]
+id = "cows_dried"
+name = "The cows went dry"
+text = "{0}' cows went dry overnight"
+uncanny = true
+severity = 70
+base_permille_per_household_day = 3
+juiciness = 55
+anxiety = 120
+security_delta = -120
+memory_intensity = 55
+motive_traits = ["envy"]
+aim = "restitution"
+
+[[misfortune]]
+id = "butter_wont_come"
+name = "The butter won't come"
+text = "the butter won't come in {0}' churn"
+uncanny = true
+severity = 30
+base_permille_per_household_day = 4
+juiciness = 40
+anxiety = 60
+security_delta = -40
+memory_intensity = 35
+motive_traits = ["greed", "envy"]
+aim = "apology"
+
+[[misfortune]]
+id = "child_fever"
+name = "A child took a fever"
+text = "a fever took hold of {1} in the {0}' house"
+uncanny = true
+severity = 150
+base_permille_per_household_day = 2
+juiciness = 65
+anxiety = 260
+security_delta = -250
+memory_intensity = 80
+motive_traits = ["rage", "envy"]
+aim = "harm"
+
+[[misfortune]]
+id = "hens_stopped"
+name = "The hens stopped laying"
+text = "{0}' hens stopped laying"
+uncanny = true
+severity = 25
+base_permille_per_household_day = 3
+juiciness = 30
+anxiety = 50
+security_delta = -60
+memory_intensity = 30
+motive_traits = ["envy"]
+aim = "apology"
+
+[[misfortune]]
+id = "pantry_theft"
+name = "Something went missing from the smokehouse"
+text = "someone has been at {0}' smokehouse"
+severity = 50
+base_permille_per_household_day = 2
+juiciness = 50
+anxiety = 120
+security_delta = -200
+memory_intensity = 60
+motive_traits = ["greed"]
+aim = "restitution"
+
+[[misfortune]]
+id = "cellar_spoiled"
+name = "The root cellar spoiled"
+text = "the {0}' root cellar went to rot"
+uncanny = true
+severity = 60
+base_permille_per_household_day = 1
+juiciness = 35
+anxiety = 120
+security_delta = -250
+memory_intensity = 50
+motive_traits = ["greed", "envy"]
+aim = "restitution"
+description = "A cursed root cellar is a misfortune like any other (04 §7.2)."
+
+[[misfortune]]
+id = "horse_lamed"
+name = "A horse went lame"
+text = "{0}' horse came up lame"
+severity = 40
+base_permille_per_household_day = 1
+juiciness = 30
+anxiety = 80
+security_delta = -100
+memory_intensity = 45
+motive_traits = ["rage"]
+aim = "restitution"
+
+[[misfortune]]
+id = "fire"
+name = "A fire"
+text = "fire took the {0}' woodshed"
+severity = 200
+base_permille_per_household_day = 0
+juiciness = 75
+anxiety = 300
+security_delta = -350
+memory_intensity = 85
+motive_traits = ["rage"]
+aim = "harm"
+description = "Reported by other systems only (no ambient rate)."

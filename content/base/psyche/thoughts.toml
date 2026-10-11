@@ -1,0 +1,248 @@
+# Thought generators (10 §4.2, §14.3). OWNER: module:psyche.
+#
+# Psyche fills gaps: other modules propose the situational urges (needs: hunger/rest/company;
+# activity: schedule duty; social: confront, court; belief: avoid, accuse; provisions: eat,
+# buy). A rule with `fallback = true` (the default) is skipped for an actor when another
+# module already proposed for the same drive/norm, or the same urge with the same voice,
+# this hour. Rules marked `fallback = false` are psyche's own (memory, opinion and situation
+# cues) and always run.
+#
+# Intensity (0..1000): base, or the need deficit floor((at - value) × 1000 / at), or the
+# schedule block's duty, plus the target term; then × (50 + idAppetite or strictness)/100,
+# × drive weight or norm strength /50, × trait voice_pct and urge_bias. Each step is an
+# Explain term, so the UI can show why a thought is as loud as it is.
+#
+# Lines: {target} = the other person, {option} = the option's name, {verb} = its verb.
+
+# ---- Appetite (hunger) ------------------------------------------------------------------
+
+[[thought]]
+id = "hunger_eat"
+voice = "id"
+drive = "hunger"
+when = { need_below = { need = "hunger", at = 600 } }
+urge = { kind = "activity", id = "take_meal" }
+decay_per_hour = 200
+label = "Appetite: eat something"
+lines = ["My belly's an empty kettle.", "I could eat a horse, harness and all.", "Something to eat. Now."]
+
+[[thought]]
+id = "hunger_dram_evening"
+voice = "id"
+drive = "hunger"
+when = { hours = { from = 18, to = 23 }, norm_max = { temperance = 45 } }
+urge = { kind = "activity", id = "drink_at_tavern" }
+base = 220
+decay_per_hour = 220
+fallback = false
+label = "Appetite: a glass down the road"
+lines = ["A dram would settle the day.", "Just the one. Where's the harm?"]
+
+[[thought]]
+id = "hunger_dram_nerves"
+voice = "id"
+drive = "hunger"
+when = { anxiety_min = 350, hours = { from = 12, to = 23 } }
+urge = { kind = "activity", id = "drink_at_tavern" }
+base = 300
+decay_per_hour = 200
+fallback = false
+notable = true
+label = "Appetite: something to steady the nerves"
+lines = ["A drink would stop my hands shaking.", "Something to steady me. Just tonight."]
+
+# ---- Ease (sloth) -----------------------------------------------------------------------
+
+[[thought]]
+id = "sloth_sleep"
+voice = "id"
+drive = "sloth"
+when = { need_below = { need = "rest", at = 600 } }
+urge = { kind = "activity", id = "sleep" }
+decay_per_hour = 200
+label = "Ease: lie down"
+lines = ["My eyes are full of sand.", "Lie down. Just for an hour."]
+
+[[thought]]
+id = "sloth_warm_bed"
+voice = "id"
+drive = "sloth"
+when = { asleep = true, scheduled_tags = ["labor"] }
+against_tags = ["labor"]
+base = 240
+decay_per_hour = 300
+fallback = false
+label = "Ease: not yet"
+lines = ["Five minutes more. {option} will keep.", "Warm here. Let it wait."]
+
+[[thought]]
+id = "sloth_worn_out"
+voice = "id"
+drive = "sloth"
+when = { need_below = { need = "rest", at = 400 }, scheduled_tags = ["labor"] }
+against_tags = ["labor"]
+decay_per_hour = 250
+fallback = false
+label = "Ease: done in"
+lines = ["My back's done for the day, whatever the clock says.", "I can't lift another thing."]
+
+# ---- Pining (longing) -------------------------------------------------------------------
+
+[[thought]]
+id = "longing_tavern"
+voice = "id"
+drive = "longing"
+when = { need_below = { need = "company", at = 500 }, norm_max = { temperance = 55 }, hours = { from = 17, to = 23 } }
+urge = { kind = "activity", id = "drink_at_tavern" }
+decay_per_hour = 200
+label = "Pining: somewhere with people"
+lines = ["The house is too quiet.", "There'll be voices down at the tavern."]
+
+[[thought]]
+id = "longing_talk"
+voice = "id"
+drive = "longing"
+when = { need_below = { need = "company", at = 500 } }
+urge = { kind = "interaction", id = "chat" }
+decay_per_hour = 200
+label = "Pining: someone to talk to"
+lines = ["I'd give a good deal for a little talk.", "Nobody's said two words to me all day."]
+
+# ---- Choler (rage): opinions and memories cue it (04 §3.6) -------------------------------
+
+[[thought]]
+id = "rage_hostile"
+voice = "id"
+drive = "rage"
+target = { pick = "hostile", present = "any", affection_max = -30, temper_slack = 7, per_point = 10, absent_pct = 60 }
+urge = { kind = "interaction", id = "insult" }
+base = 150
+decay_per_hour = 250
+fallback = false
+notable = true
+label = "Choler: have it out with {target}"
+lines = ["I've half a mind to tell {target} exactly what I think.", "{target} won't get away with it.", "Every time I see {target} my jaw sets."]
+
+[[thought]]
+id = "rage_remembered"
+voice = "id"
+drive = "rage"
+target = { pick = "memory", emotions = ["anger"], salience_min = 300, per_point = 5, absent_pct = 50 }
+urge = { kind = "interaction", id = "insult" }
+base = 100
+decay_per_hour = 200
+fallback = false
+label = "Choler: what {target} did"
+lines = ["I keep going over what {target} did.", "I haven't forgotten, {target}. I won't."]
+
+# ---- Amativeness (lust) -----------------------------------------------------------------
+
+[[thought]]
+id = "lust_fond"
+voice = "id"
+drive = "lust"
+target = { pick = "fond", present = "yes", affection_min = 50, not_kin = true, per_point = 6 }
+urge = { kind = "interaction", id = "chat" }
+base = 150
+decay_per_hour = 250
+fallback = false
+label = "Amativeness: find a reason to speak to {target}"
+lines = ["{target} looked my way.", "Find a reason to speak to {target}. Any reason."]
+
+# ---- the Evil Eye (envy) ----------------------------------------------------------------
+
+[[thought]]
+id = "envy_rival"
+voice = "id"
+drive = "envy"
+target = { pick = "envied", present = "any", respect_min = 20, affection_max = 0, per_point = 6, absent_pct = 60 }
+urge = { kind = "interaction", id = "gossip" }
+base = 150
+decay_per_hour = 200
+fallback = false
+label = "the Evil Eye: take {target} down a peg"
+lines = ["What has {target} got that I haven't?", "Someone ought to take {target} down a peg."]
+
+# ---- Cautiousness (fear) ----------------------------------------------------------------
+
+[[thought]]
+id = "fear_debt"
+voice = "id"
+drive = "fear"
+when = { debtor = true }
+target = { pick = "creditor", present = "any", per_point = 10, absent_pct = 100 }
+urge = { kind = "activity", id = "work" }
+base = 160
+decay_per_hour = 150
+fallback = false
+label = "Cautiousness: the debt to {target}"
+lines = ["What if {target} calls in the note?", "Every dollar owed to {target} is a rope around my neck."]
+
+[[thought]]
+id = "fear_feared"
+voice = "id"
+drive = "fear"
+target = { pick = "feared", present = "any", fear_min = 40, per_point = 10, absent_pct = 50 }
+urge = { kind = "activity", id = "keep_house" }
+base = 150
+decay_per_hour = 200
+fallback = false
+label = "Cautiousness: keep clear of {target}"
+lines = ["Keep clear of {target}.", "Stay in. {target} is about."]
+
+[[thought]]
+id = "fear_nerves"
+voice = "id"
+drive = "fear"
+when = { anxiety_min = 400 }
+urge = { kind = "activity", id = "keep_house" }
+base = 220
+decay_per_hour = 200
+fallback = false
+label = "Cautiousness: something's wrong"
+lines = ["Something's wrong. I can feel it in my teeth.", "Bar the door tonight."]
+
+# ---- Conscience: duty, piety ------------------------------------------------------------
+
+[[thought]]
+id = "duty_schedule"
+voice = "superego"
+norm = "duty"
+scheduled = true
+decay_per_hour = 300
+label = "Duty: {option}"
+lines = ["You should be {verb} by now.", "It's the hour for it. You know it is."]
+
+[[thought]]
+id = "duty_debt"
+voice = "superego"
+norm = "duty"
+when = { debtor = true, scheduled_tags = ["labor"] }
+target = { pick = "creditor", present = "any", per_point = 8, absent_pct = 100 }
+urge = { kind = "activity", id = "work" }
+base = 120
+decay_per_hour = 200
+fallback = false
+label = "Duty: pay {target} what you owe"
+lines = ["Pay what you owe, and look {target} in the eye.", "A debt is a debt."]
+
+[[thought]]
+id = "piety_sabbath"
+voice = "superego"
+norm = "piety"
+when = { sabbath = true, hours = { from = 9, to = 12 } }
+urge = { kind = "activity", id = "attend_church" }
+base = 380
+decay_per_hour = 300
+label = "Piety: the Sabbath"
+lines = ["The bell is ringing.", "Remember the Sabbath day, to keep it holy."]
+
+[[thought]]
+id = "piety_faith"
+voice = "superego"
+norm = "piety"
+when = { need_below = { need = "faith", at = 400 } }
+urge = { kind = "activity", id = "attend_church" }
+decay_per_hour = 200
+label = "Piety: it's been too long"
+lines = ["When did you last bend the knee?", "You've let it slide. You know you have."]

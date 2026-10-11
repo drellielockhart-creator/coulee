@@ -1,0 +1,247 @@
+# The survey party, Trevenna's household, and the Penhallow pare.
+
+[[actors]]
+key = "amos_whitcomb"
+given = "Amos"
+family = "Whitcomb"
+sex = "male"
+age = 34
+ancestry = "human"
+culture = "yankee"
+occupation = "surveyor"
+household = "whitcomb"
+workplace = "huldras_shelf"
+abilities = { str = 12, dex = 12, con = 13, int = 15, wis = 11, cha = 11 }
+skills = { wayfinding = 7, lore_nature = 4, persuade = 3, perception = 4, lore_law = 3 }
+values = { ambition = 2, superstition = -3, parochialism = 1, discretion = 1, thrift = 1 }
+languages = ["english"]
+psyche = { ego = 70, superego = 60, id_appetite = 35 }
+persona = "the rationalist surveyor"
+anxiety = 400
+notes = "Deputy surveyor from New York. Running section lines up Lantern Coulee; has lost two chainmen. Rationalist and stubborn. The human the Prince most wants hurt, which makes him a natural witch-mode target and an adventurer-mode employer."
+purse_cents = 900
+inventory = [
+  { item = "pocket_compass", qty = 1 },
+  { item = "spyglass_brass", qty = 1 },
+  { item = "pocket_watch_silver", qty = 1 },
+  { item = "slate_pencil", qty = 1 },
+  { item = "knapsack_army", qty = 1 },
+  { item = "canteen_tin_wool", qty = 1 },
+  { item = "blanket_wool_3pt", qty = 1 },
+  { item = "oilcloth_fly_8x10", qty = 1 },
+  { item = "match_safe", qty = 1 },
+  { item = "lucifers_box", qty = 1, in = "match_safe" },
+]
+
+[[actors]]
+key = "joel_pike"
+given = "Joel"
+family = "Pike"
+sex = "male"
+age = 20
+ancestry = "human"
+culture = "yankee"
+occupation = "chainman"
+household = "whitcomb"
+workplace = "huldras_shelf"
+abilities = { str = 13, dex = 12, con = 12, int = 11, wis = 10, cha = 11 }
+skills = { wayfinding = 3, athletics = 2, woodcraft = 2 }
+values = { ambition = 1, superstition = 1, neighborliness = 1 }
+languages = ["english"]
+psyche = { ego = 40, superego = 45, id_appetite = 55 }
+persona = "the remaining chainman"
+anxiety = 500
+notes = "The last chainman. Does not like the work since the other two went. Wants his pay and wants to go home."
+purse_cents = 60
+inventory = [
+  { item = "knapsack_army", qty = 1 },
+  { item = "canteen_tin_wool", qty = 1 },
+  { item = "blanket_wool_3pt", qty = 1 },
+  { item = "tin_cup", qty = 1 },
+  { item = "hatchet_belt", qty = 1 },
+]
+
+[[actors]]
+key = "tobias_vik"
+given = "Tobias"
+family = "Vik"
+sex = "male"
+age = 32
+ancestry = "elf"
+culture = "elf_hall"
+occupation = "missing"
+household = "whitcomb"
+workplace = "lantern_spring"
+place = "lantern_spring"
+abilities = { str = 10, dex = 14, con = 10, int = 14, wis = 12, cha = 13 }
+skills = { wayfinding = 4, lore_nature = 3, fae_courtesy = 5, concentration = 3, perception = 3 }
+values = { piety = 1, ambition = 1, neighborliness = 1, discretion = 1 }
+languages = ["english", "norwegian"]
+psyche = { ego = 50, superego = 70, id_appetite = 45 }
+persona = "Whitcomb's young assistant"
+anxiety = 800
+needs = { hunger = 550, rest = 450 }
+house_name = "of Kirkeberg Hall"
+true_name = "Oriel-of-the-grafted-bough"
+notes = "Elf chainman, missing nine days. The Prince took him as a deserter rather than prey. The Hall-reader forbids anyone to bargain for him. Lydia Pratt is sweet on him; he writes her letters he has not yet sent."
+purse_cents = 0
+
+[[actors]]
+key = "ezra_sloat"
+given = "Ezra"
+family = "Sloat"
+sex = "male"
+age = 22
+ancestry = "human"
+culture = "yankee"
+occupation = "missing"
+household = "whitcomb"
+workplace = "cold_stair"
+place = "cold_stair"
+abilities = { str = 12, dex = 12, con = 12, int = 10, wis = 10, cha = 10 }
+skills = { wayfinding = 2, athletics = 2 }
+values = { superstition = 2, neighborliness = 1 }
+languages = ["english"]
+psyche = { ego = 35, superego = 50, id_appetite = 50 }
+persona = "the other missing chainman"
+anxiety = 900
+needs = { hunger = 350, rest = 300 }
+notes = "Second missing chainman. Lost near the Cold Stair, cold and hungry and not sure what day it is."
+purse_cents = 0
+
+[[actors]]
+key = "josiah_trevenna"
+given = "Josiah"
+family = "Trevenna"
+nickname = "Captain Trevenna"
+sex = "male"
+age = 55
+ancestry = "human"
+culture = "cornish"
+occupation = "mine_captain"
+household = "trevenna"
+workplace = "penhallow_diggings"
+abilities = { str = 13, dex = 11, con = 14, int = 12, wis = 13, cha = 13 }
+skills = { trade_mining = 9, lore_local = 4, persuade = 4, fae_courtesy = 3, intimidate = 3, lore_scripture = 3 }
+traits = ["pious"]
+values = { piety = 3, neighborliness = 3, superstition = 2, thrift = 2, discretion = 2, parochialism = 1 }
+languages = ["english"]
+psyche = { ego = 55, superego = 75, id_appetite = 30 }
+persona = "the Methodist class leader of Penhallow"
+anxiety = 600
+notes = "Cornish mine captain and Methodist class leader. Leaves pasty crusts in the drifts. Owes the Galena company that wants a steam pump, and is caught between them and the knockers. His pasty crusts and the pare's Accord courtesies are the same custom from two angles."
+purse_cents = 400
+inventory = [{ item = "miners_pick_penhallow", qty = 1 }, { item = "sticking_tommy", qty = 2 }, { item = "candles_tallow_lb", qty = 2 }]
+
+[[actors]]
+key = "loveday_trevenna"
+given = "Loveday"
+family = "Trevenna"
+sex = "female"
+age = 52
+ancestry = "human"
+culture = "cornish"
+occupation = "pellar"
+household = "trevenna"
+workplace = "trevenna_house"
+abilities = { str = 9, dex = 12, con = 11, int = 13, wis = 15, cha = 13 }
+skills = { herbalism = 8, medicine = 6, lore_fae = 5, fae_courtesy = 4, read_people = 4, perform_storytelling = 3 }
+traits = ["pious"]
+values = { piety = 2, neighborliness = 3, superstition = 2, discretion = 2, rancor = -1 }
+languages = ["english"]
+psyche = { ego = 65, superego = 60, id_appetite = 35 }
+persona = "the pellar of Penhallow"
+anxiety = 350
+notes = "A pellar: charms warts, sets bones, lifts overlooking. She will be the first person accused if a witch appears. A Methodist wife who does the old charms and does not talk about it in class meeting."
+purse_cents = 150
+
+[[actors]]
+key = "jory_trevenna"
+given = "Jory"
+family = "Trevenna"
+sex = "male"
+age = 20
+ancestry = "human"
+culture = "cornish"
+occupation = "miner"
+household = "trevenna"
+workplace = "penhallow_diggings"
+abilities = { str = 14, dex = 12, con = 14, int = 11, wis = 10, cha = 12 }
+skills = { trade_mining = 5, athletics = 3, perform_fiddle = 2 }
+values = { ambition = 2, piety = 1, temper = 1, neighborliness = 2 }
+languages = ["english"]
+psyche = { ego = 45, superego = 55, id_appetite = 55 }
+persona = "the Captain's son"
+notes = "Works his father's crew and plays the fiddle for the class meeting's picnic. Wants to try California; his mother says no."
+purse_cents = 70
+inventory = [{ item = "miners_pick_penhallow", qty = 1 }, { item = "sticking_tommy", qty = 1 }]
+
+[[actors]]
+key = "bartholomew_pascoe"
+given = "Bartholomew"
+family = "Pascoe"
+sex = "male"
+age = 49
+ancestry = "goblin"
+culture = "goblin_pare"
+occupation = "accord_speaker"
+household = "pascoe"
+workplace = "penhallow_diggings"
+abilities = { str = 12, dex = 11, con = 15, int = 13, wis = 15, cha = 13 }
+skills = { trade_mining = 10, fae_courtesy = 6, perception = 4, read_people = 4, lore_fae = 4, persuade = 3 }
+traits = ["pious"]
+values = { neighborliness = 3, piety = 1, discretion = 3, thrift = 2, rancor = 1, parochialism = 1 }
+languages = ["english", "german"]
+psyche = { ego = 70, superego = 70, id_appetite = 25 }
+persona = "the Accord-speaker of the Penhallow pare"
+anxiety = 400
+house_name = "of the Penhallow pare"
+true_name = "Kern-under-stone"
+notes = "Goblin elder. Handles tribute and courtesy with the Under-Court and is the first person called when a drift goes wrong. The company's talk of a new pare and a steam pump has not reached him through proper channels. An adult with full standing; a skilled hardrock miner."
+purse_cents = 220
+
+[[actors]]
+key = "demelza_pascoe"
+given = "Demelza"
+family = "Pascoe"
+sex = "female"
+age = 44
+ancestry = "goblin"
+culture = "goblin_pare"
+occupation = "housewife"
+household = "pascoe"
+workplace = "penhallow_row"
+abilities = { str = 10, dex = 12, con = 14, int = 13, wis = 14, cha = 13 }
+skills = { trade_cookery = 6, herbalism = 3, read_people = 4, bargain = 4, medicine = 3 }
+values = { thrift = 3, neighborliness = 3, discretion = 3, piety = 1 }
+languages = ["english", "german"]
+psyche = { ego = 60, superego = 65, id_appetite = 30 }
+persona = "keeper of the club pantry"
+anxiety = 300
+house_name = "of the Penhallow pare"
+true_name = "Dewin-of-the-low-drift"
+notes = "Keeps the pare's club pantry: sick fund, burial dues, widows' share. Decides, every hard season, who the pantry is for."
+purse_cents = 90
+
+[[actors]]
+key = "konrad_strauss"
+given = "Konrad"
+family = "Strauss"
+sex = "male"
+age = 29
+ancestry = "goblin"
+culture = "goblin_pare"
+occupation = "miner"
+household = "pascoe"
+workplace = "penhallow_diggings"
+abilities = { str = 13, dex = 13, con = 15, int = 11, wis = 12, cha = 11 }
+skills = { trade_mining = 7, athletics = 3, perception = 3, fae_courtesy = 3 }
+values = { ambition = 1, neighborliness = 2, discretion = 2, temper = 1 }
+languages = ["english", "german"]
+psyche = { ego = 55, superego = 55, id_appetite = 45 }
+persona = "the pare's young driller"
+house_name = "of the Penhallow pare"
+true_name = "Marrow-in-the-seam"
+notes = "Boards with the Pascoes. Best driller in the lower drift. Restless about the company's offers, which pay in cash rather than the club's share."
+purse_cents = 110
+inventory = [{ item = "miners_pick_penhallow", qty = 1 }, { item = "sticking_tommy", qty = 1 }]

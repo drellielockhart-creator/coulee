@@ -1,0 +1,149 @@
+# Catalog 03 §6.10 Fishing & Trapping. OWNER: module:content-items.
+# Traps are fixed-set devices; the `trap` affordance magnitude scales with the trap's size.
+
+[[item]]
+id = "fishing_line_silk"
+name = "Fishing line, braided silk, 30 yd"
+section = "fishing_trapping"
+copy = "Strong enough for a pike, fine enough for a brookie."
+weight_g = 14
+bulk = 0.1
+value_cents = 40
+materials = [{ material = "other", pct = 100 }]
+affordances = { fish = 1 }
+
+[[item]]
+id = "hooks_dozen"
+name = "Hooks, assorted, dozen"
+section = "fishing_trapping"
+copy = "Limerick bend."
+weight_g = 14
+bulk = 0.1
+value_cents = 10
+materials = [{ material = "iron", pct = 100 }]
+affordances = { fish = 1 }
+
+[[item]]
+id = "jointed_rod"
+name = "Jointed rod, ash & lancewood"
+section = "fishing_trapping"
+copy = "Three joints, brass ferrules. The spring creeks are full of trout."
+weight_g = 454
+bulk = 1.5
+value_cents = 200
+shape = ["long"]
+materials = [{ material = "wood", pct = 95 }, { material = "brass", pct = 5 }]
+affordances = { fish = 1.5 }
+stackable = false
+
+[[item]]
+id = "fly_book"
+name = "Fly book & a dozen flies"
+section = "fishing_trapping"
+copy = "Tied by a Scotchman in Galena who will not say what he puts in the hackle."
+weight_g = 136
+bulk = 0.2
+value_cents = 150
+tags = ["trout_flies"]
+materials = [{ material = "paper", pct = 60 }, { material = "other", pct = 40 }]
+affordances = { fish = 2 }
+
+[[item]]
+id = "trot_line"
+name = "Trot line with 20 hooks"
+section = "fishing_trapping"
+copy = "Set it at dusk across a slough. Catfish by morning."
+weight_g = 227
+bulk = 0.5
+value_cents = 50
+tags = ["passive", "river"]
+materials = [{ material = "other", pct = 90 }, { material = "iron", pct = 10 }]
+affordances = { fish = 1 }
+
+[[item]]
+id = "fish_gig"
+name = "Fish gig, three-tine"
+section = "fishing_trapping"
+copy = "For the spring sucker run, by torchlight."
+weight_g = 680
+bulk = 1
+value_cents = 50
+tags = ["spear", "sucker_run"]
+shape = ["long"]
+materials = [{ material = "iron", pct = 80 }, { material = "wood", pct = 20 }]
+affordances = { fish = 1, pierce = 1 }
+
+[[item]]
+id = "steel_trap_no1"
+name = "Steel trap No. 1 (Haverill)"
+section = "fishing_trapping"
+maker = "Haverill Community"
+copy = "The Community's best. Muskrat money is real money."
+weight_g = 680
+bulk = 1
+value_cents = 60
+tags = ["trap_small", "muskrat", "mink"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { trap = 1 }
+
+[[item]]
+id = "steel_trap_no3"
+name = "Steel trap No. 3 (Haverill)"
+section = "fishing_trapping"
+maker = "Haverill Community"
+copy = "Double spring. Set it under water for beaver."
+weight_g = 1361
+bulk = 2
+value_cents = 125
+tags = ["trap_medium", "fox", "beaver", "otter"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { trap = 2 }
+
+[[item]]
+id = "wolf_trap_no4"
+name = "Wolf trap No. 4 (Haverill)"
+section = "fishing_trapping"
+maker = "Haverill Community"
+copy = "The county pays a bounty. The wolf disagrees."
+weight_g = 2268
+bulk = 3
+value_cents = 250
+tags = ["trap_large", "wolf"]
+materials = [{ material = "iron", pct = 100 }]
+affordances = { trap = 3 }
+
+[[item]]
+id = "snare_wire_brass"
+name = "Snare wire, brass, coil"
+section = "fishing_trapping"
+copy = "Brass, not iron. Rabbits don't care which. Some things do."
+weight_g = 91
+bulk = 0.1
+value_cents = 15
+tags = ["no_iron"]
+materials = [{ material = "brass", pct = 100 }]
+affordances = { snare = 1 }
+
+[[item]]
+id = "fleshing_knife_boards"
+name = "Fleshing knife & stretching boards"
+section = "fishing_trapping"
+copy = "A pelt badly fleshed is a pelt half-priced."
+weight_g = 907
+bulk = 2
+value_cents = 40
+tags = ["process_pelt"]
+materials = [{ material = "iron", pct = 40 }, { material = "wood", pct = 60 }]
+affordances = { cut = 1, process_pelt = 1 }
+
+[[item]]
+id = "castor_bait_vial"
+name = "Castor bait, vial"
+section = "fishing_trapping"
+copy = "Smells like what it is."
+weight_g = 14
+bulk = 0.1
+value_cents = 20
+tags = ["lure_beaver"]
+materials = [{ material = "other", pct = 100 }]
+affordances = { lure = 1 }

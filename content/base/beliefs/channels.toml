@@ -1,0 +1,99 @@
+# Rumor channels (04 §8.4). OWNER: module:belief.
+# credibility_pct scales Statement weight heard here; mutation_pct scales the mutation chance;
+# scandal_pct is the venue norm for damaging topics (church inside ×0.3, steps ×1.5).
+# venue_tags let social (or anyone) map a place to its channel: belief.channelForPlace().
+
+[[channel]]
+id = "tavern"
+name = "Tavern and saloon"
+credibility_pct = 80
+mutation_pct = 150
+venue_tags = ["tavern"]
+description = "Nightly, men and travelers; drink loosens Discretion."
+
+[[channel]]
+id = "church"
+name = "Sunday church (inside)"
+credibility_pct = 140
+mutation_pct = 30
+scandal_pct = 30
+venue_tags = ["church"]
+description = "The preacher broadcasts; scandal is hushed inside."
+
+[[channel]]
+id = "church_steps"
+name = "Church steps, after"
+credibility_pct = 100
+mutation_pct = 100
+scandal_pct = 150
+description = "Peak gossip node: families and women's circles after service."
+
+[[channel]]
+id = "store"
+name = "Store and market"
+credibility_pct = 100
+mutation_pct = 100
+venue_tags = ["store", "outfitter", "market"]
+description = "Everyone, cross-household; the storekeeper is a hub."
+
+[[channel]]
+id = "bee"
+name = "Bee or barn raising"
+credibility_pct = 110
+mutation_pct = 120
+venue_tags = ["bee"]
+
+[[channel]]
+id = "mill"
+name = "Mill and smithy queue"
+credibility_pct = 90
+mutation_pct = 100
+venue_tags = ["mill", "smithy"]
+description = "Farmers waiting their turn: cross-coulee mixing."
+
+[[channel]]
+id = "household"
+name = "Household table"
+credibility_pct = 100
+mutation_pct = 80
+venue_tags = ["home"]
+description = "Kin at supper; the grudge-inheritance channel."
+
+[[channel]]
+id = "letter"
+name = "Letters"
+credibility_pct = 120
+mutation_pct = 50
+
+[[channel]]
+id = "newspaper"
+name = "The weekly paper"
+credibility_pct = 130
+mutation_pct = 0
+description = "Freezes a variant; Document evidence."
+
+[[channel]]
+id = "peddler"
+name = "Peddler or circuit rider"
+credibility_pct = 90
+mutation_pct = 140
+
+[[channel]]
+id = "landing"
+name = "Steamboat landing"
+credibility_pct = 80
+mutation_pct = 130
+venue_tags = ["landing"]
+
+[[channel]]
+id = "fae_whisper"
+name = "Fae whisper"
+credibility_pct = 100
+mutation_pct = 200
+
+[[channel]]
+id = "street"
+name = "In the street"
+credibility_pct = 90
+mutation_pct = 110
+venue_tags = ["street", "outdoor"]

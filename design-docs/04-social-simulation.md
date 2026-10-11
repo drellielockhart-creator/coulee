@@ -241,7 +241,7 @@ All factors are integer percents: `intensity = min(100, floorDiv(base(kind) × s
 
 | Mutation | Effect | Bias |
 |---|---|---|
-| **Role drift** | An ambiguous participant (`role_conf < 0.7`) gets reassigned toward Agent | Toward actors the owner dislikes or fears |
+| **Role drift** | An ambiguous participant (`role_conf < 70`) gets reassigned toward Agent | Toward actors the owner dislikes or fears |
 | **Intensification** | intensity +10%, worst detail sharpened | Grudge-bearing memories, high Temper |
 | **Softening** | intensity −10% | Toward liked actors; forgiving (low Rancor) |
 | **Detail loss** | Specific → descriptor ("Ottilie" → "that widow by the creek") or time fuzzes | Old, unrehearsed |
@@ -319,13 +319,14 @@ carry' = clamp(L − LOGIT_Q8[c'], −127, 127)
 - **`plausibility` (Q8)** reads consistency, prejudice, and esteem:
   ```
   p = 256
-  p = floorDiv(p × (100 + clamp(−50, 50, bias)), 100)   // bias = floorDiv(−Aff(L→subject) × sgn(valence), 2):
+  p = floorDiv(p × (100 + clamp(−50, 50, bias)), 100)   // bias = floorDiv(Aff(L→subject) × sgn(v_L), 2):
                                                        //   people believe bad things about those they dislike
-  if valence < 0: p = floorDiv(p × (150 − max(0, Res(L→subject))), 150)   // the respected resist bad props
+  if v_L < 0: p = floorDiv(p × (150 − max(0, Res(L→subject))), 150)       // the respected resist bad props
   if supernatural: p = floorDiv(p × (10 + 3·Superstition), 10)           // ×0.1 .. ×1.9
   p = p + consistency                                    // ±64 from existing beliefs that support or contradict
   p = clamp(26, 640, p)
   ```
+  `v_L` is the prop's valence *for this listener*: the predicate's valence, except for kind props (valence 0, §5.1), where it's the sign of L's group-prior Affection toward that people (§6.2). So "people believe their enemies are faekin" (`12` §7.4) holds exactly where the listener's culture treats being faekin as bad, and the Prejudice dial turns it down.
 - **`novelty` (Q8):** `floorDiv(512, 2 + shared)`, where `shared` counts existing evidence on the same rumor lineage (k = 0.5). This is **rumor-lineage tracking**: hearing the same story from five people who all got it from Mrs. Pfaff counts for much less than five independent witnesses. Each Told memory carries its rumor's lineage id, which makes this cheap. Lineage is ground truth the listener doesn't know, so we deliberately discount *partially*: real people over-count echoes, and that's how mob consensus forms.
 - **Denial** (`10`): while a belief has a `clamp`, supporting evidence counts at `floorDiv(w × 25, 100)`. When the clamped evidence banks 3× the threshold, denial breaks and `10` jumps credence to `min(95, c + 40)`.
 - **Approximation note.** `LOGIT_Q8` is exact to rounding. The nearest-index step quantizes credence to whole points, and the carry keeps the sub-point residual, so weak echoes still accumulate near the extremes. Check against §15.1: c = 44 → L = −62; a Statement at trust ≈ 1.2 and plausibility 0.6 gives w = 147; L = 85 → **c' = 58**, as in v0.1.
@@ -554,7 +555,7 @@ Rumor { id, root_prop, origin: {actor|event|doc}, born: time,
 ### 8.2 Generation
 
 Rumors are born when an actor *voices* a belief that others lack. Sources:
-- Witnessing anything with juiciness > 0.3 (a fight, a drunk deacon, the PC coming out of the woods bloody).
+- Witnessing anything with juiciness > 300‰ (a fight, a drunk deacon, the PC coming out of the woods bloody).
 - Attribution conclusions ("I think it was the Kass woman").
 - Lies and schemes (an Ambitious actor claims the hodag kill).
 - Documents: a newspaper item, a letter read aloud.
@@ -818,7 +819,11 @@ Processes against **scapegoats** don't raise her label, but `06` reads them for 
 
 ## 10. Social interactions catalog
 
-**[PROPOSAL]** Data-driven, Comme il Faut style. Each entry has: `intent`, `preconditions`, `volition` (a sum of influence rules; examples shown), a **check** (02 skills: Persuade, Deceive, Intimidate, Read People, Gather Information [not yet in 02; see 09], Perform, Trade), `effects`, and the generated memory/rumor. "Aff/Res/Tru/Fear" mean deltas on the *target's* opinion of the initiator unless noted. Every interaction is an Event, so witnesses get memories.
+**[PROPOSAL]** Data-driven, Comme il Faut style. Each entry has: `intent`, `preconditions`, `volition` (a sum of influence rules; examples shown), a **check** (`02` skills: Persuade, Deceive, Intimidate, Read People, Gather Information, Perform, Trade), `effects`, and the generated memory/rumor. "Aff/Res/Tru/Fear" mean deltas on the *target's* opinion of the initiator unless noted. Every interaction is an Event, so witnesses get memories.
+
+**Volition is an urge, not a decision.** An interaction's volition score becomes the reality appraisal `R` of an option in `10`'s arbitration (`10` §5.2), where drives and conscience vote on it too. A Temper-driven Accuse can lose to a Sabbath thought; a displaced rage urge can make an Insult win that volition alone wouldn't. Volition drivers that name Values (`value:temper`) read the derived views of §3.1.
+
+**Gather Information (C20) [OPEN, `02`].** It's central here (Ask around, the rumor ledger, spread bands), but `02` has no such skill. `09` recommends adding it to `02` as a CHA skill. Until then, 04 resolves it as Read People + Lore (Local), the better of the two.
 
 | # | Interaction | Preconditions | Volition drivers | Check | Success effects | Failure / notes |
 |---|---|---|---|---|---|---|
@@ -842,7 +847,7 @@ Processes against **scapegoats** don't raise her label, but `06` reads them for 
 | 18 | **Help** (labor, chores) | Co-located, need visible | Neighborliness, Obligation | Trade | Obligation +1 favor; Aff +5 | — |
 | 19 | **Gift** | Has item | Aff, Ambition, apology | none | Aff/Obligation by value | Gift from a feared or suspect actor → suspicion (witch charm?) |
 | 20 | **Warn** | Believes threat to target | Aff | none | Transmit prop with credibility +; Trust + | Creates Told memory citing warner |
-| 21 | **Accuse** | Belief credence > 0.5, grudge or Temper | Temper, −Discretion, voiced | Persuade/Intimidate vs. Will | Public event; rung-2 trigger; audience update | Rebutted → accuser Respect −; target may sue for slander |
+| 21 | **Accuse** | Belief credence > 50, grudge or Temper | Temper, −Discretion, voiced | Persuade/Intimidate vs. Will | Public event; rung-2 trigger; audience update | Rebutted → accuser Respect −; target may sue for slander |
 | 22 | **Deny / Defend** | Accused | — | Persuade/Deceive vs. Read People | Lowers audience credence | Failed denial raises it (protesting too much) |
 | 23 | **Apologize** | Holds belief own fault, or strategic | Piety, Aff, Fear | Persuade | Grudge −; Aff + (§9.5) | Insincere + caught → Trust −15 |
 | 24 | **Forgive** | Holds grudge, apology/restitution received | −Rancor, Piety | none | Grudge resolved; Chronicle event | — |
@@ -858,29 +863,36 @@ Processes against **scapegoats** don't raise her label, but `06` reads them for 
 | 34 | **Swear oath / testify** | Hearing/trial | Piety, Trust | Persuade/Deceive | Statement credibility ×1.5 (Piety-weighted) | Perjury discovered → disaster |
 | 35 | **Toast / stand drinks** | Tavern | Ambition, Company | Cha | Aff +3 to all present, Obligation +0.2 each | Drunkenness → Discretion −1 for evening |
 | 36 | **Tell tale** (story of deeds) | Has notable memory | Standing need | Perform | Respect + if believed; spawns rumor about teller | Boasting → Belief(Braggart) if implausible |
+| 37 | **Test** (demand an ordeal; `12` §7.5) | Suspects target (credence > 30) of a kind or of witchcraft; a gathering or an office | Superstition, Fear, grudge | target's Will vs. the test's DC, or the test's rates | Witnesses get `Ordeal` evidence by the test's true/false-positive rates | **Refusal** is evidence (strength 15). The Explain shows the rates (P1) |
+| 38 | **Confess** (`10`) | A preacher, priest, or confidant with Trust > 40 | Moral anxiety, piety | none | One-shot anxiety discharge; shadow charge falls | The secret now carries leak risk by the hearer's Discretion |
+| 39 | **Mock** (`10` humor) | An audience; a fear-rumor or a pompous target | Humor style, Temper, drink | Perform | Spawns a `ridicule` variant; listeners' Heat contributions ×50/100 (§9.6) | Mocking the pious in church: Aff −, Respect − with believers |
+| 40 | **Read a dream** | Target told a dream | Dream-Reader Calling, Lore | Read People or Lore (Mental Philosophy) | Interprets the dream as a prop with `Dream` evidence; band-level read of the dreamer's thoughts (`10` §8.5) | A misreading is a confident wrong prop |
+| 41 | **Mesmerize** (`10` §12) | Willing or entranced subject | Mesmerist role, Ambition | Perform vs. Will | Recovers a repressed memory; discharges anxiety; plants a suggestion (`Implant`) | The mesmerist's beliefs bleed into the "recovered" memory |
+| 42 | **Penance** (`10` undoing) | Guilt about a specific harm | Moral anxiety | none | A compensatory act or public penance; discharges guilt | Unexplained penance by a suspect reads as admission |
+| 43 | **Disclose** (come out; `12` §7.7) | Holds a concealed-kind Secret | Trust, Persona strain, Company | Persuade | Public event; each witness updates by their own priors and opinions; strain ends | Never automatically fatal. Opens or feeds a process only through ordinary beliefs |
 
-Volition example (Accuse): `+30·[grudge≥60] + 10·Temper − 10·Discretion + 15·[voiced already] + 20·[M>0.5] − 25·Fear(target) − 20·[target is kin]`, chosen if it beats alternatives and passes `> 40`.
+Volition example (Accuse), integer: `+30·[grudge ≥ 60] + 10·Temper − 10·Discretion + 15·[voiced already] + 20·[M ≥ 500] − floorDiv(25·Fear(target), 100) − 20·[target is kin]`, proposed as an urge if it passes `> 40`. In arbitration, a displaced rage thought supports it and a `piety` or `neighborliness` thought may oppose it.
 
 ---
 
 ## 11. Off-screen social life at LOD tiers
 
-**[DECISION]** Same data model at every tier (§1). Tiers per 00: T0 live, T1 hourly activities, T2 daily statistics.
+**[DECISION]** Same data model at every tier (§1). Tiers per `00` and the ADR: T0 live on the site map, T1 hourly steps, T2 daily steps with 6-hour sub-steps for rumor and weather. **Ownership (C40):** `05` owns tier *policy* (who is at which tier, relevance, pinning), `07` owns the *mechanism* and budgets, and **04 owns social hydration**: what social state looks like at each tier and how it's reconstructed on promotion (this section).
 
 ### 11.1 T0: live conversations
 
-- Every ~30–90 s game-time an idle or co-working actor rolls `social_tick`: pick a partner within 6 tiles (Company need, Aff, Intents), then pick an interaction by volition.
-- Interactions are short timed actions (2–10 game-minutes) shown as **speech-bubble labels** (RimWorld-style) carrying *content*: `Gossip ▸ Kass widow`, `Dun ▸ $4 flour`, `Accuse!`, `Flirt`. The label is a click target into the interaction record.
+- **Clock (C21).** Canonical time is integer game-minutes; a live site adds a sub-minute clock of game-seconds within the current minute (`07` §3.4, tenth-second resolution). Social timing uses it: every 30–90 game-seconds an idle or co-working actor schedules a `social_tick` event on the T0 queue, picks a partner within 6 tiles (Company need, Aff, Intents), then proposes interactions by volition to `10`'s decision-point arbitration.
+- Interactions are short timed actions (2–10 game-minutes) shown as **speech-bubble labels** (RimWorld-style) carrying *content*: `Gossip ▸ Kass widow`, `Dun ▸ $4 flour`, `Accuse!`, `Flirt`. The label is a tap or click target into the interaction record (`11` §2.12).
 - Bystanders within earshot roll Perception (02) to **overhear** (Overheard evidence). Eavesdropping is a PC verb.
 - Full-fidelity memory creation, distortion rolls on rehearsal, immediate opinion updates.
 - Gatherings run as **practices** with roles: a church service has preacher, congregants, choir, and latecomers; a bee has host, workers, and children. Practices schedule interaction slots and norms.
 
 ### 11.2 T1: activity-scheduled encounters
 
-- Each T1 actor has an **Activity** per 4-hour block (from 05's scheduler: work field, mill run, tavern, church, visit kin, peddle route). Venues advertise social affordances (Sims-style smart venues).
-- **Encounter pooling:** actors sharing a venue × block form a pool. Each actor draws `k = round(Sociability × venue_factor)` partners (Sociability from Neighborliness, Company need, and drink), weighted by acquaintance and Aff, with no all-pairs scan: sampling goes from the actor's top-N ties present plus 1 random stranger slot.
-- Each encounter resolves **one** interaction by volition. Checks are full d20s (cheap), producing:
-  - memories for both participants (with `when` = block, consolidation-friendly),
+- T1 steps **hourly** (ADR). Each T1 actor has an **Activity** lasting 1–8 hours (`05`'s scheduler, chosen by `10`'s hourly arbitration: work field, mill run, tavern, church, visit kin, peddle route). Venues advertise social affordances (Sims-style smart venues).
+- **Encounter pooling:** actors sharing a venue during an activity span form a pool, resolved at the hourly step when the span ends (or every 4 hours for long spans). Each actor draws `k = floorDiv(Sociability × venue_factor%, 100)` partners (Sociability from the Neighborliness view, Company need, and drink), weighted by acquaintance and Aff, with no all-pairs scan: sampling goes from the actor's top-N ties present plus 1 random stranger slot.
+- Each encounter resolves **one** interaction by volition (as an arbitration option for the initiator). Checks are full d20s (cheap), producing:
+  - memories for both participants (with `when` = the span, consolidation-friendly),
   - 0–1 rumor transmission,
   - opinion reasons,
   - witnesses: 0–2 sampled from the pool, with Overheard memories.
@@ -891,9 +903,15 @@ Volition example (Accuse): `+30·[grudge≥60] + 10·Temper − 10·Discretion +
 
 T2 actors are still named, but only their **key state** is individual: household, ties (top 15), key opinions (top 10, compressed reasons), grudges, secrets, and beliefs about **notable** props. Ordinary rumor spread is computed at the **compartment** level:
 
-- Compartments: households ⊂ congregations/language groups ⊂ settlement. For each (rumor variant, compartment), store `prevalence p` and `mean credence`.
-- Daily update, a network SIR with mutation:
-  `Δp_c = β_c·(1−p_c)·Σ_d A_cd·p_d·juiciness − γ·p_c` where `A` is a sparse compartment-contact matrix derived from channels (church weekly spikes, market day, bees). `γ` is forgetting. Mutation splits a fraction `μ` into child variants.
+- Compartments: households ⊂ congregations/language groups (and closed societies: Hall, Club, Lantern) ⊂ settlement. For each (rumor variant, compartment), store `prevalence p` (‰) and `mean credence` (0–100).
+- Update on each **6-hour sub-step** (`00`, ADR), a network SIR with mutation:
+  `Δp_c = β_c·(1−p_c)·Σ_d A_cd·p_d·juiciness − γ·p_c` where `A` is a sparse compartment-contact matrix derived from channels (church weekly spikes, market day, bees). `γ` is forgetting. Mutation splits a fraction `μ` into child variants. It's polynomial, so no table is needed. **Integer form (C49):** `β, A, juic, γ, μ` are per mille; prevalence is kept internally in parts per million (`q`, 0–10⁶) so small flows aren't floored away, and exposed as ‰. Per sub-step, with every intermediate product under 2⁵³:
+  ```
+  S_c = Σ_d floorDiv(A_cd × q_d, 1000)                 // contact-weighted prevalence, ppm
+  t   = floorDiv((10⁶ − q_c) × S_c, 10⁶)               // susceptible × exposure, ppm
+  q_c += floorDiv(β_c × t × juic, 10⁶) − floorDiv(γ × q_c, 1000)
+  ```
+- **Psyche at T2** (`10` §14.4): a daily coarse anxiety step and at most one defense per actor per day, with projection, displacement, identification, denial, and reaction formation resolved individually. A T2 projection writes a real belief and can individuate a Catalyst.
 - Inter-settlement flow comes from carrier events (peddler arrives, the newspaper reaches subscribers, a letter), which are discrete and logged.
 - Persecution processes run at T2 with aggregate Heat and Consensus from compartment beliefs plus individually held grudges. **Individuation:** when a T2 process wants a Catalyst, it **selects a named actor** whose sheet fits (the T2 actor with the highest grudge × Temper) and records a notable event attributed to them. Off-screen consequences get faces.
 - Grudge-pair pressure: T2 rolls a daily `incident` for every active grudge (p ∝ intensity × proximity). Incidents become notable events between named actors.
@@ -903,11 +921,14 @@ T2 actors are still named, but only their **key state** is individual: household
 **[PROPOSAL]** Lazy, deterministic hydration.
 
 **T2 → T1** (the player is heading there, or the actor became relevant):
-1. **Beliefs:** for each rumor variant with prevalence p in the actor's compartment, the actor holds it iff `hash(actor_id, variant_id, seed) < p`. That's deterministic, so repeated promote/demote cycles agree. Credence ~ compartment mean ± personality (Superstition for supernatural props, Aff toward subject).
+1. **Beliefs:** for each rumor variant with prevalence p (‰) in the actor's compartment, the actor holds it iff `mod(hash(actor_id, variant_id, seed), 1000) < p`. That's deterministic, so repeated promote/demote cycles agree. Credence ~ compartment mean ± personality (Superstition for supernatural props, Aff toward subject).
 2. **Source backfill:** each held belief gets a synthesized `Told` memory. The source = the highest-weight tie in a compartment where p was highest at the earliest time, and `when` = the first day the actor's compartment p crossed 0.2 (stored as a compartment time series; cheap). Venue = the dominant channel that week (church, market). Result: "Heard it from her sister-in-law after church, mid-May."
 3. **Opinions:** compressed reasons inflate back into Reason records citing synthesized Summary memories.
-4. **Notable events** in which the actor was individuated are already real memories.
-5. **Mark synthesized memories `synthetic=true`** (debug only). They're first-class from then on.
+4. **Notable events** in which the actor was individuated are already real memories. That includes T2 **defense events** (`10` §14.4): a projection or displacement that fired off-screen is a real event, and backfill may cite it as a belief's origin.
+5. **Psyche:** thoughts are recomputed from state; anxiety, defense style, shadow charges, and masked thoughts persist (`10` §14.4).
+6. **Mark synthesized memories `synthetic=true`** (debug only). They're first-class from then on.
+
+**Census → named:** a census member materialized for a story (§13.3) gets the same backfill from their compartment, so the boy who saw her on the bluff road has heard what his household heard.
 
 **T1 → T0:** positions from the current Activity, mid-activity state, and recent volatile opinion. Memories are already individual. Pending interactions (an Intent to Dun) start as queued T0 actions, so the farmer who planned to confront you does so *when you arrive*.
 
@@ -915,7 +936,7 @@ T2 actors are still named, but only their **key state** is individual: household
 
 **Consistency rule:** anything the PC observed is pinned, and synthesized backfill may never contradict a pinned memory or an event-log notable. Backfill sources are chosen among actors whose own state is consistent (they must hold the belief earlier).
 
-**[PROPOSAL] Challenge to 00 (tiering by relevance):** 00 frames tiers geographically ("within some radius"). For the social sim, tier should be `max(geographic tier, relevance tier)`. Relevance = holds a grudge or persecution role against the PC, is kin or a close tie of the PC or a companion, is a recurring nemesis, or is involved in an active notable process. A witch-finder 40 miles away who is hunting you should be T1. This keeps the people who matter to the story from going statistical. Budget impact is small (≤ 50 extra T1 actors).
+**[DECISION, adopted into `00`] Tiering by relevance.** v0.1 challenged `00`'s purely geographic tiers; `00` now says tier is set by relevance as well as distance. For the social sim, tier = `max(geographic tier, relevance tier)`. Relevance = holds a grudge or persecution role against the PC, is kin or a close tie of the PC or a companion, is a recurring nemesis, is a Catalyst or leader of a process at rung ≥ 3, or is involved in an active notable process. A witch-finder 40 miles away who is hunting you should be T1. This keeps the people who matter to the story from going statistical. Budget impact is small (≤ 50 extra T1 actors). `05` owns the policy.
 
 ---
 
@@ -923,44 +944,57 @@ T2 actors are still named, but only their **key state** is individual: household
 
 **[DECISION]** UX shows the PC's beliefs, not ground truth (P1 legibility applies to what the PC *could* know).
 
+**Division of labor with `11`.** `11` owns layout, gestures, time policy, and the three layouts (Pocket, Folio, Desk) built from shared panels. This section owns the **knowledge semantics**: what each panel may show, at what accuracy, and what gates it. Every number comes from core with its Explain record, and the Explain's `knowledge` level (`public | participants | self | omniscient`) decides whether it's shown at all (`11` §1.5, "the legibility ladder"). Every UI action is also a headless Command (ADR 0002).
+
 ### 12.1 Character dossier
 
-Opened by clicking an actor. Sections:
+Opened by selecting an actor. On Pocket it's a bottom sheet with Peek/Half/Full detents and tabs **Mind · Body · Of you · Known · Pack** (`11` §2.3); on Desk it's the Inspector panel. Sections, as 04 defines their content:
 
-- **Header:** name or descriptor ("the miller's wife," if the PC doesn't know her name), household, known roles.
+- **Header:** name or descriptor ("the miller's wife," if the PC doesn't know her name), household, known roles, and her **presented** people (never her true one, §5.8).
 - **What she thinks of you:** five bars, with **known reasons** as a list ("Insulted her husband at the store (−12 Aff)," "Repaid your debt promptly (+8 Trust)"). Unknown contributions appear as a hatched "**?** (other reasons)" segment. Accuracy is gated:
   - Bars are shown as *bands* (Cold / Wary / Neutral / Warm / Devoted) unless the PC passes Read People vs. DC (10 + her Deceive, or + Discretion×2 for concealment). Success shows numbers ±10.
   - Reasons the PC was present for are always known. Others need investigation (Gather Information, asking her friends, a fae oracle, *her telling you* when Trust is high enough).
-- **What you know about her:** the PC's beliefs about her, each with credence shown as wording ("you're sure," "you've heard," "a rumor says"), plus source links.
+- **What you know about her:** the PC's beliefs about her, each with credence shown as wording ("you're sure," "you've heard," "a rumor says"), plus source links. Kind beliefs ("you've heard she's of the hidden folk") appear here like any other belief; there's no exposure meter (`11` §2.9).
+- **What you read in her** (the NPC Mind tab, `11` §2.3): the PC can't hear other people's thoughts. Read People successes yield *inferences* with credence words ("she wants to be rid of you," "something shames him about the store's books"). Ego strength, anxiety, and defenses show only as inferred bands. Full NPC minds are for the epilogue and God view.
 - **Her ties (known):** the mini relationship web.
-- **Actions:** contextual interactions with predicted odds ("Apologize: likely ~65%").
+- **Pack / Pantry:** what the PC knows of her inventory and household pantry, as dated beliefs (§7.2).
+- **Actions:** contextual interactions with predicted odds ("Apologize: likely ~65%"). The number is gated by Read People like the opinion numbers.
 
-### 12.2 Rumor ledger ("what's being said about you in Viroqua")
+### 12.2 Rumor ledger ("what's being said about you in Iron Ford")
 
-Per settlement, populated only from what the PC has heard or overheard, or learned by Gather Information:
+`11` §2.4 lays it out as **Talk of the County**, grouped by settlement. Populated only from what the PC has heard or overheard, or learned by Gather Information:
 - Each entry: the variant text (templated from the prop), where and from whom heard, **estimated spread band** (only a few / several households / the talk of the town / everyone knows, from Gather Information DC by prevalence), **trend** arrow if heard multiple times, and **versions** (variant tree, collapsed).
 - Actions per rumor: *Counter* (deny publicly at a gathering), *Find the source* (an investigation chain: ask whoever told you who told them, i.e. Bad News-style legwork), *Feed it* (embellish), *Plant a rival rumor*.
-- Witch mode adds a **Figure ledger**: what the town believes about "the Bluff Witch," and who they think she is (the PC's estimate of the attribution distribution).
+- A **Figures** section (every mode; most used in witch mode) lists each rumor identity the PC knows of: what's said about it, its believed notoriety tier (§8.6), and who people think it is (the PC's estimate of the `IsFigure` distribution). A witch's cover identities appear here as alternate Figures (`11` §2.13).
 
 ### 12.3 Settlement mood
 
-A diegetic one-liner plus detail: "Viroqua is **uneasy**: cattle sickness, two families accusing the Kass widow." It maps to M and the persecution rung, shown as wording, with numbers available under a PC skill check or Gather Information. **[OPEN]** Should witch mode show the rung explicitly (a gamey, legible "heat meter") or only diegetically?
+A diegetic one-liner plus detail: "Iron Ford is **uneasy**: cattle sickness, two families accusing the Kass widow." It maps to M, A_S, and the highest known process rung, shown as wording, with numbers available under a PC skill check or Gather Information. It's the group header of the rumor ledger (`11` §2.4).
+
+**Witch-mode notoriety display [OPEN, v0.1 Q3; `11` proposes].** The witch-facing label (§9.7) appears per settlement in the ledger header and on the region map. `11` §2.13 proposes a **"Show the rung"** setting: off by default in Frontier and on in Settler. When it's off, the label updates only when the PC *learns* of a change (a friend's warning, a sermon, a notice nailed up), which is 04's knowledge rule. When it's on, the label tracks the true rung: a deliberate, opt-in P1 relaxation. 04 supports either; the label is computed from §9.7's `witchLabel` and filtered by the PC's knowledge unless the setting is on.
 
 ### 12.4 Relationship web
 
-A graph view of the PC's known actors. Edges are colored by dominant dimension, and dashed edges are ones the PC is unsure of. Filters: household, congregation, grudges, debts. Nodes the PC knows only by descriptor show as silhouettes.
+A graph view of the PC's known actors. Edges are colored by dominant dimension (with a pattern as well as color, `11` §6), and dashed edges are ones the PC is unsure of. Filters: household, congregation, grudges, debts. Nodes the PC knows only by descriptor show as silhouettes. On Pocket it opens from the dossier's mini web (5 nodes) to full screen.
 
 ### 12.5 Chronicle
 
-The run's readable history (P5). It's a sifter over the event log **plus** belief data. Entries can be written from the PC's perspective ("You learned...") or, after death or retirement, from ground truth with a reveal ("What really happened"). **[PROPOSAL]** The post-run "truth reveal" is the payoff for a hidden-information sim: you finally see that the Brandt cows died of milk fever and that the whole Kass affair was a story.
+The run's readable history (P5). **[DECISION, C44]** `05` §11 owns the Chronicle (voices, knowledge basis, epilogue). 04 supplies belief data for sifting. During a run, entries are written from what the PC knows ("You learned..."). Ground truth appears only in the **post-run epilogue** ("What really happened"), including every defense label and every concealed people. `06`'s side-by-side rumor-vs-truth view belongs to the epilogue, not to play. **[PROPOSAL]** The post-run "truth reveal" is the payoff for a hidden-information sim: you finally see that the Brandt cows died of milk fever and that the whole Kass affair was a story. (Whether it spoils legacy play in the same World is still Q9.)
 
 ### 12.6 Notifications
 
-Opt-in, belief-gated toasts: "**Mrs. Haas has started telling people you soured her milk.**" These fire only when the PC learns it (overhears, is told by a friend who has Aff > 30 and Discretion < 1, reads it), never at the moment it happens off-screen. **[PROPOSAL]** Friends report to you. Cultivating Discretion-low friends is how you build an intelligence network. That's a real strategic layer.
+Opt-in, belief-gated toasts: "**Mrs. Haas has started telling people you soured her milk.**" These fire only when the PC learns it (overhears, is told by a friend who has Aff > 30 and Discretion < 1, reads it), never at the moment it happens off-screen. `11` §1.6 turns each into an integer **alert score** that decides pause behavior; an accusation against the PC (rung 2+) is a Summons and always pauses. **[PROPOSAL]** Friends report to you. Cultivating Discretion-low friends is how you build an intelligence network. That's a real strategic layer.
 
 ### 12.7 Debug / God view
 
-The full truth: all opinions, the rumor heat-map across the region, lineage trees, attribution distributions. It's needed for development, and maybe as a "storyteller sandbox" mode.
+The full truth: all opinions, the rumor heat-map across the region, lineage trees, attribution distributions with every term (including `PF`, `DF`, and the faekin term), defense provenance, true peoples. It's needed for development, and maybe as a "storyteller sandbox" mode. `11` §2.14 puts it under Debug, opt-in and Chronicle-tagged. The map's **Suspicion overlay** outside the God view shows only the PC's beliefs (`11` §2.2).
+
+### 12.8 Self-knowledge: the PC's own mind and kind
+
+- **The PC's own defenses** are hidden by default (`10` §1, §8.5). A projection the PC's psyche produced looks to the player like an ordinary Inference ("you've come to think she envies you"). Insight stages, or a Read People check on oneself, reveal the label ("*Laying it at another's door?*") and offer **Own it** (§9.5). This is the most interesting P1 consequence of P7, and `11` §2.3 asks Ellie to confirm it (`10` Q1, `11` Q3).
+- **The PC's Shadow** starts hatched in the Mind tab (`11` §2.3) and reveals traits one at a time.
+- **The PC's own people** follows the creation option (§5.8): known, suspected, or unknown to the PC, with tells reaching the player as unexplained experiences in the last case.
+- **Implementation note:** the code's psyche view currently shows the PC's `recentDefenses` and `shadow` directly, which breaks this rule (`10` §14.5 item 4).
 
 ---
 
@@ -968,23 +1002,33 @@ The full truth: all opinions, the rumor heat-map across the region, lineage tree
 
 ### 13.1 Budgets
 
-**[PROPOSAL]** Targets for a mid-range PC, social sim share of frame/tick:
+**[DECISION, ADR; `11` §5, `07` §6]** The sim is TypeScript in a Web Worker, and phones are an equal target. Outcomes are platform-independent: a slower phone runs the same sim slower, never a coarser one. Scale is set by the **World size** chosen at creation (C9, C2):
 
-| Tier | Actors | Ticked | Social cost | Memory per actor |
+| World size | Named actors (soft ceiling) | T1 cap | T0 cap |
+|---|---|---|---|
+| Small ("A Coulee") | ~400 | 250 | 150 |
+| **Standard** ("A County", default) | ~800 | 400 | 150 |
+| Large ("The Long County") | ~1,500 | 600 | 150 |
+
+`11` owns the presets and the per-device worker budgets; `07` owns the sim-side budgets. **[PROPOSAL]** The social sim's share, on the mid phone at Standard:
+
+| Tier | Actors | Ticked | Social share (mid phone) | Memory per actor |
 |---|---|---|---|---|
-| T0 | 20–40 | social_tick every ~60 game-s each | < 0.5 ms/frame amortized | ≤ 300 memories, ≤ 60 opinions × 8 reasons, ≤ 400 beliefs |
-| T1 | 300–500 | per 4h block, batched | ~1,500 encounters/game-day → < 20 ms per day-step | Same caps, consolidated weekly |
-| T2 named | 2,000–5,000 | daily, compartment-level | Compartments ~300 × active variants ~200 = 60k floats/day | ≤ 20 memories, ≤ 10 opinions, notable beliefs only |
-| T2 census | unbounded counts | — | Per-settlement aggregates | none; individuated on demand (§13.3) |
+| T0 | ≤ 150 (typically 20–60 social) | `social_tick` events every 30–90 game-s each, event-driven | ≤ 5% of one core at 1× | ≤ 300 memories, ≤ 60 opinions × 8 reasons, ≤ 400 beliefs |
+| T1 | ≤ 400 | hourly steps; encounters resolved at activity-span ends | ≤ 15 ms of `11`'s ≤ 40 ms per T1 hour step | Same caps, consolidated weekly |
+| T2 named | the rest of ~800 | daily minds, 6-hour rumor sub-steps | ≤ 60 ms of `07`'s ≤ 150 ms T2 day; sub-step ≤ 6 ms | ≤ 20 memories, ≤ 10 opinions, notable beliefs only |
+| Census | 3,000–4,000 counts | — | Per-settlement aggregates | none; individuated on demand (§13.3) |
 
-At an average ~6 KB per T0/T1 actor and ~1 KB per T2 actor, 5,000 actors ≈ 8–10 MB. Fine.
+The ADR's M2 gate (< 5 ms per game-hour for 30 T1 actors on the mid phone) covers social plus psyche. At ~6 KB per T0/T1 actor and ~1 KB per T2 actor, Standard's social state is ~2–3 MB, well inside `11`'s 120 MB worker heap.
 
 ### 13.2 Avoiding O(n²)
 
 - **Opinions are sparse:** an actor holds opinions only toward acquaintances (Dunbar-capped at 150, typical 30–60) plus groups and figures. No dense matrices.
 - **Encounters by venue buckets and tie lists,** never all-pairs (§11.2). T0 uses a spatial hash for earshot.
 - **Rumor diffusion at T2 is compartment-level** with a sparse contact matrix (`O(edges × active variants)`).
-- **Interned propositions:** beliefs are `(prop_id, credence:u8, evidence_ptr)`. Commons per settlement is a hash map over props with prevalence > 0.
+- **Interned propositions:** beliefs are `(prop_id, credence 0–100, carry, evidence_ptr)`. Commons per settlement is a map over props with prevalence > 0, iterated in id order.
+- **Lazy salience:** memories store `s0, tRef` and compute salience on read (§4.3), so there's no per-day decay pass over every memory.
+- **Kind beliefs are sparse:** nobody stores "she's human." Only evidence creates an `Is(x, kind)` belief (§5.8), so concealed peoples cost nothing until someone suspects.
 - **Lineage ids** make the novelty discount O(evidence count), not a graph search.
 - **Heat** is incrementally maintained per (target, settlement) on grudge change. It's not recomputed by scanning.
 - **Attribution** is computed only on new misfortune or evidence, over ≤ 30 top candidates (acquaintances ranked by a cheap prior).
@@ -992,17 +1036,36 @@ At an average ~6 KB per T0/T1 actor and ~1 KB per T2 actor, 5,000 actors ≈ 8�
 
 ### 13.3 Census individuation
 
-Settlement population beyond the named set is a count by age/sex/household-type. When a story needs "the boy who saw her on the bluff road," an actor is individuated with a deterministic seed and a minimal backlog. 07 should own the generator. **[OPEN]** Do we need census at all, or are ~5,000 named actors enough for a county? A 1850s Driftless county (~10–15k people) suggests yes for full scale, but the vertical slice can be all-named.
+Settlement population beyond the named set is a count by age/sex/household-type (and people and culture, `12` §2's priors). When a story needs "the boy who saw her on the bluff road," an actor is individuated with a deterministic seed and a backlog from compartment state (§11.4). **[DECISION, `00`]** Census materialization is canon: the population exists as a census and sheets are materialized lazily. `07` §5.3 owns the generator, and census identity is independent of when someone is materialized. v0.1's Q8 (census vs. all-named) is closed; the remaining scale question is `07` Q3 (confirm World size as the only lever).
 
 ### 13.4 Determinism
 
-**[PROPOSAL]** Seeded RNG streams per (actor, day) and per (process, step), so replays and the save/promote cycle are reproducible. That's critical for debugging emergent stories and for the hash-based hydration in §11.4. 07 owns implementation.
+**[DECISION, ADR]** Same seed + same commands ⇒ the same event log and state hash on every JS engine. All randomness goes through the counter-based `rng(seed, stream, tick, key)`. The social sim uses the existing streams `social`, `gossip`, `memory`, `belief`, `rumor`, and `suspicion` (tells and ordeals), keyed by `mixKey(actor or process, minute, salt)`, so replays, the save/promote cycle, and the hash-based hydration in §11.4 are reproducible. Iteration is by id; comparators are total (attribution ties break by actor id). `07` owns the implementation.
+
+### 13.5 Integer forms at a glance (C49)
+
+**[PROPOSAL]** Every formula in this doc, in the form core implements. No `exp`, `log`, `pow`, or trig in core; tables are generated offline and committed (`07` §4.2).
+
+| Formula | Model | Core form | Approximation note |
+|---|---|---|---|
+| Memory salience decay (§4.3) | `s₀·e^(−Δt/τ)` | Lazy `decayQ16(Δt, τ)` from `EXP_NEG_Q16`, integer τ | < 2/65536 absolute; below one salience point |
+| Grudge drift (§6.3) | exponential, τ = 60 d × (1 + R) | same lazy form; `decay` flag for C12 | same |
+| Misfortune pressure M (§3.3) | decaying event sum | `decayQ16` at τ = 30 d, per mille | same |
+| Credence (§5.3) | log-odds sum | `LOGIT_Q8` + Q8 weights + nearest index + int8 carry | exact to table rounding; carry preserves sub-point residue |
+| Attribution (§5.4) | normalized weights | integer centi-weights; share per mille | exact |
+| Rumor telling (§8.3) | `σ(k·(score − 0.5))` | `SIG_PERMILLE` lookup, interpolated | < 0.2‰ |
+| Mutation chance (§8.5) | product of factors | per-mille integer product | exact to floor |
+| Heat, Consensus, thresholds (§9.1) | sums and products | integer tenths/percent/per mille | exact to floor |
+| Notoriety, Reputation, tiers (§8.6) | weighted means | per mille; tier table | exact to floor |
+| T2 diffusion (§11.3) | network SIR | ppm accumulators, 6-h sub-steps | Euler step; error well under parameter uncertainty |
+| Projection/displacement terms (§5.4) | `10` fits | integer `PF`, `DF` from `10` | exact |
+| Kind priors and tells (§5.8) | `12` priors and strengths | integer credence; Q8 tell weights | exact |
 
 ---
 
 ## 14. LLM integration options (optional layers)
 
-**[PROPOSAL] Principle:** the LLM is a **renderer, never an authority**. Simulation state is structured and deterministic, and LLM output is view-only. It can't create props, opinions, or events. The game must be fully playable with every layer off.
+**[PROPOSAL] Principle:** the LLM is a **renderer, never an authority**. Simulation state is structured and deterministic, and LLM output is view-only. It can't create props, opinions, or events. The game must be fully playable with every layer off. `07` §10.3 owns the adapter (timeouts, template fallback, proper-noun post-check). Knowledge gating applies to prompts too: an L1 bark gets the speaker's beliefs and *masked* thoughts, never `10`'s defense labels or anyone's true people.
 
 | Layer | What it does | Input | Value | Risks | Mitigation |
 |---|---|---|---|---|---|
@@ -1013,31 +1076,31 @@ Settlement population beyond the named set is a count by age/sex/household-type.
 | **L4 Free-text player speech (experimental)** | Parse player text into an interaction intent plus a prop | Text → constrained schema | Expressiveness | Façade problem: brittle, exploitable, breaks legibility | Classifier only, mapped to the catalog; always show the parsed intent for confirmation. **Not recommended for v1** |
 | **Authoring-time** | Generate L0 template variants and period vocabulary offline; human-curated | — | Cheap content volume, zero runtime cost | Quality control | Review pipeline |
 
-Tradeoffs: per-bark API calls at T0 density (~1 bubble/sec visible) are too costly and too slow, so L1 should render **only clicked or focused** bubbles, or run a small local model. Documents and chronicle are low-frequency and high-value, which makes L2/L3 the best ROI. Offline play rules out a hard dependency, so a local-model option (small instruct model) for L2/L3 is plausible. **Consistency:** the same record should render the same way on re-view, so cache by `(record_id, layer_version)`. **[OPEN]** Does Ellie want L2/L3 as a shipped feature, a mod hook, or a dev-only toy?
+Tradeoffs: per-bark API calls at T0 density (~1 bubble/sec visible) are too costly and too slow, so L1 should render **only clicked or focused** bubbles, or run a small local model. Documents and chronicle are low-frequency and high-value, which makes L2/L3 the best ROI. Offline play rules out a hard dependency, so a local-model option (small instruct model) for L2/L3 is plausible. **Consistency:** the same record should render the same way on re-view, so cache by `(record_id, layer_version)`. **[OPEN]** Does Ellie want L2/L3 as a shipped feature, a mod hook, or a dev-only toy? (Same question as `07` Q7.)
 
 ---
 
 ## 15. Worked stories
 
-Numbers are illustrative but follow the formulas above.
+Numbers are illustrative but follow the formulas above. They're shown as decimals for readability; the integer forms (§13.5) reproduce them within rounding. **Names and places are illustrative, not canon (C7).** They predate `01`'s Hollin County cast; the names pass will move them into the county (Viroqua and Readstown are real towns, which `01` keeps off-map). v0.1's "Rev. Whitcomb" is renamed **Rev. Ashby** to avoid colliding with `01`'s surveyor Amos Whitcomb.
 
 ### 15.1 Witch mode: "The Brandt cows" (rungs 0→5, wrong suspect)
 
-**Cast (Rush Creek settlement, ~180 people):** **Marit** (PC witch, cover: hired girl at the Lund farm). **Heinrich Brandt** (dairy farmer; Temper +2, Superstition +2, Rancor +2). **Ottilie Kass** (widow herbalist, lives alone at the creek mouth; Parochialism-relevant: speaks poor English; quarreled with Brandt in March over a strayed sow). **Mrs. Pfaff** (Discretion −3, `Gossip`). **Rev. Whitcomb** (Methodist circuit rider; Piety +3, Temper +1). **Sheriff Rude** (legalistic, Superstition −1). Starting M = 0.2.
+**Cast (Rush Creek settlement, ~180 people):** **Marit** (PC witch, cover: hired girl at the Lund farm). **Heinrich Brandt** (dairy farmer; Temper +2, Superstition +2, Rancor +2). **Ottilie Kass** (widow herbalist, lives alone at the creek mouth; Parochialism-relevant: speaks poor English; quarreled with Brandt in March over a strayed sow). **Mrs. Pfaff** (Discretion −3, `Gossip`). **Rev. Ashby** (Methodist circuit rider; Piety +3, Temper +1). **Sheriff Rude** (legalistic, Superstition −1). Starting M = 0.2. (Value numbers are the derived views of §3.1. This run predates `10`, so it shows the attribution-prior engine with A_S and defenses left out; `10` §15.1 runs the psyche version.)
 
-**Day 1 (T1, night).** Marit casts *Sour Udder* on Brandt's herd (06's curse economy: +power). Event `E101: Curse(Marit → Brandt cows)`. No witness: Brandt's son Karl, 11, was in the barn loft, but his Perception (sight) roll failed against Marit's concealment. He did roll a Perception (hearing) success, so he gets a memory: `{kind: Strange-sound, roles: [{who: Descriptor("a woman singing low"), role: Agent?, role_conf: 0.3}], intensity 45, confidence 0.4}`.
+**Day 1 (T1, night).** Marit casts *Sour Udder* on Brandt's herd (`06`'s curse economy: it yields Woe). Event `E101: Curse(Marit → Brandt cows)`. No witness: Brandt's son Karl, 11, was in the barn loft, but his Perception (sight) roll failed against Marit's concealment. He did roll a Perception (hearing) success, so he gets a memory: `{kind: Strange-sound, roles: [{who: Descriptor("a woman singing low"), role: Agent?, role_conf: 0.3}], intensity 45, confidence 0.4}`.
 
 **Day 2.** Three cows dry and one dies. Brandt: `Memory{kind: Misfortune(livestock), intensity 70}`. Attribution runs (Brandt, Superstition +2, M 0.2):
 
 | Candidate | Terms | Weight |
 |---|---|---|
-| Natural | 2 + 1.5·(−2) + 0 + 0.8 | **0.8** (floor 0.5) |
+| Natural | 2 + 1.5·(−2) + 0 + 0.8 = −0.2 | **0.5** (floor) |
 | Ottilie Kass | 1 + 1.5·Odd(1.0) + 1.0·Outsider(1) + 0.02·45 + 2·KnownMagic(0.5: herbalist) + 1.5·Motive(0.8: the sow quarrel) | **6.6** |
 | "the Bluff Witch" figure | notoriety 0.15 × 4 | **0.6** |
 | Lund household | Motive 0, Odd 0 | 1.0 |
 | (others, 6 acquaintances) | | ~1.0 each |
 
-Kass share = 6.6/15.0 ≈ 0.44 and leads the next by >1.5×, so `Belief(Caused(Kass, cows), 0.44)`. Then Karl tells his father about the singing (Told evidence, trust 1.2), and plausibility for "a woman" fits Kass. Credence → logit(0.44) + 0.8·1.2·0.6 → **0.58**. Grudge spawns (Aff −52, memory intensity 70, Rancor +2): `aim: Expulsion` (Temper +2 and Piety +1 → not Harm yet), intensity 62.
+Kass share = 6.6/14.7 ≈ 0.449 (449‰ in integers) and leads the next by >1.5×, so `Belief(Caused(Kass, cows), 0.44)`. Then Karl tells his father about the singing (Told evidence, trust 1.2), and plausibility for "a woman" fits Kass. Credence → logit(0.44) + 0.8·1.2·0.6 → **0.58** (integer: L = −62 + 147 = 85 → 58, §5.3). Grudge spawns (Aff −52, memory intensity 70, Rancor +2): `aim: Expulsion` (Temper +2 and Piety +1 → not Harm yet), intensity 62.
 
 **Day 4 (Sunday, church steps).** Brandt is voiced to his wife (P 0.7). His wife tells Mrs. Pfaff. Mrs. Pfaff (topic_score high: juiciness 0.7 × Discretion −3 bonus) seeds variant v1 to 5 listeners over the morning. Mutation roll on the third telling: **Exaggeration**: "*all* his cows." Heat(Kass) = 62·2·0.7 = 87, plus 4 new holders at ~20 intensity × 1 × 0.3 = 24 → **111**. Rung 1 (Whispers).
 
@@ -1045,21 +1108,23 @@ Kass share = 6.6/15.0 ≈ 0.44 and leads the next by >1.5×, so `Belief(Caused(K
 
 **Day 11 (store).** Brandt, drunk the night before and still sour, rolls Accuse volition: 30 + 20 + 15 (voiced) + 0 (M 0.35 < 0.5) − 5 (Fear of Kass) ≈ 60 > 40 → **Accuse** at the store, with 7 present. Kass's Defend: Persuade +2 vs. the audience's Read People, penalized by language (−4). She fails. The audience updates with Observation-of-accusation (it's a Statement in content but publicly committed: ×1.2). **Rung 2.** The thresholds are scaled by (1 − 0.35·0.35) = 0.88, and Heat after the accusation is 380 with Consensus 0.31.
 
-**Day 16.** Marit, wanting Kass blamed (06 lets the witch exploit scapegoats), plants a hawthorn-and-hair charm in Kass's woodshed. The next search will produce Physical evidence. Meanwhile Rev. Whitcomb arrives on circuit. He hears from three congregants, but the novelty discount bites (two derive from the Pfaff lineage), so his credence ends at 0.52. Piety +3 and Temper +1 → `Sermon` volition picks the frame "suffer not a witch," weighted down because his Superstition is only 0. He compromises on a **"sin among us"** sermon without a name. That still gives Statement-like evidence at 1.4 credibility toward a generic prop that raises everyone's Superstition-weighted plausibility. Consensus → **0.42**, Heat 520. **Rung 3, Shunning:** the storekeeper (patron of 6 client families) refuses Kass credit, and Kass's flour costs +40%.
+**Day 16.** Marit, wanting Kass blamed (06 lets the witch exploit scapegoats), plants a hawthorn-and-hair charm in Kass's woodshed. The next search will produce Physical evidence. Meanwhile Rev. Ashby arrives on circuit. He hears from three congregants, but the novelty discount bites (two derive from the Pfaff lineage), so his credence ends at 0.52. Piety +3 and Temper +1 → `Sermon` volition picks the frame "suffer not a witch," weighted down because his Superstition is only 0. He compromises on a **"sin among us"** sermon without a name. That still gives Statement-like evidence at 1.4 credibility toward a generic prop that raises everyone's Superstition-weighted plausibility. Consensus → **0.42**, Heat 520. **Rung 3, Shunning:** the storekeeper (patron of 6 client families) refuses Kass credit, and Kass's flour costs +40%.
 
-**Day 23.** Karl and two boys "search" the woodshed and find the charm (Physical, base 1.5). Credence among 30 adults who hear it: +0.15 average. Consensus **0.57**. Brandt petitions the sheriff. **Rung 4.** Sheriff Rude's evidence threshold is 0.7 from Observation or Physical evidence. His credence is 0.61 (Skeptic −1 dampens), so he *refuses to arrest*, which is restraint. That's a notable event and gets logged.
+**Day 23.** Karl and two boys "search" the woodshed and find the charm (Physical, base 1.5). Credence among 30 adults who hear it: +0.15 average. Consensus **0.57**. Brandt petitions the sheriff, on the mundane charge he can name: that she poisoned the herd (§9.2, C13). **Rung 4.** Sheriff Rude's evidence threshold is 0.7 from Observation or Physical evidence. His credence is 0.61 (Skeptic −1 dampens), so he *refuses to arrest*, which is restraint. That's a notable event and gets logged.
 
-**Day 26.** Another curse from Marit (she needs power) falls on the Pfaff hens. Heat jumps to **840**. Brandt (aim updated to Harm: grudge 88, Temper +2) recruits 9 men at the tavern. **Rung 5: hunt.** They plan a charivari at the Kass place on Saturday.
+**Day 26.** Another curse from Marit (she needs Woe for the Tithe) falls on the Pfaff hens. Heat jumps to **840**. Brandt (aim updated to Harm: grudge 88, Temper +2) recruits 9 men at the tavern. **Rung 5: hunt.** They plan a charivari at the Kass place on Saturday.
 
 **Branch point for the player.** (a) Let it happen: rung 6 resolves at T1, Kass's cabin burns, and she flees to Readstown. Heat on the Bluff Witch figure *falls* (attributions have resolved), and the Prince is pleased (06). (b) Intervene in disguise: kill the Natural explanation, or plant better evidence on someone else. (c) Intervene as Marit: bring the sheriff Kass's alibi (Marit saw her at the Lund kitchen that night). That's a Statement worth ~0.8 × Trust 1.1 to the sheriff, and he forms `Protect`. But Marit now has a voiced connection to the affair, and her own Oddness term ticks up. Note the asymmetry: the true culprit's best protection is a suspect who looks like a better fit than she does.
 
+**With the psyche on (`10`).** The same days read differently once minds have defenses. Brandt's rage at an agentless misfortune is a **displacement** candidate, so his Day 11 Accuse can come from a displaced urge even if his volition had fallen short, and his grudge then counts at P_h ×125/100. Mrs. Gunderson, frightened for her baby, is the likeliest **projection** (her anxiety band also docks the Natural weight). If Rev. Ashby carried a forbidden fondness for the widow, **reaction formation** would turn his nameless "sin among us" sermon into a named one (Catalyst +30). And after the charivari, the participants **rationalize** ("she had it coming"), so the step-down is slower than Heat decay alone would give. Witch-facing, Marit's label in Rush Creek (§9.7) never rose above *Whispered*: the process with real Heat targeted Kass.
+
 ### 15.2 Adventurer mode: "Who killed the hodag"
 
-**Cast (Viroqua):** **PC** (newcomer, Notoriety 0.05). **Amos Pell** (trapper; Ambition +3, Discretion +1, Respect-hungry). **Editor Sloane** of the weekly *Bad Axe Clarion* (Superstition −1, likes Pell: Aff +30, drinks with him). **Sophie Vang** (store clerk, Discretion −2, Aff toward PC +25 after the PC tipped her).
+**Cast (Viroqua):** **PC** (newcomer, Notoriety 50‰: tier 1). **Amos Pell** (trapper; Ambition +3, Discretion +1, Respect-hungry). **Editor Sloane** of the weekly *Bad Axe Clarion* (Superstition −1, likes Pell: Aff +30, drinks with him). **Sophie Vang** (store clerk, Discretion −2, Aff toward PC +25 after the PC tipped her).
 
 **Week 1, Day 3 (Wilds, T0).** The PC kills the hodag in Hemlock Coulee. No human witnesses. A fae observer (a court spy) holds `Memory(Kill, PC)`. The PC keeps the **horned head** (an item with `Provenance(E220)`), sells the hide in Viroqua, and moves on to a 9-day expedition.
 
-**Day 4 (Viroqua, T1).** The hide sale: the storekeeper witnesses it, and his Belief(Killed(**"the stranger"**, hodag)) has credence 0.55 (Physical but ambiguous: a hide can be bought). Sophie overhears. Variant v1 born: "A stranger brought in a hodag hide." Notoriety of figure "the stranger with the hodag hide" ≈ 0.08.
+**Day 4 (Viroqua, T1).** The hide sale: the storekeeper witnesses it, and his Belief(Killed(**"the stranger"**, hodag)) has credence 0.55 (Physical but ambiguous: a hide can be bought). Sophie overhears. Variant v1 born: "A stranger brought in a hodag hide." Notoriety of figure "the stranger with the hodag hide" ≈ 80‰ (tier 1).
 
 **Day 5 (tavern).** Pell hears v1. His Ambition and Standing need are starved (Respect toward him low). **Scheme: claim credit.** He tells the tavern he wounded it last week and "that stranger just found it dying." That's a Lie with Deceive +6 vs. drinkers' Read People, and 7 of 9 fail. Variant v2 (Attribution drift, induced): `Killed(Pell, hodag)` with the PC as Beneficiary. Pell's partner corroborates. That's a second Statement, but from Pell's lineage, so the novelty factor is 0.67.
 
@@ -1086,7 +1151,7 @@ Kass share = 6.6/15.0 ≈ 0.44 and leads the next by >1.5×, so `Belief(Caused(K
 
 **Week 9: the player arrives.** Rush Creek promotes to T1, then T0. Hydration: of 60 adults, 41 hold the courtship rumor (hash < prevalence 0.7), with sources backfilled to the church-steps cluster on Week 6 Sunday. The PC's Gather Information in the store surfaces: "*the Haugen boy and the Cole girl, and old Cole's fit to kill him.*" The dossier for Lars shows the inherited grudge with the *Haugen* version of the 1841 story. Abigail's shows the *Cole* version. The two founding memories contradict each other, and the Chronicle's post-run truth reveal shows it was a loose ox.
 
-**Hooks:** the PC can intercede (Trust stake), help elope (Lars gets an Expulsion-aimed grudge from his own father), or witness the wedding roll: if Rev. Whitcomb (Peacemaker) performs it and both fathers attend, a **ritual reconciliation** rolls per attendee, and the feud may close after 14 years. Or the PC does nothing, and in Week 14 a T1 incident roll fires: Ezra Jr. assaults Lars at the mill. The sheriff, an assault, and a new founding memory follow, and the feud gets a fresh generation.
+**Hooks:** the PC can intercede (Trust stake), help elope (Lars gets an Expulsion-aimed grudge from his own father), or witness the wedding roll: if Rev. Ashby (Peacemaker) performs it and both fathers attend, a **ritual reconciliation** rolls per attendee, and the feud may close after 14 years. Or the PC does nothing, and in Week 14 a T1 incident roll fires: Ezra Jr. assaults Lars at the mill. The sheriff, an assault, and a new founding memory follow, and the feud gets a fresh generation.
 
 ### 15.4 Short: "The framing goes wrong" (witch mode, belief-model edge cases)
 
@@ -1094,30 +1159,119 @@ Marit tries to divert Heat from herself by framing **Deacon Pruitt** (Respect hi
 
 - Attribution for Lund: Pruitt gets Motive 1.5 plus Evidence 3.0, but **Respect** feeds plausibility negatively (`plausibility` multiplies by `1 − Res/150`): people resist believing bad things about the respected. Pruitt's share: 0.31, below threshold. No belief forms, but the *handkerchief* is a juicy rumor anyway.
 - Rumor `Has(handkerchief-at-sty, Pruitt)` spreads. Mutation (Moralization): "...and he was drunk, they say." That variant hits **true** Pruitt's secret (several actors privately had weak Drinks(Pruitt) beliefs at 0.2–0.3). Corroboration from *independent* lineages (not novelty-discounted) pushes Drinks(Pruitt) to 0.7 in the congregation. Pruitt's Respect collapses, and **then** his attribution share for the pigs rises (Respect term removed) to 0.48.
-- Pruitt, who knows he didn't do it, rolls a Read People-like "who benefits?" Inference over recent events. His high Int finds that the handkerchief went missing on the day Marit did the Pruitt laundry for the Lunds. He forms `Belief(Framed(Marit?, Pruitt), 0.35)`, a private suspicion with Grudge `aim: Exposure`. **A smart NPC now runs his own investigation scheme against the PC**, off-screen, at T1.
+- Pruitt, who knows he didn't do it, rolls a Read People-like "who benefits?" Inference over recent events. His high Int finds that the handkerchief went missing on the day Marit did the Pruitt laundry for the Lunds. He forms `Belief(Framed(Marit?, Pruitt), 0.35)`, a private suspicion with Grudge `aim: Humiliation` (pursued by exposure). **A smart NPC now runs his own investigation scheme against the PC**, off-screen, at T1.
 
 That's the system working as intended: the frame partially succeeded, exposed a true secret through rumor mutation, and created a nemesis who reasons about evidence the same way the town does.
+
+**With the psyche on (`10`).** Pruitt is the textbook case for two defenses. A deacon with a concealed vice and a strict conscience (`superegoStrictness` 70) has a high **Persona strain** (`10` §8.1), and his drinking is Shadow charge. Before the frame, he was a candidate for **reaction formation** into Temperance zeal. After the exposure, his anxiety spikes, and **projection** makes the frame's true author easier to suspect only if Marit fits his projected trait (she doesn't drink). So his investigation is driven by evidence, which is why it's dangerous. If his Ego were weak, he'd **displace** instead: the hired girl's "who benefits?" would turn into a public scene at the Lunds' door that the whole parish hears.
+
+### 15.5 Short: "The schoolmistress and the ferryman" (faekin suspicion, false positive)
+
+Built on `12` §9's "wrongly suspected" hook. Integer forms throughout (§5.3, §5.4, §5.8).
+
+**Cast.** **Miss Prudence Ames**, Yankee schoolmistress in a German parish: red-haired, left-handed, born with a caul (her landlady repeats this), prone to migraines. *Human.* **Mrs. Ruland**, Superstition +2, Piety view +1; she holds the changeling folk theory (`12` §6.1, SF-C as a belief), and her Affection toward Ames is −20 since Ames caned her boy. **Matthias Brekke**, ferryman at the slough, Norwegian Lutheran, well liked (most neighbors' Aff +30), from a Lantern household, wears gloves at the ferry chain. *Shadow-faekin.* M = 300‰.
+
+**Sunday, the bell.** Ames winces as the bell rings: a migraine, which is a **lookalike** for the Bell-ache tell. Ruland passes Read People DC 12. That creates her kind belief at the prior: 2 + 2·2 + 5 (Outsider) + 10 (caul, under her folk theory) = **21**. The tell is strength 15, so base 96; trust 256 (her own eyes); plausibility 256 → ×110/100 for dislike → 281 → ×16/10 for Superstition → **449**. w = 168. L = LOGIT_Q8[21] + 168 = −339 + 168 = −171 → **34** (carry −1).
+
+**The quilting bee.** Ruland demands the iron-key **Test** (#37) in front of 14 women. A human fails it about 10% of the time from nerves; Ames is anxious and fumbles the key. Ordeal evidence:
+- Ruland: base 128 + 64·2 + 32·1 = 288, × 449/256 → 505. L = −170 − 1 + 505 = 334 → **79**.
+- A typical witness (Superstition 0, Piety +1, prior 2 + 5 = 7, no caul theory): base 160, plausibility 256, w = 160. L = −662 + 160 = −502 → **12**.
+
+Two other women with Superstition +2 (prior 11, no caul theory) land at 43. Three holders above 40, so the process on Ames opens at **rung 1** (Whispers). Its only charge is `Is(Ames, kind:faekin)`, so it's identity-only and capped at rung 4. Consensus is about 17‰ (only Ruland is above 50): nowhere near `Revealed`.
+
+**Day 20, croup.** Ruland's boy has croup. Attribution (§5.4), with Ames at Odd 40, Out 100, Mot 20:
+- Ames: 100 + floorDiv(6000 + 10000 + 3000, 100) + 2·20 + **2·79 (faekin term)** = **488**
+- Natural: max(50, 200 − 300 + 0 + 70 − 50·band 1) = 50
+- six others: 600
+
+Ames's share is 488/1138 = **428‰**, which clears 350 with the lead, so Ruland forms `Caused(Ames, croup)` at 42. **Without the faekin belief** Ames weighs 330, her share is 336‰, and nobody is blamed. The belief about what Ames *is* supplied the act. `actAttributed` flips, so the rung-4 cap lifts.
+
+**Why it stalls.** Ruland's grudge spawns at 55 (Rancor +2, Aff −40) and she accuses Ames at the Altar Society: Heat = 55·10·100/1000 = 55, plus a Fear-mass term of about 13 (the believed-faekin Fear prior, scaled by everyone's low credence and M) → **~68**, under rung 2's 150 × 0.895. One frightened believer doesn't make a hunt. Then the doctor names croup (DoctorSaid), and Ames's freethinking landlady **mocks** the iron-key business at the store (#39): her listeners' credence ×80/100 and Heat ×50/100. With no fresh fuel, the process steps down to rung 0 after two dwell periods. Ruland's private belief stays at 79, which is a seed.
+
+**Epilogue.** Ames was human. The bell flinch was a migraine, the key slipped from nerves, and the caul was a caul. Brekke, the parish's only faekin, never had a kind belief created about him at all. His neighbors like him (plausibility ×85/100), he's no Outsider in a Norwegian-speaking district, and his gloves are a strength-5 tell that nobody knew to look for. In this parish the false-positive rate was one out of one. That's `12`'s point, and 04 gets it without a single faekin-specific rule.
 
 ---
 
 ## 16. Challenges to 00
 
-1. **Challenge to 00 — LOD tiering should include relevance, not just geography** (§11.4). Proposed amendment: an actor's tier = max(geographic tier, social-relevance tier).
-2. **Challenge to 00 — "Grudge" should allow non-actor targets.** 00 defines Grudge as an *opinion*, and opinions in 00 are "toward another actor (or faction)." Persecution needs grudges against **Figures** and **Unknown culprits** ("whoever soured my cows") that later attach to people, plus **household-level** grudges and feuds. Proposed amendment: Grudge targets = Actor | Household | Faction | Figure.
-3. **Challenge to 00 — Add "Figure," "Belief," and "Reputation" to the shared vocabulary.** 00 mentions reputation only by contrast with Notoriety. This doc defines **Belief** (a propositional attitude with credence and evidence; the layer between Memory and Opinion), **Figure** (a socially constructed identity that rumors attach to), and **Reputation** (a valenced aggregate of opinions within a community, per settlement). Other docs (05 Director, 06 witch mode) will need them.
-4. **Soft note on P1 "show the math":** the math is only shown for what the PC knows (§12). I think that's consistent with P1 plus simulationism, but it should be stated explicitly in 00 so no one builds an omniscient "why" tooltip by default.
+All four v0.1 challenges have been **adopted** in `00`'s 2026-10-10 revision. They're kept here as a record.
+
+1. ~~LOD tiering should include relevance, not just geography~~ **Adopted** (`00` LOD revisions; §11.4).
+2. ~~"Grudge" should allow non-actor targets~~ **Adopted**: `00`'s glossary now lets a Grudge target an actor, a household, a Figure, or an unknown culprit.
+3. ~~Add "Figure," "Belief," and "Reputation" to the shared vocabulary~~ **Adopted**, with Persona → Figure (C4).
+4. ~~P1 "show the math" only for what the PC knows~~ **Adopted**: `00` P1's corollary now says "only the math your character could know."
+
+No new challenges to `00` in this revision. One small vocabulary note: `00`'s **Mind** entry ("needs, mood, traits, memories, opinions, goals") predates the 04/`10` split; it still reads correctly as a union of the two.
 
 ---
 
 ## 17. Open questions for Ellie
 
-1. **Values vs. alignment:** OK to drop alignment entirely in favor of the nine Values (§3.1)? Any period values you'd add or swap (e.g., Propriety/Respectability, Temperance as a value rather than a trait)?
-2. **How dark does rung 6 go?** Charivari, tar-and-feathers, and burning out are period-plausible. Do we allow mob killings of NPCs (and of the PC witch) as simulated outcomes? What's the content line around frontier violence, and around historical persecution patterns (ethnic and religious minorities as default suspects)? The attribution prior's Outsider term will reproduce real prejudice dynamics. Do we want that explicit, softened, or redirected toward fantasy-people slots?
-3. **Witch-mode legibility:** an explicit heat/rung meter, or diegetic only (§12.3)?
-4. **Player lying and framing:** should the PC have the full Lie/Frame/Plant toolkit in adventurer mode too (P4 says yes: it's a general system)?
-5. **Fae as social actors:** do fae courts run on this same Mind/Belief model (with fae-specific values like Courtesy, Debt-keeping, True-name exposure), or on a separate logic? I lean toward the same engine with different Value sets and "cannot lie" as a hard constraint on certain fae. That has a nice interaction: a fae Statement has credibility 2.0 *if you know they can't lie*.
-6. **Language and peoples:** how much should Old Country language partitioning matter? It's a great rumor mechanic, but it needs UI (the PC doesn't understand the German gossip unless they have the language skill).
-7. **LLM layers:** ship L2/L3 (documents, chronicle) as a feature, a mod hook, or dev-only?
-8. **Census vs. all-named:** is ~5,000 named actors the county cap, or do we want 10–15k historical-scale population with lazy individuation?
-9. **Post-run truth reveal:** a core feature (I think it's the best payoff of a hidden-information sim) or a spoiler that undercuts the mystery of the world for legacy play in the same world?
-10. **Persistence across runs (P5 legacy):** do NPC memories of a previous PC carry into a new run in the same world? ("My father said a witch lived on that bluff...") The mechanism supports it directly via inheritance.
+Status of the v0.1 questions after this revision, then new ones. Where another doc carries the same question, its number is given so it gets answered once.
+
+**Closed or narrowed**
+- **Q1.** ~~**Values vs. alignment**~~ Alignment is gone (P7). **Still open (= `10` Q5, `07` Q4):** confirm the fold in §3.1 (six Values become `10` norms and drive weights; Superstition and Rancor stay as 04's two-field temperament block; Discretion derives from Persona control), and whether to add the norms Propriety, Temperance, and Honesty.
+- **Q5.** ~~**Fae as social actors**~~ Answered by `10` §10's proposal: the same engine, Id plus Law, no Ego, sincerity with hedges (§5.6). **Confirm via `10` Q9.**
+- **Q8.** ~~**Census vs. all-named**~~ Closed by `00` (census materialization) and `11`'s World sizes. **Confirm via `07` Q3** that World size is the only scale lever.
+- **Q3.** **Witch-mode legibility** now has a concrete proposal: `11`'s "Show the rung" setting (§12.3). **Confirm via `11` Q10.**
+
+**Still open from v0.1**
+- **Q2.** **How dark does rung 6 go?** Charivari, tar-and-feathers, and burning out are period-plausible. Do we allow mob killings of NPCs (and of the PC witch) as simulated outcomes? What's the content line around frontier violence, and around historical persecution patterns (ethnic and religious minorities as default suspects)? The prejudice half now has options in `12` §11.1 (P1–P4, recommended P3, plus a Prejudice dial; = `12` Q8). The violence line is still yours.
+- **Q4.** **Player lying and framing:** should the PC have the full Lie/Frame/Plant toolkit in adventurer mode too (P4 says yes: it's a general system)?
+- **Q6.** **Language and peoples:** how much should Old Country language partitioning matter? It's a great rumor mechanic, but it needs UI (the PC doesn't understand the German gossip unless they have the language skill; `09` gap 11).
+- **Q7.** **LLM layers:** ship L2/L3 (documents, chronicle) as a feature, a mod hook, or dev-only? (= `07` Q7)
+- **Q9.** **Post-run truth reveal:** a core feature (I think it's the best payoff of a hidden-information sim) or a spoiler that undercuts the mystery of the world for legacy play in the same world?
+- **Q10.** **Persistence across runs (P5 legacy):** do NPC memories of a previous PC carry into a new run in the same world? ("My father said a witch lived on that bluff...") The mechanism supports it directly via inheritance.
+
+**New in this revision**
+
+- **Q11.** **Grudge decay (C12, §6.3):** (a) uncanny-founded grudges don't decay *(rec, with `09`)*, or (b) all human grudges decay and `01` softens? Fae grudges never decay either way.
+- **Q12.** **Legal rungs (C13, §9.2):** confirm `01`'s no-witchcraft-statute rule, so the law only processes mundane charges and a witchcraft "trial" is a mob court? (= `01` Q6)
+- **Q13.** **Identity-only cap (§9.2):** processes whose only charge is what someone *is* (a believed faekin) stop at rung 4 until an act is attributed. Right line, or should identity alone never pass rung 3?
+- **Q14.** **Notoriety tiers (C42, §8.6):** do the seven tiers and thresholds work for `02`'s *Hard Reputation* and `06`'s County Legend?
+- **Q15.** **Rumor-telling steepness (§8.3):** k = 4, so worthless gossip is rarely told (12% at score 0, vs. v0.1's 38%)?
+- **Q16.** **Gather Information (C20):** add it to `02` as a CHA skill *(rec, with `09`)*? 04 uses Read People + Lore (Local) until then.
+- **Q17.** **Faekin framing (§5.8):** F1 + F2, covenant, or per-World? 04's mechanics work under all of them and this doc doesn't recommend one. (= `12` Q6, `10` Q4, `11` Q4)
+- **Q18.** **Kind-prop valence (§5.1):** OK that "X is faekin" carries no built-in valence, so all hostility comes from culture-keyed priors and the Prejudice dial?
+- **Q19.** **Credence storage (§5.2):** 0–100 plus a logit carry *(rec)*, or amend the ADR to store logit-Q8? (= `07` Q2)
+
+---
+
+## 18. Implementation notes (checked 2026-10-10 against `packages/` and `content/base/`)
+
+I read `core/src/belief/{state,api,view}.ts`, `core/src/social/{state,api,view}.ts`, `core/src/psyche/state.ts`, `core/src/actor.ts`, `core/src/rng.ts`, `content/src/schema/{belief,social,common}.ts`, `content/base/beliefs/predicates.toml`, `content/base/needs/needs.toml`, and `docs/impl/MODULES.md`. Most social and belief behavior is still stubbed (`transmit`, `observe`, `formProjection`, `suspicionOf`, `addMemory`). **The doc is the design target**; these are notes for the module owners, not changes I made.
+
+**Aligned**
+- Credence is an integer 0–100; opinions are −100..100 with Fear 0..100; salience and confidence are per mille.
+- Opinions change only through Reasons (`addOpinionReason`), with `base`, `volatile`, and an **Obligation** ledger in favors and cents, as §6 wants.
+- Grudge targets are actor, household, or Figure; aims match §6.3.
+- Figures carry a ground-truth `trulyId` that decision code must never read, which is §5.1's rule.
+- `EvidenceType` matches §5.2's v0.1 list, plus `seed`; evidence carries its rumor lineage id for novelty.
+- Predicates are data with `juiciness`, `valence`, and a `supernatural` flag; `is_figure` exists.
+- Interactions are a data catalog with named volition drivers (`value:temper`, `need:company`), which keep working through §3.1's derived views.
+- RNG streams `social`, `gossip`, `memory`, `belief`, `rumor`, and `suspicion` exist; no new stream is needed.
+- Scenario `secrets` with `known_by` implement §3.5, and `presentsAsId` implements §5.7's concealed kind.
+- MODULES.md scopes M2 to rungs 0–3 and faekin suspicion via tells; that's a fine subset of §9.2 and §5.8.
+
+**Divergences (doc wins unless Ellie says otherwise)**
+
+| # | Code today | This doc | Suggested change |
+|---|---|---|---|
+| 1 | `Persecution { target, rung 0..3, heat, consensus, leaderIds }`, no settlement | Per (target, **settlement**) process, rungs 0–6, with `charges`, `actAttributed`, `restraint`, `history` (§9.2) | Add `settlementId` and the missing fields; widen the rung type to 0..6 now so the contract stays additive |
+| 2 | `misfortune`: one global value | M per settlement (§3.3), plus `10`'s A_S for threshold scaling (§9.1) | Move M into settlement state |
+| 3 | `viewBeliefGlobal` returns every Figure's notoriety and the true M to any viewer | P1: the PC sees settlement mood as wording and notoriety as believed tiers (§12.3) | Filter by `perspective`; keep raw values for `omniscient` |
+| 4 | `viewSocialActor` ignores `opts`: any viewer sees any actor's full opinion numbers, every reason, and all memories | §12.1: bands until Read People; only reasons the PC witnessed or learned | Gate by `perspective`; this is the same class of P1 leak `10` §14.5 flags in `psyche/view.ts` |
+| 5 | `BeliefView` shows numeric credence of others' voiced beliefs | Credence words for others unless a check succeeds | Gate numbers like opinion numbers |
+| 6 | Juiciness and notoriety 0..100; evidence weight in hundredths | Juiciness and notoriety per mille; weights in Q8, to match `LOGIT_Q8` (§5.3, `07` §4.2) | Switch evidence weights to Q8 before `transmit` is written; scale authored juiciness ×10 at load |
+| 7 | `Belief` has no `carry` or `clamp` | §5.2 | Add when `07` Q2 is settled (carry) and when denial lands (clamp) |
+| 8 | `EvidenceType` lacks `dream` and `defense` | §5.2 | Add both; `defense` carries the defense id |
+| 9 | Predicate `faekin` with `valence = -50` | Kind props carry valence 0; hostility comes from culture-keyed group priors and the Prejudice dial (§5.1, §5.3) | Set valence 0. Consider a generic `is_kind(actor, people)` predicate so no content predicate is faekin-specific |
+| 10 | `suspicionOf()` returns one 0..100 for "concealed/fae/witch" | Suspicion is credence in a specific prop | Take a prop or kind argument |
+| 11 | Opinions keyed actor → actor only | Also toward Households, groups (people, culture, congregation, role), and Figures (§6.2) | Add group and Figure opinion tables |
+| 12 | Grudge holder is an actor only; no `viaDefense` or `decay` | Household holders, Feud objects, defense provenance, C12 decay flag (§6.3, §7.3) | Add the fields |
+| 13 | `Memory.roles.who` is an `ActorId`; no descriptors, `Unknown#k`, distortions, `affect`, or psyche flags; `dreamt` has no sender | §4.1 | Widen `who` to `EntityRef`; add flags; store `s0, tRef` for lazy salience |
+| 14 | `opinionOf` weights every reason fully | Reasons weighted by cited salience or credence (§6.2) | Already a known stub in MODULES.md |
+| 15 | `ActorCore.values` stores nine −3..+3 Values | Six fold into `10` norms and drives; Superstition and Rancor stay; Discretion from Persona control (§3.1) | Keep for M1; migrate with `strength = 50 + 15 × value` (`10` §14.5 item 7) and expose derived views |
+| 16 | Needs content has `company` and `faith`; no `standing` or `security` | §3.3 | Add both, registered per `10` §3.4 |
+| 17 | Figure `notoriety` is a single global number | Notoriety per (entity, settlement), tiers derived (§8.6) | Make it a per-settlement map |
+| 18 | `Rumor` has no per-settlement prevalence or `assumed` | §8.1, §5.5 | Needed for T2 diffusion and hydration |

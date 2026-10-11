@@ -1,0 +1,83 @@
+# Evidence types and their base weights in Q8 (256 = ×1.0), 04 §5.2–5.3. OWNER: module:belief.
+# w = base × trust × plausibility × novelty (all Q8), then added to the holder's logit.
+
+[[evidence_type]]
+id = "observation"
+name = "Saw it"
+base_q8 = 640
+
+[[evidence_type]]
+id = "physical"
+name = "Found a clue"
+base_q8 = 384
+
+[[evidence_type]]
+id = "document"
+name = "Read it"
+base_q8 = 256
+
+[[evidence_type]]
+id = "statement"
+name = "Was told"
+base_q8 = 205
+
+[[evidence_type]]
+id = "lie_received"
+name = "Was told"
+base_q8 = 205
+perceived_as = "statement"
+description = "Indistinguishable from a Statement to the receiver."
+
+[[evidence_type]]
+id = "overheard"
+name = "Overheard"
+base_q8 = 154
+
+[[evidence_type]]
+id = "ordeal"
+name = "A test was made"
+base_q8 = 128
+superstition_q8 = 64
+piety_q8 = 32
+description = "clamp(0, 512, 128 + 64·Superstition + 32·Piety): only believers trust ordeals."
+
+[[evidence_type]]
+id = "dream"
+name = "Dreamt it"
+base_q8 = 192
+superstition_q8 = 64
+description = "64·(Superstition + 3): spectral evidence."
+
+[[evidence_type]]
+id = "confession"
+name = "Confessed"
+base_q8 = 512
+
+[[evidence_type]]
+id = "inference"
+name = "Reasoned it out"
+base_q8 = 128
+
+[[evidence_type]]
+id = "confabulation"
+name = "Reasoned it out"
+base_q8 = 96
+perceived_as = "inference"
+
+[[evidence_type]]
+id = "implant"
+name = "Just knows"
+base_q8 = 256
+perceived_as = "inference"
+
+[[evidence_type]]
+id = "seed"
+name = "Has long believed"
+base_q8 = 256
+
+[[evidence_type]]
+id = "defense"
+name = "Reasoned it out"
+base_q8 = 128
+perceived_as = "inference"
+description = "A belief a defense produced (10 §7.2). Provenance is omniscient (04 §3.6)."

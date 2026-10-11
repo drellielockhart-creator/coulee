@@ -1,0 +1,271 @@
+# Catalog 03 §6.6 Clothing (by season). OWNER: module:content-items.
+# wearable.insulation is in °F of comfort-band extension (05 §6.3). 03 gives insulate "points";
+# we convert at 5°F per point, anchored to 05's examples (buffalo robe 25, wool shirt 6,
+# union suit 8, frock coat 10). wet_retention_pct per 03 §3.5 (wool 50, cotton 10).
+# Wind block is wearable.wind_block_pct. Season is a tag (fall_spring, winter, summer, all).
+# Wear is condition lost per walking day (03 §3.8: socks ~5).
+
+[[item]]
+id = "red_flannels"
+name = "Red flannel drawers & undershirt"
+section = "clothing"
+copy = "Itches until November. After November you will love it."
+weight_g = 680
+bulk = 1
+value_cents = 125
+tags = ["wool", "fall_spring"]
+materials = [{ material = "wool", pct = 100 }]
+stackable = false
+wearable = { slot = "body_base", insulation = 10, wet_retention_pct = 50 }
+
+[[item]]
+id = "wool_socks"
+name = "Wool socks, pair (Haugen)"
+section = "clothing"
+unit = "pair"
+maker = "Haugen Woolen Mill"
+copy = "Buy three. Change them daily. Nobody listens."
+weight_g = 91
+bulk = 0.2
+value_cents = 20
+tags = ["wool", "all_seasons"]
+materials = [{ material = "wool", pct = 100 }]
+wear = 5
+wearable = { slot = "feet", insulation = 3, wet_retention_pct = 50 }
+
+[[item]]
+id = "cotton_shirt"
+name = "Cotton shirt"
+section = "clothing"
+copy = "Cool in July. Deadly in a cold rain."
+weight_g = 227
+bulk = 0.5
+value_cents = 50
+tags = ["cotton", "summer"]
+materials = [{ material = "cotton", pct = 100 }]
+stackable = false
+wearable = { slot = "body_base", insulation = 3, wet_retention_pct = 10 }
+
+[[item]]
+id = "flannel_shirt_checked"
+name = "Wool flannel shirt, checked"
+section = "clothing"
+copy = "The woodsman's shirt. Warm when wet, which it will be."
+weight_g = 454
+bulk = 1
+value_cents = 125
+tags = ["wool", "all_seasons"]
+materials = [{ material = "wool", pct = 100 }]
+stackable = false
+wearable = { slot = "body_base", insulation = 5, wet_retention_pct = 50 }
+
+[[item]]
+id = "jean_trousers"
+name = "Trousers, jean cloth"
+section = "clothing"
+copy = "Kentucky jeans, double-seated."
+weight_g = 680
+bulk = 1
+value_cents = 150
+tags = ["cotton", "summer"]
+materials = [{ material = "cotton", pct = 100 }]
+stackable = false
+wearable = { slot = "legs", insulation = 3, wet_retention_pct = 10 }
+
+[[item]]
+id = "heavy_wool_trousers"
+name = "Trousers, heavy wool"
+section = "clothing"
+copy = "Shed snow, hold heat."
+weight_g = 907
+bulk = 1
+value_cents = 250
+tags = ["wool", "fall_spring"]
+materials = [{ material = "wool", pct = 100 }]
+stackable = false
+wearable = { slot = "legs", insulation = 8, wet_retention_pct = 50 }
+
+[[item]]
+id = "brogans"
+name = "Brogans"
+section = "clothing"
+copy = "Pegged soles, rough-out leather. Rub them with tallow."
+weight_g = 1134
+bulk = 1
+value_cents = 125
+tags = ["footwear", "all_seasons"]
+materials = [{ material = "leather", pct = 100 }]
+stackable = false
+wearable = { slot = "feet", insulation = 0, wet_retention_pct = 20 }
+
+[[item]]
+id = "boots_tall_cowhide"
+name = "Boots, tall cowhide"
+section = "clothing"
+copy = "To the knee. Keeps out snakes and shallow fords."
+weight_g = 1814
+bulk = 1.5
+value_cents = 350
+tags = ["footwear", "ford_shallow", "all_seasons"]
+materials = [{ material = "leather", pct = 100 }]
+stackable = false
+wear = 2
+wearable = { slot = "feet", insulation = 3, wet_retention_pct = 40 }
+
+[[item]]
+id = "moccasins_hide"
+name = "Moccasins, smoked hide"
+section = "clothing"
+copy = "Silent on leaves. Wet in the first puddle. Warm in dry snow."
+weight_g = 227
+bulk = 0.5
+value_cents = 50
+tags = ["footwear", "stealth_plus_2", "wet_fast", "summer"]
+materials = [{ material = "leather", pct = 100 }]
+stackable = false
+wearable = { slot = "feet", insulation = 2, wet_retention_pct = 10 }
+
+[[item]]
+id = "moccasin_liners"
+name = "Moccasin liners, blanket wool"
+section = "clothing"
+copy = "Turns a summer moccasin into a winter one."
+weight_g = 136
+bulk = 0.3
+value_cents = 25
+tags = ["wool", "winter"]
+materials = [{ material = "wool", pct = 100 }]
+stackable = false
+wearable = { slot = "feet", insulation = 5, wet_retention_pct = 50 }
+
+[[item]]
+id = "gaiters_wool"
+name = "Gaiters / leggings, wool"
+section = "clothing"
+copy = "Keeps out snow, burs, and the creeping things of June."
+weight_g = 227
+bulk = 0.5
+value_cents = 50
+tags = ["wool", "all_seasons"]
+materials = [{ material = "wool", pct = 100 }]
+stackable = false
+wearable = { slot = "legs", insulation = 2, wind_block_pct = 50, wet_retention_pct = 50 }
+
+[[item]]
+id = "mackinaw_coat"
+name = "Mackinaw coat (Haugen)"
+section = "clothing"
+maker = "Haugen Woolen Mill"
+copy = "Thick as a door, warm as a kitchen."
+weight_g = 2268
+bulk = 5
+value_cents = 500
+tags = ["wool", "winter"]
+materials = [{ material = "wool", pct = 100 }]
+stackable = false
+wearable = { slot = "body_outer", insulation = 20, wind_block_pct = 40, wet_retention_pct = 60 }
+
+[[item]]
+id = "capote"
+name = "Capote, hooded blanket coat"
+section = "clothing"
+copy = "Cut from a single blanket, sashed at the waist. Turn it inside-out when the woods start acting strange."
+weight_g = 2041
+bulk = 4.5
+value_cents = 400
+tags = ["wool", "winter", "reversible"]
+materials = [{ material = "wool", pct = 100 }]
+stackable = false
+wearable = { slot = "body_outer", insulation = 18, wind_block_pct = 40, wet_retention_pct = 50 }
+
+[[item]]
+id = "buffalo_coat"
+name = "Buffalo coat"
+section = "clothing"
+copy = "For the January teamster. You will be warm, and slow."
+weight_g = 6804
+bulk = 15
+value_cents = 1200
+tags = ["heavy", "deep_winter"]
+materials = [{ material = "fur", pct = 100 }]
+stackable = false
+wearable = { slot = "body_outer", insulation = 35, wind_block_pct = 30, wet_retention_pct = 50 }
+
+[[item]]
+id = "oilskin_slicker"
+name = "Oilskin slicker"
+section = "clothing"
+copy = "Yellow, stiff, and the only dry thing on the river."
+weight_g = 1361
+bulk = 3
+value_cents = 200
+tags = ["waterproof", "spring_fall"]
+materials = [{ material = "oilcloth", pct = 100 }]
+affordances = { shelter = 0.5 }
+stackable = false
+wearable = { slot = "body_outer", insulation = 0, wind_block_pct = 60, wet_retention_pct = 0 }
+
+[[item]]
+id = "felt_hat_wide"
+name = "Felt hat, wide brim"
+section = "clothing"
+copy = "Fit for the Sabbath and the storm."
+weight_g = 227
+bulk = 0.5
+value_cents = 150
+tags = ["rain_sun", "all_seasons"]
+materials = [{ material = "wool", pct = 100 }]
+stackable = false
+wearable = { slot = "head", insulation = 0, wind_block_pct = 20, wet_retention_pct = 50 }
+
+[[item]]
+id = "straw_hat"
+name = "Straw hat"
+section = "clothing"
+copy = "Haying weather."
+weight_g = 91
+bulk = 0.2
+value_cents = 25
+tags = ["sun", "summer"]
+materials = [{ material = "other", pct = 100 }]
+stackable = false
+wearable = { slot = "head", insulation = 0, wet_retention_pct = 0 }
+
+[[item]]
+id = "fur_cap_earflaps"
+name = "Fur cap with earflaps"
+section = "clothing"
+copy = "Frostbite starts at the ears."
+weight_g = 227
+bulk = 0.5
+value_cents = 150
+tags = ["winter"]
+materials = [{ material = "fur", pct = 100 }]
+stackable = false
+wearable = { slot = "head", insulation = 5, wind_block_pct = 50, wet_retention_pct = 30 }
+
+[[item]]
+id = "mittens_wool_overmitts"
+name = "Mittens, wool, with leather overmitts"
+section = "clothing"
+copy = "Take them off to shoot. Put them back on before you forget how."
+weight_g = 227
+bulk = 0.5
+value_cents = 60
+tags = ["winter", "clumsy_hands"]
+materials = [{ material = "wool", pct = 60 }, { material = "leather", pct = 40 }]
+stackable = false
+wearable = { slot = "hands", insulation = 5, wind_block_pct = 50, wet_retention_pct = 40 }
+
+[[item]]
+id = "muffler_wool"
+name = "Muffler, wool"
+section = "clothing"
+copy = "Knitted by somebody's mother."
+weight_g = 136
+bulk = 0.3
+value_cents = 40
+tags = ["wool", "winter"]
+materials = [{ material = "wool", pct = 100 }]
+stackable = false
+wearable = { slot = "neck", insulation = 3, wind_block_pct = 20, wet_retention_pct = 50 }

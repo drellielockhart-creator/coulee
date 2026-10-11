@@ -1,0 +1,423 @@
+# The village: Main Street and the ford. Abilities are final scores (no ancestry mods applied).
+
+[[actors]]
+key = "gussie_pratt"
+given = "Augusta"
+nickname = "Gussie"
+family = "Pratt"
+sex = "female"
+age = 52
+ancestry = "human"
+culture = "yankee"
+occupation = "storekeeper"
+household = "pratt"
+workplace = "pratt_daughter_outfitters"
+abilities = { str = 9, dex = 10, con = 11, int = 13, wis = 14, cha = 12 }
+skills = { bargain = 8, read_people = 5, lore_local = 4, deceive = 3 }
+traits = ["pious"]
+values = { thrift = 3, discretion = 2, superstition = 1, rancor = 1 }
+languages = ["english"]
+psyche = { ego = 65, superego = 60, id_appetite = 40 }
+persona = "the shrewd Yankee widow"
+anxiety = 250
+notes = "Holds credit on half the town. Secretly buys fae goods; fairy gold turned to oak leaves in her till. In debt to a Galena wholesaler."
+purse_cents = 350
+inventory = [{ item = "match_safe", qty = 1 }, { item = "lucifers_box", qty = 1, in = "match_safe" }]
+
+[[actors]]
+key = "lydia_pratt"
+given = "Lydia"
+family = "Pratt"
+sex = "female"
+age = 19
+ancestry = "human"
+culture = "yankee"
+occupation = "shop_clerk"
+household = "pratt"
+workplace = "pratt_daughter_outfitters"
+abilities = { str = 9, dex = 12, con = 10, int = 14, wis = 11, cha = 13 }
+skills = { spellcraft = 2, persuade = 2, bargain = 2, lore_fae = 1 }
+traits = ["gossip"]
+values = { ambition = 2, superstition = -1, neighborliness = 1 }
+languages = ["english"]
+psyche = { ego = 45, superego = 40, id_appetite = 60 }
+persona = "the clerk with a mail-order diploma"
+anxiety = 350
+notes = "Studying lyceum magic by mail order; sweet on a missing chainman. Wants the Normal school."
+purse_cents = 120
+inventory = [{ item = "slate_pencil", qty = 1 }, { item = "match_safe", qty = 1 }, { item = "lucifers_box", qty = 1, in = "match_safe" }]
+
+[[actors]]
+key = "johann_brenner"
+given = "Johann"
+family = "Brenner"
+sex = "male"
+age = 44
+ancestry = "human"
+culture = "german"
+occupation = "blacksmith"
+household = "brenner"
+workplace = "brenner_smithy"
+abilities = { str = 16, dex = 11, con = 14, int = 12, wis = 12, cha = 10 }
+skills = { trade_smithing = 9, intimidate = 3, persuade = 2, lore_fae = 1 }
+traits = ["hot_tempered"]
+values = { piety = -3, superstition = 2, temper = 2, rancor = 1, discretion = 1 }
+languages = ["german", "english"]
+psyche = { ego = 55, superego = 35, id_appetite = 60 }
+persona = "the Forty-Eighter freethinker"
+notes = "Forty-Eighter from Baden; maintains the ford's iron and feuds with Pastor Tveit in the Sentinel. Does not believe in God and absolutely believes in iron. Would shrug at a confidence about someone being faekin."
+purse_cents = 280
+inventory = [{ item = "clasp_knife_brauer", qty = 1 }, { item = "claw_hammer", qty = 1 }]
+
+[[actors]]
+key = "magdalena_brenner"
+given = "Magdalena"
+family = "Brenner"
+sex = "female"
+age = 40
+ancestry = "human"
+culture = "german"
+occupation = "housewife"
+household = "brenner"
+abilities = { str = 10, dex = 11, con = 12, int = 12, wis = 13, cha = 12 }
+skills = { trade_cookery = 5, trade_sewing = 3, read_people = 2 }
+values = { piety = 1, thrift = 2, neighborliness = 2, temper = -1 }
+languages = ["german", "english"]
+psyche = { ego = 60, superego = 55, id_appetite = 40 }
+persona = "the smith's patient wife"
+notes = "Raised Catholic in Baden, goes to no church here. Keeps the household together through Johann's feuds."
+purse_cents = 90
+
+[[actors]]
+key = "karl_brenner"
+given = "Karl"
+family = "Brenner"
+sex = "male"
+age = 16
+ancestry = "human"
+culture = "german"
+occupation = "hired_hand"
+household = "brenner"
+workplace = "brenner_smithy"
+abilities = { str = 14, dex = 12, con = 13, int = 11, wis = 10, cha = 11 }
+skills = { trade_smithing = 3, athletics = 2 }
+values = { ambition = 2, temper = 1, piety = -1 }
+languages = ["german", "english"]
+psyche = { ego = 40, superego = 40, id_appetite = 65 }
+persona = "the smith's apprentice son"
+notes = "Apprenticed to his father. Quietly curious about the Lutheran boys' church socials."
+purse_cents = 40
+
+[[actors]]
+key = "anders_tveit"
+given = "Anders"
+family = "Tveit"
+nickname = "Pastor Tveit"
+sex = "male"
+age = 38
+ancestry = "human"
+culture = "norwegian"
+occupation = "pastor"
+household = "tveit"
+workplace = "lutheran_church"
+abilities = { str = 10, dex = 11, con = 12, int = 14, wis = 13, cha = 13 }
+skills = { lore_scripture = 7, perform_preaching = 6, persuade = 3, lore_local = 2, concentration = 3 }
+traits = ["pious"]
+values = { piety = 3, parochialism = 1, discretion = 1, rancor = 1, superstition = 1 }
+languages = ["norwegian", "english", "german"]
+psyche = { ego = 50, superego = 75, id_appetite = 35 }
+persona = "the learned young pastor"
+shadow = ["hot_tempered"]
+anxiety = 400
+notes = "University-trained. Serves Iron Ford and Kvale Ridge. His power to ward the village is draining with the parish split. Believes the mill never floods because of good masonry."
+purse_cents = 150
+
+[[actors]]
+key = "ingrid_tveit"
+given = "Ingrid"
+family = "Tveit"
+sex = "female"
+age = 33
+ancestry = "human"
+culture = "norwegian"
+occupation = "housewife"
+household = "tveit"
+abilities = { str = 9, dex = 12, con = 11, int = 12, wis = 13, cha = 12 }
+skills = { trade_cookery = 4, trade_sewing = 4, read_people = 3 }
+traits = ["pious", "gossip"]
+values = { piety = 2, neighborliness = 2, superstition = 1, parochialism = 1 }
+languages = ["norwegian", "english"]
+psyche = { ego = 45, superego = 65, id_appetite = 45 }
+persona = "the parsonage wife"
+notes = "Sees the rumor mill from the pastor's side of it. Quicker to fear than her husband."
+purse_cents = 60
+
+[[actors]]
+key = "michael_dunleavy"
+given = "Michael"
+family = "Dunleavy"
+sex = "male"
+age = 47
+ancestry = "human"
+culture = "irish"
+occupation = "tavern_keeper_jp"
+household = "dunleavy"
+workplace = "dunleavys_tavern"
+abilities = { str = 12, dex = 10, con = 13, int = 12, wis = 13, cha = 14 }
+skills = { read_people = 6, persuade = 4, lore_law = 3, bargain = 3, intimidate = 2 }
+values = { neighborliness = 3, piety = 1, thrift = 1, discretion = 2, rancor = -1 }
+languages = ["english", "irish"]
+literate = true
+psyche = { ego = 65, superego = 50, id_appetite = 45 }
+persona = "the genial host who knows who owes whom"
+notes = "Tavern keeper and JP. The tavern is the village's social hub. An ordinary man; Know-Nothing talk in the Sentinel stings him more than he lets on."
+purse_cents = 450
+
+[[actors]]
+key = "nora_dunleavy"
+given = "Nora"
+family = "Dunleavy"
+sex = "female"
+age = 29
+ancestry = "human"
+culture = "irish"
+occupation = "housewife"
+household = "dunleavy"
+abilities = { str = 9, dex = 12, con = 11, int = 11, wis = 13, cha = 12 }
+skills = { trade_cookery = 4, lore_fae = 3, herbalism = 2, read_people = 2 }
+traits = ["pious"]
+values = { piety = 3, superstition = 3, parochialism = 1, discretion = 1 }
+languages = ["english", "irish"]
+literate = false
+psyche = { ego = 40, superego = 70, id_appetite = 35 }
+persona = "the careful young mother"
+shadow = ["gossip"]
+anxiety = 600
+notes = "Knows changeling lore from her grandmother. Watches the new baby very closely, too closely: she is tired, frightened, and no one has asked her."
+purse_cents = 40
+
+[[actors]]
+key = "brigid_dunleavy"
+given = "Brigid"
+family = "Dunleavy"
+sex = "female"
+age = 0
+ancestry = "human"
+culture = "irish"
+occupation = "child"
+household = "dunleavy"
+abilities = { str = 3, dex = 4, con = 8, int = 8, wis = 8, cha = 12 }
+values = {}
+languages = []
+literate = false
+persona = "the baby"
+notes = "Eleven weeks old. Fretful. A perfectly ordinary human infant, whatever her mother fears."
+
+[[actors]]
+key = "horace_bell"
+given = "Horace"
+family = "Bell"
+sex = "male"
+age = 41
+ancestry = "human"
+culture = "yankee"
+occupation = "editor_printer"
+household = "bell"
+workplace = "sentinel_print_shop"
+abilities = { str = 10, dex = 12, con = 11, int = 14, wis = 12, cha = 13 }
+skills = { trade_printing = 7, persuade = 5, lore_local = 3, deceive = 2, read_people = 3 }
+values = { ambition = 2, superstition = -3, rancor = 1, parochialism = 1 }
+languages = ["english"]
+psyche = { ego = 65, superego = 45, id_appetite = 50 }
+persona = "the crusading editor"
+notes = "Whig drifting toward Republican. Fierce debunker of fae superstition, which makes him the best anti-fae weapon in town. His bias decides whether a witch hunt is reported as justice or disgrace."
+purse_cents = 200
+
+[[actors]]
+key = "mercy_bell"
+given = "Mercy"
+family = "Bell"
+sex = "female"
+age = 37
+ancestry = "human"
+culture = "yankee"
+occupation = "housewife"
+household = "bell"
+abilities = { str = 9, dex = 12, con = 11, int = 13, wis = 12, cha = 13 }
+skills = { trade_printing = 3, trade_cookery = 3, persuade = 2 }
+traits = ["gossip"]
+values = { neighborliness = 2, thrift = 2, superstition = 1 }
+languages = ["english"]
+psyche = { ego = 50, superego = 55, id_appetite = 45 }
+persona = "the editor's wife who sets type"
+notes = "Sets type on press days. Sees what comes in the post before the town does."
+purse_cents = 70
+
+[[actors]]
+key = "eli_crane"
+given = "Eli"
+family = "Crane"
+sex = "male"
+age = 15
+ancestry = "human"
+culture = "yankee"
+occupation = "hired_hand"
+household = "bell"
+workplace = "sentinel_print_shop"
+abilities = { str = 11, dex = 13, con = 11, int = 13, wis = 10, cha = 11 }
+skills = { trade_printing = 3, stealth = 2 }
+values = { ambition = 1, superstition = 0 }
+languages = ["english"]
+psyche = { ego = 35, superego = 35, id_appetite = 65 }
+persona = "the printer's devil"
+notes = "Orphan bound to Bell. Reads every proof before it goes out, including the ones that do not go out."
+purse_cents = 10
+
+[[actors]]
+key = "elias_hurd"
+given = "Elias"
+family = "Hurd"
+nickname = "Captain Hurd"
+sex = "male"
+age = 46
+ancestry = "human"
+culture = "yankee"
+occupation = "militia_captain"
+household = "hurd"
+workplace = "hurd_house"
+abilities = { str = 14, dex = 11, con = 13, int = 10, wis = 10, cha = 13 }
+skills = { intimidate = 5, lore_local = 3, persuade = 3, perform_storytelling = 5, athletics = 2 }
+traits = ["hot_tempered"]
+values = { ambition = 2, parochialism = 3, rancor = 2, temper = 1, discretion = -2 }
+languages = ["english"]
+psyche = { ego = 55, superego = 50, id_appetite = 55 }
+persona = "the hero of Bad Axe"
+anxiety = 450
+notes = "Militia captain and Black Hawk War veteran. His war story grows every time he tells it, which showcases memory drift. His standing depends on being the town's protector, so he needs a threat. He will lead any witch hunt."
+purse_cents = 220
+
+[[actors]]
+key = "clara_stoughton"
+given = "Clara"
+family = "Stoughton"
+sex = "female"
+age = 24
+ancestry = "human"
+culture = "yankee"
+occupation = "schoolteacher"
+household = "stoughton"
+workplace = "schoolhouse"
+abilities = { str = 8, dex = 12, con = 10, int = 15, wis = 13, cha = 12 }
+skills = { spellcraft = 5, lore_fae = 4, lore_nature = 3, concentration = 4, perception = 3, lore_scripture = 2 }
+values = { ambition = 1, superstition = -1, discretion = 1, parochialism = -1 }
+languages = ["english"]
+psyche = { ego = 70, superego = 55, id_appetite = 30 }
+persona = "the schoolmistress who measures things"
+anxiety = 300
+notes = "From Connecticut. Competent minor wizard of the lyceum tradition. Teaches reading and wards. Privately skeptical of Bell's debunking because she has measured things up the coulee. Human; the sim stays honest that she is. Wrongly suspected hook."
+purse_cents = 80
+inventory = [{ item = "pocket_watch_silver", qty = 1 }, { item = "pocket_compass", qty = 1 }, { item = "slate_pencil", qty = 1 }]
+
+[[actors]]
+key = "tollef_haugen"
+given = "Tollef"
+family = "Haugen"
+sex = "male"
+age = 58
+ancestry = "human"
+culture = "norwegian"
+occupation = "miller"
+household = "haugen"
+workplace = "haugen_mill"
+abilities = { str = 14, dex = 10, con = 13, int = 12, wis = 14, cha = 11 }
+skills = { trade_milling = 9, lore_nature = 2, fae_courtesy = 3, lore_local = 3 }
+traits = ["pious"]
+values = { piety = 2, thrift = 3, superstition = 3, discretion = 3, neighborliness = 1 }
+languages = ["norwegian", "english"]
+psyche = { ego = 55, superego = 60, id_appetite = 40 }
+persona = "the sober old miller"
+notes = "The mill never floods because of the nisse he keeps fed with cream and porridge. He lies to Pastor Tveit about it."
+purse_cents = 400
+
+[[actors]]
+key = "ragnhild_haugen"
+given = "Ragnhild"
+family = "Haugen"
+sex = "female"
+age = 55
+ancestry = "human"
+culture = "norwegian"
+occupation = "housewife"
+household = "haugen"
+abilities = { str = 10, dex = 11, con = 12, int = 12, wis = 14, cha = 12 }
+skills = { trade_cookery = 6, trade_sewing = 5, fae_courtesy = 2 }
+traits = ["pious"]
+values = { piety = 3, thrift = 2, superstition = 2, neighborliness = 2, discretion = 2 }
+languages = ["norwegian", "english"]
+psyche = { ego = 50, superego = 70, id_appetite = 30 }
+persona = "the miller's wife"
+notes = "Sets out the nisse's cream each night and is tired of lying about it to her pastor."
+purse_cents = 120
+
+[[actors]]
+key = "lucius_vance"
+given = "Lucius"
+family = "Vance"
+sex = "male"
+age = 40
+ancestry = "human"
+culture = "yankee"
+occupation = "land_agent"
+household = "vance"
+workplace = "dunleavys_tavern"
+abilities = { str = 10, dex = 12, con = 11, int = 14, wis = 11, cha = 15 }
+skills = { bargain = 7, persuade = 6, read_people = 5, deceive = 3, lore_law = 2 }
+values = { ambition = 3, thrift = 2, parochialism = 1, rancor = -1, discretion = 1, superstition = -2 }
+languages = ["english"]
+psyche = { ego = 70, superego = 40, id_appetite = 55 }
+persona = "the courteous man from Galena"
+notes = "Agent for a Galena house that holds Gussie Pratt's note, finances the Penhallow company, and buys claims on the cheap where surveys go wrong. Genuinely thinks he is helping; thinks knockers are superstition."
+purse_cents = 21000
+inventory = [{ item = "pocket_watch_silver", qty = 1 }]
+
+[[actors]]
+key = "lemuel_hatch"
+given = "Lemuel"
+family = "Hatch"
+sex = "male"
+age = 47
+ancestry = "human"
+culture = "yankee"
+occupation = "ferryman"
+household = "hatch"
+workplace = "ferry_landing"
+abilities = { str = 14, dex = 12, con = 13, int = 10, wis = 12, cha = 10 }
+skills = { riverwork = 7, swim = 5, fishing = 4, perception = 2, lore_local = 3 }
+values = { neighborliness = 1, superstition = 1, thrift = 1 }
+languages = ["english"]
+psyche = { ego = 50, superego = 40, id_appetite = 50 }
+persona = "the man at the landing"
+needs = { hunger = 650 }
+notes = "Runs the flatboat ferry. Knows who crosses at night and keeps it to himself."
+purse_cents = 40
+inventory = [{ item = "felling_axe_hollister", qty = 1 }]
+
+[[actors]]
+key = "abigail_hatch"
+given = "Abigail"
+family = "Hatch"
+sex = "female"
+age = 44
+ancestry = "human"
+culture = "yankee"
+occupation = "housewife"
+household = "hatch"
+abilities = { str = 10, dex = 11, con = 12, int = 11, wis = 13, cha = 11 }
+skills = { trade_cookery = 4, fishing = 2, herbalism = 2 }
+values = { neighborliness = 2, thrift = 2, piety = 1 }
+languages = ["english"]
+psyche = { ego = 45, superego = 50, id_appetite = 45 }
+persona = "the ferryman's wife"
+needs = { hunger = 650 }
+notes = "Sells eggs and mends for the river trade."
+purse_cents = 20

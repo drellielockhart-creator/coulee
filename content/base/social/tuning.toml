@@ -1,0 +1,119 @@
+# Social tuning (04 §3.1, §4, §6, §7, §11.2). OWNER: module:social.
+# One record, id "default". Every number the social system uses is here.
+
+[[social_tuning]]
+id = "default"
+
+# 04 §3.1 compatibility: base Affection = clamp(-cap, cap, offset - Σ w·|a.v - b.v|).
+# The doc's formula is never positive; `compat_offset` lets like-minded neighbors warm a
+# little. With everyone at 0, compat = +5.
+compat_weights = { piety = 2, parochialism = 2, superstition = 2, thrift = 1, neighborliness = 1, temper = 1 }
+compat_cap = 15
+compat_offset = 5
+
+kin_kinds = ["parent", "sibling", "spouse", "betrothed", "cousin", "in_law"]
+household_prior = { affection = 10, trust = 10 }
+
+# Base priors from structural edges (04 §7.1): "a is <kind> of b"; a_to_b is how a regards b.
+relationship_priors = [
+  { kind = "parent", a_to_b = { affection = 35, trust = 20 }, b_to_a = { affection = 30, respect = 25, trust = 20 } },
+  { kind = "sibling", a_to_b = { affection = 25, trust = 15 }, b_to_a = { affection = 25, trust = 15 } },
+  { kind = "spouse", a_to_b = { affection = 35, respect = 10, trust = 25 }, b_to_a = { affection = 35, respect = 10, trust = 25 } },
+  { kind = "courting", a_to_b = { affection = 20, trust = 5 }, b_to_a = { affection = 20, trust = 5 } },
+  { kind = "betrothed", a_to_b = { affection = 30, trust = 15 }, b_to_a = { affection = 30, trust = 15 } },
+  { kind = "cousin", a_to_b = { affection = 10, trust = 5 }, b_to_a = { affection = 10, trust = 5 } },
+  { kind = "in_law", a_to_b = { affection = 5 }, b_to_a = { affection = 5 } },
+  { kind = "employer", a_to_b = { trust = 5 }, b_to_a = { respect = 15, fear = 5 } },
+  { kind = "creditor", a_to_b = { trust = -5 }, b_to_a = { affection = -5, respect = 5, fear = 5 } },
+  { kind = "patron", a_to_b = { affection = 5 }, b_to_a = { respect = 20, trust = 5 } },
+  { kind = "neighbor", a_to_b = { affection = 5 }, b_to_a = { affection = 5 } },
+  { kind = "lodger", a_to_b = { affection = 5 }, b_to_a = { affection = 5 } },
+  { kind = "congregant_with", a_to_b = { affection = 5, trust = 5 }, b_to_a = { affection = 5, trust = 5 } },
+  { kind = "friend", a_to_b = { affection = 30, trust = 20 }, b_to_a = { affection = 30, trust = 20 } },
+  { kind = "rival", a_to_b = { affection = -15, respect = 10 }, b_to_a = { affection = -15, respect = 10 } },
+]
+
+# ---- Encounters (04 §11.2) ----
+# Per awake actor-hour: λ‰ = rate × sociability% × venue% / 10000. k = floor(λ/1000) plus
+# one more with probability (λ mod 1000)‰, capped. Sociability% = 100 + 15·Neighborliness
+# + 8 per 100 Company deficit + 40 if drunk + (activity sociability − 30) × 1.
+encounter_rate_permille = 300
+venue_pct = [
+  { tag = "tavern", pct = 220 },
+  { tag = "church", pct = 160 },
+  { tag = "store", pct = 150 },
+  { tag = "landing", pct = 120 },
+  { tag = "street", pct = 110 },
+  { tag = "home", pct = 100 },
+  { tag = "mill", pct = 90 },
+  { tag = "smithy", pct = 90 },
+  { tag = "outdoor", pct = 80 },
+]
+activity_sociability_pct = 1
+sociability_per_neighborliness = 15
+sociability_per_company_deficit = 8
+sociability_drunk = 40
+max_initiations_per_hour = 2
+max_participations_per_hour = 3
+tie_sample = 4
+stranger_attempts = 3
+max_witnesses = 2
+audience_cap = 12
+volition_noise = 15
+
+# ---- Memory (04 §4) ----
+# Encoding salience s0 = base + per_intensity × intensity (chat 335, insult 650, fight 825).
+salience_base = 300
+salience_per_intensity = 7
+initiator_intensity_pct = 60
+witness_intensity_pct = 40
+audience_intensity_per_onlooker = 2
+audience_intensity_cap = 40
+surprise_pct = 30
+forget_below = 50
+consolidate_below = 250
+max_memories = 300
+
+# ---- Opinion (04 §6) ----
+max_reasons = 8
+bucket_tau_days = 60
+volatile_keep_pct = 40
+volatile_cap = 20
+familiarity_per_encounter = 40
+familiarity_decay_per_day = 2
+max_opinions = 150
+
+# ---- Courtship eligibility (period default; data, not code) ----
+courtship_min_age = 16
+courtship_opposite_sex = true
+
+# ---- Escalation: the target's Will save against losing their temper ----
+escalation_dc = 12
+escalation_per_temper = 2
+
+# ---- Urges proposed to the psyche ----
+company_seek_below = 450
+seek_company = [
+  { tag = "tavern", activity = "drink_at_tavern" },
+  { tag = "church", activity = "attend_church" },
+]
+max_targeted_urges = 2
+
+# Defenses (10 §7) discharge through ordinary interactions aimed at the defense's target.
+defense_interactions = [
+  { defense = "displacement", interactions = ["insult", "snub", "slight"], reason = "Had it coming", reason_delta = { affection = -5 } },
+  { defense = "projection", interactions = ["snub", "slight"], reason = "Something sly about them", reason_delta = { trust = -8 } },
+  { defense = "reaction_formation", interactions = ["compliment", "help"] },
+  { defense = "sublimation", interactions = ["help"] },
+]
+
+# Place tag -> gossip channel (belief/api.ts Channel). First match wins.
+channels = [
+  { tag = "tavern", channel = "tavern" },
+  { tag = "church", channel = "church" },
+  { tag = "store", channel = "store" },
+  { tag = "mill", channel = "mill" },
+  { tag = "landing", channel = "landing" },
+  { tag = "home", channel = "household" },
+  { tag = "street", channel = "street" },
+]
