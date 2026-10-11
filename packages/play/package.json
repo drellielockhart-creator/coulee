@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "description": "Headless play (ADR 0002): PlaySession over core: player actor via Commands, fair observations, interrupts, save/load/fork, replay, telemetry. No IO.",
   "exports": {
     ".": "./src/index.ts"

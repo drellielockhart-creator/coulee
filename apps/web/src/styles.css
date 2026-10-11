@@ -7,6 +7,7 @@
   --rubric: #a3301e;
   --id-ink: #8a4b24;
   --superego-ink: #2f4d6b;
+  --good: #526439;
   color-scheme: light;
   font-variant-numeric: lining-nums tabular-nums;
 }
@@ -31,7 +32,8 @@ body {
 }
 button,
 select,
-summary {
+summary,
+input {
   font: inherit;
   color: inherit;
   min-height: 44px;
@@ -39,7 +41,8 @@ summary {
   touch-action: manipulation;
 }
 button,
-select {
+select,
+input {
   background: var(--paper);
   border: 1px solid var(--rule);
   border-radius: 3px;
@@ -48,11 +51,29 @@ select {
 button {
   cursor: pointer;
 }
-button:hover,
+/*
+ * Hover only where a hovering pointer exists: a touch leaves :hover on the last-tapped element,
+ * which must never read as "selected" (11 §3.3). Hover is a light wash; pressed/selected is ink
+ * plus a rubric rule, so the two never share a look and selection is never color alone (11 §7).
+ */
+@media (hover: hover) {
+  button:hover:not(:disabled, [aria-pressed="true"], [aria-selected="true"]) {
+    background: var(--paper-2);
+  }
+}
+button:active:not(:disabled, [aria-pressed="true"], [aria-selected="true"]) {
+  background: var(--paper-2);
+}
 button[aria-pressed="true"],
 button[aria-selected="true"] {
   background: var(--ink);
   color: var(--paper);
+  box-shadow: inset 0 -4px 0 var(--rubric);
+  font-weight: 600;
+}
+button[aria-current="true"] {
+  box-shadow: inset 0 -4px 0 var(--ink);
+  font-weight: 600;
 }
 button:disabled {
   opacity: 0.55;
@@ -60,7 +81,8 @@ button:disabled {
 }
 button:focus-visible,
 select:focus-visible,
-summary:focus-visible {
+summary:focus-visible,
+input:focus-visible {
   outline: 3px solid var(--superego-ink);
   outline-offset: 2px;
 }
@@ -90,27 +112,51 @@ h4 {
 p {
   margin: 8px 0 12px;
 }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .screen {
   padding: 16px;
 }
+
+/* ------------------------------------------------------------------------------------------
+ * Shell: masthead / workspace / bottom bar as grid rows, so the map can never overlap the time
+ * controls whatever the viewport height (11 §4.2: every screen playable without rotating).
+ * ---------------------------------------------------------------------------------------- */
 .settlement {
   height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
 }
 .masthead {
   display: flex;
   gap: 24px;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 22px;
+  padding: 10px 22px;
   border-bottom: 2px solid var(--ink);
+  min-width: 0;
+}
+.masthead .title {
+  min-width: 0;
+}
+.masthead h1 {
+  white-space: nowrap;
 }
 .date {
   display: flex;
   flex-direction: column;
   text-align: center;
+}
+.settings-btn {
+  flex: none;
 }
 .sub,
 .meta,
@@ -128,7 +174,6 @@ small {
 }
 .workspace {
   min-height: 0;
-  flex: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 350px 300px;
   position: relative;
@@ -138,13 +183,17 @@ small {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  position: relative;
 }
 .site-map {
   flex: 1;
-  min-height: 220px;
+  min-height: 0;
   position: relative;
   overflow: hidden;
   background: #d9ccb3;
+}
+.desk .site-map {
+  min-height: 220px;
 }
 .site-host {
   position: absolute;
@@ -174,31 +223,55 @@ small {
 .lbl-actor {
   z-index: 2;
 }
+.lbl-pip {
+  z-index: 1;
+  border: 1px solid var(--ink-2);
+  border-radius: 9px;
+  padding: 1px 7px;
+  font-weight: 600;
+}
 .lbl.is-selected {
   font-weight: bold;
   border: 1px solid var(--rubric);
 }
-.map-title {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  background: #f3ebdce8;
-  padding: 6px 12px;
-  pointer-events: none;
-}
-.map-title span {
-  display: block;
-  font-size: 15px;
-  color: var(--ink-2);
-}
 .map-tools {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 6px;
   position: absolute;
   left: 12px;
-  right: 12px;
   bottom: 12px;
+  max-width: calc(100% - 24px);
+}
+.dispatches {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+.dispatch {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  padding: 2px 2px 2px 10px;
+  font-size: 15px;
+  box-shadow: 0 2px 8px #2b241c33;
+}
+.dispatch > span {
+  flex: 1;
+  min-width: 0;
+}
+.dispatch.alert {
+  border: 2px solid var(--rubric);
 }
 .paper {
   background: var(--paper);
@@ -233,16 +306,26 @@ small {
   flex-wrap: wrap;
   gap: 8px 18px;
   align-items: center;
-  padding: 8px 16px;
+  padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
 }
 .time-controls,
 .rail,
 .segmented,
-.stack-actions,
-.sheet-controls {
+.sheet-controls,
+.store-links,
+.peek-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+}
+/* 11 §1.2: 8 px between consequential and benign actions. */
+.stack-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.peek-actions {
+  gap: 8px;
 }
 .orders {
   font-size: 15px;
@@ -253,14 +336,21 @@ small {
 }
 .tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   gap: 4px;
   border-bottom: 1px solid var(--ink);
-  padding-bottom: 10px;
+  padding: 6px 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--paper);
+  scrollbar-width: none;
 }
 .tab {
   flex: 1 0 auto;
   font-size: 16px;
+  padding: 4px 10px;
 }
 .tab-content {
   padding-top: 8px;
@@ -269,7 +359,12 @@ small {
   border-bottom: 1px solid var(--rule);
   display: flex;
   justify-content: space-between;
+  gap: 8px;
   margin: 14px 0 10px;
+}
+.section-head .aside {
+  font-size: 15px;
+  font-family: "EB Garamond", Georgia, serif;
 }
 .row {
   display: flex;
@@ -304,7 +399,11 @@ small {
   position: absolute;
   height: 100%;
   left: 0;
-  background: #526439;
+  background: var(--good);
+}
+/* Neutral ink for quantities where "more" is not "healthier" (Nerves). */
+.bar.neutral .bar-fill {
+  background: var(--ink-2);
 }
 .bar.bad .bar-fill,
 .bar-fill.neg {
@@ -319,16 +418,32 @@ small {
 .psyche-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 .stat {
   display: flex;
   flex-direction: column;
+  align-items: center;
   text-align: center;
-  font-size: 16px;
+  font-size: 15px;
+  padding: 2px 4px;
+  background: transparent;
+  line-height: 1.2;
+  min-width: 0;
+}
+.stat .k {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .stat .v {
-  font-size: 23px;
+  font-size: 21px;
+}
+.stat .band {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink-2);
 }
 .stat.wide {
   grid-column: 1 / -1;
@@ -336,16 +451,25 @@ small {
   grid-template-columns: auto 1fr auto;
   gap: 8px;
   align-items: center;
+  text-align: left;
 }
 .stat.wide .v {
-  font-size: 18px;
+  font-size: 17px;
+}
+.stat[aria-expanded="true"] {
+  border-color: var(--ink);
+}
+.stat-meaning {
+  grid-column: 1 / -1;
+  margin: 2px 0 4px;
+  font-size: 16px;
 }
 .id-ink,
-.voice-id {
+.voice-id .glyph {
   color: var(--id-ink);
 }
 .superego-ink,
-.voice-superego {
+.voice-superego .glyph {
   color: var(--superego-ink);
 }
 .thoughts,
@@ -356,28 +480,48 @@ small {
 .grudges,
 .people-list,
 .ties,
-.defenses {
+.defenses,
+.book-page {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 .thought {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  align-items: flex-start;
   padding: 10px 0;
   border-bottom: 1px solid var(--rule);
 }
 .thought .body {
   flex: 1;
+  min-width: 0;
 }
+.thought .speaker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 70px;
+  font-size: 15px;
+}
+.thought .glyph {
+  font-size: 20px;
+  line-height: 1;
+}
+/* Conscience speaks from the right: glyph and strength word on its side (11 §2.3). */
 .voice-superego {
   text-align: right;
-  flex-direction: row-reverse;
+}
+.voice-superego .speaker {
+  order: 2;
 }
 .verdict {
   border: 1px solid var(--rule);
   padding: 10px;
   margin-top: 12px;
+}
+.verdict-why {
+  margin: 6px 0;
 }
 .gated {
   background: repeating-linear-gradient(135deg, transparent, transparent 7px, #b8a88e22 7px, #b8a88e22 9px);
@@ -387,6 +531,7 @@ small {
 .link {
   text-decoration: underline;
   background: transparent;
+  border-color: transparent;
 }
 .need-row {
   width: 100%;
@@ -404,13 +549,40 @@ small {
 .need-detail {
   padding: 8px;
 }
-.meter,
-.axis {
+.meter {
   display: grid;
   grid-template-columns: 90px 1fr 42px;
   align-items: center;
   gap: 6px;
   margin: 6px 0;
+}
+.axes {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  text-align: left;
+}
+.axis {
+  display: grid;
+  grid-template-columns: 76px 1fr 112px;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0;
+}
+.axis-v {
+  text-align: right;
+}
+.axis .band {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink-2);
+}
+.axis-meaning {
+  font-size: 15px;
+  padding-left: 18px;
+  margin: 4px 0;
 }
 .chip {
   display: inline-block;
@@ -426,6 +598,9 @@ small {
 .grudges li {
   border-bottom: 1px solid var(--rule);
   padding: 10px 0;
+}
+.ties li {
+  padding: 2px 0;
 }
 .reasons {
   padding-left: 20px;
@@ -448,7 +623,8 @@ small {
   gap: 4px;
   margin: 10px 0;
 }
-select {
+select,
+input {
   max-width: 100%;
   width: 100%;
 }
@@ -463,7 +639,7 @@ select {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  padding: 8px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--rule);
 }
 .stock-line > span {
@@ -471,6 +647,17 @@ select {
 }
 .stock-line small {
   display: block;
+}
+.stock-line .price {
+  float: right;
+}
+.consequential {
+  border: 2px solid var(--rubric);
+  color: var(--rubric);
+}
+.confirm-box {
+  border: 1px solid var(--rubric);
+  padding: 8px 10px;
 }
 .people-list > li {
   padding: 6px 0;
@@ -481,136 +668,28 @@ select {
   text-align: left;
 }
 .people-list button span,
-.people-list button small {
+.people-list button small,
+.people-list button strong {
   display: block;
 }
-.preferences {
-  display: flex;
-  align-items: end;
-  gap: 8px;
-  margin-bottom: 12px;
+.people-list.compact > li {
+  padding: 2px 0;
+  border: 0;
 }
-.preferences label {
-  flex: 1;
-  min-width: 0;
+.people-list.compact button span {
+  font-size: 15px;
+  color: var(--ink-2);
+}
+.peek-line {
+  margin: 4px 0 8px;
 }
 .act {
-  border-top: 1px solid var(--rule);
-  margin-top: 16px;
-  padding-top: 10px;
+  padding-top: 4px;
 }
 summary {
   cursor: pointer;
   padding: 10px 0;
 }
-@media (max-width: 1100px) {
-  .workspace {
-    grid-template-columns: minmax(0, 1fr) 340px;
-  }
-  .kit-dock {
-    display: none;
-  }
-}
-.pocket .masthead {
-  padding: 8px 12px;
-  gap: 8px;
-}
-.pocket h1 {
-  font-size: 26px;
-}
-.pocket .masthead .sub {
-  font-size: 13px;
-}
-.pocket .date {
-  font-size: 16px;
-  text-align: right;
-}
-.pocket .status {
-  display: none;
-}
-.pocket .workspace {
-  display: block;
-}
-.pocket .map-column,
-.pocket .site-map {
-  height: 100%;
-}
-.pocket .map-title {
-  max-width: calc(100% - 28px);
-}
-.pocket .bottom-bar {
-  flex-direction: column;
-  gap: 4px;
-  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
-}
-.pocket .time-controls,
-.pocket .rail {
-  width: 100%;
-  flex-wrap: nowrap;
-  justify-content: center;
-}
-.pocket .time-controls button {
-  flex: 1;
-  padding: 4px;
-  min-width: 44px;
-}
-.pocket .rail button {
-  flex: 1;
-  padding: 4px;
-}
-.pocket .orders {
-  font-size: 13px;
-}
-.sheet {
-  position: absolute;
-  z-index: 5;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--ink);
-  border-radius: 14px 14px 0 0;
-  box-shadow: 0 -4px 14px #2b241c33;
-  padding: 0;
-}
-.sheet-half {
-  height: 68%;
-}
-.sheet-full {
-  height: 100%;
-}
-.sheet-peek {
-  height: 180px;
-}
-.sheet-head {
-  padding: 10px 12px 8px;
-  border-bottom: 1px solid var(--rule);
-}
-.sheet-head h2 {
-  margin: 0 0 8px;
-}
-.pocket .sheet-controls button {
-  padding: 4px 8px;
-}
-.sheet-body {
-  overflow-y: auto;
-  min-height: 0;
-  padding: 12px;
-  overscroll-behavior: contain;
-}
-.pocket .dossier-summary {
-  font-size: 16px;
-}
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto;
-  }
-}
-
 fieldset {
   border: 0;
   padding: 0;
@@ -631,4 +710,242 @@ fieldset {
 .total {
   border-top: 1px solid var(--rule);
   font-weight: bold;
+}
+@media (max-width: 1100px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+  .kit-dock {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------
+ * Sheets (Pocket) and drawers (Folio)
+ * ---------------------------------------------------------------------------------------- */
+.sheet,
+.drawer {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.sheet {
+  position: absolute;
+  z-index: 5;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 100%;
+  border: 1px solid var(--ink);
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -4px 14px #2b241c33;
+}
+/* 11 §1.6: peek ≈ a card, half ≈ 50% of the map, full covers it. */
+.sheet-peek {
+  max-height: 55%;
+}
+.sheet-half {
+  height: 50%;
+}
+.sheet-full {
+  height: 100%;
+}
+.sheet-head {
+  border-bottom: 1px solid var(--rule);
+  touch-action: none;
+  user-select: none;
+}
+.sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 48px;
+  padding-right: 2px;
+}
+.sheet-row h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.drawer .sheet-row h2 {
+  padding-left: 14px;
+}
+.grabber {
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: grab;
+}
+.grabber-bar {
+  width: 26px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--ink-2);
+  box-shadow: 0 -7px 0 var(--rule);
+}
+.icon {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 20px;
+}
+.sheet-sub {
+  font-size: 15px;
+  color: var(--ink-2);
+  padding: 0 12px 6px 46px;
+  margin-top: -6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 0 12px 12px;
+  overscroll-behavior: contain;
+}
+.sheet-peek .sheet-body {
+  padding-top: 4px;
+}
+.sheet-body > :not(.dossier):first-child {
+  margin-top: 8px;
+}
+.sheet-foot {
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--rule);
+  background: var(--paper-2);
+}
+.sheet-foot button {
+  flex: 1;
+}
+.drawer {
+  min-height: 0;
+  border-left: 2px solid var(--ink);
+}
+
+/* ------------------------------------------------------------------------------------------
+ * Pocket (< 600 px)
+ * ---------------------------------------------------------------------------------------- */
+.pocket .masthead {
+  padding: 6px 4px 6px 12px;
+  gap: 8px;
+}
+.pocket h1 {
+  font-size: 24px;
+}
+.pocket .masthead .sub {
+  display: none;
+}
+.pocket .date {
+  font-size: 15px;
+  text-align: right;
+  flex: 1;
+  min-width: 0;
+}
+.pocket .status {
+  display: none;
+}
+.pocket .workspace {
+  display: block;
+}
+.pocket .map-column {
+  height: 100%;
+}
+.pocket .bottom-bar {
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+}
+.pocket .time-controls,
+.pocket .rail {
+  width: 100%;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+.pocket .time-controls button {
+  flex: 1;
+  padding: 4px;
+  min-width: 44px;
+}
+.pocket .rail button {
+  flex: 1;
+  padding: 4px 2px;
+  font-size: 16px;
+}
+.pocket .orders {
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------------------------------
+ * Folio (600–1023 px, or a phone in landscape): map plus one docked side panel (11 §3.4).
+ * ---------------------------------------------------------------------------------------- */
+.folio .masthead {
+  padding: 2px 4px 2px 14px;
+  gap: 12px;
+}
+.folio h1 {
+  font-size: 22px;
+}
+.folio .masthead .sub,
+.folio .status {
+  display: none;
+}
+.folio .date {
+  flex-direction: row;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 16px;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+  white-space: nowrap;
+}
+.folio .date strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.folio .workspace {
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: min(380px, 46%);
+}
+.folio .bottom-bar {
+  flex-wrap: nowrap;
+  gap: 10px;
+  padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
+}
+.folio .time-controls,
+.folio .rail {
+  flex-wrap: nowrap;
+}
+.folio .time-controls button,
+.folio .rail button {
+  padding: 4px 8px;
+}
+.folio .orders {
+  font-size: 13px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto;
+  }
 }

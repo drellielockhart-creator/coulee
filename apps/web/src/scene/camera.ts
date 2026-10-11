@@ -202,6 +202,13 @@ export function attachGestures(el: HTMLElement, rig: CameraRig, cb: GestureCallb
     pointers.delete(e.pointerId);
     if (pointers.size < 2) pinchStart = null;
   };
+  // A tap selects on pointerup, and React mounts the sheet under the finger in that same task.
+  // The browser then fires its compatibility mousedown/mouseup/click at the same point, which
+  // would land on the new sheet (its Close button, a tab, a thought) and undo the tap. The map
+  // owns every touch it gets (touch-action: none), so cancel the compatibility events here.
+  const touchEnd = (e: TouchEvent) => {
+    if (e.cancelable) e.preventDefault();
+  };
   const wheel = (e: WheelEvent) => {
     e.preventDefault();
     const p = local(e);
@@ -214,8 +221,10 @@ export function attachGestures(el: HTMLElement, rig: CameraRig, cb: GestureCallb
   el.addEventListener('pointermove', move);
   el.addEventListener('pointerup', up);
   el.addEventListener('pointercancel', cancel);
+  el.addEventListener('touchend', touchEnd, { passive: false });
   el.addEventListener('wheel', wheel, { passive: false });
   return () => {
+    el.removeEventListener('touchend', touchEnd);
     el.removeEventListener('pointerdown', down);
     el.removeEventListener('pointermove', move);
     el.removeEventListener('pointerup', up);

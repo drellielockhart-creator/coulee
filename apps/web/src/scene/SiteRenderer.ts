@@ -39,6 +39,11 @@ export interface SceneActor {
   isPlayer: boolean;
   child: boolean;
   alive: boolean;
+  /**
+   * Indoors and out of sight: asleep, or at leisure in their own house. Drawn as a count pip on
+   * the building, never as a figure standing in the street at 2 a.m.
+   */
+  indoors?: 'asleep' | 'home' | null;
 }
 
 export interface SceneTime {
@@ -51,7 +56,12 @@ export interface SceneTime {
   sunsetMinute: number;
 }
 
-export type PickHit = { kind: 'actor'; id: number } | { kind: 'place'; id: number } | null;
+export type PickHit =
+  | { kind: 'actor'; id: number }
+  | { kind: 'place'; id: number }
+  /** Several figures under the finger: the UI shows a stack chooser (11 §2.2). */
+  | { kind: 'stack'; ids: number[] }
+  | null;
 
 /** sRGB swatches (11 §7.4: desaturated earth; saturation is a signal). */
 const SW = {
@@ -121,9 +131,17 @@ interface ActorGfx {
 interface PlaceGfx {
   root: THREE.Group;
   label: HTMLDivElement;
+  /** Count of people indoors, out of sight ("☾ 2"). */
+  pip: HTMLDivElement;
   data: ScenePlace;
   outline: THREE.LineSegments;
 }
+
+/** Place kinds with a roof: their occupants can be indoors and out of sight. */
+const ROOFED = new Set(['building', 'house', 'farmstead']);
+
+/** Frame budget while only figures walk and the camera is still (11 §5.3: 30 fps cap). */
+const WALK_FRAME_MS = 33;
 
 export class SiteRenderer {
   private readonly renderer: THREE.WebGLRenderer;
@@ -153,6 +171,11 @@ export class SiteRenderer {
   private hoveredActor: number | null = null;
   private dirty = true;
   private raf = 0;
+  private lastDraw = 0;
+  /** Last camera gesture or resize: full frame rate shortly after, 30 fps cap otherwise. */
+  private lastCameraMs = 0;
+  /** Hidden (indoor) actors by place, rebuilt each snapshot. */
+  private indoorsAt = new Map<number, number[]>();
   private disposed = false;
   private framed = false;
   private season = '';
@@ -202,13 +225,16 @@ export class SiteRenderer {
     this.ro.observe(container);
     this.resize();
     this.detach = attachGestures(this.canvas, this.rig, {
-      onChange: () => this.invalidate(),
+      onChange: () => {
+        this.lastCameraMs = performance.now();
+        this.invalidate();
+      },
       onTap: (x, y) => this.onPick(this.pick(x, y)),
     });
     document.addEventListener('visibilitychange', this.onVisibility);
     this.canvas.addEventListener('pointermove', this.onHover);
     this.canvas.addEventListener('pointerleave', this.onLeave);
-    this.loop();
+    this.invalidate();
   }
 
   private onHover = (e: PointerEvent) => {
@@ -229,12 +255,17 @@ export class SiteRenderer {
   };
 
   private onVisibility = () => {
-    if (document.hidden) cancelAnimationFrame(this.raf);
-    else this.loop();
+    if (document.hidden) {
+      cancelAnimationFrame(this.raf);
+      this.raf = 0;
+    } else this.invalidate();
   };
 
+  /** Ask for a frame. The loop runs only while something changes (11 §5.3: 0 fps when idle). */
   invalidate(): void {
     this.dirty = true;
+    if (this.raf === 0 && !this.disposed && !(typeof document !== 'undefined' && document.hidden))
+      this.raf = requestAnimationFrame(this.loop);
   }
 
   private resize(): void {
@@ -255,7 +286,9 @@ export class SiteRenderer {
   // -------------------------------------------------------------------------------------
 
   setSite(site: SiteLike & { name: string }, places: readonly ScenePlace[]): void {
-    const key = JSON.stringify([site, places.map((p) => [p.id, p.x, p.y, p.w, p.h, p.kind, p.model, p.rotation])]);
+    // Geometry only: stock and occupancy change every hour and must not rebuild the terrain.
+    let key = `${site.name}|${site.w}x${site.h}`;
+    for (const p of places) key += `|${p.id},${p.x},${p.y},${p.w},${p.h},${p.kind},${p.model},${p.rotation}`;
     if (key === this.siteKey) return;
     this.siteKey = key;
     this.site = site;
@@ -263,7 +296,10 @@ export class SiteRenderer {
     this.terrain = buildTerrain(site, places);
     this.clearGroup(this.ground);
     this.clearGroup(this.placesGroup);
-    for (const p of this.places.values()) p.label.remove();
+    for (const p of this.places.values()) {
+      p.label.remove();
+      p.pip.remove();
+    }
     this.places.clear();
     this.buildGround(places);
     for (const p of places) this.addPlace(p);
@@ -533,7 +569,10 @@ export class SiteRenderer {
     label.className = `lbl lbl-place lbl-${p.kind}`;
     label.textContent = p.name;
     this.labels.appendChild(label);
-    this.places.set(p.id, { root, label, data: p, outline });
+    const pip = document.createElement('div');
+    pip.className = 'lbl lbl-pip';
+    this.labels.appendChild(pip);
+    this.places.set(p.id, { root, label, pip, data: p, outline });
 
     if (p.model) {
       const modelId = p.model;
@@ -701,6 +740,13 @@ export class SiteRenderer {
         this.actors.delete(id);
       }
     }
+    this.indoorsAt.clear();
+    for (const a of list) {
+      if (!a.alive || !a.indoors || !ROOFED.has(this.places.get(a.placeId)?.data.kind ?? '')) continue;
+      const at = this.indoorsAt.get(a.placeId) ?? [];
+      at.push(a.id);
+      this.indoorsAt.set(a.placeId, at);
+    }
     const places = [...this.places.values()].map((p) => p.data);
     this.motion.update(
       list.filter((a) => a.alive),
@@ -840,21 +886,54 @@ export class SiteRenderer {
   // Picking, labels, render loop
   // -------------------------------------------------------------------------------------
 
+  /** Hidden indoors (and not walking right now): no figure is drawn or pickable. */
+  private hiddenIndoors(g: ActorGfx, walking: boolean): boolean {
+    return !walking && (this.indoorsAt.get(g.data.placeId)?.includes(g.data.id) ?? false);
+  }
+
+  /** Screen anchor of a place's indoor pip (over the roof). */
+  private pipAnchor(d: ScenePlace, out: THREE.Vector2): THREE.Vector2 {
+    return this.rig.toScreen(new THREE.Vector3((d.x + d.w / 2) * this.tileM, 6, (d.y + d.h / 2) * this.tileM), out);
+  }
+
   private pick(px: number, py: number): PickHit {
     const now = performance.now();
     let best: { id: number; d: number } | null = null;
     const v = new THREE.Vector3();
     const sp = new THREE.Vector2();
+    const near: Array<{ id: number; d: number }> = [];
     for (const [id, g] of this.actors) {
       const s = this.motion.sample(id, now);
-      if (!s) continue;
-      v.set(s.p.x * this.tileM, g.body.scale.y * 0.8 * g.root.scale.y, s.p.y * this.tileM);
+      if (!s || this.hiddenIndoors(g, s.walking)) continue;
+      // Mid-body, standing on the terrain where it was drawn (bluffs lift figures several meters).
+      const gh = this.terrain ? Math.max(0, this.terrain.heightAt(s.p.x, s.p.y)) : 0;
+      v.set(s.p.x * this.tileM, gh + FIGURE_H * 0.6 * g.body.scale.y * g.root.scale.y, s.p.y * this.tileM);
       this.rig.toScreen(v, sp);
       const d = Math.hypot(sp.x - px, sp.y - py);
       // 44 px hit area at least (11 §2.2 hit slop).
+      if (d < 26) near.push({ id, d });
       if (d < 26 && (!best || d < best.d || (d === best.d && id < best.id))) best = { id, d };
     }
-    if (best) return { kind: 'actor', id: best.id };
+    if (best) {
+      // Overlapping hit areas never become a mis-select lottery (11 §2.2): when another figure is
+      // nearly as close, offer the stack (nearest first).
+      const b = best;
+      if (near.some((n) => n.id !== b.id && n.d < b.d + 10))
+        return { kind: 'stack', ids: near.sort((x, y) => x.d - y.d || x.id - y.id).map((n) => n.id) };
+      return { kind: 'actor', id: b.id };
+    }
+    // No figure under the finger: a pip with one person inside picks that person; with several,
+    // the place (its card lists them).
+    for (const [placeId, ids] of this.indoorsAt) {
+      const p = this.places.get(placeId);
+      // Even when its pip lost the declutter pass, the roof still answers for who is inside.
+      if (!p) continue;
+      this.pipAnchor(p.data, sp);
+      if (Math.hypot(sp.x - px, sp.y - (py + 10)) < 24) {
+        const only = ids.length === 1 ? ids[0] : undefined;
+        return only !== undefined ? { kind: 'actor', id: only } : { kind: 'place', id: placeId };
+      }
+    }
     const g = this.rig.groundAt(px, py);
     if (!g) return null;
     const tx = g.x / this.tileM;
@@ -872,14 +951,21 @@ export class SiteRenderer {
     return hit ? { kind: 'place', id: hit.id } : null;
   }
 
-  private loop = () => {
+  /**
+   * On-demand frames (11 §5.3): draw when invalidated, keep going only while figures walk, and
+   * then at ≤ 30 fps unless the camera just moved. Idle and paused costs no frames at all.
+   */
+  private loop = (now: number = performance.now()) => {
+    this.raf = 0;
     if (this.disposed) return;
-    this.raf = requestAnimationFrame(this.loop);
-    const now = performance.now();
     const walking = this.motion.anyWalking(now);
-    if (!this.dirty && !walking) return;
-    this.dirty = false;
-    this.drawFrame(now);
+    const cameraBusy = now - this.lastCameraMs < 400;
+    if (this.dirty || (walking && (cameraBusy || now - this.lastDraw >= WALK_FRAME_MS))) {
+      this.dirty = false;
+      this.lastDraw = now;
+      this.drawFrame(performance.now());
+    }
+    if (walking || this.dirty) this.raf = requestAnimationFrame(this.loop);
   };
 
   private drawFrame(now: number): void {
@@ -892,21 +978,36 @@ export class SiteRenderer {
     for (const [id, g] of this.actors) {
       const s = this.motion.sample(id, now);
       if (!s) continue;
+      const sel = id === this.selectedActor;
+      const hov = id === this.hoveredActor;
+      const inside = this.hiddenIndoors(g, s.walking);
+      g.root.visible = !inside;
+      if (inside) {
+        // Indoors: the name rides on the building pip, only for the PC or the selection.
+        const p = this.places.get(g.data.placeId);
+        if (p && (sel || g.data.isPlayer)) {
+          this.pipAnchor(p.data, sp);
+          g.label.textContent = `${g.data.label} ${g.data.indoors === 'asleep' ? '☾' : '⌂'}`;
+          placed.push({ el: g.label, x: sp.x, y: sp.y - 22, pri: sel ? 0 : 1 });
+        } else placed.push({ el: g.label, x: 0, y: 0, pri: 9 });
+        g.label.classList.toggle('is-selected', sel);
+        continue;
+      }
+      g.label.textContent = g.data.label;
       const gh = this.terrain ? Math.max(0, this.terrain.heightAt(s.p.x, s.p.y)) : 0;
       g.root.position.set(s.p.x * this.tileM, gh, s.p.y * this.tileM);
       g.root.scale.setScalar(legible);
       g.body.rotation.y = -s.heading + Math.PI / 2;
       // A little bob while walking.
       g.body.position.y = s.walking ? Math.abs(Math.sin(now / 110)) * 0.06 : 0;
-      const sel = id === this.selectedActor;
-      const hov = id === this.hoveredActor;
       g.ring.visible = sel || g.data.isPlayer;
       g.ring.material = sel ? this.mats.ringSel : this.mats.ringPlayer;
       g.ring.scale.setScalar(sel ? 1.25 : 1);
       v.set(g.root.position.x, gh + FIGURE_H * legible * (g.data.child ? 0.8 : 1) + 0.2, g.root.position.z);
       this.rig.toScreen(v, sp);
-      // Actor names only for the selection, the hovered figure and the PC (11 §2.2 declutter).
-      placed.push({ el: g.label, x: sp.x, y: sp.y, pri: sel || hov ? 0 : g.data.isPlayer ? 1 : 9 });
+      // Declutter (11 §2.2): selection and hover first, then the PC, then the names of everyone
+      // in view at Yard zoom and closer (pri 5 goes through the collision pass; touch has no hover).
+      placed.push({ el: g.label, x: sp.x, y: sp.y, pri: sel || hov ? 0 : g.data.isPlayer ? 1 : 5 });
       g.label.classList.toggle('is-selected', sel);
     }
     for (const [id, p] of this.places) {
@@ -919,8 +1020,17 @@ export class SiteRenderer {
       // yards when closer; roads only close in (11 §2.2 declutter).
       const kindNeed: Record<string, number> = { building: 0, house: 1.2, farmstead: 0, landing: 1.2, road: 8 };
       const need = kindNeed[d.kind] ?? 4;
-      placed.push({ el: p.label, x: sp.x, y: sp.y, pri: sel ? 0 : ppm < need ? 9 : d.kind === 'road' ? 5 : 4 });
+      placed.push({ el: p.label, x: sp.x, y: sp.y, pri: sel ? 0 : ppm < need ? 9 : d.kind === 'road' ? 6 : 4 });
       p.label.classList.toggle('is-selected', sel);
+      const inside = this.indoorsAt.get(id);
+      if (inside && inside.length > 0) {
+        const asleep = inside.every((a) => this.actors.get(a)?.data.indoors === 'asleep');
+        p.pip.textContent = `${asleep ? '☾' : '⌂'} ${inside.length}`;
+        this.pipAnchor(d, sp);
+        placed.push({ el: p.pip, x: sp.x, y: sp.y, pri: 2 });
+      } else {
+        placed.push({ el: p.pip, x: 0, y: 0, pri: 9 });
+      }
     }
     this.layoutLabels(placed, ppm);
     this.renderer.render(this.scene, this.rig.camera);
@@ -928,19 +1038,19 @@ export class SiteRenderer {
 
   /** Declutter by priority (11 §2.2): selected, then the PC, then names, then places. */
   private layoutLabels(items: Array<{ el: HTMLDivElement; x: number; y: number; pri: number }>, ppm: number): void {
-    // The map title card (top-left) is never covered.
-    const taken: Array<[number, number, number, number]> = [[0, 0, 190, 80]];
     const w = this.canvas.clientWidth;
     const h = this.canvas.clientHeight;
+    // The camera tools (bottom-left) are never covered.
+    const taken: Array<[number, number, number, number]> = [[0, h - 64, 132, h]];
     items.sort((a, b) => a.pri - b.pri || a.y - b.y || a.x - b.x);
     for (const it of items) {
       const isActor = it.el.classList.contains('lbl-actor');
-      // pri 9 = not at this zoom / not hovered or selected.
+      // pri 9 = not at this zoom; other people's names wait for Yard zoom (ppm ≥ 2.2).
       if (it.pri >= 9 || (isActor && it.pri > 1 && ppm < 2.2)) {
         it.el.style.display = 'none';
         continue;
       }
-      const lw = Math.max(24, (it.el.textContent?.length ?? 4) * (isActor ? 6.4 : 6.8) + 10);
+      const lw = Math.max(28, (it.el.textContent?.length ?? 4) * (isActor ? 6.4 : 6.8) + 10);
       const lh = 20;
       // Anchors off the map hide; labels near an edge slide inside it instead of being clipped.
       const off = it.x < 0 || it.x > w || it.y < lh / 2 || it.y > h + 10;
@@ -968,6 +1078,7 @@ export class SiteRenderer {
   dispose(): void {
     this.disposed = true;
     cancelAnimationFrame(this.raf);
+    this.raf = 0;
     document.removeEventListener('visibilitychange', this.onVisibility);
     this.canvas.removeEventListener('pointermove', this.onHover);
     this.canvas.removeEventListener('pointerleave', this.onLeave);

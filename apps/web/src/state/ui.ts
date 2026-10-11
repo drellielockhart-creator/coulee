@@ -7,7 +7,18 @@ import type { LabelSet } from '../lib/format.ts';
 import type { SheetState } from '../lib/timePolicy.ts';
 import type { Speed } from '../protocol.ts';
 
-export type Panel = 'none' | 'people' | 'pack' | 'book' | 'chronicle' | 'map' | 'dossier' | 'place';
+export type Panel =
+  | 'none'
+  | 'people'
+  | 'pack'
+  | 'book'
+  | 'chronicle'
+  | 'map'
+  | 'dossier'
+  | 'place'
+  | 'act'
+  | 'settings'
+  | 'stack';
 export type DossierTab = 'mind' | 'needs' | 'opinions' | 'known' | 'pack';
 
 export interface OrderLine {
@@ -27,14 +38,23 @@ export interface UiState {
   resumeSpeed: Speed;
   labelSet: LabelSet;
   godView: boolean;
+  /**
+   * Game minutes at which God view was switched on this session (11 §2.14: opt-in and
+   * Chronicle-tagged). The Chronicle shows the tag so a fair account is never silently mixed.
+   */
+  godViewLog: number[];
   order: OrderLine[];
   bookSection: string | null;
+  /** Actors under the finger when hit areas overlap (the stack chooser, 11 §2.2). */
+  stack: number[];
   /** Store place whose Book is open. */
   bookPlace: number | null;
   speedsOpen: boolean;
 
-  selectActor: (id: number | null, opts?: { tab?: DossierTab; sheet?: SheetState }) => void;
+  /** `fromMap`: a tap on the map opens the peek card first (11 §2.3), unless a sheet is already up. */
+  selectActor: (id: number | null, opts?: { tab?: DossierTab; sheet?: SheetState; fromMap?: boolean }) => void;
   selectPlace: (id: number | null) => void;
+  chooseFrom: (ids: number[]) => void;
   open: (panel: Panel, sheet?: SheetState) => void;
   close: () => void;
   setSheet: (s: SheetState) => void;
@@ -43,7 +63,7 @@ export interface UiState {
   setSpeed: (s: Speed) => void;
   togglePause: () => void;
   setLabelSet: (l: LabelSet) => void;
-  setGodView: (g: boolean) => void;
+  setGodView: (g: boolean, at?: number) => void;
   addToOrder: (defId: string, qty: number) => void;
   setOrderQty: (defId: string, qty: number) => void;
   clearOrder: () => void;
@@ -71,8 +91,10 @@ export const useUi = create<UiState>((set, get) => ({
   resumeSpeed: 'x1',
   labelSet: readLabelSet(),
   godView: false,
+  godViewLog: [],
   order: [],
   bookSection: null,
+  stack: [],
   bookPlace: null,
   speedsOpen: false,
 
@@ -87,7 +109,14 @@ export const useUi = create<UiState>((set, get) => ({
           ? s.panel === 'dossier'
             ? 'closed'
             : s.sheet
-          : (opts?.sheet ?? (s.sheet === 'closed' || s.sheet === 'peek' ? 'half' : s.sheet)),
+          : (opts?.sheet ??
+            (opts?.fromMap
+              ? s.sheet === 'half' || s.sheet === 'full'
+                ? s.sheet
+                : 'peek'
+              : s.sheet === 'closed' || s.sheet === 'peek'
+                ? 'half'
+                : s.sheet)),
     })),
   selectPlace: (id) =>
     set((s) => ({
@@ -95,6 +124,12 @@ export const useUi = create<UiState>((set, get) => ({
       selectedActor: id === null ? s.selectedActor : null,
       panel: id === null ? 'none' : 'place',
       sheet: id === null ? 'closed' : 'peek',
+    })),
+  chooseFrom: (ids) =>
+    set((s) => ({
+      stack: ids,
+      panel: 'stack',
+      sheet: s.sheet === 'half' || s.sheet === 'full' ? s.sheet : 'peek',
     })),
   open: (panel, sheet) =>
     set((s) => ({
@@ -124,7 +159,8 @@ export const useUi = create<UiState>((set, get) => ({
     }
     set({ labelSet });
   },
-  setGodView: (godView) => set({ godView }),
+  setGodView: (godView, at) =>
+    set((s) => ({ godView, godViewLog: godView && at !== undefined ? [...s.godViewLog, at] : s.godViewLog })),
   addToOrder: (defId, qty) =>
     set((s) => {
       const line = s.order.find((l) => l.defId === defId);
@@ -141,6 +177,11 @@ export const useUi = create<UiState>((set, get) => ({
   clearOrder: () => set({ order: [] }),
   setBookSection: (bookSection) => set({ bookSection }),
   openBook: (bookPlace) =>
-    set((s) => ({ bookPlace, panel: 'book', sheet: s.sheet === 'closed' || s.sheet === 'peek' ? 'full' : s.sheet })),
+    set((s) => ({
+      bookPlace,
+      bookSection: s.bookPlace === bookPlace ? s.bookSection : null,
+      panel: 'book',
+      sheet: s.sheet === 'closed' || s.sheet === 'peek' ? 'full' : s.sheet,
+    })),
   setSpeedsOpen: (speedsOpen) => set({ speedsOpen }),
 }));

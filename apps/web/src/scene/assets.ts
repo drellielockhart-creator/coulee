@@ -10,7 +10,7 @@
  * Anything missing renders as a procedural placeholder, so the map is never empty.
  */
 import type * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import type { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const BASE = (import.meta.env.BASE_URL ?? '/').replace(/\/?$/, '/');
 
@@ -84,7 +84,12 @@ function isGlb(buf: ArrayBuffer): boolean {
   return new DataView(buf).getUint32(0, true) === 0x46546c67; // 'glTF'
 }
 
-const loader = new GLTFLoader();
+/** The glTF loader is its own chunk, fetched the first time a model is actually needed. */
+let loader: Promise<GLTFLoader> | null = null;
+function gltfLoader(): Promise<GLTFLoader> {
+  loader ??= import('three/addons/loaders/GLTFLoader.js').then((m) => new m.GLTFLoader());
+  return loader;
+}
 const cache = new Map<string, Promise<THREE.Object3D | null>>();
 
 async function fetchGlb(url: string): Promise<THREE.Object3D | null> {
@@ -93,7 +98,7 @@ async function fetchGlb(url: string): Promise<THREE.Object3D | null> {
     if (!r.ok) return null;
     const buf = await r.arrayBuffer();
     if (!isGlb(buf)) return null;
-    const gltf = await loader.parseAsync(buf, '');
+    const gltf = await (await gltfLoader()).parseAsync(buf, '');
     const root = gltf.scene;
     root.traverse((o) => {
       const m = o as THREE.Mesh;
