@@ -43,6 +43,10 @@ export const TONES = [
  */
 export const TEMPLATE_SLOTS = [
   // time and place
+  'town',
+  'main_street',
+  'back_road',
+  'creek',
   'date',
   'weekday',
   'when',

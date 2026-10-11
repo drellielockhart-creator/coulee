@@ -1,15 +1,16 @@
-# Town generation, version 1
+# Town generation, version 2
 
 `generateTown(content, { genVersion: GEN_VERSION, seed, preset?, constraints? })`
 returns `{ scenario, site, places, report }`. `scenario`, `site` and `places` are
 ordinary `ScenarioDef`, `SiteDef` and `PlaceDef` records. `townContent(content,
 town)` installs them in a new content bundle without changing the input. Core
-and the renderer need no generator-specific branch. No schema changes.
+and the renderer need no generator-specific branch. Sites carry optional local
+landmark names for chronicle prose.
 
 The uint32 world seed is independent of the simulation seed. Supported presets
 are `coulee` (default) and `river`. Constraints are `townName`, `onRiver`, and
 `farmsteads` (3–5). Unsupported versions, presets and impossible constraints
-fail explicitly. The current slice creates 23–30 actors, depending on farm and
+fail explicitly. The current slice creates roughly 23–33 actors, depending on farm and
 landing choices, rather than materializing an entire county.
 
 Terrain, settlement, population and tensions have independent, fixed salts on
@@ -53,13 +54,12 @@ The export is a content mod containing `places/<id>.toml`,
 `recipe.json` and `report.md`. Edit and load it through the authored route:
 
 ```sh
-just run run --mods base,../runs/gen-42 --scenario town_v1_42 --seed 9 --days 7
+just run run --mods base,../runs/gen-42 --scenario town_v2_42 --seed 9 --days 7
 ```
 
 Run manifests include the full generated recipe (or authored scenario ID),
 simulation seed, content hash, and an empty command log for these all-AI CLI
-runs. `inspect --run` restores the source and mod list. The authored Iron Ford
-fixture is untouched.
+runs. `inspect --run` restores the source and mod list. The authored Iron Ford site supplies the same landmark fields.
 
 `packages/cli/test/worldgen.test.ts` checks all seeds 1–50, including 30-day QA,
 determinism, seven-day authored/generated runs, negative detectors, river and
@@ -71,10 +71,11 @@ entry, never the Node content loader.
 Current limitations: the renderer infers elevation and stream curves; geology
 is descriptive place data, not a heightfield or hydrological simulation. No
 county graph, history pre-roll, ecological production or long-term wholesale
-restocking is generated. This checkout still has social and chronicle stubs:
-30-day chronicles contain calendar headings, so the town portraits and seeded
-conflicts must currently be reviewed in TOML. On merging the completed modules,
-rerun the seed matrix and review those chronicles again.
+restocking is generated. The integrated social and chronicle systems simulate the selected tensions.
+Version 2 varies street plats, institutional names and denominations, household
+cultures and a weighted ten-card tension deck. Naming has its own RNG key;
+pinning the displayed town name cannot move geography. Authored full names are
+excluded. Version 1 recipes are rejected explicitly rather than silently rerolled.
 
 The social API change is only additive compatibility for memory fields already
 passed by belief code (`aboutId`, `did`, `count`, `since`); it adds no behavior to

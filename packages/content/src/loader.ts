@@ -68,6 +68,23 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
+/** Templates are shared by authored and generated sites; prose must bind local names. */
+function lintChronicleNames(value: unknown, where: string, issues: Issue[], path = ''): void {
+  if (typeof value === 'string' && /\b(?:Iron Ford|Lantern|Ridge Road|Main Street)\b/.test(value)) {
+    issues.push({
+      where,
+      path,
+      message: 'scenario proper noun in chronicle; use {town}, {main_street}, {back_road} or {creek}',
+    });
+  } else if (Array.isArray(value)) {
+    value.forEach((v, i) => {
+      lintChronicleNames(v, where, issues, `${path}[${i}]`);
+    });
+  } else if (isPlainObject(value)) {
+    for (const [k, v] of Object.entries(value)) lintChronicleNames(v, where, issues, path ? `${path}.${k}` : k);
+  }
+}
+
 export function loadContent(contentRoot: string, mods: readonly string[] = ['base']): LoadResult {
   const issues: Issue[] = [];
   const files: string[] = [];
@@ -96,6 +113,8 @@ export function loadContent(contentRoot: string, mods: readonly string[] = ['bas
         files.push(rel);
         const doc = readToml(file, contentRoot, issues);
         if (!doc) continue;
+        if (dir === 'chronicle') lintChronicleNames(doc, rel, issues);
+
         for (const [key, value] of Object.entries(doc)) {
           const match = specs.find(([, s]) => s.key === key);
           if (!match) {

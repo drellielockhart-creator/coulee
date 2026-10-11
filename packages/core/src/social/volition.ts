@@ -38,6 +38,8 @@ export interface Pair {
     opinion?: OpinionDims;
     targetOpinion?: OpinionDims;
     digest?: MemoryDigest;
+    /** Shared lazy batch for a read-only proposal pass. */
+    digests?: () => Map<ActorId, MemoryDigest>;
     rumor?: boolean;
     grudge?: number;
     kin?: boolean;
@@ -74,7 +76,9 @@ export const pairOpinion = (p: Pair): OpinionDims =>
 export const pairTargetOpinion = (p: Pair): OpinionDims =>
   (p.cache.targetOpinion ??= opinionOf(p.world, p.target.id, p.initiator.id));
 export const pairDigest = (p: Pair): MemoryDigest =>
-  (p.cache.digest ??= memoryDigest(p.world, p.content, p.initiator.id, p.target.id));
+  (p.cache.digest ??= p.cache.digests
+    ? (p.cache.digests().get(p.target.id) ?? { done: {}, did: {}, negative: 0 })
+    : memoryDigest(p.world, p.content, p.initiator.id, p.target.id));
 const pairRumor = (p: Pair): boolean => (p.cache.rumor ??= hasRumorFor(p.world, p.initiator.id, p.target.id));
 export const pairGrudge = (p: Pair): number =>
   (p.cache.grudge ??= grievance(p.world, p.content, p.initiator.id, p.target.id, pairDigest(p)));

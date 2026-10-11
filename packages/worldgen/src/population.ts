@@ -16,7 +16,9 @@ export function populate(
   scenario: ScenarioDef,
   homes: Record<string, PlaceDef>,
 ) {
-  const names = new Set<string>();
+  // Authored casts are fixtures, not a source of recycled generated identities.
+  const names = new Set(Object.values(content.scenarios).flatMap((s) => s.actors.map((a) => `${a.given} ${a.family}`)));
+
   const families = new Set<string>();
   const r = randomFor(recipe, 'population', 'households');
   const concealed = Object.keys(content.peoples)
@@ -229,21 +231,38 @@ export function populate(
       }),
     );
   }
-  household('store', 'yankee', 'storekeeper', 5, 'widow');
-  household('tavern', 'irish', 'tavern_keeper_jp', 3, 'couple');
-  household('smith', 'german', 'blacksmith', 2, 'couple');
-  household('mill', 'norwegian', 'miller', 4, 'couple');
-  household('pastor', 'norwegian', 'pastor', 2, 'couple');
-  household('school', 'yankee', 'schoolteacher', 2, 'single');
+  const choose = (cultures: string[]) => r.pick(cultures) as string;
+  const tavernCulture = choose(['irish', 'cornish', 'german']);
+  household('store', choose(['yankee', 'german', 'norwegian', 'black_ohio']), 'storekeeper', 5, 'widow');
+  household('tavern', tavernCulture, 'tavern_keeper_jp', 3, 'couple');
+  household('smith', choose(['german', 'cornish', 'norwegian']), 'blacksmith', 2, 'couple');
+  household('mill', choose(['norwegian', 'german', 'yankee']), 'miller', 4, 'couple');
+  household(
+    'pastor',
+    homes.pastor?.tags.includes('lutheran') ? choose(['norwegian', 'german']) : choose(['yankee', 'black_ohio']),
+    'pastor',
+    2,
+    'couple',
+  );
+  household('school', choose(['yankee', 'norwegian', 'black_ohio']), 'schoolteacher', 2, 'single');
+  if (homes.service?.tags.includes('print'))
+    household('service', choose(['yankee', 'german', 'black_ohio']), 'editor_printer', 3, 'single');
+  else if (homes.service?.tags.includes('pellar')) household('service', 'cornish', 'pellar', 2, 'single');
+  else household('service', 'norwegian', 'lay_preacher', 2, 'single');
+  const farmCultures = r.shuffleByKey(
+    ['cornish', 'black_ohio', 'german', 'norwegian', 'yankee'],
+    (s) => s.length * 100 + s.charCodeAt(0),
+  );
   for (let i = 0; homes[`farm${i}`]; i++) {
-    const culture = ['yankee', 'elf_hall', 'cornish', 'black_ohio', 'german'][i] as string;
+    const culture =
+      i === 0 ? choose(['yankee', 'cornish', 'norwegian']) : i === 1 ? 'elf_hall' : (farmCultures[i - 2] as string);
     household(
       `farm${i}`,
       culture,
       'farmer',
       i === 0 ? 1 : r.int(2, 4),
-      i === 1 ? 'widow' : 'couple',
-      content.namePools[culture]?.peoples[0] ?? 'human',
+      r.chancePercent(35) ? 'widow' : 'couple',
+      content.cultures[culture]?.peoples[0] ?? 'human',
     );
   }
   // Concealment cuts across ordinary settler households; it never maps onto Black settler history.
@@ -269,11 +288,13 @@ export function populate(
   const keeper = headOf.tavern as ScenarioActor;
   const sister = scenario.actors.find((a) => a.key === 'tavern_spouse') as ScenarioActor;
   const maiden = randomFor(recipe, 'population', 'innkeeper_in_law').pick(
-    (content.namePools.irish?.family ?? []).filter((f) => f !== keeper.family),
+    (content.namePools[content.cultures[tavernCulture]?.name_pools[0] ?? '']?.family ?? []).filter(
+      (f) => f !== keeper.family,
+    ),
   );
-  if (!maiden) throw new Error('Irish name pool needs a distinct maiden surname');
+  if (!maiden) throw new Error('Innkeeper name pool needs a distinct maiden surname');
   sister.notes = `Born ${maiden}; her brother has returned to lodge at the tavern.`;
-  const boarder = actor('boarder', 'tavern', 'surveyor', 'irish', 'human', sister.age - 3, 'male', maiden);
+  const boarder = actor('boarder', 'tavern', 'surveyor', tavernCulture, 'human', sister.age - 3, 'male', maiden);
   boarder.notes =
     'The innkeeper’s brother-in-law, newly returned with a survey contract; still owes for last winter’s room.';
   kin(sister, boarder, 'sibling');
@@ -300,7 +321,12 @@ export function populate(
   for (const h of scenario.households) {
     const home = homes[h.key] as PlaceDef;
     home.capacity = Math.max(8, scenario.actors.filter((a) => a.household === h.key).length + 4);
-    if (!home.name.includes('Tavern')) home.name = `${headOf[h.key]?.family} ${home.name}`;
+    if (h.key === 'tavern') {
+      // Sign names take a lowercase article in running prose; ownership varies by seed.
+      if (randomFor(recipe, 'layout', 'tavern_owner').chancePercent(50))
+        home.name = `${headOf[h.key]?.family}’s ${home.name.slice(4)} Tavern`;
+      else home.name += ' Tavern';
+    } else home.name = `${headOf[h.key]?.family} ${home.name}`;
   }
   scenario.player = 'store_child';
 }

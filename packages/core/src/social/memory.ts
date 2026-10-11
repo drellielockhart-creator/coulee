@@ -169,6 +169,32 @@ export function memoryDigest(world: World, content: ContentBundle, owner: ActorI
   return d;
 }
 
+/** All targets in one owner scan; valid only until memories change. */
+export function memoryDigests(world: World, content: ContentBundle, owner: ActorId): Map<ActorId, MemoryDigest> {
+  const buckets = new Map<ActorId, { digest: MemoryDigest; worst: number; total: number }>();
+  for (const id of world.social.memoriesByOwner[owner] ?? []) {
+    const m = world.social.memories[id];
+    if (!m || m.aboutId === null) continue;
+    let b = buckets.get(m.aboutId);
+    if (!b) {
+      b = { digest: { done: {}, did: {}, negative: 0 }, worst: 0, total: 0 };
+      buckets.set(m.aboutId, b);
+    }
+    const kinds = m.did ? b.digest.did : b.digest.done;
+    if ((kinds[m.kind] ?? 0) < m.salience) kinds[m.kind] = m.salience;
+    if (!m.did && isNegativeKind(content, m.kind)) {
+      b.total += m.salience;
+      b.worst = Math.max(b.worst, m.salience);
+    }
+  }
+  const out = new Map<ActorId, MemoryDigest>();
+  for (const [id, b] of buckets) {
+    b.digest.negative = b.worst + floorDiv(b.total - b.worst, 4);
+    out.set(id, b.digest);
+  }
+  return out;
+}
+
 /**
  * Lower the salience of `owner`'s negative memories of `about` doing things by `pct`
  * (apology, forgiveness: 04 §6.2 — amends act on memories, so cited Reasons weaken).

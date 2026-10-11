@@ -57,7 +57,7 @@ export function weightDims(d: OpinionDims, strength: number): OpinionDims {
 
 export function scaleDimsPct(d: OpinionDims, pct: number): OpinionDims {
   // Truncate toward zero so small shares do not flip sign.
-  const s = (v: number) => Math.trunc((v * pct) / 100);
+  const s = (v: number) => Math.trunc((v * pct) / 100) + 0;
   return { affection: s(d.affection), respect: s(d.respect), trust: s(d.trust), fear: s(d.fear) };
 }
 

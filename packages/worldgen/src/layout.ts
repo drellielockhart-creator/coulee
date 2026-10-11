@@ -9,9 +9,26 @@ export const randomFor = (r: TownRecipe, layer: keyof typeof LAYERS, key = '') =
 
 export function terrain(recipe: TownRecipe) {
   const r = randomFor(recipe, 'terrain');
-  const name =
-    recipe.constraints?.townName ??
-    `${r.pick(['Alder', 'Bell', 'Hazel', 'Linden', 'Willow', 'Lantern', 'Flint', 'Maple'])} Ford`;
+  const names = randomFor(recipe, 'terrain', 'names');
+  const feature = names.pick([
+    'Alder',
+    'Bell',
+    'Hazel',
+    'Linden',
+    'Willow',
+    'Flint',
+    'Maple',
+    'Basswood',
+    'Kettle',
+    'Badger',
+  ]);
+  const defaultName = `${feature} ${names.pick(['Ford', 'Mills', 'Hollow', 'Crossing'])}`;
+  const name = recipe.constraints?.townName ?? defaultName;
+  const landmarks = {
+    creek: `${names.pick(['Trout', 'Coldwater', 'Otter', 'Silver', 'Rush', 'Plum'])} Creek`,
+    main_street: `${names.pick(['Mill', 'Water', 'Market', 'Front'])} Street`,
+    back_road: `${names.pick(['Quarry', 'Ridge', 'Prairie', 'Cove', 'Orchard'])} Road`,
+  };
   const id = `town_v${recipe.genVersion}_${recipe.seed}`;
   const creek = r.int(37, 43);
   const ford = r.int(26, 30);
@@ -20,6 +37,7 @@ export function terrain(recipe: TownRecipe) {
     id,
     name,
     grid: { w: 80, h: 64 },
+    landmarks,
     tile_ft: 10,
     fae_intensity: 1,
     description: `${name}, a spring-fed mill village in a narrow Driftless coulee. Dolomite caps soft sandstone; a ridge road crosses the iron-shod ford.${onRiver ? ' The creek empties into the big river beside the landing.' : ' The valley road leads downstream toward the river towns.'}`,
@@ -57,7 +75,7 @@ export function terrain(recipe: TownRecipe) {
   };
   add(
     'creek_upper',
-    'Coldwater Creek, upper reach',
+    `${landmarks.creek}, upper reach`,
     'outdoor',
     creek,
     0,
@@ -70,7 +88,7 @@ export function terrain(recipe: TownRecipe) {
   );
   add(
     'creek_lower',
-    'Coldwater Creek, lower reach',
+    `${landmarks.creek}, lower reach`,
     'outdoor',
     creek,
     ford + 2,
@@ -81,7 +99,7 @@ export function terrain(recipe: TownRecipe) {
   );
   add(
     'ford',
-    'The Iron Ford',
+    `${feature} Ford`,
     'outdoor',
     creek - 2,
     ford,
@@ -127,7 +145,7 @@ export function terrain(recipe: TownRecipe) {
   }
   add(
     'spring',
-    'Bellwether Spring',
+    `${names.pick(['Bellwether', 'Hollow', 'Fern', 'Hazel'])} Spring`,
     'wild',
     6,
     2,
@@ -158,21 +176,26 @@ export function settlement(recipe: TownRecipe, t: TerrainDraft) {
   const street = t.creek - 7;
   const add = t.add;
   // Split intersections into adjacent rectangles: even road and water footprints never overlap.
-  add('street_n', 'Upper valley road', 'road', street, 0, 2, t.ford, ['road']);
-  add('street_s', 'Lower valley road', 'road', street, t.ford + 2, 2, 62 - t.ford, ['road']);
+  add('street_n', t.site.landmarks?.main_street ?? 'Upper valley road', 'road', street, 0, 2, t.ford, ['road']);
+  add('street_s', t.site.landmarks?.main_street ?? 'Lower valley road', 'road', street, t.ford + 2, 2, 62 - t.ford, [
+    'road',
+  ]);
   add('road_w', 'Coulee road', 'road', 0, t.ford, t.creek - 2, 2, ['road']);
-  add('road_e', 'Ridge road', 'road', t.creek + 4, t.ford, 76 - t.creek, 2, ['road']);
+  add('road_e', t.site.landmarks?.back_road ?? 'Ridge road', 'road', t.creek + 4, t.ford, 76 - t.creek, 2, ['road']);
   const homes: Record<string, PlaceDef> = {};
   const building = (key: string, name: string, tag: string, x: number, y: number, model: string, w = 5, h = 4) => {
     homes[key] = add(key, name, 'building', x, y, w, h, [tag, 'home', 'workplace'], '', model);
   };
-  const ys = [9, 17, 36];
+  const ys = [r.int(7, 10), r.int(17, 21), r.int(35, 40)];
   const townRoles = r.shuffleByKey(['store', 'tavern', 'school'], hashString32);
   for (const [i, role] of townRoles.entries()) {
     building(
       role,
-      { store: 'General Store and Outfitter', tavern: 'The Wagon Bell Tavern', school: 'District School' }[role] ??
-        role,
+      {
+        store: r.pick(['General Store', 'Mercantile', 'Store and Outfitter']),
+        tavern: `the ${r.pick(['Copper', 'Red', 'Wagon', 'Silver', 'Spotted'])} ${r.pick(['Bell', 'Fox', 'Oak', 'Stag', 'Lantern'])}`,
+        school: r.pick(['District School', 'Subscription School']),
+      }[role] ?? role,
       role,
       street - 6,
       ys[i] as number,
@@ -180,28 +203,55 @@ export function settlement(recipe: TownRecipe, t: TerrainDraft) {
     );
   }
   building('smith', 'Ford Smithy', 'smithy', t.creek + 5, t.ford - 6, 'smithy', 4);
-  building('mill', 'Coldwater Grist Mill', 'mill', t.creek + 3, 6, 'mill', 6, 5);
+  building(
+    'mill',
+    `${t.site.landmarks?.creek.replace(' Creek', '')} ${r.pick(['Grist Mill', 'Flour Mill'])}`,
+    'mill',
+    t.creek + 3,
+    6,
+    'mill',
+    6,
+    5,
+  );
   building('pastor', 'Parsonage', 'home', t.creek + 13, 35, 'house', 4, 3);
+  const denomination = r.pick(['lutheran', 'methodist', 'baptist']) as string;
+  homes.pastor?.tags.push(denomination);
+  const churchY = r.pick([13, 35, 42]) as number;
   add(
     'church',
-    'Ridge Lutheran Church',
+    `${r.pick(['Spring', 'Valley', 'Ridge'])} ${denomination[0]?.toUpperCase()}${denomination.slice(1)} ${denomination === 'methodist' ? 'Meeting House' : 'Church'}`,
     'building',
     t.creek + 5,
-    35,
+    churchY,
     5,
     6,
-    ['church', 'lutheran', 'workplace'],
+    ['church', denomination, 'workplace'],
     'A plain frame church; the bell was cast downriver.',
     'church',
   );
+  const service = r.pick(['printer', 'pellar', 'meeting']);
+  if (service === 'printer')
+    building(
+      'service',
+      `${t.site.name} ${r.pick(['Gazette', 'Courier', 'Herald'])}`,
+      'print',
+      street - 6,
+      49,
+      'print_shop',
+    );
+  else if (service === 'pellar') building('service', 'Herb House', 'pellar', street - 6, 49, 'house');
+  else building('service', 'Prayer Room', 'chapel', street - 6, 49, 'house');
   const farmCount = recipe.constraints?.farmsteads ?? r.int(3, 5);
-  const farmPlots = [
-    [11, 7],
-    [61, 8],
-    [10, 42],
-    [61, 43],
-    [11, 18],
-  ] as const;
+  const farmPlots = r.shuffleByKey(
+    [
+      [11, 7],
+      [61, 8],
+      [10, 42],
+      [61, 43],
+      [11, 18],
+    ] as const,
+    ([x, y]) => x * 100 + y,
+  );
   for (let i = 0; i < farmCount; i++) {
     const [x, y] = farmPlots[i] as readonly [number, number];
     homes[`farm${i}`] = add(

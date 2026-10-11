@@ -416,7 +416,7 @@ export function refreshLabel(world: World, ctx: Pick<SimContext, 'emit'>, from: 
  */
 export function dailyOpinionUpkeep(world: World, content: ContentBundle): void {
   const t = tuningOf(content);
-  const keep = (v: number) => Math.trunc((v * t.volatile_keep_pct) / 100);
+  const keep = (v: number) => Math.trunc((v * t.volatile_keep_pct) / 100) + 0;
   const tau = Math.max(1, t.bucket_tau_days);
   for (const from of Object.keys(world.social.opinions)
     .map(Number)

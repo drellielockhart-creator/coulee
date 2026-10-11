@@ -98,10 +98,22 @@ export function trimLog(log: EventLog, now: GameMinute): void {
   log.events = kept;
 }
 
+/** Detach plain event data recursively from mutable simulation state and commands. */
+function copyData<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(copyData) as T;
+  if (value !== null && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(value)) out[key] = copyData((value as Record<string, unknown>)[key]);
+    return out as T;
+  }
+  return value;
+}
+
 /** Append an event (used by SimContext.emit; systems call ctx.emit, not this). */
 export function appendEvent(log: EventLog, input: EventInput, now: GameMinute): EventId {
   const id = asEventId(log.lastId + 1);
   log.lastId = id;
+  input = copyData(input);
   // Foundation guard: Explains on events are integers without negative zero (P1 + invariant 2).
   if (input.explain) normalizeExplain(input.explain);
   const ev = {

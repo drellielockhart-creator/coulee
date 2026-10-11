@@ -73,8 +73,10 @@ export function createWorld(content: ContentBundle, opts: CreateWorldOptions): W
     chronicle: createChronicleState(),
   };
 
-  // Places of the scenario's site, in content order.
-  for (const def of Object.values(content.places)) {
+  // Canonical definition order: content hashes ignore object insertion order.
+  for (const key of Object.keys(content.places).sort()) {
+    const def = content.places[key];
+    if (!def) continue;
     if (def.site !== scenario.site) continue;
     const id = asPlaceId(nextId(world.counters, 'place'));
     const site = content.sites[def.site];

@@ -25,7 +25,7 @@ when = { level = 2 }
 headline = "All Over the Ford"
 text = [
   "The story that \"{rumor}\" is now all over the ford. Whether true or not, it has reached those who matter least to refute it and most to repeat it.",
-  "By the best accounts the report that \"{rumor}\" has reached every house on the Main Street, and some on the Ridge Road. Nobody will say who began it, and everybody knows.",
+  "By the best accounts the report that \"{rumor}\" has reached every house on {main_street}, and some on {back_road}. Nobody will say who began it, and everybody knows.",
 ]
 
 [[template]]
@@ -35,7 +35,7 @@ voice = "paper"
 when = { level = 3 }
 headline = "The Talk of the County"
 text = [
-  "There is scarcely a door in Iron Ford where the story that \"{rumor}\" has not been told, and told again with additions.",
+  "There is scarcely a door in {town} where the story that \"{rumor}\" has not been told, and told again with additions.",
   "The tale that \"{rumor}\" has grown in the telling, as tales do. It has crossed the river and come back larger.",
 ]
 
@@ -46,7 +46,7 @@ voice = "paper"
 when = { level = 3, named = true }
 headline = "The Talk of the County"
 text = [
-  "There is scarcely a door in Iron Ford where the story that \"{rumor}\" has not been told, and told again with additions. {^actor} has our sympathy, or our curiosity, as the case may be.",
+  "There is scarcely a door in {town} where the story that \"{rumor}\" has not been told, and told again with additions. {^actor} has our sympathy, or our curiosity, as the case may be.",
 ]
 
 [[template]]
@@ -245,7 +245,7 @@ id = "faekin_ballad"
 on = "faekin_suspicion"
 voice = "ballad"
 text = [
-  "The iron lay on the window sill\nAnd the salt lay on the stair,\nFor {actor} walked down by the Lantern shore\nAnd something walked there.",
+  "The iron lay on the window sill\nAnd the salt lay on the stair,\nFor {actor} walked down by the {creek} bank\nAnd something walked there.",
   "#ballad_oh#, of the one they shunned\n#ballad_place#, in the dim of the moon;\nThey named that one as #good_neighbors#,\nAnd the dogs all howled the tune.",
 ]
 

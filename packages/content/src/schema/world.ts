@@ -148,6 +148,14 @@ export const SiteSchema = z.strictObject({
   id: id(),
   name: z.string().min(1),
   description: z.string().default(''),
+  /** Local prose names; optional for older authored sites. */
+  landmarks: z
+    .strictObject({
+      main_street: z.string().min(1),
+      back_road: z.string().min(1),
+      creek: z.string().min(1),
+    })
+    .optional(),
   grid: z.strictObject({ w: int().min(4).max(1024), h: int().min(4).max(1024) }),
   tile_ft: int().min(1).max(100).default(10),
   /** Baseline Fae intensity 0..5 (00 "The wilds are Faerie"). */
