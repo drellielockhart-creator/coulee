@@ -104,6 +104,30 @@ export const NeedSchema = z.strictObject({
   /** Drift back toward `toward` (security after a fright). Never pushes a need above it. */
   recovery: z.strictObject({ toward: int().min(0).max(1000), per_hour: posInt() }).optional(),
   /**
+   * A personal resting level the meter drifts toward from either side (Standing: who one is in
+   * the neighborhood). Target = `toward` + the bonus of each occupation role the actor holds
+   * (largest only) + every `age_bonus` whose `min_age` the actor has reached, clamped 0..1000.
+   * Each hour the meter moves `per_hour_permille`‰ of the gap (at least 1 point) toward it, so
+   * a humiliation or an honor fades over days rather than hours.
+   */
+  baseline: z
+    .strictObject({
+      toward: int().min(0).max(1000),
+      per_hour_permille: int().min(1).max(1000).default(10),
+      role_bonus: z.record(id(), int().min(-1000).max(1000)).default({}),
+      age_bonus: z
+        .array(z.strictObject({ min_age: int().min(0).max(150), bonus: int().min(-1000).max(1000) }))
+        .default([]),
+    })
+    .optional(),
+  /**
+   * A vice or a taste that is not everyone's (10 §3.4: Drink): when non-empty, the meter decays
+   * only for actors holding one of these traits; for everyone else it stays where it is.
+   */
+  only_traits: z.array(id()).default([]),
+  /** No decay below this age (children do not hanker for a dram). */
+  decay_min_age: int().min(0).max(150).default(0),
+  /**
    * Unmet need accumulates as DEBT when the meter is clamped at 0, and intake repays it first
    * (`repay_pct` of every credit). Debt bands are the slow, serious stages: Gaunt, Wasting.
    */
@@ -336,6 +360,13 @@ export const AttendSchema = z.strictObject({
   base_pct: pct(),
   value_pct: z.partialRecord(valueId(), int().min(-100).max(100)).default({}),
   trait_pct: z.record(id(), int().min(-100).max(100)).default({}),
+  /**
+   * Weather on the day scales the chance (percent, applied after the sum): a winter's day
+   * below `below_f` at noon keeps callers and market-goers home (snowbound roads).
+   */
+  weather_pct: z
+    .array(z.strictObject({ below_f: int().min(-60).max(140), pct: pct(), label: z.string().default('Bad roads') }))
+    .default([]),
 });
 export type Attend = z.output<typeof AttendSchema>;
 
@@ -455,6 +486,7 @@ export function needsActivitiesRefs(b: ContentBundle): Issue[] {
       'need',
     );
     checkRefs(issues, where, 'trait_pct', Object.keys(n.trait_pct), b.traits, 'trait');
+    checkRefs(issues, where, 'only_traits', n.only_traits, b.traits, 'trait');
     for (const t of n.temperature_pct) {
       if (t.below_f === undefined && t.above_f === undefined) {
         issues.push({ where, path: 'temperature_pct', message: 'clause needs below_f or above_f' });

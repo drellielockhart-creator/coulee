@@ -54,7 +54,7 @@ name = "Visiting"
 description = "Calling on kin and neighbors after supper."
 when = { weekdays = ["mon", "tue", "wed", "thu", "fri", "sat"] }
 blocks = [
-  { from = 19, to = 21, activity = "visit_kin", priority = 22, duty = 250, attend = { base_pct = 14, value_pct = { neighborliness = 6 }, trait_pct = { gossip = 12 } } },
+  { from = 19, to = 21, activity = "visit_kin", priority = 22, duty = 250, attend = { base_pct = 14, value_pct = { neighborliness = 6 }, trait_pct = { gossip = 12 }, weather_pct = [{ below_f = 32, pct = 50, label = "Snowbound roads" }, { below_f = 20, pct = 25, label = "Bitter cold" }] } },
 ]
 
 [[observance]]
@@ -90,7 +90,7 @@ closes = ["store", "smithy", "mill"]
 blocks = [
   { from = 10, to = 12, activity = "preach_service", priority = 70, duty = 800, who = { roles = ["preacher"] } },
   { from = 10, to = 12, activity = "attend_church", fallback = "sabbath_rest", priority = 60, duty = 450, norm = "piety", speaker = "The Pastor", duty_values = { piety = 70 }, announce = true, attend = { base_pct = 58, value_pct = { piety = 14 }, trait_pct = { pious = 10 } }, who = { not_roles = ["preacher"] } },
-  { from = 14, to = 17, activity = "visit_kin", priority = 25, duty = 300, attend = { base_pct = 38, value_pct = { neighborliness = 6 }, trait_pct = { gossip = 10 } } },
+  { from = 14, to = 17, activity = "visit_kin", priority = 25, duty = 300, attend = { base_pct = 38, value_pct = { neighborliness = 6 }, trait_pct = { gossip = 10 }, weather_pct = [{ below_f = 32, pct = 50, label = "Snowbound roads" }, { below_f = 20, pct = 25, label = "Bitter cold" }] } },
   { from = 15, to = 18, activity = "drink_at_tavern", priority = 24, duty = 250, who = { min_age = 18 }, attend = { base_pct = 12, value_pct = { piety = -8, neighborliness = 3 } } },
   { from = 19, to = 20, activity = "family_devotions", priority = 26, duty = 350, norm = "piety", attend = { base_pct = 45, value_pct = { piety = 14 } } },
 ]
@@ -160,7 +160,7 @@ rest_labor = true
 rest_activity = "sabbath_rest"
 blocks = [
   { from = 10, to = 12, activity = "attend_church", fallback = "sabbath_rest", priority = 58, duty = 500, norm = "piety", duty_values = { piety = 60 }, attend = { base_pct = 70, value_pct = { piety = 12 } }, who = { not_roles = ["preacher"] } },
-  { from = 14, to = 17, activity = "visit_kin", priority = 40, duty = 400, attend = { base_pct = 60, value_pct = { neighborliness = 6 } } },
+  { from = 14, to = 17, activity = "visit_kin", priority = 40, duty = 400, attend = { base_pct = 60, value_pct = { neighborliness = 6 }, weather_pct = [{ below_f = 32, pct = 50, label = "Snowbound roads" }, { below_f = 20, pct = 25, label = "Bitter cold" }] } },
 ]
 
 [[observance]]
@@ -192,8 +192,8 @@ description = "Saturday: farm families come in; the town's population nearly dou
 when = { weekdays = ["sat"] }
 announce = true
 blocks = [
-  { from = 9, to = 14, activity = "go_to_market", fallback = "idle_at_home", priority = 35, duty = 450, announce = true, who = { home_kinds = ["farmstead"], min_age = 12, not_workplace_tags = ["store", "smithy", "mill", "tavern", "church", "school"] }, attend = { base_pct = 80, value_pct = { neighborliness = 5, thrift = 3 } } },
-  { from = 9, to = 14, activity = "go_to_market", fallback = "idle_at_home", priority = 35, duty = 350, who = { not_home_kinds = ["farmstead"], min_age = 12, not_workplace_tags = ["store", "smithy", "mill", "tavern", "church", "school"] }, attend = { base_pct = 40, value_pct = { neighborliness = 6, thrift = 4 }, trait_pct = { gossip = 15 } } },
+  { from = 9, to = 14, activity = "go_to_market", fallback = "idle_at_home", priority = 35, duty = 450, announce = true, who = { home_kinds = ["farmstead"], min_age = 12, not_workplace_tags = ["store", "smithy", "mill", "tavern", "church", "school"] }, attend = { base_pct = 80, value_pct = { neighborliness = 5, thrift = 3 }, weather_pct = [{ below_f = 32, pct = 50, label = "Snowbound roads" }, { below_f = 20, pct = 25, label = "Bitter cold" }] } },
+  { from = 9, to = 14, activity = "go_to_market", fallback = "idle_at_home", priority = 35, duty = 350, who = { not_home_kinds = ["farmstead"], min_age = 12, not_workplace_tags = ["store", "smithy", "mill", "tavern", "church", "school"] }, attend = { base_pct = 40, value_pct = { neighborliness = 6, thrift = 4 }, trait_pct = { gossip = 15 }, weather_pct = [{ below_f = 32, pct = 50, label = "Snowbound roads" }, { below_f = 20, pct = 25, label = "Bitter cold" }] } },
 ]
 
 [[observance]]

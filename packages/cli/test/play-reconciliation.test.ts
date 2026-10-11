@@ -197,6 +197,11 @@ it('play resolves the social catalog and retains PC knowledge across weeks, trim
   if (!state) throw new Error('state');
   state.activityId = 'idle_at_home';
   state.lockedUntil = asGameMinute(24 * 60);
+  // A hungry player character, so an Appetite (Id) thought is live for the mind view below
+  // (Drink no longer runs down in everyone: it is a taste only drinkers have).
+  const pc = w.meta.playerId;
+  const pcNeeds = pc !== null && pc !== undefined ? w.needs.byActor[pc] : undefined;
+  if (pcNeeds) pcNeeds.values.hunger = 300;
   s = PlaySession.load(content, JSON.stringify(saved));
   const interactionIds: number[] = [];
   for (const line of [

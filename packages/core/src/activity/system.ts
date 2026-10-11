@@ -5,7 +5,7 @@ import { chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addHours } from '../time.ts';
 import type { World } from '../world.ts';
-import { resolveActivityPlace } from './api.ts';
+import { noteCall, resolveActivityPlace } from './api.ts';
 import { blockActive, observanceActive, routineFor } from './calendar.ts';
 import { requiredRow } from './definitions.ts';
 import { activityExplain } from './explain.ts';
@@ -93,6 +93,7 @@ export function activitySystem(world: World, ctx: SimContext): void {
       state.since = ctx.now;
       state.lockedUntil = addHours(ctx.now, def.min_hours);
       state.source = source;
+      if (def.at === 'kin') noteCall(world, id, placeId);
       ctx.emit({
         kind: 'activity.started',
         data: { actorId: id, activityId, placeId, source },

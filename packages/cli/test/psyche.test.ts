@@ -14,6 +14,7 @@ import {
   step,
   toViewModel,
   type World,
+  yearsBetween,
 } from '@coulee/core';
 import { describe, expect, it } from 'vitest';
 import { actorByKey, baseContent, simFor } from './helpers.ts';
@@ -215,5 +216,34 @@ describe('psyche: privacy and determinism', () => {
     expect(JSON.stringify(a.world.psyche)).toBe(JSON.stringify(b.world.psyche));
     const t = a.world.psyche.byActor[actorByKey(a, 'johann_brenner')];
     for (const th of t?.thoughts ?? []) expect(th.reasons.reduce((s, r) => s + r.value, 0)).toBe(th.intensity);
+  });
+});
+
+describe('psyche: displaced anger pays its relief only when it lands (review)', () => {
+  const sim = simFor({ seed: 2, hours: 24 * 14 });
+  const content = sim.content;
+
+  it('a displacement relieves a quarter at once; the rest waits for the act', () => {
+    const full = content.defenses.displacement?.relief ?? 200;
+    const evs = sim.world.log.events.filter((e) => e.kind === 'psyche.defense' && e.data.defense === 'displacement');
+    expect(evs.length).toBeGreaterThan(0);
+    for (const e of evs) {
+      if (e.kind !== 'psyche.defense') continue;
+      expect(e.data.relief).toBeLessThanOrEqual(Math.floor(full / 4));
+    }
+  });
+
+  it('displaced acts land on someone and say so (viaDefense on the interaction)', () => {
+    const acts = sim.world.log.events.filter(
+      (e) => e.kind === 'social.interaction' && e.data.viaDefense === 'displacement',
+    );
+    expect(acts.length).toBeGreaterThan(0);
+    for (const e of acts) {
+      if (e.kind !== 'social.interaction') continue;
+      const target = sim.world.actors[e.data.targetId];
+      expect(target).toBeDefined();
+      // Never the baby: hard words need someone old enough to take them.
+      expect(yearsBetween(target?.born ?? sim.world.time, e.t)).toBeGreaterThanOrEqual(6);
+    }
   });
 });

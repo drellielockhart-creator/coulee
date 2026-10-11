@@ -7,12 +7,14 @@
 #   belief.reportMisfortune(); provisions' spoiled cellar is the obvious caller.
 # uncanny: the superstitious read it as a curse; attribution forms `cursed`, not `caused`.
 # motive_traits: a projected trait that supplies a motive (10 §7.2: envy -> dried cows).
-# Text slots: {0} = household name, {1} = victim name.
+# Text slots: {0} = the household ("the Kvales", "Captain Hurd"), {0.poss} its possessive
+# ("the Kvales'", "Captain Hurd's"), {1} = the victim's name.
+# requires: what the household must have to be struck at all (home kind, members, a child).
 
 [[misfortune]]
 id = "cow_died"
 name = "A cow sickened and died"
-text = "{0}' best cow sickened and died"
+text = "{0.poss} best cow sickened and died"
 uncanny = true
 severity = 120
 base_permille_per_household_day = 1
@@ -22,11 +24,12 @@ security_delta = -200
 memory_intensity = 70
 motive_traits = ["envy", "greed"]
 aim = "expulsion"
+requires = { home_kinds = ["farmstead", "house"], min_members = 2 }
 
 [[misfortune]]
 id = "cows_dried"
 name = "The cows went dry"
-text = "{0}' cows went dry overnight"
+text = "{0.poss} cows went dry overnight"
 uncanny = true
 severity = 70
 base_permille_per_household_day = 1
@@ -36,11 +39,12 @@ security_delta = -120
 memory_intensity = 55
 motive_traits = ["envy"]
 aim = "restitution"
+requires = { home_kinds = ["farmstead", "house"], min_members = 2 }
 
 [[misfortune]]
 id = "butter_wont_come"
 name = "The butter won't come"
-text = "the butter won't come in {0}' churn"
+text = "the butter won't come in {0.poss} churn"
 uncanny = true
 severity = 30
 base_permille_per_household_day = 2
@@ -50,11 +54,12 @@ security_delta = -40
 memory_intensity = 35
 motive_traits = ["greed", "envy"]
 aim = "apology"
+requires = { home_kinds = ["farmstead", "house"], min_members = 2 }
 
 [[misfortune]]
 id = "child_fever"
 name = "A child took a fever"
-text = "a fever took hold of {1} in {0}' house"
+text = "a fever took hold of {1} in {0.poss} house"
 uncanny = true
 severity = 150
 base_permille_per_household_day = 1
@@ -64,11 +69,12 @@ security_delta = -250
 memory_intensity = 80
 motive_traits = ["rage", "envy"]
 aim = "harm"
+requires = { child_under = 14 }
 
 [[misfortune]]
 id = "hens_stopped"
 name = "The hens stopped laying"
-text = "{0}' hens stopped laying"
+text = "{0.poss} hens stopped laying"
 uncanny = true
 severity = 25
 base_permille_per_household_day = 1
@@ -78,11 +84,12 @@ security_delta = -60
 memory_intensity = 30
 motive_traits = ["envy"]
 aim = "apology"
+requires = { home_kinds = ["farmstead", "house"] }
 
 [[misfortune]]
 id = "pantry_theft"
 name = "Something went missing from the smokehouse"
-text = "someone has been at {0}' smokehouse"
+text = "someone has been at {0.poss} smokehouse"
 severity = 50
 base_permille_per_household_day = 1
 juiciness = 50
@@ -91,11 +98,12 @@ security_delta = -200
 memory_intensity = 60
 motive_traits = ["greed"]
 aim = "restitution"
+requires = { home_kinds = ["farmstead", "house"] }
 
 [[misfortune]]
 id = "cellar_spoiled"
 name = "The root cellar spoiled"
-text = "{0}' root cellar went to rot"
+text = "{0.poss} root cellar went to rot"
 uncanny = true
 severity = 60
 base_permille_per_household_day = 1
@@ -110,7 +118,7 @@ description = "A cursed root cellar is a misfortune like any other (04 §7.2)."
 [[misfortune]]
 id = "horse_lamed"
 name = "A horse went lame"
-text = "{0}' horse came up lame"
+text = "{0.poss} horse came up lame"
 severity = 40
 base_permille_per_household_day = 1
 juiciness = 30
@@ -119,11 +127,12 @@ security_delta = -100
 memory_intensity = 45
 motive_traits = ["rage"]
 aim = "restitution"
+requires = { home_kinds = ["farmstead"] }
 
 [[misfortune]]
 id = "fire"
 name = "A fire"
-text = "fire took {0}' woodshed"
+text = "fire took {0.poss} woodshed"
 severity = 200
 base_permille_per_household_day = 0
 juiciness = 75

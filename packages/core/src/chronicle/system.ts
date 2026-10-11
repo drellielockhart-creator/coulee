@@ -24,6 +24,7 @@ import type { DetectCtx } from './patterns/types.ts';
 import { buildTemplateIndex, type TemplateIndex } from './prose.ts';
 import { singleEntries } from './singles.ts';
 import { ensureChronicleState } from './state.ts';
+import { dayWeatherText } from './weather.ts';
 
 /** Build the detector context for one sifting pass. */
 export function makeDetectCtx(world: World, ctx: SimContext): DetectCtx {
@@ -70,7 +71,7 @@ function onDayStarted(dc: DetectCtx, ev: Extract<Event, { kind: 'core.day_starte
       kind: 'almanac',
       sources: [ev.id],
       topics: ['almanac'],
-      bind: { sabbath: d.isSabbath, moon: MOON_PHASE_NAMES[d.moon] },
+      bind: { sabbath: d.isSabbath, moon: MOON_PHASE_NAMES[d.moon], weather: dayWeatherText(dc.ctx.seed, ev.t) },
       fallback: `${formatDate(ev.t)}. The ${MOON_PHASE_NAMES[d.moon]}.`,
     }),
   );

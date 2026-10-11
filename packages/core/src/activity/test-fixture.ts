@@ -40,6 +40,8 @@ export function needDef(id: string, fields: Partial<NeedDef> = {}): NeedDef {
     temperature_pct: [],
     sleep_quality: [],
     urges: [],
+    only_traits: [],
+    decay_min_age: 0,
     ...fields,
   };
 }

@@ -77,6 +77,33 @@ export function addAnxiety(world: World, _ctx: SimContext, actorId: ActorId, del
   return p.anxiety;
 }
 
+/**
+ * A defense's act landed on someone (social calls this after resolving a `via: 'defense'`
+ * interaction). Displacement pays its stored relief only now (10 §7.2: the dog must be
+ * kicked for the anger to go). Returns the relief drained.
+ */
+export function defenseActLanded(world: World, ctx: SimContext, actorId: ActorId, defense: string): number {
+  const p = world.psyche.byActor[actorId];
+  if (!p || defense !== 'displacement' || !p.displaced) return 0;
+  const d = p.displaced;
+  p.displaced = null;
+  if (d.until !== undefined && d.until < ctx.now) return 0;
+  return drainPools(p, d.amount);
+}
+
+/** Displaced anger stored for someone (10 §7.2) and still owed, or null. */
+export function storedDisplacement(
+  world: World,
+  actorId: ActorId,
+  now: number,
+): { targetId: ActorId; amount: number; line: string } | null {
+  const d = world.psyche.byActor[actorId]?.displaced;
+  if (!d || d.targetId === undefined || d.amount <= 0) return null;
+  if (d.until !== undefined && d.until < now) return null;
+  if (world.actors[d.targetId]?.alive !== true) return null;
+  return { targetId: d.targetId, amount: d.amount, line: d.line ?? '' };
+}
+
 /** Anxiety 0..1000 (0 when the actor has no psyche). */
 export function anxietyOf(world: World, actorId: ActorId): number {
   return world.psyche.byActor[actorId]?.anxiety ?? 0;

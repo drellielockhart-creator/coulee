@@ -18,7 +18,8 @@ import type { ActorId, EventId } from '../ids.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
 import type { World } from '../world.ts';
 import { memoriesOf, relationshipsOf } from './api.ts';
-import { opinionLabel, opinionOf, reasonStrength } from './opinion.ts';
+import { isZeroDims } from './model.ts';
+import { opinionOf, reasonContribution, reasonStrength } from './opinion.ts';
 import type { Opinion } from './state.ts';
 
 export interface OpinionReasonView {
@@ -128,6 +129,8 @@ export function viewSocialActor(
         const ev = eventOfCite(op, i);
         if (ev === null || !viewerEvents?.has(ev as number)) continue;
       }
+      // A Reason whose weight has faded to nothing explains nothing: hide it.
+      if (full && isZeroDims(reasonContribution(world, actorId, op.targetId, r))) continue;
       const view: OpinionReasonView = {
         label: r.label,
         ...(full ? r.delta : { affection: 0, respect: 0, trust: 0, fear: 0 }),
@@ -142,7 +145,7 @@ export function viewSocialActor(
           targetId: op.targetId,
           targetName: name(op.targetId),
           ...d,
-          label: opinionLabel(d),
+          label: op.label,
           reasons,
           numbersKnown: true,
           familiarity: op.familiarity,
@@ -156,7 +159,7 @@ export function viewSocialActor(
           respect: 0,
           trust: 0,
           fear: 0,
-          label: opinionLabel(d),
+          label: op.label,
           reasons,
           numbersKnown: false,
         };

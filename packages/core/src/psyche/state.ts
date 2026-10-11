@@ -114,8 +114,20 @@ export interface ActorPsyche {
   wishes: Record<string, { targetId: ActorId; count: number }>;
   /** Last act against conscience (10 §7.2 rationalization). */
   lastTransgression: { at: GameMinute; norm: string; targetId: ActorId | null } | null;
-  /** Anger stored against a blocked object (10 §7.2 displacement). */
-  displaced: { amount: number; objectId: ActorId | null; drive: string } | null;
+  /**
+   * Anger stored against a blocked object (10 §7.2 displacement): `amount` is the relief still
+   * owed, paid only when a displaced act lands (psyche/api defenseActLanded) before `until`.
+   */
+  displaced: {
+    amount: number;
+    objectId: ActorId | null;
+    drive: string;
+    until?: GameMinute;
+    /** The safer person the anger is stored for (social runs the act when they meet). */
+    targetId?: ActorId;
+    /** The masked line the defense left behind. */
+    line?: string;
+  } | null;
   lastDefenseAt: GameMinute | null;
   /** Traits acquired from habitual defenses (style ≥ 70: Suspicious, Zealot; 10 §7.1). */
   acquired: TraitId[];

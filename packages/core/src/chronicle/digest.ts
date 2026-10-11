@@ -11,6 +11,7 @@ import type { DetectCtx } from './patterns/types.ts';
 import type { Bindings } from './prose.ts';
 import { emptyTally, type Tally } from './state.ts';
 import { joinList, moneyText, numberWord, pctOf } from './text.ts';
+import { weekWeatherText } from './weather.ts';
 
 const DAY = 1440;
 
@@ -38,28 +39,45 @@ function priceLine(dc: DetectCtx): string {
   );
 }
 
+/** "not once", "once", "twice", "four times". */
+export function timesWord(n: number): string {
+  return n <= 0 ? 'not once' : n === 1 ? 'once' : n === 2 ? 'twice' : `${numberWord(n)} times`;
+}
+
 /** "one matter", "fifteen matters". */
 function matters(n: number): string {
   return `${numberWord(n)} ${n === 1 ? 'matter' : 'matters'}`;
 }
 
-/** "Divine service drew nineteen to the Lutheran church and nine to the Haugean meeting." */
-function servicesLine(dc: DetectCtx, t: Tally): string {
+/** Average attendance per place for gatherings tallied under `prefix` (gather / market). */
+function gatherings(dc: DetectCtx, t: Tally, prefix: string): Array<{ name: string; avg: number }> {
   const places = Object.keys(t.acts)
-    .filter((k) => k.startsWith('gather:'))
-    .map((k) => Number(k.slice(7)))
+    .filter((k) => k.startsWith(`${prefix}:`))
+    .map((k) => Number(k.slice(prefix.length + 1)))
     .sort((a, b) => a - b);
-  const items = places
+  return places
     .map((pid) => {
-      const total = t.acts[`gather:${pid}`] ?? 0;
-      const n = Math.max(1, t.acts[`gatherN:${pid}`] ?? 1);
+      const total = t.acts[`${prefix}:${pid}`] ?? 0;
+      const n = Math.max(1, t.acts[`${prefix}N:${pid}`] ?? 1);
       return { name: placeName(dc.world, pid), avg: Math.round(total / n) };
     })
-    .filter((x) => x.name && x.avg > 0)
+    .filter((x) => x.name && x.avg > (prefix === 'market' ? 1 : 0))
     .sort((a, b) => b.avg - a.avg || (a.name < b.name ? -1 : 1))
     .slice(0, 3);
+}
+
+/** "Divine service drew nineteen to the Lutheran church and nine to the Haugean meeting." */
+function servicesLine(dc: DetectCtx, t: Tally): string {
+  const items = gatherings(dc, t, 'gather');
   if (items.length === 0) return '';
   return `Divine service drew ${joinList(items.map((x) => `${numberWord(x.avg)} to ${x.name}`))}.`;
+}
+
+/** "Market drew fourteen to Pratt & Daughter, Outfitters." */
+function marketLine(dc: DetectCtx, t: Tally): string {
+  const items = gatherings(dc, t, 'market');
+  if (items.length === 0) return '';
+  return `Market drew ${joinList(items.map((x) => `${numberWord(x.avg)} to ${x.name}`))}.`;
 }
 
 /** "Market day and court day were kept." */
@@ -68,8 +86,9 @@ function observancesLine(dc: DetectCtx, t: Tally): string {
     .filter((k) => k.startsWith('obs:'))
     .map((k) => k.slice(4))
     .sort();
+  // The authored name keeps its case ("the Fourth of July"); only a leading article drops it.
   const names = ids
-    .map((id) => (dc.content.observances?.[id]?.name ?? id.replace(/_/g, ' ')).toLowerCase())
+    .map((id) => (dc.content.observances?.[id]?.name ?? id.replace(/_/g, ' ')).replace(/^The /, 'the '))
     .filter((n, i, all) => all.indexOf(n) === i);
   if (names.length === 0) return '';
   const first = names[0] as string;
@@ -102,6 +121,7 @@ function ledgerBind(dc: DetectCtx, t: Tally, members: number, days: number): Bin
   out.amount = t.spentCents > 0 ? moneyText(t.spentCents) : 'little';
   out.shortages = t.shortages;
   out.shortages_word = numberWord(t.shortages);
+  out.shortages_times = timesWord(t.shortages);
   out.in_need = t.shortages > 0;
   if (t.shortages > 0) {
     out.ration_pct = t.lowestRationPct;
@@ -128,6 +148,7 @@ export function weeklyDigest(dc: DetectCtx, endedWeek: number, at: number): void
     matters: matters(publicCount),
     shortages: pubWeek.shortages,
     shortages_word: numberWord(pubWeek.shortages),
+    shortages_times: timesWord(pubWeek.shortages),
     quiet: publicCount === 0 && prices === '',
     priced: prices !== '',
   };
@@ -135,7 +156,10 @@ export function weeklyDigest(dc: DetectCtx, endedWeek: number, at: number): void
   const services = servicesLine(dc, pubWeek);
   const kept = observancesLine(dc, pubWeek);
   if (services) almanacBind.services = services;
+  const market = marketLine(dc, pubWeek);
+  if (market) almanacBind.services = services ? `${services} ${market}` : market;
   if (kept) almanacBind.observances = kept;
+  almanacBind.weather = weekWeatherText(dc.ctx.seed, monday - 6 * DAY);
   if (week.creditCents > 0) almanacBind.credit = moneyText(week.creditCents);
   writeEntry(
     dc,
@@ -246,6 +270,7 @@ export function annualAlmanac(dc: DetectCtx, at: number, year: number): void {
         matters: matters(told),
         shortages: y.shortages,
         shortages_word: numberWord(y.shortages),
+        shortages_times: timesWord(y.shortages),
       },
       optional: true,
     }),

@@ -584,7 +584,7 @@ on = "provisions.nutrition"
 voice = "journal"
 when = { on = true }
 text = [
-  "{^actor} is down with {condition_name}. A winter of salt pork and meal; the body keeps its own books.",
+  "{^actor} is down with {condition_name}. Too long on salt meat and meal; the body keeps its own books.",
 ]
 
 [[template]]

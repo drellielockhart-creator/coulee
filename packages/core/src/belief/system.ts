@@ -110,13 +110,22 @@ function daily(world: World, ctx: SimContext): void {
   for (const household of rowsOf(world.households)) {
     for (const key of Object.keys(ctx.content.misfortunes).sort()) {
       const def = ctx.content.misfortunes[key];
-      if (
-        def &&
-        ctx
-          .rng('belief', mixKey(household.id, hashString32(key), 731))
-          .chancePermille(def.base_permille_per_household_day)
-      )
-        reportMisfortune(world, ctx, { kindId: key, householdId: household.id });
+      if (!def || def.base_permille_per_household_day <= 0) continue;
+      // Only what the household has can go wrong (misfortunes.toml `requires`).
+      const req = def.requires;
+      const home = world.places[household.homePlaceId];
+      const members = household.memberIds.filter((id) => world.actors[id]?.alive === true);
+      if (req.home_kinds.length > 0 && !(home && req.home_kinds.includes(home.kind))) continue;
+      if (members.length < req.min_members) continue;
+      const children =
+        req.child_under > 0
+          ? members.filter((id) => yearsBetween(world.actors[id]?.born ?? ctx.now, ctx.now) < req.child_under)
+          : [];
+      if (req.child_under > 0 && children.length === 0) continue;
+      const r = ctx.rng('belief', mixKey(household.id, hashString32(key), 731));
+      if (!r.chancePermille(def.base_permille_per_household_day)) continue;
+      const victimId = children.length > 0 ? (r.pick(children) ?? null) : null;
+      reportMisfortune(world, ctx, { kindId: key, householdId: household.id, victimId });
     }
   }
   updateCommons(world, ctx);

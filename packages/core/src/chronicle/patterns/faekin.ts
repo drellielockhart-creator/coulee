@@ -13,7 +13,14 @@ import type { ThreadFact } from '../state.ts';
 import { numberWord } from '../text.ts';
 import type { Accept, DetectCtx, PatternDef } from './types.ts';
 import { accept, DAY, ofKind, sortedByTime, spanWords, tfOf } from './util.ts';
-import { holdersOf, isSupernatural } from './whispers.ts';
+import { holdersOf, insiderOf, isSupernatural } from './whispers.ts';
+
+/** How many outsiders (not the subject, not of their house or blood) held it at `min` or more. */
+function outsidersBelieving(facts: readonly ThreadFact[], insider: (id: number) => boolean, min: number): number {
+  const who = new Set<number>();
+  for (const f of facts) if (f.k === 'held' && f.a > 0 && !insider(f.a) && f.w >= min) who.add(f.a);
+  return who.size;
+}
 
 function rungOf(facts: readonly ThreadFact[]): number {
   let r = 0;
@@ -82,12 +89,12 @@ export const faekinSuspicion: PatternDef = {
     return [accept(`s${f.subject}`, tfOf(f, 'held'), { actors: [f.subject, f.agent], tags })];
   },
 
-  level(facts, _th, _dc, p: PatternParams) {
-    return levelFor(holdersOf(facts).length, rungOf(facts), p);
+  level(facts, th, dc, p: PatternParams) {
+    return levelFor(holdersOf(facts, false, insiderOf(dc, Number(th.tags.subject ?? 0))).length, rungOf(facts), p);
   },
 
-  townLevel(facts, _th, _dc, p: PatternParams) {
-    return levelFor(holdersOf(facts, true).length, rungOf(facts), p);
+  townLevel(facts, th, dc, p: PatternParams) {
+    return levelFor(holdersOf(facts, true, insiderOf(dc, Number(th.tags.subject ?? 0))).length, rungOf(facts), p);
   },
 
   cast(_facts, th) {
@@ -95,7 +102,7 @@ export const faekinSuspicion: PatternDef = {
     return s > 0 ? [s] : [];
   },
 
-  bind(facts, th, level, dc, _p, view) {
+  bind(facts, th, level, dc, p, view) {
     // When the town's ladder climbs before anyone is heard saying why, the claim is the plain one.
     const sid = Number(th.tags.subject ?? 0);
     const out: Record<string, string | number | boolean> = {
@@ -108,7 +115,15 @@ export const faekinSuspicion: PatternDef = {
     };
     // Ground truth is the epilogue's alone: the town only has its suspicion.
     const subject = dc.world.actors[Number(th.tags.subject ?? 0) as ActorId];
-    if (view === 'all' && subject) out.hidden_kin = subject.ancestryId !== subject.presentsAsId;
+    const insider = insiderOf(dc, sid);
+    if (view === 'all' && subject) {
+      out.hidden_kin = subject.ancestryId !== subject.presentsAsId;
+      // The epilogue may say "the village was right" only if the village believed it: a rung of
+      // the ladder, or at least two people outside the house holding it at 50 or more.
+      out.believed =
+        rungOf(facts) > 0 ||
+        outsidersBelieving(facts, insider, p.n('believed_credence', 50)) >= p.n('believed_holders', 2);
+    }
     const rung = rungOf(facts);
     if (rung > 0) {
       out.rung = rung;
@@ -116,7 +131,7 @@ export const faekinSuspicion: PatternDef = {
       out.rung_name = (name ?? '').toLowerCase();
     }
     if (facts.length === 0) return out;
-    const n = holdersOf(facts).length;
+    const n = holdersOf(facts, false, insider).length;
     const told = sortedByTime(ofKind(facts, 'told'));
     const first = told[0];
     const last = told[told.length - 1];

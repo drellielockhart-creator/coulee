@@ -11,6 +11,8 @@ import {
   conditionName,
   defenseNames,
   familiesOf,
+  familyOfActor,
+  formalName,
   misfortuneText,
   predOfProp,
   resolveTarget,
@@ -52,7 +54,9 @@ export type FactClass =
   | 'figure'
   | 'reveal'
   | 'gathering'
-  | 'observance';
+  | 'observance'
+  | 'rupture'
+  | 'reconciled';
 
 export interface Fact {
   ev: Event;
@@ -281,13 +285,64 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
             interaction: d.interactionId,
             interaction_name: c.name,
             act: vocab.verb(d.interactionId)[0] ?? 'had dealings with',
+            act_pp: vocab.verb(d.interactionId)[2] ?? vocab.verb(d.interactionId)[0] ?? 'had dealings with',
             act_noun: vocab.verb(d.interactionId)[1] ?? c.name,
             label: d.label,
             success: d.success,
             cls: c.cls,
+            via_defense: d.viaDefense ?? '',
+            household:
+              householdOf(world, d.initiatorId as number) > 0 &&
+              householdOf(world, d.initiatorId as number) === householdOf(world, d.targetId as number),
+            family: familyOfActor(world, d.initiatorId as number),
           },
         },
         [d.initiatorId, d.targetId],
+      );
+    }
+    case 'social.rupture': {
+      const d = ev.data;
+      return base(
+        {
+          cls: 'rupture',
+          sub: d.household ? 'household' : 'kin',
+          agent: d.aId,
+          target: d.bId,
+          weight: d.fights,
+          valence: -50,
+          base: ev.importance ?? 55,
+          bind: {
+            cls: 'rupture',
+            household: d.household,
+            family: familyOfActor(world, d.aId as number),
+            families: familiesOf(world, householdOf(world, d.aId as number)),
+            fights: d.fights,
+          },
+        },
+        [d.aId, d.bId],
+      );
+    }
+    case 'social.reconciled': {
+      const d = ev.data;
+      const m = d.mediatorId ?? 0;
+      return base(
+        {
+          cls: 'reconciled',
+          sub: m ? 'mediated' : 'time',
+          agent: d.aId,
+          target: d.bId,
+          valence: 40,
+          base: ev.importance ?? 35,
+          bind: {
+            cls: 'reconciled',
+            mediated: m > 0,
+            mediator: m ? formalName(world, content, m) : '',
+            mediator_short: m ? shortNameOf(world, m) : '',
+            household: householdOf(world, d.aId as number) === householdOf(world, d.bId as number),
+            family: familyOfActor(world, d.aId as number),
+          },
+        },
+        [d.aId, d.bId],
       );
     }
     case 'social.label_changed': {
@@ -367,7 +422,7 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
           bind: {
             cls: 'grudge',
             kind: d.aim,
-            aim: (content.grudgeAims?.[d.aim]?.name ?? d.aim).toLowerCase(),
+            aim: content.grudgeAims?.[d.aim]?.phrase ?? (content.grudgeAims?.[d.aim]?.name ?? d.aim).toLowerCase(),
             subject: tgt.actorId
               ? shortNameOf(world, tgt.actorId)
               : tgt.householdId
@@ -427,6 +482,7 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
             defense_name: names.name,
             defense_clinical: names.clinical,
             anxiety: d.anxietyBefore,
+            acted: d.act !== undefined,
           },
         },
         [d.actorId, d.targetId ?? 0],

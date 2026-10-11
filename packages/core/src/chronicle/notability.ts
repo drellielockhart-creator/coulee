@@ -148,11 +148,17 @@ function apply(t: Tally, f: Fact, dc: DetectCtx): void {
     case 'defense':
       t.defenses += 1;
       break;
-    case 'gathering':
+    case 'gathering': {
+      // Only worship is divine service; a market day is the market's; a holiday crowd is neither.
+      const act = dc.content.activities?.[String(d.activityId ?? '')];
+      const kind = act?.tags.includes('worship') ? 'gather' : act?.tags.includes('commerce') ? 'market' : '';
       bump(t.acts, 'gatherings', 1);
-      bump(t.acts, `gather:${f.place}`, f.weight);
-      bump(t.acts, `gatherN:${f.place}`, 1);
+      if (kind) {
+        bump(t.acts, `${kind}:${f.place}`, f.weight);
+        bump(t.acts, `${kind}N:${f.place}`, 1);
+      }
       break;
+    }
     case 'observance':
       bump(t.acts, `obs:${f.sub}`, 1);
       break;

@@ -76,6 +76,7 @@ threshold = 40
 cooldown_hours = 24
 memory = { kind = "repayment", emotion = "gratitude", intensity = 30 }
 tags = ["money"]
+success.initiator_needs = { standing = 25 }
 urge = { voice = "superego", min_score = 45, label = "Settle up with {target}", norm = "duty", spoken_by_target = true }
 success.settle = "initiator_debt"
 success.target_opinion = { affection = 3, trust = 10 }
@@ -101,6 +102,7 @@ check = { kind = "dc", skill = "intimidate", dc = 12 }
 memory = { kind = "dunning", emotion = "shame", intensity = 35 }
 juiciness = 30
 tags = ["money", "hostile"]
+success.target_needs = { standing = -20 }
 urge = { voice = "superego", min_score = 50, label = "Remind {target} what is owed", norm = "thrift" }
 success.target_opinion = { affection = -4 }
 success.target_anxiety = 60

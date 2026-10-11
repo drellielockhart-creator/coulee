@@ -16,9 +16,20 @@ export type SocialEvent =
         success: boolean;
         /** Speech-bubble label (04 §11.1): "Gossip ▸ Kass widow", "Dun ▸ $4 flour". */
         label: string;
+        /** The defense this act discharged (10 §7), when it was one (omniscient provenance). */
+        viaDefense?: string;
       }
     >
   /** A memory was encoded (inner; for debugging/inspect — keep rare or omit). */
   | EventOf<'social.memory_formed', { ownerId: ActorId; memoryId: MemoryId; kind: string; intensity: number }>
   /** A derived label changed (became Friend/Enemy/Rival...). Chronicle-worthy. */
-  | EventOf<'social.label_changed', { holderId: ActorId; targetId: ActorId; from: string; to: string }>;
+  | EventOf<'social.label_changed', { holderId: ActorId; targetId: ActorId; from: string; to: string }>
+  /**
+   * A household or family quarrel came to blows `fights` times in the rupture window: the two
+   * stop speaking for `days` (an `estranged` edge) unless someone mediates. Public: it is talked of.
+   */
+  | EventOf<'social.rupture', { aId: ActorId; bId: ActorId; fights: number; household: boolean; days: number }>
+  /** A third party tried to talk an estranged pair round (Explain = the skill check). */
+  | EventOf<'social.mediation', { mediatorId: ActorId; aId: ActorId; bId: ActorId; success: boolean }>
+  /** An estrangement ended: by mediation (mediatorId) or by time (null). */
+  | EventOf<'social.reconciled', { aId: ActorId; bId: ActorId; mediatorId: ActorId | null }>;

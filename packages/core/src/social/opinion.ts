@@ -15,7 +15,7 @@ import type { ContentBundle } from '../content.ts';
 import { VALUES } from '../content.ts';
 import type { ActorId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
-import type { GameMinute } from '../time.ts';
+import { calendarAt, type GameMinute } from '../time.ts';
 import type { World } from '../world.ts';
 import type { ConsolidationMerge, MemoryDigest } from './memory.ts';
 import { memoryDigest } from './memory.ts';
@@ -91,14 +91,30 @@ export function opinionOf(world: World, from: ActorId, to: ActorId): OpinionDims
   return clampDims(opinionSum(world, from, to));
 }
 
-/** Derived label (04 §6.1): Friend, Enemy, Cowed, Rival, Admirer, or '' — labels on numbers. */
-export function opinionLabel(d: OpinionDims): string {
+/**
+ * Derived label (04 §6.1): Friend, Enemy, Cowed, Rival, Admirer, or '' — labels on numbers.
+ * With `prev`, Friend and Enemy hold with hysteresis (enter Friend at Affection > 40 and Trust
+ * > 20, leave below 25 or 10; enter Enemy below −40, leave above −25), so a label does not
+ * flicker with the day's mood.
+ */
+export function opinionLabel(d: OpinionDims, prev?: string): string {
+  if (prev === 'Friend' && d.affection >= 25 && d.trust >= 10) return 'Friend';
+  if (prev === 'Enemy' && d.affection <= -25) return 'Enemy';
   if (d.affection > 40 && d.trust > 20) return 'Friend';
   if (d.affection < -40) return 'Enemy';
   if (d.fear > 50 && d.affection < 0) return 'Cowed';
   if (d.respect > 20 && d.affection < -20) return 'Rival';
   if (d.respect > 50) return 'Admirer';
   return '';
+}
+
+/** The settled opinion: base + Reasons, without the day's volatile mood (labels read this). */
+export function settledOpinion(world: World, from: ActorId, to: ActorId): OpinionDims {
+  const op = opinionRecord(world, from, to);
+  if (!op) return { ...ZERO_DIMS };
+  let sum = { ...op.base };
+  for (const r of op.reasons) sum = addDims(sum, reasonContribution(world, from, to, r));
+  return clampDims(sum);
 }
 
 // ---------------------------------------------------------------- base priors
@@ -187,6 +203,57 @@ export function ensureOpinion(world: World, content: ContentBundle, from: ActorI
 
 const isBucket = (r: OpinionReason): boolean => r.cites.kind === 'other';
 
+/** The folded buckets by valence (04 §6.2 "other reasons", named for what they hold). */
+const BUCKET_GRIEF = 'Old quarrels';
+const BUCKET_KIND = 'Old kindnesses';
+/** "(5 times since May 20)" appended to a merged Reason's label. */
+const COUNT_RE = / \((\d+) times since [A-Z][a-z]+ \d+\)$/;
+
+function monthDayOf(t: number): string {
+  const c = calendarAt(t as GameMinute);
+  return `${c.monthName} ${c.day}`;
+}
+
+/**
+ * Two Reasons with the same label (the same wrong, again) fold into one counted Reason before
+ * anything is evicted: "Came at me with fists at Hurd House (5 times since May 20)". It cites
+ * the newer memory, with the delta scaled so the pair's current weight is kept. Returns true
+ * if a merge happened.
+ */
+function mergeDuplicate(world: World, from: ActorId, to: ActorId, op: Opinion): boolean {
+  const base = (r: OpinionReason) => r.label.replace(COUNT_RE, '');
+  for (let i = op.reasons.length - 1; i >= 0; i--) {
+    const a = op.reasons[i] as OpinionReason;
+    if (isBucket(a) || a.cites.kind !== 'memory') continue;
+    for (let j = 0; j < i; j++) {
+      const b = op.reasons[j] as OpinionReason;
+      if (isBucket(b) || b.cites.kind !== 'memory' || base(b) !== base(a)) continue;
+      const [older, newer] = b.since <= a.since ? [b, a] : [a, b];
+      const s = Math.max(1, reasonStrength(world, from, to, newer));
+      const sum = addDims(reasonContribution(world, from, to, a), reasonContribution(world, from, to, b));
+      const scale = (v: number) => clampInt(Math.round((v * 1000) / s), -100, 100);
+      const n = (Number(COUNT_RE.exec(a.label)?.[1] ?? 1) || 1) + (Number(COUNT_RE.exec(b.label)?.[1] ?? 1) || 1);
+      const first = older.since;
+      const merged: OpinionReason = {
+        label: `${base(a)} (${n} times since ${monthDayOf(first)})`,
+        cites: newer.cites,
+        delta: {
+          affection: scale(sum.affection),
+          respect: scale(sum.respect),
+          trust: scale(sum.trust),
+          fear: scale(sum.fear),
+        },
+        since: first,
+        ...(newer.viaDefense !== undefined ? { viaDefense: newer.viaDefense } : {}),
+      };
+      op.reasons.splice(i, 1);
+      op.reasons[j] = merged;
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Add a Reason (the only way opinions change, 04 §6.2). Past `max_reasons` the weakest
  * reason (by current contribution, then oldest) folds into the "other reasons" bucket at
@@ -217,6 +284,7 @@ export function enforceReasonCap(
   for (;;) {
     const regular = op.reasons.filter((r) => !isBucket(r));
     if (regular.length <= cap) return;
+    if (mergeDuplicate(world, from, to, op)) continue;
     let weakestIdx = -1;
     let weakestMag = 0;
     for (let i = 0; i < op.reasons.length; i++) {
@@ -233,7 +301,10 @@ export function enforceReasonCap(
     const weakest = op.reasons[weakestIdx] as OpinionReason;
     const folded = reasonContribution(world, from, to, weakest);
     op.reasons.splice(weakestIdx, 1);
-    const bucketIdx = op.reasons.findIndex(isBucket);
+    // Fold by kind: grievances into "Old quarrels", kindnesses into "Old kindnesses".
+    const weight = folded.affection + folded.respect + folded.trust - folded.fear;
+    const label = weight < 0 ? BUCKET_GRIEF : BUCKET_KIND;
+    const bucketIdx = op.reasons.findIndex((r) => isBucket(r) && (r.label === label || r.label === 'Other reasons'));
     const prev =
       bucketIdx >= 0 ? reasonContribution(world, from, to, op.reasons[bucketIdx] as OpinionReason) : ZERO_DIMS;
     const sum = addDims(prev, folded);
@@ -244,7 +315,7 @@ export function enforceReasonCap(
       fear: clampInt(sum.fear, -100, 100),
     };
     const bucket: OpinionReason = {
-      label: 'Other reasons',
+      label,
       cites: { kind: 'other', strength: 1000 },
       delta,
       since: now,
@@ -390,7 +461,8 @@ export function grievance(
 export function refreshLabel(world: World, ctx: Pick<SimContext, 'emit'>, from: ActorId, to: ActorId): void {
   const op = opinionRecord(world, from, to);
   if (!op) return;
-  const label = opinionLabel(opinionOf(world, from, to));
+  // Labels follow the settled opinion (no volatile mood), with hysteresis on Friend and Enemy.
+  const label = opinionLabel(settledOpinion(world, from, to), op.label);
   if (label === op.label) return;
   const prev = op.label;
   op.label = label;

@@ -12,7 +12,7 @@ when = { interaction = "insult", success = true }
 headline = "Hard Words{_at}"
 text = [
   "#paper_learn# that #hard_words# passed between {actor} and {target}{_at} {when}, the former giving the latter an insult that was heard by the whole room.",
-  "{^actor} insulted {target} to the face{_at} {when}. The company took sides, and the loafers took notes.",
+  "{^actor} insulted {target} to the face{_at} {when}. The company took sides, and the story was round the village by supper.",
   "Language unfit for print was exchanged{_at} {when}: {actor} called {target} a name before witnesses, and the name has been going about the village since.",
   "{^actor} told {target} what {he} thought of {target_him}{_at} {when}, at a volume the whole room could appreciate.",
   "Hard feelings were aired{_at} {when}, {actor} doing the airing and {target} the listening, unwillingly.",
@@ -352,7 +352,29 @@ voice = "paper"
 headline = "Short Commons"
 text = [
   "#paper_grieve# that {families} are running short of provisions. The pantry is #lean_adj# and the store's book is the only recourse.",
+  "{^families} are reported to be on short allowance. Neighbors who can spare are urged to remember it.",
+]
+
+[[template]]
+id = "paper_shortage_spring"
+on = "provisions.shortage"
+voice = "paper"
+when = { season = "spring" }
+headline = "Short Commons"
+text = [
+  "#paper_grieve# that {families} are running short of provisions. The pantry is #lean_adj# and the store's book is the only recourse.",
   "{^families} are reported to be on short allowance. Neighbors who can spare are urged to remember that spring is the hungriest season.",
+]
+
+[[template]]
+id = "paper_shortage_winter"
+on = "provisions.shortage"
+voice = "paper"
+when = { season = "winter" }
+headline = "Short Commons"
+text = [
+  "#paper_grieve# that {families} are running short of provisions with the winter well set in. The roads are drifted and the store's book is the only recourse.",
+  "{^families} are reported to be on short allowance. Neighbors who can spare are urged to remember that a hard winter is a long one.",
 ]
 
 [[template]]
@@ -411,9 +433,21 @@ id = "paper_misfortune_grave"
 on = "belief.misfortune"
 voice = "paper"
 min_importance = 60
+when = { kind = "child_fever" }
 headline = "Sickness Abroad"
 text = [
   "A grave misfortune: {misfortune}. The doctor has been sent for; the minister, we hope, need not be.",
+]
+
+[[template]]
+id = "paper_misfortune_heavy"
+on = "belief.misfortune"
+voice = "paper"
+min_importance = 60
+when = { kind = ["cow_died", "fire", "pantry_theft", "cellar_spoiled", "horse_lamed"] }
+headline = "A Heavy Loss"
+text = [
+  "A heavy loss is reported: {misfortune}. Neighbors are asked to remember it when the subscription paper comes round.",
 ]
 
 [[template]]
@@ -433,4 +467,38 @@ voice = "paper"
 headline = "The Village Has Made Up Its Mind"
 text = [
   "It is the general belief now, and no longer a whisper, that \"{rumor}.\" Whether it is so is a question the village has stopped asking.",
+]
+
+# ---- a house that is not a quiet one (social.rupture / social.reconciled) --------------------
+
+[[template]]
+id = "paper_rupture_household"
+on = "social.rupture"
+voice = "paper"
+when = { household = true }
+headline = "Not a Quiet House"
+text = [
+  "It is said the {family} house is not a quiet one. {^actor} and {target}, we hear, are no longer on speaking terms, after more than one evening of the sort that carries through a wall.",
+  "We do not print the business of private houses, and so we say only that the {family} house has been heard from the road more than once this month, and that {actor} and {target} now pass one another without a word.",
+]
+
+[[template]]
+id = "paper_rupture_kin"
+on = "social.rupture"
+voice = "paper"
+when = { household = false }
+headline = "A Family Silence"
+text = [
+  "{^actor} and {target} are not on speaking terms, we hear. There were words, and then there were blows, and now there is nothing at all, which in a family is the loudest thing.",
+]
+
+[[template]]
+id = "paper_reconciled"
+on = "social.reconciled"
+voice = "paper"
+when = { mediated = true }
+headline = "Peace Made"
+text = [
+  "#paper_pleased# that {actor} and {target} are speaking again, {mediator} having talked them round. A peacemaker is worth more to a village than a constable, and is paid less.",
+  "{^mediator} has made peace between {actor} and {target}, who were not on speaking terms. We record it gladly; such news is rarer than the other kind.",
 ]

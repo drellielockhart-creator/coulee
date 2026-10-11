@@ -60,7 +60,7 @@ household = "brenner"
 workplace = "brenner_smithy"
 abilities = { str = 16, dex = 11, con = 14, int = 12, wis = 12, cha = 10 }
 skills = { trade_smithing = 9, intimidate = 3, persuade = 2, lore_fae = 1 }
-traits = ["hot_tempered"]
+traits = ["hot_tempered", "tippler"]
 values = { piety = -3, superstition = 2, temper = 2, rancor = 1, discretion = 1 }
 languages = ["german", "english"]
 psyche = { ego = 55, superego = 35, id_appetite = 60 }
@@ -287,7 +287,7 @@ household = "hurd"
 workplace = "hurd_house"
 abilities = { str = 14, dex = 11, con = 13, int = 10, wis = 10, cha = 13 }
 skills = { intimidate = 5, lore_local = 3, persuade = 3, perform_storytelling = 5, athletics = 2 }
-traits = ["hot_tempered"]
+traits = ["hot_tempered", "tippler"]
 values = { ambition = 2, parochialism = 3, rancor = 2, temper = 1, discretion = -2 }
 languages = ["english"]
 psyche = { ego = 55, superego = 50, id_appetite = 55 }
@@ -393,6 +393,7 @@ household = "hatch"
 workplace = "ferry_landing"
 abilities = { str = 14, dex = 12, con = 13, int = 10, wis = 12, cha = 10 }
 skills = { riverwork = 7, swim = 5, fishing = 4, perception = 2, lore_local = 3 }
+traits = ["tippler"]
 values = { neighborliness = 1, superstition = 1, thrift = 1 }
 languages = ["english"]
 psyche = { ego = 50, superego = 40, id_appetite = 50 }

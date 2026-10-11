@@ -144,6 +144,13 @@ export const TEMPLATE_SLOTS = [
   'need_name',
   'band',
   'masthead',
+  // module:chronicle additions (story fixes)
+  'weather',
+  'shortages_times',
+  'act_pp',
+  'mediator',
+  'mediator_short',
+  'fights',
 ] as const;
 export type TemplateSlot = (typeof TEMPLATE_SLOTS)[number];
 
@@ -188,6 +195,11 @@ export const WHEN_ONLY_KEYS = [
   'named',
   'sum',
   'detail',
+  // module:chronicle additions (story fixes)
+  'believed',
+  'via_defense',
+  'confined',
+  'mediated',
 ] as const;
 
 export const WHEN_KEYS: readonly string[] = [...TEMPLATE_SLOTS, ...WHEN_ONLY_KEYS, 'interaction'];

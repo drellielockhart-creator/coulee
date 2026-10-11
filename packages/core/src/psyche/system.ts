@@ -30,7 +30,8 @@ import { type ActorId, idsOf } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
-import { addDefenseReason, areKin, opinionOf } from '../social/api.ts';
+import { addDefenseReason, areKin, familiarityOf, opinionOf, strifeCount, wearinessPermille } from '../social/api.ts';
+import { addMinutes, yearsBetween } from '../time.ts';
 import type { ChoiceVoice, ChosenUrge, Urge } from '../urge.ts';
 import { sameUrge, urgeLabel } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -89,7 +90,19 @@ export const SALT_DEFENSE = 0x50a4;
 
 /** Thoughts at or above this intensity surface as 'psyche.thought' events when notable. */
 const NOTABLE_MIN = 300;
-const RECENT_DEFENSES = 8;
+/** Defenses remembered per actor: enough for a week at the refractory rate (repeat penalties). */
+const RECENT_DEFENSES = 24;
+/** Displacement pays this share of its relief at once; the rest only when the act lands (10 §7.2). */
+const DISPLACE_UPFRONT_PCT = 25;
+/** Hours the stored displaced anger waits for its act before it sours (relief lost). */
+const DISPLACE_WINDOW_MIN = 24 * 60;
+/** DF ×50% per displacement onto the same person in the last week (10 §7.3: it stops working). */
+const DF_REPEAT_PCT = 50;
+const DF_REPEAT_WINDOW_MIN = 7 * 24 * 60;
+/** Familiarity at which someone is a daily face (met within the day; DF Avail 40). */
+const DF_DAILY_FAMILIARITY = 500;
+/** Youngest a displaced anger may land on. */
+const DF_MIN_AGE = 8;
 /** Compromise window: the top two within this many points (10 §5.3 "within 20", ×10). */
 const COMPROMISE_WINDOW = 200;
 /** Satisfaction of a thought passed over for another demand of the same agency (percent). */
@@ -717,6 +730,8 @@ export function defenseSituation(m: Mind, fearDrives: ReadonlySet<string>): Defe
   const choleric = displaceableDrives.some(
     (d) => (p.drives[d] ?? 50) >= CHOLERIC && content.drives[d]?.anxiety_pool !== 'real',
   );
+  // Stored anger that found no one to land on within the day has soured (its relief is lost).
+  if (p.displaced?.until !== undefined && p.displaced.until < now) p.displaced = null;
   const displaceable =
     displaceableDrives.some((d) => (p.frustration[d] ?? 0) >= 1) ||
     (p.displaced?.amount ?? 0) > 0 ||
@@ -740,11 +755,14 @@ export function defenseSituation(m: Mind, fearDrives: ReadonlySet<string>): Defe
   if (displaceable) {
     const ceiling = blockedId !== null ? Math.max(1, powerOver(m, blockedId)) : 60;
     const blocked = blockedId !== null ? world.actors[blockedId] : undefined;
-    let best: { id: ActorId; df: number } | null = null;
-    // Anyone known: Avail = here now 100, under the same roof 60 (met by evening), else 0
-    // (10 §7.2: co-presence in the next days). An absent target stores the grievance.
+    let best: { id: ActorId; df: number; rank: number } | null = null;
+    // Anyone known who is here now (Avail 100) or under the same roof (60, met by evening);
+    // others are skipped (10 §7.2). An absent housemate stores the grievance for the meeting.
     for (const c of m.known) {
       if (c === blockedId) continue;
+      // Hard words need someone old enough to take them (no slighting the baby).
+      const cAct = world.actors[c];
+      if (!cAct || yearsBetween(cAct.born, now) < DF_MIN_AGE) continue;
       const op = opinionOf(world, actorId, c);
       const pw = powerOver(m, c, op);
       if (pw > ceiling) continue; // no stronger than the true object (the son for the wife)
@@ -755,11 +773,33 @@ export function defenseSituation(m: Mind, fearDrives: ReadonlySet<string>): Defe
         : other.householdId === blocked.householdId || other.occupationId === blocked.occupationId
           ? 100
           : 0;
-      const Avail = isPresent(m, c) ? 100 : other.householdId === actor.householdId ? 60 : 0;
+      // Here now 100; under the same roof 60 (met by evening); a workmate or a daily face 40
+      // (met tomorrow at the latest); anyone else 0. Anger stored for someone not met within the
+      // day sours unspent (its relief is lost), so the near and the daily are the usual marks.
+      const work = world.activity.byActor[actorId]?.workplaceId ?? null;
+      const Avail = isPresent(m, c)
+        ? 100
+        : other.householdId === actor.householdId
+          ? 60
+          : (work !== null && world.activity.byActor[c]?.workplaceId === work) ||
+              familiarityOf(world, actorId, c) >= DF_DAILY_FAMILIARITY
+            ? 40
+            : 0;
       const df = displacementFit({ Sim, Weak: 100 - pw, Avail, Dis: op.affection < 0 ? 100 : 0 });
       // Kin at home qualify (Weak 50 + Avail): harsh words at home are the classic case.
       if (df < DF_MIN) continue;
-      if (!best || df > best.df || (df === best.df && c < best.id)) best = { id: c, df };
+      // Choosing among the fit: the same scapegoat wears thin (×50% per use this week), and so
+      // does a live quarrel (social strife weariness). Fit decides whether; this decides whom.
+      // An absent mark is a poor one: anger kept for someone not met within the day sours unspent.
+      let rank = Math.floor((df * (40 + (60 * Avail) / 100)) / 100);
+      for (const r of p.recentDefenses) {
+        if (r.defense === 'displacement' && r.targetId === c && now - r.at < DF_REPEAT_WINDOW_MIN) {
+          rank = Math.floor((rank * DF_REPEAT_PCT) / 100);
+        }
+      }
+      const n = strifeCount(world, content, actorId, c, now);
+      if (n > 0) rank = Math.floor((rank * wearinessPermille(content, n)) / 1000);
+      if (!best || rank > best.rank || (rank === best.rank && c < best.id)) best = { id: c, df, rank };
     }
     if (best) displacement = { targetId: best.id, blockedId, df: best.df, choleric };
   }
@@ -905,13 +945,21 @@ function fireDefense(
         const urge: Urge = { kind: 'defense', defense: 'displacement', targetId: dp.targetId };
         const dd = new Set(Object.keys(content.drives ?? {}).filter((d) => content.drives[d]?.displaceable === true));
         scale((t) => t.voice === 'id' && t.drive !== undefined && dd.has(t.drive), 1, 2);
+        // The relief is mostly owed until the act lands on someone (10 §7.2): a quarter now, the
+        // rest when social reports the displaced act within the day (psyche/api defenseActLanded).
+        const drive = [...dd].sort((a, b) => (p.drives[b] ?? 50) - (p.drives[a] ?? 50) || cmpStr(a, b))[0] ?? '';
+        const owed = def.relief - Math.floor((def.relief * DISPLACE_UPFRONT_PCT) / 100);
+        p.displaced = {
+          amount: owed,
+          objectId: dp.blockedId,
+          drive,
+          until: addMinutes(ctx.now, DISPLACE_WINDOW_MIN),
+          targetId: dp.targetId,
+        };
         if (isPresent(m, dp.targetId)) {
           act = urge;
-          p.displaced = null;
         } else {
           // Stored for when they meet: a masked Id thought that wins once the target is here.
-          const drive = [...dd].sort((a, b) => (p.drives[b] ?? 50) - (p.drives[a] ?? 50) || cmpStr(a, b))[0] ?? '';
-          p.displaced = { amount: def.relief, objectId: dp.blockedId, drive };
           masked = { stance: 'for', intensity: clamp(def.relief * 2, 1, 1000) };
           stored = urge;
         }
@@ -968,7 +1016,9 @@ function fireDefense(
     }
   }
 
-  const relief = drainPools(p, def.relief, pick.pool);
+  const upfront =
+    id === 'displacement' && sit.displacement ? Math.floor((def.relief * DISPLACE_UPFRONT_PCT) / 100) : def.relief;
+  const relief = drainPools(p, upfront, pick.pool);
   p.defenseStyle[id] = clamp((p.defenseStyle[id] ?? 10) + STYLE_GAIN, 0, 100);
   const acquired = def.acquired_trait;
   let gained: string | undefined;
@@ -983,6 +1033,7 @@ function fireDefense(
     target: nameOf(m, targetId),
     ...(traitName !== undefined ? { trait: traitName } : {}),
   });
+  if (id === 'displacement' && p.displaced && p.displaced.targetId === targetId) p.displaced.line = line;
   const maskedUrge: Urge =
     act ?? stored ?? ({ kind: 'defense', defense: id, ...(targetId !== null ? { targetId } : {}) } as Urge);
   const t: Thought = {
@@ -1056,7 +1107,7 @@ function fireDefense(
     margin: before - theta,
     outcome: id,
     children: candidateExplains(actorId, cands, id),
-    note: `Relief ${relief} from ${pick.pool}${gained !== undefined ? `; becomes ${gained}` : ''}`,
+    note: `Relief ${relief} from ${pick.pool}${upfront < def.relief ? `; ${def.relief - upfront} more if the anger lands on someone within the day` : ''}${gained !== undefined ? `; becomes ${gained}` : ''}`,
   };
   const eventId = ctx.emit({
     kind: 'psyche.defense',

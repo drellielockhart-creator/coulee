@@ -157,6 +157,8 @@ export function evalWhen(m: Mind, w: WhenDef | undefined): WhenResult {
   if (w.audience_min !== undefined && m.audience < w.audience_min) return { ok: false };
   if (w.place_tags && !intersects(m.world.places[m.actor.placeId]?.tags ?? [], w.place_tags)) return { ok: false };
   if (w.debtor !== undefined && creditorsOf(m).length > 0 !== w.debtor) return { ok: false };
+  if (w.traits_any && !w.traits_any.some((t) => m.actor.traits.includes(t) || m.p.acquired.includes(t)))
+    return { ok: false };
   return r;
 }
 

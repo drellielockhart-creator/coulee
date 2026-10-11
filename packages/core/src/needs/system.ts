@@ -5,6 +5,7 @@ import type { ContentBundle } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
 import { type ActorId, idsOf } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
+import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
 import { satisfyNeed } from './api.ts';
 import { ambientTemperatureF, heatPlaces } from './thermal.ts';
@@ -44,7 +45,12 @@ export function hourlyLedger(
     { source: 'base', label: `${labor} labor percent`, value: def.labor_pct[labor] },
     { source: 'base', label: 'Sleep percent', value: asleep ? def.asleep_pct : 100 },
   ];
-  let decay = ((def.decay_per_hour * def.labor_pct[labor]) / 100) * (asleep ? def.asleep_pct / 100 : 1);
+  // A vice need runs down only for those who hold it (Drink: a drinker's trait), never for the young.
+  const notTheirs =
+    (def.only_traits.length > 0 && !def.only_traits.some((t) => actor.traits.includes(t))) ||
+    (def.decay_min_age > 0 && yearsBetween(actor.born, world.time) < def.decay_min_age);
+  if (notTheirs) factors.push({ source: 'trait', label: 'Not a want of theirs', value: 0 });
+  let decay = notTheirs ? 0 : ((def.decay_per_hour * def.labor_pct[labor]) / 100) * (asleep ? def.asleep_pct / 100 : 1);
   let valuePct = 100;
   for (const clause of def.value_pct) {
     const modifier = clause.per_step_pct * actor.values[clause.value];
@@ -117,6 +123,17 @@ export function hourlyLedger(
     delta += regain;
     terms.push({ source: 'need', label: 'Recovery toward baseline', value: regain });
   }
+  if (def.baseline) {
+    const target = baselineOf(world, content, id, key);
+    const now = (before[key] ?? def.initial) + delta;
+    const gap = target - now;
+    if (gap !== 0) {
+      const step = Math.max(1, Math.floor((Math.abs(gap) * def.baseline.per_hour_permille) / 1000));
+      const move = gap > 0 ? Math.min(gap, step) : -Math.min(-gap, step);
+      delta += move;
+      terms.push({ source: 'need', label: `Drift toward ${target} (who they are here)`, value: move });
+    }
+  }
   if (
     !asleep &&
     def.access &&
@@ -127,6 +144,26 @@ export function hourlyLedger(
     terms.push({ source: 'place', label: 'Water access', value: def.access.per_hour });
   }
   return { delta, terms, calculations };
+}
+
+/**
+ * A need's personal resting level (NeedDef.baseline): `toward` + the largest bonus among the
+ * actor's occupation roles + each age bonus reached, clamped 0..1000. Null-safe: `initial`.
+ */
+export function baselineOf(world: World, content: ContentBundle, id: ActorId, key: string): number {
+  const def = content.needs[key];
+  const actor = world.actors[id];
+  if (!def?.baseline || !actor) return def?.initial ?? 0;
+  const b = def.baseline;
+  let roleBonus: number | null = null;
+  for (const r of content.occupations[actor.occupationId]?.roles ?? []) {
+    const v = b.role_bonus[r];
+    if (v !== undefined && (roleBonus === null || v > roleBonus)) roleBonus = v;
+  }
+  let v = b.toward + (roleBonus ?? 0);
+  const age = yearsBetween(actor.born, world.time);
+  for (const a of b.age_bonus) if (age >= a.min_age) v += a.bonus;
+  return Math.max(0, Math.min(1000, v));
 }
 
 export function needsSystem(world: World, ctx: SimContext): void {

@@ -3,7 +3,7 @@
  * OWNER: module:needs-activities.
  */
 import type { ActivityId } from '../content.ts';
-import { type ActorId, idsOf, mustGet, type PlaceId, type Table } from '../ids.ts';
+import { type ActorId, type HouseholdId, idsOf, mustGet, type PlaceId, type Table } from '../ids.ts';
 import type { InitContext } from '../sim/context.ts';
 import type { GameMinute } from '../time.ts';
 import type { World } from '../world.ts';
@@ -31,6 +31,8 @@ export interface ActivityState {
   occupancy: Table<PlaceId, ActorId[]>;
   /** Stable attendance and household rota draws, regenerated once per day. */
   calendar?: { dayIndex: number; rolls: Record<string, number>; rotas: Record<string, ActorId> };
+  /** Recent social calls per actor (Pay a call): day index and the household called on. */
+  calls?: Table<ActorId, Array<{ day: number; householdId: HouseholdId }>>;
 }
 
 export function createActivityState(): ActivityState {

@@ -20,6 +20,7 @@ import { type MemoryDigest, memoryDigest } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
 import { grievance, isAcquainted, opinionOf, opinionRecord, owedCents, owedFavors } from './opinion.ts';
 import type { OpinionDims } from './state.ts';
+import { isEstranged, wearinessTerm } from './strife.ts';
 import { ageYears, tuningOf, valueView } from './tuning.ts';
 
 /** Everything a volition/precondition evaluation reads about one (initiator, target) pair. */
@@ -166,6 +167,9 @@ export function requiresFail(p: Pair, def: InteractionDef, mode: RequireMode): s
   if (mode !== 'forced') {
     const until = opinionRecord(w, i, tg)?.cooldowns[def.id];
     if (until !== undefined && until > now) return 'cooldown';
+    // Not on speaking terms (strife.ts): only amends pass between them.
+    if (isEstranged(w, i, tg) && !def.tags.some((x) => tuningOf(p.content).estranged_allow_tags.includes(x)))
+      return 'not speaking';
   }
   const acquainted = isAcquainted(w, i, tg);
   if (q.acquainted && !acquainted) return 'not acquainted';
@@ -390,6 +394,14 @@ export function volition(p: Pair, def: InteractionDef): { score: number; terms: 
   }
   let score = 0;
   for (const t of terms) score += t.value;
+  // A quarrel tires (strife.ts): each hostile act between them lately scales the wish down.
+  if (def.tags.includes('hostile')) {
+    const weary = wearinessTerm(w, p.content, i, tg, p.ctx.now, score);
+    if (weary) {
+      terms.push(weary);
+      score += weary.value;
+    }
+  }
   return { score, terms };
 }
 

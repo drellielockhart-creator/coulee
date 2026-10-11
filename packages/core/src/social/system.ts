@@ -20,7 +20,7 @@ import type { DefenseId, InteractionDef } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
-import { chosenUrge } from '../psyche/api.ts';
+import { chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { ChosenUrge } from '../urge.ts';
@@ -31,6 +31,7 @@ import { consolidateMemories, decayMemoriesDaily } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
 import { dailyOpinionUpkeep, opinionOf, pruneCooldowns, refreshLabel, repointReasons } from './opinion.ts';
 import { emptyDaily } from './state.ts';
+import { dailyStrife, mediationHour } from './strife.ts';
 import { tuningOf, valueView } from './tuning.ts';
 import { makePair, requiresFail, volition } from './volition.ts';
 
@@ -75,6 +76,8 @@ export function socialSystem(world: World, ctx: SimContext): void {
     pools.push(entry);
     for (const id of pool) hs.poolOf.set(id, entry);
   }
+  // A third party fond of both may talk an estranged pair round (strife.ts).
+  mediationHour(world, ctx, pools, hs.poolOf);
   const free = (id: ActorId): boolean => (hs.participations.get(id) ?? 0) < t.max_participations_per_hour;
   const take = (a: ActorId, b: ActorId): void => {
     hs.participations.set(a, (hs.participations.get(a) ?? 0) + 1);
@@ -92,6 +95,16 @@ export function socialSystem(world: World, ctx: SimContext): void {
     const venue = hs.poolOf.get(id);
     if (!venue) continue;
     runUrge(world, ctx, id, chosen, venue, free, take);
+  }
+
+  // ---- 2b. displaced anger stored for someone not there at the time lands when they meet
+  // (10 §7.2): within the day, at the first venue they share, before the encounters.
+  for (const id of urgeActors) {
+    const stored = storedDisplacement(world, id, ctx.now);
+    if (!stored || !free(id) || !free(stored.targetId)) continue;
+    const venue = hs.poolOf.get(id);
+    if (!venue?.present.has(stored.targetId)) continue;
+    runStoredDisplacement(world, ctx, id, stored, venue, take);
   }
 
   // ---- 3. spontaneous encounters per venue
@@ -297,7 +310,56 @@ function runUrge(
   for (const iid of list) {
     const def = ctx.content.interactions[iid];
     if (!def) continue;
-    if (go(def, target, 'defense', { viaDefense: defense, ...(defenseReason ? { defenseReason } : {}) })) return;
+    if (go(def, target, 'defense', { viaDefense: defense, ...(defenseReason ? { defenseReason } : {}) })) {
+      defenseActLanded(world, ctx, id, defense);
+      return;
+    }
+  }
+}
+
+/** Run the displaced act a stored anger owes (psyche `displaced`), at its target, here. */
+function runStoredDisplacement(
+  world: World,
+  ctx: SimContext,
+  id: ActorId,
+  stored: { targetId: ActorId; amount: number; line: string },
+  venue: { placeId: PlaceId; pool: ActorId[] },
+  take: (a: ActorId, b: ActorId) => void,
+): void {
+  const t = tuningOf(ctx.content);
+  const acts = ctx.content.defenses?.displacement?.acts ?? [];
+  const entry = t.defense_interactions.find((d) => d.defense === 'displacement');
+  const list = acts.length > 0 ? acts : (entry?.interactions ?? []);
+  const defenseReason = entry?.reason ? { label: entry.reason, delta: entry.reason_delta } : undefined;
+  const choice: Explain = {
+    kind: 'choice',
+    label: stored.line || 'Kicking the dog',
+    subjects: [id],
+    knowledge: 'omniscient',
+    terms: [{ source: 'psyche', label: 'Anger stored for this meeting', value: stored.amount }],
+    total: stored.amount,
+    outcome: 'defense',
+  };
+  for (const iid of list) {
+    const def = ctx.content.interactions[iid];
+    if (!def) continue;
+    const pair = makePair(world, ctx, id, stored.targetId, venue.placeId, venue.pool.length - 2);
+    if (!pair || requiresFail(pair, def, 'urge') !== null) continue;
+    take(id, stored.targetId);
+    resolveInteraction(world, ctx, {
+      def,
+      initiatorId: id,
+      targetId: stored.targetId,
+      placeId: venue.placeId,
+      present: venue.pool.filter((x) => x !== id && x !== stored.targetId),
+      mode: 'urge',
+      via: 'defense',
+      choice,
+      viaDefense: 'displacement',
+      ...(defenseReason ? { defenseReason } : {}),
+    });
+    defenseActLanded(world, ctx, id, 'displacement');
+    return;
   }
 }
 
@@ -326,6 +388,7 @@ function dailySocial(world: World, ctx: SimContext): void {
   if (ctx.cal.weekday === 'sun') repointReasons(world, consolidateMemories(world, content));
   dailyOpinionUpkeep(world, content);
   pruneCooldowns(world, ctx.now);
+  dailyStrife(world, ctx);
   for (const from of Object.keys(world.social.opinions)
     .map(Number)
     .sort((a, b) => a - b) as ActorId[]) {

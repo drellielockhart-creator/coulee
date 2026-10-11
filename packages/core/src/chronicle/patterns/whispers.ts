@@ -6,6 +6,8 @@
  * about, never who said what to whom). Supernatural claims are the faekin-suspicion
  * pattern's business. OWNER: module:chronicle.
  */
+import type { ActorId } from '../../ids.ts';
+import { areKin } from '../../social/api.ts';
 import type { Fact } from '../facts.ts';
 import type { PatternParams } from '../params.ts';
 import type { ThreadFact } from '../state.ts';
@@ -18,14 +20,29 @@ export function isSupernatural(dc: DetectCtx, pred: string): boolean {
   return !!def && (def.supernatural === true || def.kind_of !== undefined);
 }
 
-/** Everyone known to hold the claim: those told (and took it in), and those who came to believe it. */
-export function holdersOf(facts: readonly ThreadFact[], toldOnly = false): number[] {
+/**
+ * Everyone known to hold the claim: those told (and took it in), and those who came to believe
+ * it. `insider` excludes people who cannot count as the town's opinion: the subject, and those
+ * who share the subject's roof or blood (they keep the secret; they are not its rumor).
+ */
+export function holdersOf(facts: readonly ThreadFact[], toldOnly = false, insider?: (id: number) => boolean): number[] {
   const out: number[] = [];
   for (const f of facts) {
     if (f.k === 'told' && f.s === 1) out.push(f.b);
     else if (f.k === 'held' && !toldOnly) out.push(f.a);
   }
-  return distinct(out.filter((x) => x > 0));
+  return distinct(out.filter((x) => x > 0 && !(insider?.(x) ?? false)));
+}
+
+/** The subject and everyone under the subject's roof or of the subject's blood. */
+export function insiderOf(dc: DetectCtx, subject: number): (id: number) => boolean {
+  const s = dc.world.actors[subject as ActorId];
+  return (id: number) => {
+    if (id === subject) return true;
+    const a = dc.world.actors[id as ActorId];
+    if (!s || !a) return false;
+    return a.householdId === s.householdId || areKin(dc.world, id as ActorId, subject as ActorId);
+  };
 }
 
 function levelFor(n: number, p: PatternParams): number {
@@ -60,12 +77,12 @@ export const whispers: PatternDef = {
     return [accept(`p${f.prop}`, tfOf(f, 'held'), { actors: [f.agent, f.subject], tags })];
   },
 
-  level(facts, _th, _dc, p: PatternParams) {
-    return levelFor(holdersOf(facts).length, p);
+  level(facts, th, dc, p: PatternParams) {
+    return levelFor(holdersOf(facts, false, insiderOf(dc, Number(th.tags.subject ?? 0))).length, p);
   },
 
-  townLevel(facts, _th, _dc, p: PatternParams) {
-    return levelFor(holdersOf(facts, true).length, p);
+  townLevel(facts, th, dc, p: PatternParams) {
+    return levelFor(holdersOf(facts, true, insiderOf(dc, Number(th.tags.subject ?? 0))).length, p);
   },
 
   cast(_facts, th) {
@@ -73,13 +90,13 @@ export const whispers: PatternDef = {
     return s > 0 ? [s] : [];
   },
 
-  bind(facts, th) {
+  bind(facts, th, _level, dc) {
     const out: Record<string, string | number | boolean> = {
       rumor: th.tags.rumor ?? '',
       named: Number(th.tags.subject ?? 0) > 0,
     };
     if (facts.length === 0) return out; // common knowledge, no private tellings to count
-    const n = holdersOf(facts).length;
+    const n = holdersOf(facts, false, insiderOf(dc, Number(th.tags.subject ?? 0))).length;
     const told = sortedByTime(ofKind(facts, 'told'));
     const first = told[0];
     const last = told[told.length - 1];

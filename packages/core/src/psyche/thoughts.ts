@@ -16,7 +16,7 @@ import { asThoughtId, type ThoughtId } from '../ids.ts';
 import { proposeNeedUrges } from '../needs/api.ts';
 import { proposeProvisionUrges } from '../provisions/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
-import { proposeSocialUrges } from '../social/api.ts';
+import { proposeSocialUrges, strifeCount, wearinessPermille } from '../social/api.ts';
 import { dayIndex } from '../time.ts';
 import { sameUrge, type Urge, type UrgeProposal, urgeLabel } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -168,11 +168,13 @@ export function fillLine(
   text: string,
   vars: { target?: string; option?: string; verb?: string; trait?: string },
 ): string {
-  return text
+  const out = text
     .replaceAll('{target}', vars.target ?? 'them')
     .replaceAll('{option}', vars.option ?? 'that')
     .replaceAll('{verb}', vars.verb ?? 'at it')
     .replaceAll('{trait}', vars.trait ?? 'not right');
+  // A line that opens on a fallback ("someone had it coming.") is still a sentence.
+  return out.charAt(0).toUpperCase() + out.slice(1);
 }
 
 /** Psyche's own thought rules for this hour, skipping fallbacks other modules already cover. */
@@ -253,6 +255,23 @@ function ruleCandidate(m: Mind, rule: ThoughtRuleDef): Candidate | null {
       base = v;
     }
     if (urge.kind === 'interaction') urge = { ...urge, targetId: pick.targetId };
+    // A quarrel tires (social strife): each hostile act between them lately scales it down.
+    if (
+      urge.kind === 'interaction' &&
+      m.content.interactions[urge.interactionId]?.tags.includes('hostile') &&
+      base > 0
+    ) {
+      const n = strifeCount(m.world, m.content, m.actorId, pick.targetId, m.ctx.now);
+      if (n > 0) {
+        const v = Math.floor((base * wearinessPermille(m.content, n)) / 1000);
+        reasons.push({
+          source: 'memory',
+          label: `Weary of it: ${n} quarrels with ${nameOf(m, pick.targetId)} lately`,
+          value: v - base,
+        });
+        base = v;
+      }
+    }
   }
   base = Math.max(0, Math.min(1000, base));
   if (base <= 0) return null;

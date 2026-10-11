@@ -3,6 +3,8 @@ import { resolveCheck, type SaveId, saveTerms, skillCheck } from '../checks.ts';
 import { rowsOf } from '../ids.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
+import { familiarityOf } from '../social/api.ts';
+import { addMinutes, MINUTES_PER_DAY, yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
 import { internProp, observe } from './api.ts';
 
@@ -24,6 +26,8 @@ export function processTells(world: World, ctx: SimContext): void {
         !place ||
         place.faeIntensity < tell.min_fae_intensity ||
         (tell.place_tags_any.length && !tell.place_tags_any.some((t) => place.tags.includes(t))) ||
+        tell.subject_not_place_tags.some((t) => place.tags.includes(t)) ||
+        (tell.subject_min_age > 0 && yearsBetween(actor.born, ctx.now) < tell.subject_min_age) ||
         isAsleep(world, ctx, actor.id) !== tell.asleep
       )
         continue;
@@ -60,12 +64,23 @@ export function processTells(world: World, ctx: SimContext): void {
           explain: check.explain,
         });
         if (check.success) continue;
+        // A concealed actor knows when they gave themselves away, and keeps clear next time.
+        if (tell.wary_days > 0 && ctx.content.peoples?.[actor.ancestryId]?.concealed === true) {
+          world.belief.wary ??= {};
+          world.belief.wary[actor.id] = {
+            until: addMinutes(ctx.now, tell.wary_days * MINUTES_PER_DAY),
+            tellId: tell.id,
+          };
+        }
       }
       for (const observer of rowsOf(world.actors)) {
         if (
           !observer.alive ||
           observer.id === actor.id ||
-          observer.placeId !== actor.placeId ||
+          (tell.observers === 'present' && observer.placeId !== actor.placeId) ||
+          (tell.min_familiarity > 0 && familiarityOf(world, observer.id, actor.id) < tell.min_familiarity) ||
+          (tell.observer_place_tags_any.length > 0 &&
+            !tell.observer_place_tags_any.some((t) => world.places[observer.placeId]?.tags.includes(t))) ||
           isAsleep(world, ctx, observer.id) ||
           (tell.household_only && observer.householdId !== actor.householdId)
         )

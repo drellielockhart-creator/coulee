@@ -94,6 +94,8 @@ export const RELATIONSHIP_KINDS = [
   'congregant_with',
   'friend',
   'rival',
+  /** module:social addition: the two are not on speaking terms (a household or kin quarrel's rupture). */
+  'estranged',
 ] as const;
 export type RelationshipKind = (typeof RELATIONSHIP_KINDS)[number];
 
@@ -525,6 +527,37 @@ export const SocialTuningSchema = z.strictObject({
   escalation_dc: int().min(0).max(40).default(12),
   /** DC points per Temper view point of the target (hot heads lose it more). */
   escalation_per_temper: int().min(0).max(10).default(2),
+  /** Hours after a retaliation before the same target loses their temper with the same initiator again. */
+  escalation_cooldown_hours: nonNegInt().default(48),
+  /** DC adjustments to losing one's temper with someone under the same roof / kin (negative = keeps it). */
+  escalation_household_dc: int().min(-20).max(20).default(-4),
+  escalation_kin_dc: int().min(-20).max(20).default(-3),
+  /** DC per hostile act between the pair inside `strife_window_days` (weariness, negative). */
+  escalation_weary_dc: int().min(-10).max(10).default(-2),
+  // ---- strife: weariness and the way out of a loop ----
+  /**
+   * Pair weariness: each hostile act between two people in the last `strife_window_days`
+   * multiplies further hostile volition, urges, retaliation and displaced acts between them
+   * by `strife_weariness_pct` percent (a quarrel tires; it does not feed on itself forever).
+   */
+  strife_window_days: int().min(1).max(365).default(14),
+  strife_weariness_pct: pct().default(60),
+  /**
+   * Rupture: `rupture_fights` fights within `rupture_window_days` between people of one
+   * household or kin, and the two stop speaking (an `estranged` edge) for `estrangement_days`,
+   * or until a third party fond of both mediates.
+   */
+  rupture_window_days: int().min(1).max(365).default(30),
+  rupture_fights: int().min(1).max(50).default(4),
+  estrangement_days: int().min(1).max(365).default(28),
+  mediation_min_affection: int().min(-100).max(100).default(15),
+  mediation_min_age: nonNegInt().default(16),
+  mediation_skill: id().default('persuade'),
+  mediation_dc: nonNegInt().default(12),
+  /** Percent by which each party's negative memories of the other lose salience when mediated. */
+  mediation_soften_pct: pct().default(50),
+  /** Interactions still possible between estranged people (amends: an apology may break the silence). */
+  estranged_allow_tags: z.array(id()).default(['amends']),
   // ---- urges (proposeSocialUrges) ----
   /** Company below this makes the lonely seek a friend's venue. */
   company_seek_below: int().min(0).max(1000).default(450),
@@ -665,6 +698,7 @@ export function socialRefs(b: ContentBundle): Issue[] {
   for (const t of Object.values(b.social_tuning)) {
     const where = `social_tuning:${t.id}`;
     for (const s of t.seek_company) checkRefs(issues, where, 'seek_company', [s.activity], b.activities, 'activity');
+    checkRefs(issues, where, 'mediation_skill', [t.mediation_skill], b.skills, 'skill');
     for (const d of t.defense_interactions)
       checkRefs(issues, where, 'defense_interactions', d.interactions, b.interactions, 'interaction');
   }

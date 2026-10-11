@@ -158,6 +158,7 @@ cooldown_hours = 24
 check = { kind = "dc", skill = "persuade", dc = 10, attitude = true }
 memory = { kind = "kindness", emotion = "joy", intensity = 10 }
 tags = ["friendly"]
+success.target_needs = { standing = 5 }
 success.target_opinion = { affection = 4, respect = 1 }
 success.target_memory = "{initiator} paid me a compliment at {place}"
 success.initiator_memory = "Complimented {target}"
@@ -189,7 +190,7 @@ minutes = 60
 tags = ["friendly"]
 success.ledger = { favors = 1 }
 success.target_opinion = { affection = 5, trust = 2 }
-success.initiator_needs = { company = 30 }
+success.initiator_needs = { company = 30, standing = 8 }
 success.target_needs = { company = 30 }
 success.target_memory = "{initiator} lent me a hand at {place}"
 success.initiator_memory = "Lent {target} a hand"
@@ -215,6 +216,7 @@ threshold = 45
 cooldown_hours = 168
 memory = { kind = "gift", emotion = "gratitude", intensity = 30 }
 tags = ["friendly"]
+success.initiator_needs = { standing = 6 }
 success.ledger = { favors = 1 }
 success.target_opinion = { affection = 6, trust = 1 }
 success.target_memory = "{initiator} brought me a little something"
@@ -248,7 +250,7 @@ id = "toast"
 name = "Stand drinks"
 label = "Toast!"
 description = "A round for the house. Everyone present warms a little; some feel obliged."
-requires = { venue_tags = ["tavern"], min_age = 16 }
+requires = { venue_tags = ["tavern"], min_age = 16, target_min_age = 16 }
 volition = [
   { driver = "value:ambition", weight = 12 },
   { driver = "need:company", weight = 15 },
@@ -267,7 +269,7 @@ success.audience = "all_present"
 success.audience_opinion = { affection = 3 }
 success.audience_needs = { company = 40 }
 success.target_opinion = { affection = 3 }
-success.target_needs = { company = 40 }
+success.target_needs = { company = 40, standing = 10 }
 success.initiator_needs = { company = 80 }
 success.target_memory = "{initiator} stood drinks at {place}"
 success.initiator_memory = "Stood drinks at {place}"

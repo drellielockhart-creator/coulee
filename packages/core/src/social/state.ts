@@ -67,6 +67,13 @@ export interface Opinion {
   cooldowns: Record<string, number>;
   /** Last derived label ('Friend', 'Enemy'...), for `social.label_changed`. */
   label: string;
+  /**
+   * Game minutes of recent hostile acts between the pair, either direction (strife.ts:
+   * weariness and rupture windows). Mirrored on both records; absent until the first.
+   */
+  strife?: number[];
+  /** Game minutes of recent fights between the pair (subset of `strife`). */
+  fights?: number[];
 }
 
 export type MemorySource =

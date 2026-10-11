@@ -23,6 +23,7 @@ import {
   computeBase,
   dailyOpinionUpkeep,
   ensureOpinion,
+  opinionLabel,
   opinionOf,
   opinionSum,
   reasonContribution,
@@ -408,5 +409,52 @@ describe('encounter sampler is O(n·k) (04 §11.2, §13.2)', () => {
     const pool = [1, 2, 3, 4, 5, 7].map(asActorId); // 6 is elsewhere
     const res = sampleCandidates(A, ties, pool, new Set<number>(pool), () => true, rng(1, 'test', 0, 1), 3, 0);
     expect(res.candidates.map((c) => c.id)).toEqual([3, 4, 7]);
+  });
+});
+
+describe('reasons keep their history; labels do not flicker (review)', () => {
+  it('the same wrong again folds into one counted Reason before anything is evicted', () => {
+    const { world, content, ctx } = fixture();
+    for (let i = 0; i < DEFAULT_TUNING.max_reasons + 3; i++) {
+      const id = mem(world, ctx, A, B, 'insult', 800);
+      const label = 'Came at me with fists at Hurd House';
+      addReason(
+        world,
+        content,
+        A,
+        B,
+        { label, cites: { kind: 'memory', id }, delta: { affection: -10, respect: 0, trust: 0, fear: 0 }, since: NOW },
+        NOW,
+      );
+    }
+    const op = world.social.opinions[A]?.[B];
+    const counted = op?.reasons.filter((r) => /\(\d+ times since April 1\)$/.test(r.label)) ?? [];
+    expect(counted.length).toBeGreaterThan(0);
+    expect(op?.reasons.some((r) => r.cites.kind === 'other')).toBe(false);
+    // The pile's weight survives the merge, up to what one Reason can carry (a delta of −100).
+    expect(opinionSum(world, A, B).affection).toBeLessThanOrEqual(-70);
+  });
+
+  it('evicted reasons fold by kind: "Old quarrels" and "Old kindnesses", never an anonymous bucket', () => {
+    const { world, content } = fixture();
+    for (let i = 0; i < DEFAULT_TUNING.max_reasons + 4; i++) {
+      const delta = { affection: i % 2 === 0 ? -(5 + i) : 5 + i, respect: 0, trust: 0, fear: 0 };
+      addReason(world, content, A, B, { label: `r${i}`, cites: { kind: 'seed' }, delta, since: NOW }, NOW);
+    }
+    const labels = (world.social.opinions[A]?.[B]?.reasons ?? [])
+      .filter((r) => r.cites.kind === 'other')
+      .map((r) => r.label);
+    expect(labels.length).toBeGreaterThan(0);
+    for (const l of labels) expect(['Old quarrels', 'Old kindnesses']).toContain(l);
+  });
+
+  it('Friend and Enemy hold with hysteresis', () => {
+    const d = (affection: number, trust: number) => ({ affection, respect: 0, trust, fear: 0 });
+    expect(opinionLabel(d(35, 15))).toBe('');
+    expect(opinionLabel(d(35, 15), 'Friend')).toBe('Friend');
+    expect(opinionLabel(d(24, 15), 'Friend')).toBe('');
+    expect(opinionLabel(d(-30, 0))).toBe('');
+    expect(opinionLabel(d(-30, 0), 'Enemy')).toBe('Enemy');
+    expect(opinionLabel(d(-20, 0), 'Enemy')).toBe('');
   });
 });

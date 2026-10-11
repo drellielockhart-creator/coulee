@@ -5,7 +5,10 @@
 # something else (true_permille_per_hour), and as a LOOKALIKE for anyone else under the same
 # conditions (lookalike_permille_per_hour). Observers can't tell the two apart: that's where
 # false accusations come from. Rolls use the `suspicion` stream, hourly at T1.
-# Unaging, fae greetings and habit gear wait for apparent age, fae actors and iron load (M2+).
+# Slow tells (observers = "acquainted"): noticed by those who know the subject well, wherever
+# they are, once a week. Fae greetings and habit gear wait for fae actors and iron load (M2+).
+# A concealed subject who fails to suppress a tell with `wary_days` keeps away from its
+# occasion for that long; the absence is a tell of its own (kept_from_meeting).
 
 [[tell]]
 id = "iron_flinch"
@@ -47,6 +50,7 @@ sabbath_only = true
 hours = { from = 8, to = 12 }
 suppress = { kind = "save", id = "will", dc = 12 }
 observe = { skill = "read_people", dc = 12 }
+wary_days = 42
 
 [[tell]]
 id = "dream_speech"
@@ -86,3 +90,40 @@ lookalikes = "Second Sight, madness, drink"
 min_fae_intensity = 2
 suppress = { kind = "save", id = "will", dc = 12 }
 observe = { skill = "read_people", dc = 15 }
+
+[[tell]]
+id = "unaging"
+name = "Unaging"
+text = "{0} has not aged a day since the first winter"
+predicate = "faekin"
+strength = 40
+# Weekly (one Sabbath afternoon hour): a face that will not age shows over seasons.
+true_permille_per_hour = 250
+lookalike_permille_per_hour = 4
+lookalikes = "good bones, a sheltered life, a lucky constitution"
+sabbath_only = true
+hours = { from = 14, to = 15 }
+subject_min_age = 25
+observers = "acquainted"
+min_familiarity = 300
+observe = { skill = "read_people", dc = 14 }
+
+[[tell]]
+id = "kept_from_meeting"
+name = "Kept from meeting"
+text = "{0} was not at meeting again"
+predicate = "faekin"
+strength = 12
+# The congregation counts who is missing. Most who stay home have a reason (a freethinker, a
+# sick child, a long walk); the hidden folk who cannot bear the bell have this one.
+true_permille_per_hour = 300
+lookalike_permille_per_hour = 6
+lookalikes = "a freethinker, a sick child, a long walk, a quarrel with the pastor"
+sabbath_only = true
+hours = { from = 10, to = 11 }
+subject_min_age = 16
+subject_not_place_tags = ["church"]
+observers = "acquainted"
+observer_place_tags_any = ["church"]
+min_familiarity = 200
+observe = { skill = "perception", dc = 8 }
