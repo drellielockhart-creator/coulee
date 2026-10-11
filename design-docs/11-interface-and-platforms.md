@@ -9,7 +9,7 @@
 - `04` §12 (dossier, rumor ledger, notifications) and the persecution rungs in §9, which `04` owns (C41).
 - `05`: §1.5 (map knowledge), §4 (calendar), §6 (burn rates and physiology, which `05` owns), §11 (Chronicle voices).
 - `06`: §3 (curses, Woe, Drift, and witch weaknesses, which `06` owns, C27), §7 (creation flow), §8 (difficulty, saves, accessibility).
-- `10-psyche` owns the Mind structure: Id/Superego/Ego, anxiety, defenses, Persona/Shadow, archetypes, dreams. This doc only lays it out on screen. `10` hadn't landed when I wrote this, so its labels here are placeholders.
+- `10-psyche` owns the Mind structure: Id/Superego/Ego, anxiety, defenses, Persona/Shadow, archetypes, dreams. This doc only lays it out on screen; the label proposals in §2.3 should be read alongside `10` §12.
 
 **Tags:** **[DECISION]** comes from `00`, the ADR, or Ellie. **[PROPOSAL]** is mine. **[OPEN]** needs Ellie. "Lead call" marks the editorial ownership calls recorded in `09`.
 
@@ -125,7 +125,7 @@ The **Explain sheet** has the same layout everywhere:
 | **6×** | 9 game-minutes | ~6.7 s | |
 | **Ultra** | Whatever the device can do | ≤ 0.6 s target | Only during Sleep/Wait/Craft/Travel with no threat perceived (`05`). |
 
-**Clock (lead call, C21).** The canonical cross-tier clock is integer game-minutes. T0 runs a sub-minute clock (game-seconds within the current minute) for movement and combat. The strip shows `4:10p` normally and `4:10:23p` in Tactical. **[OPEN for `02`/`07`]** `02` §7.2's initiative steps are 0.1 s. If they stay, the T0 sub-clock needs deciseconds. The UI handles either.
+**Clock (lead call, C21).** The canonical cross-tier clock is integer game-minutes. T0 runs a sub-minute clock (game-seconds within the current minute) for movement and combat. The strip shows `4:10p` normally and `4:10:23p` in Tactical. **[PROPOSAL, `02` §7/`07` §3.4; Ellie confirmation pending]** Initiative steps are 0.1 s on the 0–599 tenth-second sub-clock; the UI displays it as game-seconds.
 
 **The clock glyph** is a single symbol that always shows the current time policy:
 
@@ -389,7 +389,7 @@ Ledger → **Chronicle**. There's one surface with four voices (`05` §11.2), ea
 - **Marginalia and remarks** from the proprietor's Mind appear as handwritten notes. A remark is a social interaction (`03` §2.4), so it can be a lie, and the dossier will remember who said it.
 - **The ledger strip is a peek sheet.** Pull it up to Half to see order lines and the purse breakdown (specie vs. notes at discount, `03` §8.6). Pull it to Full to get three tabs: **Kit Sheet · Readiness · Flat-Lay**.
   - **Kit Sheet:** a front/back paper-doll silhouette with carry points. Tapping a point opens its nested packing list (§2.7).
-  - **Readiness:** `03` §2.4 as a list of `✓ / ✗ / ~` rows, each with a plain-words reason. The rows are **filtered through the character's Woodcraft and Lore**, so a greenhorn sees four rows and one of them is wrong. A footer reads "Your Woodcraft 1: you may not know what you don't know". **[OPEN, `03` Q6]** This matters more on phones, because there's less room to brute-force read everything.
+  - **Readiness:** `03` §2.4 as a list of `✓ / ✗ / ~` rows, each with a plain-words reason. Only **judgment rows** are filtered through Woodcraft and Lore and may be omitted or wrong; food-days, fuel, shots, fodder and spoils-first arithmetic is always correct with forecast ranges (`03` §2.4). A footer on judgment rows reads "Your Woodcraft 1: you may not know what you don't know". **[OPEN, `03` Q6]** This matters more on phones, because there's less room to brute-force read everything.
   - **Flat-Lay:** a full-screen top-down render of the chosen kit on a blanket, grouped by function, with dashed outlines for empty groups. On Pocket it starts zoomed to fit, and pinch zooms in. Tapping an item opens its Book page. The Flat-Lay is also the **best "what am I missing?" glance in the game**, so it's reachable from Pack anywhere, not only in the store.
 - **Rotating to landscape (Folio) gives the two-page spread**: plate left, listing right, and the Kit Sheet as a docked third column at ≥ 900 px.
 
@@ -420,7 +420,7 @@ Pack → **Kit**. One data model, `03` §3.4 nesting, shown as an indented ledge
 - **Reach time** is a right-aligned column. Re-packing "for the emergency you expect" (`03` §3.4) shows its payoff immediately: the powder horn moves from pack-interior 30 s to belt 3 s.
 - **Consequences in plain words** come from a `loadConsequences` query and update live. Each line expands to its Explain.
 - **Quick actions** in context: Lash noisy items, Dry (near a fire), Oil, Drop pack (an emergency, a single tap, available from the rail during Danger).
-- **[PROPOSAL]** No spatial grid. That follows `03`'s recommendation, but `08` 2.4 is still open. A grid would make the pocket UI worse, which is one more argument for `03`'s position.
+- **[PROPOSAL]** No spatial grid. That follows `03`'s recommendation, but `08` Q16 is still open. A grid would make the pocket UI worse, which is one more argument for `03`'s position.
 
 ### 2.8 The provisions planner (P8)
 
@@ -499,14 +499,14 @@ Pack → **Provisions**. This is P8's promise made legible: **days of food at cu
 ```
 
 - **🎲 Randomize** applies to the current screen. Long-press it to randomize everything from here on.
-- **Show the math** opens a sheet with the people's modifiers, from content (`PeopleSchema`), as an Explain. **[DECISION]** The four peoples are canon. **[PROPOSAL]** Descriptions stay as blank placeholders until `12-peoples.md` lands. The UI must not invent lore.
+- **Show the math** opens a sheet with the people's modifiers, from content (`PeopleSchema`), as an Explain. **[DECISION]** The four peoples are canon. **[PROPOSAL]** Descriptions draw from `12-peoples.md` once its lore proposals are approved; the UI must not invent lore.
 - **Shadow-faekin concealment** is **[DECISION]** (ADR: concealed by default, passes as human or elf; the code has `concealed` and `passes_as`). **[OPEN] How the UI frames it** touches real-world "passing" narratives. Options for Ellie:
   - **(a) Fae-forward framing.** The language is all about fae concealment: glamour, tells, iron, a name the fae know you by. Discovery comes through fae signs. No vocabulary is borrowed from racial passing.
   - **(b) Social-identity framing.** The UI uses the identity model (C47: you present a Figure; others hold `IsFigure`/`Is(kind)` credences), the same as an alias or a cover. It's mechanically uniform and emotionally neutral.
   - **(c) Explicit theme.** The game names the experience of hiding who you are, with care and sensitivity readers.
 
   I recommend (a)+(b): fae framing in the words, the identity model underneath, and no gamified "exposure meter". Discovery shows as other actors' *beliefs* in the dossier, the same as any rumor.
-- **Goblins:** the card stays plain and neutral until `12` lands. See the depiction rules in §7.7.
+- **Goblins:** the card stays plain and neutral pending approval of `12`'s lore and this doc's depiction options (§7.7).
 - **Persona** is set on the Traits screen as "the face you show". The Shadow isn't chosen by the player. It's derived from traits by `10`'s rules and starts hatched.
 - **Ties** (screen 14) shows each generated actor as a dossier peek, and each one can be edited.
 - **Review** is a PHB-style sheet that scrolls vertically. At Desk it's a two-page sheet.
@@ -1028,7 +1028,7 @@ Woodcut-style glyphs on a 24 px grid with 2 px strokes, filled or outlined by st
 **[PROPOSAL]** Ellie owns these choices. These rules keep the options open and avoid foreclosing anything by accident.
 
 - **Period print carries baggage.** 1850s engravings and newspaper cuts routinely caricatured Irish, German, Black, Native, and Jewish people. **The style guide adopts the hatching technique, not the period's caricature conventions.** No exaggerated ethnic features, no minstrel or "comic immigrant" types, and no "savage" iconography. Every plate and woodcut gets this check in review.
-- **Goblins.** The caricature risk is the highest here: hooked noses, money-grubbing, hoarding, "swarthy" coding, and vermin imagery all have antisemitic and racist history. Until `12` lands, goblins get a **neutral silhouette and palette** taken from the shared Cloth and Built families, with no "goblin color". **[OPEN]** Options for Ellie:
+- **Goblins.** The caricature risk is the highest here: hooked noses, money-grubbing, hoarding, "swarthy" coding, and vermin imagery all have antisemitic and racist history. Pending approval of `12`'s lore and these depiction options, goblins get a **neutral silhouette and palette** taken from the shared Cloth and Built families, with no "goblin color". **[OPEN]** Options for Ellie:
   - (a) Folklore-first design: household hobgoblins, mine knockers, and similar European traditions.
   - (b) A wholly invented look.
   - (c) Goblins as a settler-era immigrant people. If so, the risk of mapping them onto a real ethnicity has to be checked (`01` §6.1).

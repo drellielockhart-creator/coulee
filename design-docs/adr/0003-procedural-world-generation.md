@@ -19,7 +19,7 @@
    9. **History pre-roll:** run the headless social sim for N years (default 5–10, fast T1/T2) before play starts, so grudges, debts, rumors, courtships, and Figures already exist. The chronicle of the pre-roll becomes "local history" the player can learn.
    10. **Set pieces:** 01's authored NPC seeds and anchor sites (the Prince's seat, the mine district, the innkeeper's grudge) become **templates with placement constraints** that the generator casts onto suitable generated people and places.
 4. **Constraints over coordinates.** Authored content says *what must exist and what it must be near* ("a ford town on a mid-size creek within a day of a fae anchor"), not *where*. A curated seed is a generator seed plus constraints, optionally pinned.
-5. **Generation is playtested.** Agent playtests (ADR 0002) run across many seeds. A **worldgen QA harness** flags degenerate worlds automatically: no ford town, unreachable sites, starvation within a month, a fae intensity desert, a town with no tensions.
+5. **Generation is playtested.** Agent playtests (ADR 0002) run across many seeds. A **worldgen QA harness** flags degenerate worlds automatically: no ford town, unreachable sites, an unplayable starting food situation or county-wide collapse (the threshold is open: 08 Q08; a hungry spring and individual household hardship are intended and reported, not rejected), a fae intensity desert, a town with no tensions.
 
 ## Consequences
 - The iron_ford fixture and today's schemas stay valid.

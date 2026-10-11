@@ -825,7 +825,7 @@ Curses are a **separate catalog of Rites**, not spells, because they run on a di
 - **`10`** owns what needs *say*: the need-to-drive registry (`10` §3.4), so a hungry actor hears Appetite, and **monotony** as a mood thought.
 - **This doc** owns what each stage *does* to checks, Vigor, and the body: the conditions.
 
-Needs are on the ADR's 0–1000 scale (1000 = satisfied). The thresholds below are the code's current bands (`content/base/needs/needs.toml`) as placeholders until `05` restates its 0–100 values ×10.
+Needs are on the ADR's 0–1000 scale (1000 = satisfied). The thresholds below match the revised `05` §6.1/§6.4 and the current content bands (`content/base/needs/needs.toml`); `05` owns burn rates and thresholds.
 
 | Need | Meter (`05` rates) | Stage → rules effect |
 |---|---|---|
@@ -980,7 +980,7 @@ chance_pct_one_parent = 50
 | `fae.*` | Inputs to `06` (weaknesses, Drift) and to §11.2's Bound chain | §11.2, `06` |
 | `fae_notice_mod` | Adds to how far and how vividly fae perceive you (with CHA, §2.1) | `05` encounters |
 | `renounced` (elf) | +2 Will vs. fae enchantment (Charmed, Glamoured, Fascinated by fae music); −4 to effects that target the sealed name | §3.7, §10.5 |
-| `the_pull` (elf) | At FI ≥ 3, an hourly Id `longing` thought (intensity 40 + 10 per FI step above 3) feeding fae longing | `10`, §11.2 |
+| `the_pull` (elf) | At FI ≥ 3, an hourly Id `longing` thought (intensity 40 + 10 per FI step above 3) feeding fae longing | `10` §3.4; this doc §11.2 |
 | `see_the_seam` (faekin) | +4 Perception vs. glamour; no FI overlay (unlike Second Sight) | §5.3, §10.5 |
 | `kin_guest_right` (faekin) | Counts as fae for hospitality and thresholds in fae dwellings; doesn't stack with Fae-Touched's *Between* | §6.3 |
 | `dream_true` (faekin) | Their dreams from Faerie more often carry real information | `10` §9 |
@@ -1174,7 +1174,7 @@ The doc is the design target. These are divergences for the module owners; no co
 4. **Rest band "Tired" sets no condition.** It should set `fatigued` (§11).
 5. **`Sheet.literate: boolean`.** §4.1 has literacy per script (`literacy: string[]`), and NPC literacy rates come from the culture record, not the people (`12` §13).
 6. **Peoples schema.** See `12` §13. From this doc's side: replace `cold_iron_sensitive` with the `[people.fae]` block (§12.4); move `literacy_pct` and `languages` to a culture record; add `max_roll`, `darkvision_ft`, `kcal_pct`, `traits`, `skill_bonus`, `floating_mod`, `bonus_upbringing_feats`, `bonus_skill_points_l1`, and `inheritance`; restrict `ability_mods` for peoples to STR/DEX/CON in −1..1, with a lint that the non-floating sum is 0.
-7. **Site tile size.** `SiteSchema.tile_ft` defaults to 10, but reach, AoO adjacency, and range-increment conversions here assume 5-ft tiles (`05`, §9.9). `11` flagged the same thing.
+7. **Site tile size.** `SiteSchema.tile_ft` defaults to 10, but reach, AoO adjacency, and range-increment conversions here assume 5-ft tiles (this doc §9.9; `05` §2.1). `11` flagged the same thing.
 8. **No T0 sub-clock yet.** `time.ts` is minutes-only, which is right for M1. M6 combat needs `tenth` and `T0Instant` (`07` §3.4), and RNG keyed by instant (§1.4).
 9. **No weapon or armor fields.** `schema/items.ts` has an `armor` section but no stat block. Add the optional `weapon` and `armor` blocks from §9.10, with integer values and `reload_tenths`.
 10. **Explain knowledge for people traits.** When people-trait terms land, they must carry `knowledge: 'self'` (or `'omniscient'` for an actor who doesn't know), or a check breakdown will out a shadow-faekin (§12.6).

@@ -1,397 +1,142 @@
 # 08 — Open Questions for Ellie
 
-**Status:** A consolidated, deduplicated decision checklist built from the "Open questions" sections of `01`–`07` and the **[NEEDS DECISION]** items in `09-consistency-notes.md` (cited as **C#**). It's current as of the second 2026-10-10 revision of `00` (P6–P8) and `adr/0001`.
+**Status:** Current decision checklist, 2026-10-11. Sources: revised 01–07, 10–12, and ADRs 0001–0003. [09](09-consistency-notes.md) tracks conflicts as **C#** and separates decisions from integration work. A proposal appearing in several docs is still a proposal.
 
-**How to read it:** each item gives the question, the options on the table (who proposed what), the recommendation if any doc made one (**Rec**), and the sources. Check the box when it's decided, and record the answer in `00`'s decisions log.
+Check a box when answered; record the answer in the owning doc and, when it changes canon, 00's decisions log. **Rec** names the recommending doc; an editorial recommendation is labelled explicitly. Source **Q** numbers refer to each doc's closing questions, not this checklist.
 
-**Tiers:**
-1. **Blocking for prototyping.** Answer these before or early in coding (milestones M0–M4).
-2. **Important but can wait.** These shape systems or content that are built later.
-3. **Flavor and taste calls.**
+## Start here
 
----
+These ten answers unblock M4 provisions/Outfitter, M5a worldgen, M5 travel, M6 combat, and the M7/M8 slices. A sentence or two each is enough; the full options and sources are in Q01–Q10 below.
 
-## 0. Already decided (closes these doc questions)
+1. **Readiness:** should practical judgments be skill-gated and fallible while supplies arithmetic is always correct?
+2. **Provisions difficulty:** use a Period-default Larder dial and an optional gentle spring, or one fixed severity?
+3. **World/device target:** approve Standard (~720 sq mi/~800 named) on the proposed phone floor, and put the county seat on-map or off-map?
+4. **Combat:** approve tenth-second actions, auto-pause/auto-Tactical, and the proposed possibility of a fatal level-1 musket hit?
+5. **PC agency:** advisory Ego with anxiety costs, or allow forced Fits—and which default?
+6. **Concealment/prejudice:** use folkloric + psychological framing and restrained human/fantasy priors; should identity-only persecution stop at rung 3 or 4?
+7. **Worldgen setting constraints:** which Native-nations option and consultation budget, and how much real river geography must generation preserve?
+8. **Pre-roll/seed QA:** start with five or ten history years, and what starvation makes a generated seed invalid?
+9. **Adventurer slice:** retain M7 before M8, and what starting purse/debt and class scope should its first opening use?
+10. **Witch slice:** adopt 02's half-level + CHA curse DC and 06's nature/claim split, with which offset-combination rule?
 
-These came out of `00`'s revisions. The listed questions are closed and appear nowhere else in this file.
+## Already answered
 
-- **Start in spring 1855.** Closes most of `01` Q2 (the Civil War part is still open, see 2.1), `03` Q1, and the start-date half of `05` Q3 and `06` Q10. Selectable eras are still open (1.3).
-- **TypeScript PWA stack** (`adr/0001`):
-  - Node 26, pnpm, Vite, React, and three.js, with the sim in a Web Worker.
-  - Capacitor and Tauri later.
-  - Integer game-minutes since 1855-04-01, and 1× ≈ 40 real seconds per game-hour.
-  - A psyche-lite Mind for M1.
-  - Closes `07` Q2, Q3, and Q9.
-- **Headless harness first** (ADR: "the sim harness as the first target"). Closes `07` Q1.
-- **P8 "crunch you can pack":** detailed food, nutrition, spoilage, consumables, and pantries. This raises a new conflict (C48, below).
-- **Phones are a full target** ("pocket" UI), equal with desktop.
-- **Blender for placeholder art.** Closes most of `07` Q8.
-- **No alignment; a Freud/Jung psyche instead.** Closes `02` Q5 and the alignment half of `04` Q1.
-- **Peoples are humans, elves, shadow-faekin, and goblins.** Shadow-faekin are concealed by default and known only through others' beliefs (ADR). Closes the roster half of `01` Q9.
-- **Departure is a third way to end a run.** Closes `06`'s challenge.
-- **Fae intensity is a per-tile field with a map baseline; tiers include relevance; populations use census materialization.** Closes the challenges from `02`, `04`, `05`, and `07`. `05` Q1 is mostly closed too; scale is still open (1.2).
-- **"Figure" replaces "Persona"** for rumor identities. Applied in `04`.
+- [x] **TypeScript PWA stack:** Node/pnpm/React/three.js, pure core in a worker; optional wrappers later. [ADR 0001](adr/0001-typescript-stack.md).
+- [x] **Phones and desktop are full, equal targets:** a pocket interface, not a reduced ruleset. [00 P6](00-vision-and-pillars.md#p6-readable-from-above-and-from-a-pocket).
+- [x] **Freud/Jung psyche replaces alignment:** Id/Superego thoughts, Ego arbitration, anxiety and defenses. Implementation defaults remain below. [00 P7](00-vision-and-pillars.md#p7-the-psyche-is-the-alignment-system).
+- [x] **Four peoples:** humans, elves, concealed shadow-faekin, goblins. Origins and modifiers remain proposals, not an unnamed roster. [00 Setting](00-vision-and-pillars.md#setting-in-brief), [12](12-peoples.md).
+- [x] **Blender placeholder art.** [00 Decisions log](00-vision-and-pillars.md#decisions-log), [ADR 0001 Stack](adr/0001-typescript-stack.md#stack).
+- [x] **P8 supply crunch:** food/nutrition/spoilage/prep/consumables/packaging/pantries; one planner/sim rules path. [00 P8](00-vision-and-pillars.md#p8-crunch-you-can-pack), [03 §3.7–3.9](03-gear-and-economy.md).
+- [x] **Fully playable headless, UI Command parity, and agent playtests at every milestone:** fair by default, explicit god mode, replay logs and telemetry. [ADR 0002](adr/0002-headless-play-and-agent-playtesting.md).
+- [x] **Procedural worlds by default; authored scenarios remain fixtures/curated inputs. Worldgen is M5a before M5 travel.** Hollin supplies flavor/constraints. [ADR 0003](adr/0003-procedural-world-generation.md).
+- [x] **Spring 1855 start; dollars and cents; integer game-minutes since 1855-04-01; integer stored state and deterministic math.** No selectable start-year question remains. [00](00-vision-and-pillars.md), [ADR 0001](adr/0001-typescript-stack.md).
+- [x] **Figure is a rumor identity; Persona is a Jungian mask. Census materialization, relevance-aware LOD, universal Drift, and death/retirement/departure with legacy play are canon.** [00 Glossary and structural decisions](00-vision-and-pillars.md#core-structural-decisions).
+- [x] **Fair play does not reveal off-screen truth; the post-run Chronicle does.** The remaining choice concerns legacy presentation, not live omniscience. [00 P1](00-vision-and-pillars.md#p1-simulationist-first).
 
----
+## 1. Blocking for prototyping
 
-## ★ First: peoples (Ellie's own pending item)
+### 1.1 Upcoming milestone decisions (the Start here ten)
 
-You've named the four peoples. The fuller lore is still yours to write in `12-peoples.md`. These questions from the docs are waiting on it:
+- [ ] **Q01. Readiness judgment versus arithmetic (M4).** Approve the split, or show all practical judgments accurately regardless of skill? **03** gates recommendations/omissions by Woodcraft/Lore but always shows correct food-days, fuel, shots, fodder and spoils-first arithmetic with forecast ranges; **11** now defers to that split. **Rec (03):** keep fallible judgment, correct arithmetic. Sources: [03 §2.4, Q6](03-gear-and-economy.md), [11 §2.6–2.8](11-interface-and-platforms.md); C65.
 
-- [ ] **What is each people's relationship to Faerie?**
-  - Are elves "renouncers": ex-fae who chose iron and names, the bitterest enemies of witches? Or are they unrelated to Faerie? ([01 §6.1–6.2](01-setting.md))
-  - How are shadow-faekin different from three existing things: `02`'s **Fae-Touched** class ("changeling, caul-born"), `06`'s **Drift** stat, and `06`'s Changeling mode sketch? Without a clear line, four mechanisms will all represent "part-fae person". (C5, [02 §6.3](02-rules-and-characters.md), [06 §3.8, §6](06-game-modes.md))
-- [ ] **How do shadow-faekin pass and get discovered?** The ADR settles that they're concealed by default and known only through beliefs. Still open: how discovery works, and whether one identity model covers this along with aliases (`02`), cover identities (`06`), Figures (`04`), and the Jungian Persona (`00`). `09` recommends one model. (C5, C47)
-- [ ] **Goblins: what are they in this world?** No doc mentions them. Check the concept against `01`'s cautions: don't fill the "were here first, close to nature" slot (it reads as a Native stand-in), and don't map a people onto a real ethnicity. ([01 §6.1](01-setting.md), C5)
-- [ ] **Do peoples differ mechanically against fae rules** (iron, thresholds, running water, Drift gain)? ([01 §6.2](01-setting.md), [02 §12](02-rules-and-characters.md) schema, which has `cold_iron_sensitive` and `fae_intensity_comfort`)
-- [ ] **Can any people become a witch, and does the Prince prefer some?** ([01 §6.2](01-setting.md))
-- [ ] **Should prejudice between peoples be simulated?**
-  - Should opinion priors key on ancestry (`02`'s `social_tags`)?
-  - The question underneath: should the sim redirect real-world frontier prejudice onto fantasy peoples, soften it, or reproduce it among human groups too? `04`'s attribution "Outsider" term will reproduce prejudice dynamics either way.
-  - Sources: [02 §12, Q10](02-rules-and-characters.md), [04 Q2](04-social-simulation.md), [06 §3.2](06-game-modes.md)
-- [ ] **Where did each people come from?** Did elves and goblins arrive as settlers alongside Yankees and Norwegians, or were they already in the Driftless? If they were already there, see `01`'s caution about the "were here first" slot. ([01 §6.2](01-setting.md))
+- [ ] **Q02. Provisions severity and spring start (M4/M5a).** One fixed severity, or **03**'s Larder dial (forgiving / period / harsh)? Should **05**'s lean-spring pantry output get an optional multiplier, and should the PC's larder come from Origin rather than the pre-roll? **Rec (03):** Period default, forgiving available; keep shortages legible. **05** asks about gentle spring without choosing it. Sources: [03 Q14](03-gear-and-economy.md), [05 §6.9, Q16](05-world-sim-and-storyteller.md), [06 §8.1](06-game-modes.md); C48/C60.
 
----
+- [ ] **Q03. World presets, device floor, and seat (M5a/M5).** **05/07/11** propose Small/Standard/Large (~400/800/1,500 named), Standard everywhere, with World size the only scale lever and a speed governor on slower devices. **11** proposes iPhone 12 / 2022 Android mid-range as the floor; iPhone 15 / Pixel 8a class as the mid-phone benchmark. **01** puts the county seat on-map, land office off-map; **05** recommends the seat off-map too. **Rec (11/07):** same saved sim on all devices; **Rec (editor):** use 01's on-map seat to avoid splitting the opening's institutions. Sources: [01 §3.2, Q20](01-setting.md), [05 §1.2, Q15](05-world-sim-and-storyteller.md), [07 §6, Q3](07-architecture-and-prototype.md), [11 §5.2/§5.6, Q1–3](11-interface-and-platforms.md); C2/C9.
 
-## 1. Blocking for prototyping (answer before or early in coding)
+- [ ] **Q04. Combat timing, control, and lethality (M6).** **02/07** propose 0–599 tenths within each game-minute; **11** proposes pause on perceived hostility, Tactical at 1 game-second/real second, and Pocket pause-on-action-end by default. Keep **02**'s Vigor/Wounds model in which a level-1 musket head/torso crit can kill, or soften it? **Rec (07/11):** tenths plus auto-Tactical; **02** leaves lethality to you. Sources: [02 §7/§8–9, Q4/Q15](02-rules-and-characters.md), [07 §3.4, Q1](07-architecture-and-prototype.md), [11 §1.6/§2.11, Q5](11-interface-and-platforms.md); C21/C50.
 
-### 1.1 Tech and platform
+- [ ] **Q05. PC agency under the psyche (M6/M7).** **10** offers (a) advisory only, (b) advisory with anxiety costs for overriding, or (c) costs plus forced Fits behind a switch. **02** recommends forced Panicked Fits on in Frontier and off in Settler; **10** recommends (b). **Rec (10; editor for initial slice):** (b), with costs previewed by the same command rules used for NPC urges; defer forced control until playtests establish its value. Sources: [10 §5.5, Q1](10-psyche.md), [02 §9.8, Q9](02-rules-and-characters.md), [06 §8](06-game-modes.md); C50/C67.
 
-- [ ] **Confirm the `07` rewrite to match `adr/0001`.**
-  - Rust, Godot, and session-plan specifics go.
-  - The architecture principles stay.
-  - Budgets get restated for TS and phones.
-  - (C1, [07](07-architecture-and-prototype.md), [adr/0001](adr/0001-typescript-stack.md))
-- [ ] **Integer and table-based math for `04` and `05`.**
-  - The ADR bans `exp`/`log`/`pow` in core and requires integer state.
-  - That conflicts with `04`'s exponential salience decay, log-odds credence, and sigmoid, and with `05`'s logistic ecology growth and 0–100 meters.
-  - **Rec (`09`):** keep the models, implement them with lookup tables, and store values at the ADR's integer scales.
-  - (C49)
-- [ ] **Which phone, and how much simulation runs on it?**
-  - The perf budgets in `04`, `05`, and `07` were set for a desktop running Rust.
-  - **Option (a):** the full county sim runs on the device, probably in a Web Worker.
-  - **Option (b):** phones get a smaller county.
-  - **Option (c):** phones get a reduced T2 cadence.
-  - Pick a minimum target device. (C2, [07 §6](07-architecture-and-prototype.md), [04 §13](04-social-simulation.md), [05 §3.5](05-world-sim-and-storyteller.md))
-- [ ] **Confirm the mode order for the vertical slice.**
-  - Adventurer first, with one NPC witch running at T1, then witch mode. `06` and `07` agree on this.
-  - `07` also pulls a headless witch-hunt scenario forward into M2.
-  - ([06 Q11](06-game-modes.md), [07 §9](07-architecture-and-prototype.md))
+- [ ] **Q06. Concealment framing, prejudice, and escalation (M5a/M7/M8).** **12** offers F1 folklore, F2 universal psychology, F3 explicit social analogy; **10** additionally offers covenant concealment or a per-World framing. Prejudice options in **12**: P1 full human/fantasy priors, P2 fantasy-only, P3 restrained both, P4 no group priors, with a 0–150% dial. **04** proposes identity-only suspicion stops at rung 4 until an act is attributed, or asks whether 3 is the limit. **Rec (12/11):** F1+F2, P3 plus the dial, no real-race vocabulary for faekin; **Rec (editor):** rung 3 for identity alone. Sources: [12 §7.8/§11.1, Q6/Q8](12-peoples.md), [10 §8.1, Q4](10-psyche.md), [11 §2.9, Q7](11-interface-and-platforms.md), [04 §9.2, Q13/Q18](04-social-simulation.md); C5/C54/C67. Concealment itself is decided.
 
-### 1.2 Simulation scale
+- [ ] **Q07. Native nations and geographic constraints (M5a).** **01** offers A real historical presence, B fictional nations, C divergent political history with real sovereign nations, D omission. Which, and will consultation be funded? Separately, must generated counties sit on real Mississippi/Kickapoo/Wisconsin geography, use only real river anchors with invented tributaries, or be fully fictional? **Rec (01):** C with paid consultation; fictional county on real rivers. **ADR 0003** fixes generation, not those geographic pins. Sources: [01 §2/§3.2, Q1/Q3](01-setting.md), [05 §1.2, Q2/Q9](05-world-sim-and-storyteller.md), [ADR 0003 Decision 3–4](adr/0003-procedural-world-generation.md#decision); C10/C58. This must precede shipping generated setting content; a neighbor placeholder is not a shipped solution.
 
-- [ ] **County size and population.**
-  - **`05`:** 720 sq mi, about 6 settlements, 3,000–5,000 people, of which 600–1,500 are named and the rest are lazily materialized census.
-  - **`07`:** 2,000–5,000 named actors across 10–25 settlements, all with full minds.
-  - **`04`:** 2,000–5,000 named, or a historical-scale 10–15k with census.
-  - **`01`:** "a few hundred sq mi", 6–10 hearths.
-  - **Rec (`09`):** use `05`'s numbers and lean small for TS on phones.
-  - (C9; [04 Q8, §13.3](04-social-simulation.md), [05 §1.2, §3.5, Q1](05-world-sim-and-storyteller.md), [07 Q4](07-architecture-and-prototype.md), [01 §3.2](01-setting.md))
-- [ ] **Is the county seat on the map or off it?** `05` puts it on-map, with the newspaper and court day. `01` puts it off-map, with Iron Ford running its own *Sentinel*. (C9)
+- [ ] **Q08. History pre-roll and seed validity (M5a).** **ADR 0003** proposes 5–10 years and flags “starvation within a month”; **05/07** intentionally model a hungry spring and household shortage/death. Start with five or ten years? Does QA reject an unavoidable PC starvation start, any household starvation, or only county-wide collapse? **Rec (editor):** five years initially; hard-fail an unplayable starting route/food situation or unreachable required site, report household hardship separately. Keep the ADR's <3 s phone target as a benchmark; a miss needs an explicit lead review. Sources: [ADR 0003 Decision 3/5 and Consequences](adr/0003-procedural-world-generation.md), [05 §6.9](05-world-sim-and-storyteller.md), [07 §12.3](07-architecture-and-prototype.md); C59/C60. Generation, history, and multi-seed playtesting are already decided.
 
-### 1.3 Time
+- [ ] **Q09. First adventurer slice/opening (M4/M7).** Retain **07**'s M7 adventurer before M8 witch, with an NPC witch exercised earlier, or prioritize the witch slice? Which classes are required for that slice: **02**'s nine, a reduced selection, or variants including a settled Pastor? Use **03**'s Background purses ($20–$150), rolled variance (its Rec) or fixed, and optional borrowing versus default grubstake debt? **Rec (07; editor for scope):** adventurer first, a representative reduced class selection, fixed Background purses and optional debt for reproducible opening tests. Sources: [07 §12.6–12.7](07-architecture-and-prototype.md), [02 Q6](02-rules-and-characters.md), [03 §7, Q4/Q7](03-gear-and-economy.md), [06 Q7/Q11](06-game-modes.md); C31.
 
-- [ ] **Sub-minute timing and combat speed.**
-  - The ADR fixes the clock: integer game-minutes, with 1× ≈ 40 real seconds per game-hour.
-  - `02`'s combat needs sub-second timing: 0.5 s swift actions, 0.1 s initiative steps, and 3 s attacks.
-  - Two things are open:
-    - how T0 schedules actions inside a minute (millisecond offsets?)
-    - whether combat auto-drops to a tactical speed of about 1 game-second per real second
-  - `05`'s 1× speed (60 s per game-hour) and `07`'s 1-second Tick are superseded.
-  - (C21; [02 §7](02-rules-and-characters.md), [05 §4.1](05-world-sim-and-storyteller.md), [07 Q5](07-architecture-and-prototype.md))
-- [ ] **Is the start year ever selectable?**
-  - **`05`:** pick any year in 1835–1870, with era variants.
-  - **`06`:** a "starting year" setting on the World screen.
-  - **Rec (`09`):** fixed spring 1855 for v1, with other eras reachable only through legacy time-skips.
-  - (C6; [05 §1.2, Q3](05-world-sim-and-storyteller.md), [06 §7.1, Q10](06-game-modes.md))
+- [ ] **Q10. Curse DC and weaknesses (M8, earlier NPC fixture).** Choose **02**'s `10 + floor(level/2) + CHA mod + link + timing + Gifts + Woe boost`, or **06**'s interim full-level/no-CHA form. Approve **06**'s nature/claim split (Pact +25 claim, +5/moon Arrears to +20), then choose highest-wins or stacking nature offsets; **02** proposes feature +20/Hardship +40, **06** still calls both +20, and **12** offers faekin +30 or +25. **Rec (02/06/12):** half-level + CHA; split tracks; highest-wins; faekin +30. The editor recommends retaining 02's separate feature/Hardship values. Sources: [02 §10.6/§12.4, Q14/Q16](02-rules-and-characters.md), [06 §3.5/§3.8.1, Q15/Q16](06-game-modes.md), [12 §6.6, Q10](12-peoples.md); C27/C29. Ownership is settled: 02 DC, 06 curves/protections, 03 IP, 12 heritage inputs.
 
-### 1.4 Mind and social model (needed for M1–M2)
+### 1.2 Shared contracts and tuning decisions
 
-- [ ] **How does `04`'s Mind fold into the ADR's psyche-lite?**
-  - Psyche-lite: `egoStrength`, `superegoStrictness`, and `idAppetite`; Thoughts voiced by Id or Superego; hourly Ego arbitration; defenses as events.
-  - **`09` rec:**
-    - `04`'s nine Values become Superego content and Id temperament.
-    - Projection and displacement become terms in `04`'s attribution formula.
-    - Decide whether `egoStrength` is seeded from WIS.
-  - `10-psyche.md` owns the answer.
-  - The Values half of `04` Q1 is still open: "Which period values would you add or swap (Propriety, Temperance)?"
-  - (C3; [04 §3, Q1](04-social-simulation.md), [00 P7](00-vision-and-pillars.md), [adr/0001](adr/0001-typescript-stack.md))
-- [ ] **What's the opinion model?**
-  - **`04`:** Affection, Respect, Trust, Fear, plus an Obligation ledger. Opinions change only through Reasons. Grudges are separate objects.
-  - **`07`:** four `i8` fields with an embedded grudge, and no Obligation or Reasons.
-  - **`06`:** the Prince rates the witch on amusement, esteem, trust, and desire.
-  - **Rec (`09`):** `04`'s model everywhere, with the Prince's dimensions mapped onto it.
-  - (C36; [04 §6](04-social-simulation.md), [07 §3.3](07-architecture-and-prototype.md), [06 §3.4](06-game-modes.md))
-- [ ] **Do grudges decay?**
-  - The lore says no: the Prince's whole thesis is that "grudges don't decay". The mechanics say yes: `04` decays them with a time constant τ of 60 days × (1 + Rancor).
-  - **Option (a):** grudges about uncanny or fae events never decay, or decay only to a high floor. `09` recommends this, since it makes the lore literally true.
-  - **Option (b):** keep `04`'s math and soften the lore.
-  - (C12; [01 §4.4](01-setting.md), [04 §6.3, §9.5](04-social-simulation.md))
-- [ ] **What's the canonical need list?** It needs to cover:
-  - human physical needs (`05`)
-  - social needs (`04`: Company, Standing, Security, Faith)
-  - the vice and longing needs `02` cites, which `04` doesn't define: drink and fae-longing
-  - fae needs (`01`: tribute, recognition, propriety, novelty)
-  - `07` M1's list
-  
-  Also decide whether `04` owns the list or `10` does. (C38)
-- [ ] **Should `07` implement `04`'s Belief and Rumor model in full?**
-  - That model means interned propositions, typed evidence, lineage-based novelty, and T2 compartments.
-  - `07` currently has simpler Rumor claims and per-settlement penetration.
-  - **Rec (`09`):** yes, `04`'s semantics.
-  - (C37; [04 §4–5, §8, §11.3](04-social-simulation.md), [07 §3.3, §6](07-architecture-and-prototype.md))
-- [ ] **Who owns the persecution ladder?** Three versions exist:
-  - **`04`:** rungs 0–6, Heat and Consensus. `04` declares that it owns this.
-  - **`05`:** a settlement alert level from 0–5, plus HearthState.
-  - **`06`:** witch notoriety tiers (Unknown → Hunted).
-  
-  **Rec (`09`):** `04` owns persecution of any person or Figure. `05`'s alert level covers only non-person threats. `06`'s tiers become labels for `04`'s rungs. Merge `04`'s M with `05`'s fear. (C41; [04 §9](04-social-simulation.md), [05 §7.1](05-world-sim-and-storyteller.md), [06 §3.9](06-game-modes.md))
-- [ ] **Is there an investigation skill?** `04` and `05` lean heavily on Gather Information, but `02` has no such skill.
-  - **Option (a):** add Gather Information to `02` as a CHA skill. `09` recommends this.
-  - **Option (b):** map it to Persuade plus Lore (Local).
-  - **Option (c):** make it an interaction resolved with Read People.
-  - (C20)
-- [ ] **What does the Chronicle show during play?**
-  - `05` and `04` show only what the PC knows during a run and reveal the full truth post-run. That matches `00` P1.
-  - `06` calls a live rumor-vs-truth side-by-side its "signature feature".
-  - **Rec (`09`):** keep the side-by-side for the post-run epilogue.
-  - Underneath that: is the post-run reveal a core payoff, or a spoiler for legacy play in the same World? ([04 Q9](04-social-simulation.md))
-  - (C44; [05 §11](05-world-sim-and-storyteller.md), [06 §1.2](06-game-modes.md))
+- [ ] **Q11. Self-knowledge in fair play.** Can the PC be ignorant of their Shadow/defenses until Insight, while conscious thoughts and participated-check math remain explainable? Or should all own defenses be visible immediately? **Rec (10/11):** Insight reveals masked defenses over time; **Rec (editor):** fair Explain shows conscious reasons/costs and labels inferred contributions without exposing their hidden source. Sources: [10 §8.5, Q11](10-psyche.md), [11 §2.3, Q6](11-interface-and-platforms.md), [ADR 0002 Decision 2](adr/0002-headless-play-and-agent-playtesting.md); C51. Live hidden truth is not an option.
 
-- [ ] **Which doc owns which parts of the P8 food model?**
-  - `00` P8 asks for calories, nutrition and freshness, spoilage, preparation, rationing, and household pantries.
-  - `03`'s item schema has no kcal or shelf-life fields. `02`'s hunger counts days. Nothing models scurvy, monotony, or cooking.
-  - **Rec (`09`):**
-    - `03` owns item fields.
-    - `05` owns burn rates, spoilage physics, and pantries.
-    - `02` owns deficiency conditions.
-    - `04`/`10` owns monotony.
-  - Needed by M1 (NPC needs) and M4 (Outfitter).
-  - (C48, C24; [00 P8](00-vision-and-pillars.md), [03 §3.1, §6.4](03-gear-and-economy.md), [05 §6.1](05-world-sim-and-storyteller.md), [02 §11](02-rules-and-characters.md))
+- [ ] **Q12. Values migration and Ego seed.** Accept **10/04**'s six Values → norms/drives, independently stored Superstition/Rancor, and Discretion derived from Persona control, or retain additional independent temperament? Add Propriety/Temperance/Honesty, seed Ego strength from WIS, and add the eighth drive `longing`? **Rec (10/04):** the fold, new norms, WIS seed, longing; normalize the “three dispositions” wording to two stored plus one derived. Sources: [10 §3.1–3.4, Q5/Q6/Q14/Q15](10-psyche.md), [04 §3.1, Q1](04-social-simulation.md), [07 Q4](07-architecture-and-prototype.md); C3/C38/C52.
 
-### 1.5 Starter content (needed for the `smoke_town` scenario)
+- [ ] **Q13. Credence representation.** **04/07** recommend ADR-compatible 0–100 credence with an integer logit carry; alternative is an explicit ADR amendment to stored logit-Q8. **Rec (04/07):** keep 0–100 plus carry. Sources: [04 §5.2–5.3, Q19](04-social-simulation.md), [07 §4.3, Q2](07-architecture-and-prototype.md); C49. Integer/fixed-point/LUT math itself is settled.
 
-- [ ] **Is the starter town authored or generated?**
-  - **`01`:** hand-authored Iron Ford.
-  - **`06`:** a "Threshold Town" generated per World. Its example is Prairie Landing with Halvorsen's.
-  - **`05`:** an authored skeleton with procedural detail.
-  - **Rec (`09`):** `05`'s hybrid, with Iron Ford as the default World.
-  - (C8; [01 §8](01-setting.md), [06 §2.2](06-game-modes.md), [05 §1.2](05-world-sim-and-storyteller.md))
-- [ ] **How much real geography?**
-  - **Option (a):** a fictional county on real rivers, with real towns kept off-map. `01` recommends this.
-  - **Option (b):** a fantasy remap of a real county such as Vernon or Crawford.
-  - **Option (c):** fully original geography.
-  - `02` and `04` currently put real Viroqua and Readstown on the map.
-  - ([01 §3.2, Q3](01-setting.md), [05 Q2](05-world-sim-and-storyteller.md), C7)
-- [ ] **Approve `01`'s Hollin County cast, then do one names pass.** The pass moves every worked example in `02`, `04`, `05`, and `06` into the county, or marks it illustrative. It also fixes three things:
-  - "Whitcomb" is both a surveyor and a preacher.
-  - "Brandt" is used for several unrelated people.
-  - There are three different newspapers.
-  
-  ([01 §8](01-setting.md), C7)
+- [ ] **Q14. Headless/pocket interrupt defaults.** Accept **11**'s danger/summons/vitals/arrival pauses, <1-day provisions alert, ≥700 pause threshold and action-end toggle, or choose a smaller alert set? Should reading a full sheet always pause, or use peek/half/full = run/slow/pause? **Rec (11):** its category defaults and sheet-height policy; **Rec (editor):** implement game-event stopping once in PlaySession and leave real-time toast coalescing to each UI. Sources: [11 §1.6, Q4](11-interface-and-platforms.md), [ADR 0002 Decision 3](adr/0002-headless-play-and-agent-playtesting.md#decision), [07 §7.3](07-architecture-and-prototype.md); C56. Shared policy and fair knowledge are required, not pending approval.
 
----
+- [ ] **Q15. Agent-pass rubric and coverage.** What must a milestone pass demonstrate, beyond no crash/replay divergence: completed objective, no progression blocker, no dominant exploit, and a worthwhile story? **ADR 0002** supplies personas, report fields and replay/metrics artifacts; it does not set pass bands or seed counts. **Rec (editor):** run milestone-relevant fair personas on reproducible fixtures plus fresh seeds; block on crashes, knowledge leaks, parity failures and progression blockers; triage balance/story findings explicitly. Specify M5a's seed coverage and hard/soft QA bands with Q08. Source: [ADR 0002 Playtesting as process](adr/0002-headless-play-and-agent-playtesting.md#playtesting-as-process), [07 §12](07-architecture-and-prototype.md); C60–C62. Agent playtesting at every milestone is decided.
+
+- [ ] **Q16. Inventory interaction and money weight.** No spatial grid (**03/11** Rec), optional Tetris, or grid by default? Do coins have weight (**03** Rec), with bank notes supplying the logistic alternative? Sources: [03 Q5/Q13](03-gear-and-economy.md), [11 §2.7](11-interface-and-platforms.md); C22.
+
+- [ ] **Q17. Starter rules/content approvals.** Accept Gather Information as a CHA skill, seven notoriety tiers, and Armor Turn in addition to Defense, or use the simpler alternatives in **02/04**? **Rec (02/04):** Gather Information; the tier table exists; Armor Turn is left to you. These are approval/tuning choices, not absent specifications. Sources: [02 §4.5/§9.10, Q13/Q18](02-rules-and-characters.md), [04 §8.6, Q14](04-social-simulation.md); C20/C35/C42/C64. Also ratify 5-ft site tiles or another data-driven scale before combat/range conversions land.
 
 ## 2. Important but can wait
 
-### 2.1 Setting and sensitivity
+Answer each before its owning system's milestone; these do not block every prototype task.
 
-- [ ] **How do Native nations appear?** This is the most consequential tone decision. Answer it before authoring county content (M2.5/M5).
-  - **Options (`01`):**
-    - **A. Historical presence:** real nations, real names, accurate politics.
-    - **B. Fictional nations** with analogous histories.
-    - **C. Divergent history:** real nations, but a *political* divergence. For example, the Ho-Chunk keep a sovereign homeland on the county's northern border.
-    - **D. Omit** them entirely.
-  - **Rec (`01`):** C, with paid consultants and sensitivity readers, and named NPCs kept as placeholders until then.
-  - Follow-ups `09` found:
-    - Remove the flint "elf arrows" and plowed-up flint blades. In the Driftless those would be Native artifacts read as fae. (`05`, `06`, `03`)
-    - Restate `05`'s "barrow-wights / a plow opens a barrow" so it's clearly fictional fae.
-    - Rename `02`'s **Lore (Old Peoples)**.
-    - If C is chosen, add a sovereign-neighbor faction to `05`.
-  - (C10; [01 §2, Q1](01-setting.md), [03 Q9](03-gear-and-economy.md), [05 §7.2, Q9](05-world-sim-and-storyteller.md), [06 Q13](06-game-modes.md))
-- [ ] **The Civil War: a scheduled world event (1861) or removed from this alt-history?** ([01 §3.1, Q2](01-setting.md))
-- [ ] **Witchcraft law.**
-  - **Option (a):** persecution is only extralegal. `01` recommends this.
-  - **Option (b):** a statute exists, with formal trials.
-  - If (a), `04`'s rung-6 "Trial" and `05`'s "hanged" become mundane charges and mob action.
-  - (C13; [01 §5.4, Q6](01-setting.md), [04 §9.2](04-social-simulation.md), [05 S6](05-world-sim-and-storyteller.md))
-- [ ] **Content limits** (merged from four docs):
-  - Do changeling swaps, death curses, and infant harm exist at all? If so, are they toggleable, or NPC-only?
-  - How far does rung 6 go? Mob killings of NPCs, or of the PC witch?
-  - How dark do fae bargains get by default (firstborn liens, memory deletion)?
-  - Is "Tie the Knot" (impotence) in?
-  - Does the obedient witch path have a ceiling on mass harm?
-  - **Recs:** `06` recommends toggles, with off-screen or threatened-only defaults for child harm. `01` asks for the "suspicion harms real children" framing for changelings.
-  - ([06 Q5, Q6, §3.2, §8.3](06-game-modes.md), [04 Q2](04-social-simulation.md), [03 Q8](03-gear-and-economy.md), [01 Q13](01-setting.md))
-- [ ] **Tone of witch mode.**
-  - **A:** tragic folk horror (`06` recommends this).
-  - **B:** dark power fantasy with consequences.
-  - **C:** ambiguous magic, with gleaning as the main loop.
-  - ([06 §3.2, Q1](06-game-modes.md))
-- [ ] **Should the Director tip suspicion onto an innocent scapegoat as witch-mode "mercy"?** `05` proposes it. The alternative is to leave scapegoating to the player's own Curses. ([05 §8.9, Q8](05-world-sim-and-storyteller.md))
-- [ ] **Real history references** (Salem, Bridget Cleary, the York hex murder, braucherei): use them only as background research, or allow in-world analogues such as an almanac of famous witch cases? ([06 Q12](06-game-modes.md))
-- [ ] **Real remedies with true effects:** is it OK that calomel poisons and snakeroot does nothing, while the period copy claims otherwise? ([03 Q10](03-gear-and-economy.md))
-- [ ] **Real or fictionalized denominations?**
-  - Real names with fictional congregations (`01` leans this way), or fictionalized ones ("the Synod", "the Connexion")?
-  - ([01 §5.2, Q4](01-setting.md))
+### 2.1 Peoples and generated population
 
-### 2.2 Fae and witch systems
+- [ ] **Q18. Elves and Faerie.** **12**: A Renouncers (Rec), B mortal cousins never fae, C fae under charter. Accept the proposed Halls/Leaving and ~150-year lifespan, or replace them with your lore? Sources: [12 §3.3/§5, Q1](12-peoples.md), [01 §6.2, Q9](01-setting.md); C5/C68.
+- [ ] **Q19. Shadow-faekin origins.** **12**: SF-A Unrenounced (Rec), SF-B Cast Shadows of the Leaving, SF-C Stayed changelings/bargain descendants. Make SF-A ground truth and the others folk theories, or choose another? This is distinct from the already-decided concealment. Source: [12 §6.1, Q2](12-peoples.md); C5.
+- [ ] **Q20. Goblin origins/body.** **12**: G1 Deep Accord mining people (Rec now), G2 river/bluff folk, G3 both (Rec later). Approve small size, senses, lifespan, 70% kcal and related bodily differences, or reduce them? Self-name and art are Q54. Source: [12 §8/§10, Q3](12-peoples.md); C5.
+- [ ] **Q21. Ability modifiers and social advantage.** Bodily ±1 only (**12** proposal), no modifiers (**12** alternative), or let humans place their floating +1 on INT/WIS/CHA (**02** Q17)? Should the design budget price majority social advantage or keep it outside the mechanical budget? **Rec (12; editor):** one bodily-only rule for all peoples. Sources: [12 §1/§9/§10.3, Q4](12-peoples.md), [02 §12.4, Q17](02-rules-and-characters.md); C53.
+- [ ] **Q22. Intermarriage/inheritance and population priors.** Approve human–elf intermarriage with each child one people, binary faekin inheritance, and 85/8/2/5 population shares, or give different rules/shares? **Rec (12):** intermarriage, binary inheritance without blood fractions, those provisional shares. Sources: [12 §5.3/§13, Q5/Q14](12-peoples.md), [05 §1.2](05-world-sim-and-storyteller.md); C5/C59.
+- [ ] **Q23. Faekin false positives and recruitment.** **12** asks for ~40–60% of publicly believed faekin to be non-faekin. Is that a calibration target? Should realized witch prevalence stay equal across peoples, or may persecution/Prince recruitment produce over-representation despite equal aptitude? **Rec (editor):** false positives as a measured target; equal aptitude with emergent recruitment, no Director people weighting. Sources: [12 §1/§6.2/§7.4, Q7](12-peoples.md), [05 §8.3](05-world-sim-and-storyteller.md); C54. Q06 chooses the framing/priors; this chooses the outcome constraint.
+- [ ] **Q24. Peoples-specific conveniences.** Elven half-rate memory decay or ordinary decay (**12** Rec: ordinary)? Small-size gear bespoke with one-week lead time (**03**) or stocked everywhere? Goblin-dug cellar-craft as a skill-priced 60% spoilage service (**03/12**) or omit it? Should deep-name protection apply to all fae or only the Under-Court? Sources: [12 §5.6/§10.2, Q11](12-peoples.md), [03 Q20/Q21](03-gear-and-economy.md); C48.
 
-- [ ] **Witch weaknesses: what triggers them?** These are iron, consecrated ground, bells, salt, and running water. Four docs disagree:
-  - **`02`:** the Witch class has Unhallowed from level 1, with no iron sensitivity.
-  - **`03`:** the witch is iron-sensitive above IP 5.
-  - **`06`:** weaknesses come from Drift thresholds (40 and 60), and some curses use iron nails.
-  - **`01`:** running water stops witches, and the iron question is open.
-  - **Rec (`09`):** tie every weakness to Drift, so the system is universal (P4) and adventurers share it.
-  - (C27; [01 Q10](01-setting.md), [03 §3.3, Q2](03-gear-and-economy.md), [02 §6.3](02-rules-and-characters.md), [06 §3.8](06-game-modes.md))
-- [ ] **What counts as cold iron?**
-  - **Option (a):** cold-hammered and never quenched, as a premium tier at ×3 effect. `03` proposes this.
-  - **Option (b):** all iron, as in the folklore.
-  - **Option (c):** meteoric or bog iron only.
-  - `02` uses the term without defining it. (C28; [03 Q3](03-gear-and-economy.md))
-- [ ] **One fae currency or several?** The candidates are Woe (`06`), "glamour" as a fae need (`05`), and Fae intensity fed by rumor (`01`).
-  - **Rec (`05`, `09`):** one fungible currency, Woe, with Fae intensity staying as the spatial field.
-  - (C45; [05 §5.3, Q5](05-world-sim-and-storyteller.md))
-- [ ] **Which doc owns the curse math?**
-  - **`02`:** DC = 10 + rite rank + CHA + link (−4..+4).
-  - **`06`:** DC = 10 + witch level + link (+0..+6) + timing + Gifts.
-  - The protection bonuses also differ between them.
-  - **Rec (`09`):** `06` owns the catalog and protections, `02` owns one DC formula, and the protections become items in `03`'s catalog.
-  - (C29; [02 §10.6](02-rules-and-characters.md), [06 §3.5](06-game-modes.md))
-- [ ] **How do witches progress?**
-  - `02` gives the witch fae spell points plus Woe that substitutes for slots. `06` gives Woe that buys Gifts, Workings, and Mercies. Do both systems exist?
-  - Do curses grant XP, or is Woe the witch's only reward for cursing?
-  - ([02 §6.6, Q12](02-rules-and-characters.md), [06 §3.6](06-game-modes.md), C30)
-- [ ] **Is the Prince one fixed character or generated per World?**
-  - **`01`:** a fixed person: an ecological zealot, the younger son of the sleeping sovereign, keeps his word, bored by cruelty.
-  - **`06`:** a randomized temperament per World (Capricious/Cold/Jealous/Hungry/Melancholy), recommended there.
-  - **Rec (`09`):** `01`'s core stays fixed and `06`'s temperament becomes a mood overlay, minus the sadistic options.
-  - (C15; [06 §3.4, Q3](06-game-modes.md), [01 §4.4](01-setting.md))
-- [ ] **What is the scope of "fae may not directly harm humans who haven't trespassed or bargained"?** It conflicts with the Alder Court taking children, the Wild Hunt, ring dances, and elf-shot cattle. Does the rule bind only the Prince's Court, or is "trespass" defined broadly? (C14; [01 §4.4](01-setting.md), [05 §10.3](05-world-sim-and-storyteller.md))
-- [ ] **How severe is time slippage?**
-  - **`01`:** ×1.5–7 subjective-time ratios, capped and always displayed; losing a week to a revel is the open question.
-  - **`05`:** 1d6 days per hour on a fae path at FI 4, possibly negative time at FI 5, and returns after "months or years"; `05` proposes a cap of 1d6 months outside Samhain.
-  - (C18; [01 §4.5, Q11](01-setting.md), [05 §1.4, Q11](05-world-sim-and-storyteller.md))
-- [ ] **What does eating fae food do?** There are four partial specs: Bound (`01`), Wasting plus longing (`02`), 50% nutrition (`05`), and Drift gain (`06`). **Rec (`09`):** one condition chain owned by `02`. (C26)
-- [ ] **Should high Fae intensity or fae magic make gunpowder misfire?** It's a strong flavor lever with large balance effects. ([02 §9.5, Q8](02-rules-and-characters.md))
-- [ ] **Do fae run on `04`'s Mind and Belief engine?** `04` leans toward yes, with fae-specific Values and "cannot lie" as a hard constraint. The alternative is separate fae logic. ([04 Q5](04-social-simulation.md))
-- [ ] **Drift as a universal stat:** do you want adventurers slowly becoming fae as a long-term risk and reward? ([06 Q14](06-game-modes.md))
-- [ ] **When is the Tithe due?** Monthly at the full moon (`06`), or at Lammas (`05`)? **Rec (`09`):** monthly, with Lammas as a special harvest Behest. (C19)
+### 2.2 Travel, ecology, and provisions tuning
 
-### 2.3 Rules and characters
+- [ ] **Q25. Fae time loss.** Choose a three-day cap per sitting (**01**), six-day cap per traversal (**05**), or another explicit limit. FI5 ratio up to ×24 (**01**) or ×8–12 (**05**); keep **01**’s disclosed 1d6-day traverse cost or **05**’s ratio-based hours? Must months/years—including All Hallows—always require consent? Keep very rare reverse slip or remove it? **Rec (editor):** one three-day non-consensual cap; all larger losses consented; defer reverse slip. Sources: [01 §4.5, Q11](01-setting.md), [05 §1.4/F1, Q11](05-world-sim-and-storyteller.md); C18.
+- [ ] **Q26. Cold iron.** Cold-hammered/unquenched ×3 (**03**), all iron, or meteoric/bog iron only? **Rec (03):** the premium tier. Source: [03 §3.3, Q3](03-gear-and-economy.md); C28.
+- [ ] **Q27. Ration units, wards, and cold camps.** Keep Army-ration units and let the planner translate (**03** Rec), or sell “days at your burn”? Do hardtack/flatbrød count as bread wards? Should fireless camps reduce detection; is gathered wood/time enough fuel crunch, or also carried charcoal/stove fuel? Sources: [03 Q15–18](03-gear-and-economy.md), [05 §6](05-world-sim-and-storyteller.md), [06 §3.10](06-game-modes.md); C48. Split Cool spoilage into 45–57/58–69°F only if playtests justify it (**05** Q21).
+- [ ] **Q28. Disease/remedy severity.** Period lethality with legible protections (**05** proposal), or a gentler default? Approve honest simulated harms/ineffectiveness under misleading period remedy copy (**03** question)? Sources: [05 §6.5, Q12](05-world-sim-and-storyteller.md), [03 Q10](03-gear-and-economy.md); C25.
+- [ ] **Q29. Region edges and ecological history.** Abstracted off-map journeys, future adjacent counties, or a hard boundary? Let pressure drive local elk/pigeon/wolf disappearance (**05** Rec), or enforce historical schedules? Source: [05 Q13/Q14](05-world-sim-and-storyteller.md). The initial year is fixed.
+- [ ] **Q30. LOD strictness.** May unrecorded trivia drift on promotion if perceptions, memories, inventory, causal events and Chronicle remain consistent? **Rec (07):** yes for trivia; no recorded contradiction. Source: [07 §5.2](07-architecture-and-prototype.md); C40. This does not permit losing named grudges or pantry history.
 
-- [ ] **Level cap.** 12 for v1 (`02`), an E6-style option (levels 1–6, then feats only), or eventually 1–20? ([02 §6.5, Q1](02-rules-and-characters.md))
-- [ ] **Skill advancement.** Is the hybrid of points plus practice right? Is "practice ignores cross-class" too generous? ([02 §4.4, Q3](02-rules-and-characters.md))
-- [ ] **Wound lethality.** Firearms halve the wound threshold. Should one musket ball be able to kill a level-1 character? It currently takes a crit to the head or torso. ([02 §8, Q4](02-rules-and-characters.md))
-- [ ] **Player morale.** Should a failed check force the PC to flee? `02` leans toward forcing it only at Panicked, with an off switch. ([02 §9.8, Q9](02-rules-and-characters.md))
-- [ ] **Class roster.**
-  - Are the starter nine right? Would you swap in a Lawman, a Lumberjack, or a Schoolmarm?
-  - Do settled pastors need a class, separate from the Circuit Rider? (C17)
-  - Can non-witches become Witches mid-run through the Prince's offer?
-  - ([02 §6.3, Q6](02-rules-and-characters.md))
-- [ ] **Magic traditions.**
-  - Four engines (slots, slots plus faith, charms, tidal spell points) is a lot to build. Fold one away?
-  - Line them up with `01`:
-    - Wizards: `01`'s survey-and-measurement "lyceum" or `02`'s astrological Almanacker?
-    - Should arcane magic weaken, and folk magic strengthen, as Fae intensity rises?
-    - Does clerical power scale with belief in *the cleric* (systemic) or belief in *God* (theological)?
-  - (C17; [02 §10, Q7](02-rules-and-characters.md), [01 §5.3, Q5](01-setting.md))
-- [ ] **Spell catalog size at launch.** `02` suggests about 120 spells plus about 30 curse rites. ([02 Q11](02-rules-and-characters.md))
-- [ ] **Hardships.** Can they be bought off later through deeds? ([02 §5.4](02-rules-and-characters.md))
-- [ ] **Familiars.** Witch and Fae-Touched only, or Almanackers too? ([02 §6.3](02-rules-and-characters.md))
-- [ ] **Encumbrance owner.**
-  - `02` uses 3.5's three bands. `03` uses five continuous bands. `05` treats heavy as over ⅓ capacity.
-  - **Rec (`09`):** `02` owns carrying capacity from STR, `03` owns the bands, and `05` reads them. This is needed by M4.
-  - (C22; [03 §4, Q5](03-gear-and-economy.md))
-- [ ] **Insulation units.** `03` uses insulate points and `05` uses °F of band extension. They also disagree on how much warmth wet wool keeps (70% vs. 50%). **Rec (`09`):** `05`'s °F model. (C23)
-- [ ] **Survival stage effects.** Hunger and fatigue are defined twice, in `02` and `05`. Disease tables are also defined twice. **Rec (`09`):** `05` owns rates and epidemiology, and `02` owns per-person effects. The hunger part is mostly settled by the P8 item in 1.4. (C24, C25)
-- [ ] **Disease lethality.** Use real period fatality rates with legible protections (`05` recommends this), or tune them down? ([05 Q12](05-world-sim-and-storyteller.md))
-- [ ] **Charm prices.** In `02`, a 1st-level charm costs $7–$10 (7–10 days' wages), while `03`'s folk wards cost $0.03–$1.50. **Rec (`09`):** cut `02`'s charm prices about 10×. (C34)
-- [ ] **Backgrounds.** `03` and `06` each have their own list. **Rec (`09`):** one table owned by `06`, with columns contributed by `03` and `02`. (C31)
-- [ ] **Notoriety tiers.** `02` and `06` refer to tiers that `04` never defines. (C42)
-- [ ] **Ability-score names.** Keep the classic six (`02` recommends this) or rename them for the period? Moved here from flavor, because it touches every UI. ([02 Q2](02-rules-and-characters.md))
+### 2.3 Psyche, Director, and fae contracts
 
-### 2.4 Economy and gear
+- [ ] **Q31. Uncanny grudge persistence.** Non-decaying uncanny-founded grudges (**01/04** Rec), or all human grudges decay and the Prince's thesis becomes “outlast other memories”? Fae grudges remain non-decaying under **10**'s proposal. Sources: [01 §4.4, Q16](01-setting.md), [04 §6.3, Q11](04-social-simulation.md), [10 §10](10-psyche.md); C12. Confirm **04**’s rumor-telling steepness k = 4 (12% at score 0), or keep a gentler curve ([04 §8.3, Q15](04-social-simulation.md)).
+- [ ] **Q32. Director access/visibility.** May it read PC anxiety, offer discharge opportunities and time stressors without writing psyche state? May it redirect suspicion toward an innocent as witch-mode mercy (**05** proposal), or leave that to player curses? Opt-in Ledger visibility, with unconscious terms redacted until Insight, or another policy? **Rec (05):** opt-in visibility/redaction; mercy's moral texture is explicitly open. Sources: [05 §8.3/§8.9, Q6/Q8/Q18](05-world-sim-and-storyteller.md), [10 §8.5](10-psyche.md); C55. Director-fabricated claims and people-weighted exposure are not options under the current contract.
+- [ ] **Q33. Fae minds and truth.** Accept **10**'s Id+Law/no Ego/no anxiety-defenses and sincere-but-fallible hedged speech (Rec), or literal truth? Accept fae Composure 0 and beast fear-only anxiety (**02**), or specify another shared-data profile? Sources: [10 §10, Q9](10-psyche.md), [01 §4.5, Q19](01-setting.md), [02 Q19](02-rules-and-characters.md); C68. Mortal elves' profile depends on Q18, not on metaphor.
+- [ ] **Q34. Dreams and soul-image.** Do dreams count as weighted spectral evidence (**10** Rec: yes)? Are bargains invitations requiring waking consent (**10** Rec), or binding while asleep? Soul-image A ungendered (**10** Rec), B folded into Shadow, C period belief only? May mortal sent dreams lie while fae dreams remain sincere (**06** Q19)? Sources: [10 §8.4/§9, Q3/Q7/Q8](10-psyche.md), [06 Q19](06-game-modes.md).
+- [ ] **Q35. Individuation and witch conscience.** Approve self-legibility as progression's reward and the Dream-Reader Calling; should the Pact introject the Prince as a second conscience? **10** proposes both systems; it leaves the Prince choice to you. Sources: [10 §8.5/§13.3, Q10/Q11](10-psyche.md), [02 §6.4](02-rules-and-characters.md); C3/C50.
+- [ ] **Q36. Cosmological coupling.** Hidden Faerie=Id/Ice=Superego/settlement=Ego structure with a few explicit simulation couplings (**10** Rec), overt lore, or discard the hook? Does a waking sovereign represent individuation or only a regency crisis? Sources: [10 §11, Q12](10-psyche.md), [01 §4.7, Q8/Q18](01-setting.md); C69. No people-keyed psyche profile follows from this metaphor.
+- [ ] **Q37. Forfeit Rule and law.** Approve per-court trespass/bargain/hospitality/tribute forfeits (**01** proposal), or narrow them? Keep no witchcraft statute (**01** Rec), with mundane charges/church discipline/mobs, or add a formal statute? Sources: [01 §4.5/§5.4, Q6/Q15](01-setting.md), [04 §9.2, Q12](04-social-simulation.md), [05 F-incidents/S6](05-world-sim-and-storyteller.md); C13/C14.
 
-- [ ] **Starting money.**
-  - Rolled (3.5-style variance, `03` recommends) or fixed per background?
-  - Is the $20–$150 range by background OK?
-  - ([03 Q4](03-gear-and-economy.md), [06 Q7](06-game-modes.md))
-- [ ] **Should the default adventurer start begin in debt to the Outfitter (a grubstake)?** `06` treats borrowing as optional. ([03 §8.5, Q7](03-gear-and-economy.md))
-- [ ] **Readiness panel.** Gate it by skill, so a greenhorn's list is short and sometimes wrong? Or make it honest and complete? ([03 §2.4, Q6](03-gear-and-economy.md))
-- [ ] **Inventory.** Confirm there's no spatial pack grid. `03` recommends bulk, nesting, and reach time instead. ([03 §2.3, Q5](03-gear-and-economy.md))
-- [ ] **Magic items in shops.** None (`03` recommends storied items and folk wards only), or a PHB-style "under the counter" tier? ([03 Q11](03-gear-and-economy.md))
-- [ ] **Do coins have weight?** 1,000 silver dollars weigh about 59 lb. `03` recommends yes. ([03 Q13](03-gear-and-economy.md))
+### 2.4 Progression, modes, and content limits
 
-### 2.5 Modes, legacy, and structure
+- [ ] **Q38. Progression scope.** Level cap 12 (**02** proposal), E6-style feats after level 6, or eventual 20? Hybrid points+practice (**02** proposal), and may practice ignore cross-class cost? How many launch spells/rites: **02** suggests ~120 spells and ~30 rites, or a smaller catalog? Four magic engines or fold one for scope? Sources: [02 Q1/Q3/Q7/Q11](02-rules-and-characters.md), [07 M7/M8](07-architecture-and-prototype.md). Q09 chooses only the first slice's class subset.
+- [ ] **Q39. Witch advancement/currency.** Confirm XP only for overcoming obstacles and Woe for suffering (**02/06** proposal), or Woe-only witch progression? Keep Woe as the single fungible fae currency (**05** Rec), with FI a field and offerings separate? Sources: [02 Q12](02-rules-and-characters.md), [06 Q18/§3.6](06-game-modes.md), [05 Q5](05-world-sim-and-storyteller.md); C30/C45.
+- [ ] **Q40. Magic in the frontier.** Does divine power scale with belief in the cleric or God (**01** alternatives)? Adopt the offered FI curves and tradition/class mapping? Should high FI foul powder? Ordinary folk wards/storied loot only, or minor magic in shops? Sources: [01 §5.3, Q5/Q24](01-setting.md), [02 Q7/Q8](02-rules-and-characters.md), [03 Q11](03-gear-and-economy.md); C17.
+- [ ] **Q41. Mode crossover and companions.** Let every people enter either mode and an adventurer accept a Pact mid-run (**06** proposals)? Full Lie/Frame/Plant toolkit in both modes (**04** asks; P4 favors shared rules)? Companion cap 2 people + 1 animal (**06** proposal)? Re-pitch Changeling as shadow-faekin Coming of Age, with knows/suspects/doesn't-know creation (**12/06** proposal)? Sources: [06 §5/§6, Q8/Q20/Q26](06-game-modes.md), [04 Q4](04-social-simulation.md), [12 Q12](12-peoples.md); C47.
+- [ ] **Q42. Witch tone and content ceilings.** Tragic folk horror (**06** Rec), dark power with consequences, or ambiguous/gleaning-centered? Set defaults/limits for child harm and changeling swaps, death curses, mass-harm Workings, firstborn/memory bargains, mob killings, sexual curses/seduction, `lust`, and forced Fits. **06** proposes World-fixed toggles, child harm off-screen/threatened by default, and no celebratory Woe feedback. Sources: [06 §3.2/§8.3, Q1/Q5/Q6](06-game-modes.md), [10 Q13](10-psyche.md), [04 Q2](04-social-simulation.md), [03 Q8](03-gear-and-economy.md); C14/C67. Use Q05 for control defaults and Q06 for prejudice; do not answer them twice.
+- [ ] **Q43. Legacy and spoilers.** Which skips (06: 0/1/5/20 years), and is April 1861's Civil War scheduled or absent? How should an epilogue truth reveal be packaged for continuing the same World—optional reveal panels or mandatory reading? Should inherited memories/journals persist across PCs (**04** supports it)? Sources: [06 §5.4, Q10](06-game-modes.md), [01 Q2](01-setting.md), [04 Q9/Q10](04-social-simulation.md), [05 §11.3](05-world-sim-and-storyteller.md); C6/C44/C59. Legacy and post-run truth are canon; these are timing/presentation choices.
 
-- [ ] **Companion cap:** 2 people + 1 animal in v1? ([06 §2.6, Q8](06-game-modes.md))
-- [ ] **"Choose a soul":** can the player play any existing NPC in a World? `06` recommends yes. ([06 §5.4, Q9](06-game-modes.md))
-- [ ] **Time skip between runs:** offer 0, 1, 5, or 20 years? ([06 §5.4, Q10](06-game-modes.md); `05` §11.3 says 1–20 years)
-- [ ] **Do NPCs remember a previous run's character** in a later run in the same World? ([04 Q10](04-social-simulation.md))
-- [ ] **Witch-mode legibility:** an explicit heat/rung meter, or diegetic cues only? ([04 §12.3, Q3](04-social-simulation.md))
-- [ ] **Does the adventurer get the full lying, framing, and planting toolkit?** P4 suggests yes. ([04 Q4](04-social-simulation.md))
-- [ ] **Director's Ledger visibility:** opt-in "Show the Director's hand" (`05` recommends), on by default, or debug-only? ([05 Q6](05-world-sim-and-storyteller.md))
-- [ ] **Director personalities:**
-  - Do the seven work?
-  - Can the player switch mid-run?
-  - Is "The Land Itself" (no Director) a first-class option?
-  - ([05 §8.8, Q7](05-world-sim-and-storyteller.md))
-- [ ] **Map edge:** a hard wall with abstracted off-map journeys, or are other counties future content? ([05 Q13](05-world-sim-and-storyteller.md), [05 §1.2](05-world-sim-and-storyteller.md))
-- [ ] **Extinctions** (elk, passenger pigeon, wolves):
-  - Fixed historical schedules, or driven by simulated pressure?
-  - `05` recommends simulated pressure, so a run can save the pigeons locally.
-  - ([05 Q14](05-world-sim-and-storyteller.md))
-- [ ] **Chronicle export** as formatted text or HTML for sharing? `06` recommends yes. ([06 §1.2](06-game-modes.md))
-- [ ] **Language partitioning:** how much should Old Country languages matter? It needs UI for gossip the PC can't understand. ([04 §8.4, Q6](04-social-simulation.md))
+### 2.5 Interface and accessibility
 
-### 2.6 Later tech
+- [ ] **Q44. Witch escalation display.** **11** proposes “Show the rung,” off in Frontier/on in Settler, while diegetic labels update only when learned. Explicit meter, setting, or diegetic only? Fair displays must remain knowledge-gated; 04’s proposed live true-rung relaxation needs lead correction (C70), with ground truth confined to god/debug views. Source: [11 §2.13, Q10](11-interface-and-platforms.md), [04 §12.3, Q3](04-social-simulation.md); C41.
+- [ ] **Q45. Creation/language scope.** Accept **06**'s two loud drives/one quiet, three norm adjustments and strictness choice, or simplify the 3–10-minute flow? How strongly should language partition gossip; should misunderstood/translated documents be playable in v1? Sources: [06 §7.5, Q22](06-game-modes.md), [04 §8.4, Q6](04-social-simulation.md), [11 §2.9](11-interface-and-platforms.md).
+- [ ] **Q46. Accessibility/input ambition.** Full screen-reader play now or stretch, with DOM/semantic groundwork now (**11** Rec)? Gamepad/Steam Deck v1 or later? Sources: [11 §6, Q12/Q13](11-interface-and-platforms.md), [ADR 0002](adr/0002-headless-play-and-agent-playtesting.md). Playable headless helps but does not establish screen-reader UI acceptance.
 
-- [ ] **LLM text in the shipped game.** This merges three doc questions.
-  - **Option (a):** dev-time only (`07`'s default).
-  - **Option (b):** an optional runtime layer for documents and the Chronicle (`04` L2/L3).
-  - **Option (c):** runtime barks (`04` L1).
-  - **Option (d):** a mod hook.
-  - The docs agree the LLM only renders text and never decides anything.
-  - ([04 §14, Q7](04-social-simulation.md), [05 §11.2, Q10](05-world-sim-and-storyteller.md), [07 §7, Q6](07-architecture-and-prototype.md))
-- [ ] **Modding and scripting ceiling.** Declarative effects only, or a real scripting language? `07`'s Rhai/Lua fallback needs a TS replacement. ([07 §3.8, Q7](07-architecture-and-prototype.md))
-- [ ] **Art pipeline details.** Blender is decided. Will you model assets yourself, should Claude generate Blender Python scripts, or kitbash primitives until M7? ([07 Q8](07-architecture-and-prototype.md))
-- [ ] **Git hosting and CI:** a remote (GitHub or Codeberg) with CI, or local only? ([07 Q10](07-architecture-and-prototype.md))
-- [ ] **How strict is LOD consistency?** May trivia drift (a peddler who "was" at the tavern shows up elsewhere at T0), as long as memories and the Chronicle never contradict? `07` suggests yes. ([07 §3.5](07-architecture-and-prototype.md))
+### 2.6 Later tech and production
 
-### 2.7 Housekeeping (quick confirmations; each has a `09` recommendation)
+- [ ] **Q47. Saves, sync, and reproducibility exports.** **11** recommends export/import now, peer handoff next, server accounts only if demand warrants it; alternatives include cloud-folder/store-native sync. Approve opt-in snapshot+journal bug bundles (**07** Q5)? How should designer A/B forks be marked alongside player Commitment restrictions? **Rec (editor):** separate test forks, explicitly recording fair/god mode and ancestry. Sources: [11 §4.3–4.4, Q9](11-interface-and-platforms.md), [07 §7.1, Q5](07-architecture-and-prototype.md), [ADR 0002 Decision 4](adr/0002-headless-play-and-agent-playtesting.md); C58/C66. Agent fork support is required.
+- [ ] **Q48. Runtime prose and mod ceiling.** Templates/dev-time LLM only (**07** Rec), optional runtime documents/Chronicle, barks, or a mod hook? Declarative effects now (**07** proposal), QuickJS-WASM later, or declarative only? Sources: [07 §9/§10.3, Q6/Q7](07-architecture-and-prototype.md), [04 §14, Q7](04-social-simulation.md), [05 Q10](05-world-sim-and-storyteller.md). LLM output never drives simulation.
+- [ ] **Q49. Packaging/production.** PWA-only desktop until Steam, then benchmark Tauri versus Electron (**11** Rec), or an earlier wrapper? Paid game/IAP policy? Git hosting/CI remote versus local-only, and who owns Blender scripts/assets? Sources: [11 §4.5–4.6, Q11](11-interface-and-platforms.md), [07 §8/§14](07-architecture-and-prototype.md). Stack, phone support, and Blender are already decided; `check-engines` wiring is implementation work.
 
-- [ ] **`00` vocabulary.** Change "persona" to "figure" in the Grudge, Notoriety, and Reputation definitions to match the rename. Only Ellie edits `00`. (C4)
-- [ ] **One Event struct.** `07` owns it and adds `05`'s `causes`, `visibility`, and `director_nudge` fields. (C39)
-- [ ] **LOD rules.** `05` owns tier policy. `07` owns mechanism and budgets, restated for TS and phones. `04` owns social hydration. (C40)
-- [ ] **Director rumor powers.** `05`'s stricter rule wins: the Director can only voice facts a carrier knows, and can't plant false variants (which `04` §8.2 allows). (C43)
-- [ ] **Court names.** Fix `03`'s "Thorn Court's ferryman" once `01`'s court names are approved. (C16)
+## 3. Flavor & taste
 
----
+- [ ] **Q50. Vocabulary/labels.** Period mental-philosophy labels with clinical toggle (**10** Rec), clinical default, or plain folk (**11** alternative)? Keep classic six ability names (**02** Rec) or period names? Source: [10 §12, Q2](10-psyche.md), [11 §2.3, Q6](11-interface-and-platforms.md), [02 Q2](02-rules-and-characters.md).
+- [ ] **Q51. Prince and peoples.** Use only Capricious/Jealous/Melancholy (**01**), also Exacting/Wry (**06**), or another overlay pool? Should he covet elves/court faekin/disdain goblins (**12/06** proposal), or have no people preferences? Sources: [01 Q17](01-setting.md), [06 Q3/Q24](06-game-modes.md), [12 Q13](12-peoples.md); C15/C54. All peoples' mode access is separate from his taste.
+- [ ] **Q52. Titles/names.** Keep Coulee? Keep canonical Woe or deliberately rename it to Teind/Sorrow/Bane (**06** alternatives)? Keep Circuit Rider/Hidebehind shared across class/mode/Director/creature names? Rename Elf-Shot to Fairy-Shot in system text (**06** Rec), with old slang only in barks? Sources: [00](00-vision-and-pillars.md), [06 Q4/Q17](06-game-modes.md), [05 Q7](05-world-sim-and-storyteller.md); C32. Figure/Persona and Ice/Drift are settled vocabulary.
+- [ ] **Q53. Cast and local memory.** Approve **01**'s name crosswalk, authored cast templates and proposed elf/goblin institutions/faekin household, or replace them? Should any named fixture actor be faekin (**01** Rec: no)? Which personal Driftless places/family stories belong in the constraint bible? Source: [01 §8, Q14/Q21/Q22](01-setting.md); C7/C8.
+- [ ] **Q54. Goblin depiction/self-name.** Folklore-first, wholly invented, or immigrant-people visual direction (**11** options), with **12**'s bodily/culture guardrails? Accept goblin/Pare-folk, another self-name, and human-range versus non-human coloring? Sources: [12 §8.2/§8.5, Q3](12-peoples.md), [11 §7.7, Q8](11-interface-and-platforms.md).
+- [ ] **Q55. Religious/history texture.** Real denominations with fictional congregations or invented names (**01** options)? Retain Easter/Lent and Palm Sunday opening (**05** proposal)? Historical persecution cases only as research or in-world analogues (**06** question)? Which Native-made trade goods/provenance treatment pending Q07—neutral provenance (**03** Rec), generic “trade,” or defer? Sources: [01 Q4](01-setting.md), [05 Q20](05-world-sim-and-storyteller.md), [06 Q12](06-game-modes.md), [03 Q19](03-gear-and-economy.md).
+- [ ] **Q56. Story flavor and Director personality.** Confirm the Prince's failed re-enchantment thesis or leave it belief/ambiguity? Comedy at low FI/dread at high (**01** Rec), or a different bestiary tone? Fae stakes in pigeons, sunny/dark-slope court geography, and ginseng digging? Allow mid-run Director switching and “The Land Itself” as a first-class no-nudge personality (**05** proposal)? Witch gender player's choice (**06** Rec)? Sources: [01 Q7/Q8/Q12](01-setting.md), [05 §1.3/§5.2, Q7](05-world-sim-and-storyteller.md), [03 Q12](03-gear-and-economy.md), [06 Q2](06-game-modes.md).
 
-## 3. Flavor and taste calls
+## Integration work, not unanswered decisions
 
-### 3.1 Names
-
-- [ ] **The Woe resource:** Woe (`06` recommends), Teind, Sorrow, Bane, or your own word? ([06 §3.6, Q4](06-game-modes.md))
-- [ ] **"Drift" collision:**
-  - `01` calls the Ice "the Drift" (anti-fae), which clashes with canon Drift (becoming fae). `01` also has "Drift-wights".
-  - **Rec (`09`):** rename `01`'s terms to "the Ice", "the Till", or "the Sorting", and the wights to "erratics" or "till-wights".
-  - (C11; [01 §4.1](01-setting.md))
-- [ ] **Shared names:** "The Circuit Rider" names a Director personality (`05`), a class (`02`), and a mode (`06`). "The Hidebehind" is both a Director personality and an `01` creature. Keep or rename? (C32)
-- [ ] **Working title "Coulee":** keep it or replace it? ([00](00-vision-and-pillars.md))
-- [ ] **The in-world catalog:** `03` wants the Outfitter's catalog to be the proprietor's pasted-up **Book**, not a mail-order wishbook, to stay true to the 1850s. ([03 §2.1, §11](03-gear-and-economy.md))
-
-### 3.2 Story and lore
-
-- [ ] **The witch's gender:** player's choice, with the bias model making it matter (`06` recommends), or always "she"? ([06 Q2](06-game-modes.md))
-- [ ] **The Prince's thesis:** should the game ever confirm that re-enchantment through fear backfires, or leave it ambiguous? ([01 §4.4, Q7](01-setting.md))
-- [ ] **The sleeping sovereign:** a usable story lever (a monarch who might wake), or too epic for a sim? ([01 §4.3, Q8](01-setting.md))
-- [ ] **Bestiary tone:**
-  - How much lumber-camp comedy (hodag, squonk) vs. folk dread?
-  - `01` suggests comedy at low Fae intensity and dread at high.
-  - ([01 §7, Q12](01-setting.md))
-- [ ] **Do the fae have a stake in the passenger pigeons?** ([05 §5.2](05-world-sim-and-storyteller.md))
-- [ ] **Slope aspect as fae geography:** does the Court hold the sunny bluffs while something else holds the dark slopes? ([05 §1.3](05-world-sim-and-storyteller.md))
-- [ ] **Sang digging:** do you want ginseng digging as a Driftless money loop, possibly fae-guarded? ([03 Q12](03-gear-and-economy.md))
-- [ ] **Your own Driftless:** which coulees, towns, or family stories should go in? ([01 Q14](01-setting.md))
+07 needs full ADR 0002 PlaySession/transport/parity/report contracts and an ADR 0003 M5a block; generated replay needs a recipe with constraints/pins/layer versions. Resolve event archival versus pruning, fair self-Explain filtering, and the single interrupt policy before claiming parity. 10/12's proposed lore needs content migration after approval. The current ownership map, remaining gaps, and C50+ details are in [09](09-consistency-notes.md). Do not ask Ellie to approve the decided stack, headless play, worldgen, or mandatory playtesting again.

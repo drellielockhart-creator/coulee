@@ -1,7 +1,7 @@
 # ADR 0001: TypeScript stack, pocket-first, headless core
 
 **Status:** Accepted (Ellie, 2026-10-10)
-**Supersedes:** the Rust + Godot recommendation in `07-architecture-and-prototype.md` §2.4. 07's runner-up is now the plan, and 07 is being rewritten to match this ADR.
+**Supersedes:** the original Rust + Godot recommendation in `07-architecture-and-prototype.md` (pre-2026-10-10 revision). 07 has since been rewritten to match this ADR.
 **Still valid from 07:** the headless-core/thin-shell split, the event log as backbone, LOD tier management, counter-based seeded RNG, content-as-data, the sim harness as the first target, golden-file chronicles, and milestone ordering (social sim first).
 
 ## Decision
@@ -73,7 +73,7 @@ coulee/
 
 ### Peoples (content, canon names; lore in `12-peoples.md`)
 - `human`, `elf`, `shadow_faekin`, `goblin`.
-- `shadow_faekin` is **concealed by default**. They pass as human (or elf), and other actors only know through **beliefs**. Mechanics are small placeholder modifiers until 12 lands.
+- `shadow_faekin` is **concealed by default**. They pass as human (or elf), and other actors only know through **beliefs**. Mechanics are data-driven people fields; `12-peoples.md` holds the proposals, and values stay tunable content.
 
 ## Consequences
 - We lose the Rust performance ceiling. The mitigations are sparse data structures, worker threads, tier budgets, and a perf benchmark at M2 (target <5 ms per game-hour for 30 T1 actors on a mid phone; county-scale numbers come later).

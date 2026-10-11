@@ -154,7 +154,7 @@ Every doc uses these terms with these meanings.
 | File | Covers |
 |---|---|
 | `00-vision-and-pillars.md` | This document |
-| `01-setting.md` | The world: geography, history, peoples (as slots), factions, Faerie, towns, tone |
+| `01-setting.md` | The world: geography, history, the four peoples in setting context, factions, Faerie, towns, tone (Hollin County is the flavor bible and constraint set for generated counties, ADR 0003) |
 | `02-rules-and-characters.md` | Abilities, skills, feats, classes/progression, checks, combat, magic, conditions, health/injury |
 | `03-gear-and-economy.md` | Items, the Outfitter, the catalog experience, encumbrance, durability, prices, trade |
 | `04-social-simulation.md` | Minds, memory, opinion, relationships, rumors, grudges, off-screen social life |

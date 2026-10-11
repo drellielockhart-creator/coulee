@@ -63,7 +63,7 @@ For C11, this doc calls `01`'s anti-fae sovereign **"the Ice"** and the Drift-wi
 | **Shadow-faekin** | They're the open legal question: is a faekin on a ridge farm "Faerie crossing out"? Fae jurists disagree. That gives faekin one reason to cluster in the Driftless, since inside the line nobody can call them a breach. Rumor says erratics hunt faekin first. **[OPEN]** I'd make the rumor false: erratics are hostile to everyone. |
 | **Goblins** | It doesn't touch them. The Ice never went underground, and the Under-Court's whole strategy (`01` §4.3, "Depth") relies on that. |
 
-### 3.3 Are elves fae? (08 ★, `01` §6.2)
+### 3.3 Are elves fae? (`08` Q18, `01` §6.2)
 
 | Option | Ground truth | Upside | Downside |
 |---|---|---|---|
@@ -189,7 +189,7 @@ This applies only to actors raised in Hall households. A foundling elf or a free
 1. **The missing chainman.** One of Whitcomb's missing chainmen (`01` §8.3), the young assistant Lydia Pratt is sweet on, is an elf. The Prince took him as a deserter, not as prey. The Hall-reader forbids anyone to bargain for him.
 2. **The cracked bell.** The Iron Ford bell cracks in a hard frost, and town Fae intensity creeps up a step. A new bell takes 6 weeks and costs $90. Who pays? And was it the frost?
 3. **The Lapse.** A Kvale Ridge farm daughter comes home from Huldra's Shelf humming tunes nobody taught her. She's at Drift 38. Her father is the Hall-reader.
-4. **Two memories.** An elf who was 60 in 1832 remembers the Bad Axe pursuit differently from Captain Hurd's growing story (`01` §2.3). Two long memories contest one event. This is purely social memory, with no supernatural content (`01` §2.1.5).
+4. **Two memories.** An elf who was 60 in 1832 remembers the Bad Axe pursuit differently from Captain Hurd's growing story (`01` §2.3). Two long memories contest one event. This is purely social memory, with no supernatural content (`01` §2.1, principle 5).
 
 ---
 
@@ -609,7 +609,7 @@ Humans get the shortest section because `01` §5 *is* their society.
 
 ## 11. Relations, prejudice, and priors (data for `04`)
 
-### 11.1 Should prejudice be simulated? (08 ★, `02` Q10, `04` Q2) [OPEN]
+### 11.1 Should prejudice be simulated? (`08` Q06, `02` Q10, `04` Q2) [OPEN]
 
 | Option | Effect | Notes |
 |---|---|---|

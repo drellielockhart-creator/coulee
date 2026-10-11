@@ -1230,8 +1230,8 @@ Status of the v0.1 questions after this revision, then new ones. Where another d
 - **Q13.** **Identity-only cap (§9.2):** processes whose only charge is what someone *is* (a believed faekin) stop at rung 4 until an act is attributed. Right line, or should identity alone never pass rung 3?
 - **Q14.** **Notoriety tiers (C42, §8.6):** do the seven tiers and thresholds work for `02`'s *Hard Reputation* and `06`'s County Legend?
 - **Q15.** **Rumor-telling steepness (§8.3):** k = 4, so worthless gossip is rarely told (12% at score 0, vs. v0.1's 38%)?
-- **Q16.** **Gather Information (C20):** add it to `02` as a CHA skill *(rec, with `09`)*? 04 uses Read People + Lore (Local) until then.
-- **Q17.** **Faekin framing (§5.8):** F1 + F2, covenant, or per-World? 04's mechanics work under all of them and this doc doesn't recommend one. (= `12` Q6, `10` Q4, `11` Q4)
+- **Q16.** **Gather Information (C20):** `02` §4.5 now specifies the CHA skill; confirm that addition via `02` Q13 *(rec, with `09`)*. The former Read People + Lore (Local) fallback is superseded.
+- **Q17.** **Faekin framing (§5.8):** F1 + F2, covenant, or per-World? 04's mechanics work under all of them and this doc doesn't recommend one. (= `12` Q6, `10` Q4, `11` Q7)
 - **Q18.** **Kind-prop valence (§5.1):** OK that "X is faekin" carries no built-in valence, so all hostility comes from culture-keyed priors and the Prejudice dial?
 - **Q19.** **Credence storage (§5.2):** 0–100 plus a logit carry *(rec)*, or amend the ADR to store logit-Q8? (= `07` Q2)
 

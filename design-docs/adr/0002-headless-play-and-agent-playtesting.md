@@ -25,7 +25,7 @@ Ellie wants AI agents (Claude sessions and subagents) to be able to **play the g
 - **Fast-forward stops on "interesting events,"** using the *same* interrupt/alert policy as the pocket UI's auto-pause (`11-interface-and-platforms.md`). One policy, tested headlessly, serves the phone.
 
 ### 4. Reproducibility and branching
-- A session is fully defined by **scenario + seed + command log**. Every playtest report attaches its command log, so any bug or story can be replayed exactly (`coulee play --replay log.jsonl`).
+- A session is fully defined by **world source + seed + command log**. The world source is either an authored scenario id or a generated-world recipe (`gen_version`, world preset, constraints/pins, world seed; ADR 0003). Every playtest report attaches its command log, so any bug or story can be replayed exactly (`coulee play --replay log.jsonl`).
 - `save`, `load`, and `fork` let agents A/B a decision ("what if I'd bought the second canteen?") from the same state.
 
 ### 5. Telemetry

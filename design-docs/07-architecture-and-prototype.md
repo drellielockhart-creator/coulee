@@ -22,7 +22,7 @@
 - **[DECISION, with `11`] Scale is a World setting** (Small / Standard / Large), recorded in the World and identical on every device. Phones run the same sim *slower* through a speed governor. They never run a coarser sim (§6).
 - **[DECISION] Census materialization (`00`):** named actors have full sheets and minds. Everyone else lives in household census records and is materialized deterministically, with a time-independent identity, on first relevance (§5.3).
 - **[PROPOSAL, aligned with `11` §4.3] A save is a snapshot plus a command journal,** stored in OPFS from the worker with an IndexedDB index. The World never crosses the worker boundary. Positions travel as transferable typed arrays, and panels get small view models and query results (§7).
-- **Today:** M0 and a thin M1–M3 slice are in progress. Next come **M4 Outfitter + P8 provisions, M5 region/travel, M6 combat, M7 adventurer slice, M8 witch slice**, each with acceptance gates (§12).
+- **Today:** M0 and a thin M1–M3 slice are in progress. Next come **M4 Outfitter + P8 provisions, M5a procedural worldgen (ADR 0003), M5 region/travel, M6 combat, M7 adventurer slice, M8 witch slice**, each with acceptance gates and agent playtests (ADR 0002; §12).
 
 ---
 
@@ -63,7 +63,7 @@ Main thread (apps/web): React overlay (pocket/desk/folio, 11) + three.js canvas
    │  Commands, queries, view requests ▼        ▲ positions (transferable), VMs ≤10 Hz, events, query results
 Sim worker: shell (run loop, speed governor, slicing, OPFS/IDB I/O, gzip)
    └── @coulee/core (pure) + frozen content bundle
-Node: packages/cli imports @coulee/core directly (no worker); sweeps fan out over worker_threads
+Node: packages/cli uses core for runs and packages/play PlaySession for playable REPL/JSONL (ADR 0002); sweeps fan out over worker_threads
 Prose provider (optional): main thread or its own worker, never core
 ```
 
@@ -420,11 +420,11 @@ type CensusRef = { household: HouseholdId; idx: number };
   - moving to T0
   - becoming party to a grudge, debt, persecution role, or club membership
 - **Two-layer generation:**
-  1. **Identity:** name, abilities, traits, psyche parameters, norms, Shadow seed, and true and presented people. It comes only from `rng(seed, 'census', 0, mixKey(household.seed, idx))`, so it's **time-independent**: day 10 and day 300 produce the same person. `12` §13.4 adds binary faekin inheritance from the household seed, and that slots in here.
+  1. **Identity:** name, abilities, traits, psyche parameters, norms, Shadow seed, and true and presented people. It comes only from `rng(seed, 'census', 0, mixKey(household.seed, idx))`, so it's **time-independent**: day 10 and day 300 produce the same person. `12` §13 (proposed `inheritance` block) adds binary faekin inheritance from the household seed, and that slots in here.
   2. **History:** current needs, opinions of household and neighbors, and recent memories. It's synthesized from `exposure` plus every event that referenced the member's `CensusRef`. Those events become real memories, so nothing already recorded can be contradicted.
 - **ActorIds are allocated in system order** (deterministic). The ref → id mapping is permanent, and events keep their refs.
 - **Compaction.** `11` §5.6 proposes compacting the oldest *irrelevant* named actors to T2-minimal once a soft cap is passed. They're never deleted or un-materialized. Compaction is a deterministic rule keyed on game state, so it's the same on every device.
-- **Sensitivity.** People shares and inheritance rules are content, decided by `12` and Ellie. The engine stores the truth and gates it behind beliefs. It never makes a prejudice true (`12` §1.5).
+- **Sensitivity.** People shares and inheritance rules are content, decided by `12` and Ellie. The engine stores the truth and gates it behind beliefs. It never makes a prejudice true (`12` §1, rule 5).
 
 **Implementation notes.** The `census` stream and `HouseholdId` exist. There's no `CensusRecord` yet. When it lands, check that the identity layer is keyed on the household seed and `idx` only, and never on `now`.
 
@@ -648,7 +648,7 @@ Sweep parameters are integers (per-cent), so tuning never introduces floats into
 
 | Path | State |
 |---|---|
-| Root | `package.json` (pnpm 11, Node ≥ 26; dev deps Biome 2.5, **TypeScript 7.0**, Vitest 5, fast-check 4, tsx, playwright-core), `pnpm-workspace.yaml`, `tsconfig.base.json`, `tsconfig.scripts.json`, `README.md` (still says Rust/Godot for `07`; needs a one-line fix, not mine to make) |
+| Root | `package.json` (pnpm 11, Node ≥ 26; dev deps Biome 2.5, **TypeScript 7.0**, Vitest 5, fast-check 4, tsx, playwright-core), `pnpm-workspace.yaml`, `tsconfig.base.json`, `tsconfig.scripts.json`, `README.md` (current doc index; run/status pointers in CLAUDE.md and NEXT_SESSION.md) |
 | `packages/core/src` | **Exists:** `ids`, `rng`, `time`, `explain`, `hash` (canonical hash + `findNonIntegers`), `actor`, `world` (module-slice composition), `urge` (proposal/arbitration contract), `command` and `events/` (registries), `checks`, `content`, `sim/context`. Module folders: `needs/`, `psyche/`, `social/`, `activity/` have `api/commands/events/state/system/view`. `belief/`, `items/`, `provisions/`, `chronicle/` are empty so far |
 | `packages/content/src` | **Exists:** loader, bundle/check CLIs, schemas (`items` with full P8 food, `psyche`, `social`, `belief`, `needs-activities`, `world` incl. peoples and sites, `scenario`, `rules`, `chronicle`) |
 | `content/base` | **Exists:** activities, beliefs/predicates, chronicle templates, interactions, items seed examples, names (yankee), needs, occupations, peoples, places (`iron_ford`), scenarios (`iron_ford`), skills, traits |
@@ -686,7 +686,7 @@ docs/impl/      MODULES.md
 
 ## 12. Milestones
 
-**[PROPOSAL]** Ordering principle: **de-risk the novel thing first** (social sim, psyche, LOD), then the known things. Every milestone ends demoable, with `just check` and `just check-engines` green. The acceptance criteria are gates.
+**[PROPOSAL]** Ordering principle: **de-risk the novel thing first** (social sim, psyche, LOD), then the known things. Every milestone ends demoable with `just check`, `just check-engines`, and an agent playtest report/command log/metrics pass (ADR 0002); M5a worldgen precedes M5 travel (ADR 0003). The acceptance criteria are gates.
 
 ### 12.1 Today's slice (in progress): M0 + thin M1–M3
 
@@ -738,7 +738,7 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 ### 12.4 M5: Region map + travel
 
 **Scope:**
-- the Hollin County graph (after the C7 names pass)
+- the procedurally generated county graph (ADR 0003 M5a), with Hollin constraints and authored fixtures
 - `Travel` per edge with interrupts
 - edges as places, with camps generated at the encounter point
 - weather affecting speed and spoilage
