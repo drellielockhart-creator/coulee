@@ -1,0 +1,17 @@
+{
+  "name": "@coulee/worldgen",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure, deterministic procedural world generation (ADR 0003). Emits the same shapes as authored scenarios. No IO.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@coulee/content": "workspace:*",
+    "@coulee/core": "workspace:*"
+  }
+}
