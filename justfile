@@ -27,19 +27,19 @@ test *ARGS:
 
 # Determinism/purity bans in packages/core/src
 invariants:
-    pnpm exec tsx scripts/check-invariants.ts
+    node --import tsx scripts/check-invariants.ts
 
 # Validate content/base TOML (schemas + cross-references)
 content:
-    pnpm exec tsx packages/cli/src/main.ts content check
+    node --import tsx packages/cli/src/main.ts content check
 
 # Build the JSON content bundle the web app loads
 bundle:
-    pnpm -C packages/content run bundle
+    node --import tsx packages/content/src/bundle-cli.ts
 
 # The coulee CLI, e.g. `just run run --scenario iron_ford --seed 42 --days 10`
 run *ARGS:
-    pnpm exec tsx packages/cli/src/main.ts "$@"
+    node --import tsx packages/cli/src/main.ts "$@"
 
 # Vite dev server (phone on LAN: uses --host)
 web: bundle
@@ -55,4 +55,4 @@ assets:
 
 # Screenshots of the built app with system chromium -> runs/screens
 screens: web-build
-    pnpm exec tsx scripts/screens.ts
+    node --import tsx scripts/screens.ts

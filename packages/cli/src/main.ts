@@ -10,9 +10,11 @@ import { readFileSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
 import { CONTENT_ROOT, formatIssues, loadContent, loadContentOrThrow, REPO_ROOT } from '@coulee/content';
 import { formatStamp, toViewModel } from '@coulee/core';
+import { GEN_VERSION } from '@coulee/worldgen';
 import { cac } from 'cac';
 import { findActor, renderDossier } from './dossier.ts';
-import { runScenario, writeRunOutputs } from './harness.ts';
+import { generateTimedTown, writeGeneratedTown } from './generation.ts';
+import { type RunSpec, runScenario, type WorldSource, writeRunOutputs } from './harness.ts';
 
 const cli = cac('coulee');
 
@@ -29,6 +31,7 @@ cli
   .command('run', 'Run a scenario headless and write chronicle.md, events.jsonl, stats.csv, final hash')
   .option('--scenario <id>', 'Scenario id', { default: 'iron_ford' })
   .option('--seed <n>', 'Seed (integer)', { default: 1 })
+  .option('--world-seed <n>', 'World seed for gen:town (defaults to sim seed)')
   .option('--days <n>', 'Days to simulate (default 7)')
   .option('--years <n>', 'Years to simulate')
   .option('--hours <n>', 'Hours to simulate')
@@ -38,6 +41,7 @@ cli
     (o: {
       scenario: string;
       seed: number;
+      worldSeed?: number;
       days?: number;
       years?: number;
       hours?: number;
@@ -45,12 +49,17 @@ cli
       mods?: string;
     }) => {
       const content = loadContentOrThrow(modsOf(o.mods));
-      const spec = { scenarioId: String(o.scenario), seed: Number(o.seed), hours: hoursOf(o) };
+      const spec = {
+        scenarioId: String(o.scenario),
+        seed: Number(o.seed),
+        hours: hoursOf(o),
+        worldSeed: o.worldSeed === undefined ? undefined : Number(o.worldSeed),
+      };
       const t0 = performance.now();
       const res = runScenario(content, spec);
       const ms = Math.round(performance.now() - t0);
-      const out = resolveOut(o.out ?? `runs/${spec.scenarioId}-${spec.seed}`);
-      const scenarioName = content.scenarios[spec.scenarioId]?.name ?? spec.scenarioId;
+      const out = resolveOut(o.out ?? `runs/${spec.scenarioId.replace(':', '-')}-${spec.seed}`);
+      const scenarioName = res.sim.content.scenarios[res.sim.world.meta.scenarioId]?.name ?? spec.scenarioId;
       writeRunOutputs(out, spec, res, `${scenarioName} — seed ${spec.seed}`);
       console.log(
         `ran ${spec.scenarioId} seed ${spec.seed} for ${spec.hours} h in ${ms} ms -> ${formatStamp(res.sim.world.time)}; ` +
@@ -61,6 +70,27 @@ cli
       );
     },
   );
+
+cli
+  .command('gen <kind>', 'Generate an editable town content mod and report.md')
+  .option('--seed <n>', 'World seed (uint32)', { default: 1 })
+  .option('--out <dir>', 'Output directory (default runs/gen-<seed>)')
+  .option('--preset <name>', 'coulee or river', { default: 'coulee' })
+  .option('--mods <list>', 'Content mods', { default: 'base' })
+  .action((kind: string, o: { seed: number; out?: string; preset: 'coulee' | 'river'; mods?: string }) => {
+    if (kind !== 'town') throw new Error(`Unknown generator '${kind}'`);
+    const seed = Number(o.seed);
+    const town = generateTimedTown(loadContentOrThrow(modsOf(o.mods)), {
+      genVersion: GEN_VERSION,
+      seed,
+      preset: o.preset,
+    });
+    const out = resolveOut(o.out ?? `runs/gen-${seed}`);
+    writeGeneratedTown(out, town);
+    console.log(
+      `Generated ${town.scenario.name}: ${town.scenario.actors.length} people; ${town.report.qa.length} QA checks passed -> ${out}`,
+    );
+  });
 
 cli
   .command('content <action>', 'Content tools: `content check`')
@@ -86,6 +116,7 @@ cli
   .command('inspect <actorName>', 'Print a character dossier (re-simulates deterministically)')
   .option('--scenario <id>', 'Scenario id', { default: 'iron_ford' })
   .option('--seed <n>', 'Seed', { default: 1 })
+  .option('--world-seed <n>', 'World seed for gen:town')
   .option('--days <n>', 'Days to simulate first (default 0)')
   .option('--hours <n>', 'Hours to simulate first')
   .option('--run <dir>', 'Re-create the end state of a previous `coulee run` from its manifest.json')
@@ -93,10 +124,19 @@ cli
   .action(
     (
       name: string,
-      o: { scenario: string; seed: number; days?: number; hours?: number; run?: string; mods?: string },
+      o: {
+        scenario: string;
+        seed: number;
+        days?: number;
+        hours?: number;
+        run?: string;
+        mods?: string;
+        worldSeed?: number;
+      },
     ) => {
-      const content = loadContentOrThrow(modsOf(o.mods));
-      let spec = {
+      let content = loadContentOrThrow(modsOf(o.mods));
+      let spec: RunSpec = {
+        worldSeed: o.worldSeed === undefined ? undefined : Number(o.worldSeed),
         scenarioId: String(o.scenario),
         seed: Number(o.seed),
         hours: hoursOf({ days: o.days ?? 0, ...(o.hours !== undefined ? { hours: o.hours } : {}) }),
@@ -107,11 +147,14 @@ cli
           seed: number;
           hours: number;
           stateHash: string;
+          worldSource?: WorldSource;
+          mods?: string[];
         };
-        spec = { scenarioId: m.scenario, seed: m.seed, hours: m.hours };
+        spec = { scenarioId: m.scenario, seed: m.seed, hours: m.hours, worldSource: m.worldSource };
+        if (m.mods) content = loadContentOrThrow(m.mods);
       }
       const res = runScenario(content, spec);
-      const vm = toViewModel(res.sim.world, content, { perspective: null, includeExplain: true });
+      const vm = toViewModel(res.sim.world, res.sim.content, { perspective: null, includeExplain: true });
       const { actor, matches } = findActor(vm, name);
       if (!actor) {
         console.error(

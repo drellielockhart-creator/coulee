@@ -22,14 +22,24 @@ import {
   stateHash,
 } from '@coulee/core';
 
+import { GEN_VERSION, type TownRecipe, townContent } from '@coulee/worldgen';
+import { generateTimedTown } from './generation.ts';
+
+export type WorldSource =
+  | { kind: 'authored'; scenarioId: string }
+  | { kind: 'generated'; generator: 'town'; recipe: TownRecipe };
+
 export interface RunSpec {
   scenarioId: string;
   seed: number;
   hours: number;
+  worldSeed?: number;
+  worldSource?: WorldSource;
 }
 
 export interface RunResult {
   sim: Sim;
+  worldSource: WorldSource;
   hash: string;
   stats: Array<Record<string, number | string>>;
 }
@@ -54,7 +64,18 @@ function statsRow(sim: Sim, dayIndex: number, eventsBefore: number): Record<stri
 }
 
 export function runScenario(content: ContentBundle, spec: RunSpec): RunResult {
-  const sim = createSim(content, { scenarioId: spec.scenarioId, seed: spec.seed });
+  let scenarioId = spec.scenarioId;
+  const worldSource: WorldSource =
+    spec.worldSource ??
+    (scenarioId === 'gen:town'
+      ? { kind: 'generated', generator: 'town', recipe: { genVersion: GEN_VERSION, seed: spec.worldSeed ?? spec.seed } }
+      : { kind: 'authored', scenarioId });
+  if (worldSource.kind === 'generated') {
+    const town = generateTimedTown(content, worldSource.recipe);
+    content = townContent(content, town);
+    scenarioId = town.scenario.id;
+  } else scenarioId = worldSource.scenarioId;
+  const sim = createSim(content, { scenarioId, seed: spec.seed });
   const stats: Array<Record<string, number | string>> = [];
   let eventsBefore = sim.world.log.events.length;
   runHours(sim, spec.hours, {
@@ -63,7 +84,7 @@ export function runScenario(content: ContentBundle, spec: RunSpec): RunResult {
       eventsBefore = s.world.log.events.length;
     },
   });
-  return { sim, hash: stateHash(sim.world), stats };
+  return { sim, worldSource, hash: stateHash(sim.world), stats };
 }
 
 export function toCsv(rows: ReadonlyArray<Record<string, number | string>>): string {
@@ -93,6 +114,8 @@ export function writeRunOutputs(dir: string, spec: RunSpec, res: RunResult, titl
       {
         scenario: spec.scenarioId,
         seed: spec.seed,
+        worldSource: res.worldSource,
+        commandLog: [],
         hours: spec.hours,
         contentHash: content.meta.hash,
         mods: content.meta.mods,

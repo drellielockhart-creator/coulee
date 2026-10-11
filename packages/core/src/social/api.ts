@@ -52,7 +52,11 @@ export function addOpinionReason(
 }
 
 /** Encode a memory for an actor (perception, being told, etc.). STUB returns null. */
-export function addMemory(_world: World, _ctx: SimContext, _memory: Omit<Memory, 'id'>): MemoryId | null {
+export function addMemory(
+  _world: World,
+  _ctx: SimContext,
+  _memory: Omit<Memory, 'id'> & { aboutId?: ActorId | null; did?: boolean; count?: number; since?: number },
+): MemoryId | null {
   return null; // STUB
 }
 

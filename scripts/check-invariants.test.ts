@@ -48,4 +48,21 @@ describe('check-invariants', () => {
       '1:locale-dependent formatting/ordering differs across devices',
     ]);
   });
+  it('scans worldgen with the same bans while allowing its pure runtime dependencies', () => {
+    const file = '/x/packages/worldgen/src/generate.ts';
+    expect(checkFile(file, "import { rng } from '@coulee/core';")).toEqual([]);
+    expect(checkFile(file, "import { ScenarioSchema } from '@coulee/content/schema';")).toEqual([]);
+    for (const source of [
+      "import { readFileSync } from 'node:fs';",
+      'Math.random();',
+      'new Date();',
+      'Math.sin(3);',
+      '2 ** 3;',
+      'fetch("x");',
+      'performance.now();',
+    ]) {
+      expect(checkFile(file, source).length).toBeGreaterThan(0);
+    }
+    expect(whys("import { rng } from '@coulee/core';").length).toBeGreaterThan(0);
+  });
 });
