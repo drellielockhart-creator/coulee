@@ -1,0 +1,81 @@
+1855-04-01 00:00 | GOD | The Wagon Bell Tavern
+Ellis Wayfarer — idling. Purse $50.00. 33°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+[7] Heard: Silas Vance is of the hidden folk — explain 7
+[8] core.world_created
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 172; “actions 1” for full menu pages; “help” for verbs.
+> go 14
+Stopped: activity.moved
+1855-04-01 01:00 | GOD | Crane General Store and Outfitter
+Ellis Wayfarer — walking about. Purse $50.00. 32°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 797; Hunger 758; Rest 745; Thirst 770; Warmth 1000
+Counter closed; hours 6:00–21:00.
+Here: Submit Crane (#1), Silas Crane (#2).
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Walk
+[266] chronicle.pattern_matched — explain 266
+[267] chronicle.pattern_matched — explain 267
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to The Wagon Bell Tavern [go:15]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Submit Crane [talk:chat:1]
+13. Introduce oneself: Submit Crane [talk:introduce:1]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 154; “actions 1” for full menu pages; “help” for verbs.
+> explain 264
+Larder horizon and ration cut: 50 (Days of food tenths, Ration percent) -> rations_cut
+1855-04-01 01:00 | GOD | Crane General Store and Outfitter
+Ellis Wayfarer — walking about. Purse $50.00. 32°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 797; Hunger 758; Rest 745; Thirst 770; Warmth 1000
+Counter closed; hours 6:00–21:00.
+Here: Submit Crane (#1), Silas Crane (#2).
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Walk
+[266] chronicle.pattern_matched — explain 266
+[267] chronicle.pattern_matched — explain 267
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to The Wagon Bell Tavern [go:15]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Submit Crane [talk:chat:1]
+13. Introduce oneself: Submit Crane [talk:introduce:1]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 154; “actions 1” for full menu pages; “help” for verbs.

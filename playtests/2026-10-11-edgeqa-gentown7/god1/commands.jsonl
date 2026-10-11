@@ -1,0 +1,3 @@
+{"type":"session","format":1,"spec":{"source":{"kind":"generated","recipe":{"genVersion":1,"seed":7}},"seed":7,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"575f75a0b5183d6e386dc6a9b6b704d30cf599c287840d219007633be30c8ce3"}
+{"type":"command","command":{"kind":"core.urge","actorId":30,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":14}}},"before":"d206cdcd7e344432","after":"baa2f3293c1d1b0a","at":0,"end":60}
+{"type":"command","command":{"kind":"activity.observe","actorId":30,"data":{"query":"explain","target":"264"}},"before":"baa2f3293c1d1b0a","after":"baa2f3293c1d1b0a","at":60,"end":60}

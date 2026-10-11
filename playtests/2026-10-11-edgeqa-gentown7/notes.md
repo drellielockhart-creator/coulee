@@ -1,0 +1,35 @@
+# notes (edgeqa gentown7)
+- [fair] cmd ~"go 14" at 1855-04-01 10:00: arrived at Crane store, purse dropped 49.15 -> 48.10, event 722 "Bought 35 cornmeal for $1.05" but NO cornmeal in my pack (plan). Source: economy.ts shoppingHour() picks whichever household member is at a store as buyer and spends THEIR PURSE first, into the household pantry. PC is a member of tavern household => PC's personal cash pays for NPC household's groceries without consent.
+- [fair] `wait until 06:00` at 01:00 in store: PC autonomously walked to tavern, paid bed $0.25 (purse spent without consent).
+- [fair] tavern `meal` $0.20 charged even when Hunger already 1000 (3rd meal); each meal 180 kcal => 11 meals/day = $2.20.
+- [src] store sells at max... sale quote = min(retail,value); store(105%) mill(90%) => arbitrage buy at mill sell at store ~ +10%/unit (worldgen population.ts).
+- [src] player buy always onCredit=false (play/actions.ts) so tab/credit only NPC.
+- [fair] Cmd "-1" (menu number) crashes CLI with cac CACError "Unknown option -1" stack trace (needs `--`). 
+- [fair] "wait until never" accepted silently (arbitrary event string), waited ~12h until morning.
+- [fair] sell is 1 unit/command and each command = 1 game hour; arbitrage mill(90%) -> store(105%): cheese bought 0.11 sold 0.12 = +1c/hr.
+- [fair] journal line "1855-04-01 14:00 Submit Crane made a gift to Silas Crane at Crane store. I saw it" but at 14:00 I was at the Mill (arrived Crane store 15:00). witness attribution suspicious.
+- [fair] journal day-0: "The ration is at 50 in the hundred and the children no longer ask" => PC household (tavern) on 50% ration.
+- [src] cashOf/purchase uses PC purse then household cash box; buy->sell converts household cash into PC purse minus 5%.
+- [src] accessibleStack: PC can `unpack` household pantry items (firewood 163, cornmeal 164) at home => free goods -> sell.
+- [fair] "buy" at the mill leaves PC 'at home, at leisure' while at mill (activity label).
+- [fair] prep_failed explain 2030: "Cannot prepare food: 0 () -> failure" opaque.
+- CORRECTION: PC is NOT in tavern hh; PC is hh12 "Newcomer lodgings" (1 member, cash 0, home=tavern place 15). Cornmeal bought by shoppingHour went into hh12 pantry (accessible at tavern via unpack). Still: purse spent w/o consent.
+- [god/source] t=0 event 264 provisions.shortage hh12 daysOfFoodTenths=0 -> ration cut to 50%, because hh pantry empty though pack has 6.8 days. Journal entry 4: "It has been a day. The ration is at 50 in the hundred and the children no longer ask." (hh has no children). Public paper entry 3: "the Newcomer lodgingses are in want" (plural bug) - not shown in fair journal (ok).
+- [god] Silas Vance #14 = shadow_faekin presenting human (farm place 21). god event [7] "Heard: Silas Vance is of the hidden folk". Epilogue chronicle entry 1 is omniscient (hidden in fair).
+- [fair] inspect actor (other) returns only id,name,people,activity. good.
+- [fair] wait Nd constantly interrupted (needs.band_changed / social.interaction): ~5 calls/day; wait 400d rejected "at most 30 days".
+- [fair] PC autonomously buys tavern meals ($0.20) and bed ($0.25) during waits: purse 50 -> 45.43 in 3 days (~$1.2/day) even though pack has 12 days of food.
+- wages: hired_hand 75c/day x6 credited sat to HOUSEHOLD cash (hh12), not purse.
+- [fair] cmd ~143 `buy flour 465` at Crane store: purse 43.08->19.83, load "Staggering, 250.8 kg"; no carry cap, buying continues to 382 kg; travel still 1h; no visible penalty. 
+- [fair] cashOf: wages 450c credited to hh12 cash box (invisible); UI "Purse $0.00" while hh12 holds 103c; buy of pork 130 silently drains household cash. Hidden spendable money.
+- [fair] economy: $50 purse bought 99 days of food in one afternoon (flour 5c/lb, cornmeal 3c, beans 4c, pork 13c). wages hired_hand 75c/day => 1 day's wage = ~25 days of cornmeal. no scarcity.
+- [god/src] wages minted: householdDay h.cashCents += wage*6 with no payer; paid regardless of work done (PC sleeping/waiting still gets). Weekly money creation.
+- [fair] "borrow Johanna" (child) -> "The requested conversation did not take place: the other person may have left or be unavailable." though she is listed in Here; hour still passes. borrow Patrick: +$1.50 success but Purse stays $0.00 (goes to hh cash box) and event 9867 auto-Repay 150 same night.
+- [fair] menu offers Propose/Court/Flirt to married Honora Sheehan; Lend/Borrow with child Johanna.
+- [fair] "Heard: Timothy Costello is of the hidden folk" rumor line appears repeated in every view (stale rumors line). god truth: Timothy human; shadow_faekin is Silas Vance (#14).
+- [god/src] money conservation check (fair save diff t=60 -> t=9960): total cash +7080c == sum provisions.wages events. Only leak is wage minting: ~$70/wk village-wide vs $194 base. headless60 (gen:town seed7, 60d, no input): village cash 12676c -> 67112c (5.3x), no sinks.
+- [god/src] stores have restockId None in gen:town -> never restock. By day 60 (headless) Crane + Mill have 0 flour/cornmeal/beans/potatoes; only pork/apples/cheese left. In fair play, one afternoon (cmd ~143-146) I bought 465 flour + 160 beans + 130 pork for ~$55 -> Crane flour 35 left.
+- [fair] explain checks: explain N works only for known events. ok.
+- [src] interactions accuse / shun_lobby are `urge_only` (belief-driven) yet appear on the player's menu for any acquainted target (Accuse: Honora Sheehan, Urge shunning: Johanna).
+- [fair] `talk:fight:4` typed by mistake: "The requested conversation did not take place: the other person may have left or be unavailable." though Honora is in Here. Several (borrow Johanna, dun Patrick) same; hour passes.
+- verify OK at 139 cmds: "Verified 139 commands; final hash c540d30accd9dd2b."

@@ -1,0 +1,43 @@
+{
+  "scenario": "gen:town",
+  "seed": 7,
+  "worldSource": {
+    "kind": "generated",
+    "generator": "town",
+    "recipe": {
+      "genVersion": 1,
+      "seed": 7
+    }
+  },
+  "commandLog": [],
+  "hours": 1440,
+  "contentHash": "b28fb43ce95e5254f69f254e92be9e926ecb2d21981a96a6a5305e9f4fa0b1d4",
+  "mods": [
+    "base"
+  ],
+  "finalTime": "1855-05-31 00:00",
+  "stateHash": "7ab86966599ac1e9",
+  "events": 85119,
+  "eventsRetained": 4464,
+  "msPerGameHour": 9.83,
+  "saveBytes": 8390161,
+  "saveBytesBySlice": {
+    "log": 3885072,
+    "social": 3242569,
+    "chronicle": 594873,
+    "psyche": 245520,
+    "belief": 232929,
+    "provisions": 101186,
+    "items": 38043,
+    "actors": 17504,
+    "needs": 16885,
+    "places": 6728,
+    "activity": 6007,
+    "index": 1310,
+    "households": 1183,
+    "meta": 143,
+    "counters": 38,
+    "time": 5
+  },
+  "heapUsedMB": 82
+}

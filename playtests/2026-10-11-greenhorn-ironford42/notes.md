@@ -1,0 +1,41 @@
+# Greenhorn notes (Ellis Wayfarer, Iron Ford seed 42)
+- Cmd1 start: tavern, purse $50, 4 real-looking menu items. Unclear: "Kit Sheet", "Board: bed $0.25 until noon", "Counter closed".
+- plan: 16.6k kcal, food 6.8 days, load 33kg Medium. Don't know what Medium means.
+- explain 402 gave one line "Larder horizon and ration cut" - cryptic.
+- talk Amos: output of conversation text not visible in observation; only "Self-Command: Resolved: Chat".
+- introduce Amos failed "did not take place: other person may have left or be unavailable" (he was still in room).
+- Clock jumped 01:00 -> 03:00 after talk + introduce (each talk costs an hour? unclear).
+- Slept at tavern: bed auto-charged $0.25 (explain: "Tavern bed: 25 ... From the purse, From the household cash -> success" - confusing which source).
+- POSSIBLE BUG: purse $49.75 at 06:00 -> $41.93 at 07:00 while asleep; no event visible for $7.82. transcript.txt line ~1239-1258.
+- "Counter closed; hours 6:00-23:00" then opens at 06:00. Fine but meal/bed open-hours not explained.
+- Meal costs $0.20 and needs.fed explained only as "The table is laid".
+- Walking into shop auto-triggered "Comfort > Gussie Pratt" and "Pray > Gussie Pratt" with no choice by me; surprising/unclear who initiated.
+- "talk Augusta Pratt" -> "did not take place: other person may have left" even though she was listed as here. Confusing (also at tavern).
+- Bare "buy" gives "Ambiguous: buy:hardtack, buy:flour..." with no prices. Greenhorn can't see prices before buying.
+- "buy hardtack" -> "Bought 1 hardtack for $0.08" (explain 1025). Good: clear, cheap, food days rose 6.4->7.3.
+- Shop open 6:00-21:00; Sabbath note ("The Sabbath must be kept") shown while shopping; unclear whether buying on Sunday is restricted.
+- Menu lists 20+ "Inspect <place>" entries before any useful actions; actions 2 page is all inspects. Poor menu ordering.
+- "work" at tavern for 2h: purse 41.65 -> 41.45 (only the meal), no pay visible. Greenhorn can't tell how to earn money or what "work" is. No job listing anywhere so far.
+- Conversations ("Chat > Mercy Bell: success") show NO dialogue text at all. Only a line "Resolved: Chat: 1091 (Reality 50 x Self-Command 50%, Voices 1000 x 100%...)". "Voices" and "Reality" never explained to me.
+- Print shop menu: only Chat/Walk options; no visible job/work offer.
+- Journal entry flavor works: "Lydia Pratt comforted Gussie Pratt... I thought the better of Lydia Pratt for it." (pleasant)
+- "work" from print shop walked me back to Dunleavy's Tavern ("Stopped: activity.moved") - no explanation of where work happens or what it pays.
+- After 2h of "work" + meal, purse fell 41.65 -> 41.00 over ~20h with zero income. Money drain ~ $0.25/night. Greenhorn can't see how money comes in.
+- "wait until 19:00" then slept through to 04-02 08:00 automatically ("Stopped: social.interaction") - I was not asked whether to sleep; tiring surprise.
+- Day 2 reached (Mon Apr 2).
+- Church: "Good day > Ellis Wayfarer: success" (I greeted myself?) and "Pastor Tveit Tveit" (duplicated name). Surprising/odd.
+- "Conscience: Daily round: Work" nags me but "work" always walks me to Dunleavy's Tavern and makes no money. No job offer found. Stuck-ish greenhorn.
+- Actions list grows to 349 entries (Introduce/Chat for everyone present) - menu is unmanageable.
+- Purse 40.80 on day 2 afternoon.
+- Bare "sell" -> "Ambiguous: sell:308, sell:309, sell:312..." (IDs, not names). Confusing.
+- "sell firewood" sold ONE armload (#312, 2 -> 1) for +$0.02 (40.80 -> 40.82). No price shown before selling. Greenhorn would have no idea firewood is worth ~2 cents. Also load dropped 33.8 -> 24.8 kg (armload ~9 kg?) - Fuel now thinner.
+- Hardtack went 4 -> 5 after buying 1 (ok).
+- Still no job. Income = 0 by day 2 afternoon.
+- "rations 60" -> Food 7.2 days jumped to 12.1 days; rations 10..150 range shown only in help. No explanation whether 60 means more/less food or what the cost is. Confusing.
+- "eat pemmican" then Food 11.1 days.
+- Day 3-5: "wait 1d" stops at every social interaction, so a day takes 10+ calls. Painful pacing.
+- Purse 40.82 (Apr 2) -> 38.67 (Apr 5) with no visible income. Greenhorn running out of money slowly.
+- Fuel 1.2 days on Apr 5 with no warning I could read; warmth still 1000 (Warmth not yet dropping).
+- Journal (flavor, good): "Michael Dunleavy came by again with something for the pot, and would not stay to be thanked." and "Miss Ellis Wayfarer, whose pantry has been bare, did not go hungry this week; Mr. M. Dunleavy saw to that". I never saw or was told about this in game UI - a greenhorn just sees food days, no source. Pleasant but opaque.
+- Journal: "Nora Dunleavy was in close talk with Michael Dunleavy... I would give a good deal to know the subject." Nice hook.
+- "waiting on the mail" activity appeared at Outfitters (Apr 5) - unexplained.

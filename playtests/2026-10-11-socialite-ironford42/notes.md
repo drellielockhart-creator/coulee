@@ -1,0 +1,57 @@
+# Notes socialite ironford42
+- cmd1 new; start 00:00 Apr 1 in Dunleavy's Tavern, 6 NPCs present.
+- inspect Lucius Vance -> bare JSON {id,name,people,activity}. Thin.
+- cmd7 "talk Nora Dunleavy", cmd10 "introduce Nora Dunleavy", cmd11 menu "talk:introduce:1" (Amos, offered in menu) all: "The requested conversation did not take place: the other person may have left or be unavailable." Each burns 1 hour. Self-Command line says "Resolved: Introduce oneself" anyway. Menu offers action that fails w/o reason.
+- explain output is formula jargon: "Resolved: Chat: 1063 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command"
+- provisions.shortage at 6.8 days food -> ration cut 50%?? 
+- cmd17 wait until 09:00: autonomous self bought eggs/bread/whiskey/firewood ($49.75->$41.93) w/o telling me; events "[791] Spin a yarn ▸ Brigid Dunleavy: failure" "[792] Chat ▸ Lucius Vance: success" — unclear who the actor is.
+- journal day1: "Less than a day of food at the worst of it... I am going to the store with my pride in my pocket." contradicts Food 6.8 days.
+- explain 879 "Good day ▸ Ellis Wayfarer" -> "That explanation is not known to your character" (it's addressed to ME).
+- cmd21 introduce Brigid at 09:00 -> failed, she left (Sabbath). cmd29 introduce Amos at church (menu) failed, cmd31 introduce Minerva (menu, talk:introduce:15) failed. 6 straight failed social attempts. Menu only ever offers ONE person's chat/introduce on short page.
+- cmd33 chat Magdalena: success, but output only "[1405] Chat ▸ Magdalena Brenner: success" — no line of dialogue, no relationship change shown.
+- full menu p8 has rich verbs: Flirt/Court/Propose/Chat/Gossip/Deep talk/Confide/Compliment/Apologize/Forgive/Stand drinks/Tell a tale/Repay/Dun. Propose offered to Minerva Fenn whom I've never met.
+- cmd39 gossip Magdalena success; Conscience: "Thou shalt not bear false witness." But no rumor learned; journal empty of it.
+- cmd41 deep talk Magdalena: she left. "[1558] Preach ▸ Ellis Wayfarer" explain: "Preach at: Ingrid Tveit → Ellis Wayfarer: 16 (d20 15, Charisma +1) vs DC 13 -> success". 
+- cmd43 chat Ingrid: she left. Running: 2 success / 9 attempts. Root issue: people leave during the 1h action.
+- journal: "Hester Fenn helped Minnie Fenn at Iron Ford Lutheran Church. I saw it, and thought the better of Hester Fenn for it." (nice)
+- Activities page 6 lets me "Hold court", "Lead the service", "Keep the tavern" etc. — anyone can take any job?
+- cmd45 toast Hester: left. cmd46 introduce:38 (Lucius) "No available action matches".
+- I'm "Miss Ellis Wayfarer". Michael Dunleavy fed me off-screen (Food 6.0->6.8). Journal: "Miss Ellis Wayfarer, whose pantry has been bare, did not go hungry this week; Mr. M. Dunleavy saw to that, and mentioned it to nobody. We mention it for him." / "Michael Dunleavy came by again with something for the pot, and would not stay to be thanked. I am learning to let a gift be a gift." LOVELY.
+- BUG-ish: journal "19:00 I was in close talk with Joel Pike ... I would give a good deal to know the subject." — first-person narrator wondering about its own conversation (observer template applied to self).
+- cmd49 ask about news Joel: success but no news content shown anywhere.
+- Full verbs list p9: Help, Gift, Warn, Comfort, Ask about news, Preach at, Pray with, Confess, Slight, Snub, Mock, Insult, Threaten, Fight, Accuse, Urge shunning.
+- cmd~44 compliment Michael: success "Compliment: Ellis Wayfarer → Michael Dunleavy: 15 (d20 14, Charisma +1) vs DC 10". 
+- cmd45,46 flirt Joel (talk:flirt:2, offered in menu) failed twice while he is listed "Here" — inspect shows activity "sleeping" at 22-23h. Menu offers interactions with sleeping people; failure msg doesn't say asleep. LIKELY root cause of most failures (sleep/busy/at prayer).
+- [2168] "Lend ▸ $1.00: success" explain "Lend: 100 (Cents asked, From the purse, From the household cash)" — who lent to whom? my purse unchanged.
+- Appetite first appears: "Weary: a bed would be welcome"; Conscience: "Six days shalt thou labour. This is the seventh."
+- Day2 05:00 wait interrupted by NPC chat. Brigid chat x1 success. meal $0.20; Appetite still "Hungry: eat something" after (Hunger 691).
+- flirt Joel: "Flirt: Ellis Wayfarer → Joel Pike: 6 (d20 5, Charisma +1) vs DC 12 -> failure". No reaction text.
+- Appetite: "Every dollar owed to Michael Dunleavy is a rope around my neck." GREAT line. Repay:28 -> "[2979] Repay ▸ $1.00: success" purse 41.48->40.48. But purse never rose when "Lend $1.00" happened at 23:00 (41.93 both sides) -> possible money leak / loan went to "household cash" invisible. Appetite line persists after repaying.
+- Print shop day2: introduce Horace OK, ask_about Horace -> he left; introduce Mercy OK; ask_about Mercy success -> no news content anywhere.
+- Journal lines: "Michael Dunleavy has not said a word of the money, which is worse than if Michael Dunleavy had." (name repeated, no pronoun) ; "I made eyes at Joel Pike. Whether it was welcome I cannot tell; the face he made could be read either way." (GREAT); BUG "Me paid Michael Dunleavy, in full. I did not think to see it, and I am rather pleased to have been wrong." (observer template on self, 'Me paid'); "Mercy Bell came by again with something for the pot" — 'again' on first gift; same template as Michael's.
+- Mock Horace: "Mock: Ellis Wayfarer → Horace Bell: 8 () vs DC 7" (empty parens modifier). Insult Horace success 13() vs 12. Same hour my psyche auto-Apologized: "Apologize: Ellis Wayfarer → Horace Bell: 6 (d20 5, Charisma +1) vs DC 13 -> failure". Conscience never voiced objection in the status line though.
+- Journal (GREAT): "I made sport of Horace Bell at Iron Ford Sentinel Print Shop. It was out before I thought, and is not to be called back." / "Hard feelings were aired at Iron Ford Sentinel Print Shop on Monday in the afternoon, Miss Ellis Wayfarer doing the airing and Mr. H. Bell the listening, unwillingly." / "I insulted Horace Bell ... and was sorry before the day was out." / "I tried to make peace with Horace Bell ... The words did not mend the quarrel."
+- wait 2h stopped after 1h (activity.moved), autonomous me walked to tavern and is "working".
+- cmd~70 deep_talk Lucius (18:00) failed: inspect -> "sleeping". cmd~72 court Joel (19:00) failed: Joel "sleeping" while short menu offers "Chat: Joel Pike [talk:chat:2]". --verify: "Verified 72 commands; final hash 15f47f54f8695dcf."
+- Conscience non sequitur: "You'll need them come threshing." (Apr, no context)
+- Food jumped 6.0->6.8 again at 19:00 (someone feeding me again?).
+- Day3: Conscience: "Is Insult any way to treat a neighbor?" (verb name capitalized leaks; persists all morning). 
+- court Joel 06:00: "Court: Ellis Wayfarer → Joel Pike: 7 (d20 6, Charisma +1) vs DC 14 -> failure" event label "Walk out ▸ Joel Pike". Gift Joel success (what was given? purse unchanged, not told). Court again 08:00: Joel left.
+- deep_talk Lucius success ("Talk long"), confide Lucius success — no content.
+- Journal GREAT: "Miss Ellis Wayfarer's attentions to Mr. J. Pike at Dunleavy's Tavern on Tuesday at first light were not well received." / "I paid court to Joel Pike ... My heart did a thing it has no business doing in a person of sense." / "We are glad to report that Miss Ellis Wayfarer was seen carrying relief to the door of Mr. J. Pike, whose table has been poor of late. These things are noticed, and recorded here for the credit of the place." / "I have been doing what I can for Joel Pike. It comes out of my own stores. I do not mind as much as I feared."
+- Context-free: "18:00 It was the sensible thing; anyone would agree. I have asked myself and I agree." (what thing?)
+- Lucius: flirt success "19 (d20 18, Charisma +1) vs DC 12"; court fail "4 (d20 3...) vs DC 14". Court DC 14 flat, no affection modifier visible despite prior flirt/deep talk/confide.
+- Waits constantly interrupted ("Stopped: social.interaction"): "wait 1d" at 17:00 -> stopped 19:00. ~2-4h per wait.
+- Lucius flirted at me: "Flirt: Lucius Vance → Ellis Wayfarer: 10 (d20 2, Charisma +2, Persuade ranks +6) vs DC 13 -> failure"; complimented me 21 vs 11 success. Reciprocation! But my court at 10:00 'did not take place' — Lucius "working" (yet chatting with others same hour).
+- Journal templates repeat verbatim for Joel and Lucius ("I made eyes at...", "My heart did a thing it has no business doing in a person of sense."). Flirt success still logs "Whether it was welcome I cannot tell" — doesn't reflect outcome.
+- Day4 Pratt's: Lydia (#22) no talk actions at all (working?). Introduce Augusta OK (shows as "Gussie Pratt" in events, Augusta in Here list — nickname inconsistency). Gossip Augusta: success, no content again (Voices 300 vs 1000 normal).
+- Urge shunning Augusta: "Urge shunning: Ellis Wayfarer → Gussie Pratt: 7 () vs DC 10 -> failure" — CONFUSION: who am I urging her to shun? No way to name the third party.
+- Day4->5 "wait 1d" went 16:00->07:00 OK. Journal: "Miss Ellis Wayfarer was seen in earnest talk with Mrs. A. Pratt ...; there was a look of news about it." (still no actual news)
+- Day5: court:38 08:00 fail (not available), introduce:1 Amos "No available action" (already acquainted silently), court:2 Joel 08:00 fail (left), court:38 09:00 fail. 4 more failures in a row while all targets listed "Here".
+- Day5 waits: "wait 1d"/"wait 3d"/"wait until 06:00" each stopped after ~1h (activity.moved / social.interaction). Autonomous me: "waiting on the mail", bought 12 flour $0.60.
+- My autonomous self flirted with Lucius: "Flirt: Ellis Wayfarer → Lucius Vance: 19 (d20 18, Charisma +1) vs DC 12" — IDENTICAL roll to my manual flirt on day 3 (d20 18). RNG per pair/verb?
+- KEY FINDING (fork-chatlucius at 16:00 Apr 5): Lucius activity "working". talk:chat:38 -> success; talk:deep_talk:38 and talk:court:38 -> "The requested conversation did not take place: the other person may have left or be unavailable." Menu offers court/deep talk to working people; message misleading (he hasn't left). Explains most of my 'failures'.
+- Day6: court:38 at 08:00 (Lucius "at table") -> "did not take place"; SAME HOUR "[10867] Mock ▸ Lucius Vance: success" explain "Mock: Ellis Wayfarer → Lucius Vance: 19 () vs DC 16 -> success". I commanded court, my character mocked him. Journal: "I made sport of Lucius Vance at Dunleavy's Tavern. The room went quiet in the way rooms do." No explain of WHY (no psyche.arbitrated shown for it).
+- Journal Apr5 14:00 (after autonomous flirt success): "I am keeping company with Lucius Vance, which is a formal way of saying I think of nothing else. The work gets done anyway; that astonishes me." — courtship began off-screen, never told in status.
+- Apologize Horace: "21 (d20 20, Charisma +1) vs DC 14 -> success" (nat 20). Not journaled. Conscience still "Is Insult any way to treat a neighbor?" after.
+- [10972] Warn ▸ Michael Dunleavy: success — someone warned Michael (about what?).

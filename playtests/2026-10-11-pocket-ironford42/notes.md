@@ -1,0 +1,62 @@
+# Pocket play notes
+
+- Start: compact status; lots of useful survival details but action list takes much of screen. Help says each action = one game-hour; sleep locks 4 hours.
+- Cmd 1 `go The Iron Ford`: advances to 01:00 and immediately reports `Stopped: activity.moved`; food drops 6.8 to 6.5 days, vitals hunger/rest/thirst fall sharply. `provisions.shortage` event appears despite still 6.5 days food.
+- Cmd 2 `sleep`: at 01:00 auto-travel to tavern; purse $50 to $49.75; now sleeping, but only one hour elapsed (to 02:00). Confusing whether sleep starts automatically on arrival.
+- Cmd 3 `wait 8h`: lands at 10:00 at Lutheran Church; purse falls to $41.93; two reported social events (good day with Lucius, yarn with Tollef) and `Stopped: activity.moved; social.interaction`. Large unseen journey / autonomous activity during long wait, but output only shows endpoint plus two event lines. Rest rises to 867. Sunday context message.
+- Cmd 4 `wait 8h` immediately interrupted at 11:00 by `needs.band_changed; social.interaction`; hunger becomes Peckish; output shows preacher success and yarn failure. `wait 8h` can stop after 1 hour.
+- Cmd 5 `go Pratt & Daughter`: 12:00, walk status, and event `Lend a hand` success; no visible choice prompted.
+- Cmd 6 `wait 1d`: stopped at 13:00 in tavern by movement. Seemingly only one hour elapsed; needs.fed and tavern meal $0.20. Character is at table. Interrupt cadence makes long wait less predictable than chunk-based intent, but output reports latest stop.
+- Cmd 7 `wait 1d`: two more hours to 15:00; interaction interrupts again. Social messages are a lightweight sense of local activity, but no transcript/context for successful/failing conversations unless explain is queried.
+- Cmd 8 `work`: one hour, now working. Social interactions still happen and can interrupt, even while work selected; conscience warns about Sabbath.
+- Cmd 9 `wait 1d`: advances two hours to 18:00, now sleeping and purse down $0.25. Hunger Peckish, fire wants minding. Event toast + yarn. Commands are 1h ticks with automatic sleeping, meals, and random socials, long waits mostly stop at interrupts.
+- Cmd 10 `wait 1d`: to Apr 2 08:00, 14h; table laid, social events, rest restored to 945, meal likely automatic.
+- Cmd 11 `wait 1d`: to noon Apr 2; activity cooking, hunger Peckish, food 6.3 days; social chat/gossip.
+- Cmd 12 `wait 1d`: only 2 hours to 14:00 due social interrupt; meal replenishes food estimate to 6.7 days; purse -$0.20; yarn failed and chat success. No obvious “since last chunk” digest: status/event lines show a few recent events, while changes are hard to compare without remembering prior numbers.
+- Cmd 13 `wait 3d`: two hours, then `social.interaction`; rest 372, Weary, and a memory forms: `Heard: Brigid Dunleavy is of the hidden folk`. This is a strong emergent hook and readable at a glance.
+- Cmd 14 `wait 3d`: one hour; needs-band interrupt. Rest 284/Tired. Chat and yarn results.
+- Cmd 15 `wait 5d`: one hour; needs-band interrupt; rest 196/Tired. Success events (help, chat).
+- Cmd 16 `sleep`: one hour, asleep, money -$0.25. Rest still only 141 after hour; fed event. Need observe if sleep's four-hour lock works across ticks.
+- Cmd 17 `wait 1d`: from Apr 2 19:00 to Apr 3 noon; rest recovers to 642. The repeated Work routine is chosen automatically during day, but there is no obvious wage/income; purse unchanged.
+- Cmd 18 `wait 1d`: to Apr 3 15:00; several interruptions compressed into one output, including success/failure social rolls. Rest 427, appetite Weary.
+- `journal` (query, no time) gives an excellent dated town chronicle, with readable compact hooks: “the Norwegians watch and the Cornish do not discuss” the full moon; reports of relief, help, close talk. It includes personal history/backstory, and historical lines not all caused by player actions.
+- Cmd 20 `sleep`: at 18:00 starts sleep, costs $0.25. Only one hour elapsed, rest 163.
+- Cmd 21 `wait 1d`: to Apr 4 04:00, rest reaches 1000; thirst falls to 472 (Thirsty), food 6.6d, money -$0.20, provisions intake logged. A long wait does complete multiple hours until a band change.
+- Cmd 22 `drink`: one hour, status shifts from sleeping to at home at leisure, thirst from 472 to 694; rain. It reports both thirst-band change and drank.
+- `inspect Brigid Dunleavy` confirms people=Human, activity=at table, while Heard says Brigid is of the hidden folk. This reads as a rumor/knowledge hook, but inspect does not show social knowledge or explain the rumor.
+- Cmd 24 `wait 3d`: six hours to Apr 4 11:00, social interrupt. In activities, the character switches to working automatically during day.
+- Cmd 25 `wait 3d`: one hour, social interrupt; status work.
+- Cmd 26 `wait 1d`: two hours; social interrupt; purse -$0.20, food estimate rebounds to 6.7 days at meal.
+- Cmd 27 `wait 1d`: one hour; another social interrupt. The autonomous social interrupt rate is often 1/hour, so nominal long waits behave like serial 1-hour turns, especially while at tavern.
+- Cmd 28 `wait 3d`: one hour to 16:00; social interrupt, repeat Brigid conversation. Constant interactions with same few characters are becoming repetitive.
+- Cmd 29 `wait 1d`: seven hours to 23:00, rest full, thirst at 484 (Thirsty), food 6.8d, purse $39.53 (includes recurring lodging/meals).
+- Cmd 30 `wait until 08:00`: nine hours, stayed asleep; thirst 630, food 6.5d; one compliment and nutrition event.
+- Cmd 31 `wait 2d`: auto-moved to Pratt & Daughter by 10:00 and bought 12 flour for $0.60 (event). This kind of auto-purchase is a surprise/agency concern; waiting on mail may be activity flavor, but no choice prompt appeared.
+- Cmd 32 `wait 3d`: one hour to 11:00 at tavern after social/movement interruptions.
+- Cmd 33 `go Iron Ford Lutheran Church`: one hour, empty church, with 2 nutrition events. Need hunger falls; no unique visitor or interaction.
+- Cmd 34 `wait until 08:00`: only one hour to 13:00 at tavern, automatic meal $0.20 and fed. Target time ignored due activity.moved interrupt.
+- Cmd 35 `wait 3d`: two hours to 15:00; events appear. Work remains selected automatically.
+- Cmd 36 `wait 5d`: four hours to 19:00; meal $0.20. Hunger high, rest 339/Weary.
+- Cmd 37 `wait until 08:00`: two hours to 21:00; sleep started (lodging another $0.25) and a prayer interaction. Wait-until can end before target on interruptions, as advertised by stop reason.
+- Cmd 38 `wait 2d`: 16h to Apr 6 10:00; two social interrupts, rest 818.
+- Cmd 39 `wait 3d`: one hour to 11:00, social interactions; redundancy especially noticeable (Brigid and Nora repeats).
+- Cmd 40 `go Iron Ford Sentinel Print Shop`: arrives after an hour; Horace Bell and Eli Crane present, menu offers chat/introduce only.
+- Cmd 41 `wait 3d`: one hour then self-command returned to tavern/table; meal $0.20.
+- Cmd 42 `wait 2d`: four hours to 17:00; needs and social interrupts; rest falls to 284/Tired, thirst reaches 1000. Work chosen by daily routine, while place stays tavern.
+- Cmd 43 `wait 2d`: to Apr 6 23:00; meal/lodging payments, rest 717.
+- Cmd 44 `wait 3d`: to Apr 7 07:00; a 643 kcal cold meal event and fed; thirst 480/Thirsty.
+- Cmd 45 `wait 2d`: one hour to 08:00; social interaction and nutrition event.
+- Cmd 46 `wait 2d`: one hour to 09:00; long waits repeatedly stop at interactions.
+- Cmd 47 `go Iron Ford Sentinel Print Shop`: 12:00, Horace Bell/Eli Crane, walking about; there are no work/service options in visible menu.
+- Cmd 48 `wait 3d`: one hour later auto-returned to tavern at table and paid $0.20 meal.
+- Cmd 49 `wait 2d`: four hours to 17:00; multiple interruptions, rest 284/Tired, thirst max.
+- Cmd 50 `wait 2d`: six hours to Apr 7 07:00; sleep restores rest to 1000, costs $0.25; one meal event (643 kcal cold).
+- Cmd 51 `wait 2d`: one hour to 08:00; table routine; thirst max.
+- Cmd 52 `wait 2d`: one hour to 09:00; long waits mostly ineffective.
+- Cmd 53 `go Iron Ford Sentinel Print Shop`: travel to print shop, workaday hours; no apparent work action offered.
+- Cmd 54 `wait 3d`: one hour, auto move to tavern, meal $0.20.
+- Cmd 55 `wait 2d`: four hours; two interactions. 
+- Cmd 56 `wait until 08:00`: only one hour to 16:00 because movement interrupted; target not reached.
+- Cmd 57 `wait 2d`: one hour, social repeat with Brigid/Nora.
+- Cmd 58 `wait 1d`: two hours to 19:00, self-command sleep; 900 kcal cold meal, lodging expense. Hunger 1000 despite meal indicating needs/fed.
+- Cmd 59 `wait until 08:00`: reached target in 13 hours; rest 945, thirst 1000, hunger 927, food 6.5 days. This wait succeeded overnight. Played through Apr 8 08:00, 7 days 8 hours from start.

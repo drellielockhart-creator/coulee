@@ -1,0 +1,22 @@
+# Running notes (edgeqa ironford42)
+Session: /home/eleanor/projects/coulee/playtests/2026-10-11-edgeqa-ironford42/session  (FAIR). helper script: scratchpad/g.sh
+- [fair] cmd idx ~? "wait until 6:00" at 01:00 from closed Pratt's: PC autonomously walked back to tavern, bought bed ($0.25), slept. Autonomy overrides wait. OK/feature.
+- [fair] "go Pratt" 06:00->07:00: PC autonomously ate a tavern-ish "Meal: 594 kcal (hot)" and purse fell $49.75 -> $48.70 (-$1.05) though board lists meal $0.20. Needs investigation.
+- [fair] journal at 00:00: "It has been a day. The ration is at 50 in the hundred and the children no longer ask." -- PC is a lone newcomer; flavor text about children looks wrong/leak?
+- [fair] unknown/ambiguous commands exit with code 2 (just recipe failed) - fine but noisy.
+- [fair] "actions N" past last page clamps and repeats last page silently.
+- [fair] buy items hidden on actions pages 8-10 only when counter open; page 1 menu has no Buy. Discoverability.
+- [god/source] Pratt markup 100, Haugen mill markup 80 (flour 4c, cornmeal 2c, sack 8c); saleQuote=min(retail,value) so sell to Pratt at 100% => arbitrage buy mill sell Pratt +25% flour, +50% cornmeal. Tavern markup 120.
+- [god/source] food price: flour 5c/lb = 1650 kcal; ~6c/day. $50 purse = ~800 days food. Tavern meal 20c for ~594kcal => 15x dearer.
+- [fair] "Repay"/"Dun"/"Borrow" etc are offered in menu for strangers/ineligible targets; on selection takes 1 hour and says "The requested conversation did not take place: the other person may have left or be unavailable." even though the person is present (misleading). Repro: fork-hester "repay Hester"; main: "borrow Nora" after earlier failure (cooldown).
+- [fair] Borrow failure shows "11 (d20 10, Charisma +1) vs DC 13" -> reveals target-attitude-adjusted DC (minor leak).
+- [fair] "-1" as a command crashes CLI with CACError stack trace (arg parser treats as option). help lists save/load/fork/quit, but typed they say "No available action matches".
+- [fair] wait caps: "wait 400 days" -> "Wait uses whole hours, at most 30 days" ok. But any wait is interrupted every ~3-4 h by social.interaction / needs.band_changed, so "wait 30 days" advances ~3 h per call. "wait until 7:30" / "wait until bogus.kind" silently accepted as event wait (waits to interrupt). "wait 0" silent no-op.
+- [fair] Weekly journal entry Apr 7: "Week 1. The ration cut to 50 in the hundred; the larder was down to under a day at the worst. Meals 3, cold 1. We lived on dried apples, cornmeal and hardtack" -- false: PC had ~48 days of food in pack, ate many tavern meals. Chronicle reads household pantry (empty), not carried kit. Same root cause as t=0 shortage (ration 50, "children no longer ask" journal line, "Newcomer lodgingses are in want").
+- [fair] Purse display omits household cash: Sat Apr 7 wages $4.50 (householdCents 450 in metrics) arrived with no message; purse unchanged at $34.38. Wages are unconditional on working ([source] economy.ts householdDay: 6 days * wage for every member, hired_hand 75c => $4.50/wk).
+- [fair] autopilot during wait: PC buys $0.20 tavern meals while holding 48 days of own food; purse drains ~$0.9/day. Weekly net with wage: -$1.5.
+- [fair] sell blanket sold (Pratt/tavern buys all gear at 100% value, 0 spread) => can sell your only blanket for $3.
+- [fair] buy hardtack 100: 8 dollars => 70 days food; load "Staggering" has no travel-time effect (go always 1h).
+- [fair] eat hardtack 9 soak at Hunger 1000: eats 4950 kcal in one hour, no overeating penalty, food just wasted. usable kcal in plan dropped 8930 for a 4950 kcal meal (unexplained 3980 delta).
+- [god/source] store tabs never decremented (economy.ts:80 only increments); wholesaleDebtCents only increments; credit limit default $30. CLI buy always onCredit:false so PC can't use it.
+- [fair] unexplained -$1.05 purse during 06:00-07:00 Apr 1 (go Pratt) when only "Meal 594 kcal (hot)" occurred; tavern meal listed $0.20. 

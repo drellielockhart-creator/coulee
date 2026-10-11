@@ -1,0 +1,1736 @@
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — idling. Purse $50.00. 33°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Introduce oneself: Amos Whitcomb [talk:introduce:1]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 220; “actions 1” for full menu pages; “help” for verbs.
+> help
+One action = one game-hour; queries take no time. Sleep locks 4 hours.
+Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects use the previous hour's activity.
+look | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
+buy <item> [qty] | sell <item> | eat <item> [servings] [method] | cook <item> [servings] [method]
+drink | meal | sleep | rest | work | wait <Nh|Nd> | wait until <HH:00|event.kind>
+inspect <actor/item/place> | pack <item> into <container> | unpack <item>
+rations <10..150> | plan | journal | explain <event id>
+Enter a menu number or stable action id. save <file> | load <file> | fork | help | quit
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — idling. Purse $50.00. 33°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Introduce oneself: Amos Whitcomb [talk:introduce:1]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 220; “actions 1” for full menu pages; “help” for verbs.
+> plan
+Food 6.8 days; 16599 usable kcal / 1980 kcal per day.
+Fuel: 2.0 days.
+Spoils first: Dried apples in 540.0 days.
+Load: 33374 g; bulk 64.5; Medium.
+1 × Knapsack, painted canvas, army pattern (#308)
+1 × Blanket, wool, 3-point (#309)
+1 × Camp kettle, nesting pair (#310)
+1 × Canteen, tin, wool-covered, 2 qt (#311)
+2 × Armload of firewood (#312)
+4 × Hardtack (ship's biscuit) (#313)
+3 × Pemmican (#314)
+2 × Dried apples (#315)
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — idling. Purse $50.00. 33°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Introduce oneself: Amos Whitcomb [talk:introduce:1]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 220; “actions 1” for full menu pages; “help” for verbs.
+> go The Iron Ford
+Stopped: activity.moved
+1855-04-01 01:00 | FAIR | The Iron Ford
+Ellis Wayfarer — walking about. Purse $50.00. 32°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 797; Hunger 758; Rest 745; Thirst 770; Warmth 1000
+Here: no one else.
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Walk
+[362] activity.started — explain 362
+[402] provisions.shortage — explain 402
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to Pratt & Daughter, Outfitters [go:20]
+10. Go to Dunleavy's Tavern [go:21]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 166; “actions 1” for full menu pages; “help” for verbs.
+> sleep
+Stopped: activity.moved
+1855-04-01 02:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $49.75. 32°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 794; Hunger 716; Rest 690; Thirst 690; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Sleep
+[424] Travel arrival at place #21 — explain 424
+[425] activity.started — explain 425
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 92; “actions 1” for full menu pages; “help” for verbs.
+> wait 8h
+Stopped: activity.moved; social.interaction
+1855-04-01 10:00 | FAIR | Iron Ford Lutheran Church
+Ellis Wayfarer — at church. Purse $41.93. 42°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 787; Hunger 624; Rest 867; Thirst 888; Warmth 1000
+Here: Amos Whitcomb (#1), Joel Pike (#2), Edwin Fenn (#14), Minerva Fenn (#15), Hester Fenn (#16), Augusta Pratt (#21); 14 more (inspect by name).
+Conscience: The Sabbath must be kept
+[887] Good day ▸ Lucius Vance: success
+[888] Spin a yarn ▸ Tollef Haugen: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 104; “actions 1” for full menu pages; “help” for verbs.
+> wait 8h
+Stopped: needs.band_changed; social.interaction
+1855-04-01 11:00 | FAIR | Iron Ford Lutheran Church
+Ellis Wayfarer — at church. Purse $41.93. 45°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 785; Hunger 595 (Peckish); Rest 828; Thirst 832; Warmth 1000
+Here: Amos Whitcomb (#1), Joel Pike (#2), Edwin Fenn (#14), Minerva Fenn (#15), Hester Fenn (#16), Augusta Pratt (#21); 14 more (inspect by name).
+Conscience: The Sabbath must be kept
+[983] Preach ▸ Lucius Vance: success
+[984] Spin a yarn ▸ Eli Crane: failure
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Dunleavy's Tavern [go:21]
+12. Go to Iron Ford Sentinel Print Shop [go:22]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 466; “actions 1” for full menu pages; “help” for verbs.
+> go Pratt & Daughter, Outfitters
+Stopped: activity.moved
+1855-04-01 12:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — walking about. Purse $41.93. 47°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 783; Hunger 566 (Peckish); Rest 789; Thirst 776; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Augusta Pratt (#21), Lydia Pratt (#22).
+Conscience: The Sabbath must be kept
+Self-Command: Resolved: Walk
+[1032] activity.started — explain 1032
+[1037] Lend a hand ▸ Lydia Pratt: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Dunleavy's Tavern [go:21]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Augusta Pratt [talk:chat:21]
+14. Chat: Lydia Pratt [talk:chat:22]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 279; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: activity.moved
+1855-04-01 13:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at table. Purse $41.73. 49°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 780; Hunger 755; Rest 734; Thirst 995; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: The Sabbath must be kept
+[1191] needs.fed — explain 1191
+[1192] Tavern meal: $0.20 — explain 1192
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 365; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: social.interaction; social.interaction
+1855-04-01 15:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at table. Purse $41.73. 50°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 776; Hunger 697; Rest 656; Thirst 883; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Thomas Glover (#11), Lydia Pratt (#22), Michael Dunleavy (#28), Nora Dunleavy (#29); 2 more (inspect by name).
+[1479] Spin a yarn ▸ Amos Whitcomb: failure
+[1480] Chat ▸ Nora Dunleavy: success — explain 1480
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 407; “actions 1” for full menu pages; “help” for verbs.
+> work
+Stopped: social.interaction
+1855-04-01 16:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $41.73. 49°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 774; Hunger 668; Rest 617; Thirst 827; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Thomas Glover (#11), Lydia Pratt (#22), Michael Dunleavy (#28), Nora Dunleavy (#29); 2 more (inspect by name).
+Conscience: Remember the Sabbath day, to keep it holy.
+Self-Command: Resolved: Work
+[1542] Chat ▸ Ellis Wayfarer: success
+[1543] Spin a yarn ▸ Brigid Dunleavy: failure
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 407; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: needs.band_changed
+1855-04-01 18:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $41.48. 44°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 769; Hunger 590 (Peckish); Rest 669; Thirst 671; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Hester Fenn (#16), Johann Brenner (#23), Michael Dunleavy (#28), Nora Dunleavy (#29); 3 more (inspect by name).
+Conscience: The fire wants minding
+[1748] Toast! ▸ Michael Dunleavy: success
+[1749] Spin a yarn ▸ Horace Bell: failure
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 117; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: social.interaction
+1855-04-02 08:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at table. Purse $41.28. 36°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 764; Hunger 784; Rest 945; Thirst 668; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: The table is laid
+[2860] Chat ▸ Lucius Vance: success
+[2861] Compliment ▸ Brigid Dunleavy: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 364; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: needs.band_changed
+1855-04-02 12:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — cooking. Purse $41.28. 47°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 747; Hunger 566 (Peckish); Rest 642; Thirst 744; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Loveday Trevenna (#6), Magdalena Brenner (#24), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30); 1 more (inspect by name).
+Conscience: Daily round: Work
+[3048] Chat ▸ Amos Whitcomb: success
+[3049] Gossip ▸ Amos Whitcomb: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Loveday Trevenna [talk:chat:6]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 373; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: social.interaction
+1855-04-02 14:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $41.08. 50°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 742; Hunger 795; Rest 548; Thirst 616; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Josiah Trevenna (#5), Loveday Trevenna (#6), Magdalena Brenner (#24), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30); 1 more (inspect by name).
+Conscience: Daily round: Work
+[3453] Spin a yarn ▸ Michael Dunleavy: failure
+[3454] Chat ▸ Lucius Vance: success — explain 3454
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Josiah Trevenna [talk:chat:5]
+14. Introduce oneself: Josiah Trevenna [talk:introduce:5]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 349; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: social.interaction
+1855-04-02 16:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $41.08. 49°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 732; Hunger 669; Rest 372; Thirst 872; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Isaiah Glover (#13), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[3523] social.memory_formed
+[3524] Pray ▸ Nora Dunleavy: success — explain 3524
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Isaiah Glover [talk:chat:13]
+14. Chat: Michael Dunleavy [talk:chat:28]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 355; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: needs.band_changed
+1855-04-02 17:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $41.08. 47°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 727; Hunger 606; Rest 284 (Tired); Thirst 744; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[3593] Chat ▸ Lucius Vance: success
+[3594] Spin a yarn ▸ Brigid Dunleavy: failure
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Joel Pike [talk:chat:2]
+14. Introduce oneself: Joel Pike [talk:introduce:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 331; “actions 1” for full menu pages; “help” for verbs.
+> wait 5d
+Stopped: needs.band_changed
+1855-04-02 18:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — cooking. Purse $41.08. 44°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 722; Hunger 543 (Peckish); Rest 196 (Tired); Thirst 616; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[3664] Lend a hand ▸ Brigid Dunleavy: success
+[3665] Chat ▸ Brigid Dunleavy: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Joel Pike [talk:chat:2]
+14. Introduce oneself: Joel Pike [talk:introduce:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 331; “actions 1” for full menu pages; “help” for verbs.
+> sleep
+1855-04-02 19:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $40.83. 42°F, dry.
+Food 7.0 days; Medium, 33.4 kg.
+Vitals: Drink 719; Hunger 801; Rest 141 (Tired); Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Self-Command: Resolved: Sleep
+Heard: Brigid Dunleavy is of the hidden folk
+[3978] needs.band_changed — explain 3978
+[3979] needs.fed — explain 3979
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 114; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: needs.band_changed; social.interaction
+1855-04-03 12:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $40.83. 48°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 699; Hunger 575 (Peckish); Rest 642; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[5101] Chat ▸ Ellis Wayfarer: success
+[5102] Chat ▸ Nora Dunleavy: success — explain 5102
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 289; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: social.interaction
+1855-04-03 15:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $40.63. 51°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 687; Hunger 720; Rest 427; Thirst 696; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[5526] Spin a yarn ▸ Ellis Wayfarer: failure — explain 5526
+[5527] Chat ▸ Michael Dunleavy: success — explain 5527
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 322; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: needs.band_changed; needs.band_changed; social.interaction; social.interaction
+1855-04-03 17:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $40.63. 48°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 677; Hunger 594 (Peckish); Rest 251 (Tired); Thirst 872; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[5622] Compliment ▸ Michael Dunleavy: success
+[5623] Lend a hand ▸ Michael Dunleavy: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 322; “actions 1” for full menu pages; “help” for verbs.
+> journal
+1855-04-01 00:00 Sunday, the 1st of April, 1855. The Sabbath under a full moon; the evening service will want no lantern.
+1855-04-01 00:00 It has been a day. The ration is at 50 in the hundred and the children no longer ask. That is the worst of it: they no longer ask.
+1855-04-01 08:00 Michael Dunleavy helped Nora Dunleavy at Dunleavy's Tavern. I saw it, and thought the better of Michael Dunleavy for it.
+1855-04-01 09:00 Hester Fenn helped Edwin Fenn at Iron Ford Lutheran Church. I saw it, and thought the better of Hester Fenn for it.
+1855-04-01 11:00 Gussie Pratt helped Lydia Pratt at Pratt & Daughter, Outfitters. I saw it, and thought the better of Gussie Pratt for it.
+1855-04-01 12:00 It is agreeable to relate that Mr. M. Dunleavy was seen carrying relief to the door of Mr. A. Whitcomb, whose table has been poor of late. These things are noticed, and recorded here for the credit of the place.
+1855-04-01 15:00 Lydia Pratt drank a toast with Amos Whitcomb at Dunleavy's Tavern on Sunday in the afternoon.
+1855-04-02 00:00 Monday, the 2nd of April, 1855. The full moon. The bluffs stand out white and the dogs are restless.
+1855-04-02 17:00 Michael Dunleavy helped Brigid Dunleavy at Dunleavy's Tavern. I saw it, and thought the better of Michael Dunleavy for it.
+1855-04-03 00:00 Tuesday, the 3rd of April, 1855. The full moon, which the Norwegians watch and the Cornish do not discuss.
+1855-04-03 10:00 Nora Dunleavy was in close talk with Brigid Dunleavy at Dunleavy's Tavern on Tuesday in the forenoon. I would give a good deal to know the subject.
+1855-04-03 12:00 Nora Dunleavy was in close talk with Amos Whitcomb at Dunleavy's Tavern on Tuesday at noon. I would give a good deal to know the subject.
+1855-04-03 15:00 Michael Dunleavy helped Lucius Vance at Dunleavy's Tavern. I saw it, and thought the better of Michael Dunleavy for it.
+1855-04-03 16:00 Michael Dunleavy came by again with something for the pot, and would not stay to be thanked. I am learning to let a gift be a gift.
+1855-04-03 17:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $40.63. 48°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 677; Hunger 594 (Peckish); Rest 251 (Tired); Thirst 872; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[5622] Compliment ▸ Michael Dunleavy: success
+[5623] Lend a hand ▸ Michael Dunleavy: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 322; “actions 1” for full menu pages; “help” for verbs.
+> sleep
+1855-04-03 18:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $40.38. 45°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 672; Hunger 531 (Peckish); Rest 163 (Tired); Thirst 744; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Self-Command: Resolved: Sleep
+Heard: Brigid Dunleavy is of the hidden folk
+[5685] activity.started — explain 5685
+[5686] Lend a hand ▸ Brigid Dunleavy: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 113; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: needs.band_changed
+1855-04-04 04:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $40.18. 32°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 672; Hunger 681; Rest 1000; Thirst 472 (Thirsty); Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: It is late; the day starts early
+Heard: Brigid Dunleavy is of the hidden folk
+[6409] provisions.intake — explain 6409
+[6458] needs.band_changed — explain 6458
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 357; “actions 1” for full menu pages; “help” for verbs.
+> drink
+Stopped: social.interaction
+1855-04-04 05:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $40.18. 31°F, rain.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 672; Hunger 666; Rest 1000; Thirst 694; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Parched: a drink of water
+Conscience: It is late; the day starts early
+Self-Command: Resolved: At home
+Heard: Brigid Dunleavy is of the hidden folk
+[6484] needs.band_changed — explain 6484
+[6485] needs.drank — explain 6485
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 357; “actions 1” for full menu pages; “help” for verbs.
+> inspect Brigid Dunleavy
+{
+  "id": 30,
+  "name": "Brigid Dunleavy",
+  "people": "Human",
+  "activity": "at table"
+}
+1855-04-04 05:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $40.18. 31°F, rain.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 672; Hunger 666; Rest 1000; Thirst 694; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Parched: a drink of water
+Conscience: It is late; the day starts early
+Self-Command: Resolved: At home
+Heard: Brigid Dunleavy is of the hidden folk
+[6484] needs.band_changed — explain 6484
+[6485] needs.drank — explain 6485
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 357; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: social.interaction
+1855-04-04 11:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $40.18. 46°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 665; Hunger 728; Rest 912; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[6948] Compliment ▸ Ellis Wayfarer: success — explain 6948
+[6949] Chat ▸ Nora Dunleavy: success — explain 6949
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 322; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: social.interaction
+1855-04-04 12:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $40.18. 48°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 660; Hunger 665; Rest 824; Thirst 872; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[6985] Chat ▸ Michael Dunleavy: success
+[6986] Chat ▸ Brigid Dunleavy: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Joel Pike [talk:chat:2]
+14. Introduce oneself: Joel Pike [talk:introduce:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 331; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: social.interaction
+1855-04-04 14:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $39.98. 51°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 653; Hunger 873; Rest 697; Thirst 696; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[7380] Chat ▸ Lucius Vance: success
+[7381] Chat ▸ Brigid Dunleavy: success — explain 7381
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 322; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: social.interaction
+1855-04-04 15:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $39.98. 51°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 648; Hunger 810; Rest 609; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[7403] Chat ▸ Ellis Wayfarer: success
+[7404] Chat ▸ Nora Dunleavy: success — explain 7404
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 322; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: social.interaction
+1855-04-04 16:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $39.98. 50°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 643; Hunger 747; Rest 521; Thirst 872; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[7425] Chat ▸ Brigid Dunleavy: success
+[7426] Chat ▸ Brigid Dunleavy: success — explain 7426
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 322; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: needs.band_changed
+1855-04-04 23:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $39.53. 35°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 633; Hunger 846; Rest 1000; Thirst 484 (Thirsty); Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: It is late; the day starts early
+Heard: Brigid Dunleavy is of the hidden folk
+[8017] Chat ▸ Brigid Dunleavy: success
+[8041] needs.band_changed — explain 8041
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 381; “actions 1” for full menu pages; “help” for verbs.
+> wait until 08:00
+1855-04-05 08:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $39.53. 38°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 630; Hunger 898; Rest 1000; Thirst 630; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: The table is laid
+Heard: Brigid Dunleavy is of the hidden folk
+[8731] Compliment ▸ Joel Pike: success
+[8743] provisions.nutrition — explain 8743
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 109; “actions 1” for full menu pages; “help” for verbs.
+> wait 2d
+Stopped: activity.moved
+1855-04-05 10:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — waiting on the mail. Purse $38.93. 44°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 630; Hunger 868; Rest 1000; Thirst 574; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Augusta Pratt (#21), Lydia Pratt (#22).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[8815] Talk long ▸ Gussie Pratt: success
+[8825] Bought 12 flour for $0.60 — explain 8825
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Dunleavy's Tavern [go:21]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Augusta Pratt [talk:chat:21]
+14. Chat: Lydia Pratt [talk:chat:22]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 299; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: activity.moved; social.interaction
+1855-04-05 11:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $38.93. 47°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 628; Hunger 839; Rest 961; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[8856] Chat ▸ Lucius Vance: success
+[8857] Chat ▸ Michael Dunleavy: success — explain 8857
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 321; “actions 1” for full menu pages; “help” for verbs.
+> go Iron Ford Lutheran Church
+Stopped: activity.moved
+1855-04-05 12:00 | FAIR | Iron Ford Lutheran Church
+Ellis Wayfarer — walking about. Purse $38.93. 49°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 623; Hunger 776; Rest 873; Thirst 872; Warmth 1000
+Here: no one else.
+Conscience: Daily round: Work
+Self-Command: Resolved: Walk
+Heard: Brigid Dunleavy is of the hidden folk
+[8903] provisions.nutrition — explain 8903
+[8904] provisions.nutrition — explain 8904
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Dunleavy's Tavern [go:21]
+12. Go to Iron Ford Sentinel Print Shop [go:22]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 166; “actions 1” for full menu pages; “help” for verbs.
+> wait until 08:00
+Stopped: activity.moved
+1855-04-05 13:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at table. Purse $38.73. 51°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 620; Hunger 1000; Rest 818; Thirst 800; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[9018] needs.fed — explain 9018
+[9019] Tavern meal: $0.20 — explain 9019
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 387; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: social.interaction
+1855-04-05 15:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $38.73. 52°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 613; Hunger 908; Rest 691; Thirst 616; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[9302] Lend a hand ▸ Michael Dunleavy: success
+[9303] Chat ▸ Brigid Dunleavy: success — explain 9303
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 321; “actions 1” for full menu pages; “help” for verbs.
+> wait 5d
+Stopped: social.interaction; social.interaction
+1855-04-05 19:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at table. Purse $38.53. 44°F, dry.
+Food 7.0 days; Medium, 33.4 kg.
+Vitals: Drink 593; Hunger 956; Rest 339; Thirst 624; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[9615] needs.fed — explain 9615
+[9616] Tavern meal: $0.20 — explain 9616
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 387; “actions 1” for full menu pages; “help” for verbs.
+> wait until 08:00
+Stopped: needs.band_changed
+1855-04-05 21:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $38.28. 40°F, dry.
+Food 6.9 days; Medium, 33.4 kg.
+Vitals: Drink 589; Hunger 898; Rest 261 (Tired); Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Keep house
+Heard: Brigid Dunleavy is of the hidden folk
+[9888] activity.started — explain 9888
+[9891] Pray ▸ Nora Dunleavy: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 113; “actions 1” for full menu pages; “help” for verbs.
+> wait 2d
+Stopped: social.interaction; social.interaction
+1855-04-06 10:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $38.28. 44°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 579; Hunger 828; Rest 818; Thirst 816; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[10796] Spin a yarn ▸ Brigid Dunleavy: failure
+[10797] Slight ▸ Lucius Vance: success — explain 10797
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 321; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: social.interaction
+1855-04-06 11:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $38.28. 47°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 574; Hunger 765; Rest 730; Thirst 688; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[10823] Chat ▸ Brigid Dunleavy: success
+[10824] Pray ▸ Nora Dunleavy: success — explain 10824
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 321; “actions 1” for full menu pages; “help” for verbs.
+> go Iron Ford Sentinel Print Shop
+Stopped: activity.moved
+1855-04-06 12:00 | FAIR | Iron Ford Sentinel Print Shop
+Ellis Wayfarer — walking about. Purse $38.28. 49°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 569; Hunger 702; Rest 642; Thirst 1000; Warmth 1000
+Here: Horace Bell (#31), Eli Crane (#33).
+Conscience: Daily round: Work
+Self-Command: Resolved: Walk
+Heard: Brigid Dunleavy is of the hidden folk
+[10872] Travel arrival at place #22 — explain 10872
+[10873] activity.started — explain 10873
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Dunleavy's Tavern [go:21]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Horace Bell [talk:chat:31]
+14. Introduce oneself: Horace Bell [talk:introduce:31]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 184; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: activity.moved
+1855-04-06 13:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at table. Purse $38.08. 51°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 566; Hunger 960; Rest 587; Thirst 920; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[11009] needs.fed — explain 11009
+[11010] Tavern meal: $0.20 — explain 11010
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 387; “actions 1” for full menu pages; “help” for verbs.
+> wait 2d
+Stopped: needs.band_changed; social.interaction
+1855-04-06 17:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $38.08. 49°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 549; Hunger 742; Rest 284 (Tired); Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Work
+Heard: Brigid Dunleavy is of the hidden folk
+[11381] Chat ▸ Brigid Dunleavy: success
+[11382] Chat ▸ Nora Dunleavy: success — explain 11382
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 321; “actions 1” for full menu pages; “help” for verbs.
+> wait 2d
+Stopped: activity.moved
+1855-04-06 23:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $37.63. 36°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 542; Hunger 890; Rest 717; Thirst 704; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: Is Insult any way to treat a neighbor?
+Heard: Brigid Dunleavy is of the hidden folk
+[11963] activity.started — explain 11963
+[11964] Compliment ▸ Michael Dunleavy: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 106; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: needs.band_changed
+1855-04-07 07:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — cooking. Purse $37.63. 36°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 542; Hunger 984; Rest 1000; Thirst 480 (Thirsty); Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[12691] Meal: 643 kcal (cold) — explain 12691
+[12692] needs.fed — explain 12692
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 387; “actions 1” for full menu pages; “help” for verbs.
+> wait 2d
+Stopped: social.interaction
+1855-04-07 08:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at table. Purse $37.63. 39°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 539; Hunger 942; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[12731] Chat ▸ Nora Dunleavy: success — explain 12731
+[12744] provisions.nutrition — explain 12744
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 387; “actions 1” for full menu pages; “help” for verbs.
+> wait 2d
+Stopped: social.interaction
+1855-04-07 09:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $37.63. 42°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 537; Hunger 913; Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[12802] Talk long ▸ Michael Dunleavy: success
+[12803] Spin a yarn ▸ Ellis Wayfarer: failure — explain 12803
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 321; “actions 1” for full menu pages; “help” for verbs.
+> wait 2d
+Stopped: activity.moved; social.interaction
+1855-04-07 10:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at market. Purse $37.63. 45°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 532; Hunger 850; Rest 818; Thirst 816; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Amos Whitcomb (#1), Thomas Glover (#11), Siri Kvale (#17), Halvor Kvale (#18), Kristoffer Moe (#19), Johanne Moe (#20); 2 more (inspect by name).
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[12837] Chat ▸ Kristoffer Moe: success
+[12838] Mock ▸ Lydia Pratt: success — explain 12838
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 159; “actions 1” for full menu pages; “help” for verbs.
+> explain 12838
+Mock: Ellis Wayfarer → Lydia Pratt: 11 () vs DC 3 -> success
+1855-04-07 10:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at market. Purse $37.63. 45°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 532; Hunger 850; Rest 818; Thirst 816; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Amos Whitcomb (#1), Thomas Glover (#11), Siri Kvale (#17), Halvor Kvale (#18), Kristoffer Moe (#19), Johanne Moe (#20); 2 more (inspect by name).
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[12837] Chat ▸ Kristoffer Moe: success
+[12838] Mock ▸ Lydia Pratt: success — explain 12838
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 159; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: activity.moved
+1855-04-07 12:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — cooking. Purse $37.63. 50°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 526; Hunger 766; Rest 708; Thirst 656; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[12957] Spin a yarn ▸ Brigid Dunleavy: success
+[12958] Spin a yarn ▸ Michael Dunleavy: failure — explain 12958
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 321; “actions 1” for full menu pages; “help” for verbs.
+> wait 3d
+Stopped: activity.moved
+1855-04-07 14:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at market. Purse $37.43. 53°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 521; Hunger 971; Rest 614; Thirst 944; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Thomas Glover (#11), Harriet Glover (#12), Isaiah Glover (#13), Hester Fenn (#16); 8 more (inspect by name).
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[13331] Pray ▸ Siri Kvale: success
+[13332] Good day ▸ Hester Fenn: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 165; “actions 1” for full menu pages; “help” for verbs.
+> wait 2d
+Stopped: social.interaction; social.interaction
+1855-04-07 15:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at market. Purse $37.43. 53°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 518; Hunger 929; Rest 559; Thirst 864; Warmth 1000
+Counter open; hours 6:00–21:00.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Thomas Glover (#11), Harriet Glover (#12), Isaiah Glover (#13), Hester Fenn (#16); 8 more (inspect by name).
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[13379] Spin a yarn ▸ Horace Bell: failure
+[13380] Mock ▸ Siri Kvale: success — explain 13380
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Dunleavy's Tavern [go:21]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Amos Whitcomb [talk:chat:1]
+14. Chat: Joel Pike [talk:chat:2]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 551; “actions 1” for full menu pages; “help” for verbs.
+> wait until 08:00
+Stopped: activity.moved
+1855-04-07 16:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $37.43. 52°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 515; Hunger 887; Rest 504; Thirst 784; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[13455] provisions.nutrition — explain 13455
+[13456] provisions.nutrition — explain 13456
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 321; “actions 1” for full menu pages; “help” for verbs.
+> wait 2d
+Stopped: social.interaction
+1855-04-07 17:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $37.43. 50°F, dry.
+Food 6.6 days; Medium, 33.4 kg.
+Vitals: Drink 510; Hunger 824; Rest 416; Thirst 656; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[13500] Chat ▸ Michael Dunleavy: success
+[13501] Chat ▸ Michael Dunleavy: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Chat: Nora Dunleavy [talk:chat:29]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 321; “actions 1” for full menu pages; “help” for verbs.
+> wait 1d
+Stopped: needs.band_changed
+1855-04-07 19:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $37.18. 45°F, dry.
+Food 7.0 days; Medium, 33.4 kg.
+Vitals: Drink 502; Hunger 1000; Rest 273 (Tired); Thirst 920; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome
+Conscience: You'll need them come threshing.
+Heard: Brigid Dunleavy is of the hidden folk
+[13861] Meal: 900 kcal (cold) — explain 13861
+[13862] needs.fed — explain 13862
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 113; “actions 1” for full menu pages; “help” for verbs.
+> wait until 08:00
+1855-04-08 08:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at table. Purse $37.18. 39°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 499; Hunger 927; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30).
+Conscience: The table is laid
+Heard: Brigid Dunleavy is of the hidden folk
+[14802] Spin a yarn ▸ Brigid Dunleavy: failure
+[14803] Chat ▸ Nora Dunleavy: success — explain 14803
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Joel Pike [talk:chat:2]
+14. Chat: Michael Dunleavy [talk:chat:28]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 320; “actions 1” for full menu pages; “help” for verbs.
+> journal
+1855-04-01 00:00 Sunday, the 1st of April, 1855. The Sabbath under a full moon; the evening service will want no lantern.
+1855-04-01 00:00 It has been a day. The ration is at 50 in the hundred and the children no longer ask. That is the worst of it: they no longer ask.
+1855-04-01 08:00 Michael Dunleavy helped Nora Dunleavy at Dunleavy's Tavern. I saw it, and thought the better of Michael Dunleavy for it.
+1855-04-01 09:00 Hester Fenn helped Edwin Fenn at Iron Ford Lutheran Church. I saw it, and thought the better of Hester Fenn for it.
+1855-04-01 11:00 Gussie Pratt helped Lydia Pratt at Pratt & Daughter, Outfitters. I saw it, and thought the better of Gussie Pratt for it.
+1855-04-01 12:00 It is agreeable to relate that Mr. M. Dunleavy was seen carrying relief to the door of Mr. A. Whitcomb, whose table has been poor of late. These things are noticed, and recorded here for the credit of the place.
+1855-04-01 15:00 Lydia Pratt drank a toast with Amos Whitcomb at Dunleavy's Tavern on Sunday in the afternoon.
+1855-04-02 00:00 Monday, the 2nd of April, 1855. The full moon. The bluffs stand out white and the dogs are restless.
+1855-04-02 17:00 Michael Dunleavy helped Brigid Dunleavy at Dunleavy's Tavern. I saw it, and thought the better of Michael Dunleavy for it.
+1855-04-03 00:00 Tuesday, the 3rd of April, 1855. The full moon, which the Norwegians watch and the Cornish do not discuss.
+1855-04-03 10:00 Nora Dunleavy was in close talk with Brigid Dunleavy at Dunleavy's Tavern on Tuesday in the forenoon. I would give a good deal to know the subject.
+1855-04-03 12:00 Nora Dunleavy was in close talk with Amos Whitcomb at Dunleavy's Tavern on Tuesday at noon. I would give a good deal to know the subject.
+1855-04-03 15:00 Michael Dunleavy helped Lucius Vance at Dunleavy's Tavern. I saw it, and thought the better of Michael Dunleavy for it.
+1855-04-03 16:00 Michael Dunleavy came by again with something for the pot, and would not stay to be thanked. I am learning to let a gift be a gift.
+1855-04-04 00:00 Wednesday, the 4th of April, 1855. The waning gibbous.
+1855-04-04 11:00 Nora Dunleavy was in close talk with me at Dunleavy's Tavern on Wednesday in the forenoon. I would give a good deal to know the subject.
+1855-04-05 00:00 Thursday, the 5th of April, 1855, under the waning gibbous.
+1855-04-05 16:00 Nora Dunleavy helped Brigid Dunleavy at Dunleavy's Tavern. I saw it, and thought the better of Nora Dunleavy for it.
+1855-04-05 17:00 Nora Dunleavy settled with Michael Dunleavy at Dunleavy's Tavern on Thursday in the afternoon. One more account closed in a county full of open ones.
+1855-04-05 17:00 It is remarked that Mr. M. Dunleavy has been first at every door where there is want. The lean weeks have shown who has a table to share, and who has a heart.
+1855-04-05 18:00 I helped Michael Dunleavy at Dunleavy's Tavern on Thursday of an evening. It cost me little and, I think, meant a good deal.
+1855-04-06 00:00 Friday, the 6th of April, 1855; the waning gibbous.
+1855-04-06 09:00 I slighted Lucius Vance at Dunleavy's Tavern on Friday in the forenoon, and was sorry before the day was out.
+1855-04-07 00:00 Saturday, the 7th of April, 1855, under the waning gibbous.
+1855-04-07 09:00 I made sport of Lydia Pratt at Pratt & Daughter, Outfitters. The room went quiet in the way rooms do.
+1855-04-07 14:00 Isaiah Glover settled with Harriet Glover at Pratt & Daughter, Outfitters on Saturday in the afternoon. One more account closed in a county full of open ones.
+1855-04-07 14:00 Saturday. I made sport of Siri Kvale at Pratt & Daughter, Outfitters. It was out before I thought, and is not to be called back.
+1855-04-07 15:00 I made eyes at Lucius Vance. Whether it was welcome I cannot tell; the face he made could be read either way.
+1855-04-07 00:00 Week 1. The ration cut to 50 in the hundred; the larder was down to under a day at the worst. Meals 9, cold 9. We lived on eggs, fresh bread heel and whiskey.
+1855-04-08 00:00 Sunday, the 8th of April, 1855. Sabbath, under the last quarter; work laid by.
+1855-04-08 06:00 Brigid Dunleavy talked long and low with Nora Dunleavy at Dunleavy's Tavern on Sunday at first light.
+1855-04-08 06:00 I prayed with Nora Dunleavy at Dunleavy's Tavern on Sunday at first light.
+1855-04-08 07:00 Joel Pike told a tale to Brigid Dunleavy at Dunleavy's Tavern on Sunday in the forenoon.
+1855-04-08 07:00 Nora Dunleavy told a tale to Brigid Dunleavy at Dunleavy's Tavern on Sunday in the forenoon.
+1855-04-08 07:00 I talked with Nora Dunleavy at Dunleavy's Tavern on Sunday in the forenoon.
+1855-04-08 08:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at table. Purse $37.18. 39°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 499; Hunger 927; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30).
+Conscience: The table is laid
+Heard: Brigid Dunleavy is of the hidden folk
+[14802] Spin a yarn ▸ Brigid Dunleavy: failure
+[14803] Chat ▸ Nora Dunleavy: success — explain 14803
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:12]
+10. Go to Pratt & Daughter, Outfitters [go:20]
+11. Go to Iron Ford Sentinel Print Shop [go:22]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Chat: Joel Pike [talk:chat:2]
+14. Chat: Michael Dunleavy [talk:chat:28]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:313:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:313:soak]
+Actions 320; “actions 1” for full menu pages; “help” for verbs.

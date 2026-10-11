@@ -8,3 +8,7 @@ apps/web/dev-dist
 .DS_Store
 *.blend1
 __pycache__/
+
+# Playtest artifacts: keep reports, notes, command logs, metrics and transcripts; drop regenerable state (replay commands.jsonl to rebuild)
+playtests/**/save.json
+playtests/**/events.jsonl

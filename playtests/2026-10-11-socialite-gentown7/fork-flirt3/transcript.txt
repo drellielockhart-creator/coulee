@@ -1,0 +1,5655 @@
+1855-04-01 00:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — idling. Purse $50.00. 33°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 172; “actions 1” for full menu pages; “help” for verbs.
+> help
+One action = one game-hour; queries take no time. Sleep locks 4 hours.
+Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects use the previous hour's activity.
+look | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
+buy <item> [qty] | sell <item> | eat <item> [servings] [method] | cook <item> [servings] [method]
+drink | meal | sleep | rest | work | wait <Nh|Nd> | wait until <HH:00|event.kind>
+inspect <actor/item/place> | pack <item> into <container> | unpack <item>
+rations <10..150> | plan | journal | explain <event id>
+Enter a menu number or stable action id. save <file> | load <file> | fork | help | quit
+1855-04-01 00:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — idling. Purse $50.00. 33°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 172; “actions 1” for full menu pages; “help” for verbs.
+> look
+1855-04-01 00:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — idling. Purse $50.00. 33°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 172; “actions 1” for full menu pages; “help” for verbs.
+> inspect Ellis Wayfarer
+{
+  "id": 30,
+  "name": "Ellis Wayfarer",
+  "alive": true,
+  "needs": {
+    "list": [
+      {
+        "id": "company",
+        "name": "Company",
+        "kind": "social",
+        "value": 700,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Company: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (light; values, traits, weather)",
+              "value": -15
+            },
+            {
+              "source": "base",
+              "label": "No activity",
+              "value": 0
+            }
+          ],
+          "total": 685,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 15
+                },
+                {
+                  "source": "base",
+                  "label": "light labor percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "value",
+                  "label": "neighborliness: percent adjustment",
+                  "value": 0
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 33 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 15,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "drink",
+        "name": "Drink",
+        "kind": "physical",
+        "value": 800,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Drink: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (light; values, traits, weather)",
+              "value": -3
+            },
+            {
+              "source": "base",
+              "label": "No activity",
+              "value": 0
+            }
+          ],
+          "total": 797,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 3
+                },
+                {
+                  "source": "base",
+                  "label": "light labor percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 33 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 3,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "faith",
+        "name": "Faith & Ritual",
+        "kind": "spiritual",
+        "value": 700,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Faith & Ritual: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (light; values, traits, weather)",
+              "value": -4
+            },
+            {
+              "source": "base",
+              "label": "No activity",
+              "value": 0
+            }
+          ],
+          "total": 696,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 4
+                },
+                {
+                  "source": "base",
+                  "label": "light labor percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "value",
+                  "label": "piety: percent adjustment",
+                  "value": 0
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 33 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 4,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "hunger",
+        "name": "Hunger",
+        "kind": "physical",
+        "value": 800,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Hunger: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (light; values, traits, weather)",
+              "value": -42
+            },
+            {
+              "source": "base",
+              "label": "No activity",
+              "value": 0
+            }
+          ],
+          "total": 758,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 42
+                },
+                {
+                  "source": "base",
+                  "label": "light labor percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Physiological energy percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 33 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 42,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "rest",
+        "name": "Rest",
+        "kind": "physical",
+        "value": 800,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Rest: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (light; values, traits, weather)",
+              "value": -55
+            },
+            {
+              "source": "base",
+              "label": "No activity",
+              "value": 0
+            }
+          ],
+          "total": 745,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 55
+                },
+                {
+                  "source": "base",
+                  "label": "light labor percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 33 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 55,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "security",
+        "name": "Security",
+        "kind": "social",
+        "value": 800,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Security: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (light; values, traits, weather)",
+              "value": 0
+            },
+            {
+              "source": "base",
+              "label": "No activity",
+              "value": 0
+            }
+          ],
+          "total": 800,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 0
+                },
+                {
+                  "source": "base",
+                  "label": "light labor percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 33 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 0,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "standing",
+        "name": "Standing",
+        "kind": "social",
+        "value": 650,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Standing: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (light; values, traits, weather)",
+              "value": -2
+            },
+            {
+              "source": "base",
+              "label": "No activity",
+              "value": 0
+            }
+          ],
+          "total": 648,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 2
+                },
+                {
+                  "source": "base",
+                  "label": "light labor percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 33 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 2,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "thirst",
+        "name": "Thirst",
+        "kind": "physical",
+        "value": 850,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Thirst: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (light; values, traits, weather)",
+              "value": -80
+            },
+            {
+              "source": "base",
+              "label": "No activity",
+              "value": 0
+            }
+          ],
+          "total": 770,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 80
+                },
+                {
+                  "source": "base",
+                  "label": "light labor percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 33 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 80,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "warmth",
+        "name": "Warmth",
+        "kind": "physical",
+        "value": 900,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Warmth: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (light; values, traits, weather)",
+              "value": 0
+            },
+            {
+              "source": "weather",
+              "label": "Exposure: effective 71 F, comfort 62 F",
+              "value": 100
+            },
+            {
+              "source": "base",
+              "label": "No activity",
+              "value": 0
+            }
+          ],
+          "total": 1000,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 0
+                },
+                {
+                  "source": "base",
+                  "label": "light labor percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 33 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 0,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "activity": {
+    "activityId": null,
+    "name": "Idle",
+    "verb": "idling",
+    "placeId": 15,
+    "since": 0,
+    "source": "init",
+    "observed": true,
+    "travelingTo": null,
+    "arriveAt": null
+  },
+  "mind": {
+    "visible": true,
+    "ego": 50,
+    "superego": 50,
+    "idAppetite": 50,
+    "anxiety": 0,
+    "thoughts": [],
+    "chosen": null,
+    "recentDefenses": [],
+    "persona": null,
+    "shadow": [],
+    "anxietyBand": "Easy",
+    "anxietyPools": {
+      "real": 0,
+      "neur": 0,
+      "moral": 0
+    },
+    "verdict": null,
+    "presentedTraits": [],
+    "insight": 0
+  },
+  "social": {
+    "opinions": [],
+    "memories": [],
+    "relationships": []
+  },
+  "belief": {
+    "beliefs": [],
+    "grudges": []
+  },
+  "inventory": {
+    "carried": [
+      {
+        "id": 130,
+        "defId": "knapsack_army",
+        "name": "Knapsack, painted canvas, army pattern",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 1361,
+        "bulkTenths": 20,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "packs_bedding",
+        "servingsLeftPm": null,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 131,
+        "defId": "blanket_wool_3pt",
+        "name": "Blanket, wool, 3-point",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 2268,
+        "bulkTenths": 80,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "packs_bedding",
+        "servingsLeftPm": null,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 132,
+        "defId": "camp_kettle_pair",
+        "name": "Camp kettle, nesting pair",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 5161,
+        "bulkTenths": 40,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "cookery",
+        "servingsLeftPm": null,
+        "waterMl": 3800,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 133,
+        "defId": "canteen_tin_wool",
+        "name": "Canteen, tin, wool-covered, 2 qt",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 2354,
+        "bulkTenths": 30,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "cookery",
+        "servingsLeftPm": null,
+        "waterMl": 1900,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 134,
+        "defId": "firewood_armload",
+        "name": "Armload of firewood",
+        "qty": 2,
+        "unit": "armload",
+        "weightG": 18144,
+        "bulkTenths": 400,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "fire_light",
+        "servingsLeftPm": null,
+        "waterMl": 0,
+        "supplyUnitsLeft": 120,
+        "lit": false
+      },
+      {
+        "id": 135,
+        "defId": "hardtack",
+        "name": "Hardtack (ship's biscuit)",
+        "qty": 4,
+        "unit": "lb",
+        "weightG": 1816,
+        "bulkTenths": 40,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": 0,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": true,
+        "section": "provisions",
+        "servingsLeftPm": 12000,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 136,
+        "defId": "pemmican",
+        "name": "Pemmican",
+        "qty": 3,
+        "unit": "lb",
+        "weightG": 1362,
+        "bulkTenths": 15,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": 0,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": true,
+        "section": "provisions",
+        "servingsLeftPm": 9000,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 137,
+        "defId": "dried_apples",
+        "name": "Dried apples",
+        "qty": 2,
+        "unit": "lb",
+        "weightG": 908,
+        "bulkTenths": 20,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": 0,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": true,
+        "section": "provisions",
+        "servingsLeftPm": 12000,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      }
+    ],
+    "totalWeightG": 33374,
+    "totalBulkTenths": 645,
+    "loadBand": "Medium"
+  },
+  "provisions": {
+    "purseCents": 5000,
+    "nutrition": {
+      "kcalToday": 0,
+      "kcalAvg": 0,
+      "proteinAvgG": 0,
+      "freshAvg": 0,
+      "scurvy": 0,
+      "monotony": 0,
+      "lastMealAt": null
+    },
+    "readiness": {
+      "kcalOnHand": 16599,
+      "kcalPerDay": 1980,
+      "daysOfFoodTenths": 68,
+      "daysOfFuelTenths": 20,
+      "spoilsFirst": {
+        "defId": "dried_apples",
+        "name": "Dried apples",
+        "inDaysTenths": 5400
+      },
+      "unpreparable": [],
+      "warnings": []
+    }
+  }
+}
+1855-04-01 00:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — idling. Purse $50.00. 33°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 172; “actions 1” for full menu pages; “help” for verbs.
+> 13
+The requested conversation did not take place: the other person may have left or be unavailable.
+1855-04-01 01:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00. 32°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 797; Hunger 758; Rest 745; Thirst 770; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Introduce oneself
+[230] activity.started — explain 230
+[263] provisions.shortage — explain 263
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 174; “actions 1” for full menu pages; “help” for verbs.
+> explain 263
+Larder horizon and ration cut: 50 (Days of food tenths, Ration percent) -> rations_cut
+1855-04-01 01:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00. 32°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 797; Hunger 758; Rest 745; Thirst 770; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Introduce oneself
+[230] activity.started — explain 230
+[263] provisions.shortage — explain 263
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 174; “actions 1” for full menu pages; “help” for verbs.
+> inspect Patrick Sheehan
+{
+  "id": 3,
+  "name": "Patrick Sheehan",
+  "people": "Human",
+  "activity": "sleeping"
+}
+1855-04-01 01:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00. 32°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 797; Hunger 758; Rest 745; Thirst 770; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Introduce oneself
+[230] activity.started — explain 230
+[263] provisions.shortage — explain 263
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 174; “actions 1” for full menu pages; “help” for verbs.
+> inspect Patrick Sheehan
+{
+  "id": 3,
+  "name": "Patrick Sheehan",
+  "people": "Human",
+  "activity": "sleeping"
+}
+1855-04-01 01:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00. 32°F, dry.
+Food 6.8 days; Medium, 33.4 kg.
+Vitals: Drink 797; Hunger 758; Rest 745; Thirst 770; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Introduce oneself
+[230] activity.started — explain 230
+[263] provisions.shortage — explain 263
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 174; “actions 1” for full menu pages; “help” for verbs.
+> sleep
+1855-04-01 02:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $49.75. 32°F, dry.
+Food 6.7 days; Medium, 33.4 kg.
+Vitals: Drink 795; Hunger 729; Rest 706; Thirst 714; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: It is late; the day starts early
+Self-Command: Resolved: Sleep
+[270] Tavern bed: $0.25 — explain 270
+[271] activity.started — explain 271
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 77; “actions 1” for full menu pages; “help” for verbs.
+> wait until 07:00
+Stopped: social.interaction
+1855-04-01 07:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — cooking. Purse $49.75. 33°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 795; Hunger 654; Rest 1000; Thirst 574; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The fire wants minding
+[301] Pray ▸ Honora Sheehan: success
+[302] Chat ▸ Honora Sheehan: success — explain 302
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 199; “actions 1” for full menu pages; “help” for verbs.
+> explain 302
+Chat: why: 22 (company want 28 ×30, Affection −1 ×10, Whim) vs DC 0 -> chosen
+1855-04-01 07:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — cooking. Purse $49.75. 33°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 795; Hunger 654; Rest 1000; Thirst 574; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The fire wants minding
+[301] Pray ▸ Honora Sheehan: success
+[302] Chat ▸ Honora Sheehan: success — explain 302
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 199; “actions 1” for full menu pages; “help” for verbs.
+> journal
+1855-04-01 00:00 Sunday, the 1st of April, 1855. The Sabbath under a full moon; the evening service will want no lantern.
+1855-04-01 00:00 It has been a day. The ration is at 50 in the hundred and the children no longer ask. That is the worst of it: they no longer ask.
+1855-04-01 07:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — cooking. Purse $49.75. 33°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 795; Hunger 654; Rest 1000; Thirst 574; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The fire wants minding
+[301] Pray ▸ Honora Sheehan: success
+[302] Chat ▸ Honora Sheehan: success — explain 302
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 199; “actions 1” for full menu pages; “help” for verbs.
+> 13
+The requested conversation did not take place: the other person may have left or be unavailable.
+Stopped: social.interaction
+1855-04-01 08:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 36°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 792; Hunger 612; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Introduce oneself
+[440] Pray ▸ Timothy Costello: success
+[441] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 223; “actions 1” for full menu pages; “help” for verbs.
+> inspect Patrick Sheehan
+{
+  "id": 3,
+  "name": "Patrick Sheehan",
+  "people": "Human",
+  "activity": "sleeping"
+}
+1855-04-01 08:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 36°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 792; Hunger 612; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Introduce oneself
+[440] Pray ▸ Timothy Costello: success
+[441] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 223; “actions 1” for full menu pages; “help” for verbs.
+> inspect Honora Sheehan
+{
+  "id": 4,
+  "name": "Honora Sheehan",
+  "people": "Human",
+  "activity": "at table"
+}
+1855-04-01 08:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 36°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 792; Hunger 612; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Introduce oneself
+[440] Pray ▸ Timothy Costello: success
+[441] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 223; “actions 1” for full menu pages; “help” for verbs.
+> inspect Johanna Sheehan
+{
+  "id": 5,
+  "name": "Johanna Sheehan",
+  "people": "Human",
+  "activity": "at table"
+}
+1855-04-01 08:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 36°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 792; Hunger 612; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Introduce oneself
+[440] Pray ▸ Timothy Costello: success
+[441] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 223; “actions 1” for full menu pages; “help” for verbs.
+> inspect Timothy Costello
+{
+  "id": 29,
+  "name": "Timothy Costello",
+  "people": "Human",
+  "activity": "at table"
+}
+1855-04-01 08:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 36°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 792; Hunger 612; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Introduce oneself
+[440] Pray ▸ Timothy Costello: success
+[441] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 223; “actions 1” for full menu pages; “help” for verbs.
+> introduce Honora Sheehan
+No available action matches; use look or actions
+1855-04-01 08:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 36°F, dry.
+Food 6.5 days; Medium, 33.4 kg.
+Vitals: Drink 792; Hunger 612; Rest 945; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Introduce oneself
+[440] Pray ▸ Timothy Costello: success
+[441] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 223; “actions 1” for full menu pages; “help” for verbs.
+> talk Honora Sheehan
+Stopped: needs.band_changed; social.interaction; social.interaction
+[466] Chat ▸ Honora Sheehan: success
+Resolved: Chat: 992 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 1
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Inspect Coldwater Creek, upper reach [inspect:place:1]
+5. Inspect Coldwater Creek, lower reach [inspect:place:2]
+6. Inspect The Iron Ford [inspect:place:3]
+7. Inspect West limestone cap [inspect:place:4]
+8. Inspect West sandstone face [inspect:place:5]
+9. Inspect East limestone cap [inspect:place:6]
+10. Inspect East sandstone face [inspect:place:7]
+11. Inspect Bellwether Spring [inspect:place:8]
+12. Inspect Coulee hay ground [inspect:place:9]
+13. Inspect Upper valley road [inspect:place:10]
+14. Inspect Lower valley road [inspect:place:11]
+15. Inspect Coulee road [inspect:place:12]
+16. Inspect Ridge road [inspect:place:13]
+17. Inspect Crane General Store and Outfitter [inspect:place:14]
+18. Inspect The Wagon Bell Tavern [inspect:place:15]
+19. Inspect Whitcomb District School [inspect:place:16]
+20. Inspect Strauss Ford Smithy [inspect:place:17]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 1
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Inspect Coldwater Creek, upper reach [inspect:place:1]
+5. Inspect Coldwater Creek, lower reach [inspect:place:2]
+6. Inspect The Iron Ford [inspect:place:3]
+7. Inspect West limestone cap [inspect:place:4]
+8. Inspect West sandstone face [inspect:place:5]
+9. Inspect East limestone cap [inspect:place:6]
+10. Inspect East sandstone face [inspect:place:7]
+11. Inspect Bellwether Spring [inspect:place:8]
+12. Inspect Coulee hay ground [inspect:place:9]
+13. Inspect Upper valley road [inspect:place:10]
+14. Inspect Lower valley road [inspect:place:11]
+15. Inspect Coulee road [inspect:place:12]
+16. Inspect Ridge road [inspect:place:13]
+17. Inspect Crane General Store and Outfitter [inspect:place:14]
+18. Inspect The Wagon Bell Tavern [inspect:place:15]
+19. Inspect Whitcomb District School [inspect:place:16]
+20. Inspect Strauss Ford Smithy [inspect:place:17]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 1
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Inspect Coldwater Creek, upper reach [inspect:place:1]
+5. Inspect Coldwater Creek, lower reach [inspect:place:2]
+6. Inspect The Iron Ford [inspect:place:3]
+7. Inspect West limestone cap [inspect:place:4]
+8. Inspect West sandstone face [inspect:place:5]
+9. Inspect East limestone cap [inspect:place:6]
+10. Inspect East sandstone face [inspect:place:7]
+11. Inspect Bellwether Spring [inspect:place:8]
+12. Inspect Coulee hay ground [inspect:place:9]
+13. Inspect Upper valley road [inspect:place:10]
+14. Inspect Lower valley road [inspect:place:11]
+15. Inspect Coulee road [inspect:place:12]
+16. Inspect Ridge road [inspect:place:13]
+17. Inspect Crane General Store and Outfitter [inspect:place:14]
+18. Inspect The Wagon Bell Tavern [inspect:place:15]
+19. Inspect Whitcomb District School [inspect:place:16]
+20. Inspect Strauss Ford Smithy [inspect:place:17]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 2
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Inspect Nordby Coldwater Grist Mill [inspect:place:18]
+2. Inspect Vik Parsonage [inspect:place:19]
+3. Inspect Ridge Lutheran Church [inspect:place:20]
+4. Inspect Vance Upper Coulee Farm [inspect:place:21]
+5. Inspect Kitchen garden and stubble [inspect:place:22]
+6. Inspect Keller Ridge Farm [inspect:place:23]
+7. Inspect Kitchen garden and stubble [inspect:place:24]
+8. Inspect Trevenna Lower Slope Farm [inspect:place:25]
+9. Inspect Kitchen garden and stubble [inspect:place:26]
+10. Inspect Carter Orchard Farm [inspect:place:27]
+11. Inspect Kitchen garden and stubble [inspect:place:28]
+12. Inspect Brenner West Cove Farm [inspect:place:29]
+13. Inspect Kitchen garden and stubble [inspect:place:30]
+14. Inspect Patrick Sheehan [inspect:actor:3]
+15. Inspect Honora Sheehan [inspect:actor:4]
+16. Inspect Johanna Sheehan [inspect:actor:5]
+17. Inspect Timothy Costello [inspect:actor:29]
+18. Inspect Ellis Wayfarer [inspect:actor:30]
+19. Inspect Knapsack, painted canvas, army pattern [inspect:item:130]
+20. Inspect Blanket, wool, 3-point [inspect:item:131]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 3
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Inspect Camp kettle, nesting pair [inspect:item:132]
+2. Inspect Canteen, tin, wool-covered, 2 qt [inspect:item:133]
+3. Inspect Armload of firewood [inspect:item:134]
+4. Inspect Hardtack (ship's biscuit) [inspect:item:135]
+5. Inspect Pemmican [inspect:item:136]
+6. Inspect Dried apples [inspect:item:137]
+7. Wait 1 hour [wait]
+8. Go to Coldwater Creek, upper reach [go:1]
+9. Go to Coldwater Creek, lower reach [go:2]
+10. Go to The Iron Ford [go:3]
+11. Go to West limestone cap [go:4]
+12. Go to West sandstone face [go:5]
+13. Go to East limestone cap [go:6]
+14. Go to East sandstone face [go:7]
+15. Go to Bellwether Spring [go:8]
+16. Go to Coulee hay ground [go:9]
+17. Go to Upper valley road [go:10]
+18. Go to Lower valley road [go:11]
+19. Go to Coulee road [go:12]
+20. Go to Ridge road [go:13]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 4
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Go to Crane General Store and Outfitter [go:14]
+2. Go to Whitcomb District School [go:16]
+3. Go to Strauss Ford Smithy [go:17]
+4. Go to Nordby Coldwater Grist Mill [go:18]
+5. Go to Vik Parsonage [go:19]
+6. Go to Ridge Lutheran Church [go:20]
+7. Go to Vance Upper Coulee Farm [go:21]
+8. Go to Kitchen garden and stubble [go:22]
+9. Go to Keller Ridge Farm [go:23]
+10. Go to Kitchen garden and stubble [go:24]
+11. Go to Trevenna Lower Slope Farm [go:25]
+12. Go to Kitchen garden and stubble [go:26]
+13. Go to Carter Orchard Farm [go:27]
+14. Go to Kitchen garden and stubble [go:28]
+15. Go to Brenner West Cove Farm [go:29]
+16. Go to Kitchen garden and stubble [go:30]
+17. Sleep [activity:sleep]
+18. At home [activity:idle_at_home]
+19. Keep house [activity:keep_house]
+20. Take a meal [activity:take_meal]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 5
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Cook [activity:cook_meal]
+2. Fetch water [activity:fetch_water]
+3. Sit by the fire [activity:sit_by_fire]
+4. Work [activity:work]
+5. Keep the shop [activity:keep_shop]
+6. Work the forge [activity:forge_iron]
+7. Run the mill [activity:mill_grain]
+8. Keep the tavern [activity:tend_bar]
+9. Work the ferry [activity:ferry_crossing]
+10. Keep school [activity:teach_school]
+11. Attend school [activity:attend_school]
+12. Lead the service [activity:preach_service]
+13. Tend stock [activity:tend_stock]
+14. Work the garden [activity:tend_garden]
+15. Plow and plant [activity:plow_and_plant]
+16. Cut hay and harvest [activity:bring_in_crops]
+17. Thresh grain [activity:thresh_grain]
+18. Boil sap [activity:tap_maples]
+19. Butcher hogs [activity:butcher_hogs]
+20. Chop wood [activity:chop_wood]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 6
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Forage [activity:forage_greens]
+2. Fish [activity:fish_creek]
+3. Attend church [activity:attend_church]
+4. Family devotions [activity:family_devotions]
+5. Keep the Sabbath [activity:sabbath_rest]
+6. Drink at the tavern [activity:drink_at_tavern]
+7. Pay a call [activity:visit_kin]
+8. Go to market [activity:go_to_market]
+9. Call for the mail [activity:fetch_mail]
+10. Vote [activity:vote_at_polls]
+11. Walk [activity:travel_on_foot]
+12. Walk [activity:walk]
+13. Flirt: Patrick Sheehan [talk:flirt:3]
+14. Propose: Patrick Sheehan [talk:propose:3]
+15. Chat: Patrick Sheehan [talk:chat:3]
+16. Introduce oneself: Patrick Sheehan [talk:introduce:3]
+17. Stand drinks: Patrick Sheehan [talk:toast:3]
+18. Tell a tale: Patrick Sheehan [talk:tell_tale:3]
+19. Repay: Patrick Sheehan [talk:repay:3]
+20. Dun: Patrick Sheehan [talk:dun:3]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 7
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Apologize: Honora Sheehan [talk:apologize:4]
+2. Forgive: Honora Sheehan [talk:forgive:4]
+3. Flirt: Honora Sheehan [talk:flirt:4]
+4. Court: Honora Sheehan [talk:court:4]
+5. Propose: Honora Sheehan [talk:propose:4]
+6. Chat: Honora Sheehan [talk:chat:4]
+7. Gossip: Honora Sheehan [talk:gossip:4]
+8. Deep talk: Honora Sheehan [talk:deep_talk:4]
+9. Confide: Honora Sheehan [talk:confide:4]
+10. Compliment: Honora Sheehan [talk:compliment:4]
+11. Help: Honora Sheehan [talk:help:4]
+12. Gift: Honora Sheehan [talk:gift:4]
+13. Warn: Honora Sheehan [talk:warn:4]
+14. Stand drinks: Honora Sheehan [talk:toast:4]
+15. Tell a tale: Honora Sheehan [talk:tell_tale:4]
+16. Comfort: Honora Sheehan [talk:comfort:4]
+17. Ask about the news: Honora Sheehan [talk:ask_about:4]
+18. Preach at: Honora Sheehan [talk:preach_at:4]
+19. Pray with: Honora Sheehan [talk:pray_with:4]
+20. Confess: Honora Sheehan [talk:confess:4]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 8
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Slight: Honora Sheehan [talk:slight:4]
+2. Snub: Honora Sheehan [talk:snub:4]
+3. Mock: Honora Sheehan [talk:mock:4]
+4. Insult: Honora Sheehan [talk:insult:4]
+5. Threaten: Honora Sheehan [talk:threaten:4]
+6. Fight: Honora Sheehan [talk:fight:4]
+7. Accuse: Honora Sheehan [talk:accuse:4]
+8. Urge shunning: Honora Sheehan [talk:shun_lobby:4]
+9. Lend: Honora Sheehan [talk:lend:4]
+10. Borrow: Honora Sheehan [talk:borrow:4]
+11. Repay: Honora Sheehan [talk:repay:4]
+12. Dun: Honora Sheehan [talk:dun:4]
+13. Apologize: Johanna Sheehan [talk:apologize:5]
+14. Forgive: Johanna Sheehan [talk:forgive:5]
+15. Flirt: Johanna Sheehan [talk:flirt:5]
+16. Court: Johanna Sheehan [talk:court:5]
+17. Propose: Johanna Sheehan [talk:propose:5]
+18. Chat: Johanna Sheehan [talk:chat:5]
+19. Gossip: Johanna Sheehan [talk:gossip:5]
+20. Deep talk: Johanna Sheehan [talk:deep_talk:5]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 9
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Confide: Johanna Sheehan [talk:confide:5]
+2. Compliment: Johanna Sheehan [talk:compliment:5]
+3. Help: Johanna Sheehan [talk:help:5]
+4. Gift: Johanna Sheehan [talk:gift:5]
+5. Warn: Johanna Sheehan [talk:warn:5]
+6. Stand drinks: Johanna Sheehan [talk:toast:5]
+7. Tell a tale: Johanna Sheehan [talk:tell_tale:5]
+8. Comfort: Johanna Sheehan [talk:comfort:5]
+9. Ask about the news: Johanna Sheehan [talk:ask_about:5]
+10. Preach at: Johanna Sheehan [talk:preach_at:5]
+11. Pray with: Johanna Sheehan [talk:pray_with:5]
+12. Confess: Johanna Sheehan [talk:confess:5]
+13. Slight: Johanna Sheehan [talk:slight:5]
+14. Snub: Johanna Sheehan [talk:snub:5]
+15. Mock: Johanna Sheehan [talk:mock:5]
+16. Insult: Johanna Sheehan [talk:insult:5]
+17. Threaten: Johanna Sheehan [talk:threaten:5]
+18. Fight: Johanna Sheehan [talk:fight:5]
+19. Accuse: Johanna Sheehan [talk:accuse:5]
+20. Urge shunning: Johanna Sheehan [talk:shun_lobby:5]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 10
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Lend: Johanna Sheehan [talk:lend:5]
+2. Borrow: Johanna Sheehan [talk:borrow:5]
+3. Repay: Johanna Sheehan [talk:repay:5]
+4. Dun: Johanna Sheehan [talk:dun:5]
+5. Apologize: Timothy Costello [talk:apologize:29]
+6. Forgive: Timothy Costello [talk:forgive:29]
+7. Flirt: Timothy Costello [talk:flirt:29]
+8. Court: Timothy Costello [talk:court:29]
+9. Propose: Timothy Costello [talk:propose:29]
+10. Chat: Timothy Costello [talk:chat:29]
+11. Gossip: Timothy Costello [talk:gossip:29]
+12. Deep talk: Timothy Costello [talk:deep_talk:29]
+13. Confide: Timothy Costello [talk:confide:29]
+14. Compliment: Timothy Costello [talk:compliment:29]
+15. Help: Timothy Costello [talk:help:29]
+16. Gift: Timothy Costello [talk:gift:29]
+17. Warn: Timothy Costello [talk:warn:29]
+18. Stand drinks: Timothy Costello [talk:toast:29]
+19. Tell a tale: Timothy Costello [talk:tell_tale:29]
+20. Comfort: Timothy Costello [talk:comfort:29]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 11
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Ask about the news: Timothy Costello [talk:ask_about:29]
+2. Preach at: Timothy Costello [talk:preach_at:29]
+3. Pray with: Timothy Costello [talk:pray_with:29]
+4. Confess: Timothy Costello [talk:confess:29]
+5. Slight: Timothy Costello [talk:slight:29]
+6. Snub: Timothy Costello [talk:snub:29]
+7. Mock: Timothy Costello [talk:mock:29]
+8. Insult: Timothy Costello [talk:insult:29]
+9. Threaten: Timothy Costello [talk:threaten:29]
+10. Fight: Timothy Costello [talk:fight:29]
+11. Accuse: Timothy Costello [talk:accuse:29]
+12. Urge shunning: Timothy Costello [talk:shun_lobby:29]
+13. Lend: Timothy Costello [talk:lend:29]
+14. Borrow: Timothy Costello [talk:borrow:29]
+15. Repay: Timothy Costello [talk:repay:29]
+16. Dun: Timothy Costello [talk:dun:29]
+17. Drink water (500 ml) [drink]
+18. Buy a tavern meal ($0.20) [meal]
+19. Pack Knapsack, painted canvas, army pattern into Camp kettle, nesting pair [pack:130:132]
+20. Pack Knapsack, painted canvas, army pattern into Canteen, tin, wool-covered, 2 qt [pack:130:133]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 12
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Pack Blanket, wool, 3-point into Knapsack, painted canvas, army pattern [pack:131:130]
+2. Pack Camp kettle, nesting pair into Knapsack, painted canvas, army pattern [pack:132:130]
+3. Pack Canteen, tin, wool-covered, 2 qt into Knapsack, painted canvas, army pattern [pack:133:130]
+4. Pack Canteen, tin, wool-covered, 2 qt into Camp kettle, nesting pair [pack:133:132]
+5. Pack Armload of firewood into Knapsack, painted canvas, army pattern [pack:134:130]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+8. Pack Hardtack (ship's biscuit) into Knapsack, painted canvas, army pattern [pack:135:130]
+9. Pack Hardtack (ship's biscuit) into Camp kettle, nesting pair [pack:135:132]
+10. Pack Hardtack (ship's biscuit) into Canteen, tin, wool-covered, 2 qt [pack:135:133]
+11. Eat Pemmican (raw) [eat:136:raw]
+12. Prepare and eat Pemmican (boil) [eat:136:boil]
+13. Pack Pemmican into Knapsack, painted canvas, army pattern [pack:136:130]
+14. Pack Pemmican into Camp kettle, nesting pair [pack:136:132]
+15. Pack Pemmican into Canteen, tin, wool-covered, 2 qt [pack:136:133]
+16. Eat Dried apples (raw) [eat:137:raw]
+17. Prepare and eat Dried apples (boil) [eat:137:boil]
+18. Pack Dried apples into Knapsack, painted canvas, army pattern [pack:137:130]
+19. Pack Dried apples into Camp kettle, nesting pair [pack:137:132]
+20. Pack Dried apples into Canteen, tin, wool-covered, 2 qt [pack:137:133]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> actions 13
+1855-04-01 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 39°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 790; Hunger 583 (Peckish); Rest 906; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: The table is laid
+Self-Command: Resolved: Chat
+[470] Good day ▸ Ellis Wayfarer: success
+[471] Repay ▸ $4.38: success
+1. Unpack Armload of firewood [unpack:163]
+2. Pack Armload of firewood into Knapsack, painted canvas, army pattern [pack:163:130]
+3. Set rations 50% [rations:50]
+4. Set rations 75% [rations:75]
+5. Set rations 100% [rations:100]
+6. Set rations 125% [rations:125]
+7. Set rations 150% [rations:150]
+Actions 247; “actions 1” for full menu pages; “help” for verbs.
+> talk:ask_about:4
+The requested conversation did not take place: the other person may have left or be unavailable.
+Stopped: social.interaction
+1855-04-01 10:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 42°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 788; Hunger 554 (Peckish); Rest 867; Thirst 888; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3).
+Conscience: The Sabbath must be kept
+Self-Command: Resolved: Ask about the news
+[487] psyche.arbitrated — explain 487
+[545] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 172; “actions 1” for full menu pages; “help” for verbs.
+> explain 487
+Resolved: Ask about the news: 1063 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-01 10:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 42°F, dry.
+Food 6.4 days; Medium, 33.4 kg.
+Vitals: Drink 788; Hunger 554 (Peckish); Rest 867; Thirst 888; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3).
+Conscience: The Sabbath must be kept
+Self-Command: Resolved: Ask about the news
+[487] psyche.arbitrated — explain 487
+[545] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 172; “actions 1” for full menu pages; “help” for verbs.
+> go:20
+Stopped: activity.moved; social.interaction; social.interaction
+1855-04-01 11:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — walking about. Purse $49.75. 45°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 786; Hunger 525 (Peckish); Rest 828; Thirst 832; Warmth 1000
+Here: Submit Crane (#1), Silas Crane (#2), Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Johann Strauss (#6); 23 more (inspect by name).
+Conscience: The Sabbath must be kept
+Self-Command: Resolved: Walk
+[731] Lend a hand ▸ Wilhelmine Brenner: success
+[732] Chat ▸ Wenna Trevenna: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Chat: Submit Crane [talk:chat:1]
+14. Introduce oneself: Submit Crane [talk:introduce:1]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 493; “actions 1” for full menu pages; “help” for verbs.
+> activity:attend_church
+1855-04-01 12:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at church. Purse $49.75. 47°F, dry.
+Food 6.3 days; Medium, 33.4 kg.
+Vitals: Drink 783; Hunger 483 (Peckish); Rest 773; Thirst 752; Warmth 1000
+Here: Submit Crane (#1), Silas Crane (#2), Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Johann Strauss (#6); 18 more (inspect by name).
+Conscience: The Sabbath must be kept
+Self-Command: Resolved: Attend church
+[769] Chat ▸ Hester Vance: success
+[770] Pray ▸ Johanna Sheehan: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 95; “actions 1” for full menu pages; “help” for verbs.
+> wait 1h
+Stopped: social.interaction
+1855-04-01 13:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at church. Purse $49.75. 49°F, dry.
+Food 6.3 days; Medium, 33.3 kg.
+Vitals: Drink 781; Hunger 586 (Peckish); Rest 734; Thirst 696; Warmth 1000
+Here: Johann Strauss (#6), Gunhild Nordby (#10), Absalon Vik (#11), Marit Vik (#12), Richard Trevenna (#19), Elijah Carter (#22).
+Appetite: Hungry: eat something
+Conscience: The Sabbath must be kept
+[1043] Meal: 396 kcal (cold) — explain 1043
+[1044] needs.fed — explain 1044
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Chat: Johann Strauss [talk:chat:6]
+14. Introduce oneself: Johann Strauss [talk:introduce:6]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 214; “actions 1” for full menu pages; “help” for verbs.
+> talk:introduce:11
+The requested conversation did not take place: the other person may have left or be unavailable.
+Stopped: social.interaction
+1855-04-01 14:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 50°F, dry.
+Food 6.2 days; Medium, 33.3 kg.
+Vitals: Drink 779; Hunger 557 (Peckish); Rest 695; Thirst 640; Warmth 1000
+Here: Richard Trevenna (#19), Elijah Carter (#22).
+Conscience: The table is laid
+Self-Command: Resolved: Introduce oneself
+[1067] activity.started — explain 1067
+[1075] Good day ▸ Ellis Wayfarer: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Chat: Richard Trevenna [talk:chat:19]
+14. Chat: Elijah Carter [talk:chat:22]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 202; “actions 1” for full menu pages; “help” for verbs.
+> talk:chat:22
+Stopped: social.interaction
+[1134] Chat ▸ Elijah Carter: success
+Resolved: Chat: 969 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-01 15:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 50°F, dry.
+Food 6.2 days; Medium, 33.3 kg.
+Vitals: Drink 777; Hunger 528 (Peckish); Rest 656; Thirst 1000; Warmth 1000
+Here: Gunhild Nordby (#10), Marit Vik (#12), Elijah Carter (#22).
+Self-Command: Resolved: Chat
+[1147] Pray ▸ Ellis Wayfarer: success
+[1148] Pray ▸ Elijah Carter: success — explain 1148
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Chat: Gunhild Nordby [talk:chat:10]
+14. Introduce oneself: Gunhild Nordby [talk:introduce:10]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 187; “actions 1” for full menu pages; “help” for verbs.
+> inspect Elijah Carter
+{
+  "id": 22,
+  "name": "Elijah Carter",
+  "people": "Human",
+  "activity": "at church"
+}
+1855-04-01 15:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 50°F, dry.
+Food 6.2 days; Medium, 33.3 kg.
+Vitals: Drink 777; Hunger 528 (Peckish); Rest 656; Thirst 1000; Warmth 1000
+Here: Gunhild Nordby (#10), Marit Vik (#12), Elijah Carter (#22).
+Self-Command: Resolved: Chat
+[1147] Pray ▸ Ellis Wayfarer: success
+[1148] Pray ▸ Elijah Carter: success — explain 1148
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Chat: Gunhild Nordby [talk:chat:10]
+14. Introduce oneself: Gunhild Nordby [talk:introduce:10]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 187; “actions 1” for full menu pages; “help” for verbs.
+> inspect Ellis Wayfarer
+{
+  "id": 30,
+  "name": "Ellis Wayfarer",
+  "alive": true,
+  "needs": {
+    "list": [
+      {
+        "id": "company",
+        "name": "Company",
+        "kind": "social",
+        "value": 1000,
+        "band": "",
+        "trend": -6,
+        "explain": {
+          "kind": "formula",
+          "label": "Company: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -11
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 5
+            }
+          ],
+          "total": 994,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 15
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "value",
+                  "label": "neighborliness: percent adjustment",
+                  "value": 0
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 50 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 11,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "drink",
+        "name": "Drink",
+        "kind": "physical",
+        "value": 777,
+        "band": "",
+        "trend": -2,
+        "explain": {
+          "kind": "formula",
+          "label": "Drink: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -2
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 775,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 3
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 50 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 2,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "faith",
+        "name": "Faith & Ritual",
+        "kind": "spiritual",
+        "value": 1000,
+        "band": "",
+        "trend": -3,
+        "explain": {
+          "kind": "formula",
+          "label": "Faith & Ritual: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -3
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 997,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 4
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "value",
+                  "label": "piety: percent adjustment",
+                  "value": 0
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 50 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 3,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "hunger",
+        "name": "Hunger",
+        "kind": "physical",
+        "value": 528,
+        "band": "Peckish",
+        "trend": -29,
+        "explain": {
+          "kind": "formula",
+          "label": "Hunger: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -29
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 499,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 42
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Physiological energy percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 50 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 29,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "rest",
+        "name": "Rest",
+        "kind": "physical",
+        "value": 656,
+        "band": "",
+        "trend": -39,
+        "explain": {
+          "kind": "formula",
+          "label": "Rest: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -39
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 617,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 55
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 50 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 39,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "security",
+        "name": "Security",
+        "kind": "social",
+        "value": 840,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Security: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": 0
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 840,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 0
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 50 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 0,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "standing",
+        "name": "Standing",
+        "kind": "social",
+        "value": 644,
+        "band": "",
+        "trend": -1,
+        "explain": {
+          "kind": "formula",
+          "label": "Standing: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -1
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 643,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 2
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 50 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 1,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "thirst",
+        "name": "Thirst",
+        "kind": "physical",
+        "value": 1000,
+        "band": "",
+        "trend": 360,
+        "explain": {
+          "kind": "formula",
+          "label": "Thirst: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -56
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 944,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 80
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 50 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 56,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "warmth",
+        "name": "Warmth",
+        "kind": "physical",
+        "value": 1000,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Warmth: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": 0
+            },
+            {
+              "source": "weather",
+              "label": "Exposure: effective 98 F, comfort 62 F",
+              "value": 100
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 1000,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 0
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 50 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 0,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "activity": {
+    "activityId": "idle_at_home",
+    "name": "At home",
+    "verb": "at home, at leisure",
+    "placeId": 20,
+    "since": 780,
+    "source": "command",
+    "observed": true,
+    "travelingTo": null,
+    "arriveAt": null
+  },
+  "mind": {
+    "visible": true,
+    "ego": 50,
+    "superego": 50,
+    "idAppetite": 50,
+    "anxiety": 0,
+    "thoughts": [],
+    "chosen": {
+      "urge": "interaction:chat->22",
+      "voice": "Self-Command",
+      "compromise": false,
+      "explain": {
+        "kind": "arbitration",
+        "label": "Resolved: Chat",
+        "subjects": [
+          30
+        ],
+        "knowledge": "self",
+        "terms": [
+          {
+            "source": "psyche",
+            "label": "Reality 50 × Self-Command 50%",
+            "value": 25
+          },
+          {
+            "source": "psyche",
+            "label": "Voices 1000 × 100%",
+            "value": 1000
+          },
+          {
+            "source": "psyche",
+            "label": "Impulse (±100)",
+            "value": -56
+          }
+        ],
+        "total": 969,
+        "outcome": "command",
+        "children": [
+          {
+            "kind": "choice",
+            "label": "Chat",
+            "subjects": [
+              30
+            ],
+            "knowledge": "self",
+            "terms": [
+              {
+                "source": "psyche",
+                "label": "Reality 50 × Self-Command 50%",
+                "value": 25
+              },
+              {
+                "source": "psyche",
+                "label": "Voices 1000 × 100%",
+                "value": 1000
+              },
+              {
+                "source": "psyche",
+                "label": "Impulse (±100)",
+                "value": -56
+              }
+            ],
+            "total": 969,
+            "outcome": "chosen",
+            "note": "+1000 Resolved: Chat; R +50 Elijah Carter is here"
+          },
+          {
+            "kind": "choice",
+            "label": "Take a meal",
+            "subjects": [
+              30
+            ],
+            "knowledge": "self",
+            "terms": [
+              {
+                "source": "psyche",
+                "label": "Reality 36 × Self-Command 50%",
+                "value": 18
+              },
+              {
+                "source": "psyche",
+                "label": "Voices 203 × 100%",
+                "value": 203
+              },
+              {
+                "source": "psyche",
+                "label": "Impulse (±100)",
+                "value": 93
+              }
+            ],
+            "total": 314,
+            "outcome": "rejected",
+            "note": "+95 The table is laid; +108 Hungry: eat something; R +36 Relieves Hunger"
+          }
+        ],
+        "note": "A command holds the hour: the voices are heard, and overruled."
+      }
+    },
+    "recentDefenses": [],
+    "persona": null,
+    "shadow": [],
+    "anxietyBand": "Easy",
+    "anxietyPools": {
+      "real": 0,
+      "neur": 0,
+      "moral": 0
+    },
+    "verdict": {
+      "label": "Resolved: Chat",
+      "mode": "command"
+    },
+    "presentedTraits": [],
+    "insight": 0
+  },
+  "social": {
+    "opinions": [
+      {
+        "targetId": 3,
+        "targetName": "Patrick Sheehan",
+        "affection": 2,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 540,
+            "weight": 370
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 40,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 4,
+        "targetName": "Honora Sheehan",
+        "affection": 11,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 360,
+            "weight": 370
+          },
+          {
+            "label": "Saw Honora Sheehan help Timothy Costello at The Wagon Bell Tavern",
+            "affection": 0,
+            "respect": 1,
+            "trust": 0,
+            "fear": 0,
+            "since": 420,
+            "weight": 384
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 200,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 5,
+        "targetName": "Johanna Sheehan",
+        "affection": 5,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 480,
+            "weight": 370
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 80,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 19,
+        "targetName": "Richard Trevenna",
+        "affection": -4,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 720,
+            "weight": 370
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 40,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 22,
+        "targetName": "Elijah Carter",
+        "affection": 3,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 780,
+            "weight": 370
+          },
+          {
+            "label": "We pray together",
+            "affection": 3,
+            "respect": 0,
+            "trust": 0,
+            "fear": 0,
+            "since": 840,
+            "weight": 405
+          },
+          {
+            "label": "We pray together",
+            "affection": 3,
+            "respect": 0,
+            "trust": 0,
+            "fear": 0,
+            "since": 840,
+            "weight": 363
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 160,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 29,
+        "targetName": "Timothy Costello",
+        "affection": -5,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 420,
+            "weight": 370
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 40,
+        "owedCents": 0,
+        "owedFavors": 0
+      }
+    ],
+    "memories": [
+      {
+        "id": 6,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Honora Sheehan at The Wagon Bell Tavern",
+        "at": 360,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 11,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at The Wagon Bell Tavern",
+        "at": 360,
+        "emotion": "none",
+        "intensity": 3,
+        "salience": 321,
+        "source": "witnessed"
+      },
+      {
+        "id": 29,
+        "kind": "help",
+        "summary": "Saw Honora Sheehan help Timothy Costello at The Wagon Bell Tavern",
+        "at": 420,
+        "emotion": "gratitude",
+        "intensity": 12,
+        "salience": 384,
+        "source": "overheard"
+      },
+      {
+        "id": 32,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Timothy Costello at The Wagon Bell Tavern",
+        "at": 420,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 67,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at The Wagon Bell Tavern",
+        "at": 480,
+        "emotion": "none",
+        "intensity": 3,
+        "salience": 321,
+        "source": "witnessed"
+      },
+      {
+        "id": 73,
+        "kind": "gossip",
+        "summary": "Heard Patrick Sheehan telling Honora Sheehan the news at The Wagon Bell Tavern",
+        "at": 480,
+        "emotion": "none",
+        "intensity": 6,
+        "salience": 342,
+        "source": "overheard"
+      },
+      {
+        "id": 74,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at The Wagon Bell Tavern",
+        "at": 480,
+        "emotion": "none",
+        "intensity": 5,
+        "salience": 335,
+        "source": "witnessed"
+      },
+      {
+        "id": 76,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Johanna Sheehan at The Wagon Bell Tavern",
+        "at": 480,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 106,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Patrick Sheehan at The Wagon Bell Tavern",
+        "at": 540,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 193,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at Ridge Lutheran Church",
+        "at": 600,
+        "emotion": "none",
+        "intensity": 5,
+        "salience": 335,
+        "source": "witnessed"
+      },
+      {
+        "id": 195,
+        "kind": "chat",
+        "summary": "Passed the time with Johanna Sheehan at Ridge Lutheran Church",
+        "at": 600,
+        "emotion": "none",
+        "intensity": 5,
+        "salience": 335,
+        "source": "witnessed"
+      },
+      {
+        "id": 343,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Richard Trevenna at Ridge Lutheran Church",
+        "at": 720,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 363,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Elijah Carter at Ridge Lutheran Church",
+        "at": 780,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 380,
+        "kind": "chat",
+        "summary": "Passed the time with Elijah Carter at Ridge Lutheran Church",
+        "at": 840,
+        "emotion": "none",
+        "intensity": 3,
+        "salience": 321,
+        "source": "witnessed"
+      },
+      {
+        "id": 402,
+        "kind": "prayer",
+        "summary": "Prayed with Elijah Carter",
+        "at": 840,
+        "emotion": "awe",
+        "intensity": 15,
+        "salience": 405,
+        "source": "witnessed"
+      },
+      {
+        "id": 405,
+        "kind": "prayer",
+        "summary": "Prayed with Elijah Carter",
+        "at": 840,
+        "emotion": "awe",
+        "intensity": 9,
+        "salience": 363,
+        "source": "witnessed"
+      }
+    ],
+    "relationships": []
+  },
+  "belief": {
+    "beliefs": [],
+    "grudges": []
+  },
+  "inventory": {
+    "carried": [
+      {
+        "id": 130,
+        "defId": "knapsack_army",
+        "name": "Knapsack, painted canvas, army pattern",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 1361,
+        "bulkTenths": 20,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "packs_bedding",
+        "servingsLeftPm": null,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 131,
+        "defId": "blanket_wool_3pt",
+        "name": "Blanket, wool, 3-point",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 2268,
+        "bulkTenths": 80,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "packs_bedding",
+        "servingsLeftPm": null,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 132,
+        "defId": "camp_kettle_pair",
+        "name": "Camp kettle, nesting pair",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 5080,
+        "bulkTenths": 40,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "cookery",
+        "servingsLeftPm": null,
+        "waterMl": 3719,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 133,
+        "defId": "canteen_tin_wool",
+        "name": "Canteen, tin, wool-covered, 2 qt",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 2354,
+        "bulkTenths": 30,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "cookery",
+        "servingsLeftPm": null,
+        "waterMl": 1900,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 134,
+        "defId": "firewood_armload",
+        "name": "Armload of firewood",
+        "qty": 2,
+        "unit": "armload",
+        "weightG": 18144,
+        "bulkTenths": 400,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "fire_light",
+        "servingsLeftPm": null,
+        "waterMl": 0,
+        "supplyUnitsLeft": 120,
+        "lit": false
+      },
+      {
+        "id": 135,
+        "defId": "hardtack",
+        "name": "Hardtack (ship's biscuit)",
+        "qty": 4,
+        "unit": "lb",
+        "weightG": 1816,
+        "bulkTenths": 40,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": 0,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": true,
+        "section": "provisions",
+        "servingsLeftPm": 11676,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 136,
+        "defId": "pemmican",
+        "name": "Pemmican",
+        "qty": 3,
+        "unit": "lb",
+        "weightG": 1362,
+        "bulkTenths": 15,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": 0,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": true,
+        "section": "provisions",
+        "servingsLeftPm": 9000,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 137,
+        "defId": "dried_apples",
+        "name": "Dried apples",
+        "qty": 2,
+        "unit": "lb",
+        "weightG": 908,
+        "bulkTenths": 20,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": 1,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": true,
+        "section": "provisions",
+        "servingsLeftPm": 10808,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      }
+    ],
+    "totalWeightG": 33293,
+    "totalBulkTenths": 645,
+    "loadBand": "Medium"
+  },
+  "provisions": {
+    "purseCents": 4975,
+    "nutrition": {
+      "kcalToday": 396,
+      "kcalAvg": 0,
+      "proteinAvgG": 0,
+      "freshAvg": 0,
+      "scurvy": 0,
+      "monotony": 0,
+      "lastMealAt": 720
+    },
+    "readiness": {
+      "kcalOnHand": 16203,
+      "kcalPerDay": 1980,
+      "daysOfFoodTenths": 62,
+      "daysOfFuelTenths": 20,
+      "spoilsFirst": {
+        "defId": "dried_apples",
+        "name": "Dried apples",
+        "inDaysTenths": 2696
+      },
+      "unpreparable": [],
+      "warnings": []
+    }
+  }
+}
+1855-04-01 15:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 50°F, dry.
+Food 6.2 days; Medium, 33.3 kg.
+Vitals: Drink 777; Hunger 528 (Peckish); Rest 656; Thirst 1000; Warmth 1000
+Here: Gunhild Nordby (#10), Marit Vik (#12), Elijah Carter (#22).
+Self-Command: Resolved: Chat
+[1147] Pray ▸ Ellis Wayfarer: success
+[1148] Pray ▸ Elijah Carter: success — explain 1148
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Chat: Gunhild Nordby [talk:chat:10]
+14. Introduce oneself: Gunhild Nordby [talk:introduce:10]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 187; “actions 1” for full menu pages; “help” for verbs.
+> talk:gossip:22
+The requested conversation did not take place: the other person may have left or be unavailable.
+1855-04-01 16:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 49°F, dry.
+Food 6.1 days; Medium, 33.3 kg.
+Vitals: Drink 775; Hunger 499 (Peckish); Rest 617; Thirst 944; Warmth 1000
+Here: Gunhild Nordby (#10), Marit Vik (#12), Richard Trevenna (#19).
+Conscience: You don't know that. You're only repeating it.
+Self-Command: Resolved: Gossip
+[1193] Pray ▸ Marit Vik: success
+[1194] Chat ▸ Gunhild Nordby: success
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Chat: Gunhild Nordby [talk:chat:10]
+14. Introduce oneself: Gunhild Nordby [talk:introduce:10]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 187; “actions 1” for full menu pages; “help” for verbs.
+> talk:introduce:12
+The requested conversation did not take place: the other person may have left or be unavailable.
+Stopped: social.interaction
+1855-04-01 17:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 47°F, dry.
+Food 6.1 days; Medium, 33.3 kg.
+Vitals: Drink 773; Hunger 470 (Peckish); Rest 578; Thirst 888; Warmth 1000
+Here: Richard Trevenna (#19).
+Self-Command: Resolved: Introduce oneself
+[1235] psyche.arbitrated — explain 1235
+[1260] Preach ▸ Ellis Wayfarer: success — explain 1260
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Chat: Richard Trevenna [talk:chat:19]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 169; “actions 1” for full menu pages; “help” for verbs.
+> explain 1260
+Preach at: Richard Trevenna → Ellis Wayfarer: 16 (d20 15, Charisma +1) vs DC 13 -> success
+1855-04-01 17:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 47°F, dry.
+Food 6.1 days; Medium, 33.3 kg.
+Vitals: Drink 773; Hunger 470 (Peckish); Rest 578; Thirst 888; Warmth 1000
+Here: Richard Trevenna (#19).
+Self-Command: Resolved: Introduce oneself
+[1235] psyche.arbitrated — explain 1235
+[1260] Preach ▸ Ellis Wayfarer: success — explain 1260
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Chat: Richard Trevenna [talk:chat:19]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 169; “actions 1” for full menu pages; “help” for verbs.
+> talk:gossip:19
+The requested conversation did not take place: the other person may have left or be unavailable.
+1855-04-01 18:00 | FAIR | Ridge Lutheran Church
+Ellis Wayfarer — at home, at leisure. Purse $49.75. 44°F, dry.
+Food 6.0 days; Medium, 33.3 kg.
+Vitals: Drink 771; Hunger 441 (Peckish); Rest 539; Thirst 832; Warmth 1000
+Here: no one else.
+Appetite: Hungry: eat something
+Conscience: The fire wants minding
+Self-Command: Resolved: Gossip
+[1260] Preach ▸ Ellis Wayfarer: success — explain 1260
+[1287] psyche.arbitrated — explain 1287
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to The Wagon Bell Tavern [go:15]
+12. Go to Strauss Ford Smithy [go:17]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 136; “actions 1” for full menu pages; “help” for verbs.
+> go:15
+Stopped: activity.moved; social.interaction
+1855-04-01 19:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — walking about. Purse $49.75. 42°F, dry.
+Food 6.8 days; Medium, 33.3 kg.
+Vitals: Drink 769; Hunger 412 (Peckish); Rest 500; Thirst 776; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Hungry: eat something
+Conscience: The table is laid
+Self-Command: Resolved: Walk
+[1377] Chat ▸ Patrick Sheehan: success
+[1378] Chat ▸ Honora Sheehan: success — explain 1378
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> meal
+1855-04-01 20:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55. 40°F, dry.
+Food 6.7 days; Medium, 33.3 kg.
+Vitals: Drink 766; Hunger 578 (Peckish); Rest 445; Thirst 696; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Hungry: eat something
+Conscience: The table is laid
+Self-Command: Resolved: At home
+[1540] needs.fed — explain 1540
+[1541] Tavern meal: $0.20 — explain 1541
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> talk:ask_about:4
+[1550] Asked about the news ▸ Honora Sheehan: success
+Resolved: Ask about the news: 1043 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-01 21:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55. 38°F, dry.
+Food 6.7 days; Medium, 33.3 kg.
+Vitals: Drink 764; Hunger 549 (Peckish); Rest 406; Thirst 640; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Keep house
+Self-Command: Resolved: Ask about the news
+[1559] Chat ▸ Patrick Sheehan: success
+[1560] Chat ▸ Honora Sheehan: success — explain 1560
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> explain 1550
+Resolved: Ask about the news: 1043 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-01 21:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55. 38°F, dry.
+Food 6.7 days; Medium, 33.3 kg.
+Vitals: Drink 764; Hunger 549 (Peckish); Rest 406; Thirst 640; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Keep house
+Self-Command: Resolved: Ask about the news
+[1559] Chat ▸ Patrick Sheehan: success
+[1560] Chat ▸ Honora Sheehan: success — explain 1560
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> inspect Ellis Wayfarer
+{
+  "id": 30,
+  "name": "Ellis Wayfarer",
+  "alive": true,
+  "needs": {
+    "list": [
+      {
+        "id": "company",
+        "name": "Company",
+        "kind": "social",
+        "value": 1000,
+        "band": "",
+        "trend": -6,
+        "explain": {
+          "kind": "formula",
+          "label": "Company: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -11
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 5
+            }
+          ],
+          "total": 994,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 15
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "value",
+                  "label": "neighborliness: percent adjustment",
+                  "value": 0
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 38 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 11,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "drink",
+        "name": "Drink",
+        "kind": "physical",
+        "value": 764,
+        "band": "",
+        "trend": -2,
+        "explain": {
+          "kind": "formula",
+          "label": "Drink: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -2
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 762,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 3
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 38 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 2,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "faith",
+        "name": "Faith & Ritual",
+        "kind": "spiritual",
+        "value": 987,
+        "band": "",
+        "trend": -3,
+        "explain": {
+          "kind": "formula",
+          "label": "Faith & Ritual: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -3
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 984,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 4
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "value",
+                  "label": "piety: percent adjustment",
+                  "value": 0
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 38 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 3,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "hunger",
+        "name": "Hunger",
+        "kind": "physical",
+        "value": 549,
+        "band": "Peckish",
+        "trend": -29,
+        "explain": {
+          "kind": "formula",
+          "label": "Hunger: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -29
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 520,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 42
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "base",
+                  "label": "Physiological energy percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 38 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 29,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "rest",
+        "name": "Rest",
+        "kind": "physical",
+        "value": 406,
+        "band": "",
+        "trend": -39,
+        "explain": {
+          "kind": "formula",
+          "label": "Rest: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -39
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 367,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 55
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 38 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 39,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "security",
+        "name": "Security",
+        "kind": "social",
+        "value": 840,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Security: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": 0
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 840,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 0
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 38 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 0,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "standing",
+        "name": "Standing",
+        "kind": "social",
+        "value": 637,
+        "band": "",
+        "trend": -1,
+        "explain": {
+          "kind": "formula",
+          "label": "Standing: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -1
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 636,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 2
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 38 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 1,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "thirst",
+        "name": "Thirst",
+        "kind": "physical",
+        "value": 640,
+        "band": "",
+        "trend": -56,
+        "explain": {
+          "kind": "formula",
+          "label": "Thirst: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": -56
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            },
+            {
+              "source": "place",
+              "label": "Water access",
+              "value": 700
+            }
+          ],
+          "total": 1000,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 80
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 38 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 56,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      },
+      {
+        "id": "warmth",
+        "name": "Warmth",
+        "kind": "physical",
+        "value": 1000,
+        "band": "",
+        "trend": 0,
+        "explain": {
+          "kind": "formula",
+          "label": "Warmth: next hour at the current activity",
+          "subjects": [
+            30
+          ],
+          "knowledge": "self",
+          "terms": [
+            {
+              "source": "need",
+              "label": "Hourly decay (rest; values, traits, weather)",
+              "value": 0
+            },
+            {
+              "source": "weather",
+              "label": "Exposure: effective 100 F, comfort 62 F",
+              "value": 100
+            },
+            {
+              "source": "base",
+              "label": "At home",
+              "value": 0
+            }
+          ],
+          "total": 1000,
+          "outcome": "projected",
+          "children": [
+            {
+              "kind": "formula",
+              "label": "Hourly expenditure",
+              "subjects": [
+                30
+              ],
+              "knowledge": "self",
+              "terms": [
+                {
+                  "source": "base",
+                  "label": "Points per hour",
+                  "value": 0
+                },
+                {
+                  "source": "base",
+                  "label": "rest labor percent",
+                  "value": 70
+                },
+                {
+                  "source": "base",
+                  "label": "Sleep percent",
+                  "value": 100
+                },
+                {
+                  "source": "weather",
+                  "label": "Ambient 38 F: percent multiplier",
+                  "value": 100
+                }
+              ],
+              "total": 0,
+              "outcome": "expended",
+              "note": "Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "activity": {
+    "activityId": "idle_at_home",
+    "name": "At home",
+    "verb": "at home, at leisure",
+    "placeId": 15,
+    "since": 1140,
+    "source": "command",
+    "observed": true,
+    "travelingTo": null,
+    "arriveAt": null
+  },
+  "mind": {
+    "visible": true,
+    "ego": 50,
+    "superego": 50,
+    "idAppetite": 50,
+    "anxiety": 235,
+    "thoughts": [
+      {
+        "id": 585,
+        "voice": "Appetite",
+        "label": "Weary: a bed would be welcome",
+        "intensity": 59,
+        "urge": "activity:sleep",
+        "ageMinutes": 120,
+        "stance": "for",
+        "periodLabel": "Ease",
+        "reasons": [
+          {
+            "label": "Rest deficit below 600",
+            "value": 259
+          },
+          {
+            "label": "Fading",
+            "value": -200
+          }
+        ]
+      },
+      {
+        "id": 587,
+        "voice": "Appetite",
+        "label": "Hungry: eat from the larder or pack",
+        "intensity": 250,
+        "urge": "activity:take_meal",
+        "ageMinutes": 120,
+        "stance": "for",
+        "periodLabel": "Appetite",
+        "reasons": [
+          {
+            "label": "Hunger",
+            "value": 650
+          },
+          {
+            "label": "Fading",
+            "value": -400
+          }
+        ]
+      },
+      {
+        "id": 654,
+        "voice": "Conscience",
+        "label": "Daily round: Keep house",
+        "intensity": 20,
+        "urge": "activity:keep_house",
+        "ageMinutes": 60,
+        "stance": "for",
+        "periodLabel": "Diligence",
+        "reasons": [
+          {
+            "label": "Hired hand",
+            "value": 200
+          },
+          {
+            "label": "Diligence 55 ×110%",
+            "value": 20
+          },
+          {
+            "label": "Fading",
+            "value": -200
+          }
+        ]
+      },
+      {
+        "id": 656,
+        "voice": "Conscience",
+        "label": "Diligence: not sleep",
+        "intensity": 30,
+        "urge": "activity:sleep",
+        "ageMinutes": 60,
+        "stance": "against",
+        "line": "Daylight's for working. Sleep can wait.",
+        "speaker": "Father",
+        "periodLabel": "Diligence",
+        "reasons": [
+          {
+            "label": "Duty forbids rest",
+            "value": 300
+          },
+          {
+            "label": "Diligence 55 ×110%",
+            "value": 30
+          },
+          {
+            "label": "Fading",
+            "value": -300
+          }
+        ]
+      },
+      {
+        "id": 657,
+        "voice": "Conscience",
+        "label": "Veneration: not keep house",
+        "intensity": 300,
+        "urge": "activity:keep_house",
+        "ageMinutes": 60,
+        "stance": "against",
+        "line": "Remember the Sabbath day, to keep it holy.",
+        "speaker": "the Pastor",
+        "periodLabel": "Veneration",
+        "reasons": [
+          {
+            "label": "Piety forbids labor/trade",
+            "value": 600
+          },
+          {
+            "label": "Fading",
+            "value": -300
+          }
+        ]
+      },
+      {
+        "id": 658,
+        "voice": "Conscience",
+        "label": "the Lord's Day: not keep house",
+        "intensity": 350,
+        "urge": "activity:keep_house",
+        "ageMinutes": 60,
+        "stance": "against",
+        "line": "On the Lord's day? Let Keep house wait till Monday.",
+        "speaker": "the Pastor",
+        "periodLabel": "the Lord's Day",
+        "reasons": [
+          {
+            "label": "Sabbath forbids labor/carouse",
+            "value": 500
+          },
+          {
+            "label": "the Lord's Day 45 ×90%",
+            "value": -50
+          },
+          {
+            "label": "Onlookers 4",
+            "value": 200
+          },
+          {
+            "label": "Fading",
+            "value": -300
+          }
+        ]
+      }
+    ],
+    "chosen": {
+      "urge": "interaction:ask_about->4",
+      "voice": "Self-Command",
+      "compromise": false,
+      "explain": {
+        "kind": "arbitration",
+        "label": "Resolved: Ask about the news",
+        "subjects": [
+          30
+        ],
+        "knowledge": "self",
+        "terms": [
+          {
+            "source": "psyche",
+            "label": "Reality 50 × Self-Command 50%",
+            "value": 25
+          },
+          {
+            "source": "psyche",
+            "label": "Voices 1000 × 100%",
+            "value": 1000
+          },
+          {
+            "source": "psyche",
+            "label": "Impulse (±100)",
+            "value": 18
+          }
+        ],
+        "total": 1043,
+        "outcome": "command",
+        "children": [
+          {
+            "kind": "choice",
+            "label": "Ask about the news",
+            "subjects": [
+              30
+            ],
+            "knowledge": "self",
+            "terms": [
+              {
+                "source": "psyche",
+                "label": "Reality 50 × Self-Command 50%",
+                "value": 25
+              },
+              {
+                "source": "psyche",
+                "label": "Voices 1000 × 100%",
+                "value": 1000
+              },
+              {
+                "source": "psyche",
+                "label": "Impulse (±100)",
+                "value": 18
+              }
+            ],
+            "total": 1043,
+            "outcome": "chosen",
+            "note": "+1000 Resolved: Ask about the news; R +50 Honora Sheehan is here"
+          },
+          {
+            "kind": "choice",
+            "label": "Take a meal",
+            "subjects": [
+              30
+            ],
+            "knowledge": "self",
+            "terms": [
+              {
+                "source": "psyche",
+                "label": "Reality 25 × Self-Command 50%",
+                "value": 12
+              },
+              {
+                "source": "psyche",
+                "label": "Voices 690 × 100%",
+                "value": 690
+              },
+              {
+                "source": "psyche",
+                "label": "Impulse (±100)",
+                "value": -28
+              }
+            ],
+            "total": 674,
+            "outcome": "rejected",
+            "note": "+145 Hungry: eat something; +95 The table is laid; +450 Hungry: eat from the larder or pack; R +25 Relieves Hunger"
+          },
+          {
+            "kind": "choice",
+            "label": "Family devotions",
+            "subjects": [
+              30
+            ],
+            "knowledge": "self",
+            "terms": [
+              {
+                "source": "psyche",
+                "label": "Reality 0 × Self-Command 50%",
+                "value": 0
+              },
+              {
+                "source": "psyche",
+                "label": "Voices 150 × 100%",
+                "value": 150
+              },
+              {
+                "source": "psyche",
+                "label": "Impulse (±100)",
+                "value": 14
+              }
+            ],
+            "total": 164,
+            "outcome": "rejected",
+            "note": "+150 Daily round: Family devotions"
+          },
+          {
+            "kind": "choice",
+            "label": "Sleep",
+            "subjects": [
+              30
+            ],
+            "knowledge": "self",
+            "terms": [
+              {
+                "source": "psyche",
+                "label": "Reality 97 × Self-Command 50%",
+                "value": 48
+              },
+              {
+                "source": "psyche",
+                "label": "Voices -71 × 100%",
+                "value": -71
+              },
+              {
+                "source": "psyche",
+                "label": "Impulse (±100)",
+                "value": 25
+              }
+            ],
+            "total": 2,
+            "outcome": "rejected",
+            "note": "+259 Weary: a bed would be welcome; −330 Diligence: not sleep; R +97 Relieves Rest"
+          },
+          {
+            "kind": "choice",
+            "label": "Keep house",
+            "subjects": [
+              30
+            ],
+            "knowledge": "self",
+            "terms": [
+              {
+                "source": "psyche",
+                "label": "Reality 100 × Self-Command 50%",
+                "value": 50
+              },
+              {
+                "source": "psyche",
+                "label": "Voices -1030 × 100%",
+                "value": -1030
+              },
+              {
+                "source": "psyche",
+                "label": "Impulse (±100)",
+                "value": 71
+              }
+            ],
+            "total": -909,
+            "outcome": "rejected",
+            "note": "+220 Daily round: Keep house; −600 Veneration: not keep house; −650 the Lord's Day: not keep house; R +100 The hour for it"
+          }
+        ],
+        "note": "A command holds the hour: the voices are heard, and overruled."
+      }
+    },
+    "recentDefenses": [],
+    "persona": null,
+    "shadow": [],
+    "anxietyBand": "Uneasy",
+    "anxietyPools": {
+      "real": 36,
+      "neur": 78,
+      "moral": 121
+    },
+    "verdict": {
+      "label": "Resolved: Ask about the news",
+      "mode": "command"
+    },
+    "presentedTraits": [],
+    "insight": 0
+  },
+  "social": {
+    "opinions": [
+      {
+        "targetId": 3,
+        "targetName": "Patrick Sheehan",
+        "affection": 2,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 540,
+            "weight": 370
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 40,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 4,
+        "targetName": "Honora Sheehan",
+        "affection": 17,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 360,
+            "weight": 370
+          },
+          {
+            "label": "Saw Honora Sheehan help Timothy Costello at The Wagon Bell Tavern",
+            "affection": 0,
+            "respect": 1,
+            "trust": 0,
+            "fear": 0,
+            "since": 420,
+            "weight": 384
+          },
+          {
+            "label": "Took time to speak with me",
+            "affection": 1,
+            "respect": 0,
+            "trust": 0,
+            "fear": 0,
+            "since": 1200,
+            "weight": 363
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 320,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 5,
+        "targetName": "Johanna Sheehan",
+        "affection": 8,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 480,
+            "weight": 370
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 120,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 19,
+        "targetName": "Richard Trevenna",
+        "affection": -4,
+        "respect": 1,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 720,
+            "weight": 370
+          },
+          {
+            "label": "Cares for my soul",
+            "affection": 0,
+            "respect": 3,
+            "trust": 0,
+            "fear": 0,
+            "since": 960,
+            "weight": 475
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 80,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 22,
+        "targetName": "Elijah Carter",
+        "affection": 3,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 780,
+            "weight": 370
+          },
+          {
+            "label": "We pray together",
+            "affection": 3,
+            "respect": 0,
+            "trust": 0,
+            "fear": 0,
+            "since": 840,
+            "weight": 405
+          },
+          {
+            "label": "We pray together",
+            "affection": 3,
+            "respect": 0,
+            "trust": 0,
+            "fear": 0,
+            "since": 840,
+            "weight": 363
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 160,
+        "owedCents": 0,
+        "owedFavors": 0
+      },
+      {
+        "targetId": 29,
+        "targetName": "Timothy Costello",
+        "affection": -5,
+        "respect": 0,
+        "trust": 0,
+        "fear": 0,
+        "label": "",
+        "reasons": [
+          {
+            "label": "Introduced themselves civilly",
+            "affection": 3,
+            "respect": 0,
+            "trust": 2,
+            "fear": 0,
+            "since": 420,
+            "weight": 370
+          }
+        ],
+        "numbersKnown": true,
+        "familiarity": 40,
+        "owedCents": 0,
+        "owedFavors": 0
+      }
+    ],
+    "memories": [
+      {
+        "id": 6,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Honora Sheehan at The Wagon Bell Tavern",
+        "at": 360,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 11,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at The Wagon Bell Tavern",
+        "at": 360,
+        "emotion": "none",
+        "intensity": 3,
+        "salience": 321,
+        "source": "witnessed"
+      },
+      {
+        "id": 29,
+        "kind": "help",
+        "summary": "Saw Honora Sheehan help Timothy Costello at The Wagon Bell Tavern",
+        "at": 420,
+        "emotion": "gratitude",
+        "intensity": 12,
+        "salience": 384,
+        "source": "overheard"
+      },
+      {
+        "id": 32,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Timothy Costello at The Wagon Bell Tavern",
+        "at": 420,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 67,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at The Wagon Bell Tavern",
+        "at": 480,
+        "emotion": "none",
+        "intensity": 3,
+        "salience": 321,
+        "source": "witnessed"
+      },
+      {
+        "id": 73,
+        "kind": "gossip",
+        "summary": "Heard Patrick Sheehan telling Honora Sheehan the news at The Wagon Bell Tavern",
+        "at": 480,
+        "emotion": "none",
+        "intensity": 6,
+        "salience": 342,
+        "source": "overheard"
+      },
+      {
+        "id": 74,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at The Wagon Bell Tavern",
+        "at": 480,
+        "emotion": "none",
+        "intensity": 5,
+        "salience": 335,
+        "source": "witnessed"
+      },
+      {
+        "id": 76,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Johanna Sheehan at The Wagon Bell Tavern",
+        "at": 480,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 106,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Patrick Sheehan at The Wagon Bell Tavern",
+        "at": 540,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 193,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at Ridge Lutheran Church",
+        "at": 600,
+        "emotion": "none",
+        "intensity": 5,
+        "salience": 335,
+        "source": "witnessed"
+      },
+      {
+        "id": 195,
+        "kind": "chat",
+        "summary": "Passed the time with Johanna Sheehan at Ridge Lutheran Church",
+        "at": 600,
+        "emotion": "none",
+        "intensity": 5,
+        "salience": 335,
+        "source": "witnessed"
+      },
+      {
+        "id": 343,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Richard Trevenna at Ridge Lutheran Church",
+        "at": 720,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 363,
+        "kind": "introduction",
+        "summary": "Made the acquaintance of Elijah Carter at Ridge Lutheran Church",
+        "at": 780,
+        "emotion": "none",
+        "intensity": 10,
+        "salience": 370,
+        "source": "witnessed"
+      },
+      {
+        "id": 380,
+        "kind": "chat",
+        "summary": "Passed the time with Elijah Carter at Ridge Lutheran Church",
+        "at": 840,
+        "emotion": "none",
+        "intensity": 3,
+        "salience": 321,
+        "source": "witnessed"
+      },
+      {
+        "id": 402,
+        "kind": "prayer",
+        "summary": "Prayed with Elijah Carter",
+        "at": 840,
+        "emotion": "awe",
+        "intensity": 15,
+        "salience": 405,
+        "source": "witnessed"
+      },
+      {
+        "id": 405,
+        "kind": "prayer",
+        "summary": "Prayed with Elijah Carter",
+        "at": 840,
+        "emotion": "awe",
+        "intensity": 9,
+        "salience": 363,
+        "source": "witnessed"
+      },
+      {
+        "id": 472,
+        "kind": "sermon",
+        "summary": "Richard Trevenna spoke to me of my soul at Ridge Lutheran Church",
+        "at": 960,
+        "emotion": "awe",
+        "intensity": 25,
+        "salience": 475,
+        "source": "witnessed"
+      },
+      {
+        "id": 511,
+        "kind": "chat",
+        "summary": "Passed the time with Johanna Sheehan at The Wagon Bell Tavern",
+        "at": 1080,
+        "emotion": "none",
+        "intensity": 5,
+        "salience": 335,
+        "source": "witnessed"
+      },
+      {
+        "id": 516,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at The Wagon Bell Tavern",
+        "at": 1080,
+        "emotion": "none",
+        "intensity": 3,
+        "salience": 321,
+        "source": "witnessed"
+      },
+      {
+        "id": 542,
+        "kind": "gossip",
+        "summary": "Asked Honora Sheehan for the news at The Wagon Bell Tavern",
+        "at": 1200,
+        "emotion": "none",
+        "intensity": 9,
+        "salience": 363,
+        "source": "witnessed"
+      },
+      {
+        "id": 550,
+        "kind": "gossip",
+        "summary": "Heard Patrick Sheehan telling Timothy Costello the news at The Wagon Bell Tavern",
+        "at": 1200,
+        "emotion": "none",
+        "intensity": 6,
+        "salience": 342,
+        "source": "overheard"
+      },
+      {
+        "id": 557,
+        "kind": "chat",
+        "summary": "Passed the time with Honora Sheehan at The Wagon Bell Tavern",
+        "at": 1200,
+        "emotion": "none",
+        "intensity": 3,
+        "salience": 321,
+        "source": "witnessed"
+      }
+    ],
+    "relationships": []
+  },
+  "belief": {
+    "beliefs": [],
+    "grudges": []
+  },
+  "inventory": {
+    "carried": [
+      {
+        "id": 130,
+        "defId": "knapsack_army",
+        "name": "Knapsack, painted canvas, army pattern",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 1361,
+        "bulkTenths": 20,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "packs_bedding",
+        "servingsLeftPm": null,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 131,
+        "defId": "blanket_wool_3pt",
+        "name": "Blanket, wool, 3-point",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 2268,
+        "bulkTenths": 80,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "packs_bedding",
+        "servingsLeftPm": null,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 132,
+        "defId": "camp_kettle_pair",
+        "name": "Camp kettle, nesting pair",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 5080,
+        "bulkTenths": 40,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "cookery",
+        "servingsLeftPm": null,
+        "waterMl": 3719,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 133,
+        "defId": "canteen_tin_wool",
+        "name": "Canteen, tin, wool-covered, 2 qt",
+        "qty": 1,
+        "unit": "each",
+        "weightG": 2354,
+        "bulkTenths": 30,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "cookery",
+        "servingsLeftPm": null,
+        "waterMl": 1900,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 134,
+        "defId": "firewood_armload",
+        "name": "Armload of firewood",
+        "qty": 2,
+        "unit": "armload",
+        "weightG": 18144,
+        "bulkTenths": 400,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": null,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": false,
+        "section": "fire_light",
+        "servingsLeftPm": null,
+        "waterMl": 0,
+        "supplyUnitsLeft": 120,
+        "lit": false
+      },
+      {
+        "id": 135,
+        "defId": "hardtack",
+        "name": "Hardtack (ship's biscuit)",
+        "qty": 4,
+        "unit": "lb",
+        "weightG": 1816,
+        "bulkTenths": 40,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": 1,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": true,
+        "section": "provisions",
+        "servingsLeftPm": 11676,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 136,
+        "defId": "pemmican",
+        "name": "Pemmican",
+        "qty": 3,
+        "unit": "lb",
+        "weightG": 1362,
+        "bulkTenths": 15,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": 0,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": true,
+        "section": "provisions",
+        "servingsLeftPm": 9000,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      },
+      {
+        "id": 137,
+        "defId": "dried_apples",
+        "name": "Dried apples",
+        "qty": 2,
+        "unit": "lb",
+        "weightG": 908,
+        "bulkTenths": 20,
+        "condition": 100,
+        "wetness": 0,
+        "spoilage": 2,
+        "depth": 0,
+        "containerId": null,
+        "worn": false,
+        "isFood": true,
+        "section": "provisions",
+        "servingsLeftPm": 10808,
+        "waterMl": 0,
+        "supplyUnitsLeft": null,
+        "lit": false
+      }
+    ],
+    "totalWeightG": 33293,
+    "totalBulkTenths": 645,
+    "loadBand": "Medium"
+  },
+  "provisions": {
+    "purseCents": 4955,
+    "nutrition": {
+      "kcalToday": 1020,
+      "kcalAvg": 0,
+      "proteinAvgG": 0,
+      "freshAvg": 0,
+      "scurvy": 0,
+      "monotony": 0,
+      "lastMealAt": 1140
+    },
+    "readiness": {
+      "kcalOnHand": 16203,
+      "kcalPerDay": 1980,
+      "daysOfFoodTenths": 67,
+      "daysOfFuelTenths": 20,
+      "spoilsFirst": {
+        "defId": "dried_apples",
+        "name": "Dried apples",
+        "inDaysTenths": 5388
+      },
+      "unpreparable": [],
+      "warnings": []
+    }
+  }
+}
+1855-04-01 21:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55. 38°F, dry.
+Food 6.7 days; Medium, 33.3 kg.
+Vitals: Drink 764; Hunger 549 (Peckish); Rest 406; Thirst 640; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Daily round: Keep house
+Self-Command: Resolved: Ask about the news
+[1559] Chat ▸ Patrick Sheehan: success
+[1560] Chat ▸ Honora Sheehan: success — explain 1560
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> talk:flirt:4
+The requested conversation did not take place: the other person may have left or be unavailable.
+Stopped: social.interaction
+1855-04-01 22:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55. 36°F, dry.
+Food 6.6 days; Medium, 33.3 kg.
+Vitals: Drink 762; Hunger 520 (Peckish); Rest 367; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Remember the Sabbath day, to keep it holy.
+Self-Command: Resolved: Flirt
+Heard: Timothy Costello is of the hidden folk
+[1587] social.memory_formed
+[1588] Chat ▸ Patrick Sheehan: success — explain 1588
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> explain 1587
+That explanation is not known to your character
+1855-04-01 22:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55. 36°F, dry.
+Food 6.6 days; Medium, 33.3 kg.
+Vitals: Drink 762; Hunger 520 (Peckish); Rest 367; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Remember the Sabbath day, to keep it holy.
+Self-Command: Resolved: Flirt
+Heard: Timothy Costello is of the hidden folk
+[1587] social.memory_formed
+[1588] Chat ▸ Patrick Sheehan: success — explain 1588
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> inspect Honora Sheehan
+{
+  "id": 4,
+  "name": "Honora Sheehan",
+  "people": "Human",
+  "activity": "sleeping"
+}
+1855-04-01 22:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55. 36°F, dry.
+Food 6.6 days; Medium, 33.3 kg.
+Vitals: Drink 762; Hunger 520 (Peckish); Rest 367; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Remember the Sabbath day, to keep it holy.
+Self-Command: Resolved: Flirt
+Heard: Timothy Costello is of the hidden folk
+[1587] social.memory_formed
+[1588] Chat ▸ Patrick Sheehan: success — explain 1588
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> inspect Timothy Costello
+{
+  "id": 29,
+  "name": "Timothy Costello",
+  "people": "Human",
+  "activity": "sleeping"
+}
+1855-04-01 22:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55. 36°F, dry.
+Food 6.6 days; Medium, 33.3 kg.
+Vitals: Drink 762; Hunger 520 (Peckish); Rest 367; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: Remember the Sabbath day, to keep it holy.
+Self-Command: Resolved: Flirt
+Heard: Timothy Costello is of the hidden folk
+[1587] social.memory_formed
+[1588] Chat ▸ Patrick Sheehan: success — explain 1588
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> sleep
+1855-04-01 23:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — sleeping. Purse $49.30. 34°F, dry.
+Food 6.6 days; Medium, 33.3 kg.
+Vitals: Drink 760; Hunger 491 (Peckish); Rest 328; Thirst 944; Warmth 1000
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Weary: a bed would be welcome
+Conscience: On the Lord's day? Let Keep house wait till Monday.
+Self-Command: Resolved: Sleep
+Heard: Timothy Costello is of the hidden folk
+[1592] Tavern bed: $0.25 — explain 1592
+[1593] activity.started — explain 1593
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 77; “actions 1” for full menu pages; “help” for verbs.
+> wait until 07:00
+Stopped: social.interaction
+1855-04-02 07:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at table. Purse $49.10. 33°F, dry.
+Food 6.5 days; Medium, 33.3 kg.
+Vitals: Drink 758; Hunger 627; Rest 961; Thirst 692; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Hungry: eat something
+Conscience: The fire wants minding
+Heard: Timothy Costello is of the hidden folk
+[1900] needs.fed — explain 1900
+[1901] Tavern meal: $0.20 — explain 1901
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> talk:deep_talk:29
+Stopped: needs.band_changed; social.interaction
+[2059] Talk long ▸ Timothy Costello: success
+Resolved: Deep talk: 1030 (Reality 50 × Self-Command 50%, Voices 1000 × 100%, Impulse (±100)) -> command
+1855-04-02 08:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.10. 36°F, dry.
+Food 6.5 days; Medium, 33.3 kg.
+Vitals: Drink 756; Hunger 598 (Peckish); Rest 922; Thirst 636; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Hungry: eat from the larder or pack
+Conscience: The table is laid
+Self-Command: Resolved: Deep talk
+Heard: Timothy Costello is of the hidden folk
+[2062] Lend a hand ▸ Honora Sheehan: success
+[2063] Chat ▸ Honora Sheehan: success — explain 2063
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.
+> talk:flirt:4
+The requested conversation did not take place: the other person may have left or be unavailable.
+Stopped: social.interaction; social.interaction; social.interaction
+1855-04-02 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.10. 39°F, dry.
+Food 6.4 days; Medium, 33.3 kg.
+Vitals: Drink 754; Hunger 569 (Peckish); Rest 883; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Hungry: eat from the larder or pack
+Conscience: The table is laid
+Self-Command: Resolved: Flirt
+Heard: Timothy Costello is of the hidden folk
+[2125] Chat ▸ Ellis Wayfarer: success
+[2126] Comfort ▸ Ellis Wayfarer: failure — explain 2126
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Honora Sheehan [talk:chat:4]
+13. Chat: Johanna Sheehan [talk:chat:5]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 238; “actions 1” for full menu pages; “help” for verbs.
+> explain 2126
+Comfort: Timothy Costello → Ellis Wayfarer: 5 (d20 5, Charisma +0) vs DC 11 -> failure
+1855-04-02 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.10. 39°F, dry.
+Food 6.4 days; Medium, 33.3 kg.
+Vitals: Drink 754; Hunger 569 (Peckish); Rest 883; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Hungry: eat from the larder or pack
+Conscience: The table is laid
+Self-Command: Resolved: Flirt
+Heard: Timothy Costello is of the hidden folk
+[2125] Chat ▸ Ellis Wayfarer: success
+[2126] Comfort ▸ Ellis Wayfarer: failure — explain 2126
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Honora Sheehan [talk:chat:4]
+13. Chat: Johanna Sheehan [talk:chat:5]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 238; “actions 1” for full menu pages; “help” for verbs.
+> inspect Honora Sheehan
+{
+  "id": 4,
+  "name": "Honora Sheehan",
+  "people": "Human",
+  "activity": "working"
+}
+1855-04-02 09:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.10. 39°F, dry.
+Food 6.4 days; Medium, 33.3 kg.
+Vitals: Drink 754; Hunger 569 (Peckish); Rest 883; Thirst 1000; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Appetite: Hungry: eat from the larder or pack
+Conscience: The table is laid
+Self-Command: Resolved: Flirt
+Heard: Timothy Costello is of the hidden folk
+[2125] Chat ▸ Ellis Wayfarer: success
+[2126] Comfort ▸ Ellis Wayfarer: failure — explain 2126
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Honora Sheehan [talk:chat:4]
+13. Chat: Johanna Sheehan [talk:chat:5]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 238; “actions 1” for full menu pages; “help” for verbs.
+> talk:flirt:5
+The requested conversation did not take place: the other person may have left or be unavailable.
+Stopped: social.interaction; social.interaction
+1855-04-02 10:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.10. 42°F, dry.
+Food 6.4 days; Medium, 33.3 kg.
+Vitals: Drink 752; Hunger 540 (Peckish); Rest 844; Thirst 944; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Daily round: Work
+Self-Command: Resolved: Flirt
+Heard: Timothy Costello is of the hidden folk
+[2170] Chat ▸ Ellis Wayfarer: success
+[2171] Chat ▸ Honora Sheehan: success — explain 2171
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Honora Sheehan [talk:chat:4]
+13. Chat: Johanna Sheehan [talk:chat:5]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 238; “actions 1” for full menu pages; “help” for verbs.
+> talk:flirt:29
+Stopped: social.interaction
+[2215] Flirt ▸ Timothy Costello: success
+Flirt: Ellis Wayfarer → Timothy Costello: 16 (d20 15, Charisma +1) vs DC 13 -> success
+1855-04-02 11:00 | FAIR | The Wagon Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.10. 45°F, dry.
+Food 6.3 days; Medium, 33.3 kg.
+Vitals: Drink 750; Hunger 511 (Peckish); Rest 805; Thirst 888; Warmth 1000
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Here: Patrick Sheehan (#3), Honora Sheehan (#4), Johanna Sheehan (#5), Timothy Costello (#29).
+Conscience: Daily round: Work
+Self-Command: Resolved: Flirt
+Heard: Timothy Costello is of the hidden folk
+[2218] Chat ▸ Honora Sheehan: success
+[2219] Chat ▸ Honora Sheehan: success — explain 2219
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:3]
+10. Go to Crane General Store and Outfitter [go:14]
+11. Go to Strauss Ford Smithy [go:17]
+12. Chat: Patrick Sheehan [talk:chat:3]
+13. Chat: Honora Sheehan [talk:chat:4]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:135:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:135:soak]
+Actions 271; “actions 1” for full menu pages; “help” for verbs.

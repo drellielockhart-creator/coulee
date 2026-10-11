@@ -1,0 +1,15 @@
+# notes
+- cmd1-10: help/plan/journal/look; chat & introduce w/ Amos x3 all fail "conversation did not take place: other person may have left or be unavailable" though listed Here; each burned 1 hour and I'm "at home, at leisure" (at tavern). Conscience: "It is late; the day starts early" at 01:00.
+- journal opening entry says "I am going to the store with my pride in my pocket" - nice voice.
+- `inspect <place>` by name returns only id/name/kind JSON - thin.
+- 'explain' output is terse formula text.
+- cmd~22: purse 49.75 -> 41.93 during 06:00-07:00 sleep w/ no visible explanation (-$7.82). Character autonomously walked back to tavern, paid bed $0.25, slept. Talk fails at night.
+- look never describes place (just status + menu); inspect person = id/name/activity only; chat result is only 'success' w/ no text. Menu is stale: targets leave each hour so talk fails ('did not take place') but still costs 1h. Church crowd rotates hourly.
+- cmd~45: day1 toured 14 places, every move = exactly 1h regardless of distance; menu only lists ~4 go targets but typed 'go <name>' works for all. NPCs awake at 3am at farms.
+- cmd~52: Work at tavern: purse drifts DOWN (41.68->41.28 over ~9h 'working'), no wage shown. Character autonomously works/sleeps/eats ('Daily round: Work'). journal logs NPC kindnesses, good flavor. 'inspect <self>' dumps 40KB JSON. explain on unseen event ids errors exit 2.
+- cmd~63: chat to sleeping tavern folk at 3am: 'may have left or be unavailable' misleading (they're listed Here, asleep); costs 1h each. buy tea $0.60, 2 salt_pork $0.24 total (cheap; buy menu lists ids without prices). 'Preach > Ellis Wayfarer' event: someone preached at me.
+- cmd~72 day4: loop is work@tavern/eat/sleep; autonomy means waits just replay routine. Social interrupts ~every 3-5h; many are NPC-NPC. explain on skill checks shows d20+Cha+Persuade vs DC (good). Moon full 3 nights, no fae yet.
+- cmd~80: menu 'Go to' lists only 4-5 nearby; 'actions 1..3' paging only shows Inspect for places; places incl West/East Bluff, River Bottoms, Hasp Creek, Lantern Spring, Upper/Lower Lantern Coulee, The Cold Stair, Huldra's Shelf, River Road, Main Street, Ridge Road, Mill Dam, Village Green, Haugen's Grist Mill/House. Fuel dwindling (0.4d); no firewood buy at Wood-yard menu.
+- cmd~86: firewood 2 armloads gone by day4 (hearth burn auto); load 33.9->14.2kg over day 4 with no message of what vanished (firewood? water? check) -> plan says 'no cooking fuel required', 'Some food cannot be prepared'. Tobias Vik is an Elf at Lantern Spring; Flirt event happened w/o my asking.
+- cmd~93 day5: 'sleep' from a far wild place auto-walks to tavern bed (1h) & sleeps - fine. wild places (Huldra's Shelf, Cold Stair) are empty, inspect gives only kind:wild; zero fae content so far after 4 days.
+- cmd~111 day6: 'waiting on the mail' activity at Pratt's; character bought 12 flour $0.60 autonomously. Interrupts: a 24h wait returns after 2-14h (avg ~6h) mostly NPC chat noise. All 37 places visited by cmd ~101.
