@@ -59,7 +59,13 @@ export interface DefenseCandidate {
   weight: number;
   pool: Pool;
   why: string;
+  /** Uses of the same defense in the last 48 h (10 §7.3 damping: ×70% each). */
+  recentUses: number;
 }
+
+/** 10 §7.3: a defense used again within this window scores ×DAMP_PCT per use. */
+export const DAMP_WINDOW_MIN = 48 * 60;
+export const DAMP_PCT = 70;
 
 const poolFitOf = (charge: number): number => (charge >= 300 ? 3 : charge >= 150 ? 2 : charge >= 50 ? 1 : 0);
 
@@ -77,7 +83,8 @@ export function egoGate(def: DefenseDef, insight: number): number {
 
 export function defenseCandidates(
   content: ContentBundle,
-  p: Pick<ActorPsyche, 'anxSrc' | 'ego' | 'superego' | 'defenseStyle' | 'insight' | 'lastTransgression'>,
+  p: Pick<ActorPsyche, 'anxSrc' | 'ego' | 'superego' | 'defenseStyle' | 'insight' | 'lastTransgression'> &
+    Partial<Pick<ActorPsyche, 'recentDefenses'>>,
   sit: DefenseSituation,
 ): DefenseCandidate[] {
   const out: DefenseCandidate[] = [];
@@ -146,9 +153,14 @@ export function defenseCandidates(
     if (!ok) continue;
     const fit = Math.min(3, poolFit + bonus);
     const style = Math.max(0, p.defenseStyle[id] ?? 10);
-    const weight = style * fit;
+    let weight = style * fit;
+    // 10 §7.3: the same defense again within 48 h works less well (pushes toward the others,
+    // projection and rationalization among them, the ones that write beliefs and reasons).
+    let recentUses = 0;
+    for (const r of p.recentDefenses ?? []) if (r.defense === id && sit.now - r.at < DAMP_WINDOW_MIN) recentUses++;
+    for (let k = 0; k < recentUses; k++) weight = Math.floor((weight * DAMP_PCT) / 100);
     if (weight <= 0) continue;
-    out.push({ def, id, poolFit, fit, style, weight, pool, why });
+    out.push({ def, id, poolFit, fit, style, weight, pool, why, recentUses });
   }
   return out;
 }
@@ -166,7 +178,16 @@ export function candidateExplains(actorId: ActorId, cands: readonly DefenseCandi
     knowledge: 'omniscient',
     terms: [
       { source: 'psyche', label: `Style ${c.style}`, value: c.style },
-      { source: 'psyche', label: `× fit ${c.fit} (${c.why})`, value: c.weight - c.style },
+      { source: 'psyche', label: `× fit ${c.fit} (${c.why})`, value: c.style * c.fit - c.style },
+      ...(c.recentUses > 0
+        ? [
+            {
+              source: 'psyche',
+              label: `Used ${c.recentUses}× in 48 h (×${DAMP_PCT}% each)`,
+              value: c.weight - c.style * c.fit,
+            },
+          ]
+        : []),
     ],
     total: c.weight,
     outcome: c.id === pickedId ? 'chosen' : 'rejected',

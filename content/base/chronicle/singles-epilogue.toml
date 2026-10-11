@@ -14,6 +14,25 @@ text = [
 ]
 
 [[template]]
+id = "epi_harm_household"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = "harm", household = true, success = true }
+text = [
+  "Behind the door of the {family} house, {actor_short} {act} {target_short} {when}. The household heard it; the street did not.",
+  "In the {family} house {actor_short} {act} {target_short}{_at}, and the rest of the house found somewhere else to look. Families keep their own accounts.",
+]
+
+[[template]]
+id = "epi_harm_household_failed"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = "harm", household = true, success = false }
+text = [
+  "Behind the door of the {family} house, {actor_short} tried it on with {target_short}: {act_noun}. It came to nothing, and the house went on with supper.",
+]
+
+[[template]]
 id = "epi_harm_failed"
 on = "social.interaction"
 voice = "epilogue"
@@ -173,7 +192,18 @@ on = "psyche.defense"
 voice = "epilogue"
 when = { defense = "displacement", aimed = true }
 text = [
-  "The anger was meant for someone larger. {^target_short} was the one at hand. {^actor_short} was short with {target_short} for no reason that either of them could have given.",
+  "{^actor_short}'s anger was meant for someone larger, and it settled on {target_short}. Nothing was said, yet.",
+  "The anger was meant for someone larger. In {actor_short}'s mind it had found {target_short} instead, who had done nothing at all to earn it.",
+]
+
+[[template]]
+id = "epi_displaced_act"
+on = "social.interaction"
+voice = "epilogue"
+when = { via_defense = "displacement", cls = "harm", success = true }
+text = [
+  "The anger was meant for someone larger. {^target_short} was the one at hand, and {actor_short} {act} {target_short} for no reason that either of them could have given.",
+  "{^actor_short} {act} {target_short}. It had nothing to do with {target_short}; the true quarrel was with someone {actor_short} could not afford to cross.",
 ]
 
 [[template]]
@@ -244,7 +274,34 @@ on = "provisions.nutrition"
 voice = "epilogue"
 when = { on = true }
 text = [
+  "{^actor_short} took ill of {condition_name}. The cause was on the table, so to speak: salt meat, meal, and nothing green.",
+]
+
+[[template]]
+id = "epi_nutrition_on_winter"
+on = "provisions.nutrition"
+voice = "epilogue"
+when = { on = true, season = ["winter", "spring"], confined = false }
+text = [
   "{^actor_short} took ill of {condition_name} in the thin season. The cause was on the table, so to speak: a winter of salt pork, meal, and nothing green.",
+]
+
+[[template]]
+id = "epi_nutrition_on_summer"
+on = "provisions.nutrition"
+voice = "epilogue"
+when = { on = true, season = ["summer", "autumn"], confined = false }
+text = [
+  "{^actor_short} took ill of {condition_name} with the gardens full all round. It was not what grew that was wanting, but what reached {his} plate.",
+]
+
+[[template]]
+id = "epi_nutrition_on_confined"
+on = "provisions.nutrition"
+voice = "epilogue"
+when = { on = true, confined = true }
+text = [
+  "{^actor_short}, held where no neighbor could reach, took ill of {condition_name}. Whatever was set before {him} there, it was not enough to live on.",
 ]
 
 [[template]]
@@ -254,4 +311,41 @@ voice = "epilogue"
 when = { severity = "severe" }
 text = [
   "{^actor_short} went to bed {band}, and said nothing of it. A person can bear a good deal on the quiet.",
+]
+
+[[template]]
+id = "epi_rupture"
+on = "social.rupture"
+voice = "epilogue"
+text = [
+  "{^actor_short} and {target_short} stopped speaking. It was not one fight but the fourth that did it; after that, silence was simply cheaper.",
+]
+
+[[template]]
+id = "epi_reconciled_time"
+on = "social.reconciled"
+voice = "epilogue"
+when = { mediated = false }
+text = [
+  "{^actor_short} and {target_short} began speaking again, about the weather first. Neither apologized. The silence had simply worn out before they did.",
+]
+
+[[template]]
+id = "epi_reconciled_mediated"
+on = "social.reconciled"
+voice = "epilogue"
+when = { mediated = true }
+text = [
+  "{^mediator_short} sat between {actor_short} and {target_short} until they were talking again. It was not wisdom; it was patience, and being fond of them both.",
+]
+
+[[template]]
+id = "epi_nutrition_on_hunger"
+on = "provisions.nutrition"
+voice = "epilogue"
+# Want of food is not a want of greens: it outranks the seasonal scurvy lines (more `when` keys).
+when = { on = true, condition = "malnourished", confined = false, season = ["spring", "summer", "autumn", "winter"] }
+text = [
+  "{^actor_short} went short at table long enough that it began to show: {condition_name}. {^he} ate last and least, and told nobody, and the household told nobody either.",
+  "{^actor_short} took ill of {condition_name}. Not a sickness: arithmetic. The barrel had been divided too many ways for too many weeks.",
 ]

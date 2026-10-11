@@ -15,8 +15,51 @@ voice = "paper"
 when = { level_word = "close", count = 0 }
 headline = "Short Commons"
 text = [
+  "#paper_grieve# that {families} have been on short allowance for {span}. The cellar has no sympathy, whatever the season.",
+  "{^families} are reported to be living close, with #lean_pantry#. Neighbors who can spare are reminded of it.",
+]
+
+[[template]]
+id = "shortage_paper_close_spring"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = 0, season = "spring" }
+headline = "Short Commons"
+text = [
   "#paper_grieve# that {families} have been on short allowance for {span}. Spring is the hungriest season, and the cellar has no sympathy.",
   "{^families} are reported to be living close, with #lean_pantry# and no relief expected before the first greens. Neighbors who can spare are reminded of it.",
+]
+
+[[template]]
+id = "shortage_paper_close_summer"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = 0, season = "summer" }
+headline = "The Hungry Gap"
+text = [
+  "#paper_grieve# that {families} have been on short allowance for {span}: the hungry gap before harvest, when last year's barrel is done and this year's grain still stands in the field.",
+  "{^families} are reported to be living close until the harvest comes in. The garden is green and the barrel is empty, which is a summer's particular cruelty.",
+]
+
+[[template]]
+id = "shortage_paper_close_autumn"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = 0, season = "autumn" }
+headline = "Short Commons"
+text = [
+  "#paper_grieve# that {families} have been on short allowance for {span}, with the harvest in and the barrel still not full. It is a poor omen for the winter.",
+]
+
+[[template]]
+id = "shortage_paper_close_winter"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = 0, season = "winter" }
+headline = "Short Commons"
+text = [
+  "#paper_grieve# that {families} have been on short allowance for {span}, in the long winter, with the roads drifted and the store's shelves thin.",
+  "{^families} are reported to be living close, with #lean_pantry# and the snow between them and anything better until the thaw.",
 ]
 
 [[template]]
@@ -26,7 +69,27 @@ voice = "paper"
 when = { level_word = "close", count = 0, detail = true }
 headline = "Short Commons"
 text = [
+  "#paper_grieve# that {families} have been on short allowance for {span}, the ration cut to {ration_pct} in the hundred. The cellar has no sympathy.",
+]
+
+[[template]]
+id = "shortage_paper_close_detail_spring"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = 0, detail = true, season = "spring" }
+headline = "Short Commons"
+text = [
   "#paper_grieve# that {families} have been on short allowance for {span}, the ration cut to {ration_pct} in the hundred. Spring is the hungriest season, and the cellar has no sympathy.",
+]
+
+[[template]]
+id = "shortage_paper_close_detail_winter"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = 0, detail = true, season = "winter" }
+headline = "Short Commons"
+text = [
+  "#paper_grieve# that {families} have been on short allowance for {span}, the ration cut to {ration_pct} in the hundred, and the winter not half done.",
 ]
 
 [[template]]
@@ -34,10 +97,40 @@ id = "shortage_paper_close_many"
 on = "shortage"
 voice = "paper"
 when = { level_word = "close", count = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17] }
+headline = "Short Commons"
+text = [
+  "Short commons are the common lot on the ford this week. {^families} with the rest, and {count_word} other houses besides.",
+]
+
+[[template]]
+id = "shortage_paper_close_many_spring"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], season = "spring" }
 headline = "The Thin Spring"
 text = [
   "{^families} are not alone: {count_word} other households are reported short of provisions, and the spring has hardly begun. It will be called the spring of the thin barrel by those who live to name it.",
   "Short commons are the common lot on the ford this week. {^families} with the rest, and {count_word} other houses besides.",
+]
+
+[[template]]
+id = "shortage_paper_close_many_summer"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], season = "summer" }
+headline = "The Hungry Gap"
+text = [
+  "{^families} are not alone: {count_word} other households are reported short of provisions in the hungry gap before harvest. The wheat is heading; the barrels are not waiting for it.",
+]
+
+[[template]]
+id = "shortage_paper_close_many_winter"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], season = "winter" }
+headline = "The Long Winter"
+text = [
+  "{^families} are not alone: {count_word} other households are reported short of provisions, and the winter has a long way to run. It will be called the hungry winter by those who live to name it.",
 ]
 
 [[template]]
@@ -79,7 +172,7 @@ voice = "paper"
 when = { level_word = ["hard", "long"], gravity = "sick" }
 headline = "Sickness in the House"
 text = [
-  "{^families} are laid low, we hear, with {condition_name}, the sort that comes of a winter on salt pork and meal. A bit of fresh green would do what the doctor cannot.",
+  "{^families} are laid low, we hear, with {condition_name}, the sort that comes of too long on salt meat and meal. A bit of fresh green would do what the doctor cannot.",
 ]
 
 [[template]]
@@ -89,7 +182,39 @@ voice = "paper"
 headline = "Through the Worst"
 text = [
   "#paper_pleased# that {families} are through the worst of it. The ration is restored and the barrel, if not full, is no longer the subject of prayer.",
-  "The thin spring of {families} is over; they held. The first ramps came, and the pig was a blessing, and nobody was buried who might not have been.",
+  "The lean time of {families} is over; they held, and nobody was buried who might not have been.",
+]
+
+[[template]]
+id = "shortage_closed_paper_spring"
+on = "shortage.closed"
+voice = "paper"
+when = { season = "spring" }
+headline = "Through the Worst"
+text = [
+  "#paper_pleased# that {families} are through the worst of it. The ration is restored and the barrel, if not full, is no longer the subject of prayer.",
+  "The thin spring of {families} is over; they held. The first greens came, and nobody was buried who might not have been.",
+]
+
+[[template]]
+id = "shortage_closed_paper_summer"
+on = "shortage.closed"
+voice = "paper"
+when = { season = ["summer", "autumn"] }
+headline = "Through the Worst"
+text = [
+  "#paper_pleased# that {families} are through the worst of it. The new grain has done what the old could not.",
+  "The hungry gap is closed for {families}; they held. The ration is restored, and the store's book is being paid down a little at a time.",
+]
+
+[[template]]
+id = "shortage_closed_paper_winter"
+on = "shortage.closed"
+voice = "paper"
+when = { season = "winter" }
+headline = "Through the Worst"
+text = [
+  "#paper_pleased# that {families} are through the worst of it. The winter is not over, but the barrel is no longer the subject of prayer.",
 ]
 
 [[template]]
@@ -149,7 +274,7 @@ voice = "journal"
 tone = "ambition"
 when = { level_word = ["hard", "long"] }
 text = [
-  "I am not meant to be a person who counts meal. I intend, when this spring is over, to be a person who does not need to. Entered here as a vow.",
+  "I am not meant to be a person who counts meal. I intend, when this is over, to be a person who does not need to. Entered here as a vow.",
 ]
 
 [[template]]
@@ -158,13 +283,22 @@ on = "shortage"
 voice = "journal"
 when = { gravity = "sick" }
 text = [
-  "{^condition_name} in the house. A winter on salt pork and meal; the body keeps its own books.",
+  "{^condition_name} in the house. Too long on salt meat and meal; the body keeps its own books.",
 ]
 
 [[template]]
 id = "shortage_closed_journal"
 on = "shortage.closed"
 voice = "journal"
+text = [
+  "We are through. The ration is restored, and I have stopped counting the barrel. I am not sure I shall ever stop counting the barrel.",
+]
+
+[[template]]
+id = "shortage_closed_journal_spring"
+on = "shortage.closed"
+voice = "journal"
+when = { season = "spring" }
 text = [
   "We are through. The ration is restored, the first greens are up, and I have stopped counting the barrel. I am not sure I shall ever stop counting the barrel.",
 ]
@@ -175,8 +309,26 @@ on = "shortage"
 voice = "ballad"
 when = { level_word = "long" }
 text = [
+  "In the hungry year, #ballad_place#,\nThe barrel was thin and the cellar was bare;\n{^families} counted the last of the meal\nAnd sang to the river a hungry air.",
+]
+
+[[template]]
+id = "shortage_ballad_spring"
+on = "shortage"
+voice = "ballad"
+when = { level_word = "long", season = "spring" }
+text = [
   "In the spring of fifty-five, #ballad_place#,\nThe barrel was thin and the cellar was bare;\n{^families} counted the last of the meal\nAnd sang to the river a hungry air.",
-  "#ballad_oh#, of the spring of the thin barrel,\nWhen {span} went by on a scrape of grain;\nThe ramps came up and the cow came fresh\nAnd the hungry hills were green again.",
+  "#ballad_oh#, of the spring of the thin barrel,\nWhen {span} went by on a scrape of grain;\nThe greens came up on the coulee side\nAnd the hungry hills were green again.",
+]
+
+[[template]]
+id = "shortage_ballad_winter"
+on = "shortage"
+voice = "ballad"
+when = { level_word = "long", season = "winter" }
+text = [
+  "#ballad_oh#, of the winter of the thin barrel,\nWhen the snow lay deep on the coulee floor;\n{^families} counted the last of the meal\nAnd the wind came under the door.",
 ]
 
 [[template]]
@@ -193,7 +345,7 @@ id = "shortage_closed_epilogue"
 on = "shortage.closed"
 voice = "epilogue"
 text = [
-  "The {family} house came through the thin spring on {board} and a cow that came fresh at the right moment. Nobody at the store was told how near it had been.",
+  "The {family} house came through the lean time on {board}. Nobody at the store was told how near it had been.",
 ]
 
 # =========================================================================================
@@ -219,7 +371,7 @@ when = { outcome = "ruin" }
 headline = "Reverses"
 text = [
   "#paper_grieve# that the {family} household has suffered heavy reverses; what was a comfortable house in the autumn is an anxious one now. The village's sympathy is sincere and its help is a matter for conscience.",
-  "The {family} have fallen on hard times, and fallen quickly. Creditors, we are told, are being polite. That is how one knows.",
+  "{^families} have fallen on hard times, and fallen quickly. Creditors, we are told, are being polite. That is how one knows.",
 ]
 
 [[template]]
@@ -246,7 +398,7 @@ on = "reversal"
 voice = "ballad"
 when = { outcome = "ruin" }
 text = [
-  "The {family} house was proud in the fall,\nAnd poor by the break of spring;\nO the world is a ford with a hidden stone,\nAnd the water is quick as a sling.",
+  "The {family} house was proud at the start,\nAnd poor by the turn of the year;\nO the world is a ford with a hidden stone,\nAnd the water is quick as a sling.",
 ]
 
 [[template]]
@@ -255,7 +407,7 @@ on = "reversal"
 voice = "ballad"
 when = { outcome = "rise" }
 text = [
-  "The {family} house was poor in the fall,\nAnd rich by the break of spring;\nO luck is a bird that lights where it will,\nAnd the lucky have little to sing.",
+  "The {family} house was poor at the start,\nAnd rich by the turn of the year;\nO luck is a bird that lights where it will,\nAnd the lucky have little to sing.",
 ]
 
 [[template]]
@@ -264,7 +416,7 @@ on = "reversal"
 voice = "epilogue"
 when = { outcome = "rise" }
 text = [
-  "The {family} fortune turned by {amount}, to {balance}. The village credited the household's thrift. The household credited luck, and privately, a debt cleared and a cow that calved twice.",
+  "The {family} fortune turned by {amount}, to {balance}. The village credited the household's thrift. The household credited luck, and did not inquire too closely into it.",
 ]
 
 [[template]]
@@ -344,7 +496,25 @@ voice = "epilogue"
 when = { level_word = "named" }
 text = [
   "By the time {actor_short} was named aloud, the reason had been forgotten and only the name remained. It had begun in {target_short}'s {defense_name}; no one at the meeting could have told you that, least of all {target_short}.",
+]
+
+[[template]]
+id = "scapegoat_epilogue_named_wrong"
+on = "scapegoat"
+voice = "epilogue"
+when = { level_word = "named", hidden_kin = false }
+text = [
+  "By the time {actor_short} was named aloud, the reason had been forgotten and only the name remained. It had begun in {target_short}'s {defense_name}; no one at the meeting could have told you that, least of all {target_short}.",
   "They ran the wrong person into trouble. {^actor_short} had done nothing; {target_short} had been unable to bear what lay in {target_his} own heart, and a town is a very large mirror.",
+]
+
+[[template]]
+id = "scapegoat_epilogue_named_right"
+on = "scapegoat"
+voice = "epilogue"
+when = { level_word = "named", hidden_kin = true }
+text = [
+  "The town named {actor_short}, and the town was right, though not for any reason it could have given. The talk began in {target_short}'s {defense_name}, which knew nothing and guessed true.",
 ]
 
 [[template]]
@@ -359,6 +529,7 @@ text = [
 id = "scapegoat_ballad"
 on = "scapegoat"
 voice = "ballad"
+when = { hidden_kin = false }
 text = [
   "They ran the wrong one out of the county,\nThe one who'd done no ill;\nFor the guilty heart is a restless thing\nAnd it hunts where it will.",
 ]

@@ -13,6 +13,7 @@ household = "whitcomb"
 workplace = "huldras_shelf"
 abilities = { str = 12, dex = 12, con = 13, int = 15, wis = 11, cha = 11 }
 skills = { wayfinding = 7, lore_nature = 4, persuade = 3, perception = 4, lore_law = 3 }
+traits = ["tippler"]
 values = { ambition = 2, superstition = -3, parochialism = 1, discretion = 1, thrift = 1 }
 languages = ["english"]
 psyche = { ego = 70, superego = 60, id_appetite = 35 }
@@ -236,6 +237,7 @@ household = "pascoe"
 workplace = "penhallow_diggings"
 abilities = { str = 13, dex = 13, con = 15, int = 11, wis = 12, cha = 11 }
 skills = { trade_mining = 7, athletics = 3, perception = 3, fae_courtesy = 3 }
+traits = ["tippler"]
 values = { ambition = 1, neighborliness = 2, discretion = 2, temper = 1 }
 languages = ["english", "german"]
 psyche = { ego = 55, superego = 55, id_appetite = 45 }

@@ -18,6 +18,7 @@ import {
   restoreSim,
   runHours,
   type Sim,
+  shortName,
   social,
   stateHash,
   toViewModel,
@@ -531,6 +532,30 @@ describe('pattern: betrayal', () => {
     expect(entriesOf(sim, 'betrayal')).toEqual([]);
   });
 
+  it('ignores help between people of one house: a spat between spouses is no betrayal', () => {
+    const sim = newSim();
+    const h = who(sim, 'horace_bell');
+    const m = who(sim, 'mercy_bell');
+    regard(sim, h, m, 60);
+    interaction(sim, 'help', h, m, 1000);
+    interaction(sim, 'fight', m, h, 1000 + 5 * DAY);
+    sift(sim, 1000 + 5 * DAY);
+    expect(entriesOf(sim, 'betrayal')).toEqual([]);
+  });
+
+  it('needs a grave harm between kin in other houses, and words the betrayal in the right tense', () => {
+    const sim = newSim();
+    const h = who(sim, 'horace_bell');
+    const e = who(sim, 'elias_hurd');
+    regard(sim, h, e, 45);
+    interaction(sim, 'help', h, e, 1000);
+    interaction(sim, 'fight', e, h, 1000 + 5 * DAY);
+    sift(sim, 1000 + 5 * DAY);
+    const b = entriesOf(sim, 'betrayal');
+    expect(b.length).toBeGreaterThan(0);
+    for (const x of b) expect(x.text).not.toMatch(/has (since |lately )?came/);
+  });
+
   it('does not fire when the helper never held the helped in regard', () => {
     const sim = newSim();
     const h = who(sim, 'horace_bell');
@@ -900,9 +925,12 @@ describe('pattern: rumor through town and faekin suspicion', () => {
     'karl_brenner',
   ];
 
+  // Seven outsiders: neither Horace Bell nor his wife (a rumor's subject and household are not the town).
+  const outsiders = [...crowd.filter((k) => !k.endsWith('_bell')), 'thomas_glover', 'lydia_pratt'].slice(0, 7);
+
   it('tells a mundane rumor once it is all over town, from nothing but the claim', () => {
     const sim = newSim();
-    rumor(sim, 'drinks', 'horace_bell', crowd.slice(0, 7), 1000);
+    rumor(sim, 'drinks', 'horace_bell', outsiders, 1000);
     sift(sim, 2000);
     const w = entriesOf(sim, 'whispers');
     expect(w.some((e) => e.knowledge === 'public')).toBe(true);
@@ -911,6 +939,14 @@ describe('pattern: rumor through town and faekin suspicion', () => {
     expect(pub[0]?.text).toMatch(/drinks/);
     expect(w.some((e) => e.voice === 'epilogue')).toBe(false); // the town already has the whole of it
     assertNoLeak(sim);
+  });
+
+  it('does not count the subject or their household as the town holding the claim', () => {
+    const sim = newSim();
+    // Five tellings, but two land on Horace Bell himself and his wife: three outsiders is talk, not the town.
+    rumor(sim, 'drinks', 'horace_bell', ['horace_bell', 'mercy_bell', ...outsiders.slice(0, 3)], 1000);
+    sift(sim, 2000);
+    expect(entriesOf(sim, 'whispers').some((e) => e.knowledge === 'public')).toBe(false);
   });
 
   it('does not tell a rumor only two people have heard', () => {
@@ -1236,6 +1272,8 @@ describe('content coverage', () => {
       'core.day_started',
       'social.interaction',
       'social.label_changed',
+      'social.rupture',
+      'social.reconciled',
       'belief.formed',
       'belief.grudge_formed',
       'belief.escalation',
@@ -1596,4 +1634,82 @@ describe('iron_ford seed 42', () => {
     assertNoLeak(sim);
     expect(findNonIntegers(sim.world)).toEqual([]);
   }, 240_000);
+});
+
+describe('review fixes: names, titles and households in print', () => {
+  it('a nickname that carries the family name stands alone everywhere (no "Captain Hurd Hurd")', () => {
+    const sim = newSim();
+    const hurd = sim.world.actors[who(sim, 'elias_hurd') as never];
+    if (!hurd) throw new Error('hurd');
+    expect(shortName(hurd)).toBe('Captain Hurd');
+  });
+
+  it('"Rev." only for the ordained; "Mrs." for wives, widows and mothers, never by age', () => {
+    const sim = newSim();
+    const f = (k: string) => chronicle.formalName(sim.world, content, who(sim, k));
+    expect(f('anders_tveit')).toMatch(/^Rev\./);
+    expect(f('siri_kvale')).toMatch(/^Mrs\./); // a lay preacher, and a mother
+    expect(f('hester_fenn')).toMatch(/^Miss /); // twenty-nine and unmarried
+    expect(f('gussie_pratt')).toMatch(/^Mrs\./);
+    expect(f('clara_stoughton')).toMatch(/^Miss /);
+  });
+
+  it('a household of one is not a family: "Captain Hurd\'s household", "the Kvales\'" possessive', () => {
+    const sim = newSim();
+    const hh = (k: string) => sim.world.actors[who(sim, k) as never]?.householdId as number;
+    expect(chronicle.familiesOf(sim.world, hh('elias_hurd'))).toBe("Captain Hurd's household");
+    expect(chronicle.householdForms(sim.world, hh('siri_kvale')).poss).toBe("the Kvales'");
+    expect(chronicle.householdForms(sim.world, hh('elias_hurd')).poss).toBe("Captain Hurd's");
+    expect(chronicle.householdForms(sim.world, hh('amos_whitcomb')).family).not.toMatch(/\(/);
+  });
+
+  it('rumors read in English: pronouns by sex, money as money, a trait as a description', () => {
+    const sim = newSim();
+    const bp = (pred: string, args: Parameters<typeof belief.internProp>[2]) =>
+      belief.propText(sim.world, content, belief.internProp(sim.world, pred as never, args));
+    expect(bp('loose', [{ kind: 'actor', id: who(sim, 'elias_hurd') as never }])).toMatch(/in his conduct$/);
+    expect(
+      bp('owes', [
+        { kind: 'actor', id: who(sim, 'josiah_trevenna') as never },
+        { kind: 'actor', id: who(sim, 'lucius_vance') as never },
+        { kind: 'number', value: 31000 },
+      ]),
+    ).toMatch(/\$310\.00$/);
+    expect(
+      bp('has_trait', [
+        { kind: 'actor', id: who(sim, 'lydia_pratt') as never },
+        { kind: 'text', value: 'gossip' },
+      ]),
+    ).toMatch(/is of a talkative disposition$/);
+    const hurdHouse = sim.world.actors[who(sim, 'elias_hurd') as never]?.householdId as never;
+    expect(bp('hard_luck', [{ kind: 'household', id: hurdHouse }])).toBe('Captain Hurd has had hard luck');
+  });
+});
+
+describe('review fixes: the epilogue says only what the record supports', () => {
+  it('the faekin subject and their household are not "holders": no thread from the family alone', () => {
+    const sim = newSim();
+    const hester = who(sim, 'hester_fenn');
+    const propId = belief.internProp(sim.world, 'faekin', [{ kind: 'actor', id: hester as never }]);
+    for (const [i, k] of ['edwin_fenn', 'minnie_fenn', 'hester_fenn'].entries()) {
+      emit(
+        sim,
+        {
+          kind: 'belief.formed',
+          visibility: 'inner',
+          roles: [{ actor: who(sim, k) as never, role: 'agent' }],
+          data: { holderId: who(sim, k) as never, beliefId: (i + 1) as never, propId, credence: 100, text: '' },
+        },
+        1000 + i,
+      );
+    }
+    sift(sim, 1000 + DAY);
+    expect(entriesOf(sim, 'faekin_suspicion')).toEqual([]);
+  });
+
+  it('a displacement that acted on no one is told as inner, not as words that were said', () => {
+    const tpl = content.chronicleTemplates.epi_defense_displacement;
+    for (const line of tpl?.text ?? []) expect(line).not.toMatch(/was short with/);
+    expect(content.chronicleTemplates.epi_displaced_act?.when.via_defense).toBe('displacement');
+  });
 });

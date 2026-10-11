@@ -156,7 +156,10 @@ describe('social: Iron Ford, 60 days, seed 42', () => {
       const table = sim.world.social.opinions[from] ?? {};
       for (const op of Object.values(table)) {
         expect(op.reasons.filter((r) => r.cites.kind !== 'other').length).toBeLessThanOrEqual(t.max_reasons);
-        expect(op.reasons.filter((r) => r.cites.kind === 'other').length).toBeLessThanOrEqual(1);
+        // Folded reasons keep their kind: at most one "Old quarrels" and one "Old kindnesses".
+        const buckets = op.reasons.filter((r) => r.cites.kind === 'other');
+        expect(buckets.length).toBeLessThanOrEqual(2);
+        expect(new Set(buckets.map((r) => r.label)).size).toBe(buckets.length);
         const sum = social.opinionSum(sim.world, from as ActorId, op.targetId);
         const v = social.opinionOf(sim.world, from as ActorId, op.targetId);
         expect(v.affection).toBe(Math.max(-100, Math.min(100, sum.affection)));
@@ -423,5 +426,119 @@ describe('social: scenario seeds', () => {
     runHours(resumed, 24 * 2);
     expect(stateHash(resumed.world)).toBe(stateHash(a.world));
     expect(asGameMinute(a.world.time)).toBe(resumed.world.time);
+  });
+});
+
+describe('social: strife wears out, and a household quarrel ruptures (review: Brenner loop)', () => {
+  const key = (sim: Sim, k: string) => {
+    const id = sim.world.index.actorByKey[k];
+    if (id === undefined) throw new Error(k);
+    return id;
+  };
+  const fight = (sim: Sim, a: ActorId, b: ActorId) => {
+    const def = content.interactions.fight;
+    if (!def) throw new Error('fight');
+    return social.resolveInteraction(sim.world, makeContext(sim.world, sim.content, []), {
+      def,
+      initiatorId: a,
+      targetId: b,
+      placeId: sim.world.actors[a]?.placeId ?? null,
+      present: [],
+      mode: 'forced',
+      via: 'escalation',
+    });
+  };
+
+  it('each hostile act between a pair scales further hostile volition by the weariness factor', () => {
+    const sim = simFor({ seed: 3 });
+    const johann = key(sim, 'johann_brenner');
+    const tveit = key(sim, 'anders_tveit');
+    const insult = content.interactions.insult;
+    if (!insult) throw new Error('insult');
+    const ctx = makeContext(sim.world, sim.content, []);
+    const pair = () => social.makePair(sim.world, ctx, johann, tveit, null, 0);
+    const before = social.volition(pair() as NonNullable<ReturnType<typeof pair>>, insult);
+    expect(before.terms.some((t) => t.label.startsWith('Weary of it'))).toBe(false);
+    fight(sim, johann, tveit);
+    fight(sim, tveit, johann);
+    expect(social.strifeCount(sim.world, content, johann, tveit, sim.world.time)).toBe(2);
+    const after = social.volition(pair() as NonNullable<ReturnType<typeof pair>>, insult);
+    const weary = after.terms.find((t) => t.label.startsWith('Weary of it'));
+    expect(weary).toBeDefined();
+    const raw = after.score - (weary?.value ?? 0);
+    if (raw > 0) {
+      const pm = social.wearinessPermille(content, 2);
+      expect(after.score).toBe(Math.floor((raw * pm) / 1000));
+    }
+  });
+
+  it('four fights under one roof in a month: they stop speaking, only amends pass, and a mediator ends it', () => {
+    const sim = simFor({ seed: 3 });
+    const johann = key(sim, 'johann_brenner');
+    const karl = key(sim, 'karl_brenner');
+    const magdalena = key(sim, 'magdalena_brenner');
+    for (let i = 0; i < 4; i++) fight(sim, i % 2 === 0 ? johann : karl, i % 2 === 0 ? karl : johann);
+    expect(social.isEstranged(sim.world, johann, karl)).toBe(true);
+    expect(sim.world.log.events.some((e) => e.kind === 'social.rupture')).toBe(true);
+    const ctx = makeContext(sim.world, sim.content, []);
+    const pair = social.makePair(sim.world, ctx, johann, karl, null, 0);
+    if (!pair) throw new Error('pair');
+    const chat = content.interactions.chat;
+    const apologize = content.interactions.apologize;
+    if (!chat || !apologize) throw new Error('content');
+    expect(social.requiresFail(pair, chat, 'spontaneous')).toBe('not speaking');
+    expect(social.requiresFail(pair, apologize, 'urge')).not.toBe('not speaking');
+    // Magdalena is fond of them both; with her at the table, she talks them round within days.
+    const home = sim.world.households[sim.world.actors[johann]?.householdId as never]?.homePlaceId as PlaceId;
+    gather(sim.world, [johann, karl, magdalena], home);
+    for (let day = 0; day < 30 && social.isEstranged(sim.world, johann, karl); day++) {
+      sim.world.time = asGameMinute(sim.world.time + 24 * 60);
+      const c = makeContext(sim.world, sim.content, []);
+      const pool = {
+        placeId: home,
+        pool: [johann, karl, magdalena],
+        present: new Set<number>([johann, karl, magdalena]),
+      };
+      const poolOf = new Map<number, typeof pool>([
+        [johann, pool],
+        [karl, pool],
+        [magdalena, pool],
+      ]);
+      social.mediationHour(sim.world, c, [pool], poolOf);
+    }
+    expect(social.isEstranged(sim.world, johann, karl)).toBe(false);
+    const med = sim.world.log.events.filter((e) => e.kind === 'social.mediation');
+    expect(med.length).toBeGreaterThan(0);
+    for (const e of med) expect(e.explain?.dc).toBeDefined();
+    expect(sim.world.log.events.some((e) => e.kind === 'social.reconciled')).toBe(true);
+  });
+
+  it('a target who just swung at someone does not lose their temper with them again for two days', () => {
+    const sim = simFor({ seed: 3 });
+    const a = key(sim, 'johann_brenner');
+    const b = key(sim, 'anders_tveit');
+    const insult = content.interactions.insult;
+    if (!insult) throw new Error('insult');
+    const rec = () => sim.world.social.opinions[b]?.[a];
+    // Simulate a retaliation just now: the cooldown is set on the target's record of the initiator.
+    social.bumpFamiliarity(sim.world, content, a, b);
+    const r = rec();
+    if (!r) throw new Error('record');
+    r.cooldowns.retaliate = sim.world.time + 48 * 60;
+    let escalated = 0;
+    for (let i = 0; i < 12; i++) {
+      sim.world.time = asGameMinute(sim.world.time + 60);
+      const out = social.resolveInteraction(sim.world, makeContext(sim.world, sim.content, []), {
+        def: insult,
+        initiatorId: a,
+        targetId: b,
+        placeId: null,
+        present: [],
+        mode: 'forced',
+        via: 'urge',
+      });
+      if (out.escalatedEventId !== null) escalated++;
+    }
+    expect(escalated).toBe(0);
   });
 });

@@ -5,6 +5,9 @@
 
 import { occupants } from '../activity/api.ts';
 import { abilityMod } from '../actor.ts';
+// The forms of address are a leaf (no chronicle runtime): importing chronicle/api here would
+// close an import cycle through the sifting code.
+import { argForm, householdForms } from '../chronicle/names.ts';
 import type { ContentBundle, PredicateId } from '../content.ts';
 import {
   type ActorId,
@@ -70,9 +73,14 @@ export function propText(world: World, content: ContentBundle, propId: PropId): 
   const p: Prop | undefined = world.belief.props[propId];
   if (!p) return `#${propId}`;
   const tpl = content.predicates[p.pred]?.text ?? `${p.pred}({0})`;
-  return tpl.replace(/\{(\d)\}/g, (_m, i: string) => {
+  return tpl.replace(/\{(\d)(?:\.([a-z]+))?\}/g, (_m, i: string, form: string | undefined) => {
     const a = p.args[Number(i)];
     if (!a) return '?';
+    const formed = argForm(world, content, a as never, form, (id) => {
+      const act = world.actors[id as ActorId];
+      return act ? `${act.name.given} ${act.name.family}`.trim() : `#${id}`;
+    });
+    if (formed !== null) return formed;
     switch (a.kind) {
       case 'actor': {
         const act = world.actors[a.id];
@@ -92,11 +100,12 @@ export function propText(world: World, content: ContentBundle, propId: PropId): 
       case 'misfortune': {
         const m = world.belief.misfortunes[a.id];
         const def = m && content.misfortunes[m.kindId];
-        return def && m
-          ? def.text
-              .replace('{0}', world.households[m.householdId]?.name ?? '?')
-              .replace('{1}', m.victimId === null ? 'a child' : (world.actors[m.victimId]?.name.given ?? '?'))
-          : `misfortune #${a.id}`;
+        if (!def || !m) return `misfortune #${a.id}`;
+        const forms = householdForms(world, m.householdId);
+        return def.text
+          .replace('{0.poss}', forms.poss)
+          .replace('{0}', forms.family)
+          .replace('{1}', m.victimId === null ? 'a child' : (world.actors[m.victimId]?.name.given ?? '?'));
       }
     }
   });
@@ -291,7 +300,7 @@ export function transmit(world: World, ctx: SimContext, req: TransmitRequest): T
             !b ||
             !p ||
             p.pred !== 'is_figure' ||
-            b.credence < 40 ||
+            b.credence < 25 ||
             p.args[0]?.kind !== 'actor' ||
             p.args[1]?.kind !== 'figure' ||
             p.args[1].id !== subject.id
@@ -307,6 +316,47 @@ export function transmit(world: World, ctx: SimContext, req: TransmitRequest): T
           args: [{ kind: 'actor', id: identity.actorId }, ...sourceProp.args.slice(1)],
           name: 'specification',
         });
+      // No name in mind: the teller fits the tale to someone it suits (04 §8.5), weighted by
+      // how well they fit, the teller's suspicion and dislike. The figure acquires a face.
+      const fig = world.belief.figures[subject.id];
+      if (!identity && fig?.fits && ctx.content.predicates.is_figure) {
+        const fits = fig.fits;
+        const cands = rowsOf(world.actors)
+          .filter((a) => {
+            if (!a.alive || a.id === speaker.id || a.id === listener.id) return false;
+            if (fits.sex !== undefined && a.sex !== fits.sex) return false;
+            if (yearsBetween(a.born, ctx.now) < fits.min_age) return false;
+            return true;
+          })
+          .map((a) => {
+            const roles = ctx.content.occupations[a.occupationId]?.roles ?? [];
+            const suits =
+              (fits.traits_any.some((t) => a.traits.includes(t)) ? 30 : 0) +
+              (fits.roles_any.some((x) => roles.includes(x)) ? 30 : 0);
+            const w =
+              10 +
+              suits +
+              2 * suspicionOf(world, speaker.id, a.id) +
+              Math.max(0, -opinionOf(world, speaker.id, a.id).affection);
+            return { a, w };
+          });
+        const pick = r.weighted(cands, (c) => c.w);
+        if (pick) {
+          options.push({
+            pred: pred.id,
+            args: [{ kind: 'actor', id: pick.a.id }, ...sourceProp.args.slice(1)],
+            name: 'specification',
+          });
+          options.push({
+            pred: 'is_figure',
+            args: [
+              { kind: 'actor', id: pick.a.id },
+              { kind: 'figure', id: subject.id },
+            ],
+            name: 'specification',
+          });
+        }
+      }
     }
     const choice = r.pick(options);
     if (choice) {
@@ -635,6 +685,23 @@ export function suspicionOf(world: World, observerId: ActorId, targetId: ActorId
 export function proposeBeliefUrges(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
   const out: UrgeProposal[] = [];
   const me = world.actors[actorId];
+  // A concealed actor who showed a tell at the Sabbath bell keeps away from the next ones (the
+  // absence is its own tell: tells.toml kept_from_meeting). Psyche weighs it against Piety.
+  const wary = world.belief.wary?.[actorId];
+  if (wary && wary.until > ctx.now && ctx.cal.isSabbath && ctx.cal.hour >= 8 && ctx.cal.hour < 12) {
+    const tell = ctx.content.suspicionTells[wary.tellId];
+    if (ctx.content.activities.idle_at_home) {
+      out.push({
+        urge: { kind: 'activity', activityId: 'idle_at_home' },
+        voice: 'id',
+        intensity: 600,
+        label: 'Keep away from the bell',
+        source: 'belief',
+        reasons: [{ source: 'belief', label: `Last time: ${tell?.name ?? wary.tellId}`, value: 600 }],
+        drive: 'fear',
+      });
+    }
+  }
   for (const p of world.belief.persecutions) {
     if (p.pending?.catalystId !== actorId || p.target.kind !== 'actor' || !me) continue;
     const def = Object.values(ctx.content.persecutionRungs).find((r) => r.rung === p.pending?.rung);
@@ -748,3 +815,5 @@ export function isShunning(world: World, holderId: ActorId, targetId: ActorId): 
     (p) => p.rung >= 3 && p.target.kind === 'actor' && p.target.id === targetId && p.shunnerIds.includes(holderId),
   );
 }
+
+export { grudgeTargetsOf } from './grudges.ts';

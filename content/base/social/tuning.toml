@@ -31,6 +31,7 @@ relationship_priors = [
   { kind = "congregant_with", a_to_b = { affection = 5, trust = 5 }, b_to_a = { affection = 5, trust = 5 } },
   { kind = "friend", a_to_b = { affection = 30, trust = 20 }, b_to_a = { affection = 30, trust = 20 } },
   { kind = "rival", a_to_b = { affection = -15, respect = 10 }, b_to_a = { affection = -15, respect = 10 } },
+  { kind = "estranged", a_to_b = { affection = -10, trust = -10 }, b_to_a = { affection = -10, trust = -10 } },
 ]
 
 # ---- Encounters (04 §11.2) ----
@@ -90,6 +91,29 @@ courtship_opposite_sex = true
 # ---- Escalation: the target's Will save against losing their temper ----
 escalation_dc = 10
 escalation_per_temper = 2
+# Once swung at, the same target does not swing back at the same person again for two days;
+# kin and housemates bite their tongues more often; each recent quarrel wears the temper down.
+escalation_cooldown_hours = 48
+escalation_household_dc = -4
+escalation_kin_dc = -3
+escalation_weary_dc = -2
+
+# ---- Strife (social/strife.ts): weariness, rupture, mediation ----
+# Each hostile act between two people in the last 14 days multiplies further hostility between
+# them (volition, urges, retaliation, displaced acts) by 60%.
+strife_window_days = 14
+strife_weariness_pct = 60
+# Four fights in 30 days under one roof (or between kin) and they stop speaking for 28 days,
+# unless someone fond of both (Affection 15+ toward each) talks them round (Persuade vs DC 12).
+rupture_window_days = 30
+rupture_fights = 4
+estrangement_days = 28
+mediation_min_affection = 15
+mediation_min_age = 16
+mediation_skill = "persuade"
+mediation_dc = 12
+mediation_soften_pct = 50
+estranged_allow_tags = ["amends"]
 
 # ---- Urges proposed to the psyche ----
 company_seek_below = 450

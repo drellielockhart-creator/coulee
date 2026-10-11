@@ -30,6 +30,7 @@ import {
   settleDebt,
 } from './opinion.ts';
 import type { MemorySource, OpinionDims, OpinionReason } from './state.ts';
+import { noteStrife, strifeCount, wearinessPermille } from './strife.ts';
 import { tuningOf, valueView } from './tuning.ts';
 import { areKinBy, makePair, pairTargetOpinion, type RequireMode, requiresFail } from './volition.ts';
 
@@ -65,6 +66,19 @@ export interface InteractionOutcome {
   /** Gossip only: what belief.transmit reported. */
   told: boolean | null;
   escalatedEventId: EventId | null;
+}
+
+const pronounPossessive = (sex: string): string => (sex === 'male' ? 'his' : sex === 'female' ? 'her' : 'their');
+
+/** `{initiator.he}`, `{initiator.him}`, `{initiator.his}` (and target.*) for memory and reason text. */
+function pronounVars(who: string, sex: string | undefined): Record<string, string> {
+  const m = sex === 'male';
+  const f = sex === 'female';
+  return {
+    [`${who}.he`]: m ? 'he' : f ? 'she' : 'they',
+    [`${who}.him`]: m ? 'him' : f ? 'her' : 'them',
+    [`${who}.his`]: m ? 'his' : f ? 'her' : 'their',
+  };
 }
 
 function fill(tpl: string, vars: Record<string, string>): string {
@@ -175,10 +189,24 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   const declared = def.visibility === 'auto' ? (def.notable ? 'public' : 'witnessed') : def.visibility;
   // P1: what is done at a public venue with others about, or before a crowd, is public knowledge.
   const atPublicVenue = place?.tags.some((x) => t.public_venue_tags.includes(x)) === true;
-  const visibility =
-    declared === 'witnessed' &&
-    ((atPublicVenue && req.present.some((x) => world.actors[x]?.householdId !== init?.householdId)) ||
-      req.present.length >= t.public_audience_min)
+  // A quarrel between people of one house, at their own home with only the household by, stays
+  // behind the door: witnessed by those there, not public (the town hears of a house that is not
+  // quiet only when it ruptures; strife.ts).
+  const domestic =
+    def.tags.includes('hostile') &&
+    init !== undefined &&
+    tgt !== undefined &&
+    init.householdId === tgt.householdId &&
+    req.placeId !== null &&
+    world.households[init.householdId]?.homePlaceId === req.placeId &&
+    req.present.every((x) => world.actors[x]?.householdId === init.householdId);
+  const visibility = domestic
+    ? declared === 'private'
+      ? 'private'
+      : 'witnessed'
+    : declared === 'witnessed' &&
+        ((atPublicVenue && req.present.some((x) => world.actors[x]?.householdId !== init?.householdId)) ||
+          req.present.length >= t.public_audience_min)
       ? 'public'
       : declared;
   let witnesses: ActorId[] = [];
@@ -193,11 +221,13 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
 
   const ledgerCents = eff.ledger.cents;
   const cents = centsAt(world, def, i, tg, ledgerCents);
-  const vars = {
+  const vars: Record<string, string> = {
     initiator: iName,
     target: tName,
     place: place?.name ?? 'the road',
     cents: formatCents(cents),
+    ...pronounVars('initiator', init?.sex),
+    ...pronounVars('target', tgt?.sex),
   };
   const bubble = cents > 0 ? `${def.label} ▸ ${formatCents(cents)}` : `${def.label} ▸ ${tName}`;
   const importance = def.importance > 0 ? def.importance : def.notable ? 40 : undefined;
@@ -213,7 +243,15 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     ...(importance !== undefined ? { importance } : {}),
     ...(req.causes && req.causes.length > 0 ? { causes: req.causes } : {}),
     explain: check.explain,
-    data: { interactionId: def.id, initiatorId: i, targetId: tg, placeId: req.placeId, success, label: bubble },
+    data: {
+      interactionId: def.id,
+      initiatorId: i,
+      targetId: tg,
+      placeId: req.placeId,
+      success,
+      label: bubble,
+      ...(req.viaDefense !== undefined ? { viaDefense: req.viaDefense } : {}),
+    },
   });
 
   const daily = world.social.daily;
@@ -227,6 +265,11 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   bumpFamiliarity(world, content, i, tg);
   const rec = opinionRecord(world, i, tg);
   if (rec && def.cooldown_hours > 0) rec.cooldowns[def.id] = ctx.now + def.cooldown_hours * 60;
+  // Weariness counts the quarrel before this act; the act itself is stamped after (strife.ts).
+  const hostile = def.tags.includes('hostile');
+  const kinPair = hostile ? areKinBy(world, content, i, tg) : false;
+  const priorStrife = hostile ? strifeCount(world, content, i, tg, ctx.now) : 0;
+  if (hostile) noteStrife(world, ctx, i, tg, def.tags.includes('violent'), eventId, kinPair);
 
   // ---- memories (04 §4.1-4.2)
   const memKind = eff.memory_kind ?? def.memory?.kind;
@@ -425,17 +468,28 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   // ---- a thought for the target's psyche (04 §3.6: memories cue thoughts)
   if (eff.target_thought) {
     const th = eff.target_thought;
-    addThought(world, ctx, tg, {
-      urge: { kind: 'interaction', interactionId: th.interaction, targetId: i },
-      voice: th.voice,
-      intensity: th.intensity,
-      label: fill(th.label, { other: iName }),
-      source: 'social',
-      reasons: [term('memory', fill(eff.target_memory ?? def.name, vars), th.intensity)],
-      ...(th.drive !== undefined ? { drive: th.drive } : {}),
-      ...(th.norm !== undefined ? { norm: th.norm } : {}),
-      ...(th.spoken_by_other ? { speaker: iName } : {}),
-    });
+    // A hostile answer to someone they have been at it with all fortnight comes weaker (strife.ts).
+    const answersHostile = content.interactions[th.interaction]?.tags.includes('hostile') === true;
+    const pm = answersHostile && priorStrife > 0 ? wearinessPermille(content, priorStrife) : 1000;
+    const intensity = Math.floor((th.intensity * pm) / 1000);
+    const reasons = [term('memory', fill(eff.target_memory ?? def.name, vars), th.intensity)];
+    if (intensity !== th.intensity) {
+      reasons.push(
+        term('memory', `Weary of it: ${priorStrife} quarrels with ${iName} lately`, intensity - th.intensity),
+      );
+    }
+    if (intensity > 0)
+      addThought(world, ctx, tg, {
+        urge: { kind: 'interaction', interactionId: th.interaction, targetId: i },
+        voice: th.voice,
+        intensity,
+        label: fill(th.label, { other: iName }),
+        source: 'social',
+        reasons,
+        ...(th.drive !== undefined ? { drive: th.drive } : {}),
+        ...(th.norm !== undefined ? { norm: th.norm } : {}),
+        ...(th.spoken_by_other ? { speaker: iName } : {}),
+      });
   }
 
   // ---- gossip: belief.transmit is the ONLY gossip path; exactly one call per gossip act
@@ -454,21 +508,32 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     if (told) daily.told += 1;
   }
 
-  // ---- escalation (insult -> fight): the target keeps their temper with a Will save
+  // ---- escalation (insult -> fight): the target keeps their temper with a Will save. Kin and
+  // housemates bite their tongues more often, a fortnight of quarrels wears the temper out, and
+  // once someone has swung at this person they do not swing again for a while (cooldown).
   let escalatedEventId: EventId | null = null;
   const depth = req.depth ?? 0;
-  if (success && eff.escalates_to && depth < 1 && tgt && init) {
+  const tRec = opinionRecord(world, tg, i);
+  const swungLately = (tRec?.cooldowns.retaliate ?? 0) > ctx.now;
+  if (success && eff.escalates_to && depth < 1 && tgt && init && !swungLately) {
     const next = content.interactions[eff.escalates_to];
     if (next) {
       const temper = valueView(tgt, 'temper');
       const er = ctx.rng('social', mixKey(i, tg, hashString32(def.id), SALT_ESCALATE));
+      const dcTerms: ExplainTerm[] = [];
+      if (temper !== 0) dcTerms.push(term('value', `Temper ${signed(temper)}`, temper * t.escalation_per_temper));
+      if (init.householdId === tgt.householdId && t.escalation_household_dc !== 0)
+        dcTerms.push(term('other', 'Under one roof', t.escalation_household_dc));
+      if (kinPair && t.escalation_kin_dc !== 0) dcTerms.push(term('other', 'Kin', t.escalation_kin_dc));
+      if (priorStrife > 0 && t.escalation_weary_dc !== 0)
+        dcTerms.push(term('memory', `Weary of it (${priorStrife} lately)`, priorStrife * t.escalation_weary_dc));
       const save = resolveCheck(
         {
-          label: `Will: ${tName} keeps their temper`,
+          label: `Will: ${tName} keeps ${pronounPossessive(tgt.sex)} temper`,
           kind: 'save',
           terms: saveTerms(tgt, 'will'),
           dc: t.escalation_dc,
-          dcTerms: temper !== 0 ? [term('value', `Temper ${signed(temper)}`, temper * t.escalation_per_temper)] : [],
+          dcTerms,
           subjects: [tg],
           knowledge: 'participants',
         },
@@ -478,6 +543,10 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
         const pair = makePair(world, ctx, tg, i, req.placeId, req.present.length);
         if (pair && requiresFail(pair, next, 'forced') === null) {
           const present = req.present;
+          if (t.escalation_cooldown_hours > 0) {
+            const back = opinionRecord(world, tg, i);
+            if (back) back.cooldowns.retaliate = ctx.now + t.escalation_cooldown_hours * 60;
+          }
           const out = resolveInteraction(world, ctx, {
             def: next,
             initiatorId: tg,

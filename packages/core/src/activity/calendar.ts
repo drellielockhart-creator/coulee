@@ -3,6 +3,7 @@ import type { ObservanceBlock, ObservanceDef, SunAnchor, Who } from '@coulee/con
 import { type ScheduleBlock, VALUES } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import { type ActorId, type HouseholdId, idsOf } from '../ids.ts';
+import { airTempF } from '../provisions/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { type CalendarInfo, daysFromCivil, yearsBetween } from '../time.ts';
@@ -78,6 +79,21 @@ function eligible(world: World, ctx: SimContext, id: ActorId, who: Who): boolean
     (who.max_age === undefined || age <= who.max_age)
   );
 }
+/** The day's weather factor on an attendance chance (the coldest matching clause wins). */
+function weatherPct(
+  ctx: SimContext,
+  attend: { weather_pct: ReadonlyArray<{ below_f: number; pct: number; label: string }> },
+): {
+  pct: number;
+  label: string;
+} {
+  if (attend.weather_pct.length === 0) return { pct: 100, label: '' };
+  const noon = airTempF({ ...ctx.cal, hour: 14 });
+  let best = { pct: 100, label: '' };
+  for (const w of attend.weather_pct) if (noon < w.below_f && w.pct < best.pct) best = { pct: w.pct, label: w.label };
+  return best;
+}
+
 /** Precompute the whole day's choices, so proposal order cannot change attendance. */
 export function ensureCalendar(world: World, ctx: SimContext): void {
   if (world.activity.calendar?.dayIndex === ctx.cal.dayIndex) return;
@@ -136,7 +152,13 @@ export function ensureCalendar(world: World, ctx: SimContext): void {
         for (const trait of actor.traits)
           if (b.attend.trait_pct[trait])
             terms.push({ source: 'trait', label: trait, value: requiredRow(b.attend.trait_pct, trait) });
-        const sum = terms.reduce((total, t) => total + t.value, 0);
+        let sum = terms.reduce((total, t) => total + t.value, 0);
+        const wpct = weatherPct(ctx, b.attend);
+        if (wpct.pct !== 100) {
+          const scaled = Math.floor((sum * wpct.pct) / 100);
+          terms.push({ source: 'weather', label: `${wpct.label} ×${wpct.pct}%`, value: scaled - sum });
+          sum = scaled;
+        }
         const chance = Math.max(0, Math.min(100, sum));
         terms.push({ source: 'base', label: 'Probability bounds', value: chance - sum });
         const roll = ctx
@@ -231,6 +253,7 @@ export function routineFor(world: World, ctx: SimContext, id: ActorId): Routine 
         let chance = b.attend.base_pct;
         for (const v of VALUES) chance += actor.values[v] * (b.attend.value_pct[v] ?? 0);
         for (const t of actor.traits) chance += b.attend.trait_pct[t] ?? 0;
+        chance = Math.floor((chance * weatherPct(ctx, b.attend).pct) / 100);
         attends =
           (world.activity.calendar?.rolls[`${key}:${index}:${id}`] ?? 101) <= Math.max(0, Math.min(100, chance));
       }

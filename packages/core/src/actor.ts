@@ -99,6 +99,8 @@ export function displayName(a: Pick<ActorCore, 'name'>): string {
 
 export function shortName(a: Pick<ActorCore, 'name'>): string {
   const n = a.name;
+  // A nickname that already carries the family name ("Captain Hurd") stands alone.
+  if (n.nickname && n.family && n.nickname.includes(n.family)) return n.nickname;
   return n.family ? `${n.nickname ?? n.given} ${n.family}` : (n.nickname ?? n.given);
 }
 

@@ -40,7 +40,7 @@ verb_mock = ["made sport of", "mockery"]
 verb_slight = ["slighted", "slight"]
 verb_snub = ["cut dead", "snub"]
 verb_threaten = ["threatened", "threat"]
-verb_fight = ["came to blows with", "fight"]
+verb_fight = ["came to blows with", "fight", "come to blows with"]
 verb_dun = ["dunned", "dunning"]
 verb_repay = ["paid off", "repayment"]
 verb_lend = ["lent money to", "loan"]
@@ -49,7 +49,7 @@ verb_gift = ["made a gift to", "gift"]
 verb_help = ["helped", "help"]
 verb_comfort = ["comforted", "comfort"]
 verb_compliment = ["complimented", "compliment"]
-verb_forgive = ["forgave", "forgiveness"]
+verb_forgive = ["forgave", "forgiveness", "forgiven"]
 verb_apologize = ["apologized to", "apology"]
 verb_flirt = ["made eyes at", "flirtation"]
 verb_court = ["paid court to", "courtship"]
@@ -142,7 +142,7 @@ retell_days = 56
 
 [[pattern]]
 id = "shortage"
-name = "The thin spring"
+name = "Short commons"
 description = "A household's stores run short, the ration is cut, the gap drags on, and it is over or it is not."
 importance = 50
 [pattern.params]

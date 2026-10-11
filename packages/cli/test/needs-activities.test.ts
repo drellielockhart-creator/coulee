@@ -6,8 +6,10 @@ import {
   idsOf,
   needs,
   restoreSim,
+  social,
   stateHash,
   step,
+  toGameMinute,
   yearsBetween,
 } from '@coulee/core';
 import { describe, expect, it } from 'vitest';
@@ -159,5 +161,80 @@ describe('needs-activities in Iron Ford', () => {
     const straight = createSim(content, { scenarioId: 'iron_ford', seed: 42 });
     for (let h = 0; h < 72; h++) step(straight);
     expect(stateHash(resumed.world)).toBe(stateHash(straight.world));
+  });
+});
+
+describe('review fixes: Drink is a taste, Standing a place, a call is paid to a person', () => {
+  const content = baseContent();
+  const sim = simFor({ seed: 11, hours: 14 * 24 });
+  const id = (k: string) => {
+    const a = sim.world.index.actorByKey[k];
+    if (a === undefined) throw new Error(k);
+    return a;
+  };
+
+  it('Drink runs down only in those with the taste (tippler/drunkard), never in a child', () => {
+    const drink = (k: string) => sim.world.needs.byActor[id(k)]?.values.drink ?? -1;
+    // Pastor Tveit (pious, no taste) and the infant keep their starting Drink; Captain Hurd does not.
+    expect(drink('anders_tveit')).toBeGreaterThanOrEqual(content.needs.drink?.initial ?? 800);
+    expect(drink('brigid_dunleavy')).toBeGreaterThanOrEqual(content.needs.drink?.initial ?? 800);
+    const ledger = needs.hourlyLedger(sim.world, content, id('elias_hurd'), 'drink', 50, 50, {});
+    expect(ledger.terms[0]?.value ?? 0).toBeLessThan(0);
+    const none = needs.hourlyLedger(sim.world, content, id('anders_tveit'), 'drink', 50, 50, {});
+    expect(none.calculations[0]?.terms.some((t) => t.label === 'Not a want of theirs')).toBe(true);
+  });
+
+  it('Standing rests at a personal baseline (office and age), not at the floor', () => {
+    const base = (k: string) => needs.baselineOf(sim.world, content, id(k), 'standing');
+    expect(base('anders_tveit')).toBeGreaterThan(base('joel_pike'));
+    expect(base('karl_brenner')).toBeGreaterThan(base('brigid_dunleavy'));
+    let below = 0;
+    let n = 0;
+    for (const a of idsOf(sim.world.actors)) {
+      const v = sim.world.needs.byActor[a]?.values.standing;
+      if (v === undefined) continue;
+      n++;
+      if (v < 350) below++;
+    }
+    // Two weeks in, the town is not uniformly "Overlooked" (it sat at 37 by June before).
+    expect(below).toBeLessThan(n / 4);
+  });
+
+  it('Pay a call goes to a person, never an Enemy, and rotates across households', () => {
+    const abigail = id('abigail_hatch');
+    const hurd = id('elias_hurd');
+    // Make Hurd her Enemy: he must drop out of her candidates however near his house is.
+    social.addOpinionReason(sim.world, makeContext(sim.world, sim.content, []), abigail, hurd, {
+      label: 'test: knocked me down',
+      cites: { kind: 'seed' },
+      delta: { affection: -100, respect: 0, trust: -50, fear: 0 },
+      since: sim.world.time,
+    });
+    expect(social.opinionLabel(social.opinionOf(sim.world, abigail, hurd))).toBe('Enemy');
+    const cands = activity.callCandidates(sim.world, abigail);
+    expect(cands.some((c) => c.targetId === hurd)).toBe(false);
+    expect(cands.length).toBeGreaterThan(2);
+    // A call logged on a household today halves its weight for two weeks.
+    const target = cands[0];
+    if (!target) throw new Error('candidates');
+    const home = sim.world.households[sim.world.actors[target.targetId]?.householdId as never]?.homePlaceId;
+    if (home === undefined) throw new Error('home');
+    activity.noteCall(sim.world, abigail, home);
+    const again = activity.callCandidates(sim.world, abigail).find((c) => c.targetId === target.targetId);
+    expect(again?.weight).toBe(Math.floor(target.weight / 2));
+  });
+
+  it('a January call is half as likely as a June one (snowbound roads), and the Explain says so', () => {
+    const jan = simFor({ seed: 11 });
+    jan.world.time = toGameMinute(1856, 1, 15, 0, 0);
+    const ctx = makeContext(jan.world, jan.content, []);
+    activity.scheduledRoutine(jan.world, ctx, id('abigail_hatch'));
+    const att = jan.world.log.events.filter((e) => e.kind === 'activity.attendance');
+    const snowed = att.filter((e) => e.explain?.terms.some((t) => t.label.startsWith('Snowbound roads')));
+    expect(snowed.length).toBeGreaterThan(0);
+    for (const e of snowed) {
+      const t = e.explain?.terms.find((x) => x.label.startsWith('Snowbound roads'));
+      expect(t?.value ?? 0).toBeLessThanOrEqual(0);
+    }
   });
 });

@@ -83,7 +83,7 @@ truncates_to = "hard_luck"
 [[predicate]]
 id = "hard_luck"
 args = ["household"]
-text = "{0} have had hard luck"
+text = "{0} {0.has} had hard luck"
 juiciness = 15
 valence = -5
 prior = 30
@@ -176,7 +176,7 @@ prior = 20
 [[predicate]]
 id = "loose"
 args = ["actor"]
-text = "{0} is loose in her conduct"
+text = "{0} is loose in {0.his} conduct"
 description = "Period slander; Moralization's favorite sin."
 juiciness = 70
 valence = -55
@@ -205,7 +205,7 @@ prior = 15
 [[predicate]]
 id = "owes"
 args = ["actor", "actor", "number"]
-text = "{0} owes {1} {2} cents"
+text = "{0} owes {1} {2.money}"
 juiciness = 25
 valence = -10
 prior = 25
@@ -257,7 +257,7 @@ prior = 25
 [[predicate]]
 id = "has_trait"
 args = ["actor", "text"]
-text = "{0} is {1}"
+text = "{0} is {1.trait}"
 description = "Fallback for a projected trait with no predicate of its own."
 juiciness = 25
 valence = -20

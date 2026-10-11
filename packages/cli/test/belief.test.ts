@@ -9,6 +9,7 @@ import {
   rowsOf,
   runHours,
   stateHash,
+  toGameMinute,
   toViewModel,
   yearsBetween,
 } from '@coulee/core';
@@ -382,4 +383,39 @@ describe('belief integration', () => {
     expect(findNonIntegers(a.world)).toEqual([]);
     expect(a.world.log.events.some((e) => e.kind.startsWith('belief.') && e.t > 0)).toBe(true);
   }, 30000);
+});
+
+describe('belief: misfortunes need what they strike; the hidden folk keep away from the bell (review)', () => {
+  it('a fever only takes a house with a child in it, and household names read as English', () => {
+    const sim = simFor({ seed: 42, hours: 24 * 60 });
+    const mis = sim.world.log.events.filter((e) => e.kind === 'belief.misfortune');
+    expect(mis.length).toBeGreaterThan(0);
+    for (const e of mis) {
+      if (e.kind !== 'belief.misfortune') continue;
+      // No "(Kvale Ridge)" disambiguators, no "Captain Hurd' hens": a bare apostrophe only after an s.
+      expect(e.data.text).not.toMatch(/\(|[a-rt-zA-Z]' /);
+      if (e.data.kindId !== 'child_fever') continue;
+      const m = sim.world.belief.misfortunes[e.data.misfortuneId as never] as { householdId: number } | undefined;
+      const h = m ? sim.world.households[m.householdId as never] : undefined;
+      const kids = (h?.memberIds ?? []).filter((id) => yearsBetween(sim.world.actors[id]?.born ?? e.t, e.t) < 14);
+      expect(kids.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('a concealed actor who winces at the bell keeps away from the next ones (a belief urge)', () => {
+    const sim = simFor({ seed: 1 });
+    const hester = sim.world.index.actorByKey.hester_fenn;
+    if (hester === undefined) throw new Error('hester');
+    sim.world.belief.wary = { [hester]: { until: (sim.world.time + 30 * 1440) as never, tellId: 'bell_ache' } };
+    sim.world.time = toGameMinute(1855, 4, 8, 9, 0); // a Sabbath morning
+    const urges = belief.proposeBeliefUrges(sim.world, makeContext(sim.world, sim.content, []), hester);
+    expect(urges.some((u) => u.label === 'Keep away from the bell')).toBe(true);
+  });
+
+  it('slow tells are content: an unaging face and an empty pew, noticed by those who know them', () => {
+    const c = baseContent();
+    expect(c.suspicionTells.unaging?.observers).toBe('acquainted');
+    expect(c.suspicionTells.kept_from_meeting?.subject_not_place_tags).toContain('church');
+    expect(c.suspicionTells.bell_ache?.wary_days ?? 0).toBeGreaterThan(0);
+  });
 });

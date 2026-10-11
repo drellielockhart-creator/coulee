@@ -26,15 +26,25 @@ function ageOf(world: World, a: ActorCore): number {
   return yearsBetween(a.born, world.time);
 }
 
-/** Courtesy title by role, age and sex ("Rev.", "Dr.", "Mr.", "Mrs.", "Miss"). */
+/**
+ * Courtesy title by role, marriage and sex ("Rev.", "Dr.", "Mr.", "Mrs.", "Miss"). "Rev." is for
+ * an `ordained` role only (a lay preacher is Mr./Mrs./Miss); "Mrs." is a wife, a widow or a
+ * mother (a spouse or parent edge, or the `widowed` trait), never an age.
+ */
 export function titleOf(world: World, content: ContentBundle, a: ActorCore): string {
   const roles = content.occupations?.[a.occupationId]?.roles ?? [];
-  if (roles.includes('preacher')) return 'Rev.';
+  if (roles.includes('ordained')) return 'Rev.';
   if (roles.includes('doctor') || roles.includes('physician')) return 'Dr.';
   const age = ageOf(world, a);
   if (age < 15) return a.sex === 'male' ? 'Master' : 'Miss';
   if (a.sex === 'male') return 'Mr.';
-  return age >= 27 ? 'Mrs.' : 'Miss';
+  // A wife, a widow, or a mother (a grown son or daughter in town: she was married once).
+  const married =
+    a.traits.includes('widowed') ||
+    (world.social?.relationships ?? []).some(
+      (r) => (r.kind === 'spouse' && (r.a === a.id || r.b === a.id)) || (r.kind === 'parent' && r.a === a.id),
+    );
+  return married ? 'Mrs.' : 'Miss';
 }
 
 /** The paper's form: "Mrs. A. Pratt". */
@@ -82,10 +92,95 @@ export function familyOfHousehold(world: World, hid: HouseholdId | number): stri
   return h.name.replace(/^The\s+/i, '');
 }
 
-/** "the Pratts", "the Hatches" (surnames take -es after s, x, z, ch, sh; never an apostrophe). */
+const pluralSurname = (f: string): string => `${f}${/(s|x|z|ch|sh)$/i.test(f) ? 'es' : 's'}`;
+
+/**
+ * How a household is named mid-sentence. A family (two or more members sharing the head's
+ * surname) is "the Kvales" (possessive "the Kvales'", plural verb); a household of one is its
+ * person ("Captain Hurd", "Captain Hurd's"); any other company keeps its own name with a
+ * lowercase article and no parenthetical ("Whitcomb's Survey Party", "the Penhallow Pare").
+ */
+export interface HouseholdForms {
+  family: string;
+  poss: string;
+  plural: boolean;
+}
+
+export function householdForms(world: World, hid: HouseholdId | number): HouseholdForms {
+  const h = world.households[hid as HouseholdId];
+  if (!h) return { family: 'a household', poss: "a household's", plural: false };
+  const head = world.actors[h.headId];
+  const surname = head?.name.family ?? '';
+  const sharing = surname ? h.memberIds.filter((m) => world.actors[m]?.name.family === surname).length : 0;
+  if (surname && sharing >= 2) {
+    const fam = `the ${pluralSurname(surname)}`;
+    return { family: fam, poss: `${fam}'`, plural: true };
+  }
+  if (head && h.memberIds.length <= 1) {
+    const n = shortNameOf(world, head.id);
+    return { family: n, poss: `${n}'s`, plural: false };
+  }
+  const clean = h.name
+    .replace(/\s*\([^)]*\)/g, '')
+    .trim()
+    .replace(/^The\s+/, 'the ');
+  return { family: clean, poss: /s$/.test(clean) ? `${clean}'` : `${clean}'s`, plural: /^the .*s$/.test(clean) };
+}
+
+/**
+ * "the Pratts", "the Hatches" (surnames take -es after s, x, z, ch, sh; never an apostrophe).
+ * A household of one is "Captain Hurd's household": a bachelor is not a family of Hurds.
+ */
 export function familiesOf(world: World, hid: HouseholdId | number): string {
+  const h = world.households[hid as HouseholdId];
   const f = familyOfHousehold(world, hid);
-  return `the ${f}${/(s|x|z|ch|sh)$/i.test(f) ? 'es' : 's'}`;
+  const head = h ? world.actors[h.headId] : undefined;
+  if (h && head?.name.family) {
+    const sharing = h.memberIds.filter((m) => world.actors[m]?.name.family === head.name.family).length;
+    if (sharing < 2) return `${shortNameOf(world, head.id)}'s household`;
+  }
+  return `the ${pluralSurname(f)}`;
+}
+
+/** A proposition argument in words, with the `{n.form}` forms predicate texts may use. */
+export function argForm(
+  world: World,
+  content: ContentBundle,
+  a: { kind: string; id?: number; value?: string | number } | undefined,
+  form: string | undefined,
+  actorName: (id: number) => string,
+): string | null {
+  if (!a) return null;
+  if (a.kind === 'actor' && a.id !== undefined) {
+    const who = world.actors[a.id as ActorId];
+    if (form === undefined) return actorName(a.id);
+    const pr = pronounsOf(who);
+    if (form === 'he' || form === 'his' || form === 'him' || form === 'himself') return pr[form];
+    if (form === 'poss') return `${actorName(a.id)}'s`;
+    return actorName(a.id);
+  }
+  if (a.kind === 'household' && a.id !== undefined) {
+    const f = householdForms(world, a.id);
+    if (form === 'poss') return f.poss;
+    if (form === 'has') return f.plural ? 'have' : 'has';
+    if (form === 'is') return f.plural ? 'are' : 'is';
+    return f.family;
+  }
+  if (a.kind === 'number' && form === 'money') return moneyWords(Number(a.value ?? 0));
+  if (a.kind === 'text' && form === 'trait') {
+    const t = content.traits?.[String(a.value)];
+    if (!t) return String(a.value).replaceAll('_', ' ');
+    const label = t.period_label ?? '';
+    return /^(Of|A|An|Given|Fond|Close|Pious|Pledged|Open)\b/.test(label) ? label.toLowerCase() : t.name.toLowerCase();
+  }
+  return null;
+}
+
+/** "$310.00" (money in a rumor reads as money, not as a count of cents). */
+function moneyWords(cents: number): string {
+  const c = Math.abs(Math.round(cents));
+  const rem = c % 100;
+  return `$${Math.floor(c / 100)}.${rem < 10 ? `0${rem}` : rem}`;
 }
 
 export function placeName(world: World, pid: PlaceId | number | null | undefined): string {
@@ -194,9 +289,11 @@ export function rumorText(world: World, content: ContentBundle, propId: number):
     | undefined;
   if (!p) return '';
   const tpl = content.predicates?.[p.pred]?.text ?? `${p.pred}({0})`;
-  return tpl.replace(/\{(\d)\}/g, (_m, i: string) => {
+  return tpl.replace(/\{(\d)(?:\.([a-z]+))?\}/g, (_m, i: string, form: string | undefined) => {
     const a = p.args[Number(i)];
     if (!a) return 'someone';
+    const formed = argForm(world, content, a, form, (id) => shortNameOf(world, id));
+    if (formed !== null) return formed;
     switch (a.kind) {
       case 'actor':
         return shortNameOf(world, a.id as number);
@@ -226,9 +323,9 @@ export function misfortuneText(world: World, content: ContentBundle, misfortuneI
     | undefined;
   const def = m ? content.misfortunes?.[m.kindId] : undefined;
   if (!m || !def) return null;
-  const hh = world.households[m.householdId as HouseholdId] ? familiesOf(world, m.householdId) : 'a household';
+  const forms = householdForms(world, m.householdId);
   const victim = m.victimId === null ? 'a child' : (world.actors[m.victimId as ActorId]?.name.given ?? 'someone');
-  return def.text.replace('{0}', hh).replace('{1}', victim);
+  return def.text.replace('{0.poss}', forms.poss).replace('{0}', forms.family).replace('{1}', victim);
 }
 
 /** Display name of a persecution rung (0 = unease ... ). */

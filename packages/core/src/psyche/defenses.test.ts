@@ -127,3 +127,33 @@ describe('defense selection (10 §7.1)', () => {
     expect(displacementFit({ Sim: 30, Weak: 90, Avail: 100, Dis: 100 })).toBe(76);
   });
 });
+
+describe('10 §7.3 damping: the same defense again within 48 h works less well', () => {
+  it('scores ×70% per recent use, with the term in the candidate', () => {
+    const p = {
+      ...blankPsyche(),
+      ego: 50,
+      superego: 50,
+      defenseStyle: HOT,
+      anxSrc: { real: 80, neur: 220, moral: 200 },
+      anxiety: 500,
+    };
+    const fresh = defenseCandidates(content, p, situation).find((c) => c.id === 'displacement');
+    const used = defenseCandidates(
+      content,
+      {
+        ...p,
+        recentDefenses: [
+          { defense: 'displacement', at: (6000 - 60) as GameMinute, targetId: 7 as ActorId, eventId: 1 as never },
+          { defense: 'displacement', at: (6000 - 600) as GameMinute, targetId: 7 as ActorId, eventId: 2 as never },
+          // A use three days ago is outside the window.
+          { defense: 'displacement', at: (6000 - 3 * 1440) as GameMinute, targetId: 7 as ActorId, eventId: 3 as never },
+        ],
+      },
+      situation,
+    ).find((c) => c.id === 'displacement');
+    expect(fresh?.recentUses).toBe(0);
+    expect(used?.recentUses).toBe(2);
+    expect(used?.weight).toBe(Math.floor((Math.floor(((fresh?.weight ?? 0) * 70) / 100) * 70) / 100));
+  });
+});

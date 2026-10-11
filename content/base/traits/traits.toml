@@ -120,7 +120,7 @@ description = "Signed the pledge and wants the Maine Law for Wisconsin."
 norms = { temperance = 35 }
 urge_bias = [{ kind = "activity", id = "drink_at_tavern", pct = 40 }]
 defenses = { reaction_formation = 130 }
-excludes = ["drunkard"]
+excludes = ["drunkard", "tippler"]
 
 [[trait]]
 id = "teetotal"
@@ -129,7 +129,7 @@ period_label = "Pledged Teetotal"
 description = "Not a drop, not cider, not on doctor's orders."
 norms = { temperance = 45 }
 urge_bias = [{ kind = "activity", id = "drink_at_tavern", pct = 20 }]
-excludes = ["drunkard"]
+excludes = ["drunkard", "tippler"]
 
 [[trait]]
 id = "honest"
@@ -188,6 +188,15 @@ norms = { temperance = -30 }
 urge_bias = [{ kind = "activity", id = "drink_at_tavern", pct = 200 }]
 defenses = { denial = 170, rationalization = 150 }
 excludes = ["temperance", "teetotal"]
+
+[[trait]]
+id = "tippler"
+name = "Fond of a Glass"
+period_label = "Fond of a Glass"
+description = "Likes his dram of an evening and misses it when it isn't there. Not a drunkard; the want is real all the same."
+norms = { temperance = -10 }
+urge_bias = [{ kind = "activity", id = "drink_at_tavern", pct = 130 }]
+excludes = ["temperance", "teetotal", "drunkard"]
 
 [[trait]]
 id = "slothful"

@@ -51,6 +51,7 @@ description = "Credit pulled, prices raised, no help at bees, children kept away
 [[grudge_aim]]
 id = "restitution"
 name = "Restitution"
+phrase = "restitution"
 direct = ["dun", "confront"]
 covert = "gossip"
 min_intensity = 40
@@ -58,6 +59,7 @@ min_intensity = 40
 [[grudge_aim]]
 id = "apology"
 name = "An apology"
+phrase = "an apology"
 direct = ["confront"]
 covert = "gossip"
 min_intensity = 45
@@ -65,6 +67,7 @@ min_intensity = 45
 [[grudge_aim]]
 id = "humiliation"
 name = "Humiliation"
+phrase = "their humiliation"
 direct = ["insult", "slight"]
 covert = "gossip"
 min_intensity = 40
@@ -72,6 +75,7 @@ min_intensity = 40
 [[grudge_aim]]
 id = "expulsion"
 name = "Drive them out"
+phrase = "their going"
 direct = ["slight", "accuse"]
 covert = "gossip"
 min_intensity = 45
@@ -79,6 +83,7 @@ min_intensity = 45
 [[grudge_aim]]
 id = "harm"
 name = "Harm"
+phrase = "their hurt"
 direct = ["threaten", "insult", "fight"]
 covert = "gossip"
 min_intensity = 55
@@ -86,6 +91,7 @@ min_intensity = 55
 [[grudge_aim]]
 id = "death"
 name = "Death"
+phrase = "their death"
 direct = ["threaten", "fight"]
 covert = "gossip"
 min_intensity = 80

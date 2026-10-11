@@ -127,6 +127,8 @@ export const WhenSchema = z.strictObject({
   place_tags: z.array(id()).optional(),
   /** The actor owes someone (a `creditor` relationship points at them). */
   debtor: z.boolean().optional(),
+  /** The actor holds (innately or acquired) at least one of these traits. */
+  traits_any: z.array(id()).optional(),
 });
 export type WhenDef = z.output<typeof WhenSchema>;
 
@@ -407,6 +409,7 @@ export function psycheRefs(b: ContentBundle): Issue[] {
     checkRefs(issues, where, 'when.drive_min', Object.keys(w.drive_min ?? {}), b.drives, 'drive');
     checkRefs(issues, where, 'when.norm_min', Object.keys(w.norm_min ?? {}), b.norms, 'norm');
     checkRefs(issues, where, 'when.norm_max', Object.keys(w.norm_max ?? {}), b.norms, 'norm');
+    checkRefs(issues, where, 'when.traits_any', w.traits_any ?? [], b.traits, 'trait');
   };
   for (const t of Object.values(b.traits)) {
     const where = `traits:${t.id}`;

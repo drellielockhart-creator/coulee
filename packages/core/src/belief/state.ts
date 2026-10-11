@@ -143,6 +143,8 @@ export interface Figure {
   baseNotoriety: number;
   /** Actors the community's Consensus has attached this figure to (`belief.figure_attached`). */
   attachedIds: ActorId[];
+  /** The archetype tellers fit to a person (scenario `fits`; Specification, 04 §8.5). */
+  fits?: { sex?: 'female' | 'male'; min_age: number; traits_any: string[]; roles_any: string[] };
 }
 
 export type GrudgeTarget =
@@ -265,6 +267,11 @@ export interface BeliefState {
   misfortunes: Table<number, Misfortune>;
   /** prop id -> Commons row (04 §5.5), recomputed daily. */
   commons: Record<number, CommonsRow>;
+  /**
+   * Concealed actors who know they showed a tell, and keep away from its occasion until this
+   * minute (tells.toml `wary_days`): the faekin who skips the Sabbath bell. Absent until first.
+   */
+  wary?: Table<ActorId, { until: GameMinute; tellId: string }>;
 }
 
 export function createBeliefState(): BeliefState {
@@ -333,6 +340,7 @@ export function initBeliefState(world: World, ctx: InitContext): void {
       notoriety: f.notoriety,
       baseNotoriety: f.notoriety,
       attachedIds: [],
+      ...(f.fits ? { fits: { ...f.fits, traits_any: [...f.fits.traits_any], roles_any: [...f.fits.roles_any] } } : {}),
     };
   }
   for (const g of ctx.scenario.grudges) {

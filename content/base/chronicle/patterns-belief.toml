@@ -253,10 +253,20 @@ text = [
 id = "faekin_epilogue_kin"
 on = "faekin_suspicion"
 voice = "epilogue"
-when = { hidden_kin = true }
+when = { hidden_kin = true, believed = true }
 text = [
-  "The village was right, for the wrong reasons. {^actor_short} was of the hidden folk, and had been all along. It was not the rumors that found it out; it was coincidence, and a cow that died at the right time.",
+  "The village was right, for the wrong reasons. {^actor_short} was of the hidden folk, and had been all along. It was not proof that found it out but the town's own fear, which happened, this once, to point the right way.",
   "{^actor_short} was what the whispers said, and had been careful for years. The town learned nothing it did not already fear, and the fear did the rest.",
+]
+
+[[template]]
+id = "faekin_epilogue_kin_unguessed"
+on = "faekin_suspicion"
+voice = "epilogue"
+when = { hidden_kin = true, believed = false }
+text = [
+  "{^actor_short} was of the hidden folk, and nobody ever guessed it. A word here and there, a look held too long: the town came near the truth and turned back from it, as towns do.",
+  "Whatever was said of {actor_short}, it never took. {^he} was exactly what the talk half-suspected and nobody believed, and {he} went on being careful.",
 ]
 
 [[template]]

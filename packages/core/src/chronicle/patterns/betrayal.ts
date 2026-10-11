@@ -4,12 +4,13 @@
  * A grudge the helper forms against the helped afterwards deepens it. OWNER: module:chronicle.
  */
 import type { ActorId } from '../../ids.ts';
+import { areKin } from '../../social/api.ts';
 import { classVocab, type Fact } from '../facts.ts';
 import type { PatternParams } from '../params.ts';
 import type { ThreadFact } from '../state.ts';
 import { numberWord } from '../text.ts';
 import type { Accept, DetectCtx, PatternDef } from './types.ts';
-import { accept, DAY, ofKind, sortedByTime, spanWords, tfOf } from './util.ts';
+import { accept, DAY, householdOfActor, ofKind, sortedByTime, spanWords, tfOf } from './util.ts';
 
 /** How much `from` likes `to` right now (base + reasons + the day's mood), from the social slice. */
 function affectionOf(dc: DetectCtx, from: number, to: number): number {
@@ -48,6 +49,12 @@ export const betrayal: PatternDef = {
     const helpIds = p.l('help_ids', ['help', 'gift', 'lend']);
     const harmIds = p.l('harm_ids', ['insult', 'fight', 'threaten', 'steal', 'accuse', 'slander', 'curse', 'attack']);
     const isHelp = (f.cls === 'help' || f.cls === 'debt') && helpIds.includes(f.sub);
+    // Help under one roof is housekeeping: spouses and a mother and son help each other daily,
+    // so any spat after it is no betrayal. Kin in other houses can be betrayed, but only by a
+    // grave harm (a fight, an accusation) or a grudge, not by a sharp word.
+    const household = f.agent > 0 && f.target > 0 && householdOfActor(dc, f.agent) === householdOfActor(dc, f.target);
+    if (household) return [];
+    const kin = f.agent > 0 && f.target > 0 && areKin(dc.world, f.agent as ActorId, f.target as ActorId);
     if (isHelp && f.agent && f.target && f.success !== false) {
       return [
         accept(`${f.agent}>${f.target}`, tfOf(f, 'help', { w: affectionOf(dc, f.agent, f.target) }), {
@@ -58,6 +65,7 @@ export const betrayal: PatternDef = {
     }
     if (f.cls === 'harm' && harmIds.includes(f.sub) && f.agent && f.target && f.success !== false) {
       const w = p.l('severe_ids', ['fight', 'attack', 'steal', 'accuse', 'slander', 'curse']).includes(f.sub) ? 2 : 1;
+      if (kin && w < 2) return [];
       return [
         accept(`${f.target}>${f.agent}`, tfOf(f, 'harm', { w }), {
           actors: [f.target, f.agent],
@@ -108,6 +116,7 @@ export const betrayal: PatternDef = {
       out.interaction = harmId;
       out.interaction_name = dc.content.interactions?.[harmId]?.name?.toLowerCase() ?? harmId.replace(/_/g, ' ');
       out.act = vocab.verb(harmId)[0] ?? 'wronged';
+      out.act_pp = vocab.verb(harmId)[2] ?? vocab.verb(harmId)[0] ?? 'wronged';
       const helpId = m.help.x;
       out.favor = vocab.verb(helpId)[0] ?? 'helped';
     }

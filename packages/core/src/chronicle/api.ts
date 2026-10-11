@@ -148,3 +148,5 @@ export function renderChronicleMarkdown(
   lines.push(...renderEpilogue(world, truths));
   return `${lines.join('\n').trimEnd()}\n`;
 }
+
+export { argForm, familiesOf, formalName, type HouseholdForms, householdForms } from './names.ts';

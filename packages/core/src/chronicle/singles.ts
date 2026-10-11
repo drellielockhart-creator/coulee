@@ -43,6 +43,9 @@ function singleBind(dc: DetectCtx, f: Fact): Bindings {
     case 'nutrition': {
       out.condition_name = conditionName(f.sub);
       out.on = f.success === true;
+      // Held somewhere (the Prince's prisoner): no table, cellar or season of his own to blame.
+      const who = dc.world.actors[f.agent as ActorId];
+      out.confined = who ? dc.content.occupations?.[who.occupationId]?.confined === true : false;
       break;
     }
     case 'need':

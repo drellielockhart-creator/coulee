@@ -30,7 +30,7 @@ lines = ["My belly's an empty kettle.", "I could eat a horse, harness and all.",
 id = "hunger_dram_evening"
 voice = "id"
 drive = "hunger"
-when = { hours = { from = 18, to = 23 }, norm_max = { temperance = 45 } }
+when = { hours = { from = 18, to = 23 }, norm_max = { temperance = 45 }, traits_any = ["tippler", "drunkard"] }
 urge = { kind = "activity", id = "drink_at_tavern" }
 base = 220
 decay_per_hour = 220
@@ -42,7 +42,8 @@ lines = ["A dram would settle the day.", "Just the one. Where's the harm?"]
 id = "hunger_dram_nerves"
 voice = "id"
 drive = "hunger"
-when = { anxiety_min = 350, hours = { from = 12, to = 23 } }
+# Only those with the taste reach for a glass to steady their nerves; others have other habits.
+when = { anxiety_min = 350, hours = { from = 12, to = 23 }, traits_any = ["tippler", "drunkard"] }
 urge = { kind = "activity", id = "drink_at_tavern" }
 base = 300
 decay_per_hour = 200

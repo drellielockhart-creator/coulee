@@ -164,6 +164,18 @@ export const MisfortuneSchema = z.strictObject({
   /** Default grudge aim when a culprit is blamed. */
   aim: z.enum(GRUDGE_AIMS).default('restitution'),
   description: z.string().default(''),
+  /**
+   * What a household must have for the ambient roll to strike it (no fever in a bachelor's
+   * house, no dry cows at the schoolhouse): a home of one of `home_kinds` (any if empty), at
+   * least `min_members` people, and with `child_under` > 0 a member younger than that (the victim).
+   */
+  requires: z
+    .strictObject({
+      home_kinds: z.array(id()).default([]),
+      min_members: int().min(0).max(100).default(0),
+      child_under: int().min(0).max(100).default(0),
+    })
+    .default({ home_kinds: [], min_members: 0, child_under: 0 }),
 });
 export type MisfortuneDef = z.output<typeof MisfortuneSchema>;
 
@@ -210,6 +222,26 @@ export const TellSchema = z.strictObject({
   /** Only observers in the same household (dream speech: "anyone sharing the room"). */
   household_only: z.boolean().default(false),
   description: z.string().default(''),
+  // ---- slow and absent tells (module:belief additions) ----
+  /**
+   * Who may notice: 'present' (everyone at the place, the default) or 'acquainted' (anyone who
+   * knows the subject at least `min_familiarity` well, wherever they are: a face that has not
+   * aged is noticed over years, not in a room).
+   */
+  observers: z.enum(['present', 'acquainted']).default('present'),
+  /** Observer's familiarity with the subject (0..1000) needed to notice. */
+  min_familiarity: int().min(0).max(1000).default(0),
+  /** Observers must be at a place with one of these tags (the congregation notices who is missing). */
+  observer_place_tags_any: z.array(id()).default([]),
+  /** The subject must be at least this old. */
+  subject_min_age: int().min(0).max(200).default(0),
+  /** The subject must NOT be at a place with one of these tags (absent from meeting). */
+  subject_not_place_tags: z.array(id()).default([]),
+  /**
+   * A concealed subject (their people `concealed`) who fails to suppress this tell knows they
+   * showed it, and keeps away from its occasion for this many days (belief urge "Keep away").
+   */
+  wary_days: int().min(0).max(365).default(0),
 });
 export type TellDef = z.output<typeof TellSchema>;
 
@@ -248,6 +280,8 @@ export const GrudgeAimSchema = z.strictObject({
   /** Grudge intensity needed before the holder acts on it. */
   min_intensity: int().min(0).max(100).default(40),
   description: z.string().default(''),
+  /** The aim as a noun phrase for prose ("set its aim at their going"); defaults to the name. */
+  phrase: z.string().optional(),
 });
 export type GrudgeAimDef = z.output<typeof GrudgeAimSchema>;
 
@@ -286,6 +320,18 @@ export const beliefScenarioFields = {
         /** Actor key this figure truly is, if any (ground truth; hidden from actors). */
         truly: z.string().optional(),
         notoriety: int().min(0).max(100).default(10),
+        /**
+         * The archetype a teller fits to a person (04 §8.5 Specification: "someone" becomes a
+         * name): sex, a minimum age, and traits or occupation roles that suit the tale.
+         */
+        fits: z
+          .strictObject({
+            sex: z.enum(['female', 'male']).optional(),
+            min_age: int().min(0).max(200).default(0),
+            traits_any: z.array(id()).default([]),
+            roles_any: z.array(id()).default([]),
+          })
+          .optional(),
       }),
     )
     .default([]),

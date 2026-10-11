@@ -361,6 +361,15 @@ kind = "lodger"
 note = "Takes the front room at the tavern."
 
 [[opinions]]
+from = "ingrid_tveit"
+to = "hester_fenn"
+reason = "Has not aged a day since the first winter"
+affection = -5
+respect = 0
+trust = -5
+fear = 0
+
+[[opinions]]
 from = "johann_brenner"
 to = "gussie_pratt"
 reason = "Dunned him in front of customers"

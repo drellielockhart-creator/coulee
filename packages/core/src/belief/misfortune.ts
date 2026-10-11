@@ -204,10 +204,15 @@ export function attributeMisfortunes(world: World, ctx: SimContext): void {
           (def.uncanny ? 2 * suspicionOf(world, holder.id, id) : 0);
         candidates.push({ target: { kind: 'actor', id }, weight, order: id });
       }
+      // A figure of local legend is the superstitious mind's first suspect for an uncanny harm
+      // (soured milk, a dead cow): "the Bluff Witch did it" is how a figure enters the talk, and
+      // Specification (belief/api transmit) is how it later finds a face.
       for (const f of rowsOf(world.belief.figures))
         candidates.push({
           target: { kind: 'figure', id: f.id },
-          weight: Math.floor((f.notoriety * Math.max(0, 2 + view3(holder.values.superstition))) / 10),
+          weight:
+            Math.floor((f.notoriety * Math.max(0, 2 + view3(holder.values.superstition))) / 10) +
+            (def.uncanny ? 40 * Math.max(0, view3(holder.values.superstition)) : 0),
           order: 1000000 + f.id,
         });
       candidates.sort((a, b) => b.weight - a.weight || a.order - b.order);
@@ -247,6 +252,23 @@ export function attributeMisfortunes(world: World, ctx: SimContext): void {
             Object.fromEntries(candidates.map((c) => [c.target ? targetKey(c.target) : 'Natural', c.weight])),
           ),
         });
+      // The superstitious also say the uncanny thing out loud: "the Bluff Witch did it". A
+      // half-belief in the figure (whatever else they suspect) is how a figure enters the talk;
+      // Specification later gives it a face (belief/api transmit).
+      if (!previous && def.uncanny && view3(holder.values.superstition) >= 2 && ctx.content.predicates.cursed) {
+        const fig = [...rowsOf(world.belief.figures)].sort((a, b) => b.notoriety - a.notoriety || a.id - b.id)[0];
+        if (fig) {
+          const figProp = internProp(world, 'cursed', [
+            { kind: 'figure', id: fig.id },
+            { kind: 'misfortune', id: m.id },
+          ]);
+          if (!beliefOf(world, holder.id, figProp)) {
+            const b = ensureBelief(world, ctx, holder.id, figProp);
+            b.credence = clamp(10 * view3(holder.values.superstition) + Math.floor(fig.notoriety / 2), 0, 100);
+            observe(world, ctx, holder.id, figProp, { type: 'inference', dir: 1, sourceId: null, eventId: m.eventId });
+          }
+        }
+      }
       if (!winner || winner.kind === 'unknown' || winner.kind === 'household') continue;
       const pred = def.uncanny && holder.values.superstition > 0 ? 'cursed' : 'caused';
       if (!ctx.content.predicates[pred]) continue;

@@ -7,12 +7,15 @@ key = "bluff_witch"
 name = "the Bluff Witch"
 description = "A figure of campfire talk: a woman on the West Bluff who is said to dance with the wisps and sour the milk of those who cross her. Nobody has ever named her. Whoever she is, she is not any one person yet."
 notoriety = 12
+# Who a teller fits the tale to (Specification): a woman of some years, a charmer for choice.
+fits = { sex = "female", min_age = 40, roles_any = ["pellar"], traits_any = ["recluse", "superstitious"] }
 
 [[figures]]
 key = "lantern_lady"
 name = "the Lantern Lady"
 description = "What the lower coulee says about the lights at night. Some say she leads people astray; others say she leads them home."
 notoriety = 20
+fits = { sex = "female", min_age = 18, traits_any = ["fae_touched"] }
 
 # --- Beliefs (what actors currently hold, voiced or not)
 
@@ -36,6 +39,13 @@ prop = { pred = "faekin", args = ["clara_stoughton"] }
 credence = 15
 voiced = false
 note = "The schoolhouse wards, the gauges: too much knowing, too little prayer."
+
+[[beliefs]]
+holder = "ingrid_tveit"
+prop = { pred = "faekin", args = ["hester_fenn"] }
+credence = 30
+voiced = false
+note = "She has not aged since the first winter, and Ingrid has. She says nothing yet; she watches Hester at the bell."
 
 [[beliefs]]
 holder = "mercy_bell"

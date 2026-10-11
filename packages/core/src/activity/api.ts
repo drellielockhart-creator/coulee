@@ -1,11 +1,13 @@
 /**
  * Activity cross-module API. OWNER: module:needs-activities.
  */
+import { grudgeTargetsOf } from '../belief/grudges.ts';
 import type { ScheduleBlock } from '../content.ts';
-import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
+import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
+import { mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
-import { areKin } from '../social/api.ts';
-import { type CalendarInfo, yearsBetween } from '../time.ts';
+import { areKin, familiarityOf, isEstranged, opinionLabel, opinionOf } from '../social/api.ts';
+import { type CalendarInfo, dayIndex, MINUTES_PER_DAY, yearsBetween } from '../time.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { blockActive, monthMatches, type Routine, routineFor } from './calendar.ts';
@@ -131,24 +133,22 @@ export function resolveActivityPlace(
   if (def.at === 'home') return home;
   if (def.at === 'anywhere') return actor.placeId;
   if (def.at === 'workplace') return world.activity.byActor[actorId]?.workplaceId ?? home;
+  if (def.at === 'kin') {
+    // A call is paid to a person, not to the nearest door (04 §11.2): see callTarget.
+    const current = world.activity.byActor[actorId];
+    if (current?.activityId === activityId && homeOwner(world, current.placeId, actor.householdId) !== null) {
+      return current.placeId;
+    }
+    const target = callTarget(world, actorId);
+    const targetHome =
+      target !== null ? world.households[requiredRow(world.actors, target).householdId]?.homePlaceId : undefined;
+    return targetHome ?? home;
+  }
   const origin = world.places[home];
-  let candidates = idsOf<PlaceId>(world.places).filter((id) => {
+  const candidates = idsOf<PlaceId>(world.places).filter((id) => {
     const p = requiredRow(world.places, id);
     return def.at === 'venue' && def.venue_tags.some((t) => p.tags.includes(t));
   });
-  if (def.at === 'kin') {
-    const kinHomes = new Set<PlaceId>();
-    const otherHomes = new Set<PlaceId>();
-    for (const id of idsOf<ActorId>(world.actors)) {
-      const other = requiredRow(world.actors, id);
-      const otherHome = world.households[other.householdId]?.homePlaceId;
-      if (!other.alive || other.householdId === actor.householdId || otherHome === undefined) continue;
-      otherHomes.add(otherHome);
-      if (areKin(world, actorId, id)) kinHomes.add(otherHome);
-    }
-    const homes = kinHomes.size > 0 ? kinHomes : otherHomes;
-    candidates = idsOf<PlaceId>(world.places).filter((id) => homes.has(id));
-  }
   candidates.sort((a, b) => {
     const pa = requiredRow(world.places, a);
     const pb = requiredRow(world.places, b);
@@ -158,7 +158,88 @@ export function resolveActivityPlace(
     const db = Math.abs(pb.x - (origin?.x ?? 0)) + Math.abs(pb.y - (origin?.y ?? 0));
     return siteA - siteB || da - db || a - b;
   });
-  return candidates[0] ?? (def.at === 'kin' ? home : null);
+  return candidates[0] ?? null;
+}
+
+/** The household (other than `own`) whose home this place is, or null. */
+function homeOwner(world: World, placeId: PlaceId, own: HouseholdId): HouseholdId | null {
+  for (const hid of idsOf<HouseholdId>(world.households)) {
+    if (hid !== own && world.households[hid]?.homePlaceId === placeId) return hid;
+  }
+  return null;
+}
+
+const SALT_CALL = 0xca11;
+/** Calls remembered per actor, and the window and ×percent of the per-household repeat penalty. */
+const CALL_LOG_MAX = 8;
+const CALL_REPEAT_DAYS = 14;
+const CALL_REPEAT_PCT = 50;
+/** Labels that keep a caller away: nobody pays a social call on an Enemy or on someone they fear. */
+const NO_CALL_LABELS: readonly string[] = ['Enemy', 'Cowed'];
+
+export interface CallChoice {
+  targetId: ActorId;
+  weight: number;
+}
+
+/**
+ * Whom a 'kin' activity (Pay a call) goes to see today. Candidates are people of 14 or more in
+ * other households: weight = max(0, Affection + 20) + 30 if kin + familiarity/20, halved per
+ * call on that household in the last 14 days and for another site. Enemies, the Cowed, the
+ * estranged and the targets of the caller's grudges are never called on. The pick is a
+ * weighted roll on the 'activity' stream keyed by (caller, day), so it is stable all day and
+ * calls rotate across days. Null when there is nobody to call on.
+ */
+export function callTarget(world: World, actorId: ActorId): ActorId | null {
+  const cands = callCandidates(world, actorId);
+  if (cands.length === 0) return null;
+  const day = dayIndex(world.time);
+  const r = rng(world.meta.seed, 'activity', day * MINUTES_PER_DAY, mixKey(actorId, day, SALT_CALL));
+  return r.weighted(cands, (c) => c.weight)?.targetId ?? null;
+}
+
+/** Call candidates with their weights (ascending ids); exported for the dossier and tests. */
+export function callCandidates(world: World, actorId: ActorId): CallChoice[] {
+  const actor = world.actors[actorId];
+  if (!actor) return [];
+  const origin = world.places[world.households[actor.householdId]?.homePlaceId ?? actor.placeId];
+  const grudges = grudgeTargetsOf(world, actorId);
+  const today = dayIndex(world.time);
+  const log = world.activity.calls?.[actorId] ?? [];
+  const out: CallChoice[] = [];
+  for (const id of idsOf<ActorId>(world.actors)) {
+    const other = requiredRow(world.actors, id);
+    if (!other.alive || other.householdId === actor.householdId) continue;
+    if (yearsBetween(other.born, world.time) < 14) continue;
+    const home = world.households[other.householdId]?.homePlaceId;
+    if (home === undefined || !world.places[home]) continue;
+    if (grudges.actors.includes(id) || grudges.households.includes(other.householdId)) continue;
+    const op = opinionOf(world, actorId, id);
+    if (NO_CALL_LABELS.includes(opinionLabel(op))) continue;
+    if (isEstranged(world, actorId, id)) continue;
+    const kin = areKin(world, actorId, id);
+    if (op.affection + 20 <= 0 && !kin) continue;
+    let w = Math.max(0, op.affection + 20) + (kin ? 30 : 0) + Math.floor(familiarityOf(world, actorId, id) / 20);
+    for (const c of log) {
+      if (c.householdId === other.householdId && today - c.day < CALL_REPEAT_DAYS)
+        w = Math.floor((w * CALL_REPEAT_PCT) / 100);
+    }
+    if (origin && world.places[home]?.siteId !== origin.siteId) w = Math.floor(w / 2);
+    if (w > 0) out.push({ targetId: id, weight: w });
+  }
+  return out;
+}
+
+/** Note a call begun at `placeId` (activity system), for the repeat penalty. */
+export function noteCall(world: World, actorId: ActorId, placeId: PlaceId): void {
+  const actor = world.actors[actorId];
+  if (!actor) return;
+  const hid = homeOwner(world, placeId, actor.householdId);
+  if (hid === null) return;
+  world.activity.calls ??= {};
+  const log = world.activity.calls[actorId] ?? [];
+  log.push({ day: dayIndex(world.time), householdId: hid });
+  world.activity.calls[actorId] = log.length > CALL_LOG_MAX ? log.slice(log.length - CALL_LOG_MAX) : log;
 }
 
 /** Effective town schedule, including meals, observances and attendance decisions. */

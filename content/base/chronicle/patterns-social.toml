@@ -162,8 +162,8 @@ voice = "paper"
 when = { kind = "cold" }
 headline = "A Poor Return"
 text = [
-  "#paper_grieve# that {actor}, whom {target} {favor} {span} ago, has lately {act} {target}{_at}. The old saw about the hand that feeds is not new, but it is apt.",
-  "{^target} is reported to have had a poor return for a kindness. {^actor} {act} {target}{_at} {when}, {span} after being {favor} by {target_him}. Memory in this county is long and not always grateful.",
+  "#paper_grieve# that {actor}, whom {target} {favor} {span} ago, has lately {act_pp} {target}{_at}. The old saw about the hand that feeds is not new, but it is apt.",
+  "{^target} is reported to have had a poor return for a kindness. {^actor} {act} {target}{_at} {when}, {span} after {target} {favor} {him}. Memory in this county is long and not always grateful.",
 ]
 
 [[template]]
@@ -174,7 +174,7 @@ when = { kind = "grave" }
 headline = "Betrayed"
 text = [
   "#paper_grieve# that {target}, who stood by {actor} {span} ago, has been wronged by the very person helped: {actor} {act} {target}{_at} {when}. The village is shocked, or says so.",
-  "A betrayal is reported. {^actor}, who was {favor} by {target} when it counted, has since {act} {target}. We withhold further comment until further is warranted.",
+  "A betrayal is reported. {^actor}, whom {target} {favor} when it counted, has since {act_pp} {target}. We withhold further comment until further is warranted.",
 ]
 
 [[template]]
@@ -191,8 +191,8 @@ on = "betrayal"
 voice = "journal"
 when = { target_me = true }
 text = [
-  "{^actor}. After all that I {favor} {actor}, {actor} has {act} me. I will say it plainly here because I cannot say it anywhere else: I did not think it of {actor}.",
-  "I was good to {actor}. I put that on the page so I shall not mistake myself. And {actor} has {act} me{_at}. I am not angry yet. I am doing sums.",
+  "{^actor}. After all that I {favor} {actor}, {actor} has {act_pp} me. I will say it plainly here because I cannot say it anywhere else: I did not think it of {actor}.",
+  "I was good to {actor}. I put that on the page so I shall not mistake myself. And {actor} has {act_pp} me{_at}. I am not angry yet. I am doing sums.",
 ]
 
 [[template]]
@@ -202,7 +202,7 @@ voice = "journal"
 tone = "piety"
 when = { target_me = true }
 text = [
-  "{^actor} has {act} me, whom I helped. Judas had his hour too. I try to pray for {actor} and find I am only praying at {actor}.",
+  "{^actor} has {act_pp} me, whom I helped. Judas had his hour too. I try to pray for {actor} and find I am only praying at {actor}.",
 ]
 
 [[template]]
@@ -321,7 +321,7 @@ on = "friendship"
 voice = "ballad"
 when = { across = true }
 text = [
-  "They were foes at the start of the year,\nAnd friends by the end of the spring;\nThere's no knowing what the river will make\nOf a stone and a stone in a ring.",
+  "They were foes at the start of the year,\nAnd friends ere the year went round;\nThere's no knowing what the river will make\nOf two stones in the one ground.",
 ]
 
 [[template]]
@@ -339,7 +339,7 @@ on = "friendship"
 voice = "epilogue"
 text = [
   "A friendship formed between {actor_short} and {target_short} that nobody noticed. It outlasted several louder things.",
-  "No day can be named for it: {actor_short} and {target_short} were simply, one spring, the kind of people who sat together.",
+  "No day can be named for it: {actor_short} and {target_short} were simply, one season, the kind of people who sat together.",
   "It was the easy sort of friendship, that nobody made a story of, and so it lasted.",
 ]
 

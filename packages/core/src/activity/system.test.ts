@@ -127,7 +127,11 @@ describe('activity round', () => {
       rest_labor: true,
       rest_activity: 'idle_at_home',
       blocks: [
-        { ...block('attend_church'), attend: { base_pct: 70, value_pct: {}, trait_pct: {} }, fallback: 'idle_at_home' },
+        {
+          ...block('attend_church'),
+          attend: { base_pct: 70, value_pct: {}, trait_pct: {}, weather_pct: [] },
+          fallback: 'idle_at_home',
+        },
       ],
     });
     f.world.time = toGameMinute(1855, 4, 1, 9);
@@ -243,7 +247,10 @@ it('needs and calendar remain deterministic and plain JSON through a mid-day sav
     f.content.observances.test = observance({
       when: { weekdays: ['mon', 'tue', 'wed', 'thu'] },
       blocks: [
-        { ...block('drink_at_tavern', 19, 21), attend: { base_pct: 40, value_pct: { piety: -8 }, trait_pct: {} } },
+        {
+          ...block('drink_at_tavern', 19, 21),
+          attend: { base_pct: 40, value_pct: { piety: -8 }, trait_pct: {}, weather_pct: [] },
+        },
       ],
     });
   const run = (world: World, hours: number) => {

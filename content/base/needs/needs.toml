@@ -142,11 +142,16 @@ urges = [
 id = "standing"
 name = "Standing"
 kind = "social"
-description = "Being someone in the neighborhood: respected work, a seat in the pew, credit at the store (04)."
-initial = 650
-decay_per_hour = 2
+description = "Being someone in the neighborhood: respected work, a seat in the pew, credit at the store (04). It rests where a person's place in the town puts it and moves with what the town sees: honors and kindnesses raise it, humiliation and dunning lower it, and it drifts back over days."
+initial = 600
+decay_per_hour = 0
 asleep_pct = 100
 bands = [{ below = 350, label = "Overlooked" }]
+# Resting level: 450 for a grown person, 400 for a child, plus the largest office bonus.
+# A day's work (+2..+5 an hour) holds a working man a little above it; a public humiliation
+# (mockery, a beating, an accusation, being dunned before others) knocks it down by 20..80,
+# and it takes days to drift back (1% of the gap an hour).
+baseline = { toward = 400, per_hour_permille = 10, age_bonus = [{ min_age = 16, bonus = 50 }], role_bonus = { preacher = 150, jp = 150, mine_captain = 130, accord_speaker = 130, hall_reader = 120, editor = 100, militia_captain = 100, storekeeper = 90, land_agent = 80, surveyor = 70, teacher = 70, class_leader = 70, miller = 60, smith = 60, tavern_keeper = 50, pellar = 40, ferryman = 20 } }
 
 [[need]]
 id = "security"
@@ -182,9 +187,12 @@ urges = [{ activity = "family_devotions", below = 400, ceiling = 550, drive = "l
 id = "drink"
 name = "Drink"
 kind = "physical"
-description = "A taste for the bottle, the pipe, the strong cup (10 §3.4 vice need). It builds slowly and a tavern evening satisfies it."
+description = "A taste for the bottle, the pipe, the strong cup (10 §3.4 vice need). Not everyone's: it builds only in those with the taste (Fond of a Glass, Given to Drink), never in a child, and a tavern evening satisfies it."
 initial = 800
 decay_per_hour = 3
 asleep_pct = 0
+only_traits = ["tippler", "drunkard"]
+decay_min_age = 16
+trait_pct = { tippler = 60, drunkard = 150 }
 bands = [{ below = 300, label = "Hankering" }]
 urges = [{ activity = "drink_at_tavern", below = 350, ceiling = 650, drive = "hunger", label = "Hankering for a drink" }]
