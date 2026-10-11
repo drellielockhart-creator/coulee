@@ -9,4 +9,14 @@ export type ActivityEvent =
   /** An actor began a new activity block. Routine: give it no importance. */
   | EventOf<'activity.started', { actorId: ActorId; activityId: string; placeId: PlaceId; source: ActivitySource }>
   /** An actor moved between places. */
-  | EventOf<'activity.moved', { actorId: ActorId; from: PlaceId; to: PlaceId }>;
+  | EventOf<'activity.moved', { actorId: ActorId; from: PlaceId; to: PlaceId }>
+  | EventOf<
+      'activity.attendance',
+      { actorId: ActorId; observanceId: string; block: number; chance: number; roll: number; attends: boolean }
+    >
+  | EventOf<
+      'activity.rota',
+      { householdId: import('../ids.ts').HouseholdId; observanceId: string; block: number; actorId: ActorId }
+    >
+  | EventOf<'activity.observance', { observanceId: string; name: string }>
+  | EventOf<'activity.gathering', { observanceId: string; activityId: string; actorIds: ActorId[]; placeId: PlaceId }>;

@@ -2,16 +2,21 @@
  * Needs state. OWNER: module:needs-activities.
  * Every need is 0..1000 (1000 = satisfied). Values are integers.
  */
+import { requiredRow } from '../activity/definitions.ts';
 import type { NeedId } from '../content.ts';
 import { type ActorId, idsOf, mustGet, type Table } from '../ids.ts';
 import type { InitContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
+import { updateBands } from './bands.ts';
 
 export interface ActorNeeds {
   /** Need id -> 0..1000. */
   values: Record<NeedId, number>;
   /** Need id -> current band label ('' when above all bands), for change detection. */
   bands: Record<NeedId, string>;
+  /** Unmet points at zero; repaid from later credits. Optional for older saves. */
+  debt?: Record<NeedId, number>;
+  debtBands?: Record<NeedId, string>;
 }
 
 export interface NeedsState {
@@ -31,10 +36,14 @@ export function initNeedsState(world: World, ctx: InitContext): void {
     const overrides = byKey[actor.key] ?? {};
     const values: Record<string, number> = {};
     const bands: Record<string, string> = {};
-    for (const need of Object.values(ctx.content.needs)) {
+    for (const need of Object.keys(ctx.content.needs)
+      .sort()
+      .map((key) => requiredRow(ctx.content.needs, key))) {
       values[need.id] = overrides[need.id] ?? need.initial;
       bands[need.id] = '';
     }
-    world.needs.byActor[id] = { values, bands };
+    world.needs.byActor[id] = { values, bands, debt: {}, debtBands: {} };
+    for (const key of Object.keys(ctx.content.needs).sort())
+      updateBands(world, id, requiredRow(ctx.content.needs, key), ctx);
   }
 }

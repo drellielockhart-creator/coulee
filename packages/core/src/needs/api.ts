@@ -1,63 +1,153 @@
-/**
- * Needs cross-module API. OWNER: module:needs-activities.
- * Other modules change needs ONLY through these functions.
- */
+/** Needs mutations are shared by meals, social encounters and the hourly ledger. */
+import { requiredRow } from '../activity/definitions.ts';
 import type { NeedId } from '../content.ts';
+import type { Explain, ExplainTerm } from '../explain.ts';
 import type { ActorId, EventId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
+import { updateBands } from './bands.ts';
 
 export const NEED_MIN = 0;
 export const NEED_MAX = 1000;
-
 export function needValue(world: World, actorId: ActorId, needId: NeedId): number {
   return world.needs.byActor[actorId]?.values[needId] ?? NEED_MAX;
 }
-
 export interface NeedCause {
-  /** Short reason for logs/Explain: "Chat with Lydia Pratt". */
   label: string;
   eventId?: EventId;
+  /** Optional named inputs, used for the hourly physiology ledger. */
+  terms?: ExplainTerm[];
+  calculations?: Explain[];
 }
-
-/**
- * Add `delta` (may be negative) to a need, clamped to 0..1000. Returns the new value.
- * Used by social (company), activity effects, belief/psyche (security), etc.
- */
 export function satisfyNeed(
   world: World,
-  _ctx: SimContext,
+  ctx: SimContext,
   actorId: ActorId,
   needId: NeedId,
   delta: number,
-  _cause: NeedCause,
+  cause: NeedCause,
 ): number {
   const n = world.needs.byActor[actorId];
-  if (!n) return NEED_MAX;
-  const cur = n.values[needId] ?? NEED_MAX;
-  const next = Math.max(NEED_MIN, Math.min(NEED_MAX, cur + Math.round(delta)));
-  n.values[needId] = next;
-  return next;
+  const actor = world.actors[actorId];
+  if (!n || !actor?.alive || !Number.isFinite(delta)) return needValue(world, actorId, needId);
+  const def = ctx.content.needs[needId];
+  const before = n.values[needId] ?? def?.initial ?? NEED_MAX;
+  const credit = Math.round(delta) || 0;
+  n.debt ??= {};
+  const debt = n.debt;
+  let repay = 0;
+  if (def?.debt) {
+    if (credit < 0) debt[needId] = Math.min(def.debt.cap, (debt[needId] ?? 0) + Math.max(0, -before - credit));
+    else {
+      repay = Math.min(debt[needId] ?? 0, Math.floor((credit * def.debt.repay_pct) / 100));
+      debt[needId] = (debt[needId] ?? 0) - repay;
+    }
+  }
+  const after = Math.max(NEED_MIN, Math.min(NEED_MAX, before + credit - repay));
+  n.values[needId] = after;
+  ctx.emit({
+    kind: 'needs.changed',
+    data: { actorId, needId, before, after, delta: credit, debt: debt[needId] ?? 0 },
+    roles: [{ actor: actorId, role: 'subject' }],
+    visibility: 'inner',
+    ...(cause.eventId !== undefined ? { causes: [cause.eventId] } : {}),
+    explain: {
+      kind: 'formula',
+      label: cause.label,
+      subjects: [actorId],
+      knowledge: 'self',
+      terms: [
+        { source: 'need', label: 'Before', value: before },
+        ...(cause.terms ?? [{ source: 'base', label: cause.label, value: credit }]).map((t) => ({
+          ...t,
+          value: t.value || 0,
+        })),
+        { source: 'need', label: 'Debt repaid', value: repay === 0 ? 0 : -repay },
+        { source: 'need', label: 'Meter bounds', value: after - before - credit + repay },
+      ],
+      total: after,
+      outcome: 'updated',
+      ...(cause.calculations ? { children: cause.calculations } : {}),
+    },
+  });
+  if (def) updateBands(world, actorId, def, ctx);
+  return after;
 }
 
-/**
- * Food energy -> hunger. Called by provisions for every meal. The kcal -> points conversion
- * (and labor multipliers) is owned by needs. STUB returns without effect.
- */
-export function feed(_world: World, _ctx: SimContext, _actorId: ActorId, _kcal: number, _cause: NeedCause): void {
-  // STUB: implemented by module:needs-activities (emit 'needs.fed').
+function intake(
+  world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+  amount: number,
+  unit: 'kcal' | 'ml',
+  cause: NeedCause,
+): void {
+  if (!world.actors[actorId]?.alive || !world.needs.byActor[actorId] || !Number.isFinite(amount) || amount <= 0) return;
+  const def = Object.keys(ctx.content.needs)
+    .sort()
+    .map((key) => requiredRow(ctx.content.needs, key))
+    .find((n) => n.intake?.unit === unit);
+  if (!def?.intake) return;
+  const units = Math.max(0, Math.round(amount));
+  const before = needValue(world, actorId, def.id);
+  const points = Math.round(units / def.intake.per_point);
+  const after = satisfyNeed(world, ctx, actorId, def.id, points, {
+    ...cause,
+    terms: [{ source: 'base', label: `${units} ${unit} / ${def.intake.per_point} per point`, value: points }],
+  });
+  ctx.emit({
+    ...(unit === 'kcal'
+      ? { kind: 'needs.fed' as const, data: { actorId, kcal: units, before, after } }
+      : { kind: 'needs.drank' as const, data: { actorId, ml: units, before, after } }),
+    roles: [{ actor: actorId, role: 'beneficiary' }],
+    visibility: 'private',
+    place: world.actors[actorId]?.placeId,
+    ...(cause.eventId !== undefined ? { causes: [cause.eventId] } : {}),
+    explain: {
+      kind: 'formula',
+      label: cause.label,
+      subjects: [actorId],
+      knowledge: 'self',
+      terms: [
+        { source: 'base', label: `${unit} intake`, value: units },
+        { source: 'need', label: 'Units per point', value: def.intake.per_point },
+      ],
+      total: after - before,
+      outcome: 'satisfied',
+      note: 'Labor changes expenditure, not the energy or water in an intake.',
+    },
+  });
 }
-
-/** Water -> thirst, if/when a thirst need exists. STUB. */
-export function drink(_world: World, _ctx: SimContext, _actorId: ActorId, _ml: number, _cause: NeedCause): void {
-  // STUB
+export function feed(world: World, ctx: SimContext, actorId: ActorId, kcal: number, cause: NeedCause): void {
+  intake(world, ctx, actorId, kcal, 'kcal', cause);
 }
-
-/**
- * Id-voiced urges from need deficits: hungry -> eat (activity 'take_meal' or provisions
- * eating), tired -> sleep, lonely -> company venues. Called by psyche each hour.
- */
-export function proposeNeedUrges(_world: World, _ctx: SimContext, _actorId: ActorId): UrgeProposal[] {
-  return []; // STUB
+export function drink(world: World, ctx: SimContext, actorId: ActorId, ml: number, cause: NeedCause): void {
+  intake(world, ctx, actorId, ml, 'ml', cause);
+}
+export function proposeNeedUrges(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
+  if (!world.actors[actorId]?.alive) return [];
+  const out: UrgeProposal[] = [];
+  for (const key of Object.keys(ctx.content.needs).sort()) {
+    const def = requiredRow(ctx.content.needs, key);
+    const value = needValue(world, actorId, key);
+    for (const urge of def.urges) {
+      if (value >= urge.below || !ctx.content.activities[urge.activity]) continue;
+      const intensity = Math.min(
+        1000,
+        Math.round(((urge.below - value) * urge.ceiling) / urge.below) +
+          Math.floor((world.needs.byActor[actorId]?.debt?.[key] ?? 0) / 8),
+      );
+      out.push({
+        urge: { kind: 'activity', activityId: urge.activity },
+        voice: 'id',
+        intensity,
+        label: urge.label,
+        source: 'needs',
+        drive: urge.drive,
+        reasons: [{ source: 'need', label: `${def.name} deficit below ${urge.below}`, value: intensity }],
+      });
+    }
+  }
+  return out;
 }

@@ -218,6 +218,10 @@ export const ActivitySchema = z.strictObject({
    * with one of `venue_tags`, the home of kin or a neighbor, or wherever the actor already is.
    */
   at: z.enum(['home', 'workplace', 'venue', 'kin', 'anywhere']),
+  /** Optional participation limits; shared by activity resolution and social proposals. */
+  min_age: nonNegInt().optional(),
+  max_age: nonNegInt().optional(),
+  sexes: z.array(z.enum(['female', 'male'])).optional(),
   venue_tags: z.array(id()).default([]),
   labor: z.enum(LABOR).default('light'),
   asleep: z.boolean().default(false),

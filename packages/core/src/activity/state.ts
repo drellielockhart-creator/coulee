@@ -29,6 +29,8 @@ export interface ActivityState {
   byActor: Table<ActorId, ActorActivity>;
   /** Place -> actor ids present, ascending. Recomputed every hour after movement. */
   occupancy: Table<PlaceId, ActorId[]>;
+  /** Stable attendance and household rota draws, regenerated once per day. */
+  calendar?: { dayIndex: number; rolls: Record<string, number>; rotas: Record<string, ActorId> };
 }
 
 export function createActivityState(): ActivityState {
