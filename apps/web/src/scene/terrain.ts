@@ -154,9 +154,7 @@ export function buildTerrain(site: SiteLike, places: readonly PlaceLike[]): Terr
   const smooth = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
   const flatBoost = (x: number, y: number): boolean => places.some((p) => insideFootprint(p, x, y, 1.5));
   // A landing or ferry near the south edge means the creek drops into a river there (01 §8.2).
-  const riverFrom = places.some(
-    (p) => (p.kind === 'landing' || p.tags.includes('ferry')) && p.y + p.h >= site.h - 8,
-  )
+  const riverFrom = places.some((p) => (p.kind === 'landing' || p.tags.includes('ferry')) && p.y + p.h >= site.h - 8)
     ? site.h + 3
     : null;
 

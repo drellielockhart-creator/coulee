@@ -85,7 +85,10 @@ export function NutritionBlock(props: { n: ActorView['provisions']['nutrition'];
       <div className="meter">
         <span className="k">Scurvy</span>
         <Bar value={n.scurvy} bad={n.scurvy >= 300} label={`Scurvy ${n.scurvy} of 1000`} />
-        <span className="v">{n.scurvy >= 300 ? '⚠ ' : ''}{num(n.scurvy)}</span>
+        <span className="v">
+          {n.scurvy >= 300 ? '⚠ ' : ''}
+          {num(n.scurvy)}
+        </span>
       </div>
       <div className="meter">
         <span className="k">Monotony</span>

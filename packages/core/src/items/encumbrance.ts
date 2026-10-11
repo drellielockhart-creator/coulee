@@ -55,7 +55,15 @@ export const LOAD_BANDS: readonly LoadBand[] = [
   { id: 'light', label: 'Light', upToPct: 40, speedPct: 95, fatigueTenths: 11, stealth: -1, climb: -1 },
   { id: 'medium', label: 'Medium', upToPct: 66, speedPct: 80, fatigueTenths: 14, stealth: -2, climb: -3 },
   { id: 'heavy', label: 'Heavy', upToPct: 100, speedPct: 60, fatigueTenths: 20, stealth: -5, climb: -6 },
-  { id: 'staggering', label: 'Staggering', upToPct: 1_000_000, speedPct: 30, fatigueTenths: 30, stealth: -10, climb: -10 },
+  {
+    id: 'staggering',
+    label: 'Staggering',
+    upToPct: 1_000_000,
+    speedPct: 30,
+    fatigueTenths: 30,
+    stealth: -10,
+    climb: -10,
+  },
 ];
 
 export function bandForPct(pct: number): LoadBand {
@@ -81,9 +89,12 @@ export function loadReport(world: World, content: ContentBundle, actorId: ActorI
   const w = weightG(world, content, carriedBy(actorId));
   const pct = cap > 0 ? Math.floor((w * 100) / cap) : 0;
   const band = bandForPct(pct);
-  const lines: string[] = [`${band.label}: ${pct}% of the ${Math.round(cap / GRAMS_PER_LB)} lb Strength ${str} can manage.`];
+  const lines: string[] = [
+    `${band.label}: ${pct}% of the ${Math.round(cap / GRAMS_PER_LB)} lb Strength ${str} can manage.`,
+  ];
   if (band.speedPct < 100) lines.push(`Overland speed ${band.speedPct}% of normal.`);
-  if (band.fatigueTenths > 10) lines.push(`Tires ${Math.floor(band.fatigueTenths / 10)}.${band.fatigueTenths % 10} times as fast.`);
+  if (band.fatigueTenths > 10)
+    lines.push(`Tires ${Math.floor(band.fatigueTenths / 10)}.${band.fatigueTenths % 10} times as fast.`);
   if (band.stealth < 0) lines.push(`Stealth ${band.stealth}.`);
   if (band.climb < 0) lines.push(`Climbing and swimming ${band.climb}.`);
   if (band.id === 'staggering') lines.push('Short hauls only.');

@@ -82,7 +82,12 @@ export const useUi = create<UiState>((set, get) => ({
       selectedPlace: id === null ? s.selectedPlace : null,
       panel: id === null ? (s.panel === 'dossier' ? 'none' : s.panel) : 'dossier',
       dossierTab: opts?.tab ?? s.dossierTab,
-      sheet: id === null ? (s.panel === 'dossier' ? 'closed' : s.sheet) : (opts?.sheet ?? (s.sheet === 'closed' || s.sheet === 'peek' ? 'half' : s.sheet)),
+      sheet:
+        id === null
+          ? s.panel === 'dossier'
+            ? 'closed'
+            : s.sheet
+          : (opts?.sheet ?? (s.sheet === 'closed' || s.sheet === 'peek' ? 'half' : s.sheet)),
     })),
   selectPlace: (id) =>
     set((s) => ({
@@ -97,7 +102,12 @@ export const useUi = create<UiState>((set, get) => ({
       sheet: panel === 'none' ? 'closed' : (sheet ?? (s.sheet === 'closed' || s.sheet === 'peek' ? 'half' : s.sheet)),
     })),
   close: () => set({ panel: 'none', sheet: 'closed', pinned: false, speedsOpen: false }),
-  setSheet: (sheet) => set((s) => (sheet === 'closed' ? { sheet, panel: 'none', pinned: false } : { sheet, pinned: sheet === 'full' ? s.pinned : false })),
+  setSheet: (sheet) =>
+    set((s) =>
+      sheet === 'closed'
+        ? { sheet, panel: 'none', pinned: false }
+        : { sheet, pinned: sheet === 'full' ? s.pinned : false },
+    ),
   setPinned: (pinned) => set({ pinned }),
   setTab: (dossierTab) => set({ dossierTab }),
   setSpeed: (chosenSpeed) =>
@@ -123,7 +133,10 @@ export const useUi = create<UiState>((set, get) => ({
     }),
   setOrderQty: (defId, qty) =>
     set((s) => ({
-      order: qty <= 0 ? s.order.filter((l) => l.defId !== defId) : s.order.map((l) => (l.defId === defId ? { ...l, qty } : l)),
+      order:
+        qty <= 0
+          ? s.order.filter((l) => l.defId !== defId)
+          : s.order.map((l) => (l.defId === defId ? { ...l, qty } : l)),
     })),
   clearOrder: () => set({ order: [] }),
   setBookSection: (bookSection) => set({ bookSection }),

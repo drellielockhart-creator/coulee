@@ -13,7 +13,15 @@ import * as THREE from 'three';
 import { loadModel } from './assets.ts';
 import { attachGestures, CameraRig, type TiltPreset } from './camera.ts';
 import { MotionTracker } from './motion.ts';
-import { buildTerrain, hash01, type PlaceLike, type SiteLike, scatterTrees, type Terrain, tileMeters } from './terrain.ts';
+import {
+  buildTerrain,
+  hash01,
+  type PlaceLike,
+  type SiteLike,
+  scatterTrees,
+  type Terrain,
+  tileMeters,
+} from './terrain.ts';
 
 export interface ScenePlace extends PlaceLike {
   name: string;
@@ -565,7 +573,7 @@ export class SiteRenderer {
       return g;
     }
     let wall: Swatch = SW.board;
-    let roof: Swatch = SW.shingle;
+    const roof: Swatch = SW.shingle;
     let height = 4;
     let fill = 0.82;
     if (tags.has('church')) {
@@ -590,10 +598,16 @@ export class SiteRenderer {
     }
     const bw = fw * fill;
     const bd = fd * fill;
-    const body = new THREE.Mesh(new THREE.BoxGeometry(bw, height, bd), new THREE.MeshLambertMaterial({ color: col(wall) }));
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(bw, height, bd),
+      new THREE.MeshLambertMaterial({ color: col(wall) }),
+    );
     body.position.y = height / 2;
     g.add(body);
-    const roofMesh = new THREE.Mesh(gable(bw * 1.08, bd * 1.1, Math.min(bw, bd) * 0.42), new THREE.MeshLambertMaterial({ color: col(roof) }));
+    const roofMesh = new THREE.Mesh(
+      gable(bw * 1.08, bd * 1.1, Math.min(bw, bd) * 0.42),
+      new THREE.MeshLambertMaterial({ color: col(roof) }),
+    );
     roofMesh.position.y = height;
     // Ridge runs along the longer side.
     if (bd > bw) roofMesh.rotation.y = Math.PI / 2;
@@ -608,20 +622,32 @@ export class SiteRenderer {
       g.add(front);
     }
     if (tags.has('church')) {
-      const tower = new THREE.Mesh(new THREE.BoxGeometry(2.2, height + 5, 2.2), new THREE.MeshLambertMaterial({ color: col(SW.whitewash) }));
+      const tower = new THREE.Mesh(
+        new THREE.BoxGeometry(2.2, height + 5, 2.2),
+        new THREE.MeshLambertMaterial({ color: col(SW.whitewash) }),
+      );
       tower.position.set(0, (height + 5) / 2, bd / 2 - 1.1);
-      const spire = new THREE.Mesh(new THREE.ConeGeometry(1.6, 6, 4), new THREE.MeshLambertMaterial({ color: col(SW.shingle) }));
+      const spire = new THREE.Mesh(
+        new THREE.ConeGeometry(1.6, 6, 4),
+        new THREE.MeshLambertMaterial({ color: col(SW.shingle) }),
+      );
       spire.position.set(0, height + 5 + 3, bd / 2 - 1.1);
       spire.rotation.y = Math.PI / 4;
       g.add(tower, spire);
     }
     if (tags.has('smithy') || p.kind === 'house' || tags.has('tavern')) {
-      const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.8, 2.2, 0.8), new THREE.MeshLambertMaterial({ color: col(SW.fieldstone) }));
+      const chimney = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 2.2, 0.8),
+        new THREE.MeshLambertMaterial({ color: col(SW.fieldstone) }),
+      );
       chimney.position.set(bw * 0.3, height + 1, 0);
       g.add(chimney);
     }
     if (tags.has('mill')) {
-      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.6, 1, 12), new THREE.MeshLambertMaterial({ color: col(SW.log) }));
+      const wheel = new THREE.Mesh(
+        new THREE.CylinderGeometry(2.6, 2.6, 1, 12),
+        new THREE.MeshLambertMaterial({ color: col(SW.log) }),
+      );
       wheel.rotation.z = Math.PI / 2;
       wheel.position.set(-bw / 2 - 0.6, 2.2, 0);
       g.add(wheel);

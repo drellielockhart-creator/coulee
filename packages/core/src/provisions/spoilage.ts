@@ -55,8 +55,6 @@ export function storageClassOf(world: World, content: ContentBundle, stack: Item
       const p = a ? world.places[a.placeId] : undefined;
       return p && (p.kind === 'building' || p.kind === 'house') ? 'indoor' : 'outdoor';
     }
-    case 'container':
-      return 'indoor';
   }
 }
 
@@ -67,7 +65,10 @@ export function stackTempF(cal: CalendarInfo, storage: StorageClass): number {
 }
 
 /** Packaging multiplier from the protection classes in the container chain (distinct classes, floored at 5%). */
-export function packagingPct(food: Food, classes: readonly ProtectionId[]): { pct: number; used: Array<{ cls: ProtectionId; pct: number }> } {
+export function packagingPct(
+  food: Food,
+  classes: readonly ProtectionId[],
+): { pct: number; used: Array<{ cls: ProtectionId; pct: number }> } {
   let p = 100;
   const used: Array<{ cls: ProtectionId; pct: number }> = [];
   for (const cls of classes) {
@@ -80,7 +81,12 @@ export function packagingPct(food: Food, classes: readonly ProtectionId[]): { pc
 }
 
 /** Compute the rate factors for a food stack at the given calendar moment. */
-export function spoilageFactors(world: World, content: ContentBundle, stack: ItemStack, cal: CalendarInfo): SpoilFactors | null {
+export function spoilageFactors(
+  world: World,
+  content: ContentBundle,
+  stack: ItemStack,
+  cal: CalendarInfo,
+): SpoilFactors | null {
   const food = content.items[stack.defId]?.food;
   if (!food) return null;
   const storage = storageClassOf(world, content, stack);
@@ -91,7 +97,17 @@ export function spoilageFactors(world: World, content: ContentBundle, stack: Ite
   const wetPct = wet ? food.spoilage.wet_pct : 100;
   const pack = packagingPct(food, protectionsOf(world, content, stack));
   const combinedPct = Math.max(1, Math.floor((tempPct * wetPct * pack.pct) / 10_000));
-  return { storage, storageTempF: f, band, tempPct, wet, wetPct, packClasses: pack.used, packPct: pack.pct, combinedPct };
+  return {
+    storage,
+    storageTempF: f,
+    band,
+    tempPct,
+    wet,
+    wetPct,
+    packClasses: pack.used,
+    packPct: pack.pct,
+    combinedPct,
+  };
 }
 
 /** Advance a stack's accumulator by `minutes` at the given factors. Returns the per-mille gained. */

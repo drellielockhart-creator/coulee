@@ -6,16 +6,7 @@
  */
 import type { ActorView } from '@coulee/core';
 import { useState } from 'react';
-import {
-  ago,
-  defenseLabel,
-  num,
-  psycheAlt,
-  psycheLabel,
-  title,
-  urgeWords,
-  voiceOf,
-} from '../../lib/format.ts';
+import { ago, defenseLabel, num, psycheAlt, psycheLabel, title, urgeWords, voiceOf } from '../../lib/format.ts';
 import { useUi } from '../../state/ui.ts';
 import { nameOf, useVm } from '../ctx.ts';
 import { ExplainView } from '../ExplainView.tsx';
@@ -37,8 +28,8 @@ export function MindTab(props: { actor: ActorView }) {
       <div className="mind">
         <SectionHead>What you read in {pronoun}</SectionHead>
         <Gated>
-          You can’t hear another’s thoughts. A Read People check would give you inferences, each with how sure you
-          are; none have been made yet.
+          You can’t hear another’s thoughts. A Read People check would give you inferences, each with how sure you are;
+          none have been made yet.
         </Gated>
         {p.persona ? (
           <p className="persona">
@@ -72,7 +63,10 @@ export function MindTab(props: { actor: ActorView }) {
         <div className="stat wide" title={`${alt('anxiety')} 0–1000`}>
           <span className="k">{L('anxiety')}</span>
           <Bar value={p.anxiety} bad={p.anxiety >= 500} label={`${L('anxiety')} ${p.anxiety} of 1000`} />
-          <span className="v">{p.anxiety >= 700 ? '⚠ ' : ''}{num(p.anxiety)}</span>
+          <span className="v">
+            {p.anxiety >= 700 ? '⚠ ' : ''}
+            {num(p.anxiety)}
+          </span>
         </div>
       </div>
 

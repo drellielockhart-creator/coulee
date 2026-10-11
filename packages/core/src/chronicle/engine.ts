@@ -11,9 +11,9 @@
 import { asEventId, type ChronicleEntryId, nextId } from '../ids.ts';
 import { newDraft, writeEntry } from './entries.ts';
 import type { Fact } from './facts.ts';
+import type { PatternParams } from './params.ts';
 import { PATTERNS } from './patterns/index.ts';
 import type { Accept, DetectCtx, PatternDef, View } from './patterns/types.ts';
-import type { PatternParams } from './params.ts';
 import type { Bindings } from './prose.ts';
 import type { ChronicleThread, ThreadFact } from './state.ts';
 import { uniq } from './text.ts';
@@ -213,7 +213,14 @@ function closeThread(dc: DetectCtx, def: PatternDef, p: PatternParams, th: Chron
         view === 'pub'
           ? newDraft({ ...base, voice: 'paper', basis: 'public', optional: true })
           : view === 'pc'
-            ? newDraft({ ...base, voice: 'journal', basis: 'witnessed', knownBy: [dc.pcId], authorId: dc.pcId, optional: true })
+            ? newDraft({
+                ...base,
+                voice: 'journal',
+                basis: 'witnessed',
+                knownBy: [dc.pcId],
+                authorId: dc.pcId,
+                optional: true,
+              })
             : newDraft({ ...base, voice: 'epilogue', basis: 'omniscient', optional: true });
       const e = writeEntry(dc, draft);
       if (e) th.entryIds.push(e.id);
@@ -222,7 +229,8 @@ function closeThread(dc: DetectCtx, def: PatternDef, p: PatternParams, th: Chron
   th.closed = true;
   st.threads.splice(st.threads.indexOf(th), 1);
   st.closedThreads.push({ ...th, facts: th.facts.slice(-3) });
-  if (st.closedThreads.length > MAX_CLOSED_THREADS) st.closedThreads.splice(0, st.closedThreads.length - MAX_CLOSED_THREADS);
+  if (st.closedThreads.length > MAX_CLOSED_THREADS)
+    st.closedThreads.splice(0, st.closedThreads.length - MAX_CLOSED_THREADS);
 }
 
 /** Daily upkeep: pattern counters, synthetic facts, then close stale threads. */

@@ -27,8 +27,8 @@ export function KnownTab(props: { actor: ActorView }) {
                 <div className="meta">
                   <Bar value={x.credence} max={100} label={`credence ${x.credence}`} />
                   <span>
-                    {credenceWord(x.credence)} ({x.credence}) · {x.evidenceCount} piece{x.evidenceCount === 1 ? '' : 's'}{' '}
-                    of evidence{x.voiced ? ' · said aloud' : ''}
+                    {credenceWord(x.credence)} ({x.credence}) · {x.evidenceCount} piece
+                    {x.evidenceCount === 1 ? '' : 's'} of evidence{x.voiced ? ' · said aloud' : ''}
                     {x.conceal ? ' · kept close' : ''}
                   </span>
                 </div>

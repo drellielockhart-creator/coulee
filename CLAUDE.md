@@ -38,6 +38,13 @@ A simulationist fantasy-frontier game (3.5e-shaped rules × RimWorld), set in a 
 7. **Do not copy D&D/3.5e text.** Use mechanics shapes only.
 8. **P8 crunch you can pack.** Food is never one number (kcal, protein/fat, fresh, shelf life, spoilage by temperature/wetness/packaging, prep needing fire+fuel+cookware+water). The planner and the sim use the same functions.
 
+## Two agent pools: Claude + Codex
+- `AGENTS.md` is a symlink to this file, so Codex (OpenAI) agents follow the same rules.
+- Delegate to Codex with `scripts/codex.sh <job> <prompt-file> [model] [effort] [sandbox] [output-schema]`. Logs go to `runs/codex/<job>/` (`last.md` = final message). **GPT-6.x only** (Ellie's rule): `gpt-6.1-sol` (default workhorse), `gpt-6-astra` (hardest problems), `gpt-6-luna` (mechanical). Never 5.x.
+- The Claude Code plugin `codex@openai-codex` is installed (`/codex:review`, `/codex:adversarial-review`, `/codex:rescue`). Always pass `--model gpt-6.1-sol` (or astra) explicitly.
+- Codex jobs follow the same file-ownership rules, don't run repo-wide formatters while others work, and never commit; the orchestrator commits.
+- Cross-model review is the point: have Codex review Claude's work and vice versa.
+
 ## Working rules
 - Respect file ownership in `docs/impl/MODULES.md`. Change other modules only through their `api.ts`. Contracts (exported types, view shapes, event payloads) are additive-only.
 - Add event kinds in your module's `events.ts` (`'<module>.<kind>'`) and commands in `commands.ts`. The central unions already include every module.

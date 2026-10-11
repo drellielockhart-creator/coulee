@@ -16,7 +16,17 @@ import { defineDomain, type Issue, id, int, nonNegInt, ratePct, ref } from './co
  * Argument kinds. `agent` = an actor or a Figure (who did it: "Ottilie Kass" or "the Bluff
  * Witch"); `misfortune` = a runtime misfortune record (the Brandt cows).
  */
-export const ARG_KINDS = ['actor', 'household', 'figure', 'place', 'item', 'text', 'number', 'agent', 'misfortune'] as const;
+export const ARG_KINDS = [
+  'actor',
+  'household',
+  'figure',
+  'place',
+  'item',
+  'text',
+  'number',
+  'agent',
+  'misfortune',
+] as const;
 export type ArgKind = (typeof ARG_KINDS)[number];
 
 export const PredicateSchema = z.strictObject({
@@ -343,7 +353,13 @@ interface ScenarioLike {
   figures: Array<{ key: string }>;
   beliefs: Array<{ prop: { pred: string; args: Array<string | number> } }>;
   secrets: Array<{ prop: { pred: string; args: Array<string | number> } }>;
-  misfortunes: Array<{ key: string; kind: string; household: string; victim?: string | undefined; culprit?: string | undefined }>;
+  misfortunes: Array<{
+    key: string;
+    kind: string;
+    household: string;
+    victim?: string | undefined;
+    culprit?: string | undefined;
+  }>;
 }
 
 function checkSeedArgs(
@@ -427,7 +443,11 @@ export function beliefRefs(b: ContentBundle): Issue[] {
     if (p.truncates_to !== undefined) {
       const t = b.predicates[p.truncates_to];
       if (t && t.args.join(',') !== p.args.slice(0, t.args.length).join(','))
-        issues.push({ where, path: 'truncates_to', message: `'${p.truncates_to}' args must be a prefix of ${p.args.join(', ')}` });
+        issues.push({
+          where,
+          path: 'truncates_to',
+          message: `'${p.truncates_to}' args must be a prefix of ${p.args.join(', ')}`,
+        });
     }
     if (p.kind_of !== undefined) {
       if (!b.peoples[p.kind_of]) issues.push({ where, path: 'kind_of', message: `unknown people '${p.kind_of}'` });
@@ -441,7 +461,8 @@ export function beliefRefs(b: ContentBundle): Issue[] {
     if (!p) issues.push({ where, path: 'predicate', message: `unknown predicate '${t.predicate}'` });
     else if (p.kind_of === undefined)
       issues.push({ where, path: 'predicate', message: `'${t.predicate}' has no kind_of (tells are kind evidence)` });
-    if (!b.skills[t.observe.skill]) issues.push({ where, path: 'observe.skill', message: `unknown skill '${t.observe.skill}'` });
+    if (!b.skills[t.observe.skill])
+      issues.push({ where, path: 'observe.skill', message: `unknown skill '${t.observe.skill}'` });
     if (t.suppress?.kind === 'skill' && !b.skills[t.suppress.id])
       issues.push({ where, path: 'suppress.id', message: `unknown skill '${t.suppress.id}'` });
     if (t.suppress?.kind === 'save' && !['fortitude', 'reflex', 'will'].includes(t.suppress.id))
@@ -451,7 +472,8 @@ export function beliefRefs(b: ContentBundle): Issue[] {
   if (rungs.length > 0) {
     for (let r = 0; r <= Math.max(...rungs); r++)
       if (!rungs.includes(r)) issues.push({ where: 'persecutionRungs', message: `missing rung ${r}` });
-    if (new Set(rungs).size !== rungs.length) issues.push({ where: 'persecutionRungs', message: 'duplicate rung numbers' });
+    if (new Set(rungs).size !== rungs.length)
+      issues.push({ where: 'persecutionRungs', message: 'duplicate rung numbers' });
   }
   for (const s of Object.values(b.scenarios) as unknown as ScenarioLike[]) {
     const where = `scenarios:${s.id}`;
@@ -471,7 +493,8 @@ export function beliefRefs(b: ContentBundle): Issue[] {
         ['victim', m.victim],
         ['culprit', m.culprit],
       ] as const)
-        if (v !== undefined && !actors.has(v)) issues.push({ where: w, path: field, message: `unknown actor key '${v}'` });
+        if (v !== undefined && !actors.has(v))
+          issues.push({ where: w, path: field, message: `unknown actor key '${v}'` });
     }
   }
   return issues;

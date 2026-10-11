@@ -8,8 +8,8 @@ import { useSim } from './useSim.ts';
 const SPEED_LABELS: Array<[keyof typeof SPEEDS, string]> = [
   ['paused', '❚❚'],
   ['x1', '1×'],
+  ['x2', '2×'],
   ['x3', '3×'],
-  ['x6', '6×'],
   ['ultra', '»'],
 ];
 

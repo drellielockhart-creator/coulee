@@ -60,7 +60,8 @@ const RULES: Rule[] = [
   },
   { re: /\*\*/, why: "'**' is Math.pow: multiply explicitly (x * x)" },
   {
-    re: /\b(process|Buffer|require|__dirname|__filename|globalThis|window|document|self|navigator|fetch|localStorage|sessionStorage|indexedDB|XMLHttpRequest|WebSocket|Worker|postMessage)\b/,
+    // Not after '.' (member access) and not before ':' (an object key), so `counters.process` / `{ self: ... }` are fine.
+    re: /(?<![.\w$])\b(process|Buffer|require|__dirname|__filename|globalThis|window|document|self|navigator|fetch|localStorage|sessionStorage|indexedDB|XMLHttpRequest|WebSocket|Worker|postMessage)\b(?!\s*\??:)/,
     why: 'host API: core has no Node/DOM access',
   },
   {

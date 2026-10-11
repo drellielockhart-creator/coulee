@@ -297,7 +297,11 @@ export type DefenseDef = z.output<typeof DefenseSchema>;
 // ---------------------------------------------------------------------------------------------
 
 const SideSchema = z
-  .strictObject({ drives: z.array(ref()).default([]), norms: z.array(ref()).default([]), tags: z.array(id()).default([]) })
+  .strictObject({
+    drives: z.array(ref()).default([]),
+    norms: z.array(ref()).default([]),
+    tags: z.array(id()).default([]),
+  })
   .default({ drives: [], norms: [], tags: [] });
 
 export const CompromiseSchema = z.strictObject({

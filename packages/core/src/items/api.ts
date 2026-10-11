@@ -7,11 +7,11 @@
  * order `idsOf` gives, without a sort per call.
  */
 import type { ContentBundle, ItemDef } from '../content.ts';
-import { type ActorId, type HouseholdId, type ItemId, type PlaceId } from '../ids.ts';
+import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
+import type { World } from '../world.ts';
 import { containerChain, MAX_NEST_DEPTH, rootLocation, sameLoc } from './containers.ts';
 import { type ItemLocation, type ItemStack, newStack, recordProvenance } from './state.ts';
-import type { World } from '../world.ts';
 
 export { sameLoc } from './containers.ts';
 
@@ -264,7 +264,13 @@ export function supplyUnits(world: World, content: ContentBundle, loc: ItemLocat
  * Burn up to `units` of a supply kind from the stacks at a location, lowest stack id first, tracking
  * the used part of the top unit in `partial`. Returns the units actually drawn.
  */
-export function consumeSupply(world: World, content: ContentBundle, loc: ItemLocation, kind: string, units: number): number {
+export function consumeSupply(
+  world: World,
+  content: ContentBundle,
+  loc: ItemLocation,
+  kind: string,
+  units: number,
+): number {
   let need = Math.max(0, Math.round(units));
   let drawn = 0;
   for (const { stack } of stacksDeep(world, loc)) {

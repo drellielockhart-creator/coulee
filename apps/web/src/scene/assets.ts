@@ -9,7 +9,7 @@
  * fallback answers unknown paths with index.html and a 200.
  * Anything missing renders as a procedural placeholder, so the map is never empty.
  */
-import * as THREE from 'three';
+import type * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const BASE = (import.meta.env.BASE_URL ?? '/').replace(/\/?$/, '/');

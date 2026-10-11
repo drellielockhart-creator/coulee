@@ -23,6 +23,8 @@ function argKey(a: PropArg): string {
       return `t:${JSON.stringify(a.value)}`;
     case 'number':
       return `n:${a.value}`;
+    case 'misfortune':
+      return `m:${a.id}`;
   }
 }
 
@@ -64,6 +66,8 @@ export function propText(world: World, content: ContentBundle, propId: PropId): 
         return a.value;
       case 'number':
         return String(a.value);
+      case 'misfortune':
+        return `misfortune #${a.id}`;
     }
   });
 }

@@ -75,6 +75,7 @@ export function baseBindings(world: World, content: ContentBundle, o: BaseBindin
     .filter((a) => a !== 0)
     .slice(0, 4)
     .map((a) => (o.formal ? formalName(world, content, a) : shortNameOf(world, a)));
-  if (cast.length > 0) out.cast = cast.length > 1 ? `${cast.slice(0, -1).join(', ')} and ${cast[cast.length - 1]}` : (cast[0] as string);
+  if (cast.length > 0)
+    out.cast = cast.length > 1 ? `${cast.slice(0, -1).join(', ')} and ${cast[cast.length - 1]}` : (cast[0] as string);
   return out;
 }

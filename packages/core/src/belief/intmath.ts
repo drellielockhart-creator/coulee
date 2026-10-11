@@ -82,7 +82,12 @@ export function sigmoidPermille(xQ8: number): number {
 }
 
 /** Exponential-ish decay by an integer time constant, on an integer with a milli residue. */
-export function decayStep(value: number, residue: number, tauDays: number, floorValue = 0): { value: number; residue: number } {
+export function decayStep(
+  value: number,
+  residue: number,
+  tauDays: number,
+  floorValue = 0,
+): { value: number; residue: number } {
   if (tauDays <= 0) return { value, residue };
   let q = value * 1000 + residue;
   const floorQ = floorValue * 1000;

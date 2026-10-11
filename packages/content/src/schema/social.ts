@@ -618,7 +618,14 @@ export function socialRefs(b: ContentBundle): Issue[] {
       checkRefs(issues, where, 'initiator_needs', Object.keys(eff.initiator_needs), b.needs, 'need');
       checkRefs(issues, where, 'target_needs', Object.keys(eff.target_needs), b.needs, 'need');
       checkRefs(issues, where, 'audience_needs', Object.keys(eff.audience_needs), b.needs, 'need');
-      checkRefs(issues, where, 'target_thought.interaction', [eff.target_thought?.interaction], b.interactions, 'interaction');
+      checkRefs(
+        issues,
+        where,
+        'target_thought.interaction',
+        [eff.target_thought?.interaction],
+        b.interactions,
+        'interaction',
+      );
     }
     for (const v of i.volition) {
       const problem = volitionDriverIssue(v.driver);

@@ -11,7 +11,9 @@ export const cmd = {
     return {
       kind: 'core.urge',
       actorId,
-      data: { urge: placeId === undefined ? { kind: 'activity', activityId } : { kind: 'activity', activityId, placeId } },
+      data: {
+        urge: placeId === undefined ? { kind: 'activity', activityId } : { kind: 'activity', activityId, placeId },
+      },
     };
   },
   interact(actorId: ActorId, interactionId: string, targetId: ActorId): Command {

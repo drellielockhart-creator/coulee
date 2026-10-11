@@ -191,8 +191,8 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
   const base = (over: Partial<Fact> & Pick<Fact, 'cls' | 'sub'>, extra: readonly number[]): Fact => {
     const k = knowledgeOf(ev, extra);
     const actors = uniq([...extra, ...ev.roles.map((r) => r.actor as number)].filter((x) => x > 0));
-    const agent = over.agent ?? (extra[0] ?? 0);
-    const target = over.target ?? (extra[1] ?? 0);
+    const agent = over.agent ?? extra[0] ?? 0;
+    const target = over.target ?? extra[1] ?? 0;
     const households = uniq([agent, target].map((a) => householdOf(world, a)).filter((h) => h > 0));
     return {
       ev,
@@ -399,7 +399,14 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
       const d = ev.data;
       const owner = ev.roles[0]?.actor as number | undefined;
       return base(
-        { cls: 'spoiled', sub: d.defId, weight: d.qty, valence: -20, base: ev.importance ?? 0, bind: { cls: 'spoiled' } },
+        {
+          cls: 'spoiled',
+          sub: d.defId,
+          weight: d.qty,
+          valence: -20,
+          base: ev.importance ?? 0,
+          bind: { cls: 'spoiled' },
+        },
         owner ? [owner] : [],
       );
     }
@@ -427,7 +434,12 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
           success: severe,
           valence: severe ? -40 : 0,
           base: ev.importance ?? (severe ? 40 : 3),
-          bind: { cls: 'need', need: d.needId, need_name: (need?.name ?? d.needId).toLowerCase(), band: d.to.toLowerCase() },
+          bind: {
+            cls: 'need',
+            need: d.needId,
+            need_name: (need?.name ?? d.needId).toLowerCase(),
+            band: d.to.toLowerCase(),
+          },
         },
         [d.actorId],
       );

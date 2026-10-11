@@ -4,21 +4,7 @@
  */
 import { type GameMinute, hourOfDay, WEEKDAY_NAMES, weekdayOf } from '../time.ts';
 
-const WORDS = [
-  'no',
-  'one',
-  'two',
-  'three',
-  'four',
-  'five',
-  'six',
-  'seven',
-  'eight',
-  'nine',
-  'ten',
-  'eleven',
-  'twelve',
-];
+const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
 
 /** 0..12 as words, else digits. */
 export function numberWord(n: number): string {

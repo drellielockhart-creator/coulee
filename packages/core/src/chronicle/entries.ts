@@ -16,9 +16,9 @@ import {
 import { hashString32, mixKey } from '../rng.ts';
 import type { GameMinute } from '../time.ts';
 import { baseBindings, weekNumber } from './bindings.ts';
+import type { DetectCtx } from './patterns/types.ts';
 import { type Bindings, renderTemplate } from './prose.ts';
 import type { ChronicleEntry, ChronicleVoice, EntryKind, KnowledgeBasis } from './state.ts';
-import type { DetectCtx } from './patterns/types.ts';
 import { capFirst, uniq } from './text.ts';
 
 export interface Draft {

@@ -193,10 +193,7 @@ export function initProvisionsState(world: World, ctx: InitContext): void {
       if (world.households[hid]?.homePlaceId === pid) owner = hid;
     }
     // A restock table that names this place applies even if the scenario did not link it.
-    const linked =
-      s.restock ??
-      Object.values(ctx.content.restocks ?? {}).find((r) => r.place === s.place)?.id ??
-      null;
+    const linked = s.restock ?? Object.values(ctx.content.restocks ?? {}).find((r) => r.place === s.place)?.id ?? null;
     const targets: Record<string, number> = {};
     for (const seed of s.items) targets[seed.item] = (targets[seed.item] ?? 0) + seed.qty;
     // Opening tabs: creditor edges owed to someone in the owning household (Gussie's ledger).

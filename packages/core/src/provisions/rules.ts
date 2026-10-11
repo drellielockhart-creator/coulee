@@ -4,8 +4,9 @@
  * Everything here is an integer. Meal plans and ration policies are content (content/base/provisions);
  * the copies below are the fallback when a bundle has none, so the sim never depends on a table being present.
  */
-import type { ContentBundle, ItemDef, PeopleDef } from '../content.ts';
+
 import type { MealPlanDef, RationPolicyDef } from '@coulee/content/schema';
+import type { ContentBundle, ItemDef, PeopleDef } from '../content.ts';
 
 /** Baseline daily energy at light labor, kcal (05 §6.1). */
 export const BASE_KCAL_PER_DAY = 2400;
@@ -70,7 +71,13 @@ export const RATION_RESTORE_DAYS = 30;
 export const SHOPPING = { triggerDays: 21, targetDays: 28, hour: 9, reserveCents: 100, reservePct: 15 } as const;
 
 /** Vermin (03 §3.7.2): per-day chance per susceptible stack, per mille, by storage kind. */
-export const VERMIN_DAILY_PERMILLE: Record<string, number> = { outdoor: 90, indoor: 30, cellar: 20, springhouse: 15, body: 0 };
+export const VERMIN_DAILY_PERMILLE: Record<string, number> = {
+  outdoor: 90,
+  indoor: 30,
+  cellar: 20,
+  springhouse: 15,
+  body: 0,
+};
 /** Packaging classes that keep mice out. */
 export const VERMIN_BLOCKERS = ['vermin_proof', 'airtight', 'brine'] as const;
 
@@ -86,7 +93,14 @@ export const WOODPILE = { perMemberDay: 2, capPerMember: 12 } as const;
 export const BEDTIME_HOUR = 21;
 
 /** Alcohol: grams of ethanol per standard drink, points of intoxication per gram, per hour decay. */
-export const ALCOHOL = { gramsPerDrink: 14, pointsPerGram: 14, decayPerHour: 60, drunkOn: 300, drunkOff: 150, hungoverHours: 8 } as const;
+export const ALCOHOL = {
+  gramsPerDrink: 14,
+  pointsPerGram: 14,
+  decayPerHour: 60,
+  drunkOn: 300,
+  drunkOff: 150,
+  hungoverHours: 8,
+} as const;
 
 export const DEFAULT_POLICY_ID = 'spoils_first';
 export const HOUSEHOLD_PLAN_ID = 'household';
@@ -128,7 +142,9 @@ export function mealPlanFor(content: ContentBundle, id: string): MealPlanDef {
 }
 
 export function policyFor(content: ContentBundle, id: string | undefined): RationPolicyDef {
-  return content.rationPolicies?.[id ?? DEFAULT_POLICY_ID] ?? content.rationPolicies?.[DEFAULT_POLICY_ID] ?? FALLBACK_POLICY;
+  return (
+    content.rationPolicies?.[id ?? DEFAULT_POLICY_ID] ?? content.rationPolicies?.[DEFAULT_POLICY_ID] ?? FALLBACK_POLICY
+  );
 }
 
 /** A people's energy need, percent of baseline (goblins eat 70%, 12 §13). Reads `kcal_pct` if the people has one. */

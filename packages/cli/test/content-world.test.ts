@@ -75,7 +75,17 @@ describe('cultures and name pools', () => {
   });
 
   it('has pools for Yankee, German, Norwegian, Cornish, Irish, Swiss, Black Ohio, elves and goblins', () => {
-    for (const id of ['yankee', 'german', 'norwegian', 'cornish', 'irish', 'swiss', 'black_ohio', 'elf_hall', 'goblin_pare']) {
+    for (const id of [
+      'yankee',
+      'german',
+      'norwegian',
+      'cornish',
+      'irish',
+      'swiss',
+      'black_ohio',
+      'elf_hall',
+      'goblin_pare',
+    ]) {
       expect(content.namePools[id], id).toBeDefined();
     }
     expect(content.namePools.elf_hall?.private_names.length).toBeGreaterThan(0);
@@ -210,7 +220,10 @@ describe('the Iron Ford scenario (01 §8.3)', () => {
       expect(a.culture, `${a.key} culture`).toBeDefined();
     }
     for (const h of scenario.households) {
-      expect(scenario.actors.some((a) => a.key === h.head && a.household === h.key), `${h.key} head`).toBe(true);
+      expect(
+        scenario.actors.some((a) => a.key === h.head && a.household === h.key),
+        `${h.key} head`,
+      ).toBe(true);
     }
   });
 
@@ -285,7 +298,10 @@ describe('the Iron Ford scenario (01 §8.3)', () => {
     const sim = createSim(content, { scenarioId: 'iron_ford', seed: 42 });
     const hester = actorByKey(sim, 'hester_fenn');
     const edwin = actorByKey(sim, 'edwin_fenn');
-    const outside = toViewModel(sim.world, content, { perspective: actorByKey(sim, 'gussie_pratt'), omniscient: false });
+    const outside = toViewModel(sim.world, content, {
+      perspective: actorByKey(sim, 'gussie_pratt'),
+      omniscient: false,
+    });
     expect(outside.actors.find((a) => a.id === hester)?.people).toBe('Human');
     const self = toViewModel(sim.world, content, { perspective: hester, omniscient: false });
     expect(self.actors.find((a) => a.id === hester)?.people).toBe('Shadow-faekin');
@@ -347,7 +363,9 @@ describe('larders (P8): April 1855 is the lean season, and larders differ', () =
   });
 
   it('no two households have identical pantries, and mixed foods (not just flour) appear', () => {
-    const sigs = scenario.households.map((h) => JSON.stringify([...h.pantry].sort((a, b) => a.item.localeCompare(b.item))));
+    const sigs = scenario.households.map((h) =>
+      JSON.stringify([...h.pantry].sort((a, b) => a.item.localeCompare(b.item))),
+    );
     expect(new Set(sigs).size).toBe(sigs.length);
     const foods = new Set<string>();
     for (const h of scenario.households) for (const s of h.pantry) if (content.items[s.item]?.food) foods.add(s.item);
@@ -365,7 +383,15 @@ describe('larders (P8): April 1855 is the lean season, and larders differ', () =
   it('the Outfitter stocks the groceries and gear the planner needs', () => {
     const store = scenario.stocks.find((s) => s.place === 'pratt_daughter_outfitters');
     const ids = new Set(store?.items.map((i) => i.item));
-    for (const id of ['flour', 'hardtack', 'salt_pork', 'coffee_green', 'dried_apples', 'camp_kettle_pair', 'lucifers_box'])
+    for (const id of [
+      'flour',
+      'hardtack',
+      'salt_pork',
+      'coffee_green',
+      'dried_apples',
+      'camp_kettle_pair',
+      'lucifers_box',
+    ])
       expect(ids.has(id), id).toBe(true);
   });
 

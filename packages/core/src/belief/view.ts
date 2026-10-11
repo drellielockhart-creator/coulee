@@ -74,7 +74,9 @@ export function viewBeliefActor(
         ? (world.actors[t.id]?.name.given ?? '?') + ' ' + (world.actors[t.id]?.name.family ?? '')
         : t.kind === 'household'
           ? (world.households[t.id]?.name ?? '?')
-          : (world.belief.figures[t.id]?.name ?? '?');
+          : t.kind === 'figure'
+            ? (world.belief.figures[t.id]?.name ?? '?')
+            : 'an unknown hand';
     grudges.push({
       id: g.id,
       targetLabel: targetLabel.trim(),

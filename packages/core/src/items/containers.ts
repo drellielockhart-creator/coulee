@@ -154,7 +154,8 @@ export function fitsInContainer(
   container: ItemStack,
 ): FitResult {
   const cdef = content.items[container.defId]?.container;
-  if (!cdef) return { ok: false, reason: `${content.items[container.defId]?.name ?? container.defId} is not a container` };
+  if (!cdef)
+    return { ok: false, reason: `${content.items[container.defId]?.name ?? container.defId} is not a container` };
   if (container.id === stack.id) return { ok: false, reason: 'cannot put a thing inside itself' };
   for (const up of containerChain(world, container)) {
     if (up.id === stack.id) return { ok: false, reason: 'cannot put a container inside its own contents' };
