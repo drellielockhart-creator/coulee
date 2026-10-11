@@ -4,11 +4,38 @@
  */
 import { type GameMinute, hourOfDay, WEEKDAY_NAMES, weekdayOf } from '../time.ts';
 
-const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const WORDS = [
+  'no',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+  'eleven',
+  'twelve',
+  'thirteen',
+  'fourteen',
+  'fifteen',
+  'sixteen',
+  'seventeen',
+  'eighteen',
+  'nineteen',
+];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
 
-/** 0..12 as words, else digits. */
+/** 0..99 as words ("twenty-six"), else digits. */
 export function numberWord(n: number): string {
-  return n >= 0 && n <= 12 ? (WORDS[n] as string) : String(n);
+  if (n >= 0 && n < 20) return WORDS[n] as string;
+  if (n >= 20 && n < 100) {
+    const t = TENS[Math.floor(n / 10)] as string;
+    return n % 10 === 0 ? t : `${t}-${WORDS[n % 10]}`;
+  }
+  return String(n);
 }
 
 /** The ballad's exaggeration of a count: a tall tale grows in the telling. */
@@ -58,9 +85,9 @@ export function partOfDay(hour: number): string {
   return 'late at night';
 }
 
-/** "Tuesday, in the afternoon" style stamp used by journals and the paper. */
+/** "on Tuesday in the afternoon" style stamp used by journals and the paper. */
 export function whenPhrase(t: GameMinute): string {
-  return `${WEEKDAY_NAMES[weekdayOf(t)]} ${partOfDay(hourOfDay(t))}`;
+  return `on ${WEEKDAY_NAMES[weekdayOf(t)]} ${partOfDay(hourOfDay(t))}`;
 }
 
 /** Singular/plural by count. */

@@ -1,0 +1,209 @@
+# Sifting knobs (05 §9.2). OWNER: module:chronicle. The detectors live in code; the numbers
+# and vocabularies they read live here (data over code). Each value mirrors the in-code
+# default, so a missing record never breaks a run. Days are game-days.
+
+[[pattern]]
+id = "notability"
+name = "Notability"
+description = "What the Chronicle bothers to tell: thresholds per audience, notoriety, fatigue, repeats, and the interaction vocabulary."
+importance = 0
+[pattern.params]
+paper_min = 40
+journal_min = 30
+epilogue_min = 45
+ballad_min = 75
+epilogue_weekly_cap = 18
+epilogue_open = 8
+epilogue_high = 60
+notoriety_div = 4
+notoriety_cap = 25
+pc_bonus = 15
+fatigue_free = 14
+fatigue_step = 2
+fatigue_cap = 30
+repeat_days = 2
+repeat_penalty = 20
+repeat_exempt = 70
+[pattern.lists]
+harm_kinds = ["slight", "snub", "mockery", "insult", "threat", "fight", "theft", "accusation"]
+help_kinds = ["help", "gift", "comfort"]
+court_kinds = ["courtship", "betrothal"]
+amends_kinds = ["apology", "forgiveness"]
+debt_kinds = ["loan"]
+dun_kinds = ["dunning"]
+repay_kinds = ["repayment"]
+confess_kinds = ["confession"]
+chat_kinds = ["chat", "sermon", "kindness", "introduction", "toast", "tale", "prayer", "confidence", "warning"]
+verb_insult = ["insulted", "insult"]
+verb_mock = ["made sport of", "mockery"]
+verb_slight = ["slighted", "slight"]
+verb_snub = ["cut dead", "snub"]
+verb_threaten = ["threatened", "threat"]
+verb_fight = ["came to blows with", "fight"]
+verb_dun = ["dunned", "dunning"]
+verb_repay = ["paid off", "repayment"]
+verb_lend = ["lent money to", "loan"]
+verb_borrow = ["borrowed of", "loan"]
+verb_gift = ["made a gift to", "gift"]
+verb_help = ["helped", "help"]
+verb_comfort = ["comforted", "comfort"]
+verb_compliment = ["complimented", "compliment"]
+verb_forgive = ["forgave", "forgiveness"]
+verb_apologize = ["apologized to", "apology"]
+verb_flirt = ["made eyes at", "flirtation"]
+verb_court = ["paid court to", "courtship"]
+verb_propose = ["proposed marriage to", "proposal"]
+verb_chat = ["talked with", "chat"]
+verb_gossip = ["gossiped with", "gossip"]
+verb_warn = ["warned", "warning"]
+verb_confide = ["confided in", "confidence"]
+verb_confess = ["confessed to", "confession"]
+verb_deep_talk = ["talked long and low with", "heart-to-heart"]
+verb_introduce = ["made the acquaintance of", "introduction"]
+verb_toast = ["drank a toast with", "toast"]
+verb_tell_tale = ["told a tale to", "tale"]
+verb_preach_at = ["preached at", "sermon"]
+verb_pray_with = ["prayed with", "prayer"]
+nutrition_conditions = ["scurvy_early", "scurvy", "malnourished"]
+
+[[pattern]]
+id = "feud"
+name = "The feud"
+description = "Harm alternating between two households: a quarrel, a feud, a war."
+importance = 55
+[pattern.params]
+window_days = 45
+feud_harms = 3
+feud_turns = 2
+war_harms = 5
+war_turns = 3
+war_harms_any = 7
+quiet_days = 40
+[pattern.lists]
+violent_ids = ["fight", "attack"]
+menace_ids = ["threaten", "curse"]
+
+[[pattern]]
+id = "betrayal"
+name = "Betrayal"
+description = "Someone helped later harms the helper."
+importance = 50
+[pattern.params]
+window_days = 90
+quiet_days = 60
+trust_floor = 25
+[pattern.lists]
+help_ids = ["help", "gift", "lend"]
+harm_ids = ["insult", "fight", "threaten", "steal", "accuse", "slander", "curse", "attack"]
+severe_ids = ["fight", "attack", "steal", "accuse", "slander", "curse"]
+
+[[pattern]]
+id = "friendship"
+name = "Friendship and unlikely friendship"
+description = "A friendship; the better story when the pair were at odds first."
+importance = 45
+[pattern.params]
+harm_min = 2
+quiet_days = 30
+
+[[pattern]]
+id = "courtship"
+name = "Courtship"
+description = "Walking out, keeping company, betrothal or refusal; across a feud's line it is the better story."
+importance = 45
+[pattern.params]
+walking_acts = 2
+company_acts = 4
+quiet_days = 45
+
+[[pattern]]
+id = "debt"
+name = "Debt repaid or unpaid"
+description = "A loan, the dunning, and how it ended."
+importance = 40
+[pattern.params]
+unpaid_duns = 2
+overdue_days = 30
+quiet_days = 75
+[pattern.lists]
+borrow_ids = ["borrow"]
+
+[[pattern]]
+id = "reversal"
+name = "Reversal of fortune"
+description = "A household's ready money turns by more than half within a few weeks."
+importance = 52
+[pattern.params]
+sample_every_days = 7
+window_samples = 6
+min_delta_cents = 1500
+retell_days = 56
+
+[[pattern]]
+id = "shortage"
+name = "The thin spring"
+description = "A household's stores run short, the ration is cut, the gap drags on, and it is over or it is not."
+importance = 50
+[pattern.params]
+rationing_notices = 3
+rationing_pct = 60
+gap_days = 12
+long_days = 20
+dire_tenths = 10
+over_days = 8
+
+[[pattern]]
+id = "scapegoat"
+name = "Scapegoat"
+description = "A projection or displacement aimed at someone, then the town's ladder climbing against them."
+importance = 55
+[pattern.params]
+quiet_days = 45
+[pattern.lists]
+scapegoat_defenses = ["projection", "displacement"]
+
+[[pattern]]
+id = "whispers"
+name = "Rumor through town"
+description = "A claim passed mouth to mouth until the place is talking of nothing else."
+importance = 38
+[pattern.params]
+talk_holders = 3
+about_holders = 6
+town_holders = 10
+quiet_days = 21
+
+[[pattern]]
+id = "faekin_suspicion"
+name = "Faekin suspicion"
+description = "Talk that someone is not what they seem: a witch, one of the hidden folk."
+importance = 55
+[pattern.params]
+talk_holders = 3
+town_holders = 6
+quiet_days = 30
+
+[[pattern]]
+id = "defense_fired"
+name = "Defense fired"
+description = "A mind reaching for the same defense again and again."
+importance = 40
+[pattern.params]
+window_days = 21
+habit_firings = 3
+seams_firings = 6
+seams_kinds = 3
+quiet_days = 30
+
+[[pattern]]
+id = "kindness"
+name = "Kindness"
+description = "Help freely given, above all to a household that is going without."
+importance = 45
+[pattern.params]
+window_days = 21
+need_window_days = 14
+aid_known = 3
+help_known = 4
+help_recipients = 3
+quiet_days = 30

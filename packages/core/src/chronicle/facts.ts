@@ -3,11 +3,22 @@
  * where, who could have known (P1), and how notable it is on its face. Detectors and the
  * notability scorer read Facts, never raw events. OWNER: module:chronicle.
  */
-import { propText } from '../belief/api.ts';
 import type { ContentBundle } from '../content.ts';
 import type { Event } from '../events/index.ts';
 import type { ActorId, HouseholdId } from '../ids.ts';
 import type { World } from '../world.ts';
+import {
+  conditionName,
+  defenseNames,
+  familiesOf,
+  misfortuneText,
+  predOfProp,
+  resolveTarget,
+  rumorText,
+  rungName,
+  shortNameOf,
+  subjectOfProp,
+} from './names.ts';
 import type { PatternParams } from './params.ts';
 import type { Bindings } from './prose.ts';
 import { uniq } from './text.ts';
@@ -16,6 +27,7 @@ export type FactClass =
   | 'harm'
   | 'help'
   | 'courtship'
+  | 'amends'
   | 'debt'
   | 'dun'
   | 'repay'
@@ -35,7 +47,12 @@ export type FactClass =
   | 'spoiled'
   | 'meal'
   | 'consumed'
-  | 'need';
+  | 'need'
+  | 'misfortune'
+  | 'figure'
+  | 'reveal'
+  | 'gathering'
+  | 'observance';
 
 export interface Fact {
   ev: Event;
@@ -47,6 +64,10 @@ export interface Fact {
   /** First actor (agent/holder/subject), 0 if none; second actor (target), 0 if none. */
   agent: number;
   target: number;
+  /** The person a belief event is about (the rumor's subject, the escalation's target), 0 if none. */
+  subject: number;
+  /** Proposition id for belief events, 0 if none. */
+  prop: number;
   /** Everyone involved, agent and target first, unique. */
   actors: number[];
   households: number[];
@@ -74,27 +95,54 @@ export interface ClassVocab {
   harmKinds: readonly string[];
   helpKinds: readonly string[];
   courtKinds: readonly string[];
+  amendsKinds: readonly string[];
   debtKinds: readonly string[];
+  dunKinds: readonly string[];
+  repayKinds: readonly string[];
   confessKinds: readonly string[];
+  chatKinds: readonly string[];
   harmIds: readonly string[];
   helpIds: readonly string[];
   courtIds: readonly string[];
   dunIds: readonly string[];
   repayIds: readonly string[];
+  /** Need ids whose worst band is a story (hunger yes, a tired afternoon no). */
+  storyNeeds: readonly string[];
+  /** Condition ids worth a line (scurvy, malnourished); others ('drunk') are not nutrition stories. */
+  nutritionConditions: readonly string[];
+  /** [past tense, noun] for an interaction id ("insulted", "insult"); [] if unknown. */
+  verb(interactionId: string): readonly string[];
 }
 
 export function classVocab(p: PatternParams): ClassVocab {
   return {
-    harmKinds: p.l('harm_kinds', ['insult', 'fight', 'theft', 'accusation', 'threat']),
-    helpKinds: p.l('help_kinds', ['kindness', 'help', 'gift']),
-    courtKinds: p.l('court_kinds', ['courtship']),
-    debtKinds: p.l('debt_kinds', ['debt']),
+    harmKinds: p.l('harm_kinds', ['slight', 'snub', 'mockery', 'insult', 'threat', 'fight', 'theft', 'accusation']),
+    helpKinds: p.l('help_kinds', ['help', 'gift', 'comfort']),
+    courtKinds: p.l('court_kinds', ['courtship', 'betrothal']),
+    amendsKinds: p.l('amends_kinds', ['apology', 'forgiveness']),
+    debtKinds: p.l('debt_kinds', ['loan']),
+    dunKinds: p.l('dun_kinds', ['dunning']),
+    repayKinds: p.l('repay_kinds', ['repayment']),
     confessKinds: p.l('confess_kinds', ['confession']),
+    chatKinds: p.l('chat_kinds', [
+      'chat',
+      'sermon',
+      'kindness',
+      'introduction',
+      'toast',
+      'tale',
+      'prayer',
+      'confidence',
+      'warning',
+    ]),
     harmIds: p.l('harm_ids', ['insult', 'accuse', 'slander', 'steal', 'attack', 'curse', 'threaten', 'fight']),
-    helpIds: p.l('help_ids', ['help', 'gift', 'lend', 'aid', 'comfort', 'share_food', 'share', 'nurse']),
+    helpIds: p.l('help_ids', ['help', 'gift', 'aid', 'comfort', 'share_food', 'share', 'nurse']),
     courtIds: p.l('court_ids', ['court', 'flirt', 'walk_out', 'propose', 'woo']),
     dunIds: p.l('dun_ids', ['dun', 'demand_payment']),
     repayIds: p.l('repay_ids', ['repay', 'pay_debt', 'settle', 'pay_up']),
+    storyNeeds: p.l('story_needs', ['hunger', 'thirst', 'warmth']),
+    nutritionConditions: p.l('nutrition_conditions', ['scurvy_early', 'scurvy', 'malnourished']),
+    verb: (id) => p.l(`verb_${id}`, []),
   };
 }
 
@@ -136,15 +184,16 @@ function classOfInteraction(
   const name = (def?.name ?? interactionId.replace(/_/g, ' ')).toLowerCase();
   const notable = def?.notable ?? false;
   let cls: FactClass = 'other';
-  if (v.dunIds.includes(interactionId)) cls = 'dun';
-  else if (v.repayIds.includes(interactionId)) cls = 'repay';
+  if (v.dunIds.includes(interactionId) || v.dunKinds.includes(kind)) cls = 'dun';
+  else if (v.repayIds.includes(interactionId) || v.repayKinds.includes(kind)) cls = 'repay';
   else if (def?.transmits_rumor || kind === 'gossip') cls = 'gossip';
   else if (v.harmKinds.includes(kind) || v.harmIds.includes(interactionId)) cls = 'harm';
   else if (v.helpKinds.includes(kind) || v.helpIds.includes(interactionId)) cls = 'help';
   else if (v.courtKinds.includes(kind) || v.courtIds.includes(interactionId)) cls = 'courtship';
+  else if (v.amendsKinds.includes(kind)) cls = 'amends';
   else if (v.debtKinds.includes(kind)) cls = 'debt';
   else if (v.confessKinds.includes(kind)) cls = 'confession';
-  else if (kind === 'chat' || kind === 'sermon') cls = 'chat';
+  else if (v.chatKinds.includes(kind)) cls = 'chat';
   return { cls, notable, name };
 }
 
@@ -152,6 +201,7 @@ const CLASS_BASE: Record<string, number> = {
   harm: 30,
   help: 25,
   courtship: 25,
+  amends: 20,
   debt: 25,
   dun: 35,
   repay: 40,
@@ -164,6 +214,7 @@ const CLASS_VALENCE: Record<string, number> = {
   harm: -60,
   help: 50,
   courtship: 40,
+  amends: 35,
   debt: -10,
   dun: -30,
   repay: 30,
@@ -178,13 +229,6 @@ export function needDepth(content: ContentBundle, needId: string, band: string):
   const bands = content.needs?.[needId]?.bands ?? [];
   const idx = bands.findIndex((b) => b.label === band);
   return { depth: idx < 0 ? 0 : idx + 1, of: bands.length };
-}
-
-/** Subject actor of a proposition (its first actor argument), 0 if none. */
-function subjectOfProp(world: World, propId: number): number {
-  const prop = world.belief?.props?.[propId as never] as { args: Array<{ kind: string; id?: number }> } | undefined;
-  const a = prop?.args.find((x) => x.kind === 'actor');
-  return a?.id ?? 0;
 }
 
 export function factOf(world: World, content: ContentBundle, ev: Event, vocab: ClassVocab): Fact | null {
@@ -202,6 +246,8 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
       place: (ev.place as number | undefined) ?? 0,
       agent,
       target,
+      subject: 0,
+      prop: 0,
       actors,
       households,
       pub: k.pub,
@@ -234,6 +280,8 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
           bind: {
             interaction: d.interactionId,
             interaction_name: c.name,
+            act: vocab.verb(d.interactionId)[0] ?? 'had dealings with',
+            act_noun: vocab.verb(d.interactionId)[1] ?? c.name,
             label: d.label,
             success: d.success,
             cls: c.cls,
@@ -258,70 +306,111 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
     }
     case 'belief.formed': {
       const d = ev.data;
-      const prop = world.belief?.props?.[d.propId as never] as { pred: string } | undefined;
+      const pred = predOfProp(world, d.propId);
       const subject = subjectOfProp(world, d.propId);
-      return base(
+      // What a person privately believes is known to them alone; the subject is not told.
+      const f = base(
         {
           cls: 'belief',
-          sub: prop?.pred ?? '',
+          sub: pred,
           agent: d.holderId,
           target: subject,
+          subject,
+          prop: d.propId as number,
           weight: d.credence,
           base: ev.importance ?? 10,
-          bind: { pred: prop?.pred ?? '', rumor: d.text, cls: 'belief' },
+          bind: { pred, rumor: d.text || rumorText(world, content, d.propId), cls: 'belief' },
         },
-        [d.holderId, subject],
+        [d.holderId],
       );
+      if (subject) f.actors = uniq([...f.actors, subject]);
+      return f;
     }
     case 'belief.transmitted': {
       const d = ev.data;
-      const prop = world.belief?.props?.[d.propId as never] as { pred: string } | undefined;
-      const text = propText(world, content, d.propId);
-      return base(
+      const pred = predOfProp(world, d.propId);
+      const subject = subjectOfProp(world, d.propId);
+      const text = rumorText(world, content, d.propId);
+      // Who could know: the two in the conversation (and any witnesses), never the subject.
+      const f = base(
         {
           cls: 'transmit',
-          sub: prop?.pred ?? '',
+          sub: pred,
           agent: d.speakerId,
           target: d.listenerId,
+          subject,
+          prop: d.propId as number,
           success: d.accepted,
           weight: d.rumorId as number,
           base: ev.importance ?? 8,
-          bind: { pred: prop?.pred ?? '', rumor: text, mutation: d.mutation ?? '', cls: 'transmit' },
+          bind: { pred, rumor: text, mutation: d.mutation ?? '', cls: 'transmit' },
         },
         [d.speakerId, d.listenerId],
       );
+      if (subject) f.actors = uniq([...f.actors, subject]);
+      return f;
     }
     case 'belief.grudge_formed': {
       const d = ev.data;
-      return base(
+      const tgt = resolveTarget(world, d.target);
+      const who = tgt.actorId ?? 0;
+      const f = base(
         {
           cls: 'grudge',
           sub: d.aim,
           agent: d.holderId,
+          target: who,
+          subject: who,
           weight: d.intensity,
           valence: -50,
           base: ev.importance ?? 30 + Math.floor(d.intensity / 5),
-          bind: { cls: 'grudge', kind: d.aim },
+          bind: {
+            cls: 'grudge',
+            kind: d.aim,
+            aim: (content.grudgeAims?.[d.aim]?.name ?? d.aim).toLowerCase(),
+            subject: tgt.actorId
+              ? shortNameOf(world, tgt.actorId)
+              : tgt.householdId
+                ? familiesOf(world, tgt.householdId)
+                : tgt.label,
+          },
         },
-        [d.holderId],
+        [d.holderId, who],
       );
+      if (tgt.householdId) f.households = uniq([...f.households, tgt.householdId as number]);
+      return f;
     }
     case 'belief.escalation': {
       const d = ev.data;
-      return base(
+      const tgt = resolveTarget(world, d.target);
+      const who = tgt.actorId ?? ev.roles.find((r) => r.role === 'target')?.actor ?? 0;
+      const f = base(
         {
           cls: 'escalation',
           sub: String(d.to),
+          agent: who,
+          target: 0,
+          subject: who,
           weight: d.to,
           valence: -70,
           base: ev.importance ?? 40 + 10 * d.to,
-          bind: { cls: 'escalation', rung: d.to },
+          bind: {
+            cls: 'escalation',
+            rung: d.to,
+            rung_name: rungName(content, d.to),
+            kind: d.to > d.from ? 'up' : 'down',
+          },
         },
-        [],
+        who ? [who] : [],
       );
+      if (tgt.householdId) f.households = uniq([...f.households, tgt.householdId as number]);
+      if (!who) f.bind.subject = tgt.label;
+      return f;
     }
     case 'psyche.defense': {
       const d = ev.data;
+      const names = defenseNames(content, d.defense);
+      const dimp = (content.defenses?.[d.defense as never] as { importance?: number } | undefined)?.importance;
       return base(
         {
           cls: 'defense',
@@ -330,8 +419,15 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
           target: d.targetId ?? 0,
           weight: d.anxietyBefore,
           valence: -20,
-          base: ev.importance ?? 15 + Math.min(30, Math.floor(d.anxietyBefore / 20)),
-          bind: { cls: 'defense', defense: d.defense, anxiety: d.anxietyBefore },
+          base: ev.importance ?? dimp ?? 15 + Math.min(30, Math.floor(d.anxietyBefore / 20)),
+          bind: {
+            cls: 'defense',
+            aimed: (d.targetId ?? 0) > 0,
+            defense: d.defense,
+            defense_name: names.name,
+            defense_clinical: names.clinical,
+            anxiety: d.anxietyBefore,
+          },
         },
         [d.actorId, d.targetId ?? 0],
       );
@@ -361,6 +457,7 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
     }
     case 'provisions.nutrition': {
       const d = ev.data;
+      if (!vocab.nutritionConditions.includes(d.condition)) return null;
       const hh = householdOf(world, d.actorId);
       const members = hh ? householdMembers(world, hh) : [d.actorId as number];
       const f = base(
@@ -372,7 +469,7 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
           success: d.on,
           weight: d.on ? 1 : 0,
           base: ev.importance ?? (d.on ? 55 : 25),
-          bind: { cls: 'nutrition', condition: d.condition },
+          bind: { cls: 'nutrition', condition: d.condition, condition_name: conditionName(d.condition) },
         },
         [d.actorId],
       );
@@ -423,7 +520,8 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
       const d = ev.data;
       const { depth, of } = needDepth(content, d.needId, d.to);
       const need = content.needs?.[d.needId];
-      const severe = depth > 0 && depth === of && of >= 2 && need?.kind === 'physical';
+      const severe =
+        depth > 0 && depth === of && of >= 2 && need?.kind === 'physical' && vocab.storyNeeds.includes(d.needId);
       const hh = householdOf(world, d.actorId);
       const f = base(
         {
@@ -451,6 +549,91 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
       return base(
         { cls: 'consumed', sub: d.defId, weight: d.qty, base: 0, bind: { cls: 'consumed' } },
         ev.roles[0] ? [ev.roles[0].actor as number] : [],
+      );
+    }
+    case 'belief.misfortune': {
+      const d = ev.data;
+      const victims = ev.roles.filter((r) => r.role === 'victim').map((r) => r.actor as number);
+      const text = misfortuneText(world, content, d.misfortuneId) ?? d.text;
+      const def = content.misfortunes?.[d.kindId];
+      return base(
+        {
+          cls: 'misfortune',
+          sub: d.kindId,
+          agent: victims[0] ?? 0,
+          target: 0,
+          valence: -50,
+          base: ev.importance ?? 35,
+          bind: { cls: 'misfortune', misfortune: text, uncanny: def?.uncanny === true, kind: d.kindId },
+        },
+        victims,
+      );
+    }
+    case 'belief.figure_attached': {
+      const d = ev.data;
+      const fig = world.belief?.figures?.[d.figureId as never] as { name: string } | undefined;
+      return base(
+        {
+          cls: 'figure',
+          sub: String(d.figureId),
+          agent: d.actorId,
+          target: 0,
+          subject: d.actorId,
+          weight: d.consensus,
+          valence: -40,
+          base: ev.importance ?? 45,
+          bind: { cls: 'figure', figure: fig?.name ?? 'a figure of local legend' },
+        },
+        [d.actorId],
+      );
+    }
+    case 'belief.revealed': {
+      const d = ev.data;
+      const pred = predOfProp(world, d.propId);
+      return base(
+        {
+          cls: 'reveal',
+          sub: pred,
+          agent: d.actorId,
+          target: 0,
+          subject: d.actorId,
+          prop: d.propId as number,
+          weight: d.consensus,
+          valence: -60,
+          base: ev.importance ?? 70,
+          bind: { cls: 'reveal', pred, rumor: rumorText(world, content, d.propId) },
+        },
+        [d.actorId],
+      );
+    }
+    case 'activity.gathering': {
+      const d = ev.data;
+      return base(
+        {
+          cls: 'gathering',
+          sub: d.observanceId,
+          agent: 0,
+          target: 0,
+          place: d.placeId as number,
+          weight: d.actorIds.length,
+          base: ev.importance ?? 0,
+          bind: { cls: 'gathering' },
+        },
+        [],
+      );
+    }
+    case 'activity.observance': {
+      const d = ev.data;
+      return base(
+        {
+          cls: 'observance',
+          sub: d.observanceId,
+          agent: 0,
+          target: 0,
+          base: ev.importance ?? 0,
+          bind: { cls: 'observance', observance: d.name.toLowerCase() },
+        },
+        [],
       );
     }
     default:

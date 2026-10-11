@@ -72,6 +72,7 @@ volition = [
   { driver = "need:company", weight = 10 },
 ]
 threshold = 20
+cooldown_hours = 4
 memory = { kind = "gossip", intensity = 15 }
 transmits_rumor = true
 minutes = 15

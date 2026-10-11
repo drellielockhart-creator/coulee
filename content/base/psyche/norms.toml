@@ -41,6 +41,22 @@ lines = [
 ]
 
 [[norm]]
+id = "sabbath"
+name = "Sabbath"
+period_label = "the Lord's Day"
+description = "No work on Sunday but the necessary; a quiet day kept (05 §4.6)."
+speaker = "the Pastor"
+source = "church"
+base = 45
+values = { piety = 12 }
+public = true
+forbids = [{ tags = ["labor", "carouse"], relevance = 50, when = { sabbath = true } }]
+lines = [
+  "Six days shalt thou labour. This is the seventh.",
+  "On the Lord's day? Let {option} wait till Monday.",
+]
+
+[[norm]]
 id = "temperance"
 name = "Temperance"
 period_label = "Temperance"

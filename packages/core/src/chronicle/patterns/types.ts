@@ -42,10 +42,23 @@ export interface PatternDef {
   /** Default base importance. */
   importance: number;
   /**
-   * From this level on, the story is public regardless of how each event was seen: a town
-   * does not need to witness every whisper to know it is being whispered. 0 = never.
+   * From this level on the story is common knowledge even if no single event was public: a
+   * town does not need to witness every whisper to know it is being whispered. 0 = never.
+   * P1: the public entry is still rendered from PUBLIC facts only (no private source events,
+   * no private actors). All it gains is the thread's public face: `publicActors(th)` and the
+   * tags the detector set from the key (a household, a rumor's subject and text).
    */
   publicFrom?: number;
+  /**
+   * How far the story has got as far as the town can tell (for `publicFrom`). Default: the
+   * omniscient level. A rumor spreads by tellings, not by what individuals privately believe,
+   * so those patterns count tellings only.
+   */
+  townLevel?(facts: ThreadFact[], th: ChronicleThread, dc: DetectCtx, p: PatternParams): number;
+  /** The people the town may name once the story is common knowledge (the face, not the facts). */
+  publicActors?(th: ChronicleThread): number[];
+  /** Order of the cast in an entry: first is `{actor}`, second `{target}`. Default: by facts. */
+  cast?(facts: ThreadFact[], th: ChronicleThread, view: View): number[];
   /** The omniscient view keeps its own entries even when the public one has told the story. */
   alwaysAll?: boolean;
   /** Once the thread has told its story, single-event entries for its facts are redundant. */
@@ -66,6 +79,11 @@ export interface PatternDef {
   closingLevel?: number;
   /** Write a ballad too when a public entry's importance reaches the notability ballad_min. */
   balladLevel?: number;
+  /**
+   * Telling the same kind of story again and again reads as a drumbeat (five households short
+   * in one week is one story). A repeat key makes later tellings inside `days` score lower.
+   */
+  repeat?(th: ChronicleThread, level: number, p: PatternParams, dc: DetectCtx): { key: string; days: number } | null;
   /** Daily upkeep (counters, synthetic facts). Runs at the start of each game day. */
   daily?(dc: DetectCtx, p: PatternParams): Accept[];
 }

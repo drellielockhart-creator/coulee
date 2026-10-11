@@ -3,6 +3,10 @@
 # Fire when anxiety ≥ Θ = 250 + 3E at the end of an arbitration, at most once an hour.
 # Candidates need a matching trigger (fit 1-3, computed in core/src/psyche/defenses.ts from
 # the anxiety pools, live thoughts, the Shadow and recent acts); weight = style × fit.
+# `acts`: what social executes for the defense urge ({ kind = "defense", targetId }); social's
+# `defense_interactions` (content/base/social/tuning.toml) is the executor and must agree.
+# Reaction formation is a CRUSADE against the wish's object (10 §7.2: the deacon who wants
+# the widow leads the case against her), never ostentatious kindness.
 # Labels are unconscious by definition: 'omniscient' until Insight (10 §1, §8.5).
 # Lines: the masked thought the defense leaves behind; {target}, {trait}.
 
@@ -38,7 +42,7 @@ tier = "immature"
 relief = 250
 pools = ["neur", "moral"]
 needs_shadow = 30
-acts = ["gossip"]
+acts = ["snub", "slight"]
 importance = 45
 acquired_trait = "suspicious"
 lines = ["It's {target} who's {trait}. Anyone can see it.", "{target} has a look about them. {trait}, I'd say."]
@@ -51,7 +55,7 @@ description = "Anger at someone too strong to cross comes out on someone safer."
 tier = "immature"
 relief = 200
 pools = ["neur", "real"]
-acts = ["insult"]
+acts = ["insult", "snub", "slight"]
 importance = 40
 lines = ["And {target} can keep out of my way, too.", "{target}'s always underfoot."]
 
@@ -76,7 +80,7 @@ tier = "neurotic"
 min_ego = 25
 relief = 300
 pools = ["neur", "moral"]
-acts = ["gossip", "insult"]
+acts = ["preach_at", "slight"]
 importance = 45
 acquired_trait = "zealot"
 lines = ["Someone ought to speak to {target} about their ways.", "I'll not stand by while {target} carries on so."]

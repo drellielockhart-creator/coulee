@@ -1,0 +1,257 @@
+# Epilogue entries (05 §11.1): the omniscient post-run reckoning. Never shown during play.
+# These tell what nobody in the story could have known: private acts, inner states, the
+# arithmetic behind a town's mood. Plain and unsentimental, a little wry. OWNER: module:chronicle.
+
+[[template]]
+id = "epi_harm"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = "harm" }
+text = [
+  "Out of sight, {actor_short} {act} {target_short}{_at} {when}. No one else saw it, and neither spoke of it again, which is not the same as letting it go.",
+  "Nobody was by when {actor_short} {act} {target_short}{_at}. The injury was entirely private, and so was the answer it was owed.",
+  "{^actor_short} {act} {target_short}{_at} {when}, with the door shut. It would have made a better story if there had been a witness.",
+]
+
+[[template]]
+id = "epi_harm_failed"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = "harm", success = false }
+text = [
+  "{^actor_short} tried it on with {target_short}{_at}: {act_noun}. It did not take, and {target_short} never knew how near the thing came.",
+]
+
+[[template]]
+id = "epi_help"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = "help" }
+text = [
+  "{^actor_short} {act} {target_short}{_at} {when}, quietly, and told no one. {^target_short} did not mention it either, out of delicacy, so the village never gave credit where it was due.",
+  "Unrecorded: {actor_short} {act} {target_short}. It cost {actor_short} something and cost {target_short} the pride of saying thanks.",
+]
+
+[[template]]
+id = "epi_courtship"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = "courtship" }
+text = [
+  "{^actor_short} {act} {target_short}{_at} {when}, with no witness but a dog. Neither had any idea what the other thought, and both thought a good deal.",
+  "Between {actor_short} and {target_short}, in private: {act_noun}, and what followed from it. The village found out three weeks later and claimed to have known all along.",
+]
+
+[[template]]
+id = "epi_amends"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = "amends" }
+text = [
+  "{^actor_short} and {target_short} made it up in private{_at}. Nobody was there to see two proud people become less proud. It was done properly.",
+]
+
+[[template]]
+id = "epi_money"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = ["dun", "debt", "repay"] }
+text = [
+  "{^actor_short} {act} {target_short}{_at}, with no witness. Much of the county's quarreling is of this kind, and most of it is never seen.",
+  "Money again: {actor_short} {act} {target_short}{_at}, and nobody else knew. It is the commonest secret in the county and the best kept.",
+]
+
+[[template]]
+id = "epi_confession"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = "confession" }
+text = [
+  "{^actor_short} confessed something to {target_short}{_at}. It is not written here what it was. It has not been mentioned since, and it has not been forgotten.",
+]
+
+[[template]]
+id = "epi_gossip"
+on = "social.interaction"
+voice = "epilogue"
+when = { cls = "gossip" }
+text = [
+  "{^actor_short} told {target_short} something{_at} {when} that was not meant to be repeated. It was repeated by supper.",
+]
+
+[[template]]
+id = "epi_other"
+on = "social.interaction"
+voice = "epilogue"
+text = [
+  "{^actor_short} {act} {target_short}{_at} {when}, unobserved. Such small things are most of what happens.",
+]
+
+[[template]]
+id = "epi_label_friend"
+on = "social.label_changed"
+voice = "epilogue"
+when = { band = "Friend" }
+text = [
+  "{^actor_short} came to count {target_short} a friend in private. It was not announced and not needed to be.",
+]
+
+[[template]]
+id = "epi_label_enemy"
+on = "social.label_changed"
+voice = "epilogue"
+when = { band = "Enemy" }
+text = [
+  "{^actor_short} settled on {target_short} as an enemy, without a word to anyone. It would show later, as such things do, in small refusals.",
+]
+
+[[template]]
+id = "epi_label_other"
+on = "social.label_changed"
+voice = "epilogue"
+text = [
+  "Something changed between {actor_short} and {target_short}: {band}. Neither could have named the day.",
+]
+
+[[template]]
+id = "epi_grudge"
+on = "belief.grudge_formed"
+voice = "epilogue"
+text = [
+  "{^actor_short} formed a grudge against {subject}, and set its aim at {aim}. It was not mentioned. It was merely the way {actor_short} walked past the gate afterward.",
+]
+
+[[template]]
+id = "epi_grudge_unknown"
+on = "belief.grudge_formed"
+voice = "epilogue"
+when = { kind = ["restitution", "apology"] }
+text = [
+  "{^actor_short} wanted only what was owed by {subject}: {aim}. That was all. It was the most dangerous kind of wanting, because it was reasonable.",
+]
+
+[[template]]
+id = "epi_escalation_up"
+on = "belief.escalation"
+voice = "epilogue"
+when = { kind = "up" }
+text = [
+  "The talk against {actor_short} climbed to {rung_name} without a single act of malice. The village had needed a reason to be afraid, and {actor_short} was nearby.",
+  "{^actor_short} did nothing to deserve the climb to {rung_name}. The arithmetic of the town's mood did that: bad luck, a long winter, and a handy face.",
+]
+
+[[template]]
+id = "epi_escalation_down"
+on = "belief.escalation"
+voice = "epilogue"
+when = { kind = "down" }
+text = [
+  "The talk against {actor_short} came down a rung. Nobody had a change of heart; everyone had a new subject.",
+]
+
+[[template]]
+id = "epi_formed"
+on = "belief.formed"
+voice = "epilogue"
+text = [
+  "{^actor_short} came to believe it: \"{rumor}.\" Nobody had told {actor_short} to; the thought had simply turned up, with the force of something known all along.",
+]
+
+[[template]]
+id = "epi_defense_projection"
+on = "psyche.defense"
+voice = "epilogue"
+when = { defense = "projection", aimed = true }
+text = [
+  "{^actor_short} could not bear a thing in {actor_short}'s own heart and found it, quite sincerely, in {target_short}. {^he} would have been astonished to hear it called a defense.",
+  "It was {target_short} who was said to be at fault. It was {actor_short} who needed it to be so: {defense_name}, in the language of a later day, {defense_clinical}.",
+]
+
+[[template]]
+id = "epi_defense_displacement"
+on = "psyche.defense"
+voice = "epilogue"
+when = { defense = "displacement", aimed = true }
+text = [
+  "The anger was meant for someone larger. {^target_short} was the one at hand. {^actor_short} was short with {target_short} for no reason that either of them could have given.",
+]
+
+[[template]]
+id = "epi_defense_denial"
+on = "psyche.defense"
+voice = "epilogue"
+when = { defense = "denial" }
+text = [
+  "{^actor_short} looked at the danger and decided it was nothing. It was not nothing. {^he} slept better for believing it.",
+]
+
+[[template]]
+id = "epi_defense_repression"
+on = "psyche.defense"
+voice = "epilogue"
+when = { defense = "repression" }
+text = [
+  "{^actor_short} put a memory down and shut the lid on it. It was not gone; it was merely beneath, and doing its work.",
+]
+
+[[template]]
+id = "epi_defense_rationalization"
+on = "psyche.defense"
+voice = "epilogue"
+when = { defense = "rationalization" }
+text = [
+  "{^actor_short} supplied a reason for what {he} had done. It was a good reason. It was not the reason.",
+]
+
+[[template]]
+id = "epi_defense_reaction"
+on = "psyche.defense"
+voice = "epilogue"
+when = { defense = "reaction_formation" }
+text = [
+  "The louder {actor_short} spoke against it, the more it was plain to anyone who listened closely what {he} was afraid of.",
+]
+
+[[template]]
+id = "epi_defense_sublimation"
+on = "psyche.defense"
+voice = "epilogue"
+when = { defense = "sublimation" }
+text = [
+  "{^actor_short} took a wish that could not be had and put it into work. The fence was very straight that week.",
+]
+
+[[template]]
+id = "epi_defense"
+on = "psyche.defense"
+voice = "epilogue"
+text = [
+  "{^actor_short}'s mind reached for {defense_name} and closed over it. Anxiety stood at {anxiety} of a thousand.",
+]
+
+[[template]]
+id = "epi_shortage"
+on = "provisions.shortage"
+voice = "epilogue"
+text = [
+  "The {family} house ran short: {lowest_days} of food, the ration at {ration_pct} in the hundred. They told the church it was a choice.",
+  "Behind the shut door of the {family} house the barrel sounded hollow. The family had {lowest_days} left, and no one outside the house knew it.",
+]
+
+[[template]]
+id = "epi_nutrition_on"
+on = "provisions.nutrition"
+voice = "epilogue"
+when = { on = true }
+text = [
+  "{^actor_short} took ill of {condition_name} in the thin season. The cause was on the table, so to speak: a winter of salt pork, meal, and nothing green.",
+]
+
+[[template]]
+id = "epi_need_severe"
+on = "needs.band_changed"
+voice = "epilogue"
+when = { severity = "severe" }
+text = [
+  "{^actor_short} went to bed {band}, and said nothing of it. A person can bear a good deal on the quiet.",
+]

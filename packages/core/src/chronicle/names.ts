@@ -50,7 +50,11 @@ export function formalName(world: World, content: ContentBundle, id: ActorId | n
 /** The diarist's form: "Gussie Pratt". */
 export function shortNameOf(world: World, id: ActorId | number): string {
   const a = world.actors[id as ActorId];
-  return a ? shortName(a) : 'someone';
+  if (!a) return 'someone';
+  // A nickname that already carries the family name ("Captain Hurd") stands alone.
+  const nick = a.name.nickname;
+  if (nick && a.name.family && nick.includes(a.name.family)) return nick;
+  return shortName(a);
 }
 
 /** First name, or nickname. */
@@ -93,7 +97,12 @@ export function atPlace(world: World, pid: PlaceId | number | null | undefined):
 /** Item display name, falling back to a prettified id. */
 export function itemName(content: ContentBundle, defId: string, qty = 1): string {
   const def = content.items?.[defId];
-  if (def) return qty !== 1 && def.plural ? def.plural : def.name.toLowerCase();
+  if (def) {
+    const name = qty !== 1 && def.plural ? def.plural : def.name.toLowerCase();
+    // "butter, salted" reads better in a sentence as "salted butter".
+    const m = /^([^,]+), ([^,]+)$/.exec(name);
+    return m ? `${m[2]} ${m[1]}` : name;
+  }
   return defId.replace(/_/g, ' ');
 }
 
@@ -143,7 +152,102 @@ export function resolveTarget(world: World, s: string): ResolvedTarget {
   if (hh !== undefined) return { label: s, actorId: null, householdId: hh, figureKey: null };
   for (const f of Object.values(world.belief?.figures ?? {})) {
     const fig = f as { key: string; name: string };
-    if (fig.key === s) return { label: fig.name, actorId: null, householdId: null, figureKey: fig.key };
+    if (fig.key === s || fig.name === s)
+      return { label: fig.name, actorId: null, householdId: null, figureKey: fig.key };
+  }
+  // The belief module labels targets by display name ("Loveday Trevenna", a household's name).
+  for (const a of Object.values(world.actors)) {
+    if (`${a.name.given} ${a.name.family}`.trim() === s) {
+      return { label: s, actorId: a.id, householdId: null, figureKey: null };
+    }
+  }
+  for (const h of Object.values(world.households)) {
+    if (h.name === s) return { label: s, actorId: null, householdId: h.id, figureKey: null };
   }
   return { label: s, actorId: null, householdId: null, figureKey: null };
+}
+
+/** The subject (first actor argument) of a proposition, 0 if none. */
+export function subjectOfProp(world: World, propId: number): number {
+  const prop = world.belief?.props?.[propId as never] as { args: Array<{ kind: string; id?: number }> } | undefined;
+  const a = prop?.args.find((x) => x.kind === 'actor');
+  return a?.id ?? 0;
+}
+
+/** Predicate id of a proposition, '' if unknown. */
+export function predOfProp(world: World, propId: number): string {
+  return (world.belief?.props?.[propId as never] as { pred: string } | undefined)?.pred ?? '';
+}
+
+/**
+ * A proposition in words ("Loveday Trevenna is a witch"). Local to the Chronicle so sifting
+ * does not depend on the belief module's runtime code; reads the same predicate templates.
+ */
+export function rumorText(world: World, content: ContentBundle, propId: number): string {
+  const p = world.belief?.props?.[propId as never] as
+    | { pred: string; args: Array<{ kind: string; id?: number; value?: string | number }> }
+    | undefined;
+  if (!p) return '';
+  const tpl = content.predicates?.[p.pred]?.text ?? `${p.pred}({0})`;
+  return tpl.replace(/\{(\d)\}/g, (_m, i: string) => {
+    const a = p.args[Number(i)];
+    if (!a) return 'someone';
+    switch (a.kind) {
+      case 'actor':
+        return shortNameOf(world, a.id as number);
+      case 'household':
+        return familiesOf(world, a.id as number);
+      case 'figure': {
+        const f = world.belief?.figures?.[a.id as never] as { name: string } | undefined;
+        return f?.name ?? 'a certain party';
+      }
+      case 'place':
+        return placeName(world, a.id as number) || 'a place';
+      case 'text':
+      case 'number':
+        return String(a.value);
+      case 'misfortune':
+        return misfortuneText(world, content, a.id as number) ?? 'some misfortune';
+      default:
+        return 'some misfortune';
+    }
+  });
+}
+
+/** A misfortune in words ("the Tveits' best cow sickened and died"), null if unknown. */
+export function misfortuneText(world: World, content: ContentBundle, misfortuneId: number): string | null {
+  const m = world.belief?.misfortunes?.[misfortuneId as never] as
+    | { kindId: string; householdId: number; victimId: number | null }
+    | undefined;
+  const def = m ? content.misfortunes?.[m.kindId] : undefined;
+  if (!m || !def) return null;
+  const hh = world.households[m.householdId as HouseholdId] ? familiesOf(world, m.householdId) : 'a household';
+  const victim = m.victimId === null ? 'a child' : (world.actors[m.victimId as ActorId]?.name.given ?? 'someone');
+  return def.text.replace('{0}', hh).replace('{1}', victim);
+}
+
+/** Display name of a persecution rung (0 = unease ... ). */
+export function rungName(content: ContentBundle, rung: number): string {
+  for (const r of Object.values(content.persecutionRungs ?? {})) {
+    if (r.rung === rung) return r.name.toLowerCase();
+  }
+  return `rung ${rung}`;
+}
+
+/** Defense display names from content ("Laying it at another's door"). */
+export function defenseNames(content: ContentBundle, id: string): { name: string; clinical: string } {
+  const d = content.defenses?.[id as never] as { name: string; period_label?: string } | undefined;
+  if (!d) return { name: id.replace(/_/g, ' '), clinical: id.replace(/_/g, ' ') };
+  return { name: (d.period_label ?? d.name).toLowerCase(), clinical: d.name.toLowerCase() };
+}
+
+/** Nutrition conditions in plain words. */
+const CONDITION_WORDS: Record<string, string> = {
+  scurvy_early: 'the first signs of scurvy',
+  scurvy: 'scurvy',
+  malnourished: 'want of food',
+};
+
+export function conditionName(id: string): string {
+  return CONDITION_WORDS[id] ?? id.replace(/_/g, ' ');
 }

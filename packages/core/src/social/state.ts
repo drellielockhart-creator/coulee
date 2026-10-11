@@ -3,26 +3,19 @@
  * OWNER: module:social.
  *
  * Integer scales: affection/respect/trust −100..100, fear 0..100, memory intensity 0..100,
- * salience and confidence 0..1000 (per-mille), obligation in favors and cents.
+ * salience and confidence 0..1000 (per-mille), familiarity 0..1000, obligation in favors
+ * and cents.
  * P1/04 §6.2 DECISION: opinions are never set directly — only via reasons (and the
- * memories/beliefs they cite).
+ * memories/beliefs they cite). `base` is derived (compatibility + structural priors) and
+ * is only ever recomputed, never edited.
  */
-import type { RelationshipKind } from '../content.ts';
+import type { DefenseId, RelationshipKind } from '../content.ts';
 import type { EventRoleKind } from '../events/base.ts';
-import {
-  type ActorId,
-  type BeliefId,
-  type EventId,
-  idsOf,
-  type MemoryId,
-  mustGet,
-  type PlaceId,
-  type RumorId,
-  type Table,
-} from '../ids.ts';
-import type { InitContext } from '../sim/context.ts';
+import type { ActorId, BeliefId, EventId, MemoryId, PlaceId, PropId, RumorId, Table } from '../ids.ts';
 import type { GameMinute } from '../time.ts';
-import type { World } from '../world.ts';
+
+export { initSocialState } from './init.ts';
+export { emptyOpinion, ZERO_DIMS } from './model.ts';
 
 export interface OpinionDims {
   affection: number;
@@ -33,9 +26,15 @@ export interface OpinionDims {
 
 export type ReasonCite =
   | { kind: 'memory'; id: MemoryId }
-  | { kind: 'belief'; id: BeliefId }
+  /** `propId` lets social weight the reason by the holder's credence via belief/api. */
+  | { kind: 'belief'; id: BeliefId; propId?: PropId }
   | { kind: 'relationship'; rel: RelationshipKind }
-  | { kind: 'seed' };
+  | { kind: 'seed' }
+  /**
+   * The folded "other reasons" bucket (04 §6.2: cap 8 + other). `strength` is per mille and
+   * decays daily with `bucket_tau_days`; the bucket's weight is that strength.
+   */
+  | { kind: 'other'; strength: number };
 
 export interface OpinionReason {
   /** "Dunned him in front of customers" */
@@ -43,18 +42,26 @@ export interface OpinionReason {
   cites: ReasonCite;
   delta: OpinionDims;
   since: GameMinute;
+  /** Set when a psyche defense created this reason (04 §6.2 viaDefense; omniscient provenance). */
+  viaDefense?: DefenseId;
 }
 
 export interface Opinion {
   targetId: ActorId;
-  /** Compatibility + kin + group priors (04 §6.2 base). */
+  /** Compatibility + kin + household priors (04 §3.1, §6.2, §7.1). Derived; recomputed. */
   base: OpinionDims;
   /** Capped list (04: 8 + "other" bucket). */
   reasons: OpinionReason[];
   /** Short-term, fast-decaying (today's spat). */
   volatile: OpinionDims;
-  /** Ledger: positive = target owes holder. */
+  /** Ledger: positive = target owes holder. Mirrored on the target's record. */
   obligation: { favors: number; cents: number };
+  /** 0..1000: how well the holder knows the target (encounters raise it, absence lowers it). */
+  familiarity: number;
+  /** Interaction id -> game minute before which the holder will not repeat it at the target. */
+  cooldowns: Record<string, number>;
+  /** Last derived label ('Friend', 'Enemy'...), for `social.label_changed`. */
+  label: string;
 }
 
 export type MemorySource =
@@ -77,6 +84,7 @@ export interface Memory {
   source: MemorySource;
   emotion: string;
   intensity: number;
+  /** Current salience 0..1000 (decayed daily, 04 §4.3). */
   salience: number;
   confidence: number;
   rehearsals: number;
@@ -84,7 +92,22 @@ export interface Memory {
   pinned: boolean;
   /** One-line gist for UI/chronicle: "Gussie Pratt dunned me at the store". */
   summary: string;
+  /** The other party the memory is about (the doer, or whom the owner did it to), or null. */
+  aboutId: ActorId | null;
+  /** True if the owner was the doer ("I insulted him"), false if done to/seen by the owner. */
+  did: boolean;
+  /** Instances folded into this memory (1, or more for a consolidated Summary memory). */
+  count: number;
+  /** Earliest instance (== at unless consolidated). */
+  since: GameMinute;
 }
+
+/**
+ * What callers pass to `addMemory`. The social-only bookkeeping fields are optional: when
+ * absent they are derived from `roles` (aboutId = first other actor; did = owner is agent).
+ */
+export type MemoryInput = Omit<Memory, 'id' | 'aboutId' | 'did' | 'count' | 'since'> &
+  Partial<Pick<Memory, 'aboutId' | 'did' | 'count' | 'since'>>;
 
 export interface Relationship {
   a: ActorId;
@@ -93,6 +116,18 @@ export interface Relationship {
   kind: RelationshipKind;
   since: GameMinute;
   amountCents: number | null;
+}
+
+/** Per-day tallies for stats.csv (reset at 00:00). */
+export interface SocialDaily {
+  interactions: number;
+  checks: number;
+  gossip: number;
+  told: number;
+  hostile: number;
+  defenses: number;
+  /** Candidate evaluations by the encounter sampler (complexity counter, 04 §13.2). */
+  encounterWork: number;
 }
 
 export interface SocialState {
@@ -104,51 +139,23 @@ export interface SocialState {
   memoriesByOwner: Table<ActorId, MemoryId[]>;
   /** Insertion order. */
   relationships: Relationship[];
+  daily: SocialDaily;
+  /** Run totals (interactions resolved, sampler work), for tests and stats. */
+  totals: { interactions: number; encounterWork: number };
+}
+
+export function emptyDaily(): SocialDaily {
+  return { interactions: 0, checks: 0, gossip: 0, told: 0, hostile: 0, defenses: 0, encounterWork: 0 };
 }
 
 export function createSocialState(): SocialState {
-  return { counters: { memory: 0 }, opinions: {}, memories: {}, memoriesByOwner: {}, relationships: [] };
-}
-
-export const ZERO_DIMS: OpinionDims = { affection: 0, respect: 0, trust: 0, fear: 0 };
-
-export function emptyOpinion(targetId: ActorId): Opinion {
   return {
-    targetId,
-    base: { ...ZERO_DIMS },
-    reasons: [],
-    volatile: { ...ZERO_DIMS },
-    obligation: { favors: 0, cents: 0 },
+    counters: { memory: 0 },
+    opinions: {},
+    memories: {},
+    memoriesByOwner: {},
+    relationships: [],
+    daily: emptyDaily(),
+    totals: { interactions: 0, encounterWork: 0 },
   };
-}
-
-/** Seed relationships and opinion reasons from the scenario. */
-export function initSocialState(world: World, ctx: InitContext): void {
-  const key = (k: string) => world.index.actorByKey[k];
-  for (const id of idsOf<ActorId>(world.actors)) {
-    mustGet(world.actors, id, 'actor');
-    world.social.opinions[id] = {};
-    world.social.memoriesByOwner[id] = [];
-  }
-  for (const r of ctx.scenario.relationships) {
-    const a = key(r.a);
-    const b = key(r.b);
-    if (a === undefined || b === undefined) continue;
-    world.social.relationships.push({ a, b, kind: r.kind, since: ctx.now, amountCents: r.amount_cents ?? null });
-  }
-  for (const o of ctx.scenario.opinions) {
-    const from = key(o.from);
-    const to = key(o.to);
-    if (from === undefined || to === undefined) continue;
-    const table = world.social.opinions[from] ?? {};
-    const op = table[to] ?? emptyOpinion(to);
-    op.reasons.push({
-      label: o.reason,
-      cites: { kind: 'seed' },
-      delta: { affection: o.affection, respect: o.respect, trust: o.trust, fear: o.fear },
-      since: ctx.now,
-    });
-    table[to] = op;
-    world.social.opinions[from] = table;
-  }
 }

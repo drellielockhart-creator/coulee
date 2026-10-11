@@ -1,0 +1,270 @@
+# Story templates for talk: Rumor spreading through town (Whispers), Faekin suspicion
+# (05 §9.2, S6, P7). OWNER: module:chronicle.
+
+# =========================================================================================
+# WHISPERS   actor = the person it is about; rumor = the claim in words; holders, count_word,
+#            count_tall, span (absent when the entry is rendered as common knowledge)
+# =========================================================================================
+
+[[template]]
+id = "whispers_paper_1"
+on = "whispers"
+voice = "paper"
+when = { level = 1 }
+headline = "A Story Going the Rounds"
+text = [
+  "A story is going the rounds, and we give it as it was given to us: \"{rumor}.\" We repeat it only to note that it is repeated.",
+  "#town_talk# \"{rumor}.\" We have not looked into the truth of it, but we have been told it by three persons.",
+]
+
+[[template]]
+id = "whispers_paper_2"
+on = "whispers"
+voice = "paper"
+when = { level = 2 }
+headline = "All Over the Ford"
+text = [
+  "The story that \"{rumor}\" is now all over the ford. Whether true or not, it has reached those who matter least to refute it and most to repeat it.",
+  "By the best accounts the report that \"{rumor}\" has reached every house on the Main Street, and some on the Ridge Road. Nobody will say who began it, and everybody knows.",
+]
+
+[[template]]
+id = "whispers_paper_3"
+on = "whispers"
+voice = "paper"
+when = { level = 3 }
+headline = "The Talk of the County"
+text = [
+  "There is scarcely a door in Iron Ford where the story that \"{rumor}\" has not been told, and told again with additions.",
+  "The tale that \"{rumor}\" has grown in the telling, as tales do. It has crossed the river and come back larger.",
+]
+
+[[template]]
+id = "whispers_paper_3_named"
+on = "whispers"
+voice = "paper"
+when = { level = 3, named = true }
+headline = "The Talk of the County"
+text = [
+  "There is scarcely a door in Iron Ford where the story that \"{rumor}\" has not been told, and told again with additions. {^actor} has our sympathy, or our curiosity, as the case may be.",
+]
+
+[[template]]
+id = "whispers_closed_paper"
+on = "whispers.closed"
+voice = "paper"
+text = [
+  "The story concerning {actor} has lost its legs, for want of fresh material. The village has moved on to other meat.",
+]
+
+[[template]]
+id = "whispers_journal_me"
+on = "whispers"
+voice = "journal"
+when = { actor_me = true }
+text = [
+  "They are saying it of me: \"{rumor}.\" I have the words from three mouths, each a little different. I notice I have begun to look at people's faces before I speak.",
+  "The talk about me goes on: \"{rumor}.\" I cannot answer a thing I have not been told to my face.",
+]
+
+[[template]]
+id = "whispers_journal_me_rancor"
+on = "whispers"
+voice = "journal"
+tone = "rancor"
+when = { actor_me = true }
+text = [
+  "\"{rumor}.\" That is what they say of me. I have the names of those who have said it, and I mean to keep them.",
+]
+
+[[template]]
+id = "whispers_journal"
+on = "whispers"
+voice = "journal"
+when = { actor_me = false }
+text = [
+  "Heard it again today: \"{rumor}.\" I give it the weight I give such things, which is some. Wonder who began it.",
+  "The tale about {actor_short} is all over. I said nothing for it or against it, which comes to the same in a small place.",
+]
+
+[[template]]
+id = "whispers_journal_skeptic"
+on = "whispers"
+voice = "journal"
+tone = "skeptic"
+when = { actor_me = false }
+text = [
+  "Four people have told me, with equal certainty, that \"{rumor}.\" None has seen it. A rumor is a kind of weather: it moves through, and everyone swears it was always there.",
+]
+
+[[template]]
+id = "whispers_journal_piety"
+on = "whispers"
+voice = "journal"
+tone = "piety"
+when = { actor_me = false }
+text = [
+  "They say that \"{rumor}.\" Thou shalt not bear false witness. I find it is the commandment the parish keeps worst, and with the best conscience.",
+]
+
+[[template]]
+id = "whispers_ballad"
+on = "whispers"
+voice = "ballad"
+text = [
+  "It started with a word, #ballad_place#,\nAnd the word was small and sly;\nBut it went from the mill to the store to the church\nTill it had a name and an eye.",
+]
+
+[[template]]
+id = "whispers_epilogue"
+on = "whispers"
+voice = "epilogue"
+text = [
+  "It passed through {count_word} mouths in {span}, and grew a little in each. Nobody lied, exactly. Everybody improved it.",
+  "The story needed no malice; it needed only {count_word} people each willing to be the one who knew. The truth, whatever it was, was never consulted.",
+]
+
+# =========================================================================================
+# FAEKIN SUSPICION   actor = the one suspected; level_word (doubted|whispered|shunned|accused);
+#   rumor, rung_name, holders, count_word, span. Epilogue only: hidden_kin (true|false).
+# =========================================================================================
+
+[[template]]
+id = "faekin_paper_whispered"
+on = "faekin_suspicion"
+voice = "paper"
+when = { level_word = "whispered" }
+headline = "Idle Talk"
+text = [
+  "The paper does not credit such tales, but it notes that one is going about: \"{rumor}.\" #ill_sign#, in the opinion of those who hold with such things.",
+  "Whispers concerning {actor} have taken a dark turn: \"{rumor}.\" We have seen nothing, and are told by those who have seen nothing that it is certain.",
+]
+
+[[template]]
+id = "faekin_paper_shunned"
+on = "faekin_suspicion"
+voice = "paper"
+when = { level_word = "shunned" }
+headline = "Uneasiness on the Ford"
+text = [
+  "Talk of #good_neighbors# attaches itself to the name of {actor}. Children are kept in at dusk; a horseshoe hangs over three more doors than last week; credit at the store has grown suddenly cautious.",
+  "{^actor} is much talked of, and little spoken to. \"{rumor}\" is the burden of the talk. We counsel patience, and the keeping of the peace, and expect to be listened to by neither side.",
+]
+
+[[template]]
+id = "faekin_paper_accused"
+on = "faekin_suspicion"
+voice = "paper"
+when = { level_word = "accused" }
+headline = "An Accusation"
+text = [
+  "#paper_grieve# that {actor} has been openly named, before the village, as one of #good_neighbors#. We urge that no one take the law into hand. We note that it is a long way to the county seat and that the nights are dark.",
+  "A public accusation of the gravest sort has been made against {actor}: that \"{rumor}.\" The matter is for the law and the pulpit; it will be settled, we fear, by neither.",
+]
+
+[[template]]
+id = "faekin_closed_paper"
+on = "faekin_suspicion.closed"
+voice = "paper"
+text = [
+  "The uneasiness concerning {actor} has abated, for the present. We hope the village will remember, on the next dark night, what it forgot on this one.",
+]
+
+[[template]]
+id = "faekin_journal_me"
+on = "faekin_suspicion"
+voice = "journal"
+when = { actor_me = true }
+text = [
+  "They say \"{rumor}.\" I have heard it three ways now. I smile at the store and nobody smiles back quite in time. I am learning how long a day can be.",
+  "The talk has turned. I can feel it at the back of my neck, as one feels a window left open.",
+]
+
+[[template]]
+id = "faekin_journal_me_piety"
+on = "faekin_suspicion"
+voice = "journal"
+tone = "piety"
+when = { actor_me = true }
+text = [
+  "They say \"{rumor}.\" I have prayed over it, and the Lord has not spoken to me about it, and the neighbors have spoken to everyone else.",
+]
+
+[[template]]
+id = "faekin_journal"
+on = "faekin_suspicion"
+voice = "journal"
+when = { actor_me = false }
+text = [
+  "The talk of {actor} has hardened: \"{rumor}.\" I do not say it is true. I say I have put iron on the sill, and it cost me nothing.",
+  "More said of {actor} today than yesterday, and nothing proven. I do not like the way the room leans when {actor_short} is named.",
+]
+
+[[template]]
+id = "faekin_journal_superstition"
+on = "faekin_suspicion"
+voice = "journal"
+tone = "superstition"
+when = { actor_me = false }
+text = [
+  "I do not hold with talk of #good_neighbors#, and I do not say their name after dark. But {actor} was seen at the edge of the coulee at the wrong hour, and I have taken the salt out of the cellar and put it on the sill.",
+]
+
+[[template]]
+id = "faekin_journal_skeptic"
+on = "faekin_suspicion"
+voice = "journal"
+tone = "skeptic"
+when = { actor_me = false }
+text = [
+  "They are making a witch of {actor}. A cow dies, a child sickens, someone must pay. It was ever thus, and I wrote the same thing last month. I wish I could write something else.",
+]
+
+[[template]]
+id = "faekin_journal_neighborliness"
+on = "faekin_suspicion"
+voice = "journal"
+tone = "neighborliness"
+when = { actor_me = false }
+text = [
+  "I took a loaf to {actor} today, in daylight, in full view. If the village wants to count who stands by a neighbor, let it count me.",
+]
+
+[[template]]
+id = "faekin_journal_parochialism"
+on = "faekin_suspicion"
+voice = "journal"
+tone = "parochialism"
+when = { actor_me = false }
+text = [
+  "I have always said there was something about {actor}. Of course I have no proof. One does not need proof for what one has always said.",
+]
+
+[[template]]
+id = "faekin_ballad"
+on = "faekin_suspicion"
+voice = "ballad"
+text = [
+  "The iron lay on the window sill\nAnd the salt lay on the stair,\nFor {actor} walked down by the Lantern shore\nAnd something walked there.",
+  "#ballad_oh#, of the one they shunned\n#ballad_place#, in the dim of the moon;\nThey said she was one of #good_neighbors#,\nAnd the dogs all howled the tune.",
+]
+
+[[template]]
+id = "faekin_epilogue_kin"
+on = "faekin_suspicion"
+voice = "epilogue"
+when = { hidden_kin = true }
+text = [
+  "The village was right, for the wrong reasons. {^actor_short} was of the hidden folk, and had been all along. It was not the rumors that found it out; it was coincidence, and a cow that died at the right time.",
+  "{^actor_short} was what the whispers said, and had been careful for years. The town learned nothing it did not already fear, and the fear did the rest.",
+]
+
+[[template]]
+id = "faekin_epilogue_notkin"
+on = "faekin_suspicion"
+voice = "epilogue"
+when = { hidden_kin = false }
+text = [
+  "{^actor_short} was exactly what {he} appeared: a person with an unlucky face and a neighbor's grudge. There was nothing hidden in {actor_short} at all, which did not help.",
+  "There was nothing uncanny about {actor_short}. The village had needed someone, and chosen.",
+]

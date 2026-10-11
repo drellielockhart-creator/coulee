@@ -46,6 +46,8 @@ export interface Draft {
   optional: boolean;
   /** Extra rng salt so two drafts from one event differ. */
   salt: number;
+  /** Text to use when no template matches (instead of the generic fallback). */
+  fallback: string | null;
 }
 
 const TONE_ORDER = [
@@ -95,6 +97,7 @@ export function newDraft(over: Partial<Draft> & Pick<Draft, 'key' | 'voice' | 'b
     terms: [],
     optional: false,
     salt: 0,
+    fallback: null,
     ...over,
   };
 }
@@ -116,6 +119,7 @@ export function writeEntry(dc: DetectCtx, d: Draft): ChronicleEntry | null {
       place: d.placeIds[0] ?? 0,
       formal: d.voice === 'paper',
       authorId: d.authorId,
+      firstPerson: d.voice === 'journal' || d.voice === 'ledger',
     }),
     voice: d.voice,
     basis: d.basis,
@@ -127,12 +131,15 @@ export function writeEntry(dc: DetectCtx, d: Draft): ChronicleEntry | null {
   const rendered = renderTemplate(dc.index(), rng, st.variants, d.key, d.voice, d.importance, bind, toneOf(author));
   if (!rendered && d.optional) return null;
 
-  // Epilogue lines about minds are capped per week so a nervous town does not drown the story.
+  // The epilogue is the post-run reckoning, not a second log: a week gets a few truths at the bar,
+  // a few more if they are strong, and no more.
   const week = weekNumber(d.t);
   if (st.weekLoad.week !== week) st.weekLoad = { week, entries: 0, epilogue: 0 };
-  if (d.voice === 'epilogue' && d.kind === 'event') {
-    const cap = dc.params('notability', 0).n('epilogue_weekly_cap', 14);
-    if (st.weekLoad.epilogue >= cap) return null;
+  if (d.voice === 'epilogue' && d.kind !== 'digest') {
+    const np = dc.params('notability', 0);
+    const written = st.weekLoad.epilogue;
+    if (written >= np.n('epilogue_weekly_cap', 18)) return null;
+    if (written >= np.n('epilogue_open', 8) && d.importance < np.n('epilogue_high', 60)) return null;
     st.weekLoad.epilogue += 1;
   } else if (d.kind !== 'digest' && d.kind !== 'almanac') {
     st.weekLoad.entries += 1;
@@ -144,7 +151,7 @@ export function writeEntry(dc: DetectCtx, d: Draft): ChronicleEntry | null {
     tEnd: d.tEnd as GameMinute,
     voice: d.voice,
     headline: rendered?.headline ?? null,
-    text: rendered?.text ?? fallbackText(d, bind),
+    text: rendered?.text ?? d.fallback ?? fallbackText(d, bind),
     importance: Math.max(0, Math.min(100, Math.round(d.importance))),
     valence: Math.max(-100, Math.min(100, Math.round(d.valence))),
     actorIds: d.actorIds.map(asActorId),
@@ -161,7 +168,13 @@ export function writeEntry(dc: DetectCtx, d: Draft): ChronicleEntry | null {
     topics: d.topics,
   };
   if (d.terms.length > 0) {
-    const threshold = dc.params('notability', 0).n(d.voice === 'journal' ? 'journal_min' : 'paper_min', 40);
+    const np = dc.params('notability', 0);
+    const threshold =
+      d.voice === 'journal'
+        ? np.n('journal_min', 30)
+        : d.voice === 'epilogue'
+          ? np.n('epilogue_min', 45)
+          : np.n('paper_min', 40);
     const explain: Explain = {
       kind: 'formula',
       label: 'Why the Chronicle kept this',
@@ -179,7 +192,7 @@ export function writeEntry(dc: DetectCtx, d: Draft): ChronicleEntry | null {
   st.tallies.week.entries[d.voice] = (st.tallies.week.entries[d.voice] ?? 0) + 1;
   st.tallies.total.entries[d.voice] = (st.tallies.total.entries[d.voice] ?? 0) + 1;
 
-  if (d.importance > 0) {
+  if (d.importance > 0 && d.basis !== 'omniscient') {
     for (const a of d.actorIds) {
       st.notoriety[a] = Math.min(100, (st.notoriety[a] ?? 0) + Math.floor(d.importance / 8));
       st.cast[a] = (st.cast[a] ?? 0) + d.importance;

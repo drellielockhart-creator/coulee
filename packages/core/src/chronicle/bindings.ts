@@ -18,6 +18,8 @@ export interface BaseBindingInput {
   formal: boolean;
   /** The writer, when there is one: `other` skips them. */
   authorId: number | null;
+  /** The writer speaks as "I"/"me" when they are in the story (journals, ledgers). */
+  firstPerson?: boolean;
 }
 
 /** Week number, 1-based, counting from the epoch Sunday. */
@@ -32,14 +34,16 @@ function person(
   name: 'actor' | 'target' | 'other',
   id: number | undefined,
   formal: boolean,
+  me: boolean,
 ): void {
   if (!id) return;
   const a = world.actors[id as ActorId];
   if (!a) return;
-  const pr = pronounsOf(a);
-  out[name] = formal ? formalName(world, content, id) : shortNameOf(world, id);
-  out[`${name}_short`] = shortNameOf(world, id);
-  out[`${name}_given`] = givenNameOf(world, id);
+  const pr = me ? { he: 'I', his: 'my', him: 'me', himself: 'myself' } : pronounsOf(a);
+  out[name] = me ? (name === 'actor' ? 'I' : 'me') : formal ? formalName(world, content, id) : shortNameOf(world, id);
+  out[`${name}_short`] = me ? out[name] : shortNameOf(world, id);
+  out[`${name}_given`] = me ? out[name] : givenNameOf(world, id);
+  if (name !== 'other') out[`${name}_me`] = me;
   if (name === 'actor') {
     out.he = pr.he;
     out.his = pr.his;
@@ -66,15 +70,16 @@ export function baseBindings(world: World, content: ContentBundle, o: BaseBindin
     at: atPlace(world, o.place),
   };
   const [first, second] = o.actors;
-  person(out, world, content, 'actor', first, o.formal);
-  person(out, world, content, 'target', second, o.formal);
+  const meOf = (id: number | undefined) => o.firstPerson === true && !!o.authorId && id === o.authorId;
+  person(out, world, content, 'actor', first, o.formal, meOf(first));
+  person(out, world, content, 'target', second, o.formal, meOf(second));
   const otherId = o.actors.find((a) => a !== o.authorId && a !== 0);
-  person(out, world, content, 'other', otherId, o.formal);
+  person(out, world, content, 'other', otherId, o.formal, false);
   if (o.authorId) out.author = shortNameOf(world, o.authorId);
   const cast = o.actors
     .filter((a) => a !== 0)
     .slice(0, 4)
-    .map((a) => (o.formal ? formalName(world, content, a) : shortNameOf(world, a)));
+    .map((a) => (meOf(a) ? 'I' : o.formal ? formalName(world, content, a) : shortNameOf(world, a)));
   if (cast.length > 0)
     out.cast = cast.length > 1 ? `${cast.slice(0, -1).join(', ')} and ${cast[cast.length - 1]}` : (cast[0] as string);
   return out;

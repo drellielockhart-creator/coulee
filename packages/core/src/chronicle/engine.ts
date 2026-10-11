@@ -5,12 +5,17 @@
  *
  * P1: a thread is evaluated three times, over three fact sets. The public view sees only
  * public events; the player view adds what the player character witnessed; the omniscient
- * view sees everything. An entry is stamped with the audience whose facts produced it, so a
- * private event can never leak into a public entry.
+ * view sees everything. An entry is stamped with the audience whose facts produced it, and is
+ * RENDERED FROM THOSE FACTS ONLY, so a private event can never leak into a public entry: not
+ * through its text, its cast, nor its source list. (A pattern may declare that a story is
+ * common knowledge from some level on; the public entry then gains the thread's public face
+ * but still none of the private facts.)
  */
-import { asEventId, type ChronicleEntryId, nextId } from '../ids.ts';
+import type { ExplainTerm } from '../explain.ts';
+import { nextId } from '../ids.ts';
 import { newDraft, writeEntry } from './entries.ts';
 import type { Fact } from './facts.ts';
+import { noteTold, scoreStory } from './notability.ts';
 import type { PatternParams } from './params.ts';
 import { PATTERNS } from './patterns/index.ts';
 import type { Accept, DetectCtx, PatternDef, View } from './patterns/types.ts';
@@ -25,6 +30,13 @@ const MAX_CLOSED_THREADS = 40;
 
 export function findThread(dc: DetectCtx, pattern: string, key: string): ChronicleThread | undefined {
   return dc.world.chronicle.threads.find((t) => t.pattern === pattern && t.key === key);
+}
+
+/** The facts a given audience may use: the town's, the player's, or all of them (P1). */
+export function factsFor(th: ChronicleThread, view: View, pcId: number): ThreadFact[] {
+  if (view === 'all') return th.facts;
+  if (view === 'pub') return th.facts.filter((f) => f.pub === 1);
+  return pcId ? th.facts.filter((f) => f.pub === 1 || f.by.includes(pcId)) : [];
 }
 
 function openThread(dc: DetectCtx, pattern: string, key: string, t: number): ChronicleThread {
@@ -48,15 +60,15 @@ function openThread(dc: DetectCtx, pattern: string, key: string, t: number): Chr
   st.threads.push(th);
   if (st.threads.length > MAX_OPEN_THREADS) {
     // Drop the oldest thread that never told a story; else the oldest of all.
-    let idx = st.threads.findIndex((x) => x.emitted.pub + x.emitted.pc + x.emitted.all === 0 && x !== th);
-    if (idx < 0) idx = 0;
-    st.threads.splice(idx, 1);
+    let idx = st.threads.findIndex((x) => x.entryIds.length === 0 && x !== th);
+    if (idx < 0) idx = st.threads.findIndex((x) => x !== th);
+    if (idx >= 0) st.threads.splice(idx, 1);
   }
   return th;
 }
 
 function addToThread(th: ChronicleThread, acc: Accept): void {
-  const dup = th.facts.some((f) => f.e === acc.tf.e && f.k === acc.tf.k);
+  const dup = th.facts.some((f) => f.e === acc.tf.e && f.k === acc.tf.k && f.a === acc.tf.a && f.b === acc.tf.b);
   if (!dup) {
     th.facts.push(acc.tf);
     if (th.facts.length > MAX_FACTS) th.facts.splice(0, th.facts.length - MAX_FACTS);
@@ -81,7 +93,17 @@ function maxEmitted(th: ChronicleThread): number {
   return Math.max(th.emitted.pub, th.emitted.pc, th.emitted.all);
 }
 
-/** Write the entry (and ballad) for one audience at one milestone. */
+/** Minimum score for each audience (content-tunable). */
+function thresholdFor(dc: DetectCtx, view: View): number {
+  const p = dc.params('notability', 0);
+  return view === 'pub' ? p.n('paper_min', 40) : view === 'pc' ? p.n('journal_min', 30) : p.n('epilogue_min', 45);
+}
+
+/**
+ * Write the entry (and ballad) for one audience at one milestone. Returns true if an entry
+ * was written. A story that scores below the audience's threshold is not marked as told: if
+ * it grows more notable (a famous name joins, a slow week) a later fact can still tell it.
+ */
 function emitView(
   dc: DetectCtx,
   def: PatternDef,
@@ -90,25 +112,44 @@ function emitView(
   view: View,
   level: number,
   facts: ThreadFact[],
-): void {
+  promoted: boolean,
+): boolean {
   const imp = def.importanceAt(level, th, p);
-  th.emitted[view] = level;
-  if (imp <= 0) return;
-  const actors = actorsOf(facts, th.actorIds);
+  if (imp <= 0) {
+    th.emitted[view] = level;
+    return false;
+  }
+  const real = facts.filter((f) => f.e > 0);
+  const actors = promoted
+    ? (def.publicActors?.(th) ?? []).slice(0, MAX_ACTORS)
+    : (def.cast?.(facts, th, view) ?? actorsOf(facts, view === 'all' ? th.actorIds : [])).slice(0, MAX_ACTORS);
   const last = facts[facts.length - 1];
   const placeFact = [...facts].reverse().find((f) => f.p > 0);
   const t = last?.t ?? th.lastAt;
+  const pcId = dc.pcId;
+  const rep = def.repeat?.(th, level, p, dc) ?? null;
+  const score = scoreStory(dc, {
+    base: imp,
+    actors,
+    repeatKey: rep ? `${rep.key}|${view}` : null,
+    ...(rep ? { repeatDays: rep.days } : {}),
+    t,
+    pcIn: pcId > 0 && view !== 'pub' && actors.includes(pcId),
+    epilogue: view === 'all',
+  });
+  if (score.total < thresholdFor(dc, view)) return false;
+
   const bind: Bindings = def.bind(facts, th, level, dc, p, view);
-  const sources = facts.slice(-8).map((f) => f.e);
   const base = {
     key: def.id,
-    importance: imp,
+    importance: score.total,
+    terms: score.terms as ExplainTerm[],
     valence: def.valence?.(th) ?? 0,
     t,
     tEnd: t,
     actorIds: actors,
     placeIds: placeFact ? [placeFact.p] : [],
-    sources,
+    sources: real.slice(-8).map((f) => f.e),
     pattern: def.id,
     kind: 'pattern' as const,
     level,
@@ -116,45 +157,80 @@ function emitView(
     topics: [def.topic],
     bind,
   };
-  const pcId = dc.pcId;
+  let wrote = false;
   if (view === 'pub') {
-    const e = writeEntry(dc, newDraft({ ...base, voice: 'paper', basis: 'public' }));
-    if (e) th.entryIds.push(e.id);
+    const e = writeEntry(dc, newDraft({ ...base, voice: 'paper', basis: 'public', optional: true }));
+    if (e) {
+      th.entryIds.push(e.id);
+      wrote = true;
+    }
     const ballad = dc.params('notability', 0).n('ballad_min', 75);
-    if (def.balladLevel !== undefined && level >= def.balladLevel && imp >= ballad) {
+    if (def.balladLevel !== undefined && level >= def.balladLevel && score.total >= ballad) {
       const b = writeEntry(dc, newDraft({ ...base, voice: 'ballad', basis: 'public', optional: true, salt: 7 }));
       if (b) th.entryIds.push(b.id);
     }
   } else if (view === 'pc') {
+    const inStory = actors.includes(pcId);
     const e = writeEntry(
       dc,
-      newDraft({ ...base, voice: 'journal', basis: 'witnessed', knownBy: [pcId], authorId: pcId, salt: 3 }),
+      newDraft({
+        ...base,
+        voice: 'journal',
+        basis: inStory ? 'witnessed' : 'heard',
+        knownBy: [pcId],
+        authorId: pcId,
+        optional: true,
+        salt: 3,
+        bind: { ...bind, pc: true },
+      }),
     );
-    if (e) th.entryIds.push(e.id);
+    if (e) {
+      th.entryIds.push(e.id);
+      wrote = true;
+    }
   } else {
     const e = writeEntry(dc, newDraft({ ...base, voice: 'epilogue', basis: 'omniscient', optional: true, salt: 5 }));
-    if (e) th.entryIds.push(e.id);
+    if (e) {
+      th.entryIds.push(e.id);
+      wrote = true;
+    }
   }
+  if (wrote) {
+    th.emitted[view] = level;
+    if (rep) noteTold(dc.world.chronicle, `${rep.key}|${view}`, t);
+  }
+  return wrote;
 }
 
 /** Evaluate one thread for all three audiences and write whatever milestones are new. */
 function evaluate(dc: DetectCtx, def: PatternDef, p: PatternParams, th: ChronicleThread): void {
-  const all = th.facts;
-  const pubFacts = all.filter((f) => f.pub === 1);
-  const pcFacts = dc.pcId ? all.filter((f) => f.pub === 1 || f.by.includes(dc.pcId)) : [];
-  const lAll = def.level(all, th, dc, p, 'all');
+  const pcId = dc.pcId;
+  const pubFacts = factsFor(th, 'pub', pcId);
   const lPubOwn = def.level(pubFacts, th, dc, p, 'pub');
-  const promoted = (def.publicFrom ?? 0) > 0 && lAll >= (def.publicFrom ?? 0) && lAll > lPubOwn;
-  const lPub = promoted ? lAll : lPubOwn;
-  if (lPub > th.emitted.pub) emitView(dc, def, p, th, 'pub', lPub, promoted ? all : pubFacts);
-
-  if (dc.pcId) {
-    const lPc = def.level(pcFacts, th, dc, p, 'pc');
-    const involved = th.actorIds.includes(dc.pcId);
-    if (lPc > th.emitted.pc && (involved || lPc > lPub)) emitView(dc, def, p, th, 'pc', lPc, pcFacts);
+  // Common knowledge: the level can be raised by what everyone knows is going on, but the
+  // entry is rendered from public facts only.
+  let lPub = lPubOwn;
+  let promoted = false;
+  if ((def.publicFrom ?? 0) > 0) {
+    const lTown = def.townLevel ? def.townLevel(th.facts, th, dc, p) : def.level(th.facts, th, dc, p, 'all');
+    if (lTown >= (def.publicFrom ?? 0) && lTown > lPubOwn) {
+      lPub = lTown;
+      promoted = true;
+    }
   }
+  if (lPub > th.emitted.pub) emitView(dc, def, p, th, 'pub', lPub, pubFacts, promoted);
+
+  if (pcId) {
+    const pcFacts = factsFor(th, 'pc', pcId);
+    const lPc = def.level(pcFacts, th, dc, p, 'pc');
+    const involved = th.actorIds.includes(pcId);
+    if (lPc > th.emitted.pc && (involved || lPc > Math.max(lPubOwn, th.emitted.pub))) {
+      emitView(dc, def, p, th, 'pc', lPc, pcFacts, false);
+    }
+  }
+  const lAll = def.level(th.facts, th, dc, p, 'all');
   if (lAll > th.emitted.all && (def.alwaysAll || lAll > Math.max(th.emitted.pub, th.emitted.pc))) {
-    emitView(dc, def, p, th, 'all', lAll, all);
+    emitView(dc, def, p, th, 'all', lAll, th.facts, false);
   }
 }
 
@@ -173,7 +249,7 @@ export function feedFact(dc: DetectCtx, f: Fact): { covered: boolean } {
     if (!p.enabled) continue;
     for (const acc of def.accept(f, dc, p)) {
       const th = feedAccept(dc, def, p, acc);
-      if (def.suppressSingles && maxEmitted(th) > 0) covered = true;
+      if (def.suppressSingles && th.entryIds.length > 0) covered = true;
     }
   }
   return { covered };
@@ -181,53 +257,65 @@ export function feedFact(dc: DetectCtx, f: Fact): { covered: boolean } {
 
 function closeThread(dc: DetectCtx, def: PatternDef, p: PatternParams, th: ChronicleThread): void {
   const st = dc.world.chronicle;
+  const pcId = dc.pcId;
   if (def.closingLevel !== undefined && maxEmitted(th) >= def.closingLevel) {
-    const views: View[] = th.emitted.pub > 0 ? ['pub'] : th.emitted.pc > 0 ? ['pc'] : th.emitted.all > 0 ? ['all'] : [];
+    // Close each audience's story that was actually told, from that audience's facts.
+    const views: View[] = [];
+    if (th.emitted.pub > 0) views.push('pub');
+    if (th.emitted.pc > 0 && pcId) views.push('pc');
+    if (th.emitted.all > 0 && th.emitted.pub === 0 && th.emitted.pc === 0) views.push('all');
     for (const view of views) {
-      const facts =
-        view === 'pub'
-          ? th.facts.filter((f) => f.pub === 1).length > 0
-            ? th.facts.filter((f) => f.pub === 1)
-            : th.facts
-          : th.facts;
+      const facts = factsFor(th, view, pcId);
       const level = th.emitted[view];
+      const promoted = view === 'pub' && facts.length === 0;
+      const actors = promoted
+        ? (def.publicActors?.(th) ?? [])
+        : (def.cast?.(facts, th, view) ?? actorsOf(facts, view === 'all' ? th.actorIds : []));
       const bind = { ...def.bind(facts, th, level, dc, p, view), closed: true };
       const last = facts[facts.length - 1];
+      const imp = Math.max(1, def.importanceAt(level, th, p) - 10);
+      const score = scoreStory(dc, {
+        base: imp,
+        actors,
+        repeatKey: null,
+        t: dc.ctx.now as number,
+        pcIn: pcId > 0 && view !== 'pub' && actors.includes(pcId),
+      });
+      if (score.total < thresholdFor(dc, view)) continue;
       const base = {
         key: `${def.id}.closed`,
-        importance: Math.max(1, def.importanceAt(level, th, p) - 10),
-        valence: -(def.valence?.(th) ?? 0) / 2,
+        importance: score.total,
+        terms: score.terms,
+        valence: -Math.trunc((def.valence?.(th) ?? 0) / 2),
         t: dc.ctx.now as number,
         tEnd: dc.ctx.now as number,
-        actorIds: actorsOf(facts, th.actorIds),
+        actorIds: actors.slice(0, MAX_ACTORS),
         placeIds: last && last.p > 0 ? [last.p] : [],
-        sources: facts.slice(-6).map((f) => f.e),
+        sources: facts
+          .filter((f) => f.e > 0)
+          .slice(-6)
+          .map((f) => f.e),
         pattern: def.id,
         kind: 'closing' as const,
         level: level + 100,
         threadId: th.id,
         topics: [def.topic],
         bind,
+        optional: true,
       };
       const draft =
         view === 'pub'
-          ? newDraft({ ...base, voice: 'paper', basis: 'public', optional: true })
+          ? newDraft({ ...base, voice: 'paper', basis: 'public' })
           : view === 'pc'
-            ? newDraft({
-                ...base,
-                voice: 'journal',
-                basis: 'witnessed',
-                knownBy: [dc.pcId],
-                authorId: dc.pcId,
-                optional: true,
-              })
-            : newDraft({ ...base, voice: 'epilogue', basis: 'omniscient', optional: true });
+            ? newDraft({ ...base, voice: 'journal', basis: 'witnessed', knownBy: [pcId], authorId: pcId })
+            : newDraft({ ...base, voice: 'epilogue', basis: 'omniscient' });
       const e = writeEntry(dc, draft);
       if (e) th.entryIds.push(e.id);
     }
   }
   th.closed = true;
-  st.threads.splice(st.threads.indexOf(th), 1);
+  const idx = st.threads.indexOf(th);
+  if (idx >= 0) st.threads.splice(idx, 1);
   st.closedThreads.push({ ...th, facts: th.facts.slice(-3) });
   if (st.closedThreads.length > MAX_CLOSED_THREADS)
     st.closedThreads.splice(0, st.closedThreads.length - MAX_CLOSED_THREADS);
@@ -247,5 +335,3 @@ export function dailyPatterns(dc: DetectCtx): void {
     if (def.stale?.(th, dc, p)) closeThread(dc, def, p, th);
   }
 }
-
-export { asEventId, type ChronicleEntryId };

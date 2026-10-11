@@ -1,0 +1,701 @@
+# Story templates for the social patterns: Feud, Betrayal, Friendship, Courtship, Debt,
+# Kindness (05 §9.2). Paper, journal, ballad and epilogue voices. OWNER: module:chronicle.
+
+# =========================================================================================
+# FEUD   bindings: stage (quarrel|feud|war), family, family_b, families ("the A and the B"),
+#        count, count_word, span, interaction_name, violent; actor = latest aggressor
+# =========================================================================================
+
+[[template]]
+id = "feud_paper_quarrel"
+on = "feud"
+voice = "paper"
+when = { stage = "quarrel" }
+headline = "A Coolness Between Neighbors"
+text = [
+  "#paper_learn# that a difference has arisen between {families}. Both sides have been heard on the subject; neither, we think, has been heard to the end.",
+  "A coolness is reported between {families}. The latest word passed{_at} {when}, and was not a kind one.",
+]
+
+[[template]]
+id = "feud_paper_feud"
+on = "feud"
+voice = "paper"
+when = { stage = "feud" }
+headline = "The {family}-{family_b} Difficulty"
+text = [
+  "It must now be called a feud. {^count_word} injuries have been given and returned between {families} in {span}, the last{_at} {when}, when {actor} gave {target} cause for complaint again.",
+  "{^families} are at open odds. #paper_grieve# that {count_word} wrongs have been done and answered in {span}, and nobody is willing to be first to forgive.",
+  "Between {families} the quarrel has taken root. It began, as such things do, in a small matter, and has since grown a large family of its own.",
+]
+
+[[template]]
+id = "feud_paper_war"
+on = "feud"
+voice = "paper"
+when = { stage = "war", violent = true }
+headline = "Feud Turns Violent"
+text = [
+  "#paper_grieve# that matters between {families} have passed beyond words. {^count_word} injuries in {span}, and blows among them. We call on the respectable men of both houses to step between them before something is done that cannot be undone.",
+  "The troubles of {families} are now a public danger. {^count_word} wrongs in {span}; the latest{_at} {when}. Let the elders of the ford interpose, if elders there be.",
+]
+
+[[template]]
+id = "feud_paper_war_words"
+on = "feud"
+voice = "paper"
+when = { stage = "war", violent = false }
+headline = "The Feud Deepens"
+text = [
+  "{^families} are at war in everything but gunpowder: {count_word} wrongs in {span}, no truce, and neighbors beginning to choose sides at the store.",
+]
+
+[[template]]
+id = "feud_closed_paper"
+on = "feud.closed"
+voice = "paper"
+headline = "A Truce, of a Kind"
+text = [
+  "The difficulty between {families} has gone quiet. Neither house has been heard to give an inch; both have given the matter a rest. We note it with caution.",
+  "No fresh word has come of the quarrel between {families} for some weeks. A feud, like a fire, does not end; it banks.",
+]
+
+[[template]]
+id = "feud_journal"
+on = "feud"
+voice = "journal"
+text = [
+  "More trouble between {families}: {count_word} wrongs now in {span}, by my count. I keep out of it, which in Iron Ford is a labor.",
+  "The feud between {families} has a name now, and what has a name can be argued over. Everyone has an opinion. I have one and am saving it.",
+  "{^families}, again. I am beginning to dread the store for fear of hearing one side's account of the other.",
+]
+
+[[template]]
+id = "feud_journal_piety"
+on = "feud"
+voice = "journal"
+tone = "piety"
+text = [
+  "{^families} are at one another's throats, and I would give a month's eggs to see them in the same pew. Blessed are the peacemakers; I have not found it easy to be blessed.",
+]
+
+[[template]]
+id = "feud_journal_neighborliness"
+on = "feud"
+voice = "journal"
+tone = "neighborliness"
+text = [
+  "Went to both doors, {families}, with a pie for each. A pie will not settle a feud. It was received.",
+]
+
+[[template]]
+id = "feud_journal_temper"
+on = "feud"
+voice = "journal"
+tone = "temper"
+text = [
+  "{^families} and their quarrel again. If I were either of them I would have finished it a month ago, one way or the other.",
+]
+
+[[template]]
+id = "feud_journal_discretion"
+on = "feud"
+voice = "journal"
+tone = "discretion"
+text = [
+  "I know more of the {family} and {family_b} business than I have said to anyone. I intend to go on knowing it quietly.",
+]
+
+[[template]]
+id = "feud_closed_journal"
+on = "feud.closed"
+voice = "journal"
+text = [
+  "The feud between {families} has gone still. I do not trust it. I have seen a quiet creek before a flood.",
+]
+
+[[template]]
+id = "feud_ballad"
+on = "feud"
+voice = "ballad"
+text = [
+  "{^families} had a quarrel, #ballad_place#,\nIt started with a word and it ended with a stone;\nThe one swore the other had begun it,\nAnd both of them were right, and both alone.",
+  "#ballad_oh#, and I'll sing of {families},\nWho fought for {span} over what no one could say;\nA harm for a harm for a harm for a harm,\nAnd the quarrel outlived them all, they say.",
+  "There were two houses {span} at war,\nAnd neither one could tell you why;\nThe creek ran cold and the quarrel ran hot\nTill the river took the reason by.",
+]
+
+[[template]]
+id = "feud_ballad_violent"
+on = "feud"
+voice = "ballad"
+when = { violent = true }
+text = [
+  "There was blood on the boards at the end of it all,\nAnd {families} had gone beyond words;\nThe constable came and the parson prayed,\nBut the quarrel was loud as the birds.",
+]
+
+[[template]]
+id = "feud_epilogue"
+on = "feud"
+voice = "epilogue"
+text = [
+  "What neither house would say aloud: both were keeping count. {^count_word} wrongs each could recite, and each side's tally was the larger. The first of them, {span} back, was a small thing that either could have undone with a word.",
+  "Neither {family} nor {family_b} began it, and both would have sworn they had. The record shows only a chain: a wrong, an answer, a worse answer, {count_word} times over.",
+]
+
+[[template]]
+id = "feud_closed_epilogue"
+on = "feud.closed"
+voice = "epilogue"
+text = [
+  "The feud did not end; it went underground. Each house still kept the other's name in its prayers, for different reasons.",
+]
+
+# =========================================================================================
+# BETRAYAL   actor = the betrayer, target = the one betrayed; favor (past tense of the help),
+#            act (past tense of the harm), span, kind (grave|cold)
+# =========================================================================================
+
+[[template]]
+id = "betrayal_paper_cold"
+on = "betrayal"
+voice = "paper"
+when = { kind = "cold" }
+headline = "A Poor Return"
+text = [
+  "#paper_grieve# that {actor}, whom {target} {favor} {span} ago, has lately {act} {target}{_at}. The old saw about the hand that feeds is not new, but it is apt.",
+  "{^target} is reported to have had a poor return for a kindness. {^actor} {act} {target}{_at} {when}, {span} after being {favor} by {target_him}. Memory in this county is long and not always grateful.",
+]
+
+[[template]]
+id = "betrayal_paper_grave"
+on = "betrayal"
+voice = "paper"
+when = { kind = "grave" }
+headline = "Betrayed"
+text = [
+  "#paper_grieve# that {target}, who stood by {actor} {span} ago, has been wronged by the very person helped: {actor} {act} {target}{_at} {when}. The village is shocked, or says so.",
+  "A betrayal is reported. {^actor}, who was {favor} by {target} when it counted, has since {act} {target}. We withhold further comment until further is warranted.",
+]
+
+[[template]]
+id = "betrayal_closed_paper"
+on = "betrayal.closed"
+voice = "paper"
+text = [
+  "Nothing further has been heard of the unhappy business between {actor} and {target}. Both appear to have decided that silence is cheaper than satisfaction.",
+]
+
+[[template]]
+id = "betrayal_journal_me_betrayed"
+on = "betrayal"
+voice = "journal"
+when = { target_me = true }
+text = [
+  "{^actor}. After all that I {favor} {actor}, {actor} has {act} me. I will say it plainly here because I cannot say it anywhere else: I did not think it of {actor}.",
+  "I was good to {actor}. I put that on the page so I shall not mistake myself. And {actor} has {act} me{_at}. I am not angry yet. I am doing sums.",
+]
+
+[[template]]
+id = "betrayal_journal_me_betrayed_piety"
+on = "betrayal"
+voice = "journal"
+tone = "piety"
+when = { target_me = true }
+text = [
+  "{^actor} has {act} me, whom I helped. Judas had his hour too. I try to pray for {actor} and find I am only praying at {actor}.",
+]
+
+[[template]]
+id = "betrayal_journal_me_betrayed_rancor"
+on = "betrayal"
+voice = "journal"
+tone = "rancor"
+when = { target_me = true }
+text = [
+  "{^actor} {act} me{_at}, after I {favor} {actor_short}. Entered in ink. I shall be a patient creditor.",
+]
+
+[[template]]
+id = "betrayal_journal_me_betrayer"
+on = "betrayal"
+voice = "journal"
+when = { actor_me = true }
+text = [
+  "I {act} {target}, who {favor} me. I know what it is. I have known all day. It does not look better on paper.",
+]
+
+[[template]]
+id = "betrayal_journal"
+on = "betrayal"
+voice = "journal"
+when = { actor_me = false, target_me = false }
+text = [
+  "Word is that {actor} has turned on {target}, who was good to {actor_short} not {span} since. It is the ones you help who know where you keep your pride.",
+]
+
+[[template]]
+id = "betrayal_ballad"
+on = "betrayal"
+voice = "ballad"
+text = [
+  "{^target} gave {actor} bread and a hand,\nAnd {actor} gave back a knife;\nOh, trust is a thing that is lent, not sold,\nAnd the interest is paid in life.",
+  "#ballad_oh#, a tale of a favor repaid\nWith a blow when the back was turned;\nA kindness is a coin in the dark,\nAnd the debtor's hand is never learned.",
+]
+
+[[template]]
+id = "betrayal_epilogue"
+on = "betrayal"
+voice = "epilogue"
+text = [
+  "It began as a kindness and ended as an obligation, which {actor} resented in proportion to its size. What looked like treachery was, in {actor_short}'s own account, merely escape.",
+  "{^target} would have named it betrayal. {^actor} would have named it self-respect. The record shows the kindness first and the injury after, {span} apart.",
+  "{^actor_short} remembered only the injury; {target_short} remembered only the kindness. It is how two good memories make one bad quarrel.",
+]
+
+# =========================================================================================
+# FRIENDSHIP   across (true = unlikely: they were at odds first), count, span,
+#              kind (amends|help|time)
+# =========================================================================================
+
+[[template]]
+id = "friendship_paper"
+on = "friendship"
+voice = "paper"
+when = { across = false }
+text = [
+  "#paper_pleased# that {actor} and {target} are become fast friends; they were seen walking home from meeting together, and not for the first time.",
+]
+
+[[template]]
+id = "friendship_paper_unlikely"
+on = "friendship"
+voice = "paper"
+when = { across = true }
+headline = "An Unlikely Friendship"
+text = [
+  "An unlikely friendship is reported. {^actor} and {target}, who {span} ago were at odds, are now seen together on the church steps. Wonders will not cease.",
+  "It will surprise those who remember the late difficulty that {actor} and {target} are now the best of friends. We make no remark; the village has made plenty.",
+]
+
+[[template]]
+id = "friendship_paper_amends"
+on = "friendship"
+voice = "paper"
+when = { across = true, kind = "amends" }
+headline = "Peace, and More Than Peace"
+text = [
+  "It was an apology honestly made that did it, we are told. {^actor} and {target}, enemies not long since, are friends now, which is more than can be said for most treaties.",
+]
+
+[[template]]
+id = "friendship_journal"
+on = "friendship"
+voice = "journal"
+when = { across = true }
+text = [
+  "{^actor} and {target} are friends. Friends! A month ago they would not share a pew. I do not understand people, and I am glad of it.",
+  "I would not have wagered a cent on {actor} and {target}. And here they are. I suppose a quarrel is only a kind of acquaintance.",
+]
+
+[[template]]
+id = "friendship_journal_plain"
+on = "friendship"
+voice = "journal"
+when = { across = false }
+text = [
+  "{^actor} and {target} have become friends, quietly, the way good things do.",
+]
+
+[[template]]
+id = "friendship_journal_me"
+on = "friendship"
+voice = "journal"
+when = { actor_me = true }
+text = [
+  "{^target} and I are friends now. I should say so plainly, since I have been slow to. It is a pleasure to find one has been wrong about a person.",
+]
+
+[[template]]
+id = "friendship_ballad"
+on = "friendship"
+voice = "ballad"
+when = { across = true }
+text = [
+  "They were foes at the start of the year,\nAnd friends by the end of the spring;\nThere's no knowing what the river will make\nOf a stone and a stone in a ring.",
+]
+
+[[template]]
+id = "friendship_epilogue"
+on = "friendship"
+voice = "epilogue"
+when = { across = true }
+text = [
+  "Neither {actor_short} nor {target_short} could say which of them softened first. The records say it began with a small thing done on a bad day, and was never mentioned afterward.",
+]
+
+[[template]]
+id = "friendship_epilogue_plain"
+on = "friendship"
+voice = "epilogue"
+text = [
+  "A friendship formed between {actor_short} and {target_short} that nobody noticed. It outlasted several louder things.",
+  "No day can be named for it: {actor_short} and {target_short} were simply, one spring, the kind of people who sat together.",
+  "It was the easy sort of friendship, that nobody made a story of, and so it lasted.",
+]
+
+# =========================================================================================
+# COURTSHIP   stage (walking|company|betrothed|refused), across, family, family_b, count, span
+# =========================================================================================
+
+[[template]]
+id = "courtship_paper_walking"
+on = "courtship"
+voice = "paper"
+when = { stage = "walking" }
+headline = "Walking Out"
+text = [
+  "#town_talk# that {actor} and {target} are walking out together; they have been seen in each other's company {count_word} times in {span}.",
+]
+
+[[template]]
+id = "courtship_paper_company"
+on = "courtship"
+voice = "paper"
+when = { stage = "company" }
+headline = "Keeping Company"
+text = [
+  "{^actor} and {target} are keeping company in earnest. The banns are not published, but the shopkeepers have begun to speculate on the cut of the dress.",
+  "It is now understood that {actor} is courting {target}. The village looks on with the sharp interest it reserves for matters not its own.",
+]
+
+[[template]]
+id = "courtship_paper_betrothed"
+on = "courtship"
+voice = "paper"
+when = { stage = "betrothed" }
+headline = "A Betrothal"
+text = [
+  "#paper_pleased# that {actor} and {target} are betrothed. The minister has been spoken to; the date, we are told, depends on the roads and the crop.",
+]
+
+[[template]]
+id = "courtship_paper_refused"
+on = "courtship"
+voice = "paper"
+when = { stage = "refused" }
+headline = "Declined"
+text = [
+  "The suit of {actor} to {target} has been declined, after {span} of civilities. The village is kind enough not to say so where it can be overheard.",
+]
+
+[[template]]
+id = "courtship_paper_across"
+on = "courtship"
+voice = "paper"
+when = { across = true, stage = "company" }
+headline = "Love Across the Line"
+text = [
+  "It is remarked that the courtship of {actor} and {target} falls between two houses lately at variance, {families}. Whether love will mend what the feud has broken, or the feud break the love, is the subject of the week.",
+]
+
+[[template]]
+id = "courtship_paper_across_betrothed"
+on = "courtship"
+voice = "paper"
+when = { across = true, stage = "betrothed" }
+headline = "Betrothed Across the Line"
+text = [
+  "{^actor} and {target} are betrothed, to the surprise of two families who are not on speaking terms: {families}. The wedding will be a test of the neighborhood's manners.",
+  "#paper_learn# that {actor} and {target} are to marry, and that the {family} and {family_b} houses, so lately at odds, are obliged to consider the matter as relatives.",
+]
+
+[[template]]
+id = "courtship_journal"
+on = "courtship"
+voice = "journal"
+text = [
+  "{^actor} and {target} are courting now, and half the village has an opinion about it. Mine is that I wish them joy and a dry roof.",
+]
+
+[[template]]
+id = "courtship_journal_me"
+on = "courtship"
+voice = "journal"
+when = { actor_me = true }
+text = [
+  "I am keeping company with {target}, which is a formal way of saying I think of nothing else. The work gets done anyway; that astonishes me.",
+]
+
+[[template]]
+id = "courtship_journal_me_target"
+on = "courtship"
+voice = "journal"
+when = { target_me = true }
+text = [
+  "{^actor} is courting me. I knew a week ago and told no one. I find I have no wish to tell anyone yet; it is a private weather.",
+]
+
+[[template]]
+id = "courtship_journal_across"
+on = "courtship"
+voice = "journal"
+when = { across = true }
+text = [
+  "{^actor} and {target} are courting, and the {family} and the {family_b} are not speaking. This will end in a wedding or a funeral, and I cannot tell which.",
+]
+
+[[template]]
+id = "courtship_ballad"
+on = "courtship"
+voice = "ballad"
+when = { stage = "betrothed" }
+text = [
+  "{^actor} walked out by the Lantern shore,\nAnd {target} walked out to meet;\nThe moon was high and the road was dry,\nAnd the fiddle was playing sweet.",
+]
+
+[[template]]
+id = "courtship_ballad_across"
+on = "courtship"
+voice = "ballad"
+when = { across = true }
+text = [
+  "Two houses stood on either bank\nAnd would not cross the stream;\nBut {actor} and {target} found the ford,\nAnd the rest is a lover's dream.",
+]
+
+[[template]]
+id = "courtship_epilogue"
+on = "courtship"
+voice = "epilogue"
+text = [
+  "It was settled between {actor_short} and {target_short} long before the village knew. The first of it, if one must name a day, was a small kindness at a gate.",
+  "Neither of them had planned it; both had planned for it for years. The court that the village saw was the end of a story that began in a shy look.",
+]
+
+# =========================================================================================
+# DEBT   outcome (owed|pressed|unpaid|repaid), amount, sum, days; actor = creditor,
+#        target = debtor
+# =========================================================================================
+
+[[template]]
+id = "debt_paper_owed"
+on = "debt"
+voice = "paper"
+when = { outcome = "owed", sum = true }
+text = [
+  "{^target} is in the debt of {actor} for {amount}, to be paid at some convenient season that has not been named.",
+]
+
+[[template]]
+id = "debt_paper_pressed"
+on = "debt"
+voice = "paper"
+when = { outcome = "pressed", sum = true }
+headline = "A Debt Pressed"
+text = [
+  "{^actor} has pressed {target} for {amount}, and in company. The account is long standing and the patience short.",
+  "#paper_learn# that {actor} has begun to dun {target} for {amount}. Such matters are best settled before the neighbors discover them, which in this case they have.",
+]
+
+[[template]]
+id = "debt_paper_pressed_unknown"
+on = "debt"
+voice = "paper"
+when = { outcome = "pressed", sum = false }
+headline = "A Debt Pressed"
+text = [
+  "{^actor} has pressed {target} for money owing, and in company.",
+]
+
+[[template]]
+id = "debt_paper_unpaid"
+on = "debt"
+voice = "paper"
+when = { outcome = "unpaid", sum = true }
+headline = "Unpaid"
+text = [
+  "The debt of {target} to {actor}, {amount}, stands unpaid {days_word} on. The book at the store has a long memory and a good hand.",
+  "{^target} still owes {actor} {amount}, and the matter is the subject of general remark. A debt, like a cough, tends to be heard before it is cured.",
+]
+
+[[template]]
+id = "debt_paper_unpaid_unknown"
+on = "debt"
+voice = "paper"
+when = { outcome = "unpaid", sum = false }
+headline = "Unpaid"
+text = [
+  "The debt of {target} to {actor} stands unpaid after {days_word}, and the village has noticed.",
+]
+
+[[template]]
+id = "debt_paper_repaid"
+on = "debt"
+voice = "paper"
+when = { outcome = "repaid" }
+headline = "Accounts Settled"
+text = [
+  "#paper_pleased# that {target} has paid {actor} what was owing, to the last cent. The affair, which threatened to turn into something worse, has gone back to being a ledger.",
+  "{^target} has settled with {actor}, and the book is closed. A debt repaid is a quiet event and a good one.",
+]
+
+[[template]]
+id = "debt_journal_me_owed"
+on = "debt"
+voice = "journal"
+when = { target_me = true, outcome = ["owed", "pressed", "unpaid"] }
+text = [
+  "I owe {actor}. I feel it in the back of the neck every time I see the shop. I have it in the book and I have not got it in the box.",
+  "{^actor} has not said a word of the money, which is worse than if {actor_short} had.",
+]
+
+[[template]]
+id = "debt_journal_me_owed_thrift"
+on = "debt"
+voice = "journal"
+tone = "thrift"
+when = { target_me = true, outcome = ["owed", "pressed", "unpaid"] }
+text = [
+  "I owe {actor}, and it is a stain on a page that was clean. I shall eat less and pay sooner.",
+]
+
+[[template]]
+id = "debt_journal_me_creditor"
+on = "debt"
+voice = "journal"
+when = { actor_me = true, outcome = ["owed", "pressed", "unpaid"] }
+text = [
+  "{^target} owes me, and neither of us mentions it. I do not like being owed. It makes me watchful, and watchfulness is a poor friend.",
+]
+
+[[template]]
+id = "debt_journal_repaid"
+on = "debt"
+voice = "journal"
+when = { outcome = "repaid" }
+text = [
+  "{^target} paid {actor}, in full. I did not think to see it, and I am rather pleased to have been wrong.",
+]
+
+[[template]]
+id = "debt_epilogue"
+on = "debt"
+voice = "epilogue"
+when = { outcome = ["unpaid", "pressed"] }
+text = [
+  "The money was never really the matter. {^target} could have found {amount} had pride allowed it, and {actor} could have forgiven it had pride allowed that.",
+  "{^actor} wanted the money less than the acknowledgment. {^target} would have paid the one and denied the other.",
+]
+
+[[template]]
+id = "debt_epilogue_repaid"
+on = "debt"
+voice = "epilogue"
+when = { outcome = "repaid" }
+text = [
+  "It cost {target_short} more to pay than the sum was worth, and {actor_short} knew it, and took the money anyway out of respect.",
+  "{^target_short} paid {actor_short} in full and made a point of doing it in coin. Neither mentioned the months it had taken.",
+  "The debt was repaid on a Tuesday, without ceremony. It had been, for {actor_short}, a question of whether {target_short} could be trusted; it was now a question of whether the answer mattered.",
+]
+
+# =========================================================================================
+# KINDNESS   needy, interaction_name, count, count_word, level_word (timely|steady|known)
+#            actor = the helper, target = the one helped
+# =========================================================================================
+
+[[template]]
+id = "kindness_paper_timely"
+on = "kindness"
+voice = "paper"
+when = { level_word = "timely" }
+headline = "A Timely Kindness"
+text = [
+  "#paper_pleased# that {actor} was seen carrying relief to the door of {target}, whose table has been poor of late. These things are noticed, and recorded here for the credit of the place.",
+  "{^target}, whose pantry has been bare, did not go hungry this week; {actor} saw to that, and mentioned it to nobody. We mention it for him.",
+]
+
+[[template]]
+id = "kindness_paper_steady"
+on = "kindness"
+voice = "paper"
+when = { level_word = "steady" }
+headline = "A Good Neighbor"
+text = [
+  "{^actor} has been busy with kindnesses this month; {count_word} are known to the village. The county could stand a dozen like.",
+]
+
+[[template]]
+id = "kindness_paper_known"
+on = "kindness"
+voice = "paper"
+when = { level_word = "known" }
+headline = "First at Every Door"
+text = [
+  "It is remarked that {actor} has been first at every door where there is want. The lean weeks have shown who has a table to share, and who has a heart.",
+]
+
+[[template]]
+id = "kindness_closed_paper"
+on = "kindness.closed"
+voice = "paper"
+text = [
+  "The relief work of {actor} has slackened with the weather, or with the supplies. The village remembers it.",
+]
+
+[[template]]
+id = "kindness_journal_me_target"
+on = "kindness"
+voice = "journal"
+when = { target_me = true }
+text = [
+  "{^actor} came by again with something for the pot, and would not stay to be thanked. I am learning to let a gift be a gift.",
+]
+
+[[template]]
+id = "kindness_journal_me_actor"
+on = "kindness"
+voice = "journal"
+when = { actor_me = true }
+text = [
+  "I have been doing what I can for {target}. It comes out of my own stores. I do not mind as much as I feared.",
+]
+
+[[template]]
+id = "kindness_journal_me_actor_thrift"
+on = "kindness"
+voice = "journal"
+tone = "thrift"
+when = { actor_me = true }
+text = [
+  "I have given {target} meal, twice, out of a barrel that was none too full. It is entered in the book as charity, which is a column I rarely write in.",
+]
+
+[[template]]
+id = "kindness_journal_other"
+on = "kindness"
+voice = "journal"
+when = { actor_me = false, target_me = false }
+text = [
+  "{^actor} has been carrying meal to {target}. Nobody asked {actor_short} to. I think the better of the county for having {actor_short} in it.",
+]
+
+[[template]]
+id = "kindness_epilogue"
+on = "kindness"
+voice = "epilogue"
+text = [
+  "{^actor_short} never told anyone what the kindness cost. It came off {actor_short}'s own stores, and the table at home was the lighter by it.",
+  "Of the {count_word} good turns {actor_short} did in {span}, not one was mentioned at the store. That was the point of them.",
+  "{^actor_short} had a name for it, kept to {actor_short}: not charity, but a debt to someone long dead.",
+  "It looked like generosity. In fact {actor_short} could not bear to watch {target_short} go without, and that is a different thing, and a rarer.",
+]
+
+[[template]]
+id = "kindness_epilogue_needy"
+on = "kindness"
+voice = "epilogue"
+when = { needy = true }
+text = [
+  "{^target_short}'s house was thin that week, and {actor_short} knew it from the look of the washing. The gift came by the back door so no one need be thanked.",
+  "Nobody told {actor_short} that {target_short}'s pantry was bare. {^actor_short} counted the chimney smoke and knew.",
+  "{^actor_short} left a half-sack of meal on {target_short}'s step at dusk and was gone before the door opened. It was never mentioned, which was how both of them preferred it.",
+]

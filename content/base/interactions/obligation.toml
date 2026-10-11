@@ -65,7 +65,7 @@ id = "repay"
 name = "Repay"
 label = "Repay"
 description = "Squares accounts. Trust follows."
-requires = { initiator_owes = true }
+requires = { initiator_owes = true, debt = "cents" }
 volition = [
   { driver = "owes", weight = 40 },
   { driver = "value:thrift", weight = 5 },
@@ -88,7 +88,7 @@ id = "dun"
 name = "Dun"
 label = "Dun"
 description = "Demands payment. In front of others it shames; the debtor remembers."
-requires = { target_owes = true, min_age = 16 }
+requires = { target_owes = true, debt = "cents", min_age = 16 }
 volition = [
   { driver = "owed_cents", weight = 40 },
   { driver = "value:thrift", weight = 15 },

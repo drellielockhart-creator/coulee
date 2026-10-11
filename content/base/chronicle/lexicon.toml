@@ -1,0 +1,158 @@
+# Chronicle lexicon (05 §11.2): word lists for #word# expansion in templates.
+# OWNER: module:chronicle. Period voices: a Wisconsin weekly, a diary, a ballad-singer.
+
+[[lexicon]]
+id = "paper_learn"
+words = [
+  "We learn",
+  "We are informed",
+  "It is reported to us",
+  "A correspondent informs us",
+  "We are told on good authority",
+  "Report comes to us",
+  "We hear from a respectable source",
+]
+
+[[lexicon]]
+id = "paper_grieve"
+words = [
+  "It pains us to record",
+  "We regret to state",
+  "It is our unpleasant duty to note",
+  "We are sorry to report",
+  "It grieves us to say",
+]
+
+[[lexicon]]
+id = "paper_pleased"
+words = [
+  "We are happy to record",
+  "It gives us pleasure to note",
+  "We are glad to report",
+  "It is agreeable to relate",
+]
+
+[[lexicon]]
+id = "town_talk"
+words = [
+  "It is said about the village",
+  "The talk of the ford is",
+  "The loafers at the store maintain",
+  "It is the common report",
+  "Rumor has it",
+  "Over the counter and across the fence it is said",
+]
+
+[[lexicon]]
+id = "hard_words"
+words = [
+  "hard words",
+  "high words",
+  "warm words",
+  "language not fit for the Sabbath",
+  "a sharp exchange",
+  "a plain-spoken difference",
+]
+
+[[lexicon]]
+id = "quiet_week_aside"
+words = [
+  "The roads were soft and the news was thin.",
+  "Nothing worth the printing stirred.",
+  "The ford ran as usual and so did the talk.",
+  "A week of small cares.",
+  "Little to report but weather and work.",
+  "Folk kept to their own doors.",
+]
+
+[[lexicon]]
+id = "good_neighbors"
+words = [
+  "the Good Neighbors",
+  "the Fair Folk",
+  "the hidden people",
+  "the Others",
+  "those who are not named after dark",
+  "the Little People of the coulee",
+]
+
+[[lexicon]]
+id = "ill_sign"
+words = [
+  "no good sign",
+  "an ill omen",
+  "a thing not lightly said aloud",
+  "a bad business",
+  "a matter for prayer and caution",
+]
+
+[[lexicon]]
+id = "lean_adj"
+words = [
+  "bare",
+  "thin",
+  "nearly empty",
+  "scant",
+  "swept clean",
+  "down to the scrapings",
+]
+
+[[lexicon]]
+id = "lean_pantry"
+words = [
+  "a bare pantry",
+  "a thin barrel",
+  "an empty crock",
+  "scant stores",
+  "a larder swept clean",
+  "a last scoop of meal",
+]
+
+[[lexicon]]
+id = "ballad_oh"
+words = [
+  "Oh",
+  "Come all ye",
+  "Now hark",
+  "So sing",
+  "Sit down and hear",
+]
+
+[[lexicon]]
+id = "ballad_place"
+words = [
+  "down the Lantern Coulee",
+  "where the iron ford runs cold",
+  "by the mill and the bluff",
+  "on the river road",
+  "in the Driftless hills",
+]
+
+[[lexicon]]
+id = "ballad_end"
+words = [
+  "and that is how the tale was told.",
+  "and the river took the rest.",
+  "and nobody has spoken it since.",
+  "and the old folks shook their heads.",
+  "and the hills remember yet.",
+]
+
+[[lexicon]]
+id = "owl_hour"
+words = [
+  "after the lamp was out",
+  "when the fire burned low",
+  "with the house asleep",
+  "in the small hours",
+]
+
+[[lexicon]]
+id = "penned_close"
+words = [
+  "God keep us",
+  "Lord help us",
+  "so it goes",
+  "there it is",
+  "and that's the whole of it",
+]

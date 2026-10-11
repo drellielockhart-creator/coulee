@@ -151,6 +151,8 @@ export interface ChronicleTallies {
   /** This week's accounting per household id (0 = unattributed). */
   households: Record<number, Tally>;
   prices: Record<string, PriceTrack>;
+  /** This week, counting only what the town could see (the public digest reads this). Additive. */
+  pubWeek?: Tally;
 }
 
 export interface ChronicleState {
@@ -213,7 +215,14 @@ export function createChronicleState(): ChronicleState {
     recent: {},
     variants: {},
     weekLoad: { week: -1, entries: 0, epilogue: 0 },
-    tallies: { week: emptyTally(), year: emptyTally(), total: emptyTally(), households: {}, prices: {} },
+    tallies: {
+      week: emptyTally(),
+      year: emptyTally(),
+      total: emptyTally(),
+      households: {},
+      prices: {},
+      pubWeek: emptyTally(),
+    },
     lastDigestWeek: -1,
   };
 }
@@ -226,6 +235,8 @@ export function ensureChronicleState(st: ChronicleState): void {
     if (rec[k] === undefined) rec[k] = v;
   }
   if (st.counters.thread === undefined) st.counters.thread = 0;
+  if (st.tallies.pubWeek === undefined) st.tallies.pubWeek = emptyTally();
+  if (st.weekLoad.epilogue === undefined) st.weekLoad.epilogue = 0;
 }
 
 export function initChronicleState(_world: World, _ctx: InitContext): void {

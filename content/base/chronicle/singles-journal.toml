@@ -1,0 +1,644 @@
+# Single-event entries in the Journal's voice (05 §11.2): the player character's own diary.
+# First person; the writer is "I"/"me" when they are in the story (actor_me, target_me).
+# Temperament (tone) comes from the writer's strongest value: a pious widow and a hard-bitten
+# trapper write the same afternoon differently. OWNER: module:chronicle.
+
+# ---- harm: someone did it to me --------------------------------------------------------------
+
+[[template]]
+id = "journal_harm_me_target"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "harm", target_me = true }
+text = [
+  "{^weekday}. {^actor} {act} me{_at}, and I shall not soon forget it.",
+  "{^actor} {act} me{_at} {when}. I said nothing then. I am saying it now, to this page.",
+  "{^actor} {act} me{_at}. I held my face still and counted to a hundred; it did not help.",
+]
+
+[[template]]
+id = "journal_harm_me_target_piety"
+on = "social.interaction"
+voice = "journal"
+tone = "piety"
+when = { cls = "harm", target_me = true }
+text = [
+  "{^actor} {act} me{_at} {when}. I prayed for a charitable heart and did not feel one arrive.",
+  "Lord, {actor} {act} me{_at} today. Turn my cheek if You must; I find it will not turn by itself.",
+]
+
+[[template]]
+id = "journal_harm_me_target_temper"
+on = "social.interaction"
+voice = "journal"
+tone = "temper"
+when = { cls = "harm", target_me = true }
+text = [
+  "{^actor} {act} me{_at}. I wanted to put a fist through the wall, and then through {actor}. Did neither. Mark that.",
+  "{^actor} {act} me{_at} {when}, and my hands knew what to do before I did. Walked out. Walked far.",
+]
+
+[[template]]
+id = "journal_harm_me_target_rancor"
+on = "social.interaction"
+voice = "journal"
+tone = "rancor"
+when = { cls = "harm", target_me = true }
+text = [
+  "{^actor} {act} me{_at} {when}. Entered here against the day it can be repaid, with interest.",
+  "{^actor} {act} me{_at}. I do not forget a thing like that; I merely wait.",
+]
+
+[[template]]
+id = "journal_harm_me_target_neighborliness"
+on = "social.interaction"
+voice = "journal"
+tone = "neighborliness"
+when = { cls = "harm", target_me = true }
+text = [
+  "{^actor} {act} me{_at}. I cannot think what I did to bring it on, and I mean to go round and ask.",
+]
+
+[[template]]
+id = "journal_harm_me_target_superstition"
+on = "social.interaction"
+voice = "journal"
+tone = "superstition"
+when = { cls = "harm", target_me = true }
+text = [
+  "{^actor} {act} me{_at} {when}. There is a bad air about that one lately; I kept my hand on the iron in my pocket and did not answer.",
+]
+
+[[template]]
+id = "journal_harm_me_target_skeptic"
+on = "social.interaction"
+voice = "journal"
+tone = "skeptic"
+when = { cls = "harm", target_me = true }
+text = [
+  "{^actor} {act} me{_at}. A small man's gesture, and I weighed it as one. It will not be mentioned again, unless it is.",
+]
+
+[[template]]
+id = "journal_harm_me_target_ambition"
+on = "social.interaction"
+voice = "journal"
+tone = "ambition"
+when = { cls = "harm", target_me = true }
+text = [
+  "{^actor} {act} me{_at}. I intend to be the sort of person nobody does that to, and soon.",
+]
+
+# ---- harm: I did it --------------------------------------------------------------------------------
+
+[[template]]
+id = "journal_harm_me_actor"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "harm", actor_me = true }
+text = [
+  "I {act} {target}{_at} {when}, and was sorry before the day was out.",
+  "{^weekday}. I {act} {target}{_at}. It was out before I thought, and is not to be called back.",
+  "I {act} {target}{_at}. The room went quiet in the way rooms do.",
+]
+
+[[template]]
+id = "journal_harm_me_actor_piety"
+on = "social.interaction"
+voice = "journal"
+tone = "piety"
+when = { cls = "harm", actor_me = true }
+text = [
+  "I {act} {target}{_at}. Lord, forgive my tongue; I am no better than the men I chide at the tavern.",
+]
+
+[[template]]
+id = "journal_harm_me_actor_temper"
+on = "social.interaction"
+voice = "journal"
+tone = "temper"
+when = { cls = "harm", actor_me = true }
+text = [
+  "I {act} {target}{_at}, and would again. Let it be written so.",
+]
+
+[[template]]
+id = "journal_harm_me_actor_rancor"
+on = "social.interaction"
+voice = "journal"
+tone = "rancor"
+when = { cls = "harm", actor_me = true }
+text = [
+  "I {act} {target}{_at}. It was owed. I have the account in my head to the last item.",
+]
+
+[[template]]
+id = "journal_harm_me_actor_neighborliness"
+on = "social.interaction"
+voice = "journal"
+tone = "neighborliness"
+when = { cls = "harm", actor_me = true }
+text = [
+  "I {act} {target}{_at}. That is not how I was raised. I shall go round tomorrow and see what can be mended.",
+]
+
+# ---- harm: someone else's trouble ---------------------------------------------------------------------
+
+[[template]]
+id = "journal_harm_seen"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "harm", basis = "witnessed", actor_me = false, target_me = false }
+text = [
+  "{^actor} {act} {target}{_at} {when}. I was by to see it.",
+  "Saw {actor} {act} {target}{_at}. Everyone pretended to be looking at something else.",
+  "{^weekday}. {^actor} {act} {target}{_at}. I kept out of it, and am not certain I am proud of that.",
+]
+
+[[template]]
+id = "journal_harm_seen_piety"
+on = "social.interaction"
+voice = "journal"
+tone = "piety"
+when = { cls = "harm", basis = "witnessed", actor_me = false, target_me = false }
+text = [
+  "{^actor} {act} {target}{_at}. I will not repeat what was said, but I will pray over it.",
+]
+
+[[template]]
+id = "journal_harm_seen_parochialism"
+on = "social.interaction"
+voice = "journal"
+tone = "parochialism"
+when = { cls = "harm", basis = "witnessed", actor_me = false, target_me = false }
+text = [
+  "{^actor} {act} {target}{_at}. That is what comes of mixing up folk who have no business in the same room.",
+]
+
+[[template]]
+id = "journal_harm_seen_neighborliness"
+on = "social.interaction"
+voice = "journal"
+tone = "neighborliness"
+when = { cls = "harm", basis = "witnessed", actor_me = false, target_me = false }
+text = [
+  "{^actor} {act} {target}{_at}. I took {target_him} aside afterward. Cold comfort, but something.",
+]
+
+[[template]]
+id = "journal_harm_heard"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "harm", basis = "heard" }
+text = [
+  "Heard that {actor} {act} {target}{_at} {when}. I give it the weight I give such things, which is some.",
+  "They say {actor} {act} {target}{_at}. I was not there; I have only the telling.",
+]
+
+# ---- help --------------------------------------------------------------------------------------------
+
+[[template]]
+id = "journal_help_me_target"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "help", target_me = true }
+text = [
+  "{^actor} {act} me{_at} {when}, and would not hear thanks. Entered here so I do not forget the debt.",
+  "{^weekday}. {^actor} {act} me, unasked. There are people in this county who keep the word neighbor alive.",
+]
+
+[[template]]
+id = "journal_help_me_target_piety"
+on = "social.interaction"
+voice = "journal"
+tone = "piety"
+when = { cls = "help", target_me = true }
+text = [
+  "{^actor} {act} me{_at}. The Lord provides, and sometimes does it through the nearest neighbor with a free hand.",
+]
+
+[[template]]
+id = "journal_help_me_target_thrift"
+on = "social.interaction"
+voice = "journal"
+tone = "thrift"
+when = { cls = "help", target_me = true }
+text = [
+  "{^actor} {act} me{_at}. Not a cent asked. I shall return it in kind, and a little over, so no one can say I took.",
+]
+
+[[template]]
+id = "journal_help_me_actor"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "help", actor_me = true }
+text = [
+  "I {act} {target}{_at} {when}. It cost me little and, I think, meant a good deal.",
+  "I {act} {target}. Nothing to make a song of, but {target_he} needed it and I had it.",
+]
+
+[[template]]
+id = "journal_help_me_actor_thrift"
+on = "social.interaction"
+voice = "journal"
+tone = "thrift"
+when = { cls = "help", actor_me = true }
+text = [
+  "I {act} {target}{_at}. It comes out of my own stores, and I am marking it down, though I will not say so to {target_him}.",
+]
+
+[[template]]
+id = "journal_help_seen"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "help", actor_me = false, target_me = false }
+text = [
+  "{^actor} {act} {target}{_at}. I saw it, and thought the better of {actor} for it.",
+]
+
+# ---- courtship -------------------------------------------------------------------------------------------
+
+[[template]]
+id = "journal_courtship_me_actor"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "courtship", actor_me = true }
+text = [
+  "I {act} {target}{_at} {when}. My heart did a thing it has no business doing in a person of sense.",
+  "I {act} {target}. Whether it was welcome I cannot tell; the face {target_he} made could be read either way.",
+]
+
+[[template]]
+id = "journal_courtship_me_target"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "courtship", target_me = true }
+text = [
+  "{^actor} {act} me{_at} {when}. I said something clever and have been trying to remember what.",
+  "{^actor} {act} me. I did not know where to look, so I looked at {actor}, which was the trouble.",
+]
+
+[[template]]
+id = "journal_courtship_me_target_piety"
+on = "social.interaction"
+voice = "journal"
+tone = "piety"
+when = { cls = "courtship", target_me = true }
+text = [
+  "{^actor} {act} me{_at}. I shall ask for guidance and then, I suspect, do as I like.",
+]
+
+[[template]]
+id = "journal_courtship_seen"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "courtship", actor_me = false, target_me = false }
+text = [
+  "{^actor} {act} {target}{_at} {when}. Half the room pretended not to see.",
+]
+
+[[template]]
+id = "journal_propose_me_target_yes"
+on = "social.interaction"
+voice = "journal"
+when = { interaction = "propose", target_me = true, success = true }
+text = [
+  "{^actor} asked me to marry, and I said yes. There. It is written, and cannot now be unwritten.",
+]
+
+[[template]]
+id = "journal_propose_me_actor_refused"
+on = "social.interaction"
+voice = "journal"
+when = { interaction = "propose", actor_me = true, success = false }
+text = [
+  "I asked {target} to marry me and was refused. I walked home by the long road, which is not a figure of speech.",
+]
+
+# ---- amends, money, and the rest -------------------------------------------------------------------------------
+
+[[template]]
+id = "journal_amends"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "amends" }
+text = [
+  "{^actor} and {target} made their peace{_at} {when}. I was glad of it.",
+  "A quarrel mended today: {actor} and {target}. It is a small thing and a large one.",
+]
+
+[[template]]
+id = "journal_amends_me"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "amends", target_me = true }
+text = [
+  "{^actor} {act} me{_at}. I had meant to hold out longer; I did not have the heart to.",
+]
+
+[[template]]
+id = "journal_money_me_dunned"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "dun", target_me = true }
+text = [
+  "{^actor} dunned me{_at} {when}, in front of others. The sum is as I know it; the manner is not.",
+  "{^actor} pressed me for what I owe{_at}. I have it down in the book and I do not have it in the box.",
+]
+
+[[template]]
+id = "journal_money_me_dunned_thrift"
+on = "social.interaction"
+voice = "journal"
+tone = "thrift"
+when = { cls = "dun", target_me = true }
+text = [
+  "{^actor} dunned me{_at}. I do not like owing, and I like being reminded less. I shall have it by the month's end if I eat potatoes.",
+]
+
+[[template]]
+id = "journal_money_me_dunning"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "dun", actor_me = true }
+text = [
+  "I pressed {target} for what is owing{_at} {when}. It is mine to ask. It did not feel like it.",
+]
+
+[[template]]
+id = "journal_money_repaid"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "repay" }
+text = [
+  "{^actor} settled with {target}{_at} {when}. One more account closed in a county full of open ones.",
+]
+
+[[template]]
+id = "journal_money_other"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "debt" }
+text = [
+  "{^actor} {act} {target}{_at}. Money passes, and so do obligations; I have begun to keep a list.",
+]
+
+[[template]]
+id = "journal_gossip_heard"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "gossip" }
+text = [
+  "{^actor} was in close talk with {target}{_at} {when}. I would give a good deal to know the subject.",
+]
+
+[[template]]
+id = "journal_other"
+on = "social.interaction"
+voice = "journal"
+text = [
+  "{^actor} {act} {target}{_at} {when}.",
+]
+
+# ---- label changes -------------------------------------------------------------------------------------------------
+
+[[template]]
+id = "journal_label_friend_me"
+on = "social.label_changed"
+voice = "journal"
+when = { band = "Friend", actor_me = true }
+text = [
+  "I find I count {target} a friend now. I could not tell you the day it happened; one wakes and it is so.",
+]
+
+[[template]]
+id = "journal_label_friend"
+on = "social.label_changed"
+voice = "journal"
+when = { band = "Friend" }
+text = [
+  "{^actor} and {target} are friends, I think, in a way they were not a month back.",
+]
+
+[[template]]
+id = "journal_label_enemy_me"
+on = "social.label_changed"
+voice = "journal"
+when = { band = "Enemy", actor_me = true }
+text = [
+  "I find I cannot think of {target} without a tightening. Call it what it is: enemy.",
+]
+
+[[template]]
+id = "journal_label_enemy"
+on = "social.label_changed"
+voice = "journal"
+when = { band = "Enemy" }
+text = [
+  "{^actor} and {target} are enemies now, and the village is the poorer. I would not be a friend to both.",
+]
+
+[[template]]
+id = "journal_label_other"
+on = "social.label_changed"
+voice = "journal"
+text = [
+  "Something is altered between {actor} and {target}, and the word for it is {band}.",
+]
+
+# ---- suspicion, hunger, mind -----------------------------------------------------------------------------------------
+
+[[template]]
+id = "journal_escalation_up"
+on = "belief.escalation"
+voice = "journal"
+when = { kind = "up" }
+text = [
+  "The talk against {actor} has grown. I have kept my own counsel, and been ashamed of it for a day.",
+  "More said of {actor} today than yesterday, and nothing proven. I do not like the way the room leans.",
+]
+
+[[template]]
+id = "journal_escalation_up_piety"
+on = "belief.escalation"
+voice = "journal"
+tone = "piety"
+when = { kind = "up" }
+text = [
+  "They are speaking against {actor} in the open now. Judge not, it says; I have not heard it quoted once.",
+]
+
+[[template]]
+id = "journal_escalation_up_superstition"
+on = "belief.escalation"
+voice = "journal"
+tone = "superstition"
+when = { kind = "up" }
+text = [
+  "The talk of {actor} has hardened. I do not say it is true. I say I have put salt on the sill, and it cost me nothing.",
+]
+
+[[template]]
+id = "journal_escalation_up_skeptic"
+on = "belief.escalation"
+voice = "journal"
+tone = "skeptic"
+when = { kind = "up" }
+text = [
+  "The village is working itself up about {actor}. A cow dies, a child sickens, and somebody must pay. It was ever thus.",
+]
+
+[[template]]
+id = "journal_escalation_down"
+on = "belief.escalation"
+voice = "journal"
+when = { kind = "down" }
+text = [
+  "The talk of {actor} is quieter. I do not know whether to be glad or to wonder what replaced it.",
+]
+
+[[template]]
+id = "journal_grudge_me"
+on = "belief.grudge_formed"
+voice = "journal"
+when = { actor_me = true }
+text = [
+  "I have a grudge against {target}, and I have stopped pretending otherwise. It sits in me like a stone in a boot.",
+]
+
+[[template]]
+id = "journal_grudge_against_me"
+on = "belief.grudge_formed"
+voice = "journal"
+when = { target_me = true }
+text = [
+  "I think {actor} bears me a grudge. I can feel it across a room, like a draught.",
+]
+
+[[template]]
+id = "journal_defense_me"
+on = "psyche.defense"
+voice = "journal"
+when = { defense = "rationalization" }
+text = [
+  "I had every reason for it, and I have written the reasons down so I shall not lose them. They are good ones. They read better each time.",
+  "It was the sensible thing; anyone would agree. I have asked myself and I agree.",
+]
+
+[[template]]
+id = "journal_defense_denial"
+on = "psyche.defense"
+voice = "journal"
+when = { defense = "denial" }
+text = [
+  "There is nothing in it. I looked at it from three sides and there is nothing in it. I shall not think of it again.",
+]
+
+[[template]]
+id = "journal_defense_projection"
+on = "psyche.defense"
+voice = "journal"
+when = { defense = "projection", aimed = true }
+text = [
+  "It is {target} who is at the bottom of this. Anyone can see it. I have only said what is plain.",
+]
+
+[[template]]
+id = "journal_defense_displacement"
+on = "psyche.defense"
+voice = "journal"
+when = { defense = "displacement", aimed = true }
+text = [
+  "I was short with {target} today and had no cause. Something else was the matter, and I will not name it.",
+]
+
+[[template]]
+id = "journal_defense_other"
+on = "psyche.defense"
+voice = "journal"
+text = [
+  "I shut a door in myself today. I cannot say which, only that the house is quieter.",
+]
+
+[[template]]
+id = "journal_shortage"
+on = "provisions.shortage"
+voice = "journal"
+text = [
+  "The pantry is #lean_adj#. I count what is left, and the count is the same as last night.",
+  "The meal is low and the cellar is lower. I have begun to measure our breakfasts.",
+]
+
+[[template]]
+id = "journal_shortage_dire"
+on = "provisions.shortage"
+voice = "journal"
+min_importance = 60
+text = [
+  "{^lowest_days} of food. Not an hour of it was got by being proud. I am going to the store tomorrow, with my pride in my pocket.",
+]
+
+[[template]]
+id = "journal_nutrition_on"
+on = "provisions.nutrition"
+voice = "journal"
+when = { on = true }
+text = [
+  "{^actor} is down with {condition_name}. A winter of salt pork and meal; the body keeps its own books.",
+]
+
+[[template]]
+id = "journal_need_severe"
+on = "needs.band_changed"
+voice = "journal"
+when = { severity = "severe" }
+text = [
+  "I went to bed {band}. A person can learn a good deal about the world from the floor of an empty belly.",
+]
+
+# ---- misfortunes, names, verdicts -----------------------------------------------------------------------
+
+[[template]]
+id = "journal_misfortune_mine"
+on = "belief.misfortune"
+voice = "journal"
+when = { actor_me = true }
+text = [
+  "It has happened to us: {misfortune}. I wrote it down so that it would be true, and then so that it would be over.",
+  "{^misfortune}. I will not say what I think caused it, to anyone. I have a list in my head and it is not short.",
+]
+
+[[template]]
+id = "journal_misfortune_heard"
+on = "belief.misfortune"
+voice = "journal"
+when = { actor_me = false }
+text = [
+  "Heard that {misfortune}. I took what I could spare. It is not much, but it is what neighbors do.",
+]
+
+[[template]]
+id = "journal_misfortune_heard_superstition"
+on = "belief.misfortune"
+voice = "journal"
+tone = "superstition"
+when = { actor_me = false }
+text = [
+  "{^misfortune}. I did not say what I thought. I put iron over the door and said the old words twice, quietly.",
+]
+
+[[template]]
+id = "journal_figure"
+on = "belief.figure_attached"
+voice = "journal"
+text = [
+  "They have a name for {actor} now: {figure}. I have heard it four times today and said it once, and was sorry.",
+]
+
+[[template]]
+id = "journal_reveal"
+on = "belief.revealed"
+voice = "journal"
+text = [
+  "It is no longer whispered. It is said: \"{rumor}.\" I had thought the village slower to make up its mind.",
+]

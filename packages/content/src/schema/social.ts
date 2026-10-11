@@ -316,6 +316,8 @@ export const InteractionSchema = z.strictObject({
       target_owes: z.boolean().default(false),
       /** The initiator owes the target (cents or favors). */
       initiator_owes: z.boolean().default(false),
+      /** Which debts `target_owes` / `initiator_owes` (and `settle`) count: money, favors, or either. */
+      debt: z.enum(['any', 'cents', 'favors']).default('any'),
       /** The initiator remembers the target doing one of these (salience >= 100). */
       initiator_remembers: z.array(z.enum(MEMORY_KINDS)).default([]),
       /** The initiator remembers doing one of these to the target (salience >= 100). */
@@ -344,6 +346,7 @@ export const InteractionSchema = z.strictObject({
       relationship_min_days: 0,
       target_owes: false,
       initiator_owes: false,
+      debt: 'any',
       initiator_remembers: [],
       initiator_did: [],
       min_age: 0,
@@ -637,6 +640,17 @@ export function socialRefs(b: ContentBundle): Issue[] {
     if (i.memory && Object.keys(b.memory_kinds).length > 0) {
       const kinds = [i.memory.kind, i.success.memory_kind, i.failure.memory_kind];
       checkRefs(issues, where, 'memory.kind', kinds, b.memory_kinds, 'memory_kind');
+    }
+  }
+  // Scenario backstory memories name scenario actor keys (relationships/opinions are
+  // checked by scenarioRefs).
+  for (const s of Object.values(b.scenarios ?? {})) {
+    const actorKeys: Record<string, true> = {};
+    for (const a of s.actors) actorKeys[a.key] = true;
+    for (const m of s.memories ?? []) {
+      checkRefs(issues, `scenarios:${s.id}/memories`, 'owner/about', [m.owner, m.about], actorKeys, 'actor key');
+      if (Object.keys(b.memory_kinds).length > 0)
+        checkRefs(issues, `scenarios:${s.id}/memories`, 'kind', [m.kind], b.memory_kinds, 'memory_kind');
     }
   }
   for (const t of Object.values(b.social_tuning)) {

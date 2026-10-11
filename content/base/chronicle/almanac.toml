@@ -1,0 +1,154 @@
+# The Almanac (05 §11.2): the day's line, the weekly summary, the year's reckoning.
+# OWNER: module:chronicle. Dry and statistical, with a wry aside.
+
+# ---- the day's line ---------------------------------------------------------------------
+
+[[template]]
+id = "day_heading"
+on = "core.day_started"
+voice = "almanac"
+text = [
+  "{date}. The {moon}.",
+  "{date}; the {moon}.",
+  "{date}, under the {moon}.",
+]
+
+[[template]]
+id = "day_heading_sabbath"
+on = "core.day_started"
+voice = "almanac"
+when = { sabbath = true }
+text = [
+  "{date}. The Sabbath, and the {moon}.",
+  "{date}. The Sabbath; a {moon}, and the ford quiet.",
+  "{date}, the Lord's day. The {moon}.",
+  "{date}. Sabbath, under the {moon}; work laid by.",
+]
+
+[[template]]
+id = "day_heading_new_moon"
+on = "core.day_started"
+voice = "almanac"
+when = { moon = "new moon" }
+text = [
+  "{date}. The new moon: dark nights, and the old folks bar the door a little earlier.",
+  "{date}. New moon. The coulee is black after sundown.",
+]
+
+[[template]]
+id = "day_heading_full_moon"
+on = "core.day_started"
+voice = "almanac"
+when = { moon = "full moon" }
+text = [
+  "{date}. The full moon. The bluffs stand out white and the dogs are restless.",
+  "{date}. Full moon, and bright enough to read a letter by.",
+  "{date}. The full moon, which the Norwegians watch and the Cornish do not discuss.",
+]
+
+[[template]]
+id = "day_heading_new_moon_sabbath"
+on = "core.day_started"
+voice = "almanac"
+when = { moon = "new moon", sabbath = true }
+text = [
+  "{date}. The Sabbath, and a new moon: a dark night for church-going and a dark one coming home.",
+]
+
+[[template]]
+id = "day_heading_full_moon_sabbath"
+on = "core.day_started"
+voice = "almanac"
+when = { moon = "full moon", sabbath = true }
+text = [
+  "{date}. The Sabbath under a full moon; the evening service will want no lantern.",
+]
+
+# ---- the week -------------------------------------------------------------------------------
+
+[[template]]
+id = "digest_week_quiet"
+on = "digest.week"
+voice = "almanac"
+when = { quiet = true }
+text = [
+  "The week closes. #quiet_week_aside#{_services}{_observances}",
+  "End of the week. #quiet_week_aside#{_services}{_observances}",
+]
+
+[[template]]
+id = "digest_week"
+on = "digest.week"
+voice = "almanac"
+text = [
+  "The week closes with {matters} worth the telling.{_services}{_observances}",
+  "End of the week: {matters} worth the printing.{_services}{_observances}",
+  "So ends the week, which furnished {matters} of note.{_services}{_observances}",
+]
+
+[[template]]
+id = "digest_week_prices"
+on = "digest.week"
+voice = "almanac"
+when = { quiet = false, priced = true }
+text = [
+  "{^matters} of note this week. Posted at the store: {prices}.{_services}{_observances}",
+  "{^matters} worth the printing. Prices stood at the counter: {prices}.{_services}{_observances}",
+]
+
+[[template]]
+id = "digest_week_short"
+on = "digest.week"
+voice = "almanac"
+when = { quiet = false, shortages = 1 }
+text = [
+  "The week closes with {matters} of note, among them one household reported short of provisions.{_services}{_observances}",
+]
+
+[[template]]
+id = "digest_week_shorts"
+on = "digest.week"
+voice = "almanac"
+when = { quiet = false, shortages = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
+text = [
+  "The week closes. Several households are reported short of provisions, and the store's credit book grows.{_services}{_observances}",
+  "End of the week. Pantries are thin in more than one house along the ford.{_services}{_observances}",
+]
+
+[[template]]
+id = "digest_week_ledger"
+on = "digest.ledger"
+voice = "ledger"
+text = [
+  "Week {week}. {meals} meals set on the table, {cold_meals} of them cold. We lived on {board}. Lost to the damp and the mice: {lost}.",
+  "Week {week}, accounted. {meals} meals, {cold_meals} cold; fresh victuals about {fresh_pct} in the hundred. The board ran to {board}.",
+  "Week {week}. The house took {kcal_day} calories a head by the day, near enough, on {board}. Set down also: {lost} gone.",
+]
+
+[[template]]
+id = "digest_week_ledger_lean"
+on = "digest.ledger"
+voice = "ledger"
+when = { in_need = true }
+text = [
+  "Week {week}. The ration cut to {ration_pct} in the hundred; the larder was down to {lowest_days} at the worst. Meals {meals}, cold {cold_meals}. We lived on {board}.",
+]
+
+[[template]]
+id = "digest_week_epilogue"
+on = "digest.week"
+voice = "epilogue"
+text = [
+  "Behind the doors this week: {meals} meals eaten, {cold_meals} cold, about {kcal_day} calories to the head. The town lived mostly on {board}. Spoiled and wasted: {lost}.",
+  "What the week really cost in food: {meals} meals, {cold_meals} of them cold, and {shortages_word} short counts in the larders. Most of the board was {board}.",
+  "Week {week}, as the larders knew it: {meals} meals ({cold_meals} cold); stores ran short {shortages_word} times; the cellars lost {lost}.",
+]
+
+[[template]]
+id = "digest_year"
+on = "digest.year"
+voice = "almanac"
+text = [
+  "The year {year} closes. {^matters} were told of the county in the Chronicle, and the larders were reported short {shortages_word} times. The old almanac makes no prophecy for the next, and we make none.",
+  "Annual reckoning for {year}: {matters} of note, {shortages_word} short counts in the provisions. Wolves, few; mosquitoes, many; the creek, honest.",
+]

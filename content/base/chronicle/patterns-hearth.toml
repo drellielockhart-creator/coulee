@@ -1,0 +1,364 @@
+# Story templates for the hearth and the mind: the thin spring (Shortage), Reversal of fortune,
+# Defense fired, Scapegoat (05 §9.2, P7, P8). OWNER: module:chronicle.
+
+# =========================================================================================
+# SHORTAGE (the thin spring / the long winter)
+#   bindings: family, level_word (short|close|hard|long), count (other households short),
+#   count_word, span, days, ration_pct, lowest_days, condition_name
+#   private to the household (journal, epilogue only): board, lost, cold_meals
+# =========================================================================================
+
+[[template]]
+id = "shortage_paper_close"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = 0 }
+headline = "Short Commons"
+text = [
+  "#paper_grieve# that {families} have been on short allowance for {span}. Spring is the hungriest season, and the cellar has no sympathy.",
+  "{^families} are reported to be living close, with #lean_pantry# and no relief expected before the first greens. Neighbors who can spare are reminded of it.",
+]
+
+[[template]]
+id = "shortage_paper_close_detail"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = 0, detail = true }
+headline = "Short Commons"
+text = [
+  "#paper_grieve# that {families} have been on short allowance for {span}, the ration cut to {ration_pct} in the hundred. Spring is the hungriest season, and the cellar has no sympathy.",
+]
+
+[[template]]
+id = "shortage_paper_close_many"
+on = "shortage"
+voice = "paper"
+when = { level_word = "close", count = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17] }
+headline = "The Thin Spring"
+text = [
+  "{^families} are not alone: {count_word} other households are reported short of provisions, and the spring has hardly begun. It will be called the spring of the thin barrel by those who live to name it.",
+  "Short commons are the common lot on the ford this week. {^families} with the rest, and {count_word} other houses besides.",
+]
+
+[[template]]
+id = "shortage_paper_hard"
+on = "shortage"
+voice = "paper"
+when = { level_word = "hard" }
+headline = "In Want"
+text = [
+  "#paper_grieve# that {families} are in want, and have been for {span}. The barrel sounds when tapped, and the store's book has been consulted more than once. It is no time for pride; the village will want to help, and ought.",
+  "{^families} are in want. #paper_grieve# it, and leave the rest to Christian charity.",
+]
+
+[[template]]
+id = "shortage_paper_hard_detail"
+on = "shortage"
+voice = "paper"
+when = { level_word = "hard", detail = true }
+headline = "In Want"
+text = [
+  "#paper_grieve# that {families} have had as little as {lowest_days} of food in the house, and that the ration has been cut to {ration_pct} in the hundred. It is no time for pride; the village will want to help, and ought.",
+]
+
+[[template]]
+id = "shortage_paper_long"
+on = "shortage"
+voice = "paper"
+when = { level_word = "long" }
+headline = "The Long Hunger"
+text = [
+  "{^families} have now been short {span}. The lean weeks have been very lean. We believe the worst is not yet over, and we know that the best is not yet in the ground.",
+  "For {span} the pantry of {families} has been a thing to be measured by the spoonful. The county has known harder winters and does not remember them fondly.",
+]
+
+[[template]]
+id = "shortage_paper_hard_scurvy"
+on = "shortage"
+voice = "paper"
+when = { level_word = ["hard", "long"], gravity = "sick" }
+headline = "Sickness in the House"
+text = [
+  "{^families} are laid low, we hear, with {condition_name}, the sort that comes of a winter on salt pork and meal. A bit of fresh green would do what the doctor cannot.",
+]
+
+[[template]]
+id = "shortage_closed_paper"
+on = "shortage.closed"
+voice = "paper"
+headline = "Through the Worst"
+text = [
+  "#paper_pleased# that {families} are through the worst of it. The ration is restored and the barrel, if not full, is no longer the subject of prayer.",
+  "The thin spring of {families} is over; they held. The first ramps came, and the pig was a blessing, and nobody was buried who might not have been.",
+]
+
+[[template]]
+id = "shortage_journal_close"
+on = "shortage"
+voice = "journal"
+when = { level_word = ["short", "close"] }
+text = [
+  "The pantry is #lean_adj#. We are on {ration_pct} in the hundred, and I have begun to count what is left at night, as a child counts stairs.",
+  "Short again. We have lived mostly on {board}, and the cold meals number {cold_meals}. I do not say it to complain; I say it to have it written.",
+]
+
+[[template]]
+id = "shortage_journal_close_thrift"
+on = "shortage"
+voice = "journal"
+tone = "thrift"
+when = { level_word = ["short", "close"] }
+text = [
+  "I have cut the ration to {ration_pct} in the hundred and entered it in the book. A thin table is easier to bear when it is written down and one can see it was planned.",
+]
+
+[[template]]
+id = "shortage_journal_close_piety"
+on = "shortage"
+voice = "journal"
+tone = "piety"
+when = { level_word = ["short", "close"] }
+text = [
+  "We are thin in the larder. Give us this day. I notice that the day's bread has been smaller each Sabbath, and I try not to read a message in it.",
+]
+
+[[template]]
+id = "shortage_journal_hard"
+on = "shortage"
+voice = "journal"
+when = { level_word = ["hard", "long"] }
+text = [
+  "{^lowest_days} of food at the worst of it. We have lived on {board}. I lost {lost} to the damp, which I will not forgive the cellar. I am going to the store with my pride in my pocket.",
+  "It has been {span}. The ration is at {ration_pct} in the hundred and the children no longer ask. That is the worst of it: they no longer ask.",
+]
+
+[[template]]
+id = "shortage_journal_hard_neighborliness"
+on = "shortage"
+voice = "journal"
+tone = "neighborliness"
+when = { level_word = ["hard", "long"] }
+text = [
+  "We are in want, and the house three doors down is in more. I took them a half-measure of meal. It is a poor thing to give when one has little, and the only thing worth giving.",
+]
+
+[[template]]
+id = "shortage_journal_hard_ambition"
+on = "shortage"
+voice = "journal"
+tone = "ambition"
+when = { level_word = ["hard", "long"] }
+text = [
+  "I am not meant to be a person who counts meal. I intend, when this spring is over, to be a person who does not need to. Entered here as a vow.",
+]
+
+[[template]]
+id = "shortage_journal_scurvy"
+on = "shortage"
+voice = "journal"
+when = { gravity = "sick" }
+text = [
+  "{^condition_name} in the house. A winter on salt pork and meal; the body keeps its own books.",
+]
+
+[[template]]
+id = "shortage_closed_journal"
+on = "shortage.closed"
+voice = "journal"
+text = [
+  "We are through. The ration is restored, the first greens are up, and I have stopped counting the barrel. I am not sure I shall ever stop counting the barrel.",
+]
+
+[[template]]
+id = "shortage_ballad"
+on = "shortage"
+voice = "ballad"
+when = { level_word = "long" }
+text = [
+  "In the spring of fifty-five, #ballad_place#,\nThe barrel was thin and the cellar was bare;\n{^families} counted the last of the meal\nAnd sang to the river a hungry air.",
+  "#ballad_oh#, of the spring of the thin barrel,\nWhen {span} went by on a scrape of grain;\nThe ramps came up and the cow came fresh\nAnd the hungry hills were green again.",
+]
+
+[[template]]
+id = "shortage_epilogue"
+on = "shortage"
+voice = "epilogue"
+text = [
+  "Behind the door of the {family} house: {span} of {board}, {cold_meals} cold meals, and {lost} lost to the damp. The village saw a quiet family and took it for a contented one.",
+  "The ration at {family}'s fell to {ration_pct} in the hundred and stayed there. They told the church it was a choice.",
+]
+
+[[template]]
+id = "shortage_closed_epilogue"
+on = "shortage.closed"
+voice = "epilogue"
+text = [
+  "The {family} house came through the thin spring on {board} and a cow that came fresh at the right moment. Nobody at the store was told how near it had been.",
+]
+
+# =========================================================================================
+# REVERSAL OF FORTUNE   outcome (rise|ruin), family; private (journal/epilogue): amount, balance
+# =========================================================================================
+
+[[template]]
+id = "reversal_paper_rise"
+on = "reversal"
+voice = "paper"
+when = { outcome = "rise" }
+headline = "A Turn of Luck"
+text = [
+  "The {family} household has had a turn of luck, we hear, such as the county does not see every year. Fortune is a fickle companion; we hope {families} know how to treat her.",
+  "Good news from the {family} house: their circumstances are much improved, and their neighbors observe it with the mixed feelings that attend all good news.",
+]
+
+[[template]]
+id = "reversal_paper_ruin"
+on = "reversal"
+voice = "paper"
+when = { outcome = "ruin" }
+headline = "Reverses"
+text = [
+  "#paper_grieve# that the {family} household has suffered heavy reverses; what was a comfortable house in the autumn is an anxious one now. The village's sympathy is sincere and its help is a matter for conscience.",
+  "The {family} have fallen on hard times, and fallen quickly. Creditors, we are told, are being polite. That is how one knows.",
+]
+
+[[template]]
+id = "reversal_journal_rise"
+on = "reversal"
+voice = "journal"
+when = { outcome = "rise" }
+text = [
+  "Our circumstances are much improved: {amount} to the good, and the balance now {balance}. I keep waiting for the catch.",
+]
+
+[[template]]
+id = "reversal_journal_ruin"
+on = "reversal"
+voice = "journal"
+when = { outcome = "ruin" }
+text = [
+  "We are down by {amount}, to {balance}. I wrote the figure three times to be sure it did not change.",
+]
+
+[[template]]
+id = "reversal_ballad_ruin"
+on = "reversal"
+voice = "ballad"
+when = { outcome = "ruin" }
+text = [
+  "The {family} house was proud in the fall,\nAnd poor by the break of spring;\nO the world is a ford with a hidden stone,\nAnd the water is quick as a sling.",
+]
+
+[[template]]
+id = "reversal_ballad_rise"
+on = "reversal"
+voice = "ballad"
+when = { outcome = "rise" }
+text = [
+  "The {family} house was poor in the fall,\nAnd rich by the break of spring;\nO luck is a bird that lights where it will,\nAnd the lucky have little to sing.",
+]
+
+[[template]]
+id = "reversal_epilogue_rise"
+on = "reversal"
+voice = "epilogue"
+when = { outcome = "rise" }
+text = [
+  "The {family} fortune turned by {amount}, to {balance}. The village credited the household's thrift. The household credited luck, and privately, a debt cleared and a cow that calved twice.",
+]
+
+[[template]]
+id = "reversal_epilogue_ruin"
+on = "reversal"
+voice = "epilogue"
+when = { outcome = "ruin" }
+text = [
+  "The {family} house lost {amount}, and kept a straight face for it. The ledger shows only the figure, not the evening it was understood.",
+]
+
+# =========================================================================================
+# DEFENSE FIRED   inner events; the epilogue's and the player character's own
+#   bindings: defense, defense_name (period label), defense_clinical, count_word, level_word
+# =========================================================================================
+
+[[template]]
+id = "defense_epilogue_habit"
+on = "defense_fired"
+voice = "epilogue"
+when = { level_word = "habit" }
+text = [
+  "{^actor_short} reached for {defense_name} {count_word} times in {span}. A person who needs a door that often is standing in a draught.",
+  "Seen from outside: a steady person. Seen from within: {defense_clinical}, {count_word} times over in {span}, and each time the relief a little shorter.",
+  "{^actor_short} told {actor_short} the same thing {count_word} times in {span}, and did not believe it any better the last time.",
+]
+
+[[template]]
+id = "defense_epilogue_seams"
+on = "defense_fired"
+voice = "epilogue"
+when = { level_word = "seams" }
+text = [
+  "{^actor_short} was coming apart at a seam nobody could see. {^count_word} defenses in {span}, and the relief wearing thin. The village took it for ill temper.",
+  "A mind at its seams: {defense_clinical} again and again, and between them nothing to put in its place. {^actor_short} was not well, and said otherwise.",
+  "{^actor_short} had stopped trusting {actor_short}'s own reasons, and went on giving them. {^count_word} defenses in {span}, and the village was told it was nerves.",
+  "{^defense_clinical}, and the others in turn: the mind has a drawer of such things, and {actor_short} had been through them all in {span}.",
+]
+
+[[template]]
+id = "defense_journal_habit"
+on = "defense_fired"
+voice = "journal"
+when = { level_word = "habit" }
+text = [
+  "I notice I am saying the same thing to myself over and over, in the same words. A person ought to be able to say a thing once and be done.",
+]
+
+[[template]]
+id = "defense_journal_seams"
+on = "defense_fired"
+voice = "journal"
+when = { level_word = "seams" }
+text = [
+  "I have a great many reasons this week, and I do not trust any of them. I would rather have one true thing.",
+]
+
+# =========================================================================================
+# SCAPEGOAT   told from the omniscient view; actor = the one suspected, target = the mind
+#   that needed somewhere to put its trouble. defense_name, rung_name, level_word
+# =========================================================================================
+
+[[template]]
+id = "scapegoat_epilogue_chosen"
+on = "scapegoat"
+voice = "epilogue"
+when = { level_word = "whispered" }
+text = [
+  "The whispers against {actor_short} began where nobody looked: in {target_short}, who had a trouble {target_he} could not bear and found it, conveniently, in {actor_short}. The town thought it had a reason. It had {target_short}'s {defense_name}.",
+  "Why {actor_short}? Because {target_short} could not look at what {target_he} had in {target_his} own heart, and {actor_short} was near enough to hold it. The talk grew from that one hour.",
+]
+
+[[template]]
+id = "scapegoat_epilogue_named"
+on = "scapegoat"
+voice = "epilogue"
+when = { level_word = "named" }
+text = [
+  "By the time {actor_short} was named aloud, the reason had been forgotten and only the name remained. It had begun in {target_short}'s {defense_name}; no one at the meeting could have told you that, least of all {target_short}.",
+  "They ran the wrong person into trouble. {^actor_short} had done nothing; {target_short} had been unable to bear what lay in {target_his} own heart, and a town is a very large mirror.",
+]
+
+[[template]]
+id = "scapegoat_closed_epilogue"
+on = "scapegoat.closed"
+voice = "epilogue"
+text = [
+  "The talk against {actor_short} wore itself out for want of fuel. Nobody apologized, because nobody remembered having begun it.",
+]
+
+[[template]]
+id = "scapegoat_ballad"
+on = "scapegoat"
+voice = "ballad"
+text = [
+  "They ran the wrong one out of the county,\nThe one who'd done no ill;\nFor the guilty heart is a restless thing\nAnd it hunts where it will.",
+]

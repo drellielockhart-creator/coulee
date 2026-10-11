@@ -61,7 +61,7 @@ volition = [
   { driver = "condition:drunk", weight = 15 },
 ]
 threshold = 35
-cooldown_hours = 12
+cooldown_hours = 24
 check = { kind = "opposed", skill = "perform_storytelling", vs = "will" }
 memory = { kind = "mockery", emotion = "shame", intensity = 35 }
 juiciness = 30
@@ -93,7 +93,7 @@ volition = [
   { driver = "condition:drunk", weight = 20 },
 ]
 threshold = 40
-cooldown_hours = 6
+cooldown_hours = 24
 check = { kind = "opposed", skill = "intimidate", vs = "will" }
 memory = { kind = "insult", emotion = "anger", intensity = 50 }
 juiciness = 40

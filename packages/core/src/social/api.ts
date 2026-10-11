@@ -1,69 +1,60 @@
 /**
  * Social cross-module API. OWNER: module:social.
+ *
+ * Opinions change only through Reasons (04 §6.2): `addOpinionReason` (and the interactions
+ * social resolves). `opinionOf` = clamp(base + Σ floorDiv(delta × strength, 1000) +
+ * volatile), strength = cited memory salience | 10 × cited belief credence | 1000.
  */
+import type { ContentBundle } from '../content.ts';
 import type { ActorId, MemoryId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
-import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
-import type { Memory, OpinionDims, OpinionReason, Relationship } from './state.ts';
-import { emptyOpinion, ZERO_DIMS } from './state.ts';
+import { insertMemory, ownerMemories } from './memory.ts';
+import { addReason, compatibility, computeBase, opinionRecord, owedCents, owedFavors } from './opinion.ts';
+import type { Memory, MemoryInput, OpinionReason, Relationship } from './state.ts';
+import { areKinBy } from './volition.ts';
 
-const clampDims = (d: OpinionDims): OpinionDims => ({
-  affection: Math.max(-100, Math.min(100, d.affection)),
-  respect: Math.max(-100, Math.min(100, d.respect)),
-  trust: Math.max(-100, Math.min(100, d.trust)),
-  fear: Math.max(0, Math.min(100, d.fear)),
-});
+export { resolveInteraction } from './interact.ts';
+export { decayOneDay, encodeSalience, memoryDigest } from './memory.ts';
+export {
+  bumpFamiliarity,
+  isAcquainted,
+  opinionLabel,
+  opinionOf,
+  opinionSum,
+  reasonContribution,
+  reasonStrength,
+} from './opinion.ts';
+export { tuningOf } from './tuning.ts';
+export { proposeSocialUrges } from './urges.ts';
+export { attraction, eligible, makePair, requiresFail, volition } from './volition.ts';
+export { compatibility, computeBase };
 
 /**
- * Current opinion of `from` toward `to`: base + Σ reasons (weighted by cited memory
- * salience / belief credence — STUB weights all reasons fully) + volatile, clamped.
+ * Add a reason (the only way opinions change, 04 §6.2). Enforces the reason cap: the
+ * weakest reason folds into the "other reasons" bucket.
  */
-export function opinionOf(world: World, from: ActorId, to: ActorId): OpinionDims {
-  const op = world.social.opinions[from]?.[to];
-  if (!op) return { ...ZERO_DIMS };
-  const sum = { ...op.base };
-  for (const r of op.reasons) {
-    sum.affection += r.delta.affection;
-    sum.respect += r.delta.respect;
-    sum.trust += r.delta.trust;
-    sum.fear += r.delta.fear;
-  }
-  sum.affection += op.volatile.affection;
-  sum.respect += op.volatile.respect;
-  sum.trust += op.volatile.trust;
-  sum.fear += op.volatile.fear;
-  return clampDims(sum);
-}
-
-/** Add a reason (the only way opinions change, 04 §6.2). */
 export function addOpinionReason(
   world: World,
-  _ctx: SimContext,
+  ctx: SimContext,
   from: ActorId,
   to: ActorId,
   reason: OpinionReason,
 ): void {
-  const table = world.social.opinions[from] ?? {};
-  const op = table[to] ?? emptyOpinion(to);
-  op.reasons.push(reason);
-  table[to] = op;
-  world.social.opinions[from] = table;
+  addReason(world, ctx.content, from, to, reason, ctx.now);
 }
 
-/** Encode a memory for an actor (perception, being told, etc.). STUB returns null. */
-export function addMemory(_world: World, _ctx: SimContext, _memory: Omit<Memory, 'id'>): MemoryId | null {
-  return null; // STUB
+/**
+ * Encode a memory for an actor (perception, being told, etc.). Salience/intensity are
+ * clamped; `aboutId`/`did` default from `roles`. Returns the new memory id.
+ */
+export function addMemory(world: World, ctx: SimContext, memory: MemoryInput): MemoryId | null {
+  if (!world.actors[memory.ownerId]) return null;
+  return insertMemory(world, ctx, memory);
 }
 
 export function memoriesOf(world: World, actorId: ActorId): Memory[] {
-  const ids = world.social.memoriesByOwner[actorId] ?? [];
-  const out: Memory[] = [];
-  for (const id of ids) {
-    const m = world.social.memories[id];
-    if (m) out.push(m);
-  }
-  return out;
+  return ownerMemories(world, actorId);
 }
 
 export function relationshipsOf(world: World, actorId: ActorId): Relationship[] {
@@ -71,23 +62,32 @@ export function relationshipsOf(world: World, actorId: ActorId): Relationship[] 
 }
 
 const KIN: ReadonlySet<string> = new Set(['parent', 'sibling', 'spouse', 'cousin', 'in_law', 'betrothed']);
+/** Kin by structural edge (the period default set; `areKinBy` reads social_tuning.kin_kinds). */
 export function areKin(world: World, a: ActorId, b: ActorId): boolean {
   return world.social.relationships.some(
     (r) => KIN.has(r.kind) && ((r.a === a && r.b === b) || (r.a === b && r.b === a)),
   );
 }
+export { areKinBy };
 
-/** Derived label (04 §6.1): Friend, Enemy, Rival, Cowed, Admirer, or '' — labels on numbers. */
-export function opinionLabel(d: OpinionDims): string {
-  if (d.affection > 40 && d.trust > 20) return 'Friend';
-  if (d.affection < -40) return 'Enemy';
-  if (d.fear > 50 && d.affection < 0) return 'Cowed';
-  if (d.respect > 20 && d.affection < -20) return 'Rival';
-  if (d.respect > 50) return 'Admirer';
-  return '';
+/** The holder's acquaintance-level familiarity with the target, 0..1000. */
+export function familiarityOf(world: World, from: ActorId, to: ActorId): number {
+  return opinionRecord(world, from, to)?.familiarity ?? 0;
 }
 
-/** Urges to seek company / confront / avoid (proposed to psyche each hour). */
-export function proposeSocialUrges(_world: World, _ctx: SimContext, _actorId: ActorId): UrgeProposal[] {
-  return []; // STUB
+/** Obligation ledger read (04 §6.1): what `debtor` owes `creditor`. */
+export function debtOf(world: World, creditor: ActorId, debtor: ActorId): { cents: number; favors: number } {
+  return { cents: owedCents(world, creditor, debtor), favors: owedFavors(world, creditor, debtor) };
+}
+
+/** Acquaintances of an actor (holders of an opinion record), ascending ids. */
+export function acquaintancesOf(world: World, actorId: ActorId): ActorId[] {
+  return Object.keys(world.social.opinions[actorId] ?? {})
+    .map(Number)
+    .sort((a, b) => a - b) as ActorId[];
+}
+
+/** Base opinion recomputed now (for tests and the dossier). */
+export function baseOpinion(world: World, content: ContentBundle, from: ActorId, to: ActorId) {
+  return computeBase(world, content, from, to);
 }

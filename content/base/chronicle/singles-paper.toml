@@ -1,0 +1,436 @@
+# Single-event entries in the Paper's voice (05 §11.2): what a weekly in a river town prints
+# of the things the town could see. Formal names ("Mrs. A. Pratt"). OWNER: module:chronicle.
+# Bindings: actor/target (formal), at/place, when, act (past tense), act_noun, interaction.
+
+# ---- hostility -----------------------------------------------------------------------------
+
+[[template]]
+id = "paper_insult"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "insult", success = true }
+headline = "Hard Words{_at}"
+text = [
+  "#paper_learn# that #hard_words# passed between {actor} and {target}{_at} {when}, the former giving the latter an insult that was heard by the whole room.",
+  "{^actor} insulted {target} to the face{_at} {when}. The company took sides, and the loafers took notes.",
+  "Language unfit for print was exchanged{_at} {when}: {actor} called {target} a name before witnesses, and the name has been going about the village since.",
+  "{^actor} told {target} what {he} thought of {target_him}{_at} {when}, at a volume the whole room could appreciate.",
+  "Hard feelings were aired{_at} {when}, {actor} doing the airing and {target} the listening, unwillingly.",
+]
+
+[[template]]
+id = "paper_insult_failed"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "insult", success = false }
+headline = "A Poor Aim{_at}"
+text = [
+  "{^actor} attempted to put an insult upon {target}{_at} {when}, but misjudged the room. The laugh, we hear, went the other way.",
+  "{^actor} aimed a hard word at {target}{_at} and hit nothing; {target} was seen to smile, which is worse.",
+  "{^actor} had a speech ready for {target}{_at} and got through half of it. The rest was lost to laughter, at {actor}'s own expense.",
+]
+
+[[template]]
+id = "paper_mock"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "mock", success = true }
+headline = "A Laughingstock{_at}"
+text = [
+  "{^actor} made sport of {target}{_at} {when}, with the cheerful assistance of the company.",
+  "#paper_learn# that {target} was made the butt of a joke{_at} {when}, {actor} being the humorist. The joke is not repeated here.",
+]
+
+[[template]]
+id = "paper_mock_failed"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "mock", success = false }
+text = [
+  "{^actor} tried to raise a laugh at the expense of {target}{_at} {when} and failed to raise one.",
+]
+
+[[template]]
+id = "paper_fight"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "fight", success = true }
+headline = "A Fight{_at}"
+text = [
+  "#paper_grieve# that {actor} and {target} came to blows{_at} {when}. {^actor} had the better of it. Neighbors parted them; the damage was chiefly to dignity.",
+  "A fight took place{_at} {when} between {actor} and {target}. The affair was brief, the language long, and {actor} left the field.",
+  "Blows were exchanged{_at} {when}: {actor} against {target}. Two chairs and a good deal of patience were lost.",
+  "{^actor} and {target} settled a difference with their fists{_at} {when}. {^actor} was the settler.",
+]
+
+[[template]]
+id = "paper_fight_failed"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "fight", success = false }
+headline = "A Brawl{_at}"
+text = [
+  "#paper_grieve# that {actor} struck at {target}{_at} {when} and was handled roughly for the trouble.",
+  "{^actor} sought a fight with {target}{_at} {when} and found one. The result was not what {actor} had planned.",
+  "A scuffle{_at} {when}: {actor} swung, and {target} did not stay where {target_he} was put. Honors were not even.",
+]
+
+[[template]]
+id = "paper_threaten"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "threaten" }
+headline = "Threats{_at}"
+text = [
+  "{^actor} was heard to threaten {target}{_at} {when}. The threat was not specific as to means, but quite specific as to intent.",
+  "#paper_grieve# that {actor} used threatening language toward {target}{_at} {when}. We trust that cooler counsels will prevail.",
+]
+
+[[template]]
+id = "paper_harm_other"
+on = "social.interaction"
+voice = "paper"
+when = { cls = "harm" }
+text = [
+  "#hard_words# passed between {actor} and {target}{_at} {when}; {actor} {act} {target} before others.",
+  "{^actor} {act} {target}{_at} {when}, and the village is not slow to remark it.",
+  "{^actor} and {target} were seen to quarrel{_at} {when}; the matter was a grave one, or looked it.",
+]
+
+# ---- kindness, amends --------------------------------------------------------------------------
+
+[[template]]
+id = "paper_help"
+on = "social.interaction"
+voice = "paper"
+when = { cls = "help" }
+headline = "A Neighborly Act"
+text = [
+  "#paper_pleased# that {actor} {act} {target}{_at} {when}. Neighborliness is not yet extinct on the Lantern.",
+  "{^actor} {act} {target}{_at} {when}, and asked nothing for it. We note it for the credit of the place.",
+]
+
+[[template]]
+id = "paper_forgive"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "forgive" }
+headline = "Peace Made"
+text = [
+  "#paper_pleased# that {actor} and {target} have made up their difference{_at}; the hand was offered, and taken.",
+  "A quarrel of some standing between {actor} and {target} was ended {when}. The village is divided between relief and disappointment.",
+  "{^actor} forgave {target}{_at} {when}, handsomely and in front of people, which is the best way.",
+]
+
+[[template]]
+id = "paper_apologize"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "apologize" }
+headline = "An Apology"
+text = [
+  "{^actor} was seen to make a handsome apology to {target}{_at} {when}. We are told it was accepted.",
+]
+
+[[template]]
+id = "paper_amends"
+on = "social.interaction"
+voice = "paper"
+when = { cls = "amends" }
+text = [
+  "{^actor} and {target} made their peace{_at} {when}.",
+  "The difference between {actor} and {target} was mended{_at} {when}, or mended enough to share a bench.",
+]
+
+# ---- courtship -----------------------------------------------------------------------------------
+
+[[template]]
+id = "paper_court"
+on = "social.interaction"
+voice = "paper"
+when = { cls = "courtship", success = true }
+headline = "Keeping Company"
+text = [
+  "#town_talk# that {actor} has been paying court to {target}{_at}.",
+  "{^actor} and {target} were seen together{_at} {when}, and appeared pleased with one another. The village has already named the day.",
+]
+
+[[template]]
+id = "paper_propose"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "propose", success = true }
+headline = "An Engagement"
+text = [
+  "#paper_learn# that {actor} and {target} are engaged to be married. The banns may be looked for.",
+  "#paper_pleased# the engagement of {actor} to {target}. May the roads be smooth.",
+]
+
+[[template]]
+id = "paper_propose_refused"
+on = "social.interaction"
+voice = "paper"
+when = { interaction = "propose", success = false }
+headline = "Refused"
+text = [
+  "#town_talk# that {actor} asked for the hand of {target} and was refused. The suitor took it quietly, and the village did not.",
+  "{^actor} proposed marriage to {target}{_at} {when} and was refused; there will be an interval before the two are easy in each other's company.",
+]
+
+[[template]]
+id = "paper_court_failed"
+on = "social.interaction"
+voice = "paper"
+when = { cls = "courtship", success = false }
+text = [
+  "{^actor}'s attentions to {target}{_at} {when} were not well received.",
+]
+
+# ---- money ---------------------------------------------------------------------------------------
+
+[[template]]
+id = "paper_dun"
+on = "social.interaction"
+voice = "paper"
+when = { cls = "dun" }
+headline = "A Debt Pressed"
+text = [
+  "{^actor} dunned {target} for money owing{_at} {when}, in the hearing of the company.",
+  "{^actor} pressed {target} for payment of an old account{_at} {when}. The company discovered urgent business elsewhere.",
+]
+
+[[template]]
+id = "paper_repay"
+on = "social.interaction"
+voice = "paper"
+when = { cls = "repay" }
+headline = "Accounts Settled"
+text = [
+  "#paper_pleased# that {actor} has settled {his} account with {target}, to the last cent.",
+  "{^actor} paid {target} what was owed{_at} {when}, and the book was closed to the satisfaction of both.",
+]
+
+[[template]]
+id = "paper_debt"
+on = "social.interaction"
+voice = "paper"
+when = { cls = "debt" }
+text = [
+  "{^actor} {act} {target}{_at} {when}; it is now a matter of record at the store.",
+]
+
+# ---- everything else ------------------------------------------------------------------------------
+
+[[template]]
+id = "paper_gossip"
+on = "social.interaction"
+voice = "paper"
+when = { cls = "gossip" }
+text = [
+  "{^actor} was seen in earnest talk with {target}{_at} {when}; there was a look of news about it.",
+]
+
+[[template]]
+id = "paper_other"
+on = "social.interaction"
+voice = "paper"
+text = [
+  "{^actor} {act} {target}{_at} {when}.",
+]
+
+# ---- opinions turned: labels ----------------------------------------------------------------------
+
+[[template]]
+id = "paper_label_friend"
+on = "social.label_changed"
+voice = "paper"
+when = { band = "Friend" }
+text = [
+  "{^actor} is now accounted a friend of {target}; the two are seldom seen apart.",
+  "{^actor} and {target} are become friends, to the surprise of nobody who has watched them at the church door.",
+]
+
+[[template]]
+id = "paper_label_enemy"
+on = "social.label_changed"
+voice = "paper"
+when = { band = "Enemy" }
+headline = "A Falling-Out"
+text = [
+  "{^actor} has come to regard {target} as an enemy, and says so.",
+  "It is understood that {actor} and {target} are no longer on speaking terms, and that the matter is not a small one.",
+]
+
+[[template]]
+id = "paper_label_rival"
+on = "social.label_changed"
+voice = "paper"
+when = { band = "Rival" }
+text = [
+  "{^actor} and {target} are rivals in all but name, and the village watches for the first open move.",
+]
+
+[[template]]
+id = "paper_label_cowed"
+on = "social.label_changed"
+voice = "paper"
+when = { band = "Cowed" }
+text = [
+  "{^actor} has been seen to go out of {his} way to avoid {target}.",
+]
+
+[[template]]
+id = "paper_label_admirer"
+on = "social.label_changed"
+voice = "paper"
+when = { band = "Admirer" }
+text = [
+  "{^actor} speaks of {target} in terms that border upon reverence.",
+]
+
+# ---- the ladder of suspicion ------------------------------------------------------------------------
+
+[[template]]
+id = "paper_escalation_up_1"
+on = "belief.escalation"
+voice = "paper"
+when = { rung = 1, kind = "up" }
+headline = "Talk"
+text = [
+  "Whispers have begun to go about concerning {actor}. We do not repeat them. We observe only that they are going.",
+  "#town_talk# that {actor} is not altogether what {he} seems. The loafers are specific on nothing and certain of everything.",
+]
+
+[[template]]
+id = "paper_escalation_up_2"
+on = "belief.escalation"
+voice = "paper"
+when = { rung = 2, kind = "up" }
+headline = "An Accusation"
+text = [
+  "{^actor} has been named openly before the village. The name was spoken and the speaker was not corrected.",
+  "#paper_grieve# that a public accusation has been made against {actor}. We counsel patience and the law, and expect neither.",
+]
+
+[[template]]
+id = "paper_escalation_up_3"
+on = "belief.escalation"
+voice = "paper"
+when = { rung = 3, kind = "up" }
+headline = "Shunned"
+text = [
+  "{^actor} is shunned. Credit has been pulled, the price at the counter has risen, and the children are kept away from {his} gate. #ill_sign#.",
+  "No hand is held out to {actor} now at the bee or the store. The village has made up its mind, and does not say about what.",
+]
+
+[[template]]
+id = "paper_escalation_up_high"
+on = "belief.escalation"
+voice = "paper"
+when = { kind = "up" }
+min_importance = 60
+text = [
+  "The feeling against {actor} has gone beyond the idle. We urge that no one take the law in hand.",
+]
+
+[[template]]
+id = "paper_escalation_down"
+on = "belief.escalation"
+voice = "paper"
+when = { kind = "down" }
+text = [
+  "The talk against {actor} is quieter this week. Time, and a lack of fresh material, are credited.",
+  "{^actor} has been let alone this fortnight, and the village has found other matters to chew on.",
+]
+
+# ---- hunger, in the town's hearing ---------------------------------------------------------------------
+
+[[template]]
+id = "paper_shortage"
+on = "provisions.shortage"
+voice = "paper"
+headline = "Short Commons"
+text = [
+  "#paper_grieve# that {families} are running short of provisions. The pantry is #lean_adj# and the store's book is the only recourse.",
+  "{^families} are reported to be on short allowance. Neighbors who can spare are urged to remember that spring is the hungriest season.",
+]
+
+[[template]]
+id = "paper_shortage_dire"
+on = "provisions.shortage"
+voice = "paper"
+min_importance = 60
+headline = "In Want"
+text = [
+  "#paper_grieve# that {families} have scarce {lowest_days} of food in the house. It is no time for pride; the village will want to help, and ought.",
+]
+
+[[template]]
+id = "paper_nutrition_on"
+on = "provisions.nutrition"
+voice = "paper"
+when = { on = true }
+text = [
+  "{^actor} is laid up with {condition_name}, the result of a lean winter and a thin table. The doctor, we are told, has a remedy and a poor opinion of the cellars.",
+]
+
+[[template]]
+id = "paper_nutrition_off"
+on = "provisions.nutrition"
+voice = "paper"
+when = { on = false }
+text = [
+  "#paper_pleased# that {actor} is recovered of {condition_name} and again about {his} work.",
+]
+
+# ---- misfortunes the whole village knows of ----------------------------------------------------------
+
+[[template]]
+id = "paper_misfortune"
+on = "belief.misfortune"
+voice = "paper"
+headline = "Ill Luck"
+text = [
+  "#paper_grieve# that {misfortune}. The neighbors are doing what neighbors do.",
+  "Ill luck is reported: {misfortune}. We hear of nothing to be done but to bear it.",
+]
+
+[[template]]
+id = "paper_misfortune_uncanny"
+on = "belief.misfortune"
+voice = "paper"
+when = { uncanny = true }
+headline = "Ill Luck"
+text = [
+  "#paper_grieve# that {misfortune}. The older folk are not surprised, and say why, and are not asked to.",
+  "It is reported that {misfortune}. The superstitious have not been slow to remark that it is not the first such thing this season.",
+]
+
+[[template]]
+id = "paper_misfortune_grave"
+on = "belief.misfortune"
+voice = "paper"
+min_importance = 60
+headline = "Sickness Abroad"
+text = [
+  "A grave misfortune: {misfortune}. The doctor has been sent for; the minister, we hope, need not be.",
+]
+
+[[template]]
+id = "paper_figure"
+on = "belief.figure_attached"
+voice = "paper"
+headline = "A Name Given"
+text = [
+  "{^actor} is spoken of now about the village as {figure}. The name is not a kind one, and it has stuck.",
+  "The ford has found a name for {actor}: {figure}. It was not asked for and cannot be returned.",
+]
+
+[[template]]
+id = "paper_reveal"
+on = "belief.revealed"
+voice = "paper"
+headline = "The Village Has Made Up Its Mind"
+text = [
+  "It is the general belief now, and no longer a whisper, that \"{rumor}.\" Whether it is so is a question the village has stopped asking.",
+]

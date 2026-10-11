@@ -100,10 +100,14 @@ seek_company = [
 max_targeted_urges = 2
 
 # Defenses (10 §7) discharge through ordinary interactions aimed at the defense's target.
+# Psyche's defense record (`acts` in content/base/psyche/defenses.toml) wins when it lists
+# any; this table is the fallback and carries the viaDefense Reason social adds.
+# Reaction formation follows 10 §7.2: the forbidden wish flips into a superego crusade
+# against its object (preaching at, talking them down, cutting them), not kindness.
 defense_interactions = [
   { defense = "displacement", interactions = ["insult", "snub", "slight"], reason = "Had it coming", reason_delta = { affection = -5 } },
   { defense = "projection", interactions = ["snub", "slight"], reason = "Something sly about them", reason_delta = { trust = -8 } },
-  { defense = "reaction_formation", interactions = ["compliment", "help"] },
+  { defense = "reaction_formation", interactions = ["preach_at", "gossip", "snub"], reason = "Someone ought to speak to them", reason_delta = { respect = -5 } },
   { defense = "sublimation", interactions = ["help"] },
 ]
 

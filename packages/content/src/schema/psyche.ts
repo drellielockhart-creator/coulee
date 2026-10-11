@@ -379,7 +379,10 @@ export const psycheActorFields = {
   persona_control: pct().optional(),
   /** Jungian shadow: trait ids the actor disowns (they still act, but are projected). Charge 60. */
   shadow: z.array(id()).default([]),
-  /** Starting anxiety 0..1000 (booked as realistic anxiety unless `anxiety_pools` splits it). */
+  /**
+   * Starting anxiety 0..1000. Without `anxiety_pools` it splits by temperament:
+   * real 50 : neur id_appetite : moral superego (after trait shifts).
+   */
   anxiety: int().min(0).max(1000).default(0),
   /** Optional split of the starting anxiety by pool (must sum to `anxiety` when given). */
   anxiety_pools: z

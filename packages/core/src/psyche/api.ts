@@ -5,7 +5,10 @@ import type { ActorId, ThoughtId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { ChosenUrge, UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
+import { addToPools, anxietyBand, BAND_LABELS, composure, drainPools, type Pool } from './anxiety.ts';
+import { presentedTraits as presented } from './mind.ts';
 import type { ActorPsyche } from './state.ts';
+import { fillLine, mergeCandidate, proposalCandidate } from './thoughts.ts';
 
 /** This hour's arbitration result for an actor (read by activity and social). */
 export function chosenUrge(world: World, actorId: ActorId): ChosenUrge | null {
@@ -18,21 +21,100 @@ export function psycheOf(world: World, actorId: ActorId): ActorPsyche | undefine
 
 /**
  * Inject a thought from outside the hourly proposal pass (e.g. social: after an insult the
- * Id voices "hit him"; belief: dread after hearing a witch rumor). Returns its id. STUB.
+ * Id voices "hit him"; belief: dread after hearing a witch rumor). It is weighted like any
+ * proposal (traits, appetite/strictness, drive/norm), merges with a same-source thought for
+ * the same urge, takes part in the next arbitration, and decays. Returns its id, or null
+ * when the actor has no psyche or the weighted intensity is 0. Notable ones (≥ 500) log a
+ * 'psyche.thought' event.
  */
-export function addThought(
-  _world: World,
-  _ctx: SimContext,
-  _actorId: ActorId,
-  _proposal: UrgeProposal,
-): ThoughtId | null {
-  return null; // STUB
+export function addThought(world: World, ctx: SimContext, actorId: ActorId, proposal: UrgeProposal): ThoughtId | null {
+  const p = world.psyche.byActor[actorId];
+  const actor = world.actors[actorId];
+  if (!p || !actor?.alive) return null;
+  const cand = proposalCandidate(proposal, 'added');
+  if (proposal.voice !== 'command') cand.decayPerHour = 150;
+  cand.line = fillLine(proposal.label, {});
+  const r = mergeCandidate(world, { content: ctx.content, actor, p, audience: 0 }, cand, ctx.now);
+  if (!r) return null;
+  if (r.thought.intensity >= 500) {
+    ctx.emit({
+      kind: 'psyche.thought',
+      data: {
+        actorId,
+        thoughtId: r.thought.id,
+        voice: r.thought.voice,
+        label: r.thought.label,
+        intensity: r.thought.intensity,
+        ...(r.thought.targetId !== undefined ? { targetId: r.thought.targetId } : {}),
+      },
+      roles: [{ actor: actorId, role: 'agent' }],
+      visibility: 'inner',
+      explain: {
+        kind: 'formula',
+        label: r.thought.label,
+        subjects: [actorId],
+        knowledge: 'self',
+        terms: r.thought.reasons,
+        total: r.thought.intensity,
+        outcome: 'surfaced',
+      },
+    });
+  }
+  return r.thought.id;
 }
 
-/** Add (or relieve, if negative) anxiety 0..1000, e.g. from a frightening event. */
-export function addAnxiety(world: World, _ctx: SimContext, actorId: ActorId, delta: number): number {
+/**
+ * Add (or relieve, if negative) anxiety 0..1000, e.g. from a frightening event. Positive
+ * shocks bypass the hourly accrual cap and book to `pool` (default 'real': a threat in the
+ * world); relief comes off the pools pro rata (or `pool` first). Returns the new anxiety.
+ */
+export function addAnxiety(world: World, _ctx: SimContext, actorId: ActorId, delta: number, pool?: Pool): number {
   const p = world.psyche.byActor[actorId];
   if (!p) return 0;
-  p.anxiety = Math.max(0, Math.min(1000, p.anxiety + Math.round(delta)));
+  const d = Math.round(delta);
+  if (d > 0) addToPools(p, { [pool ?? 'real']: d });
+  else if (d < 0) drainPools(p, -d, pool);
   return p.anxiety;
+}
+
+/** Anxiety 0..1000 (0 when the actor has no psyche). */
+export function anxietyOf(world: World, actorId: ActorId): number {
+  return world.psyche.byActor[actorId]?.anxiety ?? 0;
+}
+
+/** The anxiety band (10 §6): 0 Easy … 4 Breaking, with its period label. */
+export function anxietyBandOf(world: World, actorId: ActorId): { band: number; label: string } {
+  const band = anxietyBand(anxietyOf(world, actorId));
+  return { band, label: BAND_LABELS[band] ?? 'Easy' };
+}
+
+/** Composure = egoMod − anxiety band (10 §5.3): a modifier for Will-like checks (02 C3). */
+export function composureOf(world: World, actorId: ActorId): number {
+  const p = world.psyche.byActor[actorId];
+  return p ? composure(p) : 0;
+}
+
+/** Norm strength 0..100 (10 §3.3), e.g. for social volition or belief plausibility. */
+export function normStrength(world: World, actorId: ActorId, normId: string): number {
+  return world.psyche.byActor[actorId]?.norms[normId] ?? 50;
+}
+
+/** Drive weight 0..100 (10 §3.2). */
+export function driveWeight(world: World, actorId: ActorId, driveId: string): number {
+  return world.psyche.byActor[actorId]?.drives[driveId] ?? 50;
+}
+
+/** Traits the actor shows in public: the Persona's if one is worn (10 §8.1), else their own. */
+export function presentedTraits(world: World, actorId: ActorId): readonly string[] {
+  return presented(world, actorId);
+}
+
+/** Shadow charge 0..100 on a trait (10 §8.2). Unconscious: never show this to the actor's own view. */
+export function shadowCharge(world: World, actorId: ActorId, traitId: string): number {
+  return world.psyche.byActor[actorId]?.shadowCharge[traitId] ?? 0;
+}
+
+/** Traits acquired from habitual defenses (Suspicious, Zealot; 10 §7.1). */
+export function acquiredTraits(world: World, actorId: ActorId): readonly string[] {
+  return world.psyche.byActor[actorId]?.acquired ?? [];
 }

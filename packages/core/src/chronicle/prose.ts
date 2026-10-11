@@ -105,7 +105,9 @@ export function tidy(s: string): string {
     .trim();
   return out
     .split('\n')
-    .map((line) => capFirst(line))
+    .map((line) =>
+      capFirst(line).replace(/([.!?]["”']?) +([a-z])/g, (_m, p: string, c: string) => `${p} ${c.toUpperCase()}`),
+    )
     .join('\n');
 }
 
