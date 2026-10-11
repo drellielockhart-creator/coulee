@@ -107,6 +107,7 @@ export function useReadiness(
       setR(null);
       return;
     }
+    setR(null);
     let live = true;
     query({ kind: 'readiness', holder }).then((res) => {
       if (live && res.kind === 'readiness') setR(res.readiness);

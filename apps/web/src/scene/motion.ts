@@ -78,7 +78,8 @@ export class MotionTracker {
         continue;
       }
       const from = this.positionOf(prev, clock.nowMs);
-      const moved = Math.hypot(from.x - spot.x, from.y - spot.y) > 0.05;
+      // View-only refreshes must not restart an already-running walk.
+      const moved = Math.hypot(prev.spot.x - spot.x, prev.spot.y - spot.y) > 0.05;
       if (!moved) {
         prev.placeId = a.placeId;
         prev.spot = spot;
@@ -94,7 +95,7 @@ export class MotionTracker {
       }
       const meters = pathLength(path) * clock.tileM;
       const gameMin = meters / WALK_M_PER_MIN;
-      const durMs = Math.max(450, Math.min(6000, gameMin * clock.msPerGameMinute));
+      const durMs = clock.msPerGameMinute <= 0 ? 0 : Math.max(450, Math.min(6000, gameMin * clock.msPerGameMinute));
       this.tracks.set(a.id, {
         placeId: a.placeId,
         spot,

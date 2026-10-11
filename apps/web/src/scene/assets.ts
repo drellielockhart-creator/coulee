@@ -43,6 +43,11 @@ export function normalizeManifest(raw: unknown): Manifest {
         walk(o.models);
         if ('props' in o) walk(o.props);
         if ('figures' in o) walk(o.figures);
+        if (o.aliases && typeof o.aliases === 'object') {
+          for (const [alias, target] of Object.entries(o.aliases)) {
+            if (typeof target === 'string') out.set(alias, out.get(target) ?? `${BASE}assets/models/${target}.glb`);
+          }
+        }
         return;
       }
       for (const [k, val] of Object.entries(o)) {

@@ -156,7 +156,6 @@ export class SiteRenderer {
   private season = '';
   private treeMeshes: THREE.InstancedMesh[] = [];
   private treeSpots: ReturnType<typeof scatterTrees> = [];
-  private msPerGameMinute = 667;
   private lastT = 0;
 
   /** Called when the player taps something on the map. */
@@ -515,7 +514,7 @@ export class SiteRenderer {
     this.labels.appendChild(label);
     this.places.set(p.id, { root, label, data: p, outline });
 
-    if (p.model && placeholder) {
+    if (p.model) {
       const modelId = p.model;
       loadModel(modelId).then((src) => {
         if (!src || this.disposed || this.places.get(p.id)?.root !== root) return;
@@ -527,7 +526,7 @@ export class SiteRenderer {
         if (ratio > 0.98) s = 0.95 / ratio;
         else if (ratio < 0.4 && ratio > 0) s = 0.45 / ratio;
         obj.scale.multiplyScalar(s);
-        root.remove(placeholder);
+        if (placeholder) root.remove(placeholder);
         root.add(obj);
         this.invalidate();
       });
@@ -660,7 +659,6 @@ export class SiteRenderer {
   // -------------------------------------------------------------------------------------
 
   setActors(list: readonly SceneActor[], t: number, msPerGameMinute: number): void {
-    this.msPerGameMinute = msPerGameMinute;
     this.lastT = t;
     const live = new Set<number>();
     for (const a of list) {
@@ -857,8 +855,8 @@ export class SiteRenderer {
 
   private drawFrame(now: number): void {
     const ppm = this.rig.pxPerMeter();
-    // Legibility (11 §7.5): figures stay ≥ ~22 px tall however far out we zoom.
-    const legible = THREE.MathUtils.clamp(22 / (FIGURE_H * ppm), 1, 4.5);
+    // Legibility (11 §7.5): figures stay ≥ 24 px tall however far out we zoom.
+    const legible = THREE.MathUtils.clamp(24 / (FIGURE_H * ppm), 1, 4.5);
     const v = new THREE.Vector3();
     const sp = new THREE.Vector2();
     const placed: Array<{ el: HTMLDivElement; x: number; y: number; pri: number }> = [];
@@ -906,7 +904,7 @@ export class SiteRenderer {
         it.el.style.display = 'none';
         continue;
       }
-      const lw = Math.max(24, it.el.textContent?.length ?? 4) * (isActor ? 6.4 : 6.8) + 10;
+      const lw = Math.max(24, (it.el.textContent?.length ?? 4) * (isActor ? 6.4 : 6.8) + 10);
       const lh = 20;
       const x0 = it.x - lw / 2;
       const y0 = it.y - lh;
