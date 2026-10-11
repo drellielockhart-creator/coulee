@@ -4,10 +4,11 @@
  * see only what is public (voiced beliefs) — module:belief enforces this.
  */
 import type { ContentBundle } from '../content.ts';
-import type { ActorId } from '../ids.ts';
+import { type ActorId, rowsOf } from '../ids.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
 import type { World } from '../world.ts';
 import { propText } from './api.ts';
+import { targetLabel } from './misfortune.ts';
 
 export interface BeliefView {
   id: number;
@@ -55,7 +56,7 @@ export function viewBeliefActor(
   const beliefs: BeliefView[] = [];
   for (const id of world.belief.beliefsByHolder[actorId] ?? []) {
     const b = world.belief.beliefs[id];
-    if (!b || (!mayView && !b.voiced)) continue;
+    if (!b || (!mayView && (!b.voiced || b.conceal))) continue;
     beliefs.push({
       id: b.id,
       text: propText(world, content, b.propId),
@@ -66,7 +67,7 @@ export function viewBeliefActor(
     });
   }
   const grudges: GrudgeView[] = [];
-  for (const g of Object.values(world.belief.grudges)) {
+  for (const g of rowsOf(world.belief.grudges)) {
     if (g.holderId !== actorId || (!mayView && !g.public)) continue;
     const t = g.target;
     const targetLabel =
@@ -90,12 +91,31 @@ export function viewBeliefActor(
 
 export function viewBeliefGlobal(world: World, _content: ContentBundle, _opts: ViewOptions): BeliefGlobalView {
   return {
-    figures: Object.values(world.belief.figures).map((f) => ({ id: f.id, name: f.name, notoriety: f.notoriety })),
-    persecutions: [],
+    figures: rowsOf(world.belief.figures).map((f) => ({ id: f.id, name: f.name, notoriety: f.notoriety })),
+    persecutions: world.belief.persecutions
+      .filter(
+        (p) =>
+          _opts.omniscient ||
+          _opts.perspective === null ||
+          p.rung >= 2 ||
+          (_opts.perspective !== null &&
+            p.charges.some((id) =>
+              (world.belief.beliefsByHolder[_opts.perspective ?? -1] ?? []).some(
+                (bid) => world.belief.beliefs[bid]?.propId === id,
+              ),
+            )),
+      )
+      .map((p) => ({ targetLabel: targetLabel(world, p.target), rung: p.rung, heat: p.heat, consensus: p.consensus })),
     misfortune: world.belief.misfortune,
   };
 }
 
 export function beliefDailyStats(_world: World, _content: ContentBundle): Record<string, number> {
-  return {};
+  return {
+    belief_count: rowsOf(_world.belief.beliefs).length,
+    belief_rumors: rowsOf(_world.belief.rumors).length,
+    belief_grudges: rowsOf(_world.belief.grudges).filter((g) => g.intensity > 0).length,
+    belief_misfortune: _world.belief.misfortune,
+    belief_max_rung: Math.max(0, ..._world.belief.persecutions.map((p) => p.rung)),
+  };
 }

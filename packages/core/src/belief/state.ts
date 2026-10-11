@@ -45,6 +45,8 @@ export interface Prop {
   args: PropArg[];
   /** Canonical key 'witch(a:3)' used for interning. */
   key: string;
+  /** Cached predicate metadata for the content-free suspicion query. */
+  suspicious?: boolean;
 }
 
 /** 04 §5.2 evidence types (+ `dream`, `defense` per this revision). */
