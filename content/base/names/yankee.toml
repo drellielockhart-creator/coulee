@@ -1,0 +1,17 @@
+# Name pools. OWNER: module:content-world.
+
+[[name_pool]]
+id = "yankee"
+culture = "yankee"
+peoples = ["human"]
+given_female = ["Augusta", "Lydia", "Clara", "Harriet", "Prudence", "Mercy"]
+given_male = ["Amos", "Horace", "Elias", "Josiah", "Thomas", "Ezra"]
+family = ["Pratt", "Whitcomb", "Bell", "Hurd", "Stoughton", "Glover"]
+
+[[name_pool]]
+id = "norwegian"
+culture = "norwegian"
+peoples = ["human"]
+given_female = ["Siri", "Ingrid", "Marit", "Kari", "Ragnhild"]
+given_male = ["Anders", "Tollef", "Ole", "Nils", "Halvor"]
+family = ["Tveit", "Kvale", "Haugen", "Halvorsen", "Lund"]

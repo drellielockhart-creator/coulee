@@ -1,0 +1,30 @@
+# Traits with psyche weights. OWNER: module:psyche.
+
+[[trait]]
+id = "gossip"
+name = "Gossip"
+period_label = "Of a Talkative Disposition"
+description = "Cannot keep a good story to herself."
+values = { discretion = -2 }
+voice_pct = { id = 120, superego = 90 }
+urge_bias = [{ kind = "interaction", id = "gossip", pct = 200 }]
+defenses = { projection = 150 }
+
+[[trait]]
+id = "pious"
+name = "Pious"
+period_label = "Of a Devout Habit"
+psyche = { superego = 15 }
+values = { piety = 2 }
+voice_pct = { superego = 130 }
+urge_bias = [{ kind = "activity", id = "attend_church", pct = 200 }]
+defenses = { reaction_formation = 150, repression = 130 }
+
+[[trait]]
+id = "hot_tempered"
+name = "Hot-tempered"
+period_label = "Of a Choleric Temper"
+psyche = { ego = -10, id_appetite = 15 }
+values = { temper = 2 }
+voice_pct = { id = 140 }
+defenses = { displacement = 180 }

@@ -1,0 +1,38 @@
+# Proposition predicates (04 §5.1). OWNER: module:belief.
+
+[[predicate]]
+id = "witch"
+args = ["actor"]
+text = "{0} is a witch"
+juiciness = 90
+valence = -90
+supernatural = true
+
+[[predicate]]
+id = "faekin"
+args = ["actor"]
+text = "{0} is of the hidden folk"
+juiciness = 80
+valence = -50
+supernatural = true
+
+[[predicate]]
+id = "owes"
+args = ["actor", "actor", "number"]
+text = "{0} owes {1} {2} cents"
+juiciness = 25
+valence = -10
+
+[[predicate]]
+id = "deals_with_fae"
+args = ["actor"]
+text = "{0} trades with the Fair Folk"
+juiciness = 75
+valence = -60
+supernatural = true
+
+[[predicate]]
+id = "is_figure"
+args = ["actor", "figure"]
+text = "{0} is {1}"
+juiciness = 85

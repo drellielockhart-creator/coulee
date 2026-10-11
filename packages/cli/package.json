@@ -1,0 +1,19 @@
+{
+  "name": "@coulee/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The coulee headless harness.",
+  "bin": {
+    "coulee": "./src/main.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "coulee": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@coulee/content": "workspace:*",
+    "@coulee/core": "workspace:*",
+    "cac": "^7.0.1"
+  }
+}

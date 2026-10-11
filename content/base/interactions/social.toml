@@ -1,0 +1,34 @@
+# Social interactions (04 §10). OWNER: module:social.
+
+[[interaction]]
+id = "chat"
+name = "Chat"
+label = "Chat"
+description = "Base glue: weather, crops, prices."
+volition = [{ driver = "need:company", weight = 30 }, { driver = "opinion:affection", weight = 10 }]
+success = { target_opinion = { affection = 2 }, initiator_opinion = { affection = 2 }, initiator_needs = { company = 60 }, target_needs = { company = 60 } }
+memory = { kind = "chat", intensity = 5 }
+
+[[interaction]]
+id = "gossip"
+name = "Gossip"
+label = "Gossip"
+requires = { acquainted = true, rumor_available = true }
+volition = [{ driver = "value:discretion", weight = -15 }, { driver = "rumor:juiciness", weight = 40 }]
+success = { initiator_needs = { company = 40 }, target_needs = { company = 40 } }
+memory = { kind = "gossip", intensity = 15 }
+transmits_rumor = true
+
+[[interaction]]
+id = "insult"
+name = "Insult"
+label = "Insult"
+requires = { max_affection = -20 }
+volition = [{ driver = "value:temper", weight = 20 }, { driver = "grudge", weight = 30 }]
+threshold = 40
+check = { kind = "opposed", skill = "intimidate", vs = "will" }
+success = { target_opinion = { affection = -15, fear = 5 } }
+failure = { target_opinion = { affection = -10, respect = -5 }, initiator_opinion = { affection = -5 } }
+memory = { kind = "insult", emotion = "anger", intensity = 50 }
+juiciness = 40
+notable = true

@@ -1,0 +1,10 @@
+node_modules
+dist
+runs/*
+!runs/.gitkeep
+coverage
+apps/web/dev-dist
+*.tsbuildinfo
+.DS_Store
+*.blend1
+__pycache__/

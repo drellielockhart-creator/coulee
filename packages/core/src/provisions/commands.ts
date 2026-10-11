@@ -1,0 +1,12 @@
+/**
+ * Provisions commands (player provisioning verbs, P8). OWNER: module:provisions.
+ * NPCs do the same things through urges/activities — no player-only rule paths.
+ */
+import type { CommandOf } from '../command.ts';
+import type { HouseholdId, ItemId, PlaceId } from '../ids.ts';
+
+export type ProvisionsCommand =
+  | CommandOf<'provisions.buy', { placeId: PlaceId; defId: string; qty: number; onCredit: boolean }>
+  | CommandOf<'provisions.eat', { itemId: ItemId; method: string; servings: number }>
+  | CommandOf<'provisions.set_rations', { householdId: HouseholdId | null; rationPct: number }>
+  | CommandOf<'provisions.pack', { itemId: ItemId; qty: number; intoItemId: ItemId | null }>;

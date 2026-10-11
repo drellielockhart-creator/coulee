@@ -1,0 +1,32 @@
+{
+  "name": "@coulee/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.4",
+    "vite-plugin-pwa": "^2.0.0"
+  },
+  "dependencies": {
+    "@coulee/content": "workspace:*",
+    "@coulee/core": "workspace:*",
+    "@fontsource/eb-garamond": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/im-fell-english": "^5.3.0",
+    "@react-three/fiber": "^9.8.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "three": "^0.186.1",
+    "zustand": "^5.0.15"
+  }
+}

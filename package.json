@@ -1,0 +1,27 @@
+{
+  "name": "coulee",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.28.5",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "check": "just check",
+    "test": "vitest run",
+    "typecheck": "pnpm -r --workspace-concurrency=1 run typecheck",
+    "lint": "biome check .",
+    "invariants": "tsx scripts/check-invariants.ts",
+    "coulee": "tsx packages/cli/src/main.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^5.0.3",
+    "fast-check": "^4.10.2",
+    "playwright-core": "^1.64.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}

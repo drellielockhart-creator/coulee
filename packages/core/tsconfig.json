@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Core is pure: no DOM lib, no Node types. Using either is a compile error.
+    "lib": ["ES2024"],
+    "types": []
+  },
+  "include": ["src"]
+}

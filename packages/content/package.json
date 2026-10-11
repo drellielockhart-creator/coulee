@@ -1,0 +1,21 @@
+{
+  "name": "@coulee/content",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Zod schemas, TOML loader, validator and JSON bundler for Coulee content.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./bundle.json": "./dist/content-bundle.json"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "bundle": "tsx src/bundle-cli.ts",
+    "check": "tsx src/check-cli.ts"
+  },
+  "dependencies": {
+    "smol-toml": "^1.9.1",
+    "zod": "^4.6.5"
+  }
+}

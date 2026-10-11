@@ -1,0 +1,16 @@
+{
+  "name": "@coulee/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure, deterministic Coulee simulation core. No DOM, no Node APIs, no IO.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@coulee/content": "workspace:*"
+  }
+}

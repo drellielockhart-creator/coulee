@@ -1,0 +1,243 @@
+# Skills (02 §4.1). FOUNDATION-OWNED: request changes via docs/impl/MODULES.md.
+# (T) trained-only skills have trained_only = true.
+
+[[skill]]
+id = "athletics"
+name = "Athletics"
+ability = "str"
+description = "Climb, jump, run, lift-and-heave, chop."
+
+[[skill]]
+id = "swim"
+name = "Swim"
+ability = "str"
+
+[[skill]]
+id = "acrobatics"
+name = "Acrobatics"
+ability = "dex"
+
+[[skill]]
+id = "ride"
+name = "Ride"
+ability = "dex"
+
+[[skill]]
+id = "stealth"
+name = "Stealth"
+ability = "dex"
+
+[[skill]]
+id = "sleight_of_hand"
+name = "Sleight of Hand"
+ability = "dex"
+
+[[skill]]
+id = "tinkering"
+name = "Tinkering"
+ability = "int"
+trained_only = true
+
+[[skill]]
+id = "perception"
+name = "Perception"
+ability = "wis"
+
+[[skill]]
+id = "woodcraft"
+name = "Woodcraft"
+ability = "wis"
+description = "Forage, shelter, fire, weather sense, camp; also widens the Readiness panel (03 §2.4)."
+
+[[skill]]
+id = "wayfinding"
+name = "Wayfinding"
+ability = "wis"
+
+[[skill]]
+id = "tracking"
+name = "Tracking"
+ability = "wis"
+trained_only = true
+
+[[skill]]
+id = "trapping"
+name = "Trapping"
+ability = "int"
+
+[[skill]]
+id = "fishing"
+name = "Fishing"
+ability = "wis"
+
+[[skill]]
+id = "riverwork"
+name = "Riverwork"
+ability = "str"
+alt_ability = "wis"
+
+[[skill]]
+id = "animal_handling"
+name = "Animal Handling"
+ability = "cha"
+
+[[skill]]
+id = "herbalism"
+name = "Herbalism"
+ability = "wis"
+trained_only = true
+
+[[skill]]
+id = "medicine"
+name = "Medicine"
+ability = "wis"
+trained_only = true
+
+[[skill]]
+id = "bargain"
+name = "Bargain"
+ability = "cha"
+
+[[skill]]
+id = "persuade"
+name = "Persuade"
+ability = "cha"
+
+[[skill]]
+id = "deceive"
+name = "Deceive"
+ability = "cha"
+
+[[skill]]
+id = "intimidate"
+name = "Intimidate"
+ability = "cha"
+alt_ability = "str"
+
+[[skill]]
+id = "read_people"
+name = "Read People"
+ability = "wis"
+
+[[skill]]
+id = "disguise"
+name = "Disguise"
+ability = "cha"
+
+[[skill]]
+id = "fae_courtesy"
+name = "Fae Courtesy"
+ability = "cha"
+trained_only = true
+
+[[skill]]
+id = "spellcraft"
+name = "Spellcraft"
+ability = "int"
+trained_only = true
+
+[[skill]]
+id = "concentration"
+name = "Concentration"
+ability = "con"
+
+[[skill]]
+id = "trade_cookery"
+name = "Trade (Cookery)"
+ability = "int"
+family = "trade"
+
+[[skill]]
+id = "trade_smithing"
+name = "Trade (Smithing)"
+ability = "str"
+family = "trade"
+
+[[skill]]
+id = "trade_milling"
+name = "Trade (Milling)"
+ability = "int"
+family = "trade"
+
+[[skill]]
+id = "trade_farming"
+name = "Trade (Farming)"
+ability = "wis"
+family = "trade"
+
+[[skill]]
+id = "trade_mining"
+name = "Trade (Mining)"
+ability = "str"
+family = "trade"
+
+[[skill]]
+id = "trade_carpentry"
+name = "Trade (Carpentry)"
+ability = "int"
+family = "trade"
+
+[[skill]]
+id = "trade_sewing"
+name = "Trade (Sewing)"
+ability = "dex"
+family = "trade"
+
+[[skill]]
+id = "trade_printing"
+name = "Trade (Printing)"
+ability = "int"
+family = "trade"
+
+[[skill]]
+id = "lore_fae"
+name = "Lore (Fae)"
+ability = "int"
+trained_only = true
+family = "lore"
+
+[[skill]]
+id = "lore_nature"
+name = "Lore (Nature)"
+ability = "int"
+trained_only = true
+family = "lore"
+
+[[skill]]
+id = "lore_scripture"
+name = "Lore (Scripture)"
+ability = "int"
+trained_only = true
+family = "lore"
+
+[[skill]]
+id = "lore_local"
+name = "Lore (Local)"
+ability = "int"
+trained_only = true
+family = "lore"
+
+[[skill]]
+id = "lore_law"
+name = "Lore (Law & Land)"
+ability = "int"
+trained_only = true
+family = "lore"
+
+[[skill]]
+id = "perform_preaching"
+name = "Perform (Preaching)"
+ability = "cha"
+family = "perform"
+
+[[skill]]
+id = "perform_storytelling"
+name = "Perform (Storytelling)"
+ability = "cha"
+family = "perform"
+
+[[skill]]
+id = "perform_fiddle"
+name = "Perform (Fiddle)"
+ability = "cha"
+family = "perform"

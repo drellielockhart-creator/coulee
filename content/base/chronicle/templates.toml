@@ -1,0 +1,7 @@
+# Chronicle templates (05 §11.2). OWNER: module:chronicle.
+
+[[template]]
+id = "day_heading"
+on = "core.day_started"
+voice = "almanac"
+text = ["{date}. The {moon}.", "{date}; a {moon}."]

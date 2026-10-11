@@ -1,0 +1,57 @@
+# Activities (T1 abstracted blocks). OWNER: module:needs-activities.
+
+[[activity]]
+id = "sleep"
+name = "Sleep"
+verb = "sleeping"
+at = "home"
+labor = "rest"
+asleep = true
+needs = { rest = 110 }
+min_hours = 4
+
+[[activity]]
+id = "work"
+name = "Work"
+verb = "working"
+at = "workplace"
+labor = "heavy"
+sociability = 20
+
+[[activity]]
+id = "keep_house"
+name = "Keep house"
+verb = "keeping house"
+at = "home"
+labor = "light"
+sociability = 10
+
+[[activity]]
+id = "take_meal"
+name = "Take a meal"
+verb = "at table"
+at = "home"
+labor = "rest"
+needs = { company = 30 }
+sociability = 40
+
+[[activity]]
+id = "drink_at_tavern"
+name = "Drink at the tavern"
+verb = "drinking at the tavern"
+at = "venue"
+venue_tags = ["tavern"]
+labor = "rest"
+needs = { company = 80 }
+sociability = 80
+
+[[activity]]
+id = "attend_church"
+name = "Attend church"
+verb = "at church"
+at = "venue"
+venue_tags = ["church"]
+labor = "rest"
+needs = { faith = 300, company = 40 }
+sociability = 60
+min_hours = 2

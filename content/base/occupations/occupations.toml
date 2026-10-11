@@ -1,0 +1,33 @@
+# Occupations and schedules. OWNER: module:content-world (schema: module:needs-activities).
+
+[[occupation]]
+id = "storekeeper"
+name = "Storekeeper"
+workplace_tags = ["store"]
+wage_cents_per_day = 100
+skills = ["bargain"]
+roles = ["storekeeper"]
+schedule = [
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 7, to = 18, activity = "work" },
+  { from = 22, to = 6, activity = "sleep", duty = 300 },
+]
+
+[[occupation]]
+id = "blacksmith"
+name = "Blacksmith"
+workplace_tags = ["smithy"]
+wage_cents_per_day = 125
+skills = ["trade_smithing"]
+schedule = [
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 18, activity = "work" },
+  { from = 21, to = 5, activity = "sleep", duty = 300 },
+]
+
+[[occupation]]
+id = "scholar"
+name = "Student"
+description = "Studying, helping at home."
+schedule = [
+  { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 8, to = 16, activity = "keep_house" },
+  { from = 22, to = 6, activity = "sleep", duty = 300 },
+]

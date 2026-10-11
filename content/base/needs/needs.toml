@@ -1,0 +1,46 @@
+# Needs (0..1000, 1000 = satisfied). OWNER: module:needs-activities.
+# Minimal seed; module agents flesh out rates per 05 §6 / 02 §11 / 04 §3.3.
+
+[[need]]
+id = "hunger"
+name = "Hunger"
+kind = "physical"
+description = "Calories against labor (05 §6.1). Fed by provisions via needs.feed()."
+initial = 800
+decay_per_hour = 40
+asleep_pct = 50
+bands = [
+  { below = 600, label = "Peckish" },
+  { below = 300, label = "Hungry", condition = "hungry" },
+  { below = 100, label = "Starving", condition = "starving" },
+]
+
+[[need]]
+id = "rest"
+name = "Rest"
+kind = "physical"
+initial = 800
+decay_per_hour = 45
+asleep_pct = 0
+bands = [
+  { below = 300, label = "Tired" },
+  { below = 120, label = "Exhausted", condition = "exhausted" },
+]
+
+[[need]]
+id = "company"
+name = "Company"
+kind = "social"
+initial = 700
+decay_per_hour = 15
+asleep_pct = 0
+bands = [{ below = 250, label = "Lonely" }]
+
+[[need]]
+id = "faith"
+name = "Faith & Ritual"
+kind = "spiritual"
+initial = 700
+decay_per_hour = 4
+asleep_pct = 100
+bands = [{ below = 250, label = "Unmoored" }]
