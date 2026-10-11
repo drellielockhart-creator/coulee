@@ -6,13 +6,13 @@
  * named ExplainTerm, so the choice is legible (P1).
  */
 import { type ActorCore, abilityMod, hasCondition, type Place, shortName } from '../actor.ts';
-import { hasRumorFor } from '../belief/api.ts';
+import { hasRumorFor, isShunning } from '../belief/api.ts';
 import type { ContentBundle, InteractionDef, ValueId } from '../content.ts';
 import { VALUES } from '../content.ts';
 import { type ExplainTerm, signed, term } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
-import { psycheOf } from '../psyche/api.ts';
+import { effectiveTraits, psycheOf } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { MINUTES_PER_DAY } from '../time.ts';
 import type { World } from '../world.ts';
@@ -273,7 +273,7 @@ export function volition(p: Pair, def: InteractionDef): { score: number; terms: 
         break;
       }
       case 'trait':
-        if (p.initiator.traits.includes(arg ?? '')) value = wt;
+        if (effectiveTraits(p.world, p.initiator.id).includes(arg ?? '')) value = wt;
         label = `trait ${arg}`;
         source = 'trait';
         break;
@@ -382,6 +382,11 @@ export function volition(p: Pair, def: InteractionDef): { score: number; terms: 
         value = 0;
     }
     if (value !== 0) terms.push(term(source, `${label} ×${wt}`, value));
+  }
+  // Shunning (04 §9.2 rung 3): whoever shuns the accused withholds every ordinary kindness.
+  if (!def.tags.includes('hostile') && isShunning(w, i, tg)) {
+    const pen = tuningOf(p.content).shun_volition_penalty;
+    if (pen > 0) terms.push(term('belief', 'Shunning them', -pen));
   }
   let score = 0;
   for (const t of terms) score += t.value;

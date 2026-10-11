@@ -530,6 +530,14 @@ export const SocialTuningSchema = z.strictObject({
   /** Sociable activities to seek company at, by place tag (first matching existing activity). */
   seek_company: z.array(z.strictObject({ tag: id(), activity: ref() })).default([]),
   max_targeted_urges: int().min(0).max(10).default(2),
+  /**
+   * P1 publicity: a 'witnessed' interaction becomes public knowledge at a public venue (with
+   * anyone else there to see it) or before at least `public_audience_min` onlookers anywhere.
+   */
+  public_venue_tags: z.array(id()).default(['tavern', 'store', 'church', 'street', 'landing']),
+  public_audience_min: int().min(1).max(100).default(4),
+  /** Volition penalty on every non-hostile interaction toward someone the initiator shuns (04 §9.2). */
+  shun_volition_penalty: int().min(0).max(200).default(60),
   /** Defense → interactions it discharges through (10 §7), in preference order. */
   defense_interactions: z
     .array(

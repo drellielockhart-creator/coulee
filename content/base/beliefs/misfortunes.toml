@@ -1,9 +1,10 @@
 # Misfortune kinds (04 §3.3 pressure M; §5.4 attribution). OWNER: module:belief.
 #
 # severity: per mille added to the settlement's misfortune pressure M (decays τ = 30 days).
-# base_permille_per_household_day: ambient frontier bad luck until 05's world sim owns the
-#   physics (dead stock, sick children, spoiled stores). Other modules can also report one
-#   through belief.reportMisfortune(); provisions' spoiled cellar is the obvious caller.
+# base_permille_per_household_day: ambient frontier bad luck (about one misfortune a week across
+#   Iron Ford's sixteen houses) until 05's world sim owns the physics (dead stock, sick
+#   children, spoiled stores). Other modules can also report one through
+#   belief.reportMisfortune(); provisions' spoiled cellar is the obvious caller.
 # uncanny: the superstitious read it as a curse; attribution forms `cursed`, not `caused`.
 # motive_traits: a projected trait that supplies a motive (10 §7.2: envy -> dried cows).
 # Text slots: {0} = household name, {1} = victim name.
@@ -14,7 +15,7 @@ name = "A cow sickened and died"
 text = "{0}' best cow sickened and died"
 uncanny = true
 severity = 120
-base_permille_per_household_day = 3
+base_permille_per_household_day = 1
 juiciness = 60
 anxiety = 180
 security_delta = -200
@@ -28,7 +29,7 @@ name = "The cows went dry"
 text = "{0}' cows went dry overnight"
 uncanny = true
 severity = 70
-base_permille_per_household_day = 3
+base_permille_per_household_day = 1
 juiciness = 55
 anxiety = 120
 security_delta = -120
@@ -42,7 +43,7 @@ name = "The butter won't come"
 text = "the butter won't come in {0}' churn"
 uncanny = true
 severity = 30
-base_permille_per_household_day = 4
+base_permille_per_household_day = 2
 juiciness = 40
 anxiety = 60
 security_delta = -40
@@ -53,10 +54,10 @@ aim = "apology"
 [[misfortune]]
 id = "child_fever"
 name = "A child took a fever"
-text = "a fever took hold of {1} in the {0}' house"
+text = "a fever took hold of {1} in {0}' house"
 uncanny = true
 severity = 150
-base_permille_per_household_day = 2
+base_permille_per_household_day = 1
 juiciness = 65
 anxiety = 260
 security_delta = -250
@@ -70,7 +71,7 @@ name = "The hens stopped laying"
 text = "{0}' hens stopped laying"
 uncanny = true
 severity = 25
-base_permille_per_household_day = 3
+base_permille_per_household_day = 1
 juiciness = 30
 anxiety = 50
 security_delta = -60
@@ -83,7 +84,7 @@ id = "pantry_theft"
 name = "Something went missing from the smokehouse"
 text = "someone has been at {0}' smokehouse"
 severity = 50
-base_permille_per_household_day = 2
+base_permille_per_household_day = 1
 juiciness = 50
 anxiety = 120
 security_delta = -200
@@ -94,7 +95,7 @@ aim = "restitution"
 [[misfortune]]
 id = "cellar_spoiled"
 name = "The root cellar spoiled"
-text = "the {0}' root cellar went to rot"
+text = "{0}' root cellar went to rot"
 uncanny = true
 severity = 60
 base_permille_per_household_day = 1
@@ -122,7 +123,7 @@ aim = "restitution"
 [[misfortune]]
 id = "fire"
 name = "A fire"
-text = "fire took the {0}' woodshed"
+text = "fire took {0}' woodshed"
 severity = 200
 base_permille_per_household_day = 0
 juiciness = 75

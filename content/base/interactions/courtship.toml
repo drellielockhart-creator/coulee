@@ -9,12 +9,12 @@ label = "Flirt"
 description = "A look held a beat long, a joke at the well. Rebuffs are gossip."
 requires = { eligible = true }
 volition = [
-  { driver = "attraction", weight = 45 },
+  { driver = "attraction", weight = 60 },
   { driver = "need:company", weight = 10 },
   { driver = "opinion:affection", weight = 15 },
   { driver = "value:piety", weight = -5 },
 ]
-threshold = 35
+threshold = 28
 cooldown_hours = 24
 check = { kind = "dc", skill = "persuade", dc = 12, attitude = true }
 memory = { kind = "courtship", emotion = "joy", intensity = 30 }

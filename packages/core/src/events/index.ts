@@ -5,6 +5,7 @@
 import type { ActivityEvent } from '../activity/events.ts';
 import type { BeliefEvent } from '../belief/events.ts';
 import type { ChronicleEvent } from '../chronicle/events.ts';
+import { normalizeExplain } from '../explain.ts';
 import { asEventId, type EventId } from '../ids.ts';
 import type { ItemsEvent } from '../items/events.ts';
 import type { NeedsEvent } from '../needs/events.ts';
@@ -42,21 +43,67 @@ export type EventInput = DistributiveOmit<Event, 'id' | 't' | 'roles' | 'visibil
   visibility?: Visibility;
 };
 
+/**
+ * Bounded in-memory retention (ADR 0001 + P6). The log is append-only and ids are dense forever;
+ * what the World *holds* is a rolling window. Every event is still emitted in order to the sim's
+ * sink (the CLI streams the full log to events.jsonl), and the chronicle has sifted everything
+ * before it is dropped. Replay needs only seed + content hash + the `core.command` events.
+ */
+export interface LogRetention {
+  /** Events without importance are kept this many game-minutes after they happen. */
+  routineMinutes: number;
+  /** Events with importance >= `notableImportance` are kept this long. */
+  notableMinutes: number;
+  notableImportance: number;
+}
+
+/** Two days of everything, two weeks of the notable: enough for the UI's recent views on a phone. */
+export const DEFAULT_LOG_RETENTION: LogRetention = {
+  routineMinutes: 2 * 24 * 60,
+  notableMinutes: 14 * 24 * 60,
+  notableImportance: 20,
+};
+
 export interface EventLog {
   /** Last allocated EventId; ids start at 1 and increase by 1. */
   lastId: number;
-  /** Append-only, in id order. Never mutated after append. */
+  /** Append-only, in id order; the retained window only (see `retention`). Never mutated after append. */
   events: Event[];
+  /** null = keep every event in memory (tests, short debug runs). Optional for older saves (= keep all). */
+  retention?: LogRetention | null;
+  /** How many events have been dropped from memory so far. */
+  dropped?: number;
 }
 
-export function emptyLog(): EventLog {
-  return { lastId: 0, events: [] };
+export function emptyLog(retention: LogRetention | null = DEFAULT_LOG_RETENTION): EventLog {
+  return { lastId: 0, events: [], retention: retention === null ? null : { ...retention }, dropped: 0 };
+}
+
+/**
+ * Drop events older than the retention window (called by the sim loop once a day, after the
+ * chronicle has sifted). Pure function of the log and `now`, so it is deterministic.
+ */
+export function trimLog(log: EventLog, now: GameMinute): void {
+  const r = log.retention;
+  if (!r) return;
+  const routineCut = now - r.routineMinutes;
+  const notableCut = now - r.notableMinutes;
+  const first = log.events[0];
+  if (!first || first.t >= Math.max(routineCut, notableCut)) return;
+  const kept: Event[] = [];
+  for (const e of log.events) {
+    if (e.t >= routineCut || (e.t >= notableCut && (e.importance ?? 0) >= r.notableImportance)) kept.push(e);
+  }
+  log.dropped = (log.dropped ?? 0) + (log.events.length - kept.length);
+  log.events = kept;
 }
 
 /** Append an event (used by SimContext.emit; systems call ctx.emit, not this). */
 export function appendEvent(log: EventLog, input: EventInput, now: GameMinute): EventId {
   const id = asEventId(log.lastId + 1);
   log.lastId = id;
+  // Foundation guard: Explains on events are integers without negative zero (P1 + invariant 2).
+  if (input.explain) normalizeExplain(input.explain);
   const ev = {
     ...input,
     id,
@@ -68,12 +115,15 @@ export function appendEvent(log: EventLog, input: EventInput, now: GameMinute): 
   return id;
 }
 
-/** Events with id > afterId, in order. O(log n) seek since ids are dense. */
+/**
+ * Events with id > afterId, in order. Ids are dense while every event is retained; after a trim
+ * the retained events may have gaps, so seek from the end (callers ask for recent events).
+ */
 export function eventsSince(log: EventLog, afterId: number): Event[] {
-  const first = log.events[0];
-  if (!first) return [];
-  const start = Math.max(0, afterId - (first.id as number) + 1);
-  return log.events.slice(start);
+  const ev = log.events;
+  let i = ev.length;
+  while (i > 0 && (ev[i - 1]?.id as number) > afterId) i--;
+  return ev.slice(i);
 }
 
 export function isKind<K extends EventKind>(e: Event, kind: K): e is EventOfKind<K> {

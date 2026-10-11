@@ -244,9 +244,11 @@ small {
   flex-wrap: wrap;
   gap: 4px;
 }
-.orders,
-.clock-policy {
+.orders {
   font-size: 15px;
+  color: var(--ink-2);
+}
+.clock-policy {
   color: var(--ink-2);
 }
 .tabs {
@@ -551,9 +553,6 @@ summary {
   flex: 1;
   padding: 4px;
   min-width: 44px;
-}
-.pocket .clock-policy {
-  display: none;
 }
 .pocket .rail button {
   flex: 1;

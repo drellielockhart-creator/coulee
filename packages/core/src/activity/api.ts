@@ -121,6 +121,11 @@ export function resolveActivityPlace(
     (def.sexes && !def.sexes.includes(actor.sex))
   )
     return null;
+  // A confined actor (occupation `confined`) does everything where they are held.
+  const held = ctx.content.occupations[actor.occupationId]?.confined
+    ? (world.activity.byActor[actorId]?.workplaceId ?? null)
+    : null;
+  if (held !== null) return held;
   if (requested !== undefined) return world.places[requested] ? requested : null;
   const home = world.households[actor.householdId]?.homePlaceId ?? actor.placeId;
   if (def.at === 'home') return home;

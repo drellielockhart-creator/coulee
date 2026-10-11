@@ -62,6 +62,11 @@ export type ProvisionsEvent =
       'provisions.purchase',
       { buyerId: ActorId; placeId: PlaceId; defId: string; qty: number; priceCents: number; onCredit: boolean }
     >
+  /** Cash changed hands outside a store (a loan, a repayment): integer cents, purse then household. */
+  | EventOf<
+      'provisions.cash_transfer',
+      { fromId: ActorId; toId: ActorId; cents: number; wantedCents: number; reason: string }
+    >
   /** A household's stores fell below a threshold (days of food), or rations were cut. */
   | EventOf<'provisions.shortage', { householdId: HouseholdId; daysOfFoodTenths: number; rationPct: number }>
   /** Nutrition condition changed (scurvy stages, malnourished). Chronicle-worthy. */

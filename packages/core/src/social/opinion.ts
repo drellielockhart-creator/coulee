@@ -67,6 +67,7 @@ export function reasonStrength(world: World, from: ActorId, to: ActorId, r: Opin
     case 'seed':
       return 1000;
     case 'other':
+    case 'defense':
       return clampInt(c.strength, 0, 1000);
   }
 }
@@ -435,10 +436,10 @@ export function dailyOpinionUpkeep(world: World, content: ContentBundle): void {
       op.familiarity = Math.max(0, op.familiarity - t.familiarity_decay_per_day);
       const next: OpinionReason[] = [];
       for (const r of op.reasons) {
-        if (r.cites.kind === 'other') {
+        if (r.cites.kind === 'other' || r.cites.kind === 'defense') {
           const s = r.cites.strength - ceilDiv(r.cites.strength, tau);
           if (s <= t.forget_below) continue;
-          next.push({ ...r, cites: { kind: 'other', strength: s } });
+          next.push({ ...r, cites: { ...r.cites, strength: s } });
           continue;
         }
         if (r.cites.kind === 'memory' && reasonStrength(world, from, op.targetId, r) === 0) continue;

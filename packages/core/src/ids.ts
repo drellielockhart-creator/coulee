@@ -54,9 +54,20 @@ export type Table<Id extends number, Row> = { [id: number]: Row };
 
 /** Ascending ids of a table (total order on integers). */
 export function idsOf<Id extends number>(table: Table<Id, unknown>): Id[] {
-  const out: number[] = [];
-  for (const k of Object.keys(table)) out.push(Number(k));
-  out.sort((a, b) => a - b);
+  // ECMAScript (OrdinaryOwnPropertyKeys) lists integer-index keys in ascending numeric order on
+  // every engine, so the keys of an id table normally arrive sorted. Verify in one pass and sort
+  // only if a non-index key ever breaks that (hot path: called thousands of times per game-hour).
+  const keys = Object.keys(table);
+  const out: number[] = new Array(keys.length);
+  let sorted = true;
+  let prev = Number.NEGATIVE_INFINITY;
+  for (let i = 0; i < keys.length; i++) {
+    const n = Number(keys[i]);
+    out[i] = n;
+    if (n < prev) sorted = false;
+    prev = n;
+  }
+  if (!sorted) out.sort((a, b) => a - b);
   return out as Id[];
 }
 

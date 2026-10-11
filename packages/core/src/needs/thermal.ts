@@ -1,19 +1,15 @@
 /** Exposure and actual hearth fuel. Weather hook until provisions exposes its temperature API. */
 import { requiredRow } from '../activity/definitions.ts';
-
 import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
 import { consumeSupply, pantryOf, supplyUnits } from '../items/api.ts';
+import { airTempF } from '../provisions/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { CalendarInfo } from '../time.ts';
 import type { World } from '../world.ts';
 
-const MEAN_F = [14, 19, 32, 47, 59, 68, 73, 70, 61, 49, 33, 19] as const;
-const HOUR_F = [-7, -8, -8, -9, -9, -10, -9, -7, -4, -1, 2, 5, 7, 9, 10, 10, 9, 7, 4, 2, 0, -2, -4, -6] as const;
+/** Outdoor air, °F: provisions owns the weather hook (one source of temperature for spoilage and exposure). */
 export function ambientTemperatureF(cal: CalendarInfo): number {
-  const m = cal.month - 1;
-  const here = requiredRow(MEAN_F, m);
-  const there = requiredRow(MEAN_F, (m + (cal.day >= 15 ? 1 : 11)) % 12);
-  return here + Math.floor(((there - here) * Math.abs(cal.day - 15)) / 31) + requiredRow(HOUR_F, cal.hour);
+  return airTempF(cal);
 }
 
 /** One fuel debit per place per hour, independent of how many actors sleep there. */
@@ -54,7 +50,12 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
     }
     const temperatureF = lit ? Math.min(hearth.cap_f, air + hearth.gain_f) : air + hearth.unlit_gain_f;
     temperatures[pid] = temperatureF;
-    if (lit || occupied.has(pid))
+    // Routine burning is silent; lighting or letting a hearth go out is the event (P1 keeps the math on it).
+    world.needs.hearthLit ??= {};
+    const was = world.needs.hearthLit[pid] ?? 0;
+    if (lit) world.needs.hearthLit[pid] = 1;
+    else delete world.needs.hearthLit[pid];
+    if ((lit ? 1 : 0) !== was)
       ctx.emit({
         kind: 'needs.hearth',
         data: { placeId: pid, fuel, lit, temperatureF },
@@ -75,5 +76,6 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
         },
       });
   }
+  world.needs.placeTempF = temperatures;
   return temperatures;
 }

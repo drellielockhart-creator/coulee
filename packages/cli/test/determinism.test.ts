@@ -3,7 +3,7 @@
  */
 import { createSim, findNonIntegers, restoreSim, runHours, stateHash, toViewModel, type World } from '@coulee/core';
 import { describe, expect, it } from 'vitest';
-import { eventsJsonl, runScenario } from '../src/harness.ts';
+import { collectingSink, eventsJsonl, runScenario } from '../src/harness.ts';
 import { baseContent } from './helpers.ts';
 
 const content = baseContent();
@@ -16,6 +16,23 @@ describe('determinism', () => {
     expect(a.hash).toBe(b.hash);
     expect(eventsJsonl(a.sim.world.log.events)).toBe(eventsJsonl(b.sim.world.log.events));
     expect(a.stats).toEqual(b.stats);
+  });
+
+  it('bounded log: the World keeps a rolling window while the sink sees every event in order', () => {
+    const a = collectingSink();
+    const b = collectingSink();
+    const ra = runScenario(content, { scenarioId: SCENARIO, seed: 11, hours: 24 * 5 }, { sink: a.sink });
+    const rb = runScenario(content, { scenarioId: SCENARIO, seed: 11, hours: 24 * 5 }, { sink: b.sink });
+    const log = ra.sim.world.log;
+    expect(a.events.length).toBe(log.lastId);
+    expect(a.events.map((e) => e.id)).toEqual(a.events.map((_, i) => i + 1));
+    expect(eventsJsonl(a.events)).toBe(eventsJsonl(b.events));
+    expect(ra.hash).toBe(rb.hash);
+    expect(log.events.length).toBeLessThan(log.lastId);
+    expect((log.dropped ?? 0) + log.events.length).toBe(log.lastId);
+    // What is retained is exactly the tail of the full stream that the policy keeps.
+    const retained = new Set(log.events.map((e) => e.id));
+    for (const e of a.events) if (retained.has(e.id)) expect(e).toEqual(log.events.find((x) => x.id === e.id));
   });
 
   it('different seeds diverge', () => {

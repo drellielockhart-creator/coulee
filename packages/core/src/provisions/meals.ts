@@ -125,6 +125,39 @@ function drawWater(world: World, content: ContentBundle, holder: Holder, ml: num
   }
 }
 
+/**
+ * What a kitchen or kit offers for preparation: fuel, water, and best cookware affordances (memoized).
+ * One meal or one readiness pass builds it once instead of rescanning the inventory per recipe step.
+ * Refresh fuel/water after anything consumes them.
+ */
+export interface Kitchen {
+  fuel: number;
+  water: number;
+  afford: (key: string) => number;
+  refresh: () => void;
+}
+
+export function kitchenOf(world: World, content: ContentBundle, holder: Holder): Kitchen {
+  const loc = locationOf(holder);
+  const memo: Record<string, number> = {};
+  const k: Kitchen = {
+    fuel: supplyUnits(world, content, loc, 'fire'),
+    water: waterAvailable(world, content, holder),
+    afford: (key) => {
+      const hit = memo[key];
+      if (hit !== undefined) return hit;
+      const v = affordanceAt(world, content, loc, key);
+      memo[key] = v;
+      return v;
+    },
+    refresh: () => {
+      k.fuel = supplyUnits(world, content, loc, 'fire');
+      k.water = waterAvailable(world, content, holder);
+    },
+  };
+  return k;
+}
+
 /** Follow preparation yields to an edible endpoint; no item ids are special-cased, including coffee. */
 export function recipesFor(
   world: World,
@@ -135,10 +168,10 @@ export function recipesFor(
   cold = false,
   method?: string,
   budget = 360,
+  kitchen: Kitchen = kitchenOf(world, content, holder),
 ): Recipe[] {
-  const loc = locationOf(holder);
-  const fuel = supplyUnits(world, content, loc, 'fire');
-  const water = waterAvailable(world, content, holder);
+  const fuel = kitchen.fuel;
+  const water = kitchen.water;
   const out: Recipe[] = [];
   const walk = (defId: string, steps: PrepDef[], seen: Set<string>) => {
     const food = content.items[defId]?.food;
@@ -167,8 +200,7 @@ export function recipesFor(
         fire += p.fire_minutes * batches;
         minutes += p.minutes * batches;
         waterMl += Math.ceil(p.water_ml * stageServings);
-        for (const key of p.cookware)
-          if (affordanceAt(world, content, loc, key) <= 0 && !missing.includes(key)) missing.push(key);
+        for (const key of p.cookware) if (kitchen.afford(key) <= 0 && !missing.includes(key)) missing.push(key);
         if (p.yields) {
           units *= p.yields_qty;
           stageId = p.yields;
@@ -265,6 +297,7 @@ export function serveMeal(
   let timeLeft = 'householdId' in holder ? 360 : 120,
     totalFire = 0,
     totalMinutes = 0;
+  const kitchen = kitchenOf(world, content, holder);
   const candidates = stacksDeep(world, loc)
     .map((s) => s.stack)
     .filter((s) => foodServings(content, s) > 0 && (!explicit || s.id === explicit.itemId));
@@ -298,12 +331,14 @@ export function serveMeal(
   }
   candidates.sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0) || a.id - b.id);
   const sides = new Set<ItemId>();
+  /** Foods that could not be prepared; logged only if the meal then fell short (the failure mattered). */
+  const failures: Array<{ itemId: ItemId; missing: string[] }> = [];
   for (let pass = 0; pass < (explicit ? 1 : 2); pass++) {
     for (const stack of candidates) {
       if (!world.items.stacks[stack.id]) continue;
       const have = foodServings(content, stack);
       if (!have) continue;
-      const trial = recipesFor(world, content, holder, stack, 1, cold, explicit?.method, timeLeft);
+      const trial = recipesFor(world, content, holder, stack, 1, cold, explicit?.method, timeLeft, kitchen);
       const recipe = trial
         .filter((r) => r.missing.length === 0)
         .sort(
@@ -318,14 +353,7 @@ export function serveMeal(
                 : 0),
         )[0];
       if (!recipe) {
-        if (pass === 0)
-          ctx.emit({
-            kind: 'provisions.prep_failed',
-            data: { itemId: stack.id, missing: [...new Set(trial.flatMap((r) => r.missing))] },
-            roles: diners.map((actor) => ({ actor, role: 'participant' })),
-            visibility: 'private',
-            explain: mealExplain('Cannot prepare food', diners, 0, [], 'failure'),
-          });
+        if (pass === 0) failures.push({ itemId: stack.id, missing: [...new Set(trial.flatMap((r) => r.missing))] });
         continue;
       }
       const side = recipe.kcal <= SIDE_KCAL_MAX;
@@ -347,7 +375,7 @@ export function serveMeal(
       let servingsPm = portions.reduce((a, b) => a + b, 0);
       let servings = servingsPm / 1000;
       if (servings <= 0) continue;
-      let batch = recipesFor(world, content, holder, stack, servings, cold, explicit?.method, timeLeft).find(
+      let batch = recipesFor(world, content, holder, stack, servings, cold, explicit?.method, timeLeft, kitchen).find(
         (r) => r.steps.map((p) => p.method).join('/') === recipe.steps.map((p) => p.method).join('/'),
       );
       // If a full mess exceeds fuel/water/time, reduce servings deterministically, keeping the same recipe.
@@ -360,13 +388,14 @@ export function serveMeal(
             break;
           }
         servings = servingsPm / 1000;
-        batch = recipesFor(world, content, holder, stack, servings, cold, explicit?.method, timeLeft).find(
+        batch = recipesFor(world, content, holder, stack, servings, cold, explicit?.method, timeLeft, kitchen).find(
           (r) => r.steps.map((p) => p.method).join('/') === recipe.steps.map((p) => p.method).join('/'),
         );
       }
       if (!batch || servings <= 0 || batch.missing.length) continue;
       consumeSupply(world, content, loc, 'fire', batch.fire);
       drawWater(world, content, holder, batch.water);
+      kitchen.refresh();
       timeLeft -= batch.minutes;
       totalMinutes += batch.minutes;
       totalFire += batch.fire;
@@ -472,6 +501,16 @@ export function serveMeal(
       }
     }
   }
+  const short = plates.some((p) => p.kcal * 10 < p.target * 9);
+  if (short)
+    for (const f of failures)
+      ctx.emit({
+        kind: 'provisions.prep_failed',
+        data: { itemId: f.itemId, missing: f.missing },
+        roles: diners.map((actor) => ({ actor, role: 'participant' })),
+        visibility: 'private',
+        explain: mealExplain('Cannot prepare food', diners, 0, [], 'failure'),
+      });
   for (const plate of plates) {
     world.provisions.nutrition[plate.id] ??= emptyNutrition(ctx.cal.dayIndex);
     const n = world.provisions.nutrition[plate.id];

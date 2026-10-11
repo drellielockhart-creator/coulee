@@ -36,6 +36,48 @@ function seedClaim(
   return b;
 }
 
+/**
+ * The Catalyst meets the accused and their ego weighs the step belief proposes (an `accuse` to
+ * the face; `shun_lobby` to a neighbor). Stands in for psyche + social: the urge is taken with
+ * chance intensity/1000 (a seeded draw), as a strong-enough proposal usually wins the hour.
+ */
+function catalystActs(sim: ReturnType<typeof simFor>): void {
+  for (const p of sim.world.belief.persecutions) {
+    const cid = p.pending?.catalystId;
+    if (cid === undefined || p.target.kind !== 'actor') continue;
+    const cat = sim.world.actors[cid];
+    const accused = sim.world.actors[p.target.id];
+    if (!cat || !accused) continue;
+    cat.placeId = accused.placeId;
+    sim.world.activity.occupancy[accused.placeId] = rowsOf(sim.world.actors)
+      .filter((a) => a.placeId === accused.placeId)
+      .map((a) => a.id);
+    const ctx = context(sim);
+    const step = belief
+      .proposeBeliefUrges(sim.world, ctx, cid)
+      .find((u) => u.source === 'belief' && u.voice === 'superego');
+    const ps = sim.world.psyche.byActor[cid];
+    if (!step || !ps) continue;
+    const roll = rng(sim.world.meta.seed, 'belief', sim.world.time, cid).int(1, 1000);
+    if (roll > step.intensity) continue;
+    ps.chosen = {
+      urge: step.urge,
+      voice: 'superego',
+      compromise: false,
+      at: sim.world.time,
+      explain: {
+        kind: 'arbitration',
+        label: step.label,
+        subjects: [cid],
+        knowledge: 'self',
+        terms: [],
+        total: step.intensity,
+        outcome: 'chosen',
+      },
+    };
+  }
+}
+
 describe('belief integration', () => {
   it('seeds authored propositions, secrets, and concealed household self-knowledge', () => {
     const sim = simFor();
@@ -220,6 +262,8 @@ describe('belief integration', () => {
       expect(sim.world.belief.persecutions[0]?.rung).toBe(1);
       sim.world.time = asGameMinute(3 * 1440);
       updatePersecutions(sim.world, context(sim));
+      catalystActs(sim);
+      updatePersecutions(sim.world, context(sim));
       const p = sim.world.belief.persecutions[0];
       if (!p) throw new Error('persecution');
       if (p.rung >= 2) accused++;
@@ -313,6 +357,8 @@ describe('belief integration', () => {
     for (let day = 0; day < 20; day++) {
       sim.world.time = asGameMinute(day * 1440);
       for (const g of rowsOf(sim.world.belief.grudges)) g.intensity = 50 + day;
+      updatePersecutions(sim.world, context(sim));
+      catalystActs(sim);
       updatePersecutions(sim.world, context(sim));
     }
     const p = sim.world.belief.persecutions[0];

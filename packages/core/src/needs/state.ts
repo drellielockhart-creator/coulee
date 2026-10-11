@@ -4,7 +4,7 @@
  */
 import { requiredRow } from '../activity/definitions.ts';
 import type { NeedId } from '../content.ts';
-import { type ActorId, idsOf, mustGet, type Table } from '../ids.ts';
+import { type ActorId, idsOf, mustGet, type PlaceId, type Table } from '../ids.ts';
 import type { InitContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { updateBands } from './bands.ts';
@@ -17,10 +17,16 @@ export interface ActorNeeds {
   /** Unmet points at zero; repaid from later credits. Optional for older saves. */
   debt?: Record<NeedId, number>;
   debtBands?: Record<NeedId, string>;
+  /** Net change of each need over the last simulated hour (the dossier's trend arrow). */
+  hourly?: Record<NeedId, number>;
 }
 
 export interface NeedsState {
   byActor: Table<ActorId, ActorNeeds>;
+  /** Indoor temperature by place for the hour just simulated (°F). Optional for older saves. */
+  placeTempF?: Table<PlaceId, number>;
+  /** 1 while a place's hearth is lit; `needs.hearth` is logged only when this changes. */
+  hearthLit?: Table<PlaceId, number>;
 }
 
 export function createNeedsState(): NeedsState {

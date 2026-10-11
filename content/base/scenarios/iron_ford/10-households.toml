@@ -111,6 +111,7 @@ pantry = [
   { item = "coffee_green", qty = 4 },
   { item = "firewood_armload", qty = 30 },
   { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
 ]
 
 [[households]]
@@ -193,8 +194,8 @@ key = "dunleavy"
 name = "The Dunleavys"
 home = "dunleavys_tavern"
 head = "michael_dunleavy"
-note = "The tavern's kitchen feeds the family, lodgers and the Saturday trade. Potatoes by the barrel."
-cash_cents = 3800
+note = "The tavern's kitchen feeds the family, lodgers and the Saturday trade. Potatoes by the barrel. Mr. Vance, the Galena house's man, boards here: his board is paid to the end of May, so he eats at the Dunleavys' table."
+cash_cents = 4400
 pantry = [
   { item = "flour", qty = 45 },
   { item = "cornmeal", qty = 20 },
@@ -237,6 +238,7 @@ pantry = [
   { item = "eggs", qty = 6 },
   { item = "firewood_armload", qty = 12 },
   { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
 ]
 
 [[households]]
@@ -277,6 +279,7 @@ pantry = [
   { item = "tin_cup", qty = 1 },
   { item = "tin_plate", qty = 1 },
   { item = "frying_pan", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
 ]
 
 [[households]]
@@ -377,19 +380,6 @@ pantry = [
   { item = "candles_tallow_lb", qty = 10 },
   { item = "frying_pan", qty = 1 },
   { item = "camp_kettle_pair", qty = 1 },
-]
-
-[[households]]
-key = "vance"
-name = "Mr. Vance"
-home = "dunleavys_tavern"
-head = "lucius_vance"
-note = "A lodger at the tavern, here on the Galena house's business."
-cash_cents = 0
-pantry = [
-  { item = "tea", qty = 1 },
-  { item = "hardtack", qty = 3 },
-  { item = "sugar_brown", qty = 1 },
 ]
 
 [[households]]

@@ -3,8 +3,9 @@ import type { ContentBundle } from '../content.ts';
 import { type Explain, term } from '../explain.ts';
 import { type ActorId, asBeliefId, nextId, type PropId, type RumorId } from '../ids.ts';
 import type { InitContext, SimContext } from '../sim/context.ts';
-import { opinionOf } from '../social/api.ts';
+import { addOpinionReason, opinionOf, reasonsOf } from '../social/api.ts';
 import type { World } from '../world.ts';
+import { propText } from './api.ts';
 import { clamp, logitStep, mulQ8, view3 } from './intmath.ts';
 import type { Belief, Evidence } from './state.ts';
 
@@ -166,4 +167,31 @@ export function applyEvidence(
     explain,
   });
   return b;
+}
+
+/**
+ * A held claim about a person colors how the holder regards them (04 §6.2: opinions move only
+ * through Reasons). Adds one Reason citing the belief, so its weight follows the credence
+ * (social weighs a belief cite by 10 x credence) and fades as the belief does. The predicate's
+ * valence sets the size: affection and trust follow it, and supernatural or chargeable claims
+ * about a person add fear. Idempotent per belief.
+ */
+export function colorOpinion(world: World, ctx: SimContext, b: Belief): void {
+  const prop = world.belief.props[b.propId];
+  const pred = prop && ctx.content.predicates[prop.pred];
+  const subject = prop?.args[0];
+  if (!pred || !subject || subject.kind !== 'actor' || subject.id === b.holderId || pred.valence === 0) return;
+  if (!world.actors[subject.id] || !world.actors[b.holderId]) return;
+  if (reasonsOf(world, b.holderId, subject.id).some((r) => r.cites.kind === 'belief' && r.cites.id === b.id)) return;
+  const v = pred.valence;
+  const affection = clamp(Math.trunc((v * 3) / 10), -30, 30) + 0;
+  const trust = v < 0 ? clamp(Math.trunc((v * 4) / 10), -35, 0) + 0 : clamp(Math.trunc(v / 5), 0, 15) + 0;
+  const respect = v > 0 ? clamp(Math.trunc(v / 5), 0, 15) + 0 : 0;
+  const fear = v < 0 && (pred.supernatural || pred.charge) ? clamp(Math.trunc(-v / 5), 0, 20) : 0;
+  addOpinionReason(world, ctx, b.holderId, subject.id, {
+    label: propText(world, ctx.content, b.propId),
+    cites: { kind: 'belief', id: b.id, propId: b.propId },
+    delta: { affection, respect, trust, fear },
+    since: ctx.now,
+  });
 }

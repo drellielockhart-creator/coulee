@@ -27,6 +27,9 @@ function daily(world: World, ctx: SimContext): void {
     if (delta === 0) continue;
     const before = b.credence;
     Object.assign(b, logitStep(b.credence, b.carry, delta));
+    // Fading is routine and silent; the moment a held belief lapses (falls under 50) is the event.
+    if (!(b.formed && before >= 50 && b.credence < 50)) continue;
+    b.formed = false;
     ctx.emit({
       kind: 'belief.decayed',
       visibility: 'inner',
@@ -46,7 +49,8 @@ function daily(world: World, ctx: SimContext): void {
     const next = decayStep(g.intensity, g.residue, tau, g.decay === 'floor' ? g.decayFloor : 0);
     g.intensity = next.value;
     g.residue = next.residue;
-    if (before !== g.intensity)
+    // A grudge cooling by a point a day is silent; each ten-point step down is logged.
+    if (Math.floor(before / 10) !== Math.floor(g.intensity / 10))
       ctx.emit({
         kind: 'belief.grudge_changed',
         visibility: 'inner',
@@ -84,8 +88,17 @@ function daily(world: World, ctx: SimContext): void {
         ctx.emit({
           kind: 'belief.grudge_formed',
           visibility: 'inner',
-          roles: [{ actor: actor.id, role: 'subject' }],
-          data: { holderId: actor.id, target: targetLabel(world, g.target), intensity: g.intensity, aim: g.aim },
+          roles: [
+            { actor: actor.id, role: 'subject' },
+            { actor: role.who, role: 'target' },
+          ],
+          data: {
+            holderId: actor.id,
+            target: targetLabel(world, g.target),
+            targetId: role.who,
+            intensity: g.intensity,
+            aim: g.aim,
+          },
           explain: formula('A slight becomes a grudge', [actor.id], g.intensity, {
             Affection: affection,
             'Memory intensity': m.intensity,

@@ -19,7 +19,7 @@ verb = "sleeping"
 at = "home"
 labor = "rest"
 asleep = true
-needs = { rest = 110, security = 8 }
+needs = { rest = 140, security = 8 }
 min_hours = 4
 duty_label = "It is late; the day starts early"
 

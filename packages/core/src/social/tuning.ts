@@ -55,6 +55,9 @@ export const DEFAULT_TUNING: SocialTuningDef = {
   company_seek_below: 450,
   seek_company: [],
   max_targeted_urges: 2,
+  public_venue_tags: ['tavern', 'store', 'church', 'street', 'landing'],
+  public_audience_min: 4,
+  shun_volition_penalty: 60,
   defense_interactions: [],
   channels: [],
 };

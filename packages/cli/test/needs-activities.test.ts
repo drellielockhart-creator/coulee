@@ -43,11 +43,11 @@ function attendance(sim: ReturnType<typeof simFor>, execute: () => void) {
       }
       if (block && sim.content.activities[block.activityId]?.asleep) {
         count.night++;
-        if (
-          sim.content.activities[state.activityId ?? '']?.asleep &&
-          actor.placeId === sim.world.households[actor.householdId]?.homePlaceId
-        )
-          count.asleep++;
+        // At home, or where a confined actor (the missing chainmen) is held.
+        const bed = sim.content.occupations[actor.occupationId]?.confined
+          ? state.workplaceId
+          : sim.world.households[actor.householdId]?.homePlaceId;
+        if (sim.content.activities[state.activityId ?? '']?.asleep && actor.placeId === bed) count.asleep++;
       }
       if (
         ctx.cal.isSabbath &&

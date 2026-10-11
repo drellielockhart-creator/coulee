@@ -25,7 +25,15 @@ function advance(world: World, ctx: SimContext, p: Persecution, rung: number, ca
       ...(catalyst ? [{ actor: catalyst.id, role: 'agent' as const }] : []),
       ...(p.target.kind === 'actor' ? [{ actor: p.target.id, role: 'target' as const }] : []),
     ],
-    data: { target: targetLabel(world, p.target), from, to: rung, heat: p.heat, consensus: p.consensus },
+    data: {
+      target: targetLabel(world, p.target),
+      ...(p.target.kind === 'actor' ? { targetId: p.target.id } : {}),
+      ...(catalyst ? { catalystId: catalyst.id } : {}),
+      from,
+      to: rung,
+      heat: p.heat,
+      consensus: p.consensus,
+    },
     explain: formula(
       rung > from ? 'Persecution advances' : 'Persecution loses momentum',
       catalyst ? [catalyst.id] : [],
@@ -210,12 +218,16 @@ export function updatePersecutions(world: World, ctx: SimContext): void {
       score: catalyst.score,
       since: p.pending?.since ?? ctx.now,
     };
-    const chosen = chosenUrge(world, catalyst.actor.id)?.urge;
+    const chosenRec = chosenUrge(world, catalyst.actor.id);
+    const chosen = chosenRec?.at === ctx.now ? chosenRec.urge : undefined;
+    // The step happened this hour: the Catalyst's ego chose the rung's interaction (an accusation
+    // to the accused's face; shunning lobbied to a neighbor). belief proposes it only when
+    // someone is there to hear it, and social has just executed it.
     const chosenStep =
       chosen?.kind === 'interaction' &&
       chosen.interactionId === next.step_interaction &&
       p.target.kind === 'actor' &&
-      chosen.targetId === p.target.id;
+      (next.rung >= 3 ? chosen.targetId !== p.target.id : chosen.targetId === p.target.id);
     // Until social supplies the step interaction, a daily individual volition check is explicit.
     const fallback = !next.step_interaction || !ctx.content.interactions[next.step_interaction];
     let takesStep = chosenStep;

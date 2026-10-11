@@ -163,7 +163,7 @@ on = "psyche.defense"
 voice = "epilogue"
 when = { defense = "projection", aimed = true }
 text = [
-  "{^actor_short} could not bear a thing in {actor_short}'s own heart and found it, quite sincerely, in {target_short}. {^he} would have been astonished to hear it called a defense.",
+  "{^actor_short} could not bear a thing in {his} own heart and found it, quite sincerely, in {target_short}. {^he} would have been astonished to hear it called a defense.",
   "It was {target_short} who was said to be at fault. It was {actor_short} who needed it to be so: {defense_name}, in the language of a later day, {defense_clinical}.",
 ]
 

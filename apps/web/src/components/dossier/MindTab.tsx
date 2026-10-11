@@ -91,8 +91,8 @@ export function MindTab(props: { actor: ActorView }) {
                     · wants: {urgeWords(t.urge, who)} · {ago(t.ageMinutes)}
                   </div>
                 </div>
-                <span className="intensity" title={`intensity ${t.intensity} / 1000`}>
-                  {Math.round(t.intensity / 10)}
+                <span className="intensity" title={`Intensity ${t.intensity} of 1000`}>
+                  {strengthWord(t.intensity)}
                 </span>
               </li>
             );
@@ -169,4 +169,13 @@ export function MindTab(props: { actor: ActorView }) {
       </p>
     </div>
   );
+}
+
+/** How loud a voice is, in words (a bare number read as a stray digit; 11 §2.3 legibility). */
+function strengthWord(intensity: number): string {
+  if (intensity >= 800) return 'overwhelming';
+  if (intensity >= 600) return 'strong';
+  if (intensity >= 400) return 'pressing';
+  if (intensity >= 200) return 'mild';
+  return 'faint';
 }

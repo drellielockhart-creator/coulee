@@ -12,7 +12,7 @@ A simulationist fantasy-frontier game (3.5e-shaped rules × RimWorld), set in a 
 - `just check` is the gate: biome, typecheck (all packages + scripts), vitest, invariants, content validation. It must pass before you say you're done.
 - `just fmt`: biome auto-fix and format.
 - `just test [pattern]`: vitest.
-- `just run run --scenario iron_ford --seed 42 --days 10`: writes `runs/iron_ford-42/{chronicle.md,events.jsonl,stats.csv,final-hash.txt,manifest.json}`.
+- `just run run --scenario iron_ford --seed 42 --days 10`: writes `runs/iron_ford-42/{chronicle.md,events.jsonl,stats.csv,final-hash.txt,manifest.json}`. Add `--profile` for ms per game-hour per system, `--save` for `save.json`, `--no-events` to skip the (large) streamed log. The manifest records ms/game-hour, heap, and save size by slice. A year (`--years 1`) takes ~2 minutes.
 - `just run inspect "Gussie Pratt" --days 3`: character dossier (deterministic re-sim; `--run runs/<name>` reuses a run's manifest).
 - `just content`: validate `content/base`. `just bundle` builds the JSON bundle for the web.
 - `just web`: dev server (`--host`, so you can use a phone on the LAN). `just web-build`: PWA build. `just screens`: screenshots via the system chromium into `runs/screens/`.
@@ -37,6 +37,14 @@ A simulationist fantasy-frontier game (3.5e-shaped rules × RimWorld), set in a 
 6. **Plain data + functions.** `World` is JSON-able; systems are `(world, ctx) => void` in the fixed order of `sim/schedule.ts`. The event log is append-only.
 7. **Do not copy D&D/3.5e text.** Use mechanics shapes only.
 8. **P8 crunch you can pack.** Food is never one number (kcal, protein/fat, fresh, shelf life, spoilage by temperature/wetness/packaging, prep needing fire+fuel+cookware+water). The planner and the sim use the same functions.
+
+## Rules learned in integration (2026-10-11)
+- **The event log is not storage.** The World keeps a rolling window (`DEFAULT_LOG_RETENTION`); the full stream goes to `Sim.sink`. Never look up an old event from core; keep what you need in your own slice. Tests that inspect a long log use `simFor()` (keeps everything) or `collectingSink()`.
+- **Log what someone could tell or ask about**, not bookkeeping. No per-actor-per-hour events (the old hourly `needs.changed` was 77% of the log). Put routine math where the view can re-derive it (`needs/system.ts hourlyLedger`).
+- **Explains are normalized at `appendEvent`** (integers, no `-0`); `findNonIntegers` flags `-0`. Use `term()` / `intValue()` when you build terms.
+- **Hot paths:** `idsOf`/`rowsOf` are called thousands of times an hour; never add an O(all stacks) scan inside a per-meal or per-hour-per-actor loop. The P8 planner (`planReadiness`) runs a forward projection: give household decisions a short `horizonDays`; memoize per pass (`kitchenOf`, `PlacementMemo`), never in world state.
+- **Measure balance with a year run**, not 14 days: spring can look fine while the town starves by January. Check `stats.csv` (hunger/rest/warmth means, cash, kcal) every month of a `--years 1` run, and `grep -o '^\*\*[^*]*\*\*' chronicle.md | sort | uniq -c` for chronicle spam.
+- Scratch scripts go in `runs/scratch/` (gitignored) and import `../../packages/*/src/index.ts`.
 
 ## Two agent pools: Claude + Codex
 - `AGENTS.md` is a symlink to this file, so Codex (OpenAI) agents follow the same rules.

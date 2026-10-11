@@ -24,4 +24,8 @@ describe('hash', () => {
   it('finds non-integers', () => {
     expect(findNonIntegers({ a: 1, b: [2, 3.5], c: { d: 0.1 } })).toEqual(['$.b[1]=3.5', '$.c.d=0.1']);
   });
+
+  it('flags negative zero (not plain JSON; leaks as "-0" into labels)', () => {
+    expect(findNonIntegers({ a: 0, b: [-0] })).toEqual(['$.b[0]=-0']);
+  });
 });

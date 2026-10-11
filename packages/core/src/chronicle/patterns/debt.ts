@@ -123,7 +123,14 @@ export const debt: PatternDef = {
     };
   },
 
-  importanceAt(level, _th, p) {
+  importanceAt(level, th, p) {
+    // A loan squared within the fortnight, never pressed, is a ledger entry, not news.
+    const facts = sortedByTime(th.facts);
+    const first = facts[0];
+    const last = facts[facts.length - 1];
+    const pressed = facts.some((f) => f.k === 'dun' || f.k === 'overdue');
+    const long = first && last ? last.t - first.t >= p.n('news_after_days', 14) * DAY : false;
+    if (level >= 4 && !pressed && !long) return p.importance - 25;
     return level >= 4
       ? p.importance + 5
       : level === 3

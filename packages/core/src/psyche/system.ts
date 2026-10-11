@@ -30,7 +30,7 @@ import { type ActorId, idsOf } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
-import { areKin, opinionOf } from '../social/api.ts';
+import { addDefenseReason, areKin, opinionOf } from '../social/api.ts';
 import type { ChoiceVoice, ChosenUrge, Urge } from '../urge.ts';
 import { sameUrge, urgeLabel } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -268,6 +268,11 @@ function emitThought(m: Mind, t: Thought): void {
  *   already doing it                       + 50
  *   the other person is here / isn't       + 50 / − 300
  */
+/** Midnight to this hour, the sleep-pressure term applies when the calendar says bed. */
+const NIGHT_END_HOUR = 5;
+/** Base weight of sleep pressure in the small hours (plus half the rest deficit). */
+const NIGHT_BASE = 300;
+
 export function realityOf(m: Mind, u: Urge): Array<{ source: string; label: string; value: number }> {
   const terms: Array<{ source: string; label: string; value: number }> = [];
   const tags = urgeTags(m.idx, u);
@@ -294,6 +299,15 @@ export function realityOf(m: Mind, u: Urge): Array<{ source: string; label: stri
       if (add > 0) terms.push({ source: 'need', label: `Relieves ${m.content.needs[nid]?.name ?? nid}`, value: add });
     }
     if (m.block?.activity === u.activityId) terms.push({ source: 'policy', label: 'The hour for it', value: 100 });
+    // The small hours (05 §6.4): when one's own calendar says bed and it is past midnight, sleep
+    // pressure outweighs most wants. Getting up needs a strong reason (a command always wins).
+    const bedtime = m.block !== null && m.content.activities[m.block.activity]?.asleep === true;
+    if (bedtime && m.cal.hour < NIGHT_END_HOUR) {
+      const rest = needValue(m.world, m.actorId, 'rest');
+      const pressure = NIGHT_BASE + Math.floor(Math.max(0, 1000 - rest) / 2);
+      if (act?.asleep) terms.push({ source: 'need', label: 'The dead of night: bed', value: Math.floor(pressure / 2) });
+      else terms.push({ source: 'need', label: 'The dead of night: stay abed', value: -pressure });
+    }
     if (currentActivity(m.world, m.actorId)?.activityId === u.activityId) {
       terms.push({ source: 'psyche', label: 'Already at it', value: 50 });
     }
@@ -777,11 +791,18 @@ export function defenseSituation(m: Mind, fearDrives: ReadonlySet<string>): Defe
   return { now, projection, displacement, wish, forbiddenStreak, sublimation, displaceable, fearLive };
 }
 
+/**
+ * A discharged mind needs time before it reaches for another defense (10 §7.1 tuning): without a
+ * refractory hour count, an anxious actor defended every other hour and the village was all
+ * displaced insults. Defenses still fire on a bad day; they no longer fire all day.
+ */
+const DEFENSE_REFRACTORY_MINUTES = 8 * 60;
+
 function maybeDefend(m: Mind, fearDrives: ReadonlySet<string>, commandHolds: boolean): void {
   const { p, ctx, actorId, content } = m;
   const theta = defenseThreshold(p.ego);
   if (p.anxiety < theta) return;
-  if (p.lastDefenseAt !== null && ctx.now - p.lastDefenseAt < 60) return;
+  if (p.lastDefenseAt !== null && ctx.now - p.lastDefenseAt < DEFENSE_REFRACTORY_MINUTES) return;
   const sit = defenseSituation(m, fearDrives);
   const cands = defenseCandidates(content, p, sit);
   const pick = pickDefense(cands, ctx.rng('psyche', mixKey(actorId, SALT_DEFENSE)));
@@ -870,7 +891,7 @@ function fireDefense(
       if (pr) {
         targetId = pr.targetId;
         trait = pr.trait;
-        formProjection(world, ctx, actorId, pr.targetId, pr.trait);
+        formProjection(world, ctx, actorId, pr.targetId, pr.trait, pr.pf);
         if (pr.drive !== null) scale((t) => t.drive === pr.drive, 1, 2);
         charge(pr.trait, 5);
         if (isPresent(m, pr.targetId)) act = { kind: 'defense', defense: 'projection', targetId: pr.targetId };
@@ -1060,6 +1081,8 @@ function fireDefense(
     importance: def.importance,
     explain,
   });
+  // Rationalization leaves its excuse behind as a Reason about the wronged party ("had it coming").
+  if (id === 'rationalization' && targetId !== null) addDefenseReason(world, ctx, actorId, targetId, id, eventId);
   p.recentDefenses.push({ defense: id, at: ctx.now, targetId, eventId });
   if (p.recentDefenses.length > RECENT_DEFENSES) p.recentDefenses.splice(0, p.recentDefenses.length - RECENT_DEFENSES);
   world.psyche.counters.defenses = (world.psyche.counters.defenses ?? 0) + 1;

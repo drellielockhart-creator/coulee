@@ -27,7 +27,7 @@ headline = "A Poor Aim{_at}"
 text = [
   "{^actor} attempted to put an insult upon {target}{_at} {when}, but misjudged the room. The laugh, we hear, went the other way.",
   "{^actor} aimed a hard word at {target}{_at} and hit nothing; {target} was seen to smile, which is worse.",
-  "{^actor} had a speech ready for {target}{_at} and got through half of it. The rest was lost to laughter, at {actor}'s own expense.",
+  "{^actor} had a speech ready for {target}{_at} and got through half of it. The rest was lost to laughter, at {his} own expense.",
 ]
 
 [[template]]

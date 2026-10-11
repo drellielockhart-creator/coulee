@@ -30,6 +30,21 @@ export type BeliefEvent =
       }
     >
   /** A grudge was formed (04 §6.3). Chronicle-worthy. */
-  | EventOf<'belief.grudge_formed', { holderId: ActorId; target: string; intensity: number; aim: string }>
+  | EventOf<
+      'belief.grudge_formed',
+      { holderId: ActorId; target: string; targetId?: ActorId; intensity: number; aim: string }
+    >
   /** The escalation ladder moved (04 §9.2). Chronicle-worthy. */
-  | EventOf<'belief.escalation', { target: string; from: number; to: number; heat: number; consensus: number }>;
+  | EventOf<
+      'belief.escalation',
+      {
+        target: string;
+        /** The accused when the process targets a person (stable; `target` is only a label). */
+        targetId?: ActorId;
+        catalystId?: ActorId;
+        from: number;
+        to: number;
+        heat: number;
+        consensus: number;
+      }
+    >;

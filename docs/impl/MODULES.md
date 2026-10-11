@@ -144,12 +144,18 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 | anyone | `items/api.ts` (provisions) | `stacksAt`, `stacksDeep`, `affordanceAt`, `weightG`, `bulkTenths`, `moveStack`, `consumeStack` (jobs query **affordances**, never item ids; 03 §3.2) |
 | web, cli | `chronicle/api.ts renderChronicleMarkdown / chronicleEntries` | chronicle.md and the UI feed |
 | web | `provisions/api.ts readinessOf` | The P8 planner query (11 §1.7: the UI asks, the core answers) |
+| social | `provisions/api.ts transferCash` | Integration (2026-10-11): lend/borrow/repay move real cents (purse first, then household cash); the ledger records what actually moved |
+| social, provisions | `belief/api.ts isShunning` | Rung 3 consequences: shunners withhold every non-hostile interaction (`shun_volition_penalty`); a shunning storekeeper charges 150% and refuses credit |
+| belief | `social/api.ts addOpinionReason`, `reasonsOf` | A formed belief about a person (and a projection) adds one Reason citing `{kind:'belief', id, propId}`, sized by the predicate's valence and weighted by credence |
+| psyche | `social/api.ts addDefenseReason`, `acquaintancesOf` | Rationalization leaves "Had it coming" (`{kind:'defense', eventId, strength}`, fades like the bucket); the mind's acquaintances come from social, not from its tables |
+| needs | `provisions/api.ts airTempF` | One weather hook for exposure and spoilage |
 
 **Mutation rights on shared core data:**
 - `ActorCore.placeId`: activity only.
 - `ActorCore.sheet.conditions`: each module toggles only the condition ids it owns (listed per module), via `setCondition()`.
 - `ActorCore.alive`: no one in this wave (death is a later foundation feature; report if you need it).
 - Everything else on `ActorCore`, `Household`, and `Place` is read-only after init.
+- **Decision (integration, 2026-10-11): acquired traits stay in psyche state.** Habitual defenses grant Suspicious/Zealot into `psyche.byActor[id].acquired`; psyche never appends to `ActorCore.traits` (the authored sheet). Anything that weighs traits reads `psyche/api.ts effectiveTraits(world, id)` (innate ∪ acquired): psyche's own thought weighting and social's `trait:` volition driver do.
 
 ### 1.5 Content pipeline
 
@@ -173,6 +179,8 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
   - Event kinds are `'<module>.<snake_case>'`.
   - `visibility`: `public | witnessed | private | secret | inner` (mind events are `inner`).
   - Give `importance` (0..100) to anything chronicle-worthy.
+  - **Log only what someone could tell or ask about.** Routine bookkeeping is state, not events: the hourly need balance (`needs/system.ts hourlyLedger`, re-derived for the dossier's Explain), hearth burning (logged when lit/out), lamps by the clock, belief fading (logged when a belief lapses), unchanged re-attributions. A year of Iron Ford is ~0.75M events (~2 per actor-hour), not 4M.
+  - **Bounded retention (ADR 0001 + P6).** The log is append-only and ids stay dense, but the World holds a rolling window (`DEFAULT_LOG_RETENTION`: 2 days of everything, 14 days of events with importance ≥ 20), trimmed daily after the chronicle has sifted. The full stream goes to `Sim.sink` (the CLI writes `events.jsonl` through it). Pass `logRetention: null` to `createSim` (tests: `simFor()` does) to keep every event. No module may look up old events in the log: cite ids, keep what you need in your own state.
 
 ---
 

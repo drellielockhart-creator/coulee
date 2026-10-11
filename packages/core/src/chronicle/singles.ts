@@ -69,6 +69,9 @@ export function singleEntries(dc: DetectCtx, f: Fact): number {
   const domestic = ha > 0 && ha === hb && DOMESTIC.includes(f.cls);
   for (const aud of audiencesOf(f, pcId)) {
     if (domestic && aud !== 'journal') continue;
+    // A repayment is the Paper's news only as the end of a debt story (the debt pattern tells it
+    // when the debt was pressed or long); a lone squaring of accounts is ledger work.
+    if (aud === 'paper' && f.cls === 'repay') continue;
     const voice = aud === 'paper' ? 'paper' : aud === 'journal' ? 'journal' : 'epilogue';
     const min =
       aud === 'paper' ? p.n('paper_min', 40) : aud === 'journal' ? p.n('journal_min', 30) : p.n('epilogue_min', 45);

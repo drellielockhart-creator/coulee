@@ -5,13 +5,13 @@
  * OWNER: module:psyche. Reads other modules only through their api.ts.
  */
 import type { TargetDef, WhenDef } from '@coulee/content/schema';
-import { hourInBlock, isAsleep, occupants, scheduledBlock } from '../activity/api.ts';
+import { hourInBlock, isAsleep, occupants, scheduledRoutine } from '../activity/api.ts';
 import { type ActorCore, shortName } from '../actor.ts';
-import type { ContentBundle, ScheduleBlock } from '../content.ts';
-import { type ActorId, idsOf } from '../ids.ts';
+import type { ContentBundle } from '../content.ts';
+import type { ActorId } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
-import { areKin, memoriesOf, opinionOf, relationshipsOf } from '../social/api.ts';
+import { acquaintancesOf, areKin, memoriesOf, opinionOf, relationshipsOf } from '../social/api.ts';
 import type { OpinionDims } from '../social/state.ts';
 import type { CalendarInfo } from '../time.ts';
 import type { World } from '../world.ts';
@@ -27,7 +27,8 @@ export interface Mind {
   actorId: ActorId;
   actor: ActorCore;
   p: ActorPsyche;
-  block: ScheduleBlock | null;
+  /** What the effective town calendar asks of the actor this hour (schedule, meals, Sabbath, observances). */
+  block: { activity: string; duty: number } | null;
   asleep: boolean;
   /** Other living actors at the actor's place (ascending). */
   present: ActorId[];
@@ -46,7 +47,7 @@ export function mindFor(world: World, ctx: SimContext, actorId: ActorId, idx?: T
   for (const o of present) if (world.actors[o]?.householdId !== actor.householdId) audience++;
   const known = new Set<number>(present);
   // Acquaintances = the people this actor holds an opinion of (social's opinion table rows).
-  for (const t of idsOf<ActorId>(world.social.opinions[actorId] ?? {})) {
+  for (const t of acquaintancesOf(world, actorId)) {
     if (t !== actorId && world.actors[t]?.alive === true) known.add(t);
   }
   return {
@@ -58,12 +59,18 @@ export function mindFor(world: World, ctx: SimContext, actorId: ActorId, idx?: T
     actorId,
     actor,
     p,
-    block: scheduledBlock(world, ctx, actorId, ctx.cal),
+    block: routineBlock(world, ctx, actorId),
     asleep: isAsleep(world, ctx, actorId),
     present,
     audience,
     known: [...known].sort((a, b) => a - b) as ActorId[],
   };
+}
+
+/** The effective calendar block (activity's routine), the same one activity falls back to. */
+function routineBlock(world: World, ctx: SimContext, actorId: ActorId): { activity: string; duty: number } | null {
+  const r = scheduledRoutine(world, ctx, actorId);
+  return r ? { activity: r.activityId, duty: r.duty } : null;
 }
 
 export const isPresent = (m: Mind, other: ActorId): boolean => m.present.includes(other);

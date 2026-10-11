@@ -113,8 +113,10 @@ function Settlement() {
         <div className="date">
           <strong>{vm.time.dateText}</strong>
           <span data-testid="clock" data-time={vm.time.t}>
-            {String(vm.time.hour).padStart(2, '0')}:{String(vm.time.minute).padStart(2, '0')} ·{' '}
-            {clockGlyph(ui.chosenSpeed, speed)}
+            {String(vm.time.hour).padStart(2, '0')}:{String(vm.time.minute).padStart(2, '0')}{' '}
+            <span className="clock-policy" title={clockGlyphTitle(ui.chosenSpeed, speed)}>
+              {clockGlyph(ui.chosenSpeed, speed)}
+            </span>
           </span>
         </div>
         <span className="status">
@@ -162,9 +164,6 @@ function Settlement() {
           <button type="button" onClick={() => sim.send({ type: 'step', hours: 1 })}>
             +1h
           </button>
-          <span className="clock-policy" title={clockGlyphTitle(ui.chosenSpeed, speed)}>
-            {clockGlyph(ui.chosenSpeed, speed)}
-          </span>
         </fieldset>
         <nav className="rail" aria-label="Settlement panels">
           <button type="button" onClick={() => ui.open('people')}>

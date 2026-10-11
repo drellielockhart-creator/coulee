@@ -278,6 +278,10 @@ function runUrge(
   if (list.length === 0) return;
   let target = presentTarget(urge.targetId);
   if (target === null) {
+    // A defense aimed at someone in particular (projection's suspect, reaction formation's
+    // object) does nothing while they are elsewhere: its masked thought waits for a meeting.
+    // Only displacement, whose point is a safer substitute, takes it out on someone here.
+    if (urge.targetId !== undefined && defense !== 'displacement') return;
     // Displacement onto someone safer: least feared, then least respected, then lowest id.
     let best: { id: ActorId; fear: number; respect: number } | null = null;
     for (const o of others.slice(0, 32)) {

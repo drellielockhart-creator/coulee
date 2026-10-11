@@ -3,8 +3,8 @@
 #
 # `ledger` writes the Obligation ledger (positive = the target now owes the initiator).
 # Hunger drives borrowing, so a short pantry becomes debts, dunning, and grudges.
-# M1: the ledger is the record of the debt; cash does not change hands until provisions
-# exposes a purse-transfer API (see the module report).
+# Cash changes hands through provisions' transferCash (purse first, then household cash): the
+# ledger records what actually moved, so a lender with empty pockets lends nothing.
 
 [[interaction]]
 id = "lend"

@@ -2,6 +2,8 @@
  * Belief cross-module API. OWNER: module:belief.
  * social calls transmit() for every gossip; psyche calls formProjection() for projection.
  */
+
+import { occupants } from '../activity/api.ts';
 import { abilityMod } from '../actor.ts';
 import type { ContentBundle, PredicateId } from '../content.ts';
 import {
@@ -22,7 +24,7 @@ import { addMemory, areKin, opinionOf } from '../social/api.ts';
 import { yearsBetween } from '../time.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
-import { applyEvidence, ensureBelief, formula } from './evidence.ts';
+import { applyEvidence, colorOpinion, ensureBelief, formula } from './evidence.ts';
 import { clamp, sigmoidPermille, view3 } from './intmath.ts';
 import { targetLabel } from './misfortune.ts';
 import type { Belief, Evidence, EvidenceType, Prop, PropArg } from './state.ts';
@@ -82,7 +84,8 @@ export function propText(world: World, content: ContentBundle, propId: PropId): 
       case 'place':
         return world.places[a.id]?.name ?? `#${a.id}`;
       case 'text':
-        return a.value;
+        // A projected trait reads as its name ("hot-tempered"), not its content id.
+        return content.traits[a.value]?.name.toLowerCase() ?? a.value.replaceAll('_', ' ');
       case 'number':
         return String(a.value);
       case 'misfortune': {
@@ -427,10 +430,14 @@ export function transmit(world: World, ctx: SimContext, req: TransmitRequest): T
       ctx.emit({
         kind: 'belief.grudge_formed',
         visibility: 'inner',
-        roles: [{ actor: listener.id, role: 'listener' }],
+        roles: [
+          { actor: listener.id, role: 'listener' },
+          ...(inherited.target.kind === 'actor' ? [{ actor: inherited.target.id, role: 'target' as const }] : []),
+        ],
         data: {
           holderId: listener.id,
           target: targetLabel(world, inherited.target),
+          ...(inherited.target.kind === 'actor' ? { targetId: inherited.target.id } : {}),
           intensity: inherited.intensity,
           aim: inherited.aim,
         },
@@ -484,6 +491,7 @@ function receive(
   const b = applyEvidence(world, ctx, observerId, propId, applied, evidence.scalePct ?? 100);
   if (!b.formed && b.credence >= 50) {
     b.formed = true;
+    colorOpinion(world, ctx, b);
     ctx.emit({
       kind: 'belief.formed',
       visibility: 'inner',
@@ -540,18 +548,32 @@ export function observe(
   applied.memoryId = memoryId;
 }
 
+/**
+ * Projection (10 §7.2): the holder sees their own disowned trait in the target. `traitId` is a
+ * trait id ('hot_tempered', 'envious', 'amorous'...): a predicate whose `projects` lists it (or
+ * the drive it belongs to) carries it, else Is(target, trait) via `has_trait`. Credence is
+ * 5 + PF/2 with the psyche's projection fit when given (else recomputed here), and the belief
+ * colors the holder's opinion of the target through a Reason that cites it.
+ */
 export function formProjection(
   world: World,
   ctx: SimContext,
   holderId: ActorId,
   targetId: ActorId,
   traitId: string,
+  pf?: number,
 ): void {
   if (!world.actors[holderId] || !world.actors[targetId]) return;
+  const drives = Object.keys(ctx.content.drives ?? {})
+    .sort()
+    .filter((d) => ctx.content.drives[d]?.shadow_traits.includes(traitId));
   const pred =
     Object.keys(ctx.content.predicates)
       .sort()
-      .find((key) => ctx.content.predicates[key]?.projects.includes(traitId)) ?? 'has_trait';
+      .find((key) => {
+        const projects = ctx.content.predicates[key]?.projects ?? [];
+        return projects.includes(traitId) || drives.some((d) => projects.includes(d));
+      }) ?? 'has_trait';
   if (!ctx.content.predicates[pred]) return;
   const args: PropArg[] = [{ kind: 'actor', id: targetId }];
   if (ctx.content.predicates[pred]?.args.length === 2) args.push({ kind: 'text', value: traitId });
@@ -562,13 +584,16 @@ export function formProjection(
   const target = world.actors[targetId];
   const outsider = holder && target && holder.presentsAsId !== target.presentsAsId ? 50 : 0;
   const oddness = suspicionOf(world, holderId, targetId);
-  const fit = clamp(
-    Math.floor((30 * b.credence + 20 * oddness + 20 * outsider) / 100) +
-      (op.affection < 0 ? 15 : 0) +
-      Math.floor(((100 - Math.max(op.respect, op.fear, areKin(world, holderId, targetId) ? 50 : 0)) * 15) / 100),
-    0,
-    100,
-  );
+  const fit =
+    pf !== undefined
+      ? clamp(Math.round(pf), 0, 100)
+      : clamp(
+          Math.floor((30 * b.credence + 20 * oddness + 20 * outsider) / 100) +
+            (op.affection < 0 ? 15 : 0) +
+            Math.floor(((100 - Math.max(op.respect, op.fear, areKin(world, holderId, targetId) ? 50 : 0)) * 15) / 100),
+          0,
+          100,
+        );
   const before = b.credence;
   b.credence = Math.max(before, 5 + Math.floor(fit / 2));
   b.lastEvidenceAt = ctx.now;
@@ -583,6 +608,7 @@ export function formProjection(
     defense: 'projection',
   });
   if (b.evidence.length > 16) b.evidence.shift();
+  colorOpinion(world, ctx, b);
   ctx.emit({
     kind: 'belief.evidence',
     visibility: 'inner',
@@ -611,18 +637,39 @@ export function suspicionOf(world: World, observerId: ActorId, targetId: ActorId
 
 export function proposeBeliefUrges(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
   const out: UrgeProposal[] = [];
+  const me = world.actors[actorId];
   for (const p of world.belief.persecutions) {
-    if (p.pending?.catalystId !== actorId || p.target.kind !== 'actor') continue;
+    if (p.pending?.catalystId !== actorId || p.target.kind !== 'actor' || !me) continue;
     const def = Object.values(ctx.content.persecutionRungs).find((r) => r.rung === p.pending?.rung);
-    if (def?.step_interaction && ctx.content.interactions[def.step_interaction])
-      out.push({
-        urge: { kind: 'interaction', interactionId: def.step_interaction, targetId: p.target.id },
-        voice: 'superego',
-        intensity: clamp(p.pending.score * 10, 0, 1000),
-        label: def.name,
-        source: 'belief',
-        reasons: [{ source: 'belief', label: 'Community pressure', value: p.heat }],
-      });
+    if (!def?.step_interaction || !ctx.content.interactions[def.step_interaction]) continue;
+    const accused = p.target.id;
+    // Rung 2 is said to the accused's face; rung 3 is lobbying a neighbor to cut them off.
+    // Either way it needs someone here to say it to, and it carries the charge as its topic.
+    const here = occupants(world, me.placeId).filter((id) => id !== actorId && world.actors[id]?.alive);
+    const targetId =
+      def.rung >= 3
+        ? here.find((id) => {
+            const a = world.actors[id];
+            return id !== accused && a !== undefined && yearsBetween(a.born, ctx.now) >= 16;
+          })
+        : here.includes(accused)
+          ? accused
+          : undefined;
+    if (targetId === undefined) continue;
+    const topic = strongestCharge(world, actorId, p.charges);
+    out.push({
+      urge: {
+        kind: 'interaction',
+        interactionId: def.step_interaction,
+        targetId,
+        ...(topic !== undefined ? { topic } : {}),
+      },
+      voice: 'superego',
+      intensity: clamp(p.pending.score * 10, 0, 1000),
+      label: def.name,
+      source: 'belief',
+      reasons: [{ source: 'belief', label: 'Community pressure', value: p.heat }],
+    });
   }
   for (const g of rowsOf(world.belief.grudges)) {
     if (g.holderId !== actorId || g.target.kind !== 'actor') continue;
@@ -683,6 +730,16 @@ export function proposeBeliefUrges(world: World, ctx: SimContext, actorId: Actor
     }
   }
   return out;
+}
+
+/** The charge (of a persecution) the holder believes most strongly: what they would say aloud. */
+function strongestCharge(world: World, holderId: ActorId, charges: readonly PropId[]): PropId | undefined {
+  let best: { id: PropId; c: number } | undefined;
+  for (const id of charges) {
+    const c = beliefOf(world, holderId, id)?.credence ?? 0;
+    if (!best || c > best.c) best = { id, c };
+  }
+  return best?.id;
 }
 
 export { noveltyQ8 } from './evidence.ts';

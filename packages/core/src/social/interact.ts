@@ -11,6 +11,7 @@ import type { DefenseId, InteractionDef } from '../content.ts';
 import { type Explain, type ExplainTerm, signed, term } from '../explain.ts';
 import type { ActorId, EventId, MemoryId, PlaceId, PropId } from '../ids.ts';
 import { satisfyNeed } from '../needs/api.ts';
+import { transferCash } from '../provisions/api.ts';
 import { addAnxiety, addThought } from '../psyche/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -171,7 +172,15 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   const eff = success ? def.success : def.failure;
 
   // Witnesses and audience: sampled from those present (04 §11.2: 0–2 witnesses).
-  const visibility = def.visibility === 'auto' ? (def.notable ? 'public' : 'witnessed') : def.visibility;
+  const declared = def.visibility === 'auto' ? (def.notable ? 'public' : 'witnessed') : def.visibility;
+  // P1: what is done at a public venue with others about, or before a crowd, is public knowledge.
+  const atPublicVenue = place?.tags.some((x) => t.public_venue_tags.includes(x)) === true;
+  const visibility =
+    declared === 'witnessed' &&
+    ((atPublicVenue && req.present.some((x) => world.actors[x]?.householdId !== init?.householdId)) ||
+      req.present.length >= t.public_audience_min)
+      ? 'public'
+      : declared;
   let witnesses: ActorId[] = [];
   let audience: ActorId[] = [];
   if (visibility !== 'private' && req.present.length > 0) {
@@ -352,26 +361,44 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   if (eff.target_anxiety !== 0) addAnxiety(world, ctx, tg, eff.target_anxiety);
 
   // ---- obligation ledger (04 §6.1) and creditor edges (04 §7.1)
-  if (eff.ledger.favors !== 0 || eff.ledger.cents !== 0) {
-    adjustLedger(world, content, i, tg, eff.ledger);
-    if (eff.ledger.cents !== 0) {
-      const creditor = eff.ledger.cents > 0 ? i : tg;
+  // A loan is real money (provisions moves it, purse first): the debt is what actually changed hands.
+  let ledger = eff.ledger;
+  if (ledger.cents !== 0) {
+    const lender = ledger.cents > 0 ? i : tg;
+    const borrower = lender === i ? tg : i;
+    const moved = transferCash(world, ctx, lender, borrower, Math.abs(ledger.cents), def.name, eventId);
+    ledger = { favors: ledger.favors, cents: ledger.cents > 0 ? moved : -moved };
+  }
+  if (ledger.favors !== 0 || ledger.cents !== 0) {
+    adjustLedger(world, content, i, tg, ledger);
+    if (ledger.cents !== 0) {
+      const creditor = ledger.cents > 0 ? i : tg;
       const debtor = creditor === i ? tg : i;
       const e = world.social.relationships.find((r) => r.kind === 'creditor' && r.a === creditor && r.b === debtor);
-      if (e) e.amountCents = (e.amountCents ?? 0) + Math.abs(eff.ledger.cents);
+      if (e) e.amountCents = (e.amountCents ?? 0) + Math.abs(ledger.cents);
       else {
         world.social.relationships.push({
           a: creditor,
           b: debtor,
           kind: 'creditor',
           since: ctx.now,
-          amountCents: Math.abs(eff.ledger.cents),
+          amountCents: Math.abs(ledger.cents),
         });
         refreshBase(world, content, creditor, debtor);
       }
     }
   }
-  if (eff.settle === 'initiator_debt') settleDebt(world, content, i, tg, def.requires.debt);
+  if (eff.settle === 'initiator_debt') {
+    // Repaying hands over what the debtor can: all of it settles the debt, part of it reduces it.
+    const owed = def.requires.debt === 'favors' ? 0 : owedCents(world, tg, i);
+    const paid = owed > 0 ? transferCash(world, ctx, i, tg, owed, def.name, eventId) : 0;
+    if (owed === 0 || paid >= owed) settleDebt(world, content, i, tg, def.requires.debt);
+    else if (paid > 0) {
+      adjustLedger(world, content, tg, i, { favors: 0, cents: -paid });
+      const e = world.social.relationships.find((r) => r.kind === 'creditor' && r.a === tg && r.b === i);
+      if (e) e.amountCents = Math.max(0, (e.amountCents ?? 0) - paid);
+    }
+  }
   if (eff.settle === 'target_debt') settleDebt(world, content, tg, i, def.requires.debt);
 
   // ---- structural edges (courting, betrothed)

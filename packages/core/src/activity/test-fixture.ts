@@ -79,6 +79,7 @@ export function fixture(count = 3) {
         wage_cents_per_day: 0,
         skills: [],
         roles: [],
+        confined: false,
         schedule: [
           { from: 8, to: 18, activity: 'work', duty: 550, days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'] },
           { from: 21, to: 6, activity: 'sleep', duty: 300 },

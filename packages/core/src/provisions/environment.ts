@@ -1,6 +1,7 @@
 /** Hourly storage and scheduled supplies. Shared with the forward readiness projection. */
 
 import { isAsleep } from '../activity/api.ts';
+import type { ProtectionId } from '../content.ts';
 import { term } from '../explain.ts';
 import { type ItemId, rowsOf } from '../ids.ts';
 import { consumeStack, consumeSupply, createStack, deleteStack, supplyUnits } from '../items/api.ts';
@@ -11,28 +12,46 @@ import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { mealExplain } from './meals.ts';
 import { BEDTIME_HOUR, VERMIN_BLOCKERS, VERMIN_DAILY_PERMILLE } from './rules.ts';
-import { advanceSpoilage, isOutdoorsPlace, spoilageFactors, storageClassOf } from './spoilage.ts';
+import { advanceSpoilage, isOutdoorsPlace, type StorageClass, spoilageFactors, storageClassOf } from './spoilage.ts';
 import { isRaining } from './temperature.ts';
 
-export function storageHour(world: World, ctx: SimContext): void {
+/**
+ * Where each stack sits, cached by stack id. Only for the planner's projection, where no stack
+ * moves within a pass (new stacks are computed on first sight). The live sim passes none.
+ */
+export type PlacementMemo = Record<
+  number,
+  { exposed: boolean; protections: ProtectionId[]; storage: StorageClass } | undefined
+>;
+
+export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo): void {
   const raining = isRaining(ctx.seed, ctx.cal);
   for (const stack of rowsOf(world.items.stacks)) {
     const def = ctx.content.items[stack.defId];
     if (!def) continue;
-    const root = rootLocation(world, stack);
-    const place =
-      root.kind === 'actor'
-        ? world.actors[root.actorId]?.placeId
-        : root.kind === 'household'
-          ? world.households[root.householdId]?.homePlaceId
-          : root.placeId;
-    const exposed = place !== undefined && isOutdoorsPlace(world.places[place]?.kind ?? 'wild');
-    const protections = protectionsOf(world, ctx.content, stack);
+    let placed = memo?.[stack.id];
+    if (!placed) {
+      const root = rootLocation(world, stack);
+      const place =
+        root.kind === 'actor'
+          ? world.actors[root.actorId]?.placeId
+          : root.kind === 'household'
+            ? world.households[root.householdId]?.homePlaceId
+            : root.placeId;
+      placed = {
+        exposed: place !== undefined && isOutdoorsPlace(world.places[place]?.kind ?? 'wild'),
+        protections: protectionsOf(world, ctx.content, stack),
+        storage: storageClassOf(world, ctx.content, stack),
+      };
+      if (memo) memo[stack.id] = placed;
+    }
+    const exposed = placed.exposed;
+    const protections = placed.protections;
     if (raining && exposed && !protections.includes('waterproof') && !protections.includes('airtight')) {
       stack.wetness = Math.min(100, stack.wetness + (protections.includes('splashproof') ? 3 : 20));
     } else if (!protections.includes('airtight')) stack.wetness = Math.max(0, stack.wetness - 4);
     if (!def.food) continue;
-    const factors = spoilageFactors(world, ctx.content, stack, ctx.cal);
+    const factors = spoilageFactors(world, ctx.content, stack, ctx.cal, placed);
     if (!factors) continue;
     advanceSpoilage(stack, def.food, factors, 60);
     if (def.food.spoilage.frozen_ruins && factors.band === 'frozen') stack.spoilage = 1000;
@@ -67,7 +86,7 @@ export function storageHour(world: World, ctx: SimContext): void {
       continue;
     }
     if (ctx.isNewDay && def.food.spoilage.vermin && !VERMIN_BLOCKERS.some((p) => protections.includes(p))) {
-      const risk = VERMIN_DAILY_PERMILLE[storageClassOf(world, ctx.content, stack)] ?? 0;
+      const risk = VERMIN_DAILY_PERMILLE[placed.storage] ?? 0;
       const r = ctx.rng('spoilage', mixKey(stack.id, 0x6d696365));
       const roll = r.int(1, 1000);
       if (roll <= risk) {
@@ -142,15 +161,10 @@ export function devicesHour(world: World, ctx: SimContext): void {
       }
     }
     if (lit && consumes.some((c) => c.per === 'day')) stack.supplyCarry = nextCarry;
+    // Routine burning (oil by the hour while lit) is silent; the stack's lit flag and supply show it,
+    // and running out is logged below.
     if (lit)
-      for (const [kind, units] of Object.entries(requirements)) {
-        const used = consumeSupply(world, ctx.content, loc, kind, units);
-        ctx.emit({
-          kind: 'provisions.supply_used',
-          data: { itemId: stack.id, kind, units: used },
-          explain: mealExplain('Hourly device consumption', [], used, [term('item', `${kind} units per hour`, units)]),
-        });
-      }
+      for (const [kind, units] of Object.entries(requirements)) consumeSupply(world, ctx.content, loc, kind, units);
     const exhausted = lit && Object.keys(requirements).some((kind) => supplyUnits(world, ctx.content, loc, kind) === 0);
     if (exhausted) lit = false;
     if (exhausted || (wanted && !supplied && stack.lit))
@@ -164,7 +178,8 @@ export function devicesHour(world: World, ctx: SimContext): void {
         },
         explain: mealExplain('Device supply depleted', [], 0, [], 'depleted'),
       });
-    if (lit !== stack.lit || (wanted && !supplied))
+    // Lamps lit at dusk and put out at bedtime are routine: only a light that fails is news.
+    if ((lit !== stack.lit && wanted && !lit) || (wanted && !supplied && stack.lit))
       ctx.emit({
         kind: 'provisions.light',
         data: {

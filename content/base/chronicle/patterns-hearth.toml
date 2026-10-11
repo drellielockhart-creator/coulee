@@ -300,7 +300,7 @@ when = { level_word = "seams" }
 text = [
   "{^actor_short} was coming apart at a seam nobody could see. {^count_word} defenses in {span}, and the relief wearing thin. The village took it for ill temper.",
   "A mind at its seams: {defense_clinical} again and again, and between them nothing to put in its place. {^actor_short} was not well, and said otherwise.",
-  "{^actor_short} had stopped trusting {actor_short}'s own reasons, and went on giving them. {^count_word} defenses in {span}, and the village was told it was nerves.",
+  "{^actor_short} had stopped trusting {his} own reasons, and went on giving them. {^count_word} defenses in {span}, and the village was told it was nerves.",
   "{^defense_clinical}, and the others in turn: the mind has a drawer of such things, and {actor_short} had been through them all in {span}.",
 ]
 

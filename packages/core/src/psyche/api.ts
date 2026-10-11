@@ -118,3 +118,15 @@ export function shadowCharge(world: World, actorId: ActorId, traitId: string): n
 export function acquiredTraits(world: World, actorId: ActorId): readonly string[] {
   return world.psyche.byActor[actorId]?.acquired ?? [];
 }
+
+/**
+ * The traits that act on behavior now: the sheet's innate traits (ActorCore.traits, read-only
+ * after init) plus those acquired from habitual defenses (psyche state). Decision (MODULES.md
+ * §1.4): psyche never writes ActorCore.traits; modules that weigh traits read this.
+ */
+export function effectiveTraits(world: World, actorId: ActorId): readonly string[] {
+  const innate = world.actors[actorId]?.traits ?? [];
+  const acquired = world.psyche.byActor[actorId]?.acquired ?? [];
+  if (acquired.length === 0) return innate;
+  return [...innate, ...acquired.filter((t) => !innate.includes(t))];
+}

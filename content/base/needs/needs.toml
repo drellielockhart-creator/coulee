@@ -67,7 +67,7 @@ bands = [{ at_least = 600, label = "Dehydrated", condition = "dehydrated" }]
 id = "rest"
 name = "Rest"
 kind = "physical"
-description = "Hours awake and exertion (05 §6.4). Sleep restores about twice what waking costs."
+description = "Hours awake and exertion (05 §6.4). An hour of sleep restores about two and a half waking hours, so a full night covers a heavy day."
 initial = 800
 decay_per_hour = 55
 asleep_pct = 0
@@ -107,7 +107,8 @@ urges = [{ activity = "sit_by_fire", below = 650, ceiling = 900, drive = "sloth"
 
 [need.exposure]
 comfort_f = 62
-base_insulation_f = 24
+# Everyday dress for the season: wool, flannel and a coat over it in winter (05 §6.3).
+base_insulation_f = 32
 activity_f = { rest = 0, light = 6, heavy = 14 }
 asleep_f = 10
 loss_per_degree = 6

@@ -68,7 +68,26 @@ export const RATION_STEPS = [
 export const RATION_RESTORE_DAYS = 30;
 
 /** Shopping (03 §8): top up to this many days when the larder dips under the trigger; errands run at this hour. */
-export const SHOPPING = { triggerDays: 21, targetDays: 28, hour: 9, reserveCents: 100, reservePct: 15 } as const;
+export const SHOPPING = {
+  triggerDays: 21,
+  targetDays: 28,
+  /** Below this many days any grown member goes, and the duty presses harder. */
+  urgentDays: 7,
+  /** Store hours (the urge only forms while the store is open; not on the Sabbath). */
+  openHour: 8,
+  closeHour: 17,
+  minAge: 14,
+  hour: 9,
+  /** Laying in for winter (05 §4.3): in these months a household buys toward `winterDays`. */
+  winterStockMonths: [10, 11] as readonly number[],
+  winterTriggerDays: 60,
+  winterDays: 90,
+  reserveCents: 100,
+  reservePct: 15,
+} as const;
+
+/** A storekeeper who shuns a customer (04 §9.2 rung 3): this percent of the shelf price, and no credit. */
+export const SHUNNED = { markupPct: 150 } as const;
 
 /** Vermin (03 §3.7.2): per-day chance per susceptible stack, per mille, by storage kind. */
 export const VERMIN_DAILY_PERMILLE: Record<string, number> = {
@@ -86,8 +105,13 @@ export const TURNING_MORALE = -2;
 /** A failed cookery check costs this much morale per serving and burns one serving in five. */
 export const FAILED_COOK_MORALE = -3;
 
-/** Fuel the household gathers per member per day, in armloads of the cheapest fire supply, up to a woodpile cap per member. */
-export const WOODPILE = { perMemberDay: 2, capPerMember: 12 } as const;
+/**
+ * Fuel a household splits and carries in per day, in armloads of the cheapest fire supply, up to a
+ * woodpile cap. A house burns wood whether one person lives in it or six (a cookstove through an
+ * April day is ~5 armloads, with cooking ~7; 1850s households burned 15-30 cords a year), so the
+ * yard has a per-house base plus a share per member, and a woodpile of weeks.
+ */
+export const WOODPILE = { baseDay: 10, perMemberDay: 2, capBase: 80, capPerMember: 12 } as const;
 
 /** Evening: lamps are lit from dusk until this hour (the household's bedtime). */
 export const BEDTIME_HOUR = 21;
@@ -156,4 +180,11 @@ export function peopleKcalPct(people: PeopleDef | undefined): number {
 /** kcal one serving of a food gives, as served (before prep losses). */
 export function kcalPerServing(food: NonNullable<ItemDef['food']>): number {
   return Math.round(food.kcal / Math.max(1, food.servings));
+}
+
+/** Shopping horizon (trigger and target days) for the month: ordinary, or laying in for winter. */
+export function shoppingDays(month: number): { trigger: number; target: number } {
+  return SHOPPING.winterStockMonths.includes(month)
+    ? { trigger: SHOPPING.winterTriggerDays, target: SHOPPING.winterDays }
+    : { trigger: SHOPPING.triggerDays, target: SHOPPING.targetDays };
 }

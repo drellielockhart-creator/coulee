@@ -141,11 +141,16 @@ export function targetLabel(world: World, target: GrudgeTarget): string {
   return 'an unknown hand';
 }
 
+/** Misfortunes are re-weighed for this many days after they happen. */
+export const ATTRIBUTION_WINDOW_DAYS = 90;
+
 /** Reconsider only on new evidence; the same inference is not fresh evidence every hour. */
 export function attributeMisfortunes(world: World, ctx: SimContext): void {
   for (const m of rowsOf(world.belief.misfortunes)) {
     const def = ctx.content.misfortunes[m.kindId];
     if (!def) continue;
+    // After a season the matter is settled in people's minds: stop re-weighing old misfortunes.
+    if (ctx.now - m.at > ATTRIBUTION_WINDOW_DAYS * 1440) continue;
     for (const holder of rowsOf(world.actors)) {
       if (!holder.alive || (beliefOf(world, holder.id, m.propId)?.credence ?? 0) < 40) continue;
       const previous = m.attributions.find((a) => a.holderId === holder.id);
@@ -217,25 +222,31 @@ export function attributeMisfortunes(world: World, ctx: SimContext): void {
       );
       const winner = share >= 350 && lead.weight * 2 >= (candidates[1]?.weight ?? 0) * 3 ? lead.target : null;
       const result = { holderId: holder.id, leader: winner, sharePermille: share, at: ctx.now };
+      const changed =
+        !previous ||
+        (previous.leader === null ? 'natural' : targetKey(previous.leader)) !==
+          (winner === null ? 'natural' : targetKey(winner));
       if (previous) Object.assign(previous, result);
       else m.attributions.push(result);
-      ctx.emit({
-        kind: 'belief.attributed',
-        visibility: 'inner',
-        roles: [{ actor: holder.id, role: 'witness' }],
-        data: {
-          misfortuneId: m.id,
-          holderId: holder.id,
-          target: winner ? targetLabel(world, winner) : 'unresolved or natural',
-          sharePermille: share,
-        },
-        explain: formula(
-          'Weigh possible causes',
-          [holder.id],
-          share,
-          Object.fromEntries(candidates.map((c) => [c.target ? targetKey(c.target) : 'Natural', c.weight])),
-        ),
-      });
+      // Re-weighing that changes nothing is not news: log first attributions and changes of mind.
+      if (changed)
+        ctx.emit({
+          kind: 'belief.attributed',
+          visibility: 'inner',
+          roles: [{ actor: holder.id, role: 'witness' }],
+          data: {
+            misfortuneId: m.id,
+            holderId: holder.id,
+            target: winner ? targetLabel(world, winner) : 'unresolved or natural',
+            sharePermille: share,
+          },
+          explain: formula(
+            'Weigh possible causes',
+            [holder.id],
+            share,
+            Object.fromEntries(candidates.map((c) => [c.target ? targetKey(c.target) : 'Natural', c.weight])),
+          ),
+        });
       if (!winner || winner.kind === 'unknown' || winner.kind === 'household') continue;
       const pred = def.uncanny && holder.values.superstition > 0 ? 'cursed' : 'caused';
       if (!ctx.content.predicates[pred]) continue;

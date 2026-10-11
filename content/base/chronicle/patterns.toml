@@ -21,8 +21,9 @@ pc_bonus = 15
 fatigue_free = 14
 fatigue_step = 2
 fatigue_cap = 30
-repeat_days = 2
-repeat_penalty = 20
+# The same quarrel between the same two people is news once a fortnight, not every time.
+repeat_days = 10
+repeat_penalty = 35
 repeat_exempt = 70
 [pattern.lists]
 harm_kinds = ["slight", "snub", "mockery", "insult", "threat", "fight", "theft", "accusation"]

@@ -244,8 +244,10 @@ schedule = [
 id = "missing"
 name = "Missing"
 description = "Gone from the survey line. Whatever holds them is not an employer."
+confined = true
 schedule = [
-  { from = 0, to = 24, activity = "work", duty = 0 },
+  { from = 22, to = 6, activity = "sleep", duty = 300 },
+  { from = 6, to = 22, activity = "work", duty = 0 },
 ]
 
 [[occupation]]
@@ -291,7 +293,8 @@ id = "farmer"
 name = "Farmer"
 description = "Field, stock, orchard and woodlot, in season."
 workplace_tags = ["farm"]
-wage_cents_per_day = 70
+# A farm sees little cash before harvest: butter and eggs to the store, a day hauling for hire.
+wage_cents_per_day = 25
 skills = ["trade_farming"]
 schedule = [
   { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
@@ -328,7 +331,8 @@ id = "farm_wife"
 name = "Farm wife"
 description = "Dairy, garden, hens, spinning, and a share of every harvest."
 workplace_tags = ["farm"]
-wage_cents_per_day = 50
+# Egg and butter money.
+wage_cents_per_day = 15
 skills = ["trade_cookery", "trade_sewing"]
 schedule = [
   { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
@@ -345,7 +349,8 @@ schedule = [
 id = "housewife"
 name = "Housewife"
 description = "Keeps house in town: cooking, washing, sewing, small trade."
-wage_cents_per_day = 30
+# Taking in sewing or washing now and then.
+wage_cents_per_day = 10
 skills = ["trade_cookery", "trade_sewing"]
 schedule = [
   { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
@@ -435,7 +440,8 @@ id = "ferryman"
 name = "Ferryman"
 description = "Runs the flatboat ferry across the slough and the main channel."
 workplace_tags = ["landing"]
-wage_cents_per_day = 80
+# Ferry fares are mostly paid in kind (the Hatches note).
+wage_cents_per_day = 40
 skills = ["riverwork", "swim"]
 roles = ["ferryman"]
 schedule = [

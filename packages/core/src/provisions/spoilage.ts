@@ -87,16 +87,18 @@ export function spoilageFactors(
   content: ContentBundle,
   stack: ItemStack,
   cal: CalendarInfo,
+  /** Precomputed placement (the planner's projection, where nothing moves): same values, fewer walks. */
+  pre?: { storage: StorageClass; protections: readonly ProtectionId[] },
 ): SpoilFactors | null {
   const food = content.items[stack.defId]?.food;
   if (!food) return null;
-  const storage = storageClassOf(world, content, stack);
+  const storage = pre?.storage ?? storageClassOf(world, content, stack);
   const f = stackTempF(cal, storage);
   const band = tempBand(f);
   const tempPct = food.spoilage.temperature_pct[band];
   const wet = stack.wetness > 20;
   const wetPct = wet ? food.spoilage.wet_pct : 100;
-  const pack = packagingPct(food, protectionsOf(world, content, stack));
+  const pack = packagingPct(food, pre?.protections ?? protectionsOf(world, content, stack));
   const combinedPct = Math.max(1, Math.floor((tempPct * wetPct * pack.pct) / 10_000));
   return {
     storage,

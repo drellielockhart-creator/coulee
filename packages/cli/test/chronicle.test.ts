@@ -1281,27 +1281,27 @@ describe('notability', () => {
     expect(e?.explain?.terms.reduce((acc, t) => acc + t.value, 0)).toBe(e?.importance);
   });
 
-  it('tires of the same thing told twice in two days, and of a crowded week', () => {
+  it('tires of the same thing told twice within the repeat window, and of a crowded week', () => {
     const sim = newSim();
     const [g, j] = pair(sim);
     interaction(sim, 'insult', g, j, 1000, { importance: 55 });
     sift(sim, 1000);
     expect(papers(sim).length).toBe(1);
-    interaction(sim, 'insult', g, j, 1000 + 600, { importance: 55 });
-    sift(sim, 1000 + 600);
-    expect(papers(sim).length).toBe(1); // 55 - 20 for "told already"
     interaction(sim, 'insult', g, j, 1000 + 5 * DAY, { importance: 55 });
     sift(sim, 1000 + 5 * DAY);
+    expect(papers(sim).length).toBe(1); // 55 - 35 for "told already" (repeat window: 10 days)
+    interaction(sim, 'insult', g, j, 1000 + 11 * DAY, { importance: 55 });
+    sift(sim, 1000 + 11 * DAY);
     expect(papers(sim).length).toBe(2);
     // a crowded week: a different pair, fresh news, but thirty items already this week
-    const week = Math.floor((1000 + 5 * DAY) / (7 * DAY)) + 1;
+    const week = Math.floor((1000 + 12 * DAY) / (7 * DAY)) + 1;
     sim.world.chronicle.weekLoad = { week, entries: 30, epilogue: 0 };
-    interaction(sim, 'insult', who(sim, 'horace_bell'), g, 1000 + 6 * DAY, { importance: 55 });
-    sift(sim, 1000 + 6 * DAY);
+    interaction(sim, 'insult', who(sim, 'horace_bell'), g, 1000 + 12 * DAY, { importance: 55 });
+    sift(sim, 1000 + 12 * DAY);
     expect(papers(sim).length).toBe(2);
     sim.world.chronicle.weekLoad = { week, entries: 0, epilogue: 0 };
-    interaction(sim, 'insult', who(sim, 'elias_hurd'), g, 1000 + 6 * DAY + 60, { importance: 55 });
-    sift(sim, 1000 + 6 * DAY + 60);
+    interaction(sim, 'insult', who(sim, 'elias_hurd'), g, 1000 + 12 * DAY + 60, { importance: 55 });
+    sift(sim, 1000 + 12 * DAY + 60);
     expect(papers(sim).length).toBe(3);
   });
 
@@ -1499,7 +1499,7 @@ describe('knowledge: entries never go above what the viewer could know', () => {
     const g = who(sim, 'gussie_pratt');
     const j = who(sim, 'johann_brenner');
     interaction(sim, 'insult', g, j, 2 * DAY, { importance: 60 });
-    interaction(sim, 'insult', j, g, 9 * DAY, { importance: 60 });
+    interaction(sim, 'insult', j, who(sim, 'horace_bell'), 9 * DAY, { importance: 60 });
     sift(sim, 10 * DAY);
     const md = chronicle.renderChronicleMarkdown(sim.world, content, 'Test');
     const weeks = md.match(/^## Week \d+/gm) ?? [];
@@ -1584,7 +1584,7 @@ describe('determinism', () => {
 
 describe('iron_ford seed 42', () => {
   it('tells a readable 30-day chronicle (golden) and ≥ 20 stories by day 60', async () => {
-    const sim = createSim(content, { scenarioId: 'iron_ford', seed: 42 });
+    const sim = createSim(content, { scenarioId: 'iron_ford', seed: 42, logRetention: null });
     runHours(sim, 24 * 30);
     const md30 = chronicle.renderChronicleMarkdown(sim.world, content, 'Iron Ford, Spring 1855: seed 42, 30 days');
     await expect(md30).toMatchFileSnapshot('./__snapshots__/chronicle-iron_ford-42-30d.md');

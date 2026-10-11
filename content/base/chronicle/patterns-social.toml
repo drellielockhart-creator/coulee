@@ -247,7 +247,7 @@ id = "betrayal_epilogue"
 on = "betrayal"
 voice = "epilogue"
 text = [
-  "It began as a kindness and ended as an obligation, which {actor} resented in proportion to its size. What looked like treachery was, in {actor_short}'s own account, merely escape.",
+  "It began as a kindness and ended as an obligation, which {actor} resented in proportion to its size. What looked like treachery was, in {his} own account, merely escape.",
   "{^target} would have named it betrayal. {^actor} would have named it self-respect. The record shows the kindness first and the injury after, {span} apart.",
   "{^actor_short} remembered only the injury; {target_short} remembered only the kindness. It is how two good memories make one bad quarrel.",
 ]
@@ -610,7 +610,7 @@ when = { level_word = "timely" }
 headline = "A Timely Kindness"
 text = [
   "#paper_pleased# that {actor} was seen carrying relief to the door of {target}, whose table has been poor of late. These things are noticed, and recorded here for the credit of the place.",
-  "{^target}, whose pantry has been bare, did not go hungry this week; {actor} saw to that, and mentioned it to nobody. We mention it for him.",
+  "{^target}, whose pantry has been bare, did not go hungry this week; {actor} saw to that, and mentioned it to nobody. We mention it for {him}.",
 ]
 
 [[template]]
@@ -683,7 +683,7 @@ id = "kindness_epilogue"
 on = "kindness"
 voice = "epilogue"
 text = [
-  "{^actor_short} never told anyone what the kindness cost. It came off {actor_short}'s own stores, and the table at home was the lighter by it.",
+  "{^actor_short} never told anyone what the kindness cost. It came off {his} own stores, and the table at home was the lighter by it.",
   "Of the {count_word} good turns {actor_short} did in {span}, not one was mentioned at the store. That was the point of them.",
   "{^actor_short} had a name for it, kept to {actor_short}: not charity, but a debt to someone long dead.",
   "It looked like generosity. In fact {actor_short} could not bear to watch {target_short} go without, and that is a different thing, and a rarer.",

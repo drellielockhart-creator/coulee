@@ -103,6 +103,9 @@ export function findNonIntegers(v: unknown, path = '$', out: string[] = [], limi
   if (out.length >= limit) return out;
   if (typeof v === 'number') {
     if (!Number.isInteger(v)) out.push(`${path}=${v}`);
+    // Negative zero is an integer, but it is not plain JSON (it round-trips to 0) and it leaks
+    // into labels and Explains as "-0". Treat it as a violation of invariant 2.
+    else if (Object.is(v, -0)) out.push(`${path}=-0`);
   } else if (Array.isArray(v)) {
     for (let i = 0; i < v.length; i++) findNonIntegers(v[i], `${path}[${i}]`, out, limit);
   } else if (v !== null && typeof v === 'object') {

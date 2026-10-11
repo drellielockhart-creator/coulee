@@ -8,12 +8,13 @@ import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
 import type { Readiness } from './api.ts';
 import { replenishDomestic } from './economy.ts';
-import { devicesHour, storageHour } from './environment.ts';
+import { devicesHour, type PlacementMemo, storageHour } from './environment.ts';
 import {
   dailyKcal,
   dueMeal,
   foodServings,
   type Holder,
+  kitchenOf,
   locationOf,
   membersOf,
   rationOf,
@@ -24,7 +25,13 @@ import { nutritionHour } from './nutrition.ts';
 import { minutesUntil, spoilageFactors } from './spoilage.ts';
 import { emptyNutrition } from './state.ts';
 
-export function planReadiness(world: World, content: ContentBundle, holder: Holder, now: number): Readiness {
+export function planReadiness(
+  world: World,
+  content: ContentBundle,
+  holder: Holder,
+  now: number,
+  horizonDays = 366,
+): Readiness {
   const loc = locationOf(holder),
     members = membersOf(world, holder);
   const stacks = stacksDeep(world, loc).map((s) => s.stack);
@@ -41,11 +48,12 @@ export function planReadiness(world: World, content: ContentBundle, holder: Hold
   };
   if (!members.length || result.kcalPerDay === 0) return result;
   let fresh = false;
+  const kitchen = kitchenOf(world, content, holder);
   for (const stack of stacks) {
     const food = content.items[stack.defId]?.food;
     if (!food || foodServings(content, stack) === 0) continue;
     fresh ||= food.fresh >= 10;
-    const recipes = recipesFor(world, content, holder, stack, 1);
+    const recipes = recipesFor(world, content, holder, stack, 1, false, undefined, 360, kitchen);
     const usable = recipes.filter((r) => r.missing.length === 0);
     if (!usable.length)
       result.unpreparable.push({
@@ -74,7 +82,8 @@ export function planReadiness(world: World, content: ContentBundle, holder: Hold
   const projection: World = {
     ...world,
     items: { counters: { ...world.items.counters }, stacks: {} },
-    actors: { ...world.actors },
+    // Only the eaters exist in the projection: every hourly kernel iterates actors.
+    actors: {},
     needs: { ...world.needs, byActor: {} },
     provisions: { ...world.provisions, nutrition: {}, households: {}, fires: {} },
   };
@@ -99,7 +108,17 @@ export function planReadiness(world: World, content: ContentBundle, holder: Hold
   let fuelDay = 0,
     foodHours = 0;
   // Cap at a year: huge debug inventories must not freeze a view query. Report the cap plainly.
-  for (let hour = 0; hour < 24 * 366; hour++) {
+  // Household decisions pass a shorter horizon: they only compare against the ration thresholds.
+  const horizon = Math.max(1, Math.min(366, Math.floor(horizonDays)));
+  // Exact shortcuts for the projection: food only disappears through an emitted event (meal,
+  // spoilage, vermin), so the "anything left?" scan runs only after one; and devices are stepped
+  // only if the kit holds any (the projection never creates a device).
+  let dirty = false;
+  const placement: PlacementMemo = {};
+  const hasDevices = rowsOf(projection.items.stacks).some((s) =>
+    (content.items[s.defId]?.consumes ?? []).some((c) => c.per === 'hour' || c.per === 'day'),
+  );
+  for (let hour = 0; hour < 24 * horizon; hour++) {
     const t = asGameMinute(Math.floor(now / 60) * 60 + hour * 60),
       cal = calendarAt(t);
     const ctx: SimContext = {
@@ -110,12 +129,15 @@ export function planReadiness(world: World, content: ContentBundle, holder: Hold
       isNewDay: cal.hour === 0,
       commands: [],
       rng: (stream, key) => rng(world.meta.seed, stream, t, key),
-      emit: () => 0 as never,
+      emit: () => {
+        dirty = true;
+        return 0 as never;
+      },
     };
     if (ctx.isNewDay && 'householdId' in holder) replenishDomestic(projection, ctx, holder.householdId);
     nutritionHour(projection, ctx);
-    storageHour(projection, ctx);
-    devicesHour(projection, ctx);
+    storageHour(projection, ctx, placement);
+    if (hasDevices) devicesHour(projection, ctx);
     const meal = dueMeal(projection, content, holder, cal.hour);
     if (meal) {
       const report = serveMeal(projection, ctx, holder, members, meal.share_pct, meal.cold);
@@ -127,6 +149,8 @@ export function planReadiness(world: World, content: ContentBundle, holder: Hold
       }
     }
     foodHours = hour + 1;
+    if (!dirty) continue;
+    dirty = false;
     if (
       !rowsOf(projection.items.stacks).some(
         (s) => foodServings(content, s) > 0 && (content.items[s.defId]?.food?.kcal ?? 0) > 0,
@@ -136,7 +160,7 @@ export function planReadiness(world: World, content: ContentBundle, holder: Hold
   }
   result.daysOfFoodTenths = Math.round((foodHours * 10) / 24);
   result.daysOfFuelTenths = fuelDay > 0 ? Math.floor((fuelStart * 10) / fuelDay) : null;
-  if (foodHours >= 24 * 366) result.warnings.push('Food horizon capped at 366 days.');
+  if (foodHours >= 24 * horizon) result.warnings.push(`Food horizon capped at ${horizon} days.`);
   if (result.daysOfFoodTenths < 40) result.warnings.push('Less than four days of usable food at current rations.');
   return result;
 }

@@ -266,9 +266,11 @@ describe('social: urges and defenses', () => {
   it('proposes company seeking when lonely and a targeted urge against a hated neighbor', () => {
     const sim = simFor({ seed: 11 });
     const w = sim.world;
-    const pair = adultsAtSamePlace(sim);
-    if (!pair) throw new Error('need two adults together');
-    const [a, b] = pair as [ActorId, ActorId];
+    // A neighbor, not a housemate: hard words under one roof are damped (insult volition).
+    const adults = rowsOf(w.actors).filter((x) => yearsBetween(x.born, w.time) >= 18);
+    const a = adults[0]?.id;
+    const b = adults.find((x) => x.householdId !== adults[0]?.householdId)?.id;
+    if (a === undefined || b === undefined) throw new Error('need two adults of different households');
     gather(w, [a, b], tavernOf(w));
     w.time = toGameMinute(1855, 4, 3, 19);
     const ctx = ctxOf(sim);

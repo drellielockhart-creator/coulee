@@ -6,13 +6,13 @@
  *   coulee content check [--mods base]
  *   coulee inspect "Gussie Pratt" [--scenario iron_ford --seed 42 --days 3 | --run runs/name]
  */
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
 import { CONTENT_ROOT, formatIssues, loadContent, loadContentOrThrow, REPO_ROOT } from '@coulee/content';
 import { formatStamp, toViewModel } from '@coulee/core';
 import { cac } from 'cac';
 import { findActor, renderDossier } from './dossier.ts';
-import { runScenario, writeRunOutputs } from './harness.ts';
+import { jsonlFileSink, runScenario, writeRunOutputs } from './harness.ts';
 
 const cli = cac('coulee');
 
@@ -34,6 +34,9 @@ cli
   .option('--hours <n>', 'Hours to simulate')
   .option('--out <dir>', 'Output directory (default runs/<scenario>-<seed>)')
   .option('--mods <list>', 'Content mods, comma-separated', { default: 'base' })
+  .option('--profile', 'Time each system and print ms per game-hour')
+  .option('--no-events', 'Do not write events.jsonl (it is large: hundreds of MB per simulated year)')
+  .option('--save', 'Also write save.json (the World as JSON: what a saved game holds)')
   .action(
     (o: {
       scenario: string;
@@ -43,21 +46,70 @@ cli
       hours?: number;
       out?: string;
       mods?: string;
+      profile?: boolean;
+      events?: boolean;
+      save?: boolean;
     }) => {
       const content = loadContentOrThrow(modsOf(o.mods));
       const spec = { scenarioId: String(o.scenario), seed: Number(o.seed), hours: hoursOf(o) };
-      const t0 = performance.now();
-      const res = runScenario(content, spec);
-      const ms = Math.round(performance.now() - t0);
       const out = resolveOut(o.out ?? `runs/${spec.scenarioId}-${spec.seed}`);
-      const scenarioName = content.scenarios[spec.scenarioId]?.name ?? spec.scenarioId;
-      writeRunOutputs(out, spec, res, `${scenarioName} — seed ${spec.seed}`);
-      console.log(
-        `ran ${spec.scenarioId} seed ${spec.seed} for ${spec.hours} h in ${ms} ms -> ${formatStamp(res.sim.world.time)}; ` +
-          `${res.sim.world.log.events.length} events; hash ${res.hash}`,
+      mkdirSync(out, { recursive: true });
+      // The World keeps a rolling window; the full log streams to disk as it happens.
+      const stream = o.events === false ? null : jsonlFileSink(join(out, 'events.jsonl'));
+      const timers: Record<string, number> = {};
+      const wrapSystem = o.profile
+        ? (id: string, run: () => void) => {
+            const t = performance.now();
+            run();
+            timers[id] = (timers[id] ?? 0) + performance.now() - t;
+          }
+        : undefined;
+      const t0 = performance.now();
+      const res = runScenario(content, spec, {
+        ...(stream ? { sink: stream.sink } : {}),
+        ...(wrapSystem ? { wrapSystem } : {}),
+      });
+      const ms = performance.now() - t0;
+      const streamed = stream?.close() ?? 0;
+      const saveJson = JSON.stringify(res.sim.world);
+      const saveBytes = Buffer.byteLength(saveJson);
+      if (o.save) writeFileSync(join(out, 'save.json'), saveJson);
+      const w = res.sim.world as unknown as Record<string, unknown>;
+      const bySlice = Object.fromEntries(
+        Object.keys(w)
+          .map((k) => [k, Buffer.byteLength(JSON.stringify(w[k]) ?? '')] as const)
+          .sort((a, b) => b[1] - a[1]),
       );
+      const mem = process.memoryUsage();
+      const scenarioName = content.scenarios[spec.scenarioId]?.name ?? spec.scenarioId;
+      const msPerHour = spec.hours > 0 ? ms / spec.hours : 0;
+      writeRunOutputs(out, spec, res, `${scenarioName} — seed ${spec.seed}`, {
+        eventsStreamed: stream !== null,
+        manifest: {
+          msPerGameHour: Math.round(msPerHour * 100) / 100,
+          saveBytes,
+          saveBytesBySlice: bySlice,
+          heapUsedMB: Math.round(mem.heapUsed / 1e6),
+          ...(o.profile
+            ? { systemsMs: Object.fromEntries(Object.entries(timers).map(([k, v]) => [k, Math.round(v)])) }
+            : {}),
+        },
+      });
       console.log(
-        `wrote ${relative(process.cwd(), out) || '.'}/{chronicle.md,events.jsonl,stats.csv,final-hash.txt,manifest.json}`,
+        `ran ${spec.scenarioId} seed ${spec.seed} for ${spec.hours} h in ${Math.round(ms)} ms ` +
+          `(${msPerHour.toFixed(2)} ms/game-hour) -> ${formatStamp(res.sim.world.time)}; ` +
+          `${res.sim.world.log.lastId} events (${res.sim.world.log.events.length} retained${stream ? `, ${streamed} streamed` : ''}); ` +
+          `save ${(saveBytes / 1e6).toFixed(2)} MB; heap ${Math.round(mem.heapUsed / 1e6)} MB, rss ${Math.round(mem.rss / 1e6)} MB; hash ${res.hash}`,
+      );
+      if (o.profile) {
+        const actors = Object.keys(res.sim.world.actors).length;
+        for (const [id, t] of Object.entries(timers).sort((a, b) => b[1] - a[1]))
+          console.log(
+            `  ${id.padEnd(11)} ${(t / spec.hours).toFixed(3)} ms/h  ${((1000 * t) / spec.hours / actors).toFixed(1)} µs/actor-h`,
+          );
+      }
+      console.log(
+        `wrote ${relative(process.cwd(), out) || '.'}/{chronicle.md,${stream ? 'events.jsonl,' : ''}stats.csv,final-hash.txt,manifest.json}`,
       );
     },
   );

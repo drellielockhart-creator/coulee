@@ -7,7 +7,7 @@ import type { ActorCore, Values } from '../actor.ts';
 import { createBeliefState, initBeliefState } from '../belief/state.ts';
 import { createChronicleState, initChronicleState } from '../chronicle/state.ts';
 import { type ContentBundle, VALUES } from '../content.ts';
-import { appendEvent, type EventInput, emptyLog } from '../events/index.ts';
+import { appendEvent, DEFAULT_LOG_RETENTION, type EventInput, emptyLog, type LogRetention } from '../events/index.ts';
 import { asActorId, asHouseholdId, asPlaceId, type HouseholdId, mustGet, nextId, type PlaceId } from '../ids.ts';
 import { createItemsState, initItemsState } from '../items/state.ts';
 import { createNeedsState, initNeedsState } from '../needs/state.ts';
@@ -25,6 +25,11 @@ export interface CreateWorldOptions {
   seed: number;
   /** Give the scenario's `player` actor controller 'player' (web). CLI runs all-AI. */
   withPlayer?: boolean;
+  /**
+   * In-memory event retention. Default: DEFAULT_LOG_RETENTION (a rolling window; P6 phone budget).
+   * null keeps every event in the World (tests that inspect a long log; short debug runs).
+   */
+  logRetention?: LogRetention | null;
 }
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -57,7 +62,7 @@ export function createWorld(content: ContentBundle, opts: CreateWorldOptions): W
     households: {},
     places: {},
     index: { actorByKey: {}, householdByKey: {}, placeByDef: {} },
-    log: emptyLog(),
+    log: emptyLog(opts.logRetention === undefined ? DEFAULT_LOG_RETENTION : opts.logRetention),
     needs: createNeedsState(),
     activity: createActivityState(),
     psyche: createPsycheState(),

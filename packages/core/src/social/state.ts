@@ -31,6 +31,11 @@ export type ReasonCite =
   | { kind: 'relationship'; rel: RelationshipKind }
   | { kind: 'seed' }
   /**
+   * A reason a psyche defense manufactured (rationalization's "had it coming"), citing the
+   * `psyche.defense` event. Its strength (per mille) fades daily like the "other" bucket.
+   */
+  | { kind: 'defense'; eventId: EventId; strength: number }
+  /**
    * The folded "other reasons" bucket (04 §6.2: cap 8 + other). `strength` is per mille and
    * decays daily with `bucket_tau_days`; the bucket's weight is that strength.
    */

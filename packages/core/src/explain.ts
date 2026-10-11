@@ -80,8 +80,29 @@ export interface Explain {
   note?: string;
 }
 
+/** Integer, and never negative zero (`-0` prints as "band -0" and breaks plain-JSON round trips). */
+export function intValue(value: number): number {
+  return Math.round(value) + 0;
+}
+
 export function term(source: ExplainSource, label: string, value: number): ExplainTerm {
-  return { source, label, value: Math.round(value) };
+  return { source, label, value: intValue(value) };
+}
+
+/**
+ * Normalize an Explain in place before it is stored on an event or state: every term, total,
+ * margin and DC becomes an integer without negative zero (children included). Returns it.
+ */
+export function normalizeExplain(e: Explain): Explain {
+  for (const t of e.terms) t.value = intValue(t.value);
+  e.total = intValue(e.total);
+  if (e.margin !== undefined) e.margin = intValue(e.margin);
+  if (e.dc) {
+    e.dc.total = intValue(e.dc.total);
+    for (const t of e.dc.terms) t.value = intValue(t.value);
+  }
+  if (e.children) for (const c of e.children) normalizeExplain(c);
+  return e;
 }
 
 export function sumTerms(terms: readonly ExplainTerm[]): number {

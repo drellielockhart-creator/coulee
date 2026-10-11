@@ -14,9 +14,17 @@ export function baseContent(): ContentBundle {
   return cached;
 }
 
-/** A fresh Iron Ford sim (or another scenario), optionally advanced by `hours`. */
-export function simFor(opts: { seed?: number; hours?: number; scenarioId?: string } = {}): Sim {
-  const sim = createSim(baseContent(), { scenarioId: opts.scenarioId ?? 'iron_ford', seed: opts.seed ?? 1 });
+/**
+ * A fresh Iron Ford sim (or another scenario), optionally advanced by `hours`. Tests inspect the
+ * log, so by default this World keeps every event in memory (`logRetention: null`); pass
+ * `fullLog: false` to get the bounded rolling window that the CLI and the web use.
+ */
+export function simFor(opts: { seed?: number; hours?: number; scenarioId?: string; fullLog?: boolean } = {}): Sim {
+  const sim = createSim(baseContent(), {
+    scenarioId: opts.scenarioId ?? 'iron_ford',
+    seed: opts.seed ?? 1,
+    ...(opts.fullLog === false ? {} : { logRetention: null }),
+  });
   if (opts.hours) runHours(sim, opts.hours);
   return sim;
 }

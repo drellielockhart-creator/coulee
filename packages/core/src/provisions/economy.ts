@@ -1,7 +1,9 @@
 /** Cash, credit and physical goods share one transaction path for commands and errands. */
 
+import { isShunning } from '../belief/api.ts';
+import type { ContentBundle, ItemDef } from '../content.ts';
 import { term } from '../explain.ts';
-import type { ActorId, HouseholdId, PlaceId } from '../ids.ts';
+import type { ActorId, EventId, HouseholdId, PlaceId } from '../ids.ts';
 import { rowsOf } from '../ids.ts';
 import { atPlace, carriedBy, createStack, moveStack, pantryOf, stacksDeep, supplyUnits } from '../items/api.ts';
 import type { ItemLocation } from '../items/state.ts';
@@ -9,7 +11,7 @@ import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { priceAt, readinessOf } from './api.ts';
 import { dailyKcal, foodServings, mealExplain, membersOf } from './meals.ts';
-import { RATION_RESTORE_DAYS, RATION_STEPS, SHOPPING, WOODPILE } from './rules.ts';
+import { RATION_RESTORE_DAYS, RATION_STEPS, SHUNNED, shoppingDays, WOODPILE } from './rules.ts';
 
 export function purchase(
   world: World,
@@ -35,12 +37,16 @@ export function purchase(
     return 0;
   const buyer = world.provisions.households[actor.householdId];
   const owner = store.ownerHouseholdId === null ? undefined : world.provisions.households[store.ownerHouseholdId];
+  // A storekeeper who shuns the buyer (04 §9.2 rung 3) refuses credit and asks a hard price.
+  const keeper = store.ownerHouseholdId === null ? undefined : world.households[store.ownerHouseholdId]?.headId;
+  const shunned = keeper !== undefined && keeper !== actorId && isShunning(world, keeper, actorId);
   // Buying from one's own shelves is at cost: stock and the kitchen remain distinct.
-  const price =
+  const listPrice =
     store.ownerHouseholdId === actor.householdId ? (ctx.content.items[defId]?.value_cents ?? unitPrice) : unitPrice;
+  const price = shunned ? Math.round((listPrice * SHUNNED.markupPct) / 100) : listPrice;
   const purse = world.provisions.purses[actorId] ?? 0;
   const cash = purse + (buyer?.cashCents ?? 0);
-  const credit = onCredit ? Math.max(0, store.creditLimitCents - (store.tabs[actorId] ?? 0)) : 0;
+  const credit = onCredit && !shunned ? Math.max(0, store.creditLimitCents - (store.tabs[actorId] ?? 0)) : 0;
   let remaining = price > 0 ? Math.min(wanted, Math.floor((cash + credit) / price)) : wanted;
   let bought = 0;
   for (const { stack } of stacksDeep(world, atPlace(placeId))) {
@@ -76,13 +82,73 @@ export function purchase(
     roles: [{ actor: actorId, role: 'agent' }],
     visibility: 'private',
     explain: mealExplain('Store transaction', [actorId], cost, [
-      term('price', 'Unit price cents', price),
+      term('price', 'Unit price cents', listPrice),
+      ...(shunned
+        ? [
+            term('belief', 'Shunned: the storekeeper’s price', price - listPrice),
+            term('credit', 'Shunned: no credit', 0),
+          ]
+        : []),
       term('item', 'Quantity', bought),
       term('money', 'Cash transferred cents', cashPaid),
       term('credit', 'Tab increased cents', debt),
     ]),
   });
   return bought;
+}
+
+/** Cash an actor can lay hands on: their own purse plus their household's cash box. */
+export function cashOf(world: World, actorId: ActorId): number {
+  const a = world.actors[actorId];
+  const h = a ? world.provisions.households[a.householdId] : undefined;
+  return (world.provisions.purses[actorId] ?? 0) + Math.max(0, h?.cashCents ?? 0);
+}
+
+/**
+ * Move up to `cents` from one actor to another (a loan, a repayment, a gift of money): the payer's
+ * purse first, then their household's cash; it lands in the payee's household cash box (or purse
+ * when they have none). Returns the cents actually moved; logs `provisions.cash_transfer` with
+ * the math. The ledger of who owes whom is social's; this is only the money.
+ */
+export function transferCash(
+  world: World,
+  ctx: SimContext,
+  fromId: ActorId,
+  toId: ActorId,
+  cents: number,
+  reason: string,
+  causeEventId?: number,
+): number {
+  const from = world.actors[fromId];
+  const to = world.actors[toId];
+  const wanted = Math.max(0, Math.floor(cents));
+  if (!from?.alive || !to || fromId === toId || wanted === 0) return 0;
+  const purse = world.provisions.purses[fromId] ?? 0;
+  const fromHh = world.provisions.households[from.householdId];
+  const moved = Math.min(wanted, purse + Math.max(0, fromHh?.cashCents ?? 0));
+  if (moved <= 0) return 0;
+  const fromPurse = Math.min(purse, moved);
+  world.provisions.purses[fromId] = purse - fromPurse;
+  if (fromHh && moved > fromPurse) fromHh.cashCents -= moved - fromPurse;
+  const toHh = from.householdId === to.householdId ? fromHh : world.provisions.households[to.householdId];
+  if (toHh) toHh.cashCents += moved;
+  else world.provisions.purses[toId] = (world.provisions.purses[toId] ?? 0) + moved;
+  ctx.emit({
+    kind: 'provisions.cash_transfer',
+    data: { fromId, toId, cents: moved, wantedCents: wanted, reason },
+    roles: [
+      { actor: fromId, role: 'agent' },
+      { actor: toId, role: 'beneficiary' },
+    ],
+    visibility: 'private',
+    ...(causeEventId !== undefined ? { causes: [causeEventId as EventId] } : {}),
+    explain: mealExplain(reason, [fromId, toId], moved, [
+      term('money', 'Cents asked', wanted),
+      term('money', 'From the purse', fromPurse),
+      term('money', 'From the household cash', moved - fromPurse),
+    ]),
+  });
+  return moved;
 }
 
 /** A cheap trigger; exact projected days are computed only for household decisions and views. */
@@ -100,6 +166,19 @@ export function larderKcal(world: World, ctx: Pick<SimContext, 'content'>, house
   );
 }
 
+/** Single-slot memo (content is immutable for a run; not world state, so determinism is unaffected). */
+let fuelMemo: { content: ContentBundle; def: ItemDef | undefined } | null = null;
+
+/** The cheapest fire supply in the catalog: what a household gathers or splits for its woodpile. */
+export function cheapestFuel(content: ContentBundle): ItemDef | undefined {
+  if (fuelMemo?.content === content) return fuelMemo.def;
+  const def = Object.values(content.items)
+    .filter((d) => d.supply?.kind === 'fire')
+    .sort((a, b) => a.value_cents - b.value_cents || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0];
+  fuelMemo = { content, def };
+  return def;
+}
+
 /** Daily domestic water and gathered fuel, also used by readiness's forward projection. */
 export function replenishDomestic(world: World, ctx: SimContext, householdId: HouseholdId): void {
   const household = world.households[householdId];
@@ -107,9 +186,7 @@ export function replenishDomestic(world: World, ctx: SimContext, householdId: Ho
   if (!household || !h || h.lastSuppliesDay === ctx.cal.dayIndex) return;
   h.lastSuppliesDay = ctx.cal.dayIndex;
   const members = membersOf(world, { householdId });
-  const fireDef = Object.values(ctx.content.items)
-    .filter((d) => d.supply?.kind === 'fire')
-    .sort((a, b) => a.value_cents - b.value_cents || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0];
+  const fireDef = cheapestFuel(ctx.content);
   h.waterMl = members.length * 5000;
   ctx.emit({
     kind: 'provisions.water',
@@ -121,9 +198,12 @@ export function replenishDomestic(world: World, ctx: SimContext, householdId: Ho
     ]),
   });
   if (world.provisions.settings.householdWood && fireDef?.supply) {
-    const cap = WOODPILE.capPerMember * members.length * fireDef.supply.units;
+    const cap = (WOODPILE.capBase + WOODPILE.capPerMember * members.length) * fireDef.supply.units;
     const gap = cap - supplyUnits(world, ctx.content, pantryOf(household.id), 'fire');
-    const qty = Math.min(WOODPILE.perMemberDay * members.length, Math.max(0, Math.floor(gap / fireDef.supply.units)));
+    const qty = Math.min(
+      WOODPILE.baseDay + WOODPILE.perMemberDay * members.length,
+      Math.max(0, Math.floor(gap / fireDef.supply.units)),
+    );
     if (qty) createStack(world, ctx, fireDef.id, qty, pantryOf(household.id));
   }
 }
@@ -150,7 +230,11 @@ export function householdDay(world: World, ctx: SimContext): void {
         });
     }
     if (!world.provisions.settings.autoRations || !members.length) continue;
-    const readiness = readinessOf(world, ctx.content, { householdId: household.id }, ctx.now);
+    // The ration decision only compares against its thresholds, so project only as far as can matter:
+    // at full rations the question is "below the first cut?"; on short rations, "back above restore?".
+    const firstCut = Math.max(...RATION_STEPS.map((s) => s.belowDays));
+    const horizon = (h.rationPct >= 100 ? firstCut : RATION_RESTORE_DAYS) + 1;
+    const readiness = readinessOf(world, ctx.content, { householdId: household.id }, ctx.now, horizon);
     const step = RATION_STEPS.find((s) => readiness.daysOfFoodTenths < s.belowDays * 10);
     const pct = step
       ? Math.min(h.rationPct, step.pct)
@@ -232,14 +316,21 @@ export function shoppingHour(world: World, ctx: SimContext): void {
   if (!world.provisions.settings.npcBuying) return;
   for (const household of rowsOf(world.households)) {
     const h = world.provisions.households[household.id];
-    const buyer = world.actors[household.headId];
-    if (!h || !buyer?.alive || !world.provisions.stores[buyer.placeId]) continue;
+    // Whoever of the household is at a store this hour buys (the head first, then by id).
+    const atStore = (id: ActorId) => {
+      const a = world.actors[id];
+      return a?.alive === true && world.provisions.stores[a.placeId] !== undefined;
+    };
+    const buyerId = atStore(household.headId) ? household.headId : household.memberIds.find(atStore);
+    const buyer = buyerId === undefined ? undefined : world.actors[buyerId];
+    if (!h || !buyer) continue;
     const need = membersOf(world, { householdId: household.id }).reduce(
       (n, id) => n + dailyKcal(world, ctx.content, id, ctx.now),
       0,
     );
-    let missing = SHOPPING.targetDays * need - larderKcal(world, ctx, household.id);
-    if (missing < (SHOPPING.targetDays - SHOPPING.triggerDays) * need) continue;
+    const horizon = shoppingDays(ctx.cal.month);
+    let missing = horizon.target * need - larderKcal(world, ctx, household.id);
+    if (missing < (horizon.target - horizon.trigger) * need) continue;
     const stock = stacksDeep(world, atPlace(buyer.placeId))
       .map((s) => s.stack)
       .filter((s) => (ctx.content.items[s.defId]?.food?.kcal ?? 0) > 0);

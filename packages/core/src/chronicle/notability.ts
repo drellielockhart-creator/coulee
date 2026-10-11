@@ -66,8 +66,8 @@ export function scoreStory(dc: DetectCtx, i: ScoreInput): Score {
   const sum = terms.reduce((s, x) => s + x.value, 0);
   if (i.repeatKey !== null && sum < p.n('repeat_exempt', 70)) {
     const last = st.recent[i.repeatKey];
-    if (last !== undefined && i.t - last < (i.repeatDays ?? p.n('repeat_days', 2)) * DAY) {
-      terms.push({ source: 'other', label: 'Told already', value: -p.n('repeat_penalty', 20) });
+    if (last !== undefined && i.t - last < (i.repeatDays ?? p.n('repeat_days', 10)) * DAY) {
+      terms.push({ source: 'other', label: 'Told already', value: -p.n('repeat_penalty', 35) });
     }
   }
   return {

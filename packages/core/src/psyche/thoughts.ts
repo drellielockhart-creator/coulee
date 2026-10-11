@@ -89,7 +89,12 @@ export function weighProposal(
       step(`${norm.period_label} ${s}`, s * 2);
     }
   }
-  for (const tid of m.actor.traits) {
+  // Innate plus acquired traits (a habitual projector turns Suspicious, 10 §7.1).
+  const traits =
+    m.p.acquired.length > 0
+      ? [...m.actor.traits, ...m.p.acquired.filter((x) => !m.actor.traits.includes(x))]
+      : m.actor.traits;
+  for (const tid of traits) {
     const t = content.traits[tid];
     if (!t) continue;
     const vp = prop.voice === 'id' ? t.voice_pct.id : t.voice_pct.superego;

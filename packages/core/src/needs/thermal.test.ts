@@ -38,6 +38,10 @@ it('burns hearth fuel once per occupied building and loses its fire when fuel ru
   expect(supplyUnits(f.world, f.content, loc, 'fire')).toBe(0);
   const cold = heatPlaces(f.world, f.ctx())[asPlaceId(1)];
   expect(hot ?? 0).toBeGreaterThan(cold ?? 0);
+  // Routine burning is silent: the log records lighting (with the first hour's fuel) and going out.
   const events = f.world.log.events.filter((e) => e.kind === 'needs.hearth');
-  expect(events.map((e) => e.data.fuel)).toEqual([20, 20, 20, 0]);
+  expect(events.map((e) => [e.data.lit, e.data.fuel])).toEqual([
+    [true, 20],
+    [false, 0],
+  ]);
 });

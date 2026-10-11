@@ -19,6 +19,10 @@ export interface NeedCause {
   /** Optional named inputs, used for the hourly physiology ledger. */
   terms?: ExplainTerm[];
   calculations?: Explain[];
+  /** Routine change (the hourly balance): update the meter and bands, but log no event. */
+  quiet?: boolean;
+  /** Log a needs.changed line even though `eventId` names a cause (default: the cause is enough). */
+  log?: boolean;
 }
 export function satisfyNeed(
   world: World,
@@ -46,6 +50,12 @@ export function satisfyNeed(
   }
   const after = Math.max(NEED_MIN, Math.min(NEED_MAX, before + credit - repay));
   n.values[needId] = after;
+  // Routine (hourly) changes and changes caused by an already-logged event (a meal, an
+  // interaction: that event carries the Explain) update the meter without a needs.changed line.
+  if (cause.quiet || (cause.eventId !== undefined && cause.log !== true)) {
+    if (def) updateBands(world, actorId, def, ctx);
+    return after;
+  }
   ctx.emit({
     kind: 'needs.changed',
     data: { actorId, needId, before, after, delta: credit, debt: debt[needId] ?? 0 },

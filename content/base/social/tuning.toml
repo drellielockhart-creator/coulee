@@ -88,7 +88,7 @@ courtship_min_age = 16
 courtship_opposite_sex = true
 
 # ---- Escalation: the target's Will save against losing their temper ----
-escalation_dc = 12
+escalation_dc = 10
 escalation_per_temper = 2
 
 # ---- Urges proposed to the psyche ----
@@ -107,8 +107,11 @@ max_targeted_urges = 2
 defense_interactions = [
   { defense = "displacement", interactions = ["insult", "snub", "slight"], reason = "Had it coming", reason_delta = { affection = -5 } },
   { defense = "projection", interactions = ["snub", "slight"], reason = "Something sly about them", reason_delta = { trust = -8 } },
-  { defense = "reaction_formation", interactions = ["preach_at", "gossip", "snub"], reason = "Someone ought to speak to them", reason_delta = { respect = -5 } },
+  { defense = "reaction_formation", interactions = ["preach_at", "slight"], reason = "Someone ought to speak to them", reason_delta = { respect = -5 } },
   { defense = "sublimation", interactions = ["help"] },
+  # Rationalization acts on no one: after the act against conscience it adds the self-serving
+  # Reason about the wronged party (cites the psyche.defense event; fades like the bucket).
+  { defense = "rationalization", interactions = [], reason = "Had it coming", reason_delta = { affection = -6, respect = -4 } },
 ]
 
 # Place tag -> gossip channel (belief/api.ts Channel). First match wins.

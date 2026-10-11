@@ -293,6 +293,12 @@ export const OccupationSchema = z.strictObject({
   skills: z.array(ref()).default([]),
   /** Office/role tags for institutions (04 §9.3): 'preacher', 'jp', 'editor', 'storekeeper'... */
   roles: z.array(id()).default([]),
+  /**
+   * Held at the workplace and unable to leave of their own will (a captive of a fae court, a
+   * prisoner, a lost man who cannot find the way out). Every activity happens at the workplace;
+   * urges still form and are arbitrated (the wish to go home is real), but the body stays put.
+   */
+  confined: z.boolean().default(false),
   schedule: z.array(ScheduleBlockSchema).default([]),
 });
 export type OccupationDef = z.output<typeof OccupationSchema>;

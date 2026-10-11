@@ -91,9 +91,11 @@ volition = [
   { driver = "opinion:affection", weight = -20 },
   { driver = "opinion:fear", weight = -30 },
   { driver = "condition:drunk", weight = 20 },
+  { driver = "household", weight = -20 },
 ]
-threshold = 40
-cooldown_hours = 24
+threshold = 48
+# Hard words are not said daily, even under one roof: a quarrel has to be fed (04 §10).
+cooldown_hours = 72
 check = { kind = "opposed", skill = "intimidate", vs = "will" }
 memory = { kind = "insult", emotion = "anger", intensity = 50 }
 juiciness = 40
@@ -198,3 +200,80 @@ failure.initiator_memory = "{target} put me down at {place}"
 failure.witness_memory = "{target} put {initiator} down at {place}"
 failure.target_reason = "Came at me with fists at {place}"
 failure.initiator_reason = "Put me down in front of everyone"
+
+# ---- Persecution steps (04 §9.2, §9.4). Proposed only by belief when a process is ready for its
+# next rung and this actor is the Catalyst; belief then advances the ladder when it happens.
+
+[[interaction]]
+id = "accuse"
+name = "Accuse"
+label = "Accuse"
+description = "Names the charge out loud, before whoever is there to hear it (04 §9.2 rung 2)."
+requires = { acquainted = true, max_affection = 10, min_age = 16 }
+volition = [
+  { driver = "grudge", weight = 30 },
+  { driver = "value:temper", weight = 10 },
+  { driver = "audience", weight = 10 },
+  { driver = "opinion:fear", weight = -20 },
+]
+threshold = 60
+urge_only = true
+cooldown_hours = 72
+check = { kind = "opposed", skill = "persuade", vs = "will" }
+memory = { kind = "accusation", emotion = "anger", intensity = 70 }
+juiciness = 80
+transmits_rumor = true
+notable = true
+importance = 60
+visibility = "public"
+tags = ["hostile", "public", "persecution"]
+success.audience = "all_present"
+success.target_opinion = { affection = -20, trust = -15, fear = 10 }
+success.target_anxiety = 250
+success.audience_opinion = { respect = 2 }
+success.target_memory = "{initiator} accused me before everyone at {place}"
+success.initiator_memory = "Said it out loud: accused {target}"
+success.witness_memory = "{initiator} accused {target} at {place}"
+success.target_reason = "Accused me in front of the town"
+failure.audience = "all_present"
+failure.target_opinion = { affection = -15 }
+failure.target_anxiety = 120
+failure.audience_opinion = { respect = -3 }
+failure.target_memory = "{initiator} flung accusations at me at {place}; few listened"
+failure.initiator_memory = "Accused {target}; they faced it down"
+failure.witness_memory = "{initiator} accused {target} at {place}, and it fell flat"
+failure.target_reason = "Slandered me"
+
+[[interaction]]
+id = "shun_lobby"
+name = "Urge shunning"
+label = "Shun them"
+description = "Goes round telling neighbors to cut off the accused: no credit, no help, no company (rung 3)."
+requires = { acquainted = true, min_age = 16 }
+volition = [
+  { driver = "grudge", weight = 20 },
+  { driver = "value:parochialism", weight = 10 },
+  { driver = "opinion:trust", weight = 10 },
+]
+threshold = 60
+urge_only = true
+cooldown_hours = 72
+check = { kind = "opposed", skill = "persuade", vs = "will" }
+memory = { kind = "accusation", emotion = "disgust", intensity = 45 }
+juiciness = 60
+transmits_rumor = true
+notable = true
+importance = 55
+visibility = "public"
+tags = ["hostile", "public", "persecution"]
+success.audience = "all_present"
+success.target_opinion = { trust = 5 }
+success.initiator_needs = { standing = 30 }
+success.target_memory = "{initiator} told me to have nothing to do with the accused"
+success.initiator_memory = "Told {target} to have nothing more to do with them"
+success.witness_memory = "{initiator} was lobbying {target} to shun someone at {place}"
+failure.target_opinion = { respect = -4 }
+failure.target_memory = "{initiator} wanted me to shun a neighbor; I would not"
+failure.initiator_memory = "{target} would not hear of shunning"
+failure.witness_memory = "{initiator} tried to turn {target} against a neighbor at {place}"
+failure.target_reason = "Tried to turn me against my neighbors"

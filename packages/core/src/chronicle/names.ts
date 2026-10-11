@@ -44,7 +44,12 @@ export function formalName(world: World, content: ContentBundle, id: ActorId | n
   const initial = a.name.given.charAt(0);
   const family = a.name.family || a.name.given;
   const title = titleOf(world, content, a);
-  return a.name.family ? `${title} ${initial}. ${family}` : `${title} ${a.name.given}`;
+  if (!a.name.family) return `${title} ${a.name.given}`;
+  // Two of a family with one initial (Josiah and Jory Trevenna) would read as one man: spell it out.
+  const clash = Object.values(world.actors).some(
+    (o) => o.id !== a.id && o.name.family === a.name.family && o.name.given.charAt(0) === initial,
+  );
+  return clash ? `${title} ${a.name.given} ${family}` : `${title} ${initial}. ${family}`;
 }
 
 /** The diarist's form: "Gussie Pratt". */
@@ -77,10 +82,10 @@ export function familyOfHousehold(world: World, hid: HouseholdId | number): stri
   return h.name.replace(/^The\s+/i, '');
 }
 
-/** "the Pratts" (plural by adding s; good enough for Yankee, German and Norse surnames). */
+/** "the Pratts", "the Hatches" (surnames take -es after s, x, z, ch, sh; never an apostrophe). */
 export function familiesOf(world: World, hid: HouseholdId | number): string {
   const f = familyOfHousehold(world, hid);
-  return `the ${f}${/s$/i.test(f) ? '' : 's'}`;
+  return `the ${f}${/(s|x|z|ch|sh)$/i.test(f) ? 'es' : 's'}`;
 }
 
 export function placeName(world: World, pid: PlaceId | number | null | undefined): string {

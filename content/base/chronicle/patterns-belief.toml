@@ -54,7 +54,7 @@ id = "whispers_closed_paper"
 on = "whispers.closed"
 voice = "paper"
 text = [
-  "The story concerning {actor} has lost its legs, for want of fresh material. The village has moved on to other meat.",
+  "The story that \"{rumor}\" has lost its legs, for want of fresh material. The village has moved on to other meat.",
 ]
 
 [[template]]
@@ -246,7 +246,7 @@ on = "faekin_suspicion"
 voice = "ballad"
 text = [
   "The iron lay on the window sill\nAnd the salt lay on the stair,\nFor {actor} walked down by the Lantern shore\nAnd something walked there.",
-  "#ballad_oh#, of the one they shunned\n#ballad_place#, in the dim of the moon;\nThey said she was one of #good_neighbors#,\nAnd the dogs all howled the tune.",
+  "#ballad_oh#, of the one they shunned\n#ballad_place#, in the dim of the moon;\nThey named that one as #good_neighbors#,\nAnd the dogs all howled the tune.",
 ]
 
 [[template]]

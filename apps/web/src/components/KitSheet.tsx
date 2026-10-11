@@ -43,6 +43,24 @@ export function ReadinessLedger({ readiness: r }: { readiness: provisions.Readin
   );
 }
 
+/** Pack view for someone who eats at the family table: the pantry's horizon and its warnings. */
+function HomeLedger({ household, readiness: r }: { household: string; readiness: provisions.Readiness | null }) {
+  if (!r) return <Empty>Checking the household pantry…</Empty>;
+  return (
+    <div className="readiness">
+      <Row k="Eats at home" v={`household pantry ${(r.daysOfFoodTenths / 10).toFixed(1)} days`} />
+      <p className="hint">Nothing to eat in the pack: meals come from the pantry of {household}.</p>
+      {r.warnings.length ? (
+        <ul className="warnings">
+          {r.warnings.map((w) => (
+            <li key={w}>⚠ Pantry: {w}</li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 export function KitSheet({ actor }: { actor: ActorView }) {
   const sim = useSimCtx();
   const vm = useVm();
@@ -51,6 +69,11 @@ export function KitSheet({ actor }: { actor: ActorView }) {
   const household = vm.households.find((h) => h.id === actor.householdId);
   const holder = pantry && household ? { householdId: household.id } : { actorId: actor.id };
   const readiness = useReadiness(sim, holder);
+  // Someone who eats at home lives off the household pantry, not their pockets (P8 legibility:
+  // warn about the store that feeds them). The pack ledger shows only if the pack holds food.
+  const homeReadiness = useReadiness(sim, !pantry && household ? { householdId: household.id } : null);
+  const packHasFood = actor.items.carried.some((st) => sim.items[st.defId]?.food);
+  const eatsAtHome = !pantry && household !== undefined && !packHasFood;
   const stacks = pantry ? (household?.provisions.pantry ?? []) : actor.items.carried;
   const own = actor.id === vm.playerId;
   const containers = actor.items.carried.filter((s) => sim.items[s.defId]?.container);
@@ -65,7 +88,11 @@ export function KitSheet({ actor }: { actor: ActorView }) {
           Pantry
         </button>
       </div>
-      <ReadinessLedger readiness={readiness} />
+      {eatsAtHome ? (
+        <HomeLedger household={household?.name ?? 'the household'} readiness={homeReadiness} />
+      ) : (
+        <ReadinessLedger readiness={readiness} />
+      )}
       {pantry ? (
         <p>{household?.name}</p>
       ) : (
@@ -174,7 +201,7 @@ function StackLine({
         {s.worn ? ' · worn' : ''}
       </span>
       <span className="meta">
-        Condition {s.condition}/1000 · Wet {s.wetness}/1000{s.spoilage === null ? '' : ` · Spoilage ${s.spoilage}/1000`}
+        Condition {s.condition}% · Wet {s.wetness}%{s.spoilage === null ? '' : ` · Spoilage ${s.spoilage}/1000`}
       </span>
       {def?.food ? (
         <span className="meta">

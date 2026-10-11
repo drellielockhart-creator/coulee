@@ -149,6 +149,8 @@ export class SiteRenderer {
   private actors = new Map<number, ActorGfx>();
   private selectedActor: number | null = null;
   private selectedPlace: number | null = null;
+  /** Actor under a mouse pointer (desktop hover); touch has no hover, so taps select instead. */
+  private hoveredActor: number | null = null;
   private dirty = true;
   private raf = 0;
   private disposed = false;
@@ -204,8 +206,27 @@ export class SiteRenderer {
       onTap: (x, y) => this.onPick(this.pick(x, y)),
     });
     document.addEventListener('visibilitychange', this.onVisibility);
+    this.canvas.addEventListener('pointermove', this.onHover);
+    this.canvas.addEventListener('pointerleave', this.onLeave);
     this.loop();
   }
+
+  private onHover = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse' || e.buttons !== 0) return;
+    const r = this.canvas.getBoundingClientRect();
+    const hit = this.pick(e.clientX - r.left, e.clientY - r.top);
+    const id = hit?.kind === 'actor' ? hit.id : null;
+    if (id !== this.hoveredActor) {
+      this.hoveredActor = id;
+      this.invalidate();
+    }
+  };
+
+  private onLeave = () => {
+    if (this.hoveredActor === null) return;
+    this.hoveredActor = null;
+    this.invalidate();
+  };
 
   private onVisibility = () => {
     if (document.hidden) cancelAnimationFrame(this.raf);
@@ -796,14 +817,22 @@ export class SiteRenderer {
     const warm = new THREE.Color(0xffc48a);
     const noon = new THREE.Color(0xfff4e2);
     this.sun.color.copy(warm).lerp(noon, Math.min(1, el * 1.6));
-    this.sun.intensity = daylight ? 0.4 + 1.6 * el : 0;
-    // Night: blue-ink grade held above a brightness floor (11 §7.4).
-    const night = new THREE.Color(0x6f7ea0);
+    // Night (11 §7.4): a blue-ink grade held above a readability floor. Moonlight stands in for
+    // the sun (a cool key light from high up) and lantern-warm ground bounce keeps footprints,
+    // roofs and figures legible at 02:00; the grade says "night" without hiding the town.
+    const moon = new THREE.Color(0xb8c6e6);
+    this.sun.intensity = daylight ? 0.4 + 1.6 * el : 0.75;
+    if (!daylight) {
+      this.sun.color.copy(moon);
+      this.sun.position.set(cx - R * 0.3, R * 0.9, cz + R * 0.4);
+    }
+    const night = new THREE.Color(0xa3b0cf);
     const day = new THREE.Color(0xf3ebdc);
     const k = daylight ? Math.min(1, 0.35 + el * 1.2) : 0;
     this.hemi.color.copy(night).lerp(day, k);
-    this.hemi.intensity = 0.85 + 0.9 * k;
-    (this.scene.background as THREE.Color).set(0x2a2f3c).lerp(new THREE.Color(0xd9ccb3), k);
+    this.hemi.groundColor.set(0x6b5a44).lerp(new THREE.Color(0x5a4d3e), k);
+    this.hemi.intensity = 1.35 + 0.4 * k;
+    (this.scene.background as THREE.Color).set(0x3a4256).lerp(new THREE.Color(0xd9ccb3), k);
     this.invalidate();
   }
 
@@ -870,12 +899,14 @@ export class SiteRenderer {
       // A little bob while walking.
       g.body.position.y = s.walking ? Math.abs(Math.sin(now / 110)) * 0.06 : 0;
       const sel = id === this.selectedActor;
+      const hov = id === this.hoveredActor;
       g.ring.visible = sel || g.data.isPlayer;
       g.ring.material = sel ? this.mats.ringSel : this.mats.ringPlayer;
       g.ring.scale.setScalar(sel ? 1.25 : 1);
       v.set(g.root.position.x, gh + FIGURE_H * legible * (g.data.child ? 0.8 : 1) + 0.2, g.root.position.z);
       this.rig.toScreen(v, sp);
-      placed.push({ el: g.label, x: sp.x, y: sp.y, pri: sel ? 0 : g.data.isPlayer ? 1 : 3 });
+      // Actor names only for the selection, the hovered figure and the PC (11 §2.2 declutter).
+      placed.push({ el: g.label, x: sp.x, y: sp.y, pri: sel || hov ? 0 : g.data.isPlayer ? 1 : 9 });
       g.label.classList.toggle('is-selected', sel);
     }
     for (const [id, p] of this.places) {
@@ -884,7 +915,11 @@ export class SiteRenderer {
       v.set((d.x + d.w / 2) * this.tileM, lift, (d.y + d.h / 2) * this.tileM);
       this.rig.toScreen(v, sp);
       const sel = id === this.selectedPlace;
-      placed.push({ el: p.label, x: sp.x, y: sp.y, pri: sel ? 0 : d.kind === 'road' ? 5 : 4 });
+      // Place names by zoom: buildings and homesteads at the town view; fields, wild ground and
+      // yards when closer; roads only close in (11 §2.2 declutter).
+      const kindNeed: Record<string, number> = { building: 0, house: 1.2, farmstead: 0, landing: 1.2, road: 8 };
+      const need = kindNeed[d.kind] ?? 4;
+      placed.push({ el: p.label, x: sp.x, y: sp.y, pri: sel ? 0 : ppm < need ? 9 : d.kind === 'road' ? 5 : 4 });
       p.label.classList.toggle('is-selected', sel);
     }
     this.layoutLabels(placed, ppm);
@@ -893,22 +928,27 @@ export class SiteRenderer {
 
   /** Declutter by priority (11 §2.2): selected, then the PC, then names, then places. */
   private layoutLabels(items: Array<{ el: HTMLDivElement; x: number; y: number; pri: number }>, ppm: number): void {
-    const taken: Array<[number, number, number, number]> = [];
+    // The map title card (top-left) is never covered.
+    const taken: Array<[number, number, number, number]> = [[0, 0, 190, 80]];
     const w = this.canvas.clientWidth;
     const h = this.canvas.clientHeight;
     items.sort((a, b) => a.pri - b.pri || a.y - b.y || a.x - b.x);
     for (const it of items) {
       const isActor = it.el.classList.contains('lbl-actor');
-      // Far out, only the PC, the selection, and buildings get names.
-      if (isActor && it.pri > 1 && ppm < 2.2) {
+      // pri 9 = not at this zoom / not hovered or selected.
+      if (it.pri >= 9 || (isActor && it.pri > 1 && ppm < 2.2)) {
         it.el.style.display = 'none';
         continue;
       }
       const lw = Math.max(24, (it.el.textContent?.length ?? 4) * (isActor ? 6.4 : 6.8) + 10);
       const lh = 20;
-      const x0 = it.x - lw / 2;
-      const y0 = it.y - lh;
-      const off = it.x < -40 || it.x > w + 40 || it.y < -20 || it.y > h + 40;
+      // Anchors off the map hide; labels near an edge slide inside it instead of being clipped.
+      const off = it.x < 0 || it.x > w || it.y < lh / 2 || it.y > h + 10;
+      const pad = 4;
+      const cx = Math.min(Math.max(it.x, lw / 2 + pad), Math.max(lw / 2 + pad, w - lw / 2 - pad));
+      const cy = Math.max(it.y, lh + pad);
+      const x0 = cx - lw / 2;
+      const y0 = cy - lh;
       const overlaps = taken.some(([a, b, c, d]) => x0 < c && x0 + lw > a && y0 < d && y0 + lh > b);
       if (off || (overlaps && it.pri > 1)) {
         it.el.style.display = 'none';
@@ -916,7 +956,7 @@ export class SiteRenderer {
       }
       taken.push([x0, y0, x0 + lw, y0 + lh]);
       it.el.style.display = '';
-      it.el.style.transform = `translate(${Math.round(it.x)}px, ${Math.round(it.y)}px) translate(-50%, -100%)`;
+      it.el.style.transform = `translate(${Math.round(cx)}px, ${Math.round(cy)}px) translate(-50%, -100%)`;
     }
   }
 
@@ -929,6 +969,8 @@ export class SiteRenderer {
     this.disposed = true;
     cancelAnimationFrame(this.raf);
     document.removeEventListener('visibilitychange', this.onVisibility);
+    this.canvas.removeEventListener('pointermove', this.onHover);
+    this.canvas.removeEventListener('pointerleave', this.onLeave);
     this.detach();
     this.ro.disconnect();
     this.clearGroup(this.ground);

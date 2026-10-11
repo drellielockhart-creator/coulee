@@ -9,7 +9,7 @@
  */
 import type { Command } from '../command.ts';
 import type { ContentBundle } from '../content.ts';
-import { appendEvent, type EventInput } from '../events/index.ts';
+import { appendEvent, type Event, type EventInput, trimLog } from '../events/index.ts';
 import { hashValue } from '../hash.ts';
 import { rng, type Stream } from '../rng.ts';
 import { asGameMinute, calendarAt, MINUTES_PER_DAY, minuteOfDay } from '../time.ts';
@@ -21,6 +21,13 @@ import { HOURLY_SYSTEMS } from './schedule.ts';
 export interface Sim {
   world: World;
   content: ContentBundle;
+  /**
+   * Optional observer of every event as it is appended (not part of the World). The CLI streams
+   * the full log to events.jsonl through it; the World itself keeps only a retention window.
+   */
+  sink?: (e: Event) => void;
+  /** Optional harness hook around each system run (the CLI's --profile timer). Never changes results. */
+  wrapSystem?: (systemId: string, run: () => void) => void;
 }
 
 export function createSim(content: ContentBundle, opts: CreateWorldOptions): Sim {
@@ -37,7 +44,12 @@ export function restoreSim(content: ContentBundle, world: World, opts: { allowCo
   return { world, content };
 }
 
-export function makeContext(world: World, content: ContentBundle, commands: readonly Command[]): SimContext {
+export function makeContext(
+  world: World,
+  content: ContentBundle,
+  commands: readonly Command[],
+  sink?: (e: Event) => void,
+): SimContext {
   const now = world.time;
   const seed = world.meta.seed;
   return {
@@ -48,14 +60,20 @@ export function makeContext(world: World, content: ContentBundle, commands: read
     isNewDay: minuteOfDay(now) === 0,
     commands,
     rng: (stream: Stream, key: number) => rng(seed, stream, now, key),
-    emit: (e: EventInput) => appendEvent(world.log, e, now),
+    emit: sink
+      ? (e: EventInput) => {
+          const id = appendEvent(world.log, e, now);
+          sink(world.log.events[world.log.events.length - 1] as Event);
+          return id;
+        }
+      : (e: EventInput) => appendEvent(world.log, e, now),
   };
 }
 
 /** Simulate one game-hour. */
 export function step(sim: Sim, commands: readonly Command[] = []): void {
   const { world, content } = sim;
-  const ctx = makeContext(world, content, commands);
+  const ctx = makeContext(world, content, commands, sim.sink);
   if (ctx.isNewDay) {
     const c = ctx.cal;
     ctx.emit({
@@ -80,7 +98,13 @@ export function step(sim: Sim, commands: readonly Command[] = []): void {
       data: { command },
     });
   }
-  for (const sys of HOURLY_SYSTEMS) sys.run(world, ctx);
+  const wrap = sim.wrapSystem;
+  for (const sys of HOURLY_SYSTEMS) {
+    if (wrap) wrap(sys.id, () => sys.run(world, ctx));
+    else sys.run(world, ctx);
+  }
+  // The chronicle (last system) has sifted everything up to lastId: older events may leave memory.
+  if (ctx.isNewDay) trimLog(world.log, ctx.now);
   world.time = asGameMinute(world.time + 60);
 }
 

@@ -5,9 +5,13 @@
  */
 import { requiredRow } from '../activity/definitions.ts';
 import type { ContentBundle } from '../content.ts';
+import type { Explain } from '../explain.ts';
 import { type ActorId, rowsOf } from '../ids.ts';
+import { calendarAt } from '../time.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
 import type { World } from '../world.ts';
+import { hourlyLedger } from './system.ts';
+import { ambientTemperatureF } from './thermal.ts';
 
 export interface NeedView {
   id: string;
@@ -17,6 +21,10 @@ export interface NeedView {
   value: number;
   /** Legible band label ('' = fine). */
   band: string;
+  /** Net change over the last simulated hour (trend arrow). */
+  trend?: number;
+  /** P1: the projected hourly balance at the current activity (only with includeExplain). */
+  explain?: Explain;
 }
 
 export interface NeedsActorView {
@@ -35,13 +43,38 @@ export function viewNeedsActor(
   for (const def of Object.keys(content.needs)
     .sort()
     .map((key) => requiredRow(content.needs, key))) {
-    list.push({
+    const view: NeedView = {
       id: def.id,
       name: def.name,
       kind: def.kind,
       value: n?.values[def.id] ?? 1000,
       band: n?.bands[def.id] ?? '',
-    });
+      trend: n?.hourly?.[def.id] ?? 0,
+    };
+    const actor = world.actors[actorId];
+    if (opts.includeExplain && n && actor?.alive) {
+      const air = ambientTemperatureF(calendarAt(world.time));
+      const ledger = hourlyLedger(
+        world,
+        content,
+        actorId,
+        def.id,
+        air,
+        world.needs.placeTempF?.[actor.placeId] ?? air,
+        n.values,
+      );
+      view.explain = {
+        kind: 'formula',
+        label: `${def.name}: next hour at the current activity`,
+        subjects: [actorId],
+        knowledge: 'self',
+        terms: ledger.terms,
+        total: Math.max(0, Math.min(1000, (n.values[def.id] ?? def.initial) + ledger.delta)),
+        outcome: 'projected',
+        children: ledger.calculations,
+      };
+    }
+    list.push(view);
   }
   return { list };
 }
