@@ -2,6 +2,8 @@
 
 **Status:** Rewritten 2026-10-10 to match `adr/0001-typescript-stack.md`, replacing the earlier Rust + Godot version. `00` wins on design, and the ADR wins on stack, invariants, and the clock. `02`–`06` and `10`–`12` own the game rules. `11` owns the interfaces, client budgets, reference devices, and World-size presets. This doc owns the *machinery*: the core contract, determinism and integer math, LOD and census, saves and the worker protocol, the content pipeline, the harness, testing, and milestones.
 
+**Revision 2026-10-11:** Added ADR 0002 PlaySession contracts and milestone playtest gates, ADR 0003 M5a worldgen scope, and current town-slice integration status on `wip/worldgen`.
+
 **Tags:** **[DECISION]** comes from `00`, the ADR, Ellie, or a lead ownership call. **[PROPOSAL]** is mine and can be overridden. **[OPEN]** needs Ellie. **Implementation notes** compare this doc with the code being written in `packages/` today. **The doc is the design target**, so a listed divergence is a question for the next pass, not a silent change to either side.
 
 **Resolves or advances:** C1, C2 (sim side), C9 (with `11`), C21, C36/C37 (implement `04`), C39, C40 (mechanism), C49, and gap 18.
@@ -14,6 +16,8 @@
   - `packages/core` is the pure deterministic sim.
   - `packages/content` turns TOML into a zod-validated JSON bundle.
   - `packages/cli` is the headless `coulee` harness.
+  - `packages/play` defines the shared, IO-free `PlaySession` for fair/god observations, interrupts, replay/save/fork, and telemetry (ADR 0002; in progress).
+  - `packages/worldgen` is the pure deterministic layered generator, emitting authored-scenario shapes (ADR 0003; town-site slice done on `wip/worldgen`).
   - `apps/web` is a Vite + React + three.js **PWA**, with the sim in a **Web Worker**.
   - Vitest + fast-check for tests; Biome plus `scripts/check-invariants.ts` for lint.
   - Capacitor and Tauri come later.
@@ -22,7 +26,7 @@
 - **[DECISION, with `11`] Scale is a World setting** (Small / Standard / Large), recorded in the World and identical on every device. Phones run the same sim *slower* through a speed governor. They never run a coarser sim (§6).
 - **[DECISION] Census materialization (`00`):** named actors have full sheets and minds. Everyone else lives in household census records and is materialized deterministically, with a time-independent identity, on first relevance (§5.3).
 - **[PROPOSAL, aligned with `11` §4.3] A save is a snapshot plus a command journal,** stored in OPFS from the worker with an IndexedDB index. The World never crosses the worker boundary. Positions travel as transferable typed arrays, and panels get small view models and query results (§7).
-- **Today:** M0 and a thin M1–M3 slice are in progress. Next come **M4 Outfitter + P8 provisions, M5a procedural worldgen (ADR 0003), M5 region/travel, M6 combat, M7 adventurer slice, M8 witch slice**, each with acceptance gates and agent playtests (ADR 0002; §12).
+- **Today (2026-10-11):** M0 is done. The M1–M3 town slice (needs/activities, psyche, social, belief, provisions, chronicle, web shell, Blender assets) is implemented and being integrated; headless play (ADR 0002) is in progress. The first M5a town-site generator is done on `wip/worldgen`; county generation remains ahead. Next come **M4 Outfitter + P8 provisions, M5a procedural worldgen (ADR 0003), M5 region/travel, M6 combat, M7 adventurer slice, M8 witch slice**, each with acceptance gates and agent playtests (ADR 0002; §12).
 
 ---
 
@@ -518,7 +522,7 @@ type FromWorker = { v: 1 } & (
   | { type: 'saved'; bytes: number } | { type: 'error'; message: string });
 ```
 
-The alert score that drives auto-pause is computed **in the worker shell** from event `importance` and the PC's knowledge (`11` §1.6), not in core. It's pacing, and it can't affect outcomes.
+**[DECISION] (ADR 0002)** Game-event stopping and the knowledge-gated alert score belong to **one shared PlaySession interrupt policy**, used by headless waits and the pocket UI. The worker forwards its interrupts; each UI owns real-time toast coalescing and presentation. `08` Q14 still owns the category defaults, threshold and action-end/sheet toggles; it does not reopen the shared-policy decision. Interrupts stop advancement without changing the rules of the actions already applied.
 
 ### 7.4 Packaging (`11` §4 owns)
 
@@ -631,7 +635,25 @@ coulee bench     --size standard --days 30                      |  coulee save d
 
 Sweep parameters are integers (per-cent), so tuning never introduces floats into state.
 
-### 10.3 Optional LLM adapter
+### 10.3 PlaySession (ADR 0002; in progress)
+
+**[DECISION]** `packages/play` is pure TypeScript over core, with no IO. A `PlaySession` holds the World, one player-controlled actor, the command log, and an observation renderer. Pocket, desktop, text REPL and JSONL are views over the same API and view model: **every graphical player action must also be a headless Command**. A feature that cannot be played headlessly is not done.
+
+- **Fair observations (default):** perceived place/time/weather and people present; own needs, conscious thoughts and inventory; provisions planner; witnessed events, heard rumors and the PC's beliefs. Available actions have stable ids. `explain <id>` exposes participated-check math through the same knowledge gates; hidden minds, concealed ancestry and unlearned unconscious sources do not leak through Explain or action listings.
+- **God observations (`--god`):** ground truth, other minds and the Director's Ledger, for designer/debug agents. Reports record fair/god mode; god runs cannot substitute for fair acceptance.
+- **Time:** actions consume game time; `wait <dur>` and `wait until <condition>` stop through the shared interrupt policy (§7.3).
+- **Replay/save/fork:** world source + seed + command log reproduces a session. The source is an authored scenario id or a versioned generated recipe (world preset, constraints/pins, world seed and layer versions); keep the simulation seed distinct. `save`, `load` and `fork` support A/B decisions from the same state, with ancestry and observation mode recorded. CLI/worker shells own storage.
+- **Telemetry:** JSONL metrics record money, calories eaten/burned, spoilage losses, opinion deltas, heard rumors about the PC, triggered defenses, Chronicle beats, deaths, and time idle versus deciding. Shells measure wall time; pure packages do not.
+
+```text
+coulee play --scenario iron_ford --seed 42 --text
+coulee play --scenario iron_ford --seed 42 --jsonl [--god]
+coulee play --replay log.jsonl
+```
+
+These are the ADR target transports, not a claim that headless play has landed in this checkout.
+
+### 10.4 Optional LLM adapter
 
 **[PROPOSAL, unchanged principle]** It renders only: facts in, prose out, and the sim never reads prose back.
 
@@ -644,17 +666,20 @@ Sweep parameters are integers (per-cent), so tuning never introduces floats into
 
 ## 11. Repo: what exists vs. what's planned
 
-### 11.1 Actual state (checked 2026-10-10, about 20:50; the build team is working right now)
+### 11.1 Actual state (2026-10-11; `wip/worldgen`)
 
 | Path | State |
 |---|---|
-| Root | `package.json` (pnpm 11, Node ≥ 26; dev deps Biome 2.5, **TypeScript 7.0**, Vitest 5, fast-check 4, tsx, playwright-core), `pnpm-workspace.yaml`, `tsconfig.base.json`, `tsconfig.scripts.json`, `README.md` (current doc index; run/status pointers in CLAUDE.md and NEXT_SESSION.md) |
-| `packages/core/src` | **Exists:** `ids`, `rng`, `time`, `explain`, `hash` (canonical hash + `findNonIntegers`), `actor`, `world` (module-slice composition), `urge` (proposal/arbitration contract), `command` and `events/` (registries), `checks`, `content`, `sim/context`. Module folders: `needs/`, `psyche/`, `social/`, `activity/` have `api/commands/events/state/system/view`. `belief/`, `items/`, `provisions/`, `chronicle/` are empty so far |
-| `packages/content/src` | **Exists:** loader, bundle/check CLIs, schemas (`items` with full P8 food, `psyche`, `social`, `belief`, `needs-activities`, `world` incl. peoples and sites, `scenario`, `rules`, `chronicle`) |
-| `content/base` | **Exists:** activities, beliefs/predicates, chronicle templates, interactions, items seed examples, names (yankee), needs, occupations, peoples, places (`iron_ford`), scenarios (`iron_ford`), skills, traits |
-| `packages/cli`, `apps/web` | Manifests, tsconfigs, `src/` dirs; no app code seen yet. Web deps: Vite 8, React 19, three 0.186, R3F 9, zustand 5, `vite-plugin-pwa`, period fonts |
-| **Missing** | `CLAUDE.md`, `docs/impl/MODULES.md` (referenced by the code as the module-ownership source), `biome.json`, `justfile`, `vitest.config.ts`, `scripts/check-invariants.ts`, `scripts/gen-fixed-tables.ts` |
-| Git | `main` has no commits yet |
+| Root | Workspace, tsconfigs, Biome, `justfile`, Vitest and invariant checker landed (M0). `CLAUDE.md` and its `AGENTS.md` symlink share the rules for the two agent pools: Claude and Codex |
+| `packages/core/src` | Foundation and module slices for `needs/`, `activity/`, `psyche/`, `social/`, `belief/`, `items/`, `provisions/`, `chronicle/`. The M1–M3 town work is implemented and being integrated; this checkout still has a social-system stub and day-heading Chronicle wiring, so integrated story acceptance is pending |
+| `packages/content/src`, `content/base` | Loader, validator, bundler and module schemas; authored Iron Ford fixture, peoples/cultures, name pools, occupations/schedules, items and P8 food, beliefs and seeded tensions |
+| `packages/cli` | Headless scenario runs, inspection and content commands; generated-town run/export/replay-manifest support |
+| `packages/play` | ADR 0002 package/API target (§10.3); headless play in progress, package not yet present here |
+| `packages/worldgen` | **Town-site slice DONE on `wip/worldgen`:** pure deterministic layers → ordinary `ScenarioDef`, `SiteDef`, `PlaceDef`; town population, households, relationships, pantries and tensions. `coulee run --scenario gen:town` runs it; `coulee gen town` exports editable TOML plus recipe/report. County layers and history pre-roll remain planned (§12.3a) |
+| `apps/web`, `tools/blender`, `apps/web/public/assets` | Worker/PWA shell, pocket/desktop panels and data-driven site rendering; Blender scripts and low-poly assets implemented as part of the town slice, being integrated. Full M3 movement/materialization and PlaySession parity gates remain acceptance targets |
+| `scripts/`, `docs/impl/MODULES.md` | Invariant checker and screen capture tooling; `scripts/codex.sh` delegates Codex jobs alongside Claude's pool. `MODULES.md` owns file boundaries, additive contracts and module acceptance; its original build-wave exclusions are historical, not the current worldgen status |
+
+Implementation of the town slice does **not** establish completion of every M1–M3 target below, cross-engine/device budgets, or the ADR 0002 agent playtest pass.
 
 ### 11.2 Planned additions
 
@@ -667,12 +692,15 @@ packages/core/src/
   world-sim/    weather.ts · ecology.ts · disease.ts · economy.ts · travel.ts
   director/  persecution/  views/  queries/  snapshot.ts · migrate.ts
 apps/web/src/   worker/ (sim.worker, loop, governor, protocol, opfs, idb) · ui/{pocket,desk,folio,shared} · render/ · pwa/
-scripts/        check-invariants.ts · gen-fixed-tables.ts
-docs/impl/      MODULES.md
+packages/play/     PlaySession · fair/god observations · shared interrupt policy · replay/save/fork · telemetry (ADR 0002)
+packages/worldgen/ layered county generator → authored-scenario shapes; town-site slice exists (ADR 0003)
+scripts/        gen-fixed-tables.ts (planned); check-invariants.ts · codex.sh (exist)
+docs/impl/      MODULES.md (exists)
+CLAUDE.md · AGENTS.md (symlink): shared rules for Claude and Codex pools
 ```
 
 **[PROPOSAL] `CLAUDE.md` essentials:**
-- canon order: `00` > ADR > owning doc > `07`
+- canon order: `00` > ADRs 0001–0003 > `docs/impl/MODULES.md` > design docs 01–12
 - the §4.5 bans
 - integer state scales
 - every check produces an Explain
@@ -686,16 +714,29 @@ docs/impl/      MODULES.md
 
 ## 12. Milestones
 
-**[PROPOSAL]** Ordering principle: **de-risk the novel thing first** (social sim, psyche, LOD), then the known things. Every milestone ends demoable with `just check`, `just check-engines`, and an agent playtest report/command log/metrics pass (ADR 0002); M5a worldgen precedes M5 travel (ADR 0003). The acceptance criteria are gates.
+**[PROPOSAL]** Ordering principle: **de-risk the novel thing first** (social sim, psyche, LOD), then the known things. Every milestone ends demoable with `just check`, cross-engine validation (`just check-engines` once wired), and an agent playtest pass (ADR 0002); M5a worldgen precedes M5 travel (ADR 0003). The acceptance criteria are gates.
 
-### 12.1 Today's slice (in progress): M0 + thin M1–M3
+**[DECISION] Shared playtest gate (every milestone):** run the named ADR 0002 personas in **fair mode**, replay their command logs, and compare supported actions/observations/interrupts with pocket and desktop on the same state. **Crashes, replay divergence, knowledge leaks, UI-parity failures, and progression blockers block acceptance.** God-mode diagnosis is recorded separately. Balance/exploit, confusion, boredom and story findings are triaged/deduped with a disposition (fix, tuning, design review, or deferred with reason); a finding that blocks progression blocks the gate. Reports include fun moments, bugs/repro logs, exploits, balance notes and whether the run produced a story worth retelling, under `playtests/<date>-<persona>-<seed>/{report.md,commands.jsonl,metrics.jsonl}`. Regressions replay the same logs/seeds plus fresh seeds.
+
+**[PROPOSAL] Coverage below** makes the gates runnable; seed counts and balance/story pass bands remain `08` Q15, not new settled decisions. For "fresh seeds," record at least two seeds outside the listed regression set. Later fixtures are authored acceptance targets to build with their milestone. Before PlaySession or the UI exists, use command-driven harness smoke on the available surface and mark the missing gate evidence pending; M0's foundation is done, but do not invent a retrospective ADR 0002 pass.
+
+### 12.1 Today's slice: M0 done; M1–M3 town slice implemented, being integrated
 
 | # | Scope | Acceptance |
 |---|---|---|
-| **M0** Skeleton | workspace, tsconfigs, Biome, invariant checker, `just`, CLAUDE.md, MODULES.md, core foundation (mostly present), scenario loader | `just check` green; `coulee run --scenario iron_ford --days 10 --seed 1` prints dated lines with moon and Sabbath; determinism test **and a Bun cross-engine hash test** pass; `content check` passes on `base` |
+| **M0** Skeleton | workspace, tsconfigs, Biome, invariant checker, `just`, CLAUDE.md, MODULES.md, core foundation (landed), scenario loader | `just check` green; `coulee run --scenario iron_ford --days 10 --seed 1` prints dated lines with moon and Sabbath; determinism test **and a Bun cross-engine hash test** pass; `content check` passes on `base` |
 | **M1** Headless town + psyche-lite | needs, norms, traits, activities, interactions; T1 scheduler; Ego arbitration over voiced proposals; `04` opinions with Reasons; template Chronicle | 1 game-year in ≤ 3 s; ≥ 20 legible Chronicle entries with one visible relationship drift and one **defense event that reads as psychology**; `inspect` shows an arbitration Explain; golden snapshot committed |
 | **M2** Memory, belief, rumor, grudge, defenses | `04` §4–8 using the §4.3 integer forms; projection/displacement into attribution; grudges; notoriety; persecution rungs 0–6; headless `witch_hunt` scenario | `inspect rumor` prints the transmission tree; with 6 injected curses per season, an accusation (rung ≥ 2) emerges in ≥ 50% and < 100% of 64 seeds; **ADR gate: < 5 ms per game-hour for 30 T1 actors on the mid phone** |
 | **M3** Web shell, thin | worker + protocol v1; one T0 site (instanced low-poly); tap/click-to-move; pause/speeds; inspector via `view()`; installable PWA | the site is entered **through `materialize()`**; NPCs stand where their activities say; the inspector equals `coulee inspect --as pc`; Playwright smoke passes at both viewports |
+
+**Status (2026-10-11):** M0 is done. M1–M3 town-slice implementations include needs/activities, psyche, social, belief, provisions, chronicle, web shell and Blender assets, and are being integrated. That is narrower than the full milestone targets above. Headless play is in progress; social/Chronicle integration and complete parity evidence remain pending in this worktree.
+
+| Milestone | Explicit playtest gate (shared blockers and triage above apply to each) |
+|---|---|
+| **M0** | **Greenhorn + Exploit hunter / griefer:** `iron_ford`, seeds 1 and 42; launch, inspect, issue a command, advance and replay the available harness surface. Foundation done; PlaySession/parity evidence pending |
+| **M1** | **Greenhorn + Roleplayer / socialite:** `iron_ford`, seeds 1–10 and 42, plus fresh seeds; follow a work/meal/Sabbath loop, override an urge, explain the arbitration and a changed relationship |
+| **M2** | **Roleplayer / socialite + Exploit hunter / griefer:** `iron_ford` rumor/concealment fixture, seeds 1–20 and 42, and `witch_hunt`, seeds 1–64, plus fresh seeds; trace a heard rumor and accusation/defusal without seeing private truth |
+| **M3** | **Greenhorn + Pocket player:** `iron_ford`, seeds 1 and 42, plus fresh seeds; replay movement, inspection, pause/wait and resume headlessly and at 390×844 / 1440×900, comparing Commands, observations and interrupts |
 
 ### 12.2 M2.5: LOD + census (must land before M5)
 
@@ -706,6 +747,8 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 - A rumor born in settlement A is held by specific named actors in B after promotion.
 - A census member who witnessed an event remembers it once materialized.
 - Identity is time-independent (property test).
+
+**Playtest gate:** **Explorer + Roleplayer / socialite + Exploit hunter / griefer**, on authored two-settlement LOD/census fixtures, seeds 1–50 plus fresh seeds. Leave, hear a rumor, return and contact a census witness; repeat across promotion/demotion and save/load. Shared blockers and triage apply, including any recorded-history contradiction.
 
 ### 12.3 M4: Outfitter + P8 provisions
 
@@ -735,6 +778,32 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 7. Spoilage and pantries are bit-identical across save/load and across engines.
 8. Pantries cost ≤ 10% of the Standard T2 day.
 
+**Playtest gate:** **Catalog kid / min-maxer + Greenhorn + Pocket player + Exploit hunter / griefer**, on `iron_ford` shopping, 10-day temperature-camp and failed-harvest fixtures, seeds 1–10 and 42 plus fresh seeds. Buy/pack a $50 kit, prepare meals, change rations, and compare planner/outcome and pocket/headless shopping. Shared blockers and triage apply.
+
+### 12.3a M5a: Worldgen (before M5; ADR 0003)
+
+**Status (2026-10-11): first town-site slice DONE on `wip/worldgen`; county generation next.**
+
+**First slice, implemented:**
+
+- `generateTown` layers terrain → settlement → population → tensions → QA, using independent fixed salts on the `worldgen` RNG stream, keyed by generator version and stable actor keys. World seed and simulation seed are separate.
+- `coulee` / `river` presets; town name, river and 3–5 farmstead constraints. An 80×64 town site uses descriptive geology and place footprints; elevation and stream curves are inferred by the renderer, with no county heightfield or hydrological simulation yet. It contains 23–30 actors, homes/workplaces, pantries/store stocks, kinship/debts, concealment and seeded tensions.
+- Emits ordinary authored-scenario/site/place records; `townContent` installs them without mutating the input bundle. Core and renderer have no generator-specific rule path.
+- `coulee run --scenario gen:town` and `coulee gen town` support runs and editable TOML export with recipe/report; manifests restore world source, simulation seed and content hash. Invalid recipes or failed seeds reject explicitly, with no retry or silent seed substitution.
+- Every generation validates schemas/references, integer seeds, footprints, reachability, homes/pantries, workplaces, names, ford, fae anchor, concealment and tensions, then runs a disposable 30-day sim. QA leaves the returned start untouched. CLI integration coverage spans seeds 1–50, determinism, manifest replay and TOML round trips (`runs/worldgen-qa.json`).
+
+**Next scope:** county terrain (drainage, valley carving, caprock/karst raster), hydrology, aspect/slope/soil ecology and wildlife, fae field, settlement siting, region routes/fae paths, on-demand site layouts, census/households/population, constrained set pieces, and **history pre-roll**. ADR 0003 proposes 5–10 years; `08` Q08 still owns duration and seed-validity bands. Hollin is the constraint/flavor bible, and authored Iron Ford remains a regression fixture.
+
+**Acceptance for the county stage:**
+
+1. Same versioned recipe (preset, seed, constraints/pins and layer versions) gives the same output/hash across engines; later-layer changes leave earlier layers stable. Authored and generated worlds use the same sim/UI contracts.
+2. QA across seeds flags missing ford towns, unreachable required sites, unplayable starting routes/food, county collapse, fae deserts and towns without tensions. Hardship and shortages are reported separately; a hungry spring is intended.
+3. The town slice's provisional collapse detector rejects ≥50% deaths or ≥75% of actors meeting <25% of energy obligations on at least five of the final seven days. This is an engineering detector, **not** Q08's settled hunger policy or proof of a playable PC opening. Add explicit starting-route/food checks for county acceptance.
+4. Pre-roll produces learnable local history, grudges, debts, rumors and Figures; inspect and replay it after full social/Chronicle integration. This checkout's headings-only 30-day chronicles do not prove story quality.
+5. Re-run the existing 1–50 town matrix after integration; **[PROPOSAL]** county QA covers seeds 1–64 across supported presets plus fresh seeds, preserving recipes and failing checks. Measure generation + pre-roll against ADR 0003's **<3 s mid-phone target**; a miss requires explicit lead review, not a desktop-only timing claim.
+
+**Playtest gate:** **Greenhorn + Explorer + Roleplayer / socialite + Catalog kid / min-maxer + Exploit hunter / griefer**, on `gen:town` world seeds 1–50 (both presets; farmstead constraints 3 and 5), simulation seeds 9 and 42, and authored `iron_ford` seed 42 as control, plus fresh world seeds. For the county stage, use the 1–64 matrix above: outfit, reach a required site/fae anchor, return and learn a pre-roll tension. Shared blockers and triage apply. Automated all-AI survival QA does not substitute for these fair PlaySession runs; their evidence is pending while headless play is in progress.
+
 ### 12.4 M5: Region map + travel
 
 **Scope:**
@@ -753,6 +822,8 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 3. 50 scripted seeded trips show zero seam contradictions.
 4. Standard sustains 6× on the mid phone and 1× on the phone floor.
 5. A day of travel at Ultra takes ≤ 3 s on the mid phone (`11` §5.4).
+
+**Playtest gate:** **Explorer + Catalog kid / min-maxer + Pocket player**, on authored Iron Ford–farmstead round trips and M5a generated counties, seeds 1–50 plus fresh seeds. Pack, travel/camp, stop at danger/vitals/arrival, and return to off-screen consequences. Shared blockers and triage apply, with headless/pocket interrupt parity and seam contradictions checked explicitly.
 
 ### 12.5 M6: First combat
 
@@ -773,6 +844,8 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 4. A witnessed fight's rumor reaches a nearby settlement through T1/T2.
 5. Same-tenth completions resolve in heap order (property test).
 
+**Playtest gate:** **Greenhorn + Catalog kid / min-maxer + Exploit hunter / griefer + Pocket player**, on authored PC-vs-two-creatures, reload and witnessed-fight fixtures, seeds 1–10 and 42 plus fresh seeds. Plan/attack/reload, interrupt, save/load mid-fight and replay at different speeds; verify only participated/witnessed math is visible. Shared blockers and triage apply.
+
 ### 12.6 M7: Adventurer vertical slice
 
 **Scope:**
@@ -787,6 +860,8 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 2. At least one unscripted callback in the Chronicle.
 3. At least half of playtesters report a provisioning choice that changed an outcome (P8 bites).
 4. A legacy character meets NPCs who remember the predecessor, per the `04` Q10 decision.
+
+**Playtest gate:** **Greenhorn + Catalog kid / min-maxer + Roleplayer / socialite + Explorer + Pocket player**, on the authored Iron Ford/farm/mine/glade fixture, seed 42, and generated counties, seeds 1–10 plus fresh seeds. Complete the 60–90-minute outfit/explore/return/legacy loop on phone, desktop and headless. Shared blockers and triage apply; provisioning impact, callbacks and story value are recorded against the acceptance criteria above.
 
 ### 12.7 M8: Witch vertical slice
 
@@ -807,6 +882,8 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 3. Every weakness trigger shows its Drift or pact Explain.
 4. Toggled-off content never fires across 64 seeds.
 5. The Chronicle reads like a folk tale.
+
+**Playtest gate:** **Witch + Roleplayer / socialite + Exploit hunter / griefer + Pocket player**, on an authored pact/curse/persecution fixture and generated counties, seeds 1–64 plus fresh seeds, across the World content toggles. Complete a 60-minute curse/glean/Tithe/pressure/defusal loop; verify fair observations, weakness Explains and replay, with god diagnosis separately labeled. Shared blockers and triage apply; Woe exploits, moral texture, escalation pacing and folk-tale quality get explicit dispositions.
 
 ---
 

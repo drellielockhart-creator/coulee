@@ -23,14 +23,24 @@ import {
   stateHash,
 } from '@coulee/core';
 
+import { GEN_VERSION, type TownRecipe, townContent } from '@coulee/worldgen';
+import { generateTimedTown } from './generation.ts';
+
+export type WorldSource =
+  | { kind: 'authored'; scenarioId: string }
+  | { kind: 'generated'; generator: 'town'; recipe: TownRecipe };
+
 export interface RunSpec {
   scenarioId: string;
   seed: number;
   hours: number;
+  worldSeed?: number;
+  worldSource?: WorldSource;
 }
 
 export interface RunResult {
   sim: Sim;
+  worldSource: WorldSource;
   hash: string;
   stats: Array<Record<string, number | string>>;
 }
@@ -64,8 +74,19 @@ export interface ScenarioRunOptions {
 }
 
 export function runScenario(content: ContentBundle, spec: RunSpec, opts: ScenarioRunOptions = {}): RunResult {
+  let scenarioId = spec.scenarioId;
+  const worldSource: WorldSource =
+    spec.worldSource ??
+    (scenarioId === 'gen:town'
+      ? { kind: 'generated', generator: 'town', recipe: { genVersion: GEN_VERSION, seed: spec.worldSeed ?? spec.seed } }
+      : { kind: 'authored', scenarioId });
+  if (worldSource.kind === 'generated') {
+    const town = generateTimedTown(content, worldSource.recipe);
+    content = townContent(content, town);
+    scenarioId = town.scenario.id;
+  } else scenarioId = worldSource.scenarioId;
   const sim = createSim(content, {
-    scenarioId: spec.scenarioId,
+    scenarioId,
     seed: spec.seed,
     ...(opts.logRetention !== undefined ? { logRetention: opts.logRetention } : {}),
   });
@@ -82,7 +103,7 @@ export function runScenario(content: ContentBundle, spec: RunSpec, opts: Scenari
       eventsBefore = s.world.log.lastId;
     },
   });
-  return { sim, hash: stateHash(sim.world), stats };
+  return { sim, worldSource, hash: stateHash(sim.world), stats };
 }
 
 /** Collects every event a run emits (tests that need the whole log of a long run). */
@@ -158,6 +179,8 @@ export function writeRunOutputs(
       {
         scenario: spec.scenarioId,
         seed: spec.seed,
+        worldSource: res.worldSource,
+        commandLog: [],
         hours: spec.hours,
         contentHash: content.meta.hash,
         mods: content.meta.mods,

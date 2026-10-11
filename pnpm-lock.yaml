@@ -93,6 +93,9 @@ importers:
       '@coulee/core':
         specifier: workspace:*
         version: link:../core
+      '@coulee/worldgen':
+        specifier: workspace:*
+        version: link:../worldgen
       cac:
         specifier: ^7.0.1
         version: 7.0.1
@@ -111,6 +114,15 @@ importers:
       '@coulee/content':
         specifier: workspace:*
         version: link:../content
+
+  packages/worldgen:
+    dependencies:
+      '@coulee/content':
+        specifier: workspace:*
+        version: link:../content
+      '@coulee/core':
+        specifier: workspace:*
+        version: link:../core
 
 packages:
 

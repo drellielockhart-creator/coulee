@@ -3,7 +3,7 @@
  * determinism (no ambient randomness, clocks, timers, locale, engine-dependent math) and
  * purity (no Node/DOM APIs, no runtime imports of other packages) in packages/core/src.
  *
- * Usage: tsx scripts/check-invariants.ts [dir...]   (default: packages/core/src)
+ * Usage: tsx scripts/check-invariants.ts [dir...]   (default: packages/core/src and packages/worldgen/src)
  * Exits 1 and prints file:line for every violation. Test files (*.test.ts) are exempt.
  * FOUNDATION-OWNED.
  */
@@ -176,6 +176,8 @@ const IMPORT_RE = /^\s*(import|export)\s+(type\s+)?[^'"]*?\bfrom\s+['"]([^'"]+)[
 
 export function checkFile(file: string, src: string): Violation[] {
   const rel = relative(ROOT, file);
+  const worldgen = file.replaceAll('\\', '/').includes('/packages/worldgen/src/');
+  const allowedPackage = (spec: string) => worldgen && ['@coulee/core', '@coulee/content/schema'].includes(spec);
   const out: Violation[] = [];
   const srcLines = src.split('\n');
   const codeLines = codeOnly(src).split('\n');
@@ -198,14 +200,14 @@ export function checkFile(file: string, src: string): Violation[] {
       /^(fs|path|os|crypto|child_process|url|util|worker_threads|perf_hooks)$/.test(spec)
     ) {
       out.push({ file: rel, line: ln + 1, why: `Node module import '${spec}' in core`, text: line.trim() });
-    } else if (!spec.startsWith('.') && !typeOnly) {
+    } else if (!spec.startsWith('.') && !typeOnly && !allowedPackage(spec)) {
       out.push({
         file: rel,
         line: ln + 1,
         why: `runtime import of package '${spec}': core may only \`import type\` from packages`,
         text: line.trim(),
       });
-    } else if (!spec.startsWith('.') && typeOnly && spec !== '@coulee/content/schema') {
+    } else if (!spec.startsWith('.') && typeOnly && spec !== '@coulee/content/schema' && !allowedPackage(spec)) {
       out.push({
         file: rel,
         line: ln + 1,
@@ -225,7 +227,10 @@ export function checkFile(file: string, src: string): Violation[] {
 
 function main(): void {
   const dirs = process.argv.slice(2);
-  const targets = dirs.length > 0 ? dirs.map((d) => join(ROOT, d)) : [join(ROOT, 'packages/core/src')];
+  const targets =
+    dirs.length > 0
+      ? dirs.map((d) => join(ROOT, d))
+      : [join(ROOT, 'packages/core/src'), join(ROOT, 'packages/worldgen/src')];
   const violations: Violation[] = [];
   let files = 0;
   for (const dir of targets) {
