@@ -6,6 +6,7 @@ import { rootLocation } from '../items/containers.ts';
 import { chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
+import { drinkWater, sell } from './api.ts';
 import { householdDay, purchase, shoppingHour } from './economy.ts';
 import { devicesHour, storageHour } from './environment.ts';
 import { accessibleStack, dueMeal, type Holder, holderOfActor, mealExplain, serveMeal } from './meals.ts';
@@ -31,6 +32,13 @@ export function provisionsSystem(world: World, ctx: SimContext): void {
       continue;
     }
     switch (cmd.kind) {
+      case 'provisions.drink':
+        if (!drinkWater(world, ctx, actor.id, cmd.data.ml)) reject('Not enough accessible water');
+        break;
+      case 'provisions.sell':
+        if (!sell(world, ctx, actor.id, cmd.data.placeId, cmd.data.itemId, cmd.data.qty))
+          reject('Store cannot buy these goods');
+        break;
       case 'provisions.buy':
         if (!purchase(world, ctx, actor.id, cmd.data.placeId, cmd.data.defId, cmd.data.qty, cmd.data.onCredit))
           reject('Cannot buy: location, stock, cash, or credit limit');

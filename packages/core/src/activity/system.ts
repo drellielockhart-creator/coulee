@@ -42,11 +42,25 @@ export function activitySystem(world: World, ctx: SimContext): void {
     const chosen = chosenUrge(world, id);
     const routine = routineFor(world, ctx, id);
     const urge = chosen?.urge;
-    let activityId = urge?.kind === 'activity' ? urge.activityId : routine?.activityId;
-    let source: ActivitySource =
-      urge?.kind === 'activity' ? (chosen?.voice === 'command' ? 'command' : 'urge') : 'schedule';
+    // An explicit conversation occupies this hour at the current venue. A schedule must
+    // not carry its speaker away (or put them to sleep) before social resolves it.
+    const conversation = chosen?.voice === 'command' && urge?.kind === 'interaction';
+    let activityId = urge?.kind === 'activity' ? urge.activityId : conversation ? 'idle_at_home' : routine?.activityId;
+    let source: ActivitySource = conversation
+      ? 'command'
+      : urge?.kind === 'activity'
+        ? chosen?.voice === 'command'
+          ? 'command'
+          : 'urge'
+        : 'schedule';
     let placeId = activityId
-      ? resolveActivityPlace(world, ctx, id, activityId, urge?.kind === 'activity' ? urge.placeId : undefined)
+      ? resolveActivityPlace(
+          world,
+          ctx,
+          id,
+          activityId,
+          conversation ? actor.placeId : urge?.kind === 'activity' ? urge.placeId : undefined,
+        )
       : null;
     if (placeId === null || !activityId || !ctx.content.activities[activityId]) {
       activityId = routine?.activityId;

@@ -3,13 +3,15 @@
  */
 import type { ContentBundle } from '../content.ts';
 import { term } from '../explain.ts';
-import type { ActorId, HouseholdId, PlaceId } from '../ids.ts';
+import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 import { rowsOf } from '../ids.ts';
+import { atPlace, moveStack, rootOf, stacksAt } from '../items/api.ts';
+import { drink } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { larderKcal } from './economy.ts';
-import { dailyKcal, hungry, membersOf } from './meals.ts';
+import { dailyKcal, drawWater, holderOfActor, hungry, membersOf, waterAvailable } from './meals.ts';
 import { planReadiness } from './planner.ts';
 import { SHOPPING } from './rules.ts';
 
@@ -93,4 +95,90 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
     }
   }
   return out;
+}
+
+// Shared kernels exposed for command validation and telemetry; hosts must not duplicate prep rules.
+export { accessibleStack, dailyKcal, foodServings, holderOfActor, recipesFor } from './meals.ts';
+
+/** Stores buy intact goods at base value, capped by the current retail price. */
+export function saleQuote(world: World, content: ContentBundle, placeId: PlaceId, itemId: ItemId): number | null {
+  const stack = world.items.stacks[itemId];
+  if (
+    !stack ||
+    stack.partial ||
+    stack.foodPartialPm ||
+    stack.waterMl ||
+    stack.condition < 100 ||
+    stack.spoilage >= 1000 ||
+    stacksAt(world, { kind: 'container', itemId }).length
+  )
+    return null;
+  const retail = priceAt(world, content, placeId, stack.defId);
+  return retail === null ? null : Math.min(retail, content.items[stack.defId]?.value_cents ?? 0);
+}
+export function sell(
+  world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+  placeId: PlaceId,
+  itemId: ItemId,
+  qty: number,
+): boolean {
+  const actor = world.actors[actorId],
+    store = world.provisions.stores[placeId],
+    stack = world.items.stacks[itemId];
+  const price = saleQuote(world, ctx.content, placeId, itemId);
+  if (
+    !actor?.alive ||
+    actor.placeId !== placeId ||
+    !store ||
+    !stack ||
+    price === null ||
+    !Number.isSafeInteger(qty) ||
+    qty <= 0 ||
+    qty > stack.qty
+  )
+    return false;
+  const root = rootOf(world, stack);
+  if (root.kind !== 'actor' || root.actorId !== actorId) return false;
+  const owner = store.ownerHouseholdId === null ? undefined : world.provisions.households[store.ownerHouseholdId];
+  const cost = price * qty;
+  if ((owner?.cashCents ?? store.tillCents) < cost) return false;
+  moveStack(world, ctx, itemId, qty, atPlace(placeId));
+  if (owner) owner.cashCents -= cost;
+  else store.tillCents -= cost;
+  world.provisions.purses[actorId] = (world.provisions.purses[actorId] ?? 0) + cost;
+  ctx.emit({
+    kind: 'provisions.sale',
+    data: { sellerId: actorId, placeId, defId: stack.defId, qty, priceCents: cost },
+    roles: [{ actor: actorId, role: 'agent' }],
+    visibility: 'private',
+    explain: {
+      kind: 'formula',
+      label: 'Store buys intact goods',
+      subjects: [actorId],
+      knowledge: 'participants',
+      terms: [term('price', 'Unit cents (base value capped at retail)', price), term('item', 'Quantity', qty)],
+      total: cost,
+      outcome: 'sold',
+    },
+  });
+  return true;
+}
+
+/** Drink uses the same accessible water and depletion kernel as meal preparation. */
+export function drinkingWater(world: World, content: ContentBundle, actorId: ActorId): number {
+  return waterAvailable(world, content, holderOfActor(world, actorId));
+}
+export function drinkWater(world: World, ctx: SimContext, actorId: ActorId, ml: number): boolean {
+  if (
+    !world.actors[actorId]?.alive ||
+    !Number.isSafeInteger(ml) ||
+    ml <= 0 ||
+    ml > drinkingWater(world, ctx.content, actorId)
+  )
+    return false;
+  drawWater(world, ctx.content, holderOfActor(world, actorId), ml);
+  drink(world, ctx, actorId, ml, { label: 'Drink available water' });
+  return true;
 }

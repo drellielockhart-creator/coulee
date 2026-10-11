@@ -5,6 +5,7 @@ import type { EventOf } from '../events/base.ts';
 import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 
 export type ProvisionsEvent =
+  | EventOf<'provisions.sale', { sellerId: ActorId; placeId: PlaceId; defId: string; qty: number; priceCents: number }>
   | EventOf<
       'provisions.intake',
       {

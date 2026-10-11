@@ -1,0 +1,8 @@
+# Ordinary activities usable by any actor; headless movement never mutates location itself.
+[[activity]]
+id = "walk"
+name = "Walk"
+verb = "walking about"
+at = "anywhere"
+labor = "light"
+tags = ["travel"]
