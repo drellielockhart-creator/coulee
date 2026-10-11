@@ -7,8 +7,12 @@ import { describe, expect, it } from 'vitest';
 import { actorByKey, baseContent } from './helpers.ts';
 
 const content = baseContent();
-const scenario = content.scenarios.iron_ford;
-if (!scenario) throw new Error('iron_ford scenario missing');
+function ironFordScenario() {
+  const value = content.scenarios.iron_ford;
+  if (!value) throw new Error('iron_ford scenario missing');
+  return value;
+}
+const scenario = ironFordScenario();
 
 const STRUCTURE_KINDS = new Set(['building', 'house', 'farmstead', 'landing']);
 const actorByKeyDef = (k: string) => scenario.actors.find((a) => a.key === k);
@@ -310,11 +314,14 @@ describe('the Iron Ford scenario (01 §8.3)', () => {
   });
 
   it('references only authored final ability scores (no ancestry mods baked in or double-applied)', () => {
+    const sim = createSim(content, { scenarioId: 'iron_ford', seed: 42 });
     for (const a of scenario.actors) {
       for (const v of Object.values(a.abilities)) {
         expect(v).toBeGreaterThanOrEqual(3);
         expect(v).toBeLessThanOrEqual(18);
       }
+      const initialized = sim.world.actors[actorByKey(sim, a.key)];
+      expect(initialized?.sheet.abilities, a.key).toEqual(a.abilities);
     }
     // Infant carries only baby scores: the only actor under 3 in any ability.
     expect(scenario.actors.filter((a) => a.age === 0).map((a) => a.key)).toEqual(['brigid_dunleavy']);
@@ -411,9 +418,9 @@ describe('larders (P8): April 1855 is the lean season, and larders differ', () =
 });
 
 describe('the run', () => {
-  it('Iron Ford runs for a week and the survey party keeps its missing chainmen at the court and the Cold Stair', () => {
+  it('Iron Ford runs for 30 days and the survey party keeps its missing chainmen at the court and the Cold Stair', () => {
     const sim = createSim(content, { scenarioId: 'iron_ford', seed: 42 });
-    runHours(sim, 24 * 7);
+    runHours(sim, 24 * 30);
     const placeOf = (k: string) => sim.world.places[sim.world.actors[actorByKey(sim, k)]?.placeId ?? -1]?.defId;
     expect(placeOf('tobias_vik')).toBe('lantern_spring');
     expect(placeOf('ezra_sloat')).toBe('cold_stair');

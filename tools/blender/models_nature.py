@@ -27,7 +27,7 @@ def oak():
         ((0.0, 0.0, 5.3), (2.2, 2.0, 1.2), 5),
     ]
     for at, rad, sd in crowns:
-        m.blob(at, rad, leaf, top=top, bottom=dark, sub=1, seed=sd, jit=0.14)
+        m.blob(at, rad, leaf, top=top, bottom=dark, sub=0, seed=sd, jit=0.14)
     return m
 
 

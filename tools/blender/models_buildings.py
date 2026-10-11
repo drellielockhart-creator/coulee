@@ -101,16 +101,16 @@ def store():
     m = new_mesh("store")
     W, D, H, z0 = 8.4, 10.4, 3.5, 0.3
     m.box((0, 0, 0), (W + 0.2, D + 0.2, z0 + 0.02), P["fieldstone"], cap_bot=False)
-    w = Walls(m, W, D, H, P["wood_weathered"], z0=z0, bands=9, band_k=-0.05)
+    w = Walls(m, W, D, H, P["wood_weathered"], z0=z0, bands=2, band_k=-0.05)
     gable_roof(m, (0, 0, z0 + H), W, D, 1.7, P["shingle"], over=(0.2, 0.3), ridge="y", end_color=P["wood_gray"], under=P["wood_dark"])
     # false front
     fy = -D / 2 - 0.16
     top = 5.7
-    m.box((0, fy, z0), (W + 0.3, 0.34, top), P["wood_light"], bands=12, band_k=-0.04, cap_bot=False)
+    m.box((0, fy, z0), (W + 0.3, 0.34, top), P["wood_light"], bands=1, cap_bot=False)
     m.box((0, fy - 0.08, z0 + top - 0.1), (W + 0.7, 0.5, 0.28), P["barn_red_dark"], cap_bot=False)
     m.box((0, fy - 0.1, z0 + top - 1.65), (W - 0.9, 0.12, 1.1), P["slate"], cap_bot=False)
-    for i in range(9):  # signboard lettering suggested by cream bars
-        x = -2.9 + i * 0.72
+    for i in range(3):  # signboard lettering suggested by cream bars
+        x = -2.2 + i * 2.2
         m.wallquad("y", fy - 0.17, -1, x - 0.22, x + 0.22, z0 + top - 1.35, z0 + top - 0.55, P["cream"])
     # entrance and big display windows (drawn on the false front)
     fw = Walls.__new__(Walls)
@@ -118,28 +118,22 @@ def store():
     fw.door("-y", 0.0, w=1.6, h=2.25, step=False)
     for u in (-2.6, 2.6):
         fw.window("-y", u, 0.75, w=1.7, h=1.45, frame=P["paint_white"])
-    fw.window("-y", -2.6, 3.0, w=1.2, h=1.1, lit=True)
-    fw.window("-y", 2.6, 3.0, w=1.2, h=1.1)
+    fw.window("-y", 2.6, 3.0, w=1.2, h=1.1, lit=True)
     # boardwalk with an awning
     by = -D / 2 - 1.35
     m.box((0, by, 0), (W + 0.8, 2.2, 0.28), P["wood_light"], cap_bot=False)
-    for i in range(1, 8):
+    for i in (2, 5):
         m.topquad(-(W + 0.8) / 2, (W + 0.8) / 2, by - 1.1 + i * 0.275 - 0.012, by - 1.1 + i * 0.275 + 0.012, 0.281, P["wood_dark"])
     posts(m, [(-W / 2 - 0.1, by - 0.9), (-W / 6, by - 0.9), (W / 6, by - 0.9), (W / 2 + 0.1, by - 0.9)], 2.9, 0.16, z0=0.28)
     m.slab(0, W + 1.0, (by - 1.3, 3.2), (-D / 2 - 0.2, 3.5), 0.12, P["shingle_light"])
     # goods out front
     m.add(make_barrel("sb1"), (-3.2, by - 0.1, 0.28))
-    m.add(make_barrel("sb2", scale=0.9), (-2.45, by + 0.15, 0.28))
     m.add(make_crate("sc1", 0.7), (3.1, by - 0.1, 0.28), rz=10)
-    m.add(make_crate("sc2", 0.5, P["wood_gray"]), (3.15, by - 0.1, 0.98), rz=-12)
-    m.add(make_sack("ss1", P["homespun"], 0.55), (2.35, by + 0.2, 0.28), rz=20)
     # hanging lantern bracket
     m.box((W / 2 + 0.55, by - 0.9, 0.28), (0.1, 0.1, 3.0), P["wood_dark"], cap_bot=False)
     m.box((W / 2 + 0.55, by - 0.9 + 0.35, 2.7), (0.08, 0.7, 0.08), P["iron"], cap_bot=False)
     m.box((W / 2 + 0.55, by - 0.5, 2.25), (0.3, 0.3, 0.42), P["glass_lit"], top=(0.22, 0.22))
-    w.window("+x", -2.0, 1.1, w=0.8, h=1.1)
-    w.window("+x", 2.0, 1.1, w=0.8, h=1.1)
-    w.window("-x", 0.0, 1.1, w=0.8, h=1.1)
+    w.window("+x", 0.0, 1.1, w=0.8, h=1.1)
     return m
 
 
@@ -151,7 +145,7 @@ def tavern():
     m = new_mesh("tavern")
     W, D, H, z0 = 9.2, 7.0, 5.0, 0.4
     m.box((0, 0, 0), (W + 0.3, D + 0.3, z0 + 0.02), P["limestone"], cap_bot=False, bands=2, band_k=-0.05)
-    w = Walls(m, W, D, H, P["ochre"], z0=z0, bands=12, band_k=-0.045)
+    w = Walls(m, W, D, H, P["ochre"], z0=z0, bands=2, band_k=-0.045)
     for sx in (-1, 1):
         for sy in (-1, 1):
             m.box((sx * (W / 2 - 0.05), sy * (D / 2 - 0.05), z0), (0.22, 0.22, H), P["paint_white"], cap_bot=False)
@@ -161,24 +155,23 @@ def tavern():
         chimney(m, sx * (W / 2 + 0.3), 0.0, 0, z0 + H + 3.4, w=0.9, d=1.5)
     # ground floor: doors and windows
     w.door("-y", 0.0, w=1.5, h=2.2, color=P["barn_red_dark"], step=False)
-    for u in (-3.2, -1.9, 1.9, 3.2):
+    for u in (-3.2, 3.2):
         w.window("-y", u, 0.85, w=0.75, h=1.3, shutters=P["shutter_green"], lit=(u == 1.9))
     # upper floor
-    for u in (-3.4, -1.7, 0.0, 1.7, 3.4):
+    for u in (-3.4, 0.0, 3.4):
         w.window("-y", u, 3.2, w=0.75, h=1.25, lit=(u == -1.7))
     for u in (-2.0, 2.0):
         w.window("+y", u, 1.0, w=0.8, h=1.2)
-        w.window("+y", u, 3.2, w=0.8, h=1.2)
     # gallery: porch deck, posts, balcony, rail, shed roof
     gy = -D / 2 - 1.1
     m.box((0, gy, 0), (W - 0.2, 2.2, 0.38), P["wood_light"], cap_bot=False)
-    for i in range(1, 8):
+    for i in (2, 5):
         m.topquad(-(W - 0.2) / 2, (W - 0.2) / 2, gy - 1.1 + i * 0.275 - 0.012, gy - 1.1 + i * 0.275 + 0.012, 0.381, P["wood_dark"])
     px = [-4.3, -2.15, 0.0, 2.15, 4.3]
     posts(m, [(x, gy - 0.95) for x in px], 5.0, 0.17, P["paint_white"], z0=0.38)
     m.box((0, gy, z0 + 2.3), (W - 0.2, 2.2, 0.18), P["wood_mid"], cap_bot=True)
     m.box((0, gy - 0.95, z0 + 3.4), (W - 0.2, 0.08, 0.1), P["paint_white"], cap_bot=False)
-    for x in [-4.3 + i * 0.54 for i in range(17)]:
+    for x in [-4.3 + i * 2.15 for i in range(5)]:
         m.box((x, gy - 0.95, z0 + 2.45), (0.05, 0.05, 0.95), P["paint_white"], cap_bot=False)
     m.slab(0, W + 0.4, (gy - 1.35, z0 + 4.65), (-D / 2 + 0.05, z0 + 5.2), 0.13, P["shingle_light"])
     # hanging sign on a post at the corner
@@ -188,7 +181,6 @@ def tavern():
     m.box((sx, gy - 0.9 + 0.7, 2.3), (0.08, 0.95, 0.9), P["barn_red_dark"], cap_bot=False)
     m.box((sx + 0.05, gy - 0.9 + 0.7, 2.7), (0.04, 0.6, 0.12), P["brass"], cap_bot=False)
     m.add(make_barrel("tb", wood=None), (-W / 2 + 0.3, gy - 0.3, 0.38))
-    m.add(make_barrel("tb2", scale=0.85), (-W / 2 + 1.0, gy - 0.45, 0.38))
     return m
 
 
@@ -295,14 +287,14 @@ def mill():
     m = new_mesh("mill")
     W, D = 10.4, 8.2
     bh, uh = 3.6, 3.2
-    base = Walls(m, W, D, bh, P["limestone"], bands=6, band_k=-0.06)
-    up = Walls(m, W - 0.5, D - 0.4, uh, P["wood_gray"], z0=bh, bands=9, band_k=-0.05)
+    base = Walls(m, W, D, bh, P["limestone"], bands=1, band_k=-0.06)
+    up = Walls(m, W - 0.5, D - 0.4, uh, P["wood_gray"], z0=bh, bands=1, band_k=-0.05)
     m.box((0, 0, bh - 0.05), (W + 0.25, D + 0.25, 0.2), P["limestone_dark"])  # string course
     gable_roof(m, (0, 0, bh + uh), W - 0.5, D - 0.4, 2.7, P["shingle"], over=(0.5, 0.7), end_color=P["wood_gray"], under=P["wood_dark"])
     # hoist house on the front gable
     hx = 0.0
     hy = -(D - 0.4) / 2 - 0.45
-    hh = Walls(m, 2.1, 1.1, 2.2, P["wood_weathered"], at=(hx, hy), z0=bh + 0.7, bands=5, band_k=-0.05)
+    hh = Walls(m, 2.1, 1.1, 2.2, P["wood_weathered"], at=(hx, hy), z0=bh + 0.7, bands=1, band_k=-0.05)
     gable_roof(m, (hx, hy, bh + 0.7 + 2.2), 2.1, 1.1, 0.9, P["shingle_light"], over=(0.2, 0.25), ridge="y", end_color=P["wood_weathered"])
     hh.rect("-y", 0.0, 0.2, 1.1, 1.7, P["glass"], 0.03)
     m.limb((hx, hy - 0.5, bh + 2.5), (hx, hy - 1.35, bh + 2.5), 0.08, 0.08, P["wood_dark"], n=4)
@@ -311,18 +303,16 @@ def mill():
     # doors, windows
     base.door("-y", -2.2, w=1.5, h=2.3, color=P["door"])
     base.door("-y", 2.4, w=1.1, h=2.0)
-    for u in (-0.5, 0.9):
-        base.window("-y", u, 1.2, w=0.7, h=0.9)
-    for u in (-3.5, -1.2, 1.2, 3.5):
+    base.window("-y", 0.9, 1.2, w=0.7, h=0.9)
+    for u in (-3.5, 3.5):
         up.window("-y", u, 0.8, w=0.8, h=1.2)
-    for u in (-2.5, 0.0, 2.5):
-        up.window("+y", u, 0.8, w=0.8, h=1.2)
-        base.window("+y", u, 1.2, w=0.7, h=0.9)
+    up.window("+y", 0.0, 0.8, w=0.8, h=1.2)
+    base.window("+y", 0.0, 1.2, w=0.7, h=0.9)
     # wheel on the east (+x) wall, with a flume running to its top
     cx = W / 2 + 0.9
     R = 2.3
     cz = R + 0.15
-    _waterwheel(m, cx, 0.0, cz, R)
+    _waterwheel(m, cx, 0.0, cz, R, buckets=6)
     fx0, fx1 = cx + 0.1, cx + 4.6
     m.box(((fx0 + fx1) / 2, 0, cz + R - 0.2), (fx1 - fx0, 1.0, 0.3), P["wood_light"], cap_bot=True)
     m.topquad(fx0, fx1, -0.4, 0.4, cz + R + 0.101, P["pale_water"])
@@ -331,10 +321,6 @@ def mill():
             m.box((x, y, 0), (0.22, 0.22, cz + R - 0.2), P["wood_dark"], cap_bot=False)
     m.box((fx1 + 0.4, 0, cz + R - 0.35), (0.9, 1.5, 0.5), P["wood_mid"])  # headbox
     # sacks, barrel and a cart-step at the front
-    m.add(make_sack("ms1", P["homespun"], 0.62), (-3.9, -D / 2 - 0.55, 0), rz=15)
-    m.add(make_sack("ms2", P["canvas_shade"], 0.6), (-3.4, -D / 2 - 0.75, 0), rz=-20)
-    m.add(make_sack("ms3", P["homespun"], 0.55), (-3.7, -D / 2 - 0.35, 0.58), rz=50)
-    m.add(make_barrel("mb"), (3.6, -D / 2 - 0.6, 0))
     return m
 
 
@@ -417,14 +403,14 @@ def print_shop():
 def landing():
     m = new_mesh("landing")
     W, D, zt = 9.6, 4.6, 0.95
-    for ix, x in enumerate((-4.4, -2.2, 0.0, 2.2, 4.4)):
+    for ix, x in enumerate((-4.4, -1.5, 1.5, 4.4)):
         for y in (-2.0, 2.0):
             m.cyl((x, y, 0), 0.17, 0.15, zt + 0.5 if ix in (0, 4) else zt + 0.1, P["bark_dark"], n=6)
     m.box((0, 0, zt - 0.28), (W, 0.18, 0.28), P["wood_dark"], cap_bot=False)
     for y in (-1.6, 0.0, 1.6):
         m.box((0, y, zt - 0.3), (W, 0.18, 0.3), P["wood_dark"], cap_bot=False)
     m.box((0, 0, zt - 0.05), (W, D, 0.14), P["wood_light"])
-    for i in range(1, 12):
+    for i in (2, 5, 8, 11):
         m.topquad(-W / 2 + i * W / 12 - 0.012, -W / 2 + i * W / 12 + 0.012, -D / 2, D / 2, zt + 0.091, P["wood_dark"])
     # approach ramp on land side (-y)
     m.slab(0, 3.2, (-D / 2 - 3.8, 0.05), (-D / 2, zt + 0.09), 0.14, P["wood_weathered"])
@@ -439,7 +425,7 @@ def landing():
     m.cyl((-W / 2 + 0.3, -D / 2 + 0.3, zt + 3.02), 0.28, 0.0, 0.25, P["iron"], n=4, start=45)
     # ferryman's hut with a lean-to roof
     hx, hy, hw, hd, hh = 3.0, 0.2, 2.8, 2.4, 2.2
-    hut = Walls(m, hw, hd, hh, P["wood_gray"], at=(hx, hy), z0=zt + 0.09, bands=6, band_k=-0.06)
+    hut = Walls(m, hw, hd, hh, P["wood_gray"], at=(hx, hy), z0=zt + 0.09, bands=1, band_k=-0.06)
     m.slab(hx, hw + 0.5, (hy - hd / 2 - 0.35, zt + 0.09 + hh + 0.2), (hy + hd / 2 + 0.2, zt + 0.09 + hh - 0.25), 0.12, P["shingle"])
     hut.door("-y", -0.5, w=0.8, h=1.7, step=False)
     hut.window("-x", 0.0, 0.8, w=0.6, h=0.6)
@@ -513,7 +499,7 @@ def farmstead():
     W, D, H, z0 = 6.0, 5.0, 2.6, 0.35
     hx, hy = -2.6, 1.4
     m.box((hx, hy, 0), (W + 0.2, D + 0.2, z0 + 0.02), P["fieldstone"], cap_bot=False)
-    w = Walls(m, W, D, H, P["wood_gray"], at=(hx, hy), z0=z0, bands=9, band_k=-0.05)
+    w = Walls(m, W, D, H, P["wood_gray"], at=(hx, hy), z0=z0, bands=3, band_k=-0.05)
     gable_roof(m, (hx, hy, z0 + H), W, D, 1.9, P["shingle"], over=(0.4, 0.5), end_color=P["wood_gray"], under=P["wood_dark"])
     chimney(m, hx + 1.6, hy, z0 + H, z0 + H + 2.7, w=0.8, d=0.8)
     w.door("-y", 0.0, w=0.95, h=2.0)
@@ -526,7 +512,7 @@ def farmstead():
     m.slab(hx, 3.2, (hy - D / 2 - 1.5, z0 + 2.35), (hy - D / 2 + 0.05, z0 + 2.7), 0.1, P["shingle_light"])
     # smokehouse: small windowless hip-roofed box
     sx, sy = -6.9, -2.6
-    sm = Walls(m, 2.2, 2.2, 2.0, P["wood_dark"], at=(sx, sy), z0=0.0, bands=6, band_k=-0.06)
+    sm = Walls(m, 2.2, 2.2, 2.0, P["wood_dark"], at=(sx, sy), z0=0.0, bands=2, band_k=-0.06)
     hip_roof(m, (sx, sy, 2.0), 2.2, 2.2, 1.0, P["shingle"], over=0.25)
     sm.door("-y", 0.0, w=0.7, h=1.4, color=P["door"], step=False)
     m.cyl((sx, sy, 2.8), 0.16, 0.16, 0.6, P["iron"], n=5)
@@ -535,7 +521,7 @@ def farmstead():
     for ox in (-1.3, 1.3):
         for oy in (-0.7, 0.7):
             m.box((cx + ox, cy + oy, 0), (0.18, 0.18, 0.5), P["bark"], cap_bot=False)
-    m.box((cx, cy, 0.5), (3.2, 1.7, 2.0), P["wood_light"], top=(3.5, 1.9), bands=9, band_k=-0.18)
+    m.box((cx, cy, 0.5), (3.2, 1.7, 2.0), P["wood_light"], top=(3.5, 1.9), bands=3, band_k=-0.18)
     gable_roof(m, (cx, cy, 2.5), 3.5, 1.9, 0.9, P["shingle"], over=(0.2, 0.25), end_color=P["wood_dark"])
     # corn glimpsed at the slats
     m.topquad(cx - 1.4, cx + 1.4, cy - 0.85, cy + 0.85, 2.49, P["hay"])

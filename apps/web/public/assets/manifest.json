@@ -204,8 +204,8 @@
       "category": "building",
       "file": "models/farmstead.glb",
       "preview": "previews/farmstead.png",
-      "tris": 708,
-      "bytes": 59136,
+      "tris": 580,
+      "bytes": 49152,
       "size": {
         "x": 14.495,
         "y": 5.86,
@@ -254,8 +254,8 @@
       "category": "building",
       "file": "models/landing.glb",
       "preview": "previews/landing.png",
-      "tris": 712,
-      "bytes": 54412,
+      "tris": 618,
+      "bytes": 47368,
       "size": {
         "x": 9.6,
         "y": 4.22,
@@ -282,8 +282,8 @@
       "category": "building",
       "file": "models/mill.glb",
       "preview": "previews/mill.png",
-      "tris": 1318,
-      "bytes": 114772,
+      "tris": 568,
+      "bytes": 48276,
       "size": {
         "x": 17.0,
         "y": 9.5,
@@ -393,8 +393,8 @@
       "category": "building",
       "file": "models/store.glb",
       "preview": "previews/store.png",
-      "tris": 880,
-      "bytes": 71748,
+      "tris": 402,
+      "bytes": 32084,
       "size": {
         "x": 9.6,
         "y": 6.18,
@@ -423,8 +423,8 @@
       "category": "building",
       "file": "models/tavern.glb",
       "preview": "previews/tavern.png",
-      "tris": 920,
-      "bytes": 72076,
+      "tris": 540,
+      "bytes": 42868,
       "size": {
         "x": 10.965,
         "y": 8.92,
@@ -568,16 +568,16 @@
       "category": "nature",
       "file": "models/oak.glb",
       "preview": "previews/oak.png",
-      "tris": 468,
-      "bytes": 51652,
+      "tris": 168,
+      "bytes": 17436,
       "size": {
-        "x": 7.282,
-        "y": 6.616,
-        "z": 5.957
+        "x": 7.215,
+        "y": 6.36,
+        "z": 5.445
       },
       "center": {
-        "x": 0.064,
-        "z": -0.123
+        "x": 0.03,
+        "z": -0.088
       },
       "tags": [
         "tree",
@@ -869,8 +869,8 @@
       "category": "prop",
       "file": "models/wagon.glb",
       "preview": "previews/wagon.png",
-      "tris": 826,
-      "bytes": 67120,
+      "tris": 636,
+      "bytes": 49924,
       "size": {
         "x": 5.485,
         "y": 2.378,

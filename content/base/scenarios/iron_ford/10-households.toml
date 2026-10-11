@@ -49,7 +49,7 @@ note = "Heavy labor, German cooking, steady wages. Owes Pratt for iron stock."
 cash_cents = 1800
 pantry = [
   { item = "flour_sack_25lb", qty = 1 },
-  { item = "flour", qty = 25, in = "flour_sack_25lb" },
+  { item = "flour", qty = 24, in = "flour_sack_25lb" },
   { item = "flour", qty = 8 },
   { item = "cornmeal", qty = 10 },
   { item = "brine_keg_10gal", qty = 1 },

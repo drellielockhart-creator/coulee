@@ -206,10 +206,9 @@ def wagon():
     # canvas bonnet over bows
     prof = [(-0.62, 0.0), (0.62, 0.0), (0.78, 0.5), (0.5, 0.95), (0.0, 1.12), (-0.5, 0.95), (-0.78, 0.5)]
     m.prism_x((0.3, 0, 1.3), prof, 2.5, P["canvas"], end_color=P["canvas_shade"], under_color=P["canvas_shade"])
-    # cargo: barrel and sacks at the open rear
-    b = make_barrel("wb", scale=0.8)
-    m.add(b, (1.7, -0.25, 1.0))
-    m.add(make_sack("ws", P["homespun"], 0.55), (1.55, 0.3, 1.0), rz=20)
+    # A compact cargo crate keeps the rear load readable without obscuring the bed.
+    m.box((1.65, 0.0, 1.12), (0.72, 0.62, 0.48), P["wood_light"], cap_bot=False)
+    m.box((1.65, 0.0, 1.38), (0.78, 0.68, 0.06), P["wood_dark"], cap_bot=False)
     return m
 
 
