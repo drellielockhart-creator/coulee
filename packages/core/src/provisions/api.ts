@@ -2,10 +2,16 @@
  * Provisions cross-module API. OWNER: module:provisions.
  */
 import type { ContentBundle } from '../content.ts';
+import { term } from '../explain.ts';
 import type { ActorId, HouseholdId, PlaceId } from '../ids.ts';
+import { rowsOf } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
+import { larderKcal } from './economy.ts';
+import { dailyKcal, hungry, membersOf } from './meals.ts';
+import { planReadiness } from './planner.ts';
+import { SHOPPING } from './rules.ts';
 
 /**
  * P8 legibility: "days of food at current rations, what spoils first, weight/bulk
@@ -30,17 +36,9 @@ export interface Readiness {
 
 export type ReadinessHolder = { actorId: ActorId } | { householdId: HouseholdId };
 
-/** STUB: returns an empty readiness (module:provisions implements). */
-export function readinessOf(_world: World, _content: ContentBundle, _holder: ReadinessHolder, _now: number): Readiness {
-  return {
-    kcalOnHand: 0,
-    kcalPerDay: 0,
-    daysOfFoodTenths: 0,
-    daysOfFuelTenths: null,
-    spoilsFirst: null,
-    unpreparable: [],
-    warnings: [],
-  };
+/** Projects the same meals, preparation and hourly storage rules used by the simulation. */
+export function readinessOf(world: World, content: ContentBundle, holder: ReadinessHolder, now: number): Readiness {
+  return planReadiness(world, content, holder, now);
 }
 
 /** Price in cents of one unit at a store (03 §8.1 markup; opinion-adjusted later). */
@@ -51,7 +49,48 @@ export function priceAt(world: World, content: ContentBundle, placeId: PlaceId, 
   return Math.round((def.value_cents * store.markupPct) / 100);
 }
 
-/** Id-voiced "eat now" / superego "buy flour before Sunday" urges. STUB. */
-export function proposeProvisionUrges(_world: World, _ctx: SimContext, _actorId: ActorId): UrgeProposal[] {
-  return [];
+/** Appetite and a household shopping errand enter ordinary psyche arbitration. */
+export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
+  const actor = world.actors[actorId];
+  if (!actor?.alive) return [];
+  const out: UrgeProposal[] = [];
+  if (
+    hungry(world, actorId) &&
+    ctx.content.activities.take_meal &&
+    world.provisions.nutrition[actorId]?.lastMealAt !== ctx.now
+  ) {
+    out.push({
+      urge: { kind: 'activity', activityId: 'take_meal' },
+      voice: 'id',
+      intensity: 650,
+      label: 'Hungry: eat from the larder or pack',
+      source: 'provisions',
+      drive: 'hunger',
+      reasons: [term('need', 'Hunger', 650)],
+    });
+  }
+  const household = world.households[actor.householdId];
+  if (world.provisions.settings.npcBuying && household?.headId === actorId && ctx.cal.hour === SHOPPING.hour) {
+    const daily = membersOf(world, { householdId: household.id }).reduce(
+      (n, id) => n + dailyKcal(world, ctx.content, id, ctx.now),
+      0,
+    );
+    if (larderKcal(world, ctx, household.id) < daily * SHOPPING.triggerDays) {
+      const store = rowsOf(world.provisions.stores)[0];
+      const activity = Object.values(ctx.content.activities)
+        .filter((a) => a.tags.includes('commerce'))
+        .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0];
+      if (store && activity)
+        out.push({
+          urge: { kind: 'activity', activityId: activity.id, placeId: store.placeId },
+          voice: 'superego',
+          intensity: 800,
+          label: 'The pantry is running low: buy provisions',
+          source: 'provisions',
+          norm: 'duty',
+          reasons: [term('food', 'Household provision duty', 800)],
+        });
+    }
+  }
+  return out;
 }

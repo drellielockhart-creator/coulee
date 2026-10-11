@@ -45,6 +45,12 @@ export interface ItemStack {
    * units (minutes of fire, lamp-minutes, strikes) burned from a fuel/match/oil unit. 0 <= partial < unit size.
    */
   partial: number;
+  /** Additional fraction of one food serving already eaten, per mille (0..999). */
+  foodPartialPm?: number;
+  /** Stored potable water in liquid containers, ml. */
+  waterMl: number;
+  /** Fractional hourly draws for devices with per-day supplies (numerator over 24). */
+  supplyCarry?: Record<string, number>;
   /** Devices that burn supplies: how the player or the household has set them. */
   litMode: LitMode;
   /** True while a device is burning supply this hour (gates its affordances). */
@@ -79,6 +85,7 @@ export function newStack(world: World, defId: ItemDefId, qty: number, location: 
     spoilage: 0,
     spoilageCarry: 0,
     partial: 0,
+    waterMl: 0,
     litMode: 'auto',
     lit: false,
     createdAt: at,
@@ -112,6 +119,10 @@ export function initItemsState(world: World, ctx: InitContext): void {
       } else {
         placed.push({ defId: s.item, id: newStack(world, s.item, s.qty, location, ctx.now) });
       }
+    }
+    for (const { id } of placed) {
+      const stack = world.items.stacks[id];
+      if (stack) stack.waterMl = ctx.content.items[stack.defId]?.container?.liquid_ml ?? 0;
     }
   };
   for (const h of ctx.scenario.households) {

@@ -7,23 +7,23 @@
  * order `idsOf` gives, without a sort per call.
  */
 import type { ContentBundle, ItemDef } from '../content.ts';
-import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
+import { type ActorId, type HouseholdId, type ItemId, type PlaceId, rowsOf } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
-import { containerChain, MAX_NEST_DEPTH, rootLocation, sameLoc } from './containers.ts';
+import { containerChain, fitsInContainer, rootLocation, sameLoc } from './containers.ts';
 import { type ItemLocation, type ItemStack, newStack, recordProvenance } from './state.ts';
 
 export { sameLoc } from './containers.ts';
 
 /** Every stack, ascending id. */
 export function allStacks(world: World): ItemStack[] {
-  return Object.values(world.items.stacks);
+  return rowsOf(world.items.stacks);
 }
 
 /** Stacks directly at a location (not recursing into containers), ascending id. */
 export function stacksAt(world: World, loc: ItemLocation): ItemStack[] {
   const out: ItemStack[] = [];
-  for (const s of Object.values(world.items.stacks)) if (sameLoc(s.location, loc)) out.push(s);
+  for (const s of rowsOf(world.items.stacks)) if (sameLoc(s.location, loc)) out.push(s);
   return out;
 }
 
@@ -32,7 +32,7 @@ export function stacksDeep(world: World, loc: ItemLocation): Array<{ stack: Item
   // One pass groups children by parent; the walk then never rescans the table.
   const kids: Record<number, ItemStack[]> = {};
   const top: ItemStack[] = [];
-  for (const s of Object.values(world.items.stacks)) {
+  for (const s of rowsOf(world.items.stacks)) {
     if (s.location.kind === 'container') {
       const list = kids[s.location.itemId] ?? [];
       list.push(s);
@@ -41,14 +41,19 @@ export function stacksDeep(world: World, loc: ItemLocation): Array<{ stack: Item
   }
   if (loc.kind === 'container') top.push(...(kids[loc.itemId] ?? []));
   const out: Array<{ stack: ItemStack; depth: number }> = [];
-  const visit = (list: readonly ItemStack[], depth: number) => {
-    if (depth > MAX_NEST_DEPTH) return;
-    for (const s of list) {
-      out.push({ stack: s, depth });
-      visit(kids[s.id] ?? [], depth + 1);
+  const pending = top.map((stack) => ({ stack, depth: 0 })).reverse();
+  const seen = new Set<ItemId>();
+  while (pending.length > 0) {
+    const entry = pending.pop();
+    if (!entry || seen.has(entry.stack.id)) continue;
+    seen.add(entry.stack.id);
+    out.push(entry);
+    const children = kids[entry.stack.id] ?? [];
+    for (let i = children.length - 1; i >= 0; i--) {
+      const child = children[i];
+      if (child) pending.push({ stack: child, depth: entry.depth + 1 });
     }
-  };
-  visit(top, 0);
+  }
   return out;
 }
 
@@ -59,7 +64,8 @@ export const atPlace = (placeId: PlaceId): ItemLocation => ({ kind: 'place', pla
 /** Total weight in grams of everything at a location (deep). */
 export function weightG(world: World, content: ContentBundle, loc: ItemLocation): number {
   let g = 0;
-  for (const { stack } of stacksDeep(world, loc)) g += (content.items[stack.defId]?.weight_g ?? 0) * stack.qty;
+  for (const { stack } of stacksDeep(world, loc))
+    g += (content.items[stack.defId]?.weight_g ?? 0) * stack.qty + (stack.waterMl ?? 0);
   return g;
 }
 
@@ -75,7 +81,7 @@ export const QUALITY_PCT: Record<string, number> = { shoddy: 70, common: 100, go
 
 /** True if the def burns supply over time, so its affordances exist only while it is lit. */
 export function isBurner(def: ItemDef | undefined): boolean {
-  return def !== undefined && def.consumes.some((c) => c.per === 'hour' || c.per === 'day');
+  return def?.consumes.some((c) => c.per === 'hour' || c.per === 'day') ?? false;
 }
 
 /**
@@ -111,11 +117,18 @@ export function mergeCompatible(a: ItemStack, b: ItemStack, def: ItemDef | undef
   if (a.id === b.id || a.defId !== b.defId || def === undefined || !def.stackable) return false;
   return (
     sameLoc(a.location, b.location) &&
+    Object.keys(a.supplyCarry ?? {}).length === 0 &&
+    Object.keys(b.supplyCarry ?? {}).length === 0 &&
     a.condition === b.condition &&
     a.wetness === b.wetness &&
     a.spoilage === b.spoilage &&
     a.spoilageCarry === b.spoilageCarry &&
-    a.partial === b.partial &&
+    (a.waterMl ?? 0) === 0 &&
+    (b.waterMl ?? 0) === 0 &&
+    (a.foodPartialPm ?? 0) === 0 &&
+    (b.foodPartialPm ?? 0) === 0 &&
+    a.partial === 0 &&
+    b.partial === 0 &&
     a.litMode === b.litMode &&
     a.lit === b.lit
   );
@@ -124,9 +137,10 @@ export function mergeCompatible(a: ItemStack, b: ItemStack, def: ItemDef | undef
 /** If another stack at the same place is interchangeable, fold `stack` into it and return that id. */
 export function tryMerge(world: World, content: ContentBundle, stack: ItemStack): ItemId {
   const def = content.items[stack.defId];
-  for (const other of Object.values(world.items.stacks)) {
+  for (const other of rowsOf(world.items.stacks)) {
     if (other.id < stack.id && mergeCompatible(stack, other, def)) {
       other.qty += stack.qty;
+      for (const eventId of stack.provenance) recordProvenance(other, eventId);
       delete world.items.stacks[stack.id];
       return other.id;
     }
@@ -136,7 +150,7 @@ export function tryMerge(world: World, content: ContentBundle, stack: ItemStack)
 
 /** Remove a stack, hoisting any contents to the container's own location so nothing is orphaned. */
 function removeStack(world: World, stack: ItemStack): void {
-  for (const s of Object.values(world.items.stacks)) {
+  for (const s of rowsOf(world.items.stacks)) {
     if (s.location.kind === 'container' && s.location.itemId === stack.id) s.location = stack.location;
   }
   delete world.items.stacks[stack.id];
@@ -152,7 +166,7 @@ export function createStack(
   defId: string,
   qty: number,
   location: ItemLocation,
-  init: Partial<Pick<ItemStack, 'spoilage' | 'condition' | 'wetness'>> = {},
+  init: Partial<Pick<ItemStack, 'spoilage' | 'condition' | 'wetness' | 'partial' | 'foodPartialPm'>> = {},
 ): ItemId {
   const id = newStack(world, defId, qty, location, ctx.now);
   const s = world.items.stacks[id];
@@ -160,6 +174,8 @@ export function createStack(
   if (init.spoilage !== undefined) s.spoilage = init.spoilage;
   if (init.condition !== undefined) s.condition = init.condition;
   if (init.wetness !== undefined) s.wetness = init.wetness;
+  if (init.partial !== undefined) s.partial = init.partial;
+  if (init.foodPartialPm !== undefined) s.foodPartialPm = init.foodPartialPm;
   const ev = ctx.emit({
     kind: 'items.created',
     data: { itemId: id, defId, qty, location },
@@ -177,11 +193,14 @@ export function createStack(
 export function moveStack(world: World, ctx: SimContext, itemId: ItemId, qty: number, to: ItemLocation): ItemId {
   const s = world.items.stacks[itemId];
   if (!s) throw new Error(`no stack ${itemId}`);
-  const n = Math.max(0, Math.min(qty, s.qty));
+  const n = Math.max(0, Math.min(Math.floor(qty), s.qty));
+  if (sameLoc(s.location, to)) return s.id;
   if (n === 0) return s.id;
   if (to.kind === 'container') {
     const target = world.items.stacks[to.itemId];
     if (!target) throw new Error(`no container ${to.itemId}`);
+    const fit = fitsInContainer(world, ctx.content, s, n, target);
+    if (!fit.ok) throw new Error(fit.reason);
     if (target.id === s.id || containerChain(world, target).some((c) => c.id === s.id)) {
       throw new Error('moveStack: container cycle');
     }
@@ -223,16 +242,18 @@ export function moveStack(world: World, ctx: SimContext, itemId: ItemId, qty: nu
 export function consumeStack(world: World, ctx: SimContext, itemId: ItemId, qty: number, reason?: string): number {
   const s = world.items.stacks[itemId];
   if (!s) return 0;
-  const used = Math.max(0, Math.min(qty, s.qty));
+  const used = Math.max(0, Math.min(Math.floor(qty), s.qty));
   if (used === 0) return 0;
   s.qty -= used;
   s.partial = 0;
+  s.foodPartialPm = 0;
   if (reason !== undefined) {
-    ctx.emit({
+    const ev = ctx.emit({
       kind: 'items.consumed',
       data: { itemId, defId: s.defId, qty: used, reason },
       visibility: 'private',
     });
+    recordProvenance(s, ev);
   }
   if (s.qty <= 0) removeStack(world, s);
   return used;
@@ -250,7 +271,10 @@ export function deleteStack(world: World, itemId: ItemId): void {
 export function stackSupplyUnits(content: ContentBundle, stack: ItemStack, kind: string): number {
   const sup = content.items[stack.defId]?.supply;
   if (!sup || sup.kind !== kind || stack.condition <= 0) return 0;
-  return Math.max(0, stack.qty * sup.units - stack.partial);
+  return Math.max(
+    0,
+    Math.floor(((stack.qty * sup.units - stack.partial) * (kind === 'fire' && stack.wetness > 20 ? 50 : 100)) / 100),
+  );
 }
 
 /** Total units of a supply kind at a location (deep). */
@@ -277,10 +301,11 @@ export function consumeSupply(
     if (need <= 0) break;
     const sup = content.items[stack.defId]?.supply;
     if (!sup || sup.kind !== kind || stack.condition <= 0) continue;
-    const have = stack.qty * sup.units - stack.partial;
+    const efficiency = kind === 'fire' && stack.wetness > 20 ? 50 : 100;
+    const have = Math.floor(((stack.qty * sup.units - stack.partial) * efficiency) / 100);
     if (have <= 0) continue;
     const take = Math.min(have, need);
-    const used = stack.partial + take;
+    const used = stack.partial + Math.ceil((take * 100) / efficiency);
     stack.qty -= Math.floor(used / sup.units);
     stack.partial = used % sup.units;
     drawn += take;

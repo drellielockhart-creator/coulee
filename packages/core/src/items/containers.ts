@@ -6,14 +6,14 @@
  * a corrupt save cannot loop forever.
  */
 import type { ContentBundle, ProtectionId } from '../content.ts';
-import { asPlaceId, type ItemId } from '../ids.ts';
+import { asPlaceId, type ItemId, rowsOf } from '../ids.ts';
 import type { World } from '../world.ts';
 import type { ItemLocation, ItemStack } from './state.ts';
 
-/** Nesting deeper than this is treated as a cycle. */
-export const MAX_NEST_DEPTH = 24;
+/** Compatibility export; traversal uses visited ids instead of a depth cutoff. */
+export const MAX_NEST_DEPTH = Number.MAX_SAFE_INTEGER;
 
-/** Canonical order of protection classes, so integer products are applied in a fixed order. */
+/** Legacy class catalogue; protection application follows the actual outside-in container chain. */
 export const PROTECTION_ORDER: readonly ProtectionId[] = [
   'splashproof',
   'waterproof',
@@ -65,7 +65,9 @@ export function parentOf(world: World, stack: ItemStack): ItemStack | undefined 
 export function containerChain(world: World, stack: ItemStack): ItemStack[] {
   const out: ItemStack[] = [];
   let cur: ItemStack | undefined = parentOf(world, stack);
-  while (cur && out.length < MAX_NEST_DEPTH) {
+  const seen = new Set<ItemId>([stack.id]);
+  while (cur && !seen.has(cur.id)) {
+    seen.add(cur.id);
     out.push(cur);
     cur = parentOf(world, cur);
   }
@@ -75,7 +77,9 @@ export function containerChain(world: World, stack: ItemStack): ItemStack[] {
 /** Where the stack ultimately is: an actor, a household, or a place. Orphans resolve to themselves' last location. */
 export function rootLocation(world: World, stack: ItemStack): RootLocation {
   let cur: ItemStack = stack;
-  for (let i = 0; i < MAX_NEST_DEPTH; i++) {
+  const seen = new Set<ItemId>();
+  while (!seen.has(cur.id)) {
+    seen.add(cur.id);
     const loc = cur.location;
     if (loc.kind !== 'container') return loc;
     const up = world.items.stacks[loc.itemId];
@@ -85,13 +89,20 @@ export function rootLocation(world: World, stack: ItemStack): RootLocation {
   return { kind: 'place', placeId: asPlaceId(0) };
 }
 
-/** Distinct protection classes anywhere in the container chain, in canonical order. */
+/** Distinct protection classes, encountered in outside-in container order. */
 export function protectionsOf(world: World, content: ContentBundle, stack: ItemStack): ProtectionId[] {
-  const seen: Record<string, true> = {};
-  for (const c of containerChain(world, stack)) {
-    for (const p of content.items[c.defId]?.container?.protects ?? []) seen[p] = true;
+  const seen = new Set<ProtectionId>();
+  const out: ProtectionId[] = [];
+  for (const c of containerChain(world, stack).reverse()) {
+    if (c.condition <= 0) continue;
+    for (const p of content.items[c.defId]?.container?.protects ?? []) {
+      if (!seen.has(p)) {
+        seen.add(p);
+        out.push(p);
+      }
+    }
   }
-  return PROTECTION_ORDER.filter((p) => seen[p] === true);
+  return out;
 }
 
 /**
@@ -110,7 +121,7 @@ export function carryPointOf(world: World, content: ContentBundle, stack: ItemSt
 export function childrenOf(world: World, containerId: ItemId): ItemStack[] {
   const out: ItemStack[] = [];
   // Integer keys iterate in ascending order (ECMAScript OrdinaryOwnPropertyKeys), so this is id order.
-  for (const s of Object.values(world.items.stacks)) {
+  for (const s of rowsOf(world.items.stacks)) {
     if (s.location.kind === 'container' && s.location.itemId === containerId) out.push(s);
   }
   return out;
@@ -124,16 +135,18 @@ export function contentsLoad(
 ): { weightG: number; bulkTenths: number } {
   let weightG = 0;
   let bulkTenths = 0;
-  const visit = (id: ItemId, depth: number, top: boolean) => {
-    if (depth > MAX_NEST_DEPTH) return;
-    for (const c of childrenOf(world, id)) {
-      const def = content.items[c.defId];
-      weightG += (def?.weight_g ?? 0) * c.qty;
-      if (top) bulkTenths += Math.round((def?.bulk ?? 0) * 10) * c.qty;
-      visit(c.id, depth + 1, false);
-    }
-  };
-  visit(containerId, 0, true);
+  const seen = new Set<ItemId>([containerId]);
+  const pending = childrenOf(world, containerId).map((stack) => ({ stack, top: true }));
+  while (pending.length > 0) {
+    const entry = pending.pop();
+    if (!entry || seen.has(entry.stack.id)) continue;
+    const c = entry.stack;
+    seen.add(c.id);
+    const def = content.items[c.defId];
+    weightG += (def?.weight_g ?? 0) * c.qty + (c.waterMl ?? 0);
+    if (entry.top) bulkTenths += Math.round((def?.bulk ?? 0) * 10) * c.qty;
+    for (const stack of childrenOf(world, c.id)) pending.push({ stack, top: false });
+  }
   return { weightG, bulkTenths };
 }
 
@@ -165,15 +178,27 @@ export function fitsInContainer(
   const unitBulk = Math.round((def?.bulk ?? 0) * 10);
   // A moved container carries its own contents with it.
   const moving = stack.qty > 0 ? contentsLoad(world, content, stack.id) : { weightG: 0, bulkTenths: 0 };
-  const share = stack.qty > 0 ? qty / stack.qty : 1;
-  const addWeight = unitWeight * qty + Math.round(moving.weightG * share);
+  const addWeight =
+    unitWeight * qty + (qty === stack.qty ? moving.weightG : 0) + (qty === stack.qty ? (stack.waterMl ?? 0) : 0);
   const addBulk = unitBulk * qty;
-  const load = contentsLoad(world, content, container.id);
-  if (load.weightG + addWeight > cdef.capacity_g) {
-    return { ok: false, reason: `${content.items[container.defId]?.name ?? container.defId} is full by weight` };
-  }
-  if (load.bulkTenths + addBulk > Math.round(cdef.capacity_bulk * 10)) {
-    return { ok: false, reason: `${content.items[container.defId]?.name ?? container.defId} is full by bulk` };
+  const sourceChain = containerChain(world, stack);
+  for (const target of [container, ...containerChain(world, container)]) {
+    const capacity = content.items[target.defId]?.container;
+    if (!capacity) return { ok: false, reason: 'invalid enclosing container' };
+    const load = contentsLoad(world, content, target.id);
+    const weightDelta = sourceChain.some((c) => c.id === target.id) ? 0 : addWeight;
+    if (load.weightG + weightDelta > capacity.capacity_g) {
+      return { ok: false, reason: `${content.items[target.defId]?.name ?? target.defId} is full by weight` };
+    }
+    const bulkDelta =
+      target.id === container.id
+        ? stack.location.kind === 'container' && stack.location.itemId === target.id
+          ? 0
+          : addBulk
+        : 0;
+    if (load.bulkTenths + bulkDelta > Math.round(capacity.capacity_bulk * 10)) {
+      return { ok: false, reason: `${content.items[target.defId]?.name ?? target.defId} is full by bulk` };
+    }
   }
   return { ok: true };
 }

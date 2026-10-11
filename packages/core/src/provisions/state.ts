@@ -26,7 +26,7 @@ export interface DayIntake {
   hotMeals: number;
   /** Distinct foods (item def ids) eaten that day (monotony). */
   foods: string[];
-  /** What the day's meals were meant to deliver, kcal (need x meal shares x ration). */
+  /** Full-ration energy obligation, kcal (need x meal shares); cutting rations does not cut physiology. */
   needKcal: number;
   /** Σ morale per serving eaten, summed over the day's meals (the food-morale hook). */
   morale: number;
@@ -56,6 +56,10 @@ export interface Nutrition {
 
 export interface HouseholdProvisions {
   cashCents: number;
+  /** Water hauled for household cooking each day, ml. */
+  waterMl: number;
+  /** Last daily water/fuel replenishment; optional for earlier saves. */
+  lastSuppliesDay?: number | null;
   /** Ration level, percent of full (100). Lowered when stores run short. */
   rationPct: number;
   /** Storage kind of the household's pantry (drives storage temperature). */
@@ -178,6 +182,8 @@ export function initProvisionsState(world: World, ctx: InitContext): void {
     if (id === undefined) continue;
     st.households[id] = {
       cashCents: h.cash_cents,
+      waterMl: (world.households[id]?.memberIds.length ?? 1) * 5000,
+      lastSuppliesDay: null,
       rationPct: 100,
       storage: h.storage,
       policy: h.ration_policy ?? DEFAULT_POLICY_ID,

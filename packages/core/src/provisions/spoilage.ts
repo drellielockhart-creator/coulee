@@ -40,6 +40,7 @@ export function shelfMinutes(food: Food): number {
 
 /** Where a stack sits, for temperature: a household's pantry kind, a building, the open air, or on the body. */
 export function storageClassOf(world: World, content: ContentBundle, stack: ItemStack): StorageClass {
+  if (protectionsOf(world, content, stack).includes('cool_storage')) return 'springhouse';
   const root = rootLocation(world, stack);
   switch (root.kind) {
     case 'household':

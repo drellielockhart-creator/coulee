@@ -6,7 +6,8 @@ import type { ContentBundle } from '../content.ts';
 import type { ActorId } from '../ids.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
 import type { World } from '../world.ts';
-import { bulkTenths, carriedBy, stacksDeep, weightG } from './api.ts';
+import { bulkTenths, carriedBy, stackSupplyUnits, stacksDeep, weightG } from './api.ts';
+import { loadReport } from './encumbrance.ts';
 import type { ItemLocation } from './state.ts';
 
 export interface ItemStackView {
@@ -29,6 +30,11 @@ export interface ItemStackView {
   worn: boolean;
   isFood: boolean;
   section: string;
+  /** Exact food portions remaining, per mille of one serving. */
+  servingsLeftPm: number | null;
+  waterMl: number;
+  supplyUnitsLeft: number | null;
+  lit: boolean;
 }
 
 export interface ItemsActorView {
@@ -48,7 +54,7 @@ export function viewStacks(world: World, content: ContentBundle, loc: ItemLocati
       name: def?.name ?? s.defId,
       qty: s.qty,
       unit: def?.unit ?? 'each',
-      weightG: (def?.weight_g ?? 0) * s.qty,
+      weightG: (def?.weight_g ?? 0) * s.qty + (s.waterMl ?? 0),
       bulkTenths: Math.round((def?.bulk ?? 0) * 10) * s.qty,
       condition: s.condition,
       wetness: s.wetness,
@@ -58,6 +64,10 @@ export function viewStacks(world: World, content: ContentBundle, loc: ItemLocati
       worn: s.location.kind === 'actor' && s.location.worn,
       isFood: def?.food !== undefined,
       section: def?.section ?? 'misc',
+      servingsLeftPm: def?.food ? (s.qty * def.food.servings - s.partial) * 1000 - (s.foodPartialPm ?? 0) : null,
+      waterMl: s.waterMl ?? 0,
+      supplyUnitsLeft: def?.supply ? stackSupplyUnits(content, s, def.supply.kind) : null,
+      lit: s.lit,
     };
   });
 }
@@ -66,13 +76,19 @@ export function viewItemsActor(
   world: World,
   content: ContentBundle,
   actorId: ActorId,
-  _opts: ViewOptions,
+  opts: ViewOptions,
 ): ItemsActorView {
   const loc = carriedBy(actorId);
+  if (!opts.omniscient && opts.perspective !== null && opts.perspective !== actorId) {
+    return { carried: [], totalWeightG: 0, totalBulkTenths: 0, loadBand: 'Unknown' };
+  }
   return {
-    carried: viewStacks(world, content, loc),
+    carried:
+      opts.omniscient || opts.perspective === null || opts.perspective === actorId
+        ? viewStacks(world, content, loc)
+        : [],
     totalWeightG: weightG(world, content, loc),
     totalBulkTenths: bulkTenths(world, content, loc),
-    loadBand: 'Unburdened', // STUB: module:provisions computes from Str carry capacity (03 §4.1)
+    loadBand: loadReport(world, content, actorId).band.label,
   };
 }
