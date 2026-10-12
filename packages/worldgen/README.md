@@ -33,6 +33,16 @@ not a settled design decision about acceptable hunger. Nutrition uses the
 sim's recorded intake and energy obligations. Generated pantries use ordinary
 items, packaging, cookware, fuel and household storage.
 
+Place names and descriptions come from a text stage (`src/text.ts`, word stock in
+`src/text-data.ts`) that runs after population, once owners are known. Every place gets a name
+that is distinct in its town (owner, landmark or direction: "Tregear Farm", "Water Street, north
+of the ford", "Kvale's Smithy") and a description built from its own features: aspect, soil and
+water, the household, its stock and crop, and one thing you would remember. There are no
+coordinates and no fae lore in base text. It draws from its own RNG keys (`text:<place>`), so
+geography, cast and tensions of a seed do not move, and pools are dealt without replacement so
+twin places cannot read alike. QA check `place text` (`placeTextProblems`) fails a town with a
+repeated name or description, a coordinate, or unfinished text.
+
 Pure reports leave `elapsedMs` null. `generateTownStages` yields each completed
 layer so the CLI can measure durations outside the pure package. The 30-day
 check dominates generation cost; this is not a phone performance benchmark.

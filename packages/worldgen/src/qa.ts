@@ -1,6 +1,7 @@
 import { type ContentBundle, crossCheck, PlaceSchema, ScenarioSchema, SiteSchema } from '@coulee/content/schema';
 import { canonicalStringify, createSim, findNonIntegers, rowsOf, runHours, stateHash } from '@coulee/core';
 import { sha256 } from './hash.ts';
+import { placeTextProblems } from './text.ts';
 import type { GeneratedTown, QaResult } from './types.ts';
 
 /** Add normal authored tables to a bundle. The sim never sees a generator recipe. */
@@ -132,6 +133,7 @@ export function checkTown(base: ContentBundle, town: Pick<GeneratedTown, 'scenar
     'tensions',
     s.tensions.length >= 2 && s.grudges.length >= 2 && s.beliefs.length > 0 ? [] : ['fewer than two playable tensions'],
   );
+  check('place text', placeTextProblems(places));
   check(
     'names',
     s.actors.length === new Set(s.actors.map((a) => `${a.given} ${a.family}`)).size ? [] : ['duplicate full names'],

@@ -1,0 +1,1511 @@
+# Tales and yarns: what is said when someone spins a story (wave 5 group D). OWNER: module:social.
+# Read by packages/core/src/social/talk.ts, same rules as talk.toml.
+#
+# Ownership. A yarn is the teller's own: `when.initiator = { actor = "<scenario actor key>" }` means only
+# that person tells it; `{ occupation = "ferryman" }` means whoever holds the trade (one per town).
+# General yarns tie to a moment instead (season, weather, venue, hour). Success tellings are listened
+# to; failure tellings are the ones that don't land. Owned lines carry weight 20-30 so a teller with
+# something of their own tells it before reaching for the common stock.
+
+# =============================================================================================
+# Stories with a teller (wave 5): each yarn belongs to one person, or to one trade, so it is told by them and only them
+# =============================================================================================
+
+# Wave 5 (playtest r2: the wolf story came 8+ times from 6 speakers). A yarn that names its teller
+# (`initiator = { actor = "..." }`, a scenario actor key) is told by that person alone; a yarn that names a
+# trade (`initiator = { occupation = "..." }`) belongs to whoever holds it, which in a town is one person
+# (one ferryman, one miller). Ribs about a teller's yarn are aimed at them with `target = { actor = "..." }`
+# (see talk-chat.toml). Each owned yarn comes as a success telling and, where it matters, a failure one.
+
+[[talk]]
+id = "tale_wolves"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "elias_hurd" } }
+lines = [
+  { by = "initiator", text = "So there I was, alone on the bluff above the ford, with the wolves all round and one charge of powder." },
+  { by = "target", text = "And what did you do?" },
+  { by = "initiator", text = "Sang 'Yankee Doodle' at them till they left. It was the powder I was saving." },
+]
+
+[[talk]]
+id = "tale_different"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 30
+when = { initiator = { actor = "elias_hurd" } }
+lines = [
+  { by = "initiator", text = "So there I was, alone on the bluff, with the wolves all round..." },
+  { by = "target", text = "You told it different last week. There were fewer wolves." },
+]
+
+[[talk]]
+id = "tale_hurd_cannon"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "elias_hurd" } }
+lines = [
+  { by = "initiator", text = "Fourth of July, '49, we fired the muster cannon a minute early." },
+  { by = "target", text = "Did anyone mind?" },
+  { by = "initiator", text = "The church weathercock did. It has not pointed true since. I am told it points at me." },
+]
+
+[[talk]]
+id = "tale_hurd_cannon_flat"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 30
+when = { initiator = { actor = "elias_hurd" } }
+lines = [
+  { by = "initiator", text = "Fourth of July, '49, we fired the muster cannon a minute early..." },
+  { by = "target", text = "And took the weathercock off the church. We know, Captain. We were there." },
+]
+
+[[talk]]
+id = "tale_hurd_handshake"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "elias_hurd" } }
+lines = [
+  { by = "initiator", text = "Governor Dodge shook my hand once, on the courthouse steps in Mineral Point." },
+  { by = "target", text = "Did he say anything?" },
+  { by = "initiator", text = "He said, 'Mind the step.' I have minded it ever since." },
+]
+
+[[talk]]
+id = "tale_catfish"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "lemuel_hatch" } }
+lines = [
+  { by = "initiator", text = "There's a catfish in the slough, {you}, longer than my boat." },
+  { by = "target", text = "How long's your boat?" },
+  { by = "initiator", text = "Not so long as it was before the catfish." },
+]
+
+[[talk]]
+id = "tale_tall"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 30
+when = { initiator = { actor = "lemuel_hatch" } }
+lines = [
+  { by = "initiator", text = "...and the fish was longer than the boat." },
+  { by = "target", text = "And I'm the Queen of England." },
+]
+
+[[talk]]
+id = "tale_cable"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "lemuel_hatch" } }
+lines = [
+  { by = "initiator", text = "The spring flood of '51 took the ferry cable like a fiddle string." },
+  { by = "target", text = "And you aboard?" },
+  { by = "initiator", text = "Aboard and bailing. I'd have steered, but the river had other plans." },
+]
+
+[[talk]]
+id = "tale_pittsburgh_boat"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "lemuel_hatch" } }
+lines = [
+  { by = "initiator", text = "A Pittsburgh boat stuck on the bar below the landing three days running." },
+  { by = "target", text = "Was anyone hurt?" },
+  { by = "initiator", text = "Only the captain's pride. He offered me a dollar a day to say she wasn't stuck. I took the dollar." },
+]
+
+[[talk]]
+id = "tale_raft"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { venue = "tavern", initiator = { actor = "amos_whitcomb" } }
+lines = [
+  { by = "initiator", text = "We took a raft of pine down to Galena in '49, and lost the cook at Cassville." },
+  { by = "target", text = "Lost him how?" },
+  { by = "initiator", text = "Married. Worse than drowned, he says." },
+]
+
+[[talk]]
+id = "tale_raft_dry"
+on = ["tell_tale"]
+outcome = "success"
+weight = 15
+when = { initiator = { actor = "amos_whitcomb" } }
+lines = [
+  { by = "initiator", text = "We took a raft of pine down to Galena in '49, and lost the cook at Cassville." },
+  { by = "target", text = "Lost him how?" },
+  { by = "initiator", text = "Married. Worse than drowned, he says." },
+]
+
+[[talk]]
+id = "tale_chain"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "amos_whitcomb" } }
+lines = [
+  { by = "initiator", text = "The chain came up four links short at the section corner, and the whole county was off by a rod." },
+  { by = "target", text = "Whose fault?" },
+  { by = "initiator", text = "The chain's. I have since discharged it." },
+]
+
+[[talk]]
+id = "tale_bee_tree"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "amos_whitcomb" } }
+lines = [
+  { by = "initiator", text = "I once ran a line straight through a bee tree." },
+  { by = "target", text = "And the bees?" },
+  { by = "initiator", text = "Ran a line straight through me." },
+]
+
+[[talk]]
+id = "tale_amos_flat"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 30
+when = { initiator = { actor = "amos_whitcomb" } }
+lines = [
+  { by = "initiator", text = "...and so the township closes at last, to within a rod." },
+  { by = "target", text = "A rod of what?" },
+  { by = "initiator", text = "Of... well. It's a surveying matter." },
+]
+
+[[talk]]
+id = "tale_dunleavy_drover"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "michael_dunleavy" } }
+lines = [
+  { by = "initiator", text = "A drover left eighty dollars' worth of bill on this bar in '52, {you}, and never came back." },
+  { by = "target", text = "Do you still hope for it?" },
+  { by = "initiator", text = "I keep it in a drawer, in case he turns honest." },
+]
+
+[[talk]]
+id = "tale_dunleavy_court"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "michael_dunleavy" } }
+lines = [
+  { by = "initiator", text = "The justice's horse ate the summons in the yard, the last court day. Clean off the post." },
+  { by = "target", text = "What became of the case?" },
+  { by = "initiator", text = "Dismissed for want of evidence. We call it equity, in here." },
+]
+
+[[talk]]
+id = "tale_dunleavy_flat"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 30
+when = { initiator = { actor = "michael_dunleavy" } }
+lines = [
+  { by = "initiator", text = "A traveler once asked me for the best room in the house, {you}..." },
+  { by = "target", text = "And you gave him the only one." },
+  { by = "initiator", text = "Aye. You've heard it. I'll try another next week." },
+]
+
+[[talk]]
+id = "tale_knockers"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "josiah_trevenna" } }
+lines = [
+  { by = "initiator", text = "The men swore they heard three knocks in the east drift, the morning of the fall." },
+  { by = "target", text = "And you, Captain?" },
+  { by = "initiator", text = "I said it was the timbers working. Then I moved the shift. And I left the crust." },
+]
+
+[[talk]]
+id = "tale_crust"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "josiah_trevenna" } }
+lines = [
+  { by = "initiator", text = "A man can be a Methodist and leave a crust for the knockers. I've never seen the difficulty." },
+  { by = "target", text = "Nor I, Captain." },
+  { by = "initiator", text = "Nor does the Conference, which has never been told." },
+]
+
+[[talk]]
+id = "tale_glover_mare"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "harriet_glover" } }
+lines = [
+  { by = "initiator", text = "A man sold me a mare in '49, swore she was sound in wind and limb." },
+  { by = "target", text = "And was she?" },
+  { by = "initiator", text = "She was sound. I sold her back to him on Friday, and he swore she was a different mare." },
+]
+
+[[talk]]
+id = "tale_glover_horse_flat"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 30
+when = { initiator = { actor = "harriet_glover" } }
+lines = [
+  { by = "initiator", text = "There was a bay gelding once that could count to ten..." },
+  { by = "target", text = "Count what?" },
+  { by = "initiator", text = "Well. Oats, mostly. He was fair at oats." },
+]
+
+[[talk]]
+id = "tale_ohio_road"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "thomas_glover" } }
+lines = [
+  { by = "initiator", text = "When we came up from Ohio, the road was a river and the river was a road." },
+  { by = "target", text = "How did you cross?" },
+  { by = "initiator", text = "Slowly, and with a good deal of prayer. The horses did the rest." },
+]
+
+[[talk]]
+id = "tale_wheel_froze"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "tollef_haugen" } }
+lines = [
+  { by = "initiator", text = "The winter the wheel froze, we ground by hand. Forty bushels, for the whole district." },
+  { by = "target", text = "I remember. My arms still do." },
+  { by = "initiator", text = "Good. Then you've not been idle since." },
+]
+
+[[talk]]
+id = "tale_milk_pail"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "siri_kvale" } }
+lines = [
+  { by = "initiator", text = "I was called at the milk pail, {you}. Not by a voice: by a feeling that I'd been milking for the wrong master." },
+  { by = "target", text = "And you put the pail down?" },
+  { by = "initiator", text = "I finished the milking. The Lord is not unreasonable." },
+]
+
+[[talk]]
+id = "tale_barricade"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "johann_brenner" } }
+lines = [
+  { by = "initiator", text = "In Baden in '49 I stood on a barricade for three days with a musket and a sausage." },
+  { by = "target", text = "What became of the barricade?" },
+  { by = "initiator", text = "It fell. The sausage I ate. One must keep one's priorities." },
+]
+
+[[talk]]
+id = "tale_coal_barge"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "johann_brenner" } }
+lines = [
+  { by = "initiator", text = "I crossed the Rhine in a coal barge, under the coal, with a goose." },
+  { by = "target", text = "Why a goose?" },
+  { by = "initiator", text = "It was not my goose. We did not discuss it." },
+]
+
+[[talk]]
+id = "tale_coonskin"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "gussie_pratt" } }
+lines = [
+  { by = "initiator", text = "A man once paid a six-dollar debt with a coonskin and asked for change." },
+  { by = "target", text = "What did you give him?" },
+  { by = "initiator", text = "Time. He is still paying it." },
+]
+
+[[talk]]
+id = "tale_bell_obituary"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "horace_bell" } }
+lines = [
+  { by = "initiator", text = "I printed my own obituary once, by mistake. The compositor read the wrong proof." },
+  { by = "target", text = "What did the subscribers do?" },
+  { by = "initiator", text = "Sent condolences. Three of them paid up." },
+]
+
+[[talk]]
+id = "tale_bell_upside_down"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "mercy_bell" } }
+lines = [
+  { by = "initiator", text = "I set a whole column upside down once, {you}. A page of the Governor's speech." },
+  { by = "target", text = "Did anyone notice?" },
+  { by = "initiator", text = "Several said it read better." },
+]
+
+[[talk]]
+id = "tale_corners"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "clara_stoughton" } }
+lines = [
+  { by = "initiator", text = "A scholar asked me whether the earth has corners." },
+  { by = "target", text = "What did you tell her?" },
+  { by = "initiator", text = "That it has Wisconsin, which is near enough." },
+]
+
+[[talk]]
+id = "tale_panther"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "lucius_vance" } }
+lines = [
+  { by = "initiator", text = "There was a panther on the Kickapoo once, big as a yearling calf." },
+  { by = "target", text = "And you with only a stick?" },
+  { by = "initiator", text = "Only a stick, and my two legs, and they did the most of it." },
+]
+
+[[talk]]
+id = "tale_vance_farm"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "lucius_vance" } }
+lines = [
+  { by = "initiator", text = "I once sold a man his own farm back to him, at twice the price, and he thanked me." },
+  { by = "target", text = "How did he thank you?" },
+  { by = "initiator", text = "In writing, with his lawyer present." },
+]
+
+[[talk]]
+id = "tale_wart"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "loveday_trevenna" } }
+lines = [
+  { by = "initiator", text = "A woman came to me for a wart on her thumb. I charged her nothing." },
+  { by = "target", text = "Did it go?" },
+  { by = "initiator", text = "In a week. She'd stopped biting her nails, you see." },
+]
+
+[[talk]]
+id = "tale_fords_crossed"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "kristoffer_moe" } }
+lines = [
+  { by = "initiator", text = "I've seen that ford crossed by oxen, by wagons, and by a bishop." },
+  { by = "target", text = "And which did best?" },
+  { by = "initiator", text = "The bishop, who had the sense to be carried." },
+]
+
+[[talk]]
+id = "tale_whistle"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "bartholomew_pascoe" } }
+lines = [
+  { by = "initiator", text = "On the first shift of my life I whistled underground." },
+  { by = "target", text = "You didn't!" },
+  { by = "initiator", text = "Once. The foreman has not yet finished explaining why." },
+]
+
+[[talk]]
+id = "tale_strauss_hymns"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "konrad_strauss" } }
+lines = [
+  { by = "initiator", text = "I lost a bet to a Cornishman once, and drilled a whole shift to every hymn he knew." },
+  { by = "target", text = "How many did he know?" },
+  { by = "initiator", text = "All of them. He says it was the best shift of his life. I say it was the longest." },
+]
+
+[[talk]]
+id = "tale_first_sermon"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "anders_tveit" } }
+lines = [
+  { by = "initiator", text = "I preached my first sermon to a congregation of three: one asleep, one deaf, and my examiner." },
+  { by = "target", text = "And the verdict?" },
+  { by = "initiator", text = "The deaf one said it was the best he'd heard." },
+]
+
+[[talk]]
+id = "tale_hiccups"
+on = ["tell_tale"]
+outcome = "success"
+weight = 30
+when = { initiator = { actor = "nora_dunleavy" } }
+lines = [
+  { by = "initiator", text = "My mother had a cure for the hiccups: three sips of water and a secret." },
+  { by = "target", text = "What's the secret?" },
+  { by = "initiator", text = "That it never works. But you forget to hiccup, trying to remember." },
+]
+
+[[talk]]
+id = "tale_ferry_night"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "ferryman" } }
+lines = [
+  { by = "initiator", text = "A man asked me to ferry him over at midnight in a gale, and offered me a silver dollar." },
+  { by = "target", text = "Did you go?" },
+  { by = "initiator", text = "I took the dollar. I said I'd think about the gale." },
+]
+
+[[talk]]
+id = "tale_ferry_cargo"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "ferryman" } }
+lines = [
+  { by = "initiator", text = "I've carried a bride, a hog, a bishop and a coffin on the same afternoon." },
+  { by = "target", text = "Which was the heaviest?" },
+  { by = "initiator", text = "The hog. He had opinions." },
+]
+
+[[talk]]
+id = "tale_ferry_cow"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "ferryman" } }
+lines = [
+  { by = "initiator", text = "A cow once swam beside the ferry the whole way across, mooing at the crew." },
+  { by = "target", text = "Was she yours?" },
+  { by = "initiator", text = "She was nobody's. She turned up the next week, quite at home, in the parson's pasture." },
+]
+
+[[talk]]
+id = "tale_flour_ghost"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "miller" } }
+lines = [
+  { by = "initiator", text = "A man came to the mill at midnight swearing the stones were grinding by themselves." },
+  { by = "target", text = "Were they?" },
+  { by = "initiator", text = "The race gate had stuck open. I charged him for the flour all the same." },
+]
+
+[[talk]]
+id = "tale_miller_toll"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "miller" } }
+lines = [
+  { by = "initiator", text = "A farmer once swore I took more than my toll. I made him weigh the sack himself." },
+  { by = "target", text = "What did it weigh?" },
+  { by = "initiator", text = "Exactly what I'd said. He has not spoken to me since, from shame or spite, I can't tell which." },
+]
+
+[[talk]]
+id = "tale_flood_mill"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "miller" } }
+lines = [
+  { by = "initiator", text = "The pond came over the dam in '47 and ran through the mill like a regiment." },
+  { by = "target", text = "And the flour?" },
+  { by = "initiator", text = "Gone to Galena in a freshet. I hope it was good flour." },
+]
+
+[[talk]]
+id = "tale_smith_horseshoe"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "blacksmith" } }
+lines = [
+  { by = "initiator", text = "I shod a mule once that kicked the roof off my shop." },
+  { by = "target", text = "The roof?" },
+  { by = "initiator", text = "Well. A shingle. But it was a very strong shingle." },
+]
+
+[[talk]]
+id = "tale_smith_ring"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "blacksmith" } }
+lines = [
+  { by = "initiator", text = "The anvil rang so true one morning that a man in the street took off his hat." },
+  { by = "target", text = "For the anvil?" },
+  { by = "initiator", text = "For the sound. Nobody has ever taken off his hat for me." },
+]
+
+[[talk]]
+id = "tale_smith_plow"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "blacksmith" } }
+lines = [
+  { by = "initiator", text = "A farmer brought me a plow he swore had been made in Pittsburgh by the best smith in Ohio." },
+  { by = "target", text = "And was it?" },
+  { by = "initiator", text = "It was mine. I'd made it in '48. I did not say so. I just fixed it." },
+]
+
+[[talk]]
+id = "tale_store_peddler"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "storekeeper" } }
+lines = [
+  { by = "initiator", text = "A peddler sold me a case of spectacles once, all alike, all for old eyes." },
+  { by = "target", text = "Did they sell?" },
+  { by = "initiator", text = "To every old man in the district. Thereafter none of them could find them." },
+]
+
+[[talk]]
+id = "tale_store_mouse"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "storekeeper" } }
+lines = [
+  { by = "initiator", text = "There's a mouse in the cheese cask that has outlasted three clerks." },
+  { by = "target", text = "Have you tried a cat?" },
+  { by = "initiator", text = "I've tried four. The mouse has seniority." },
+]
+
+[[talk]]
+id = "tale_pastor_hymn"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "pastor" } }
+lines = [
+  { by = "initiator", text = "I once announced the wrong hymn and the whole congregation sang it anyway." },
+  { by = "target", text = "All of them?" },
+  { by = "initiator", text = "Every verse. I have never been so proud, or so unsure what I'd done." },
+]
+
+[[talk]]
+id = "tale_pastor_wedding"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "pastor" } }
+lines = [
+  { by = "initiator", text = "I married a couple on a haywagon in a rainstorm once, with the bride's father holding the umbrella." },
+  { by = "target", text = "Did it take?" },
+  { by = "initiator", text = "Forty years. The umbrella lasted three." },
+]
+
+[[talk]]
+id = "tale_lay_preacher_wind"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "lay_preacher" } }
+lines = [
+  { by = "initiator", text = "I was preaching on the Spirit moving like the wind when a gust took my hat and the whole sermon." },
+  { by = "target", text = "What did you do?" },
+  { by = "initiator", text = "Sat down. It seemed the point had been made." },
+]
+
+[[talk]]
+id = "tale_teacher_ink"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "schoolteacher" } }
+lines = [
+  { by = "initiator", text = "A boy once told me the ink had run dry. It was the bottle he'd drunk from." },
+  { by = "target", text = "Was he well?" },
+  { by = "initiator", text = "Blue to the elbows. He passed his sums, mind." },
+]
+
+[[talk]]
+id = "tale_teacher_sums"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "schoolteacher" } }
+lines = [
+  { by = "initiator", text = "A scholar once asked me what comes after infinity." },
+  { by = "target", text = "What did you say?" },
+  { by = "initiator", text = "Dinner. It was nearly noon." },
+]
+
+[[talk]]
+id = "tale_surveyor_corner"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "surveyor" } }
+lines = [
+  { by = "initiator", text = "I once set a corner stone, and the owner moved it overnight. Six inches." },
+  { by = "target", text = "Six inches?" },
+  { by = "initiator", text = "It was the best six inches in the county. I let him keep it." },
+]
+
+[[talk]]
+id = "tale_tavern_keeper_guest"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "tavern_keeper_jp" } }
+lines = [
+  { by = "initiator", text = "A man took the best room for a week and left owing nothing but a very good clock." },
+  { by = "target", text = "Did you keep the clock?" },
+  { by = "initiator", text = "It stopped the day he left. I think it was lonely." },
+]
+
+[[talk]]
+id = "tale_printer_ink"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "editor_printer" } }
+lines = [
+  { by = "initiator", text = "I once set a wedding notice and a hanging notice in the same column." },
+  { by = "target", text = "Did anyone notice?" },
+  { by = "initiator", text = "The groom. The hanged man was past minding." },
+]
+
+[[talk]]
+id = "tale_pellar_cow"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "pellar" } }
+lines = [
+  { by = "initiator", text = "A farmer sent for me to charm a cow that wouldn't give. I charmed the farmer." },
+  { by = "target", text = "How?" },
+  { by = "initiator", text = "Told him to feed her. She gave a bucket the next morning, and he told everyone it was my doing." },
+]
+
+[[talk]]
+id = "tale_miner_candle"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "miner" } }
+lines = [
+  { by = "initiator", text = "I once worked a whole shift by one candle stub, and found the vein when it guttered." },
+  { by = "target", text = "Was it rich?" },
+  { by = "initiator", text = "Rich enough to buy a new candle." },
+]
+
+[[talk]]
+id = "tale_farmer_frost"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "farmer" } }
+lines = [
+  { by = "initiator", text = "A frost came in June the year we broke the new ground, and took the corn to the ground." },
+  { by = "target", text = "What did you do?" },
+  { by = "initiator", text = "Planted again. The Lord does not always set the date, but he does leave the seed." },
+]
+
+[[talk]]
+id = "tale_farmer_hogs"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "farmer" } }
+lines = [
+  { by = "initiator", text = "My hogs got into the neighbor's corn and he sued me for eight bushels." },
+  { by = "target", text = "Did you pay?" },
+  { by = "initiator", text = "I sent the hogs. He had them all winter and said it was the dearest bacon he ever ate." },
+]
+
+[[talk]]
+id = "tale_hand_wage"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "hired_hand" } }
+lines = [
+  { by = "initiator", text = "I worked a season for a man who paid me in promises. Seasoned, they were. Good seasoning." },
+  { by = "target", text = "Did they keep?" },
+  { by = "initiator", text = "Not past the frost." },
+]
+
+[[talk]]
+id = "tale_clerk_change"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "shop_clerk" } }
+lines = [
+  { by = "initiator", text = "A lady once paid with a gold eagle and asked for change in a dozen different coins." },
+  { by = "target", text = "Could you?" },
+  { by = "initiator", text = "I could. I was counting for an hour. She said she'd only wanted to see me do it." },
+]
+
+[[talk]]
+id = "tale_woodyard_oak"
+on = ["tell_tale"]
+outcome = "success"
+weight = 20
+when = { initiator = { occupation = "woodyard_cutter" } }
+lines = [
+  { by = "initiator", text = "I cut a cord of oak for the steamboats once that was burned before I'd finished stacking the next." },
+  { by = "target", text = "Did they pay?" },
+  { by = "initiator", text = "In smoke. Very fine smoke." },
+]
+
+[[talk]]
+id = "tale_churn"
+on = ["tell_tale"]
+outcome = "success"
+weight = 14
+when = { initiator = { occupation = ["farm_wife", "housewife"], sex = "female" } }
+lines = [
+  { by = "initiator", text = "I churned for three hours once and got nothing but a bucket of warm milk and a bad temper." },
+  { by = "target", text = "What was wrong?" },
+  { by = "initiator", text = "The cream had been sat on by a cat. I did not find out till I put my arm in." },
+]
+
+[[talk]]
+id = "tale_hens"
+on = ["tell_tale"]
+outcome = "success"
+weight = 14
+when = { initiator = { occupation = ["farm_wife", "housewife"], sex = "female" } }
+lines = [
+  { by = "initiator", text = "The speckled hen laid her egg in the preacher's hat, the Sabbath he came to dinner." },
+  { by = "target", text = "Did he find it?" },
+  { by = "initiator", text = "On his head, in front of the whole table. He said grace for the hen." },
+]
+
+[[talk]]
+id = "tale_wash_day"
+on = ["tell_tale"]
+outcome = "success"
+weight = 14
+when = { initiator = { occupation = ["farm_wife", "housewife"], sex = "female" } }
+lines = [
+  { by = "initiator", text = "The wind took the whole wash off the line one Monday and set it down in the neighbor's yard." },
+  { by = "target", text = "All of it?" },
+  { by = "initiator", text = "Every stitch. She sent it back ironed, and I never knew whether to be grateful." },
+]
+
+[[talk]]
+id = "tale_quilt"
+on = ["tell_tale"]
+outcome = "success"
+weight = 14
+when = { initiator = { occupation = ["farm_wife", "housewife"], sex = "female" } }
+lines = [
+  { by = "initiator", text = "We made a quilt for the minister's wedding with a hundred and forty names stitched in." },
+  { by = "target", text = "Who got left out?" },
+  { by = "initiator", text = "Nobody dared. We had the whole county on a bed." },
+]
+
+[[talk]]
+id = "tale_voyage_norwegian"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "norwegian" } }
+lines = [
+  { by = "initiator", text = "The voyage over took eleven weeks, and I was sick for ten of them." },
+  { by = "target", text = "And the eleventh?" },
+  { by = "initiator", text = "I was too busy kissing the ground." },
+]
+
+[[talk]]
+id = "tale_seter_norwegian"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "norwegian" } }
+lines = [
+  { by = "initiator", text = "At home the cows went up to the summer pasture and came down fatter than the farmer." },
+  { by = "target", text = "And the farmer?" },
+  { by = "initiator", text = "Stayed thin, and said it was a fair trade." },
+]
+
+[[talk]]
+id = "tale_wedding_german"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "german" } }
+lines = [
+  { by = "initiator", text = "On my wedding day the band played so loud that the pig broke out of its sty and led the dance." },
+  { by = "target", text = "Did the bride mind?" },
+  { by = "initiator", text = "She said it was the best-looking partner there." },
+]
+
+[[talk]]
+id = "tale_cabbage_german"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "german" } }
+lines = [
+  { by = "initiator", text = "The first winter, my wife put up sauerkraut from the only cabbages in the county." },
+  { by = "target", text = "And?" },
+  { by = "initiator", text = "She sold half of it back to the men who'd grown them. They said it tasted better in a barrel." },
+]
+
+[[talk]]
+id = "tale_crossing_irish"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "irish" } }
+lines = [
+  { by = "initiator", text = "The crossing took seven weeks, and the biscuit was older than the captain." },
+  { by = "target", text = "How old was the captain?" },
+  { by = "initiator", text = "Sixty. But the biscuit had seniority." },
+]
+
+[[talk]]
+id = "tale_fiddle_irish"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "irish" } }
+lines = [
+  { by = "initiator", text = "My father won a fiddle at cards and it was the only thing he ever kept." },
+  { by = "target", text = "Could he play?" },
+  { by = "initiator", text = "Not a note. He said it was a comfort to know it could be played." },
+]
+
+[[talk]]
+id = "tale_camborne_cornish"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "cornish" } }
+lines = [
+  { by = "initiator", text = "I came out from the Camborne mines in '43, with my tools and a bad hat." },
+  { by = "target", text = "And what became of the hat?" },
+  { by = "initiator", text = "It's still down a shaft, doing good work." },
+]
+
+[[talk]]
+id = "tale_lead_nose_cornish"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "cornish" } }
+lines = [
+  { by = "initiator", text = "A Cornishman can smell lead the way a hound smells fox." },
+  { by = "target", text = "Can you?" },
+  { by = "initiator", text = "I can smell a pasty at forty yards, which is nearly as good." },
+]
+
+[[talk]]
+id = "tale_vermont_yankee"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "yankee" } }
+lines = [
+  { by = "initiator", text = "My father drove six cows from Vermont to Ohio, and sold five to pay the tolls." },
+  { by = "target", text = "And the sixth?" },
+  { by = "initiator", text = "Died in Ohio, of old age. He said she'd earned it." },
+]
+
+[[talk]]
+id = "tale_lyceum_yankee"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "yankee" } }
+lines = [
+  { by = "initiator", text = "I lectured at the lyceum in '51 on the Moral Uses of Mud." },
+  { by = "target", text = "Was it well attended?" },
+  { by = "initiator", text = "The hall was knee-deep. We all had practical experience." },
+]
+
+[[talk]]
+id = "tale_ohio_black_ohio"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "black_ohio" } }
+lines = [
+  { by = "initiator", text = "My father bought his freedom, and then the farm, and he used to say the farm was the cheaper of the two." },
+  { by = "target", text = "Did he mean it?" },
+  { by = "initiator", text = "He never smiled when he said it. That was how I knew." },
+]
+
+[[talk]]
+id = "tale_school_black_ohio"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "black_ohio" } }
+lines = [
+  { by = "initiator", text = "Our first school in Ohio met in a barn, and the teacher ran it on slates made from roofing." },
+  { by = "target", text = "Did the scholars learn?" },
+  { by = "initiator", text = "Every one of them could read the roof by spring." },
+]
+
+[[talk]]
+id = "tale_catechism_elf_hall"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "elf_hall" } }
+lines = [
+  { by = "initiator", text = "I have heard the Catechism read in four languages. It sounds sternest in German." },
+  { by = "target", text = "And kindest?" },
+  { by = "initiator", text = "In Norwegian, by the fire, with a child on the lap." },
+]
+
+[[talk]]
+id = "tale_club_goblin_pare"
+on = ["tell_tale"]
+outcome = "success"
+weight = 12
+when = { initiator = { culture = "goblin_pare" } }
+lines = [
+  { by = "initiator", text = "The club once paid a widow her husband's wage for forty years and never missed a quarter." },
+  { by = "target", text = "Forty years?" },
+  { by = "initiator", text = "She outlived three treasurers. It was the proudest ledger we ever kept." },
+]
+
+[[talk]]
+id = "tale_winter42"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "Did I ever tell you about the winter of '42, when the snow came up to the eaves?" },
+  { by = "target", text = "Go on, then." },
+]
+
+[[talk]]
+id = "tale_winter42_dug"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "The winter of '42 the snow came up to the eaves, and we dug a tunnel to the privy." },
+  { by = "target", text = "A tunnel?" },
+  { by = "initiator", text = "A proper one. We lit it with lanterns. It was the finest room in the house." },
+]
+
+[[talk]]
+id = "tale_ring"
+on = ["tell_tale"]
+outcome = "success"
+weight = 6
+when = { part = "evening" }
+lines = [
+  { by = "initiator", text = "My grandmother swore she saw the hidden folk dancing in a ring, the night before the flood." },
+  { by = "target", text = "I've heard worse stories, and believed them." },
+]
+
+[[talk]]
+id = "tale_ring_flood"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { weather = "rain" }
+lines = [
+  { by = "initiator", text = "My grandmother always said you could tell a flood was coming by the cows lying down." },
+  { by = "target", text = "And could you?" },
+  { by = "initiator", text = "Not once. But the cows were never wrong." },
+]
+
+[[talk]]
+id = "tale_cholera"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { season = "summer" }
+lines = [
+  { by = "initiator", text = "The cholera came through in '49, and the only thing that saved us was a pot of strong tea and a bad cold." },
+  { by = "target", text = "How's that?" },
+  { by = "initiator", text = "Nobody would come near me." },
+]
+
+[[talk]]
+id = "tale_lightning"
+on = ["tell_tale"]
+outcome = "success"
+weight = 2
+when = { weather = "rain", season = "summer" }
+lines = [
+  { by = "initiator", text = "Lightning struck the barn once, ran down the rope, out the door, and left every hen in the yard without a feather." },
+  { by = "target", text = "Did they lay?" },
+  { by = "initiator", text = "Naked as the day they were hatched, and twice as many eggs. Nobody has explained it since." },
+]
+
+[[talk]]
+id = "tale_wolf_howl"
+on = ["tell_tale"]
+outcome = "any"
+weight = 6
+when = { part = "night" }
+lines = [
+  { by = "initiator", text = "I heard a wolf howl on the bluff last night, and the whole pack answered it, one after the other." },
+  { by = "target", text = "How many?" },
+  { by = "initiator", text = "Four, I'd say. Maybe it was the one wolf and the echo." },
+]
+
+[[talk]]
+id = "tale_gold_rush"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "I had my boots on for California in '49, and my wife took them off me and hid them." },
+  { by = "target", text = "Did you ever go?" },
+  { by = "initiator", text = "No. The boots turned up in March. By then I had forgotten the gold." },
+]
+
+[[talk]]
+id = "tale_pig_church"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { sabbath = true }
+lines = [
+  { by = "initiator", text = "A pig got into the church one Sabbath and walked right up the aisle." },
+  { by = "target", text = "What did the pastor do?" },
+  { by = "initiator", text = "Preached on the prodigal son. He had the wit to see an opening." },
+]
+
+[[talk]]
+id = "tale_hay_wagon"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { season = "summer" }
+lines = [
+  { by = "initiator", text = "We overturned the last load of hay in '51 right at the church door, in front of the minister." },
+  { by = "target", text = "What did he say?" },
+  { by = "initiator", text = "That it was a fine example of the Lord's bounty, and would we please clear the doorway." },
+]
+
+[[talk]]
+id = "tale_hail"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { weather = "rain" }
+lines = [
+  { by = "initiator", text = "A hailstone once came through my roof the size of a hen's egg." },
+  { by = "target", text = "And?" },
+  { by = "initiator", text = "It broke the teapot, but it landed in the bed of the one man who snored." },
+]
+
+[[talk]]
+id = "tale_snow_rescue"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { weather = "snow" }
+lines = [
+  { by = "initiator", text = "I once walked three miles in the snow to bring home a cow that had walked home on her own an hour before." },
+  { by = "target", text = "Was she pleased to see you?" },
+  { by = "initiator", text = "She was in the warm barn, chewing. She looked at me as if I were the one who'd wandered off." },
+]
+
+[[talk]]
+id = "tale_ice_harvest"
+on = ["tell_tale"]
+outcome = "success"
+weight = 2
+when = { season = "winter", temp = "freezing" }
+lines = [
+  { by = "initiator", text = "A man fell through the millpond ice cutting blocks in January and came up inside a block." },
+  { by = "target", text = "Inside it?" },
+  { by = "initiator", text = "Well, beside it. But he went on holding the tongs and said the water was pleasant." },
+]
+
+[[talk]]
+id = "tale_night_walk"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { part = "night" }
+lines = [
+  { by = "initiator", text = "I walked home from the ford one night with a lantern and a bad conscience, and both went out at the same moment." },
+  { by = "target", text = "What did you do?" },
+  { by = "initiator", text = "I stood still till the moon came up. It's a fine moral lesson, but I forget what it is." },
+]
+
+[[talk]]
+id = "tale_horse_church"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { sabbath = true }
+lines = [
+  { by = "initiator", text = "A horse once walked itself to meeting, tied or not, every Sabbath for six years." },
+  { by = "target", text = "Was it devout?" },
+  { by = "initiator", text = "It was fond of the lilac at the church gate. Same thing, in a horse." },
+]
+
+[[talk]]
+id = "tale_hard_winter"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "The winter of '43 we burned the fence rails and the old pigpen and the better half of the porch." },
+  { by = "target", text = "And the spring?" },
+  { by = "initiator", text = "We had a good deal of lumber to buy and no fences to put it in." },
+]
+
+[[talk]]
+id = "tale_courting_buggy"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { part = "evening" }
+lines = [
+  { by = "initiator", text = "I courted my wife in a borrowed buggy, and the horse knew the way to her door better than I did." },
+  { by = "target", text = "Whose horse was it?" },
+  { by = "initiator", text = "Her father's. He'd been driving suitors to that gate for years." },
+]
+
+[[talk]]
+id = "tale_store_cat"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { venue = "store" }
+lines = [
+  { by = "initiator", text = "The store cat once brought in a dead snake the length of the counter and laid it before the preacher." },
+  { by = "target", text = "What did he say?" },
+  { by = "initiator", text = "Nothing for a good minute. Then, 'An offering.'" },
+]
+
+[[talk]]
+id = "tale_mill_dust"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { venue = "mill" }
+lines = [
+  { by = "initiator", text = "A mouse fell into the meal hopper once and came out a ghost." },
+  { by = "target", text = "Did it live?" },
+  { by = "initiator", text = "It moved into the church. You can still hear it sometimes at the back." },
+]
+
+[[talk]]
+id = "tale_smithy_sparks"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { venue = "smithy" }
+lines = [
+  { by = "initiator", text = "The smith's boy once set fire to his own apron and ran three times round the shop before anyone caught him." },
+  { by = "target", text = "Was he hurt?" },
+  { by = "initiator", text = "Only his dignity. And the apron." },
+]
+
+[[talk]]
+id = "tale_tavern_judge"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { venue = "tavern" }
+lines = [
+  { by = "initiator", text = "The judge fell asleep on the bench, and the jury, in sympathy, did the same." },
+  { by = "target", text = "Who woke first?" },
+  { by = "initiator", text = "The prisoner. He said he'd been found not guilty of consciousness." },
+]
+
+[[talk]]
+id = "tale_church_bat"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { venue = "church" }
+lines = [
+  { by = "initiator", text = "A bat once flew circles over the pulpit all through the sermon, and we all swore it was repenting." },
+  { by = "target", text = "Did it?" },
+  { by = "initiator", text = "It left before the collection." },
+]
+
+[[talk]]
+id = "tale_school_snake"
+on = ["tell_tale"]
+outcome = "success"
+weight = 4
+when = { venue = "school" }
+lines = [
+  { by = "initiator", text = "A garter snake got into the teacher's desk once. The teacher screamed so loud the scholars were deaf till Tuesday." },
+  { by = "target", text = "Whose snake was it?" },
+  { by = "initiator", text = "Never established. But the miller's boy has been very quiet since." },
+]
+
+[[talk]]
+id = "tale_flop_fish_stolen"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "...and then the fish got away, and it was the biggest fish ever seen on this creek." },
+  { by = "target", text = "They always are, the ones that get away." },
+]
+
+[[talk]]
+id = "tale_flop_lost_thread"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "So I said to him, I said, 'Not for all the tea in China,' and he said... what did he say..." },
+  { by = "target", text = "I think you've lost it." },
+  { by = "initiator", text = "It'll come to me." },
+]
+
+[[talk]]
+id = "tale_flop_longer"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "And that, {you}, is why I never trust a man with a lantern." },
+  { by = "target", text = "I don't believe you've said why yet." },
+]
+
+[[talk]]
+id = "tale_flop_hearsay"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "A man I know saw a two-headed calf at the county fair." },
+  { by = "target", text = "A man you know." },
+  { by = "initiator", text = "Well. His brother-in-law. Who is reliable." },
+]
+
+[[talk]]
+id = "tale_flop_big_bear"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "The bear that took my pig was ten feet tall if he was an inch." },
+  { by = "target", text = "Last month he was eight." },
+  { by = "initiator", text = "He's been eating." },
+]
+
+[[talk]]
+id = "tale_flop_wet"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 4
+when = { weather = "rain" }
+lines = [
+  { by = "initiator", text = "It rained so hard that day the creek ran backwards." },
+  { by = "target", text = "It does that in all your stories, {you}." },
+]
+
+[[talk]]
+id = "tale_flop_cold"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 4
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "It was so cold that winter the words froze in the air, and we had to thaw them to hear what we'd said." },
+  { by = "target", text = "A man in Galena told me that one, in a newspaper." },
+  { by = "initiator", text = "It was a different winter." },
+]
+
+[[talk]]
+id = "tale_flop_hay"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 4
+when = { season = "summer" }
+lines = [
+  { by = "initiator", text = "The hay stood so tall that summer a man could lose his horse in it." },
+  { by = "target", text = "You've said so every summer since I met you." },
+]
+
+[[talk]]
+id = "tale_flop_ghost"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 4
+when = { part = "evening" }
+lines = [
+  { by = "initiator", text = "And there was a snake the length of the barn, coiled round the pump handle..." },
+  { by = "target", text = "The length of the barn. And the pump handle?" },
+  { by = "initiator", text = "Well. I did not stay to measure." },
+]
+
+[[talk]]
+id = "tale_flop_drunk"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 8
+when = { mood = "drunk" }
+lines = [
+  { by = "initiator", text = "Now this is a true story, and I swear it on my mother, and the Queen, and..." },
+  { by = "target", text = "Sit down, before you swear on the cow too." },
+]
+
+[[talk]]
+id = "tale_flop_mule"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "I had a mule once who could tell the time by the sun and the day of the week by the feed." },
+  { by = "target", text = "What did he say the day was?" },
+  { by = "initiator", text = "He didn't say. He just stood there." },
+]
+
+[[talk]]
+id = "tale_flop_gold"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "There's gold in these hills, I tell you. A man I met had a handful of it." },
+  { by = "target", text = "That's lead, {you}. It's always lead." },
+]
+
+[[talk]]
+id = "tale_flop_repeat"
+on = ["tell_tale"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "Did I ever tell you about the time I..." },
+  { by = "target", text = "Yes. It ends with you telling it again." },
+  { by = "initiator", text = "I was going to say it ends rather well." },
+]
+
+[[talk]]
+id = "tale_kid_goose"
+on = ["tell_tale"]
+outcome = "success"
+weight = 7
+when = { target_child = true, child = false }
+lines = [
+  { by = "initiator", text = "Once there was a goose who thought she was a hen." },
+  { by = "target", text = "What happened?" },
+  { by = "initiator", text = "She sat on a stone for a week, very sure of herself. Nothing hatched, but she was happy." },
+]
+
+[[talk]]
+id = "tale_kid_fox"
+on = ["tell_tale"]
+outcome = "success"
+weight = 7
+when = { target_child = true, child = false }
+lines = [
+  { by = "initiator", text = "A fox once tried to carry off a rooster and found the rooster had other ideas." },
+  { by = "target", text = "What ideas?" },
+  { by = "initiator", text = "Loud ones. The fox never came back." },
+]
+
+[[talk]]
+id = "tale_kid_moon"
+on = ["tell_tale"]
+outcome = "success"
+weight = 7
+when = { target_child = true, child = false }
+lines = [
+  { by = "initiator", text = "The moon is a lantern hung by the cows for the owls, you know." },
+  { by = "target", text = "It is not!" },
+  { by = "initiator", text = "Ask a cow. She won't contradict me." },
+]
+
+[[talk]]
+id = "tale_kid_frog"
+on = ["tell_tale"]
+outcome = "success"
+weight = 7
+when = { target_child = true, child = false }
+lines = [
+  { by = "initiator", text = "There was a frog in the well who thought the sky was a small round window." },
+  { by = "target", text = "Was it?" },
+  { by = "initiator", text = "To him it was. We all see a bit less than there is, {you}." },
+]
+
+[[talk]]
+id = "tale_kid_wind"
+on = ["tell_tale"]
+outcome = "success"
+weight = 7
+when = { target_child = true, child = false }
+lines = [
+  { by = "initiator", text = "The wind got into the church organ one night and played a hymn all by itself." },
+  { by = "target", text = "Was it scared?" },
+  { by = "initiator", text = "Only of being caught. It's very shy, for a wind." },
+]
+
+[[talk]]
+id = "tale_kid_pie"
+on = ["tell_tale"]
+outcome = "success"
+weight = 7
+when = { target_child = true, child = false }
+lines = [
+  { by = "initiator", text = "A man once baked a pie so big he had to eat his way out." },
+  { by = "target", text = "Out of the pie?" },
+  { by = "initiator", text = "Out of the kitchen. It was a small kitchen." },
+]
+
+[[talk]]
+id = "tale_kid_mouse"
+on = ["tell_tale"]
+outcome = "success"
+weight = 7
+when = { target_child = true, child = false }
+lines = [
+  { by = "initiator", text = "A mouse once sat on the preacher's hymnbook and read the whole verse." },
+  { by = "target", text = "What was the verse?" },
+  { by = "initiator", text = "'Give us this day our daily cheese.'" },
+]
+
+[[talk]]
+id = "tale_kid_bear"
+on = ["tell_tale"]
+outcome = "success"
+weight = 7
+when = { target_child = true, child = false }
+lines = [
+  { by = "initiator", text = "A bear came to the door once and asked for a cup of sugar." },
+  { by = "target", text = "Did you give it?" },
+  { by = "initiator", text = "I gave him two. He was very polite, and very large." },
+]

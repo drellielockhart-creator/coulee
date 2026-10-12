@@ -79,15 +79,15 @@ by_culture = { norwegian = ["Gud velsigne deg", "God bless you"], german = ["Got
 
 [[talk_word]]
 id = "hedge_sure"
-words = ["it's certain:", "it's true as I stand here:", "there's no doubt of it:"]
-by_culture = { irish = ["sure it's well known:", "it's certain:"], norwegian = ["it is true, ja:", "it's certain:"], yankee = ["it's a fact:", "it's certain:"] }
+words = ["it's certain:", "it's true as I stand here:", "there's no doubt of it:", "I'd stake my name on it:", "I had it straight:", "mark me:"]
+by_culture = { irish = ["sure it's well known:", "it's certain:", "I'd swear it on the Book:"], norwegian = ["it is true, ja:", "it's certain:", "I had it myself:"], yankee = ["it's a fact:", "it's certain:", "I know it for a fact:"], german = ["it is certain:", "ganz sicher:", "I know it, I know it:"], cornish = ["it's true as I'm here:", "it's certain:", "no doubt about it:"], black_ohio = ["I know it to be so:", "it's certain:", "I'd stand by it:"] }
 
 [[talk_word]]
 id = "hedge_likely"
-words = ["I'd not swear to it, but", "by all accounts", "so they say,"]
-by_culture = { irish = ["they say, and I believe it,", "by all accounts"], german = ["so one hears:", "by all accounts"], cornish = ["so 'tis said,", "by all accounts"] }
+words = ["I'd not swear to it, but", "by all accounts", "so they say,", "as I understand it,", "if I heard right,", "word is that"]
+by_culture = { irish = ["they say, and I believe it,", "by all accounts", "if the tale is true,"], german = ["so one hears:", "by all accounts", "as it is said,"], cornish = ["so 'tis said,", "by all accounts", "I hear tell,"], yankee = ["I understand that", "word has it that", "by all accounts"], norwegian = ["they say so,", "by all accounts", "as I heard it,"], black_ohio = ["so I'm told,", "by all accounts", "from what I gather,"] }
 
 [[talk_word]]
 id = "hedge_doubt"
-words = ["I don't credit it myself, but", "for what it's worth,", "it's only talk, mind, but"]
-by_culture = { yankee = ["I take it with a grain of salt, but", "it's only talk, but"], irish = ["I'd not believe the half of it, but", "it's only talk, mind, but"] }
+words = ["I don't credit it myself, but", "for what it's worth,", "it's only talk, mind, but", "I give it for what it cost me, which was nothing:", "you'll make of it what you like, but", "I take it with a grain of salt, but"]
+by_culture = { yankee = ["I take it with a grain of salt, but", "it's only talk, but", "I'll not vouch for it, but"], irish = ["I'd not believe the half of it, but", "it's only talk, mind, but", "they're saying, God help us,"], german = ["it is perhaps nothing, but", "one hears, but who knows:", "it is only talk, but"], norwegian = ["it is only talk, ja, but", "I cannot say it is so, but", "they say, but who can tell:"], cornish = ["I'll not swear to it, my handsome, but", "they do say, but I don't:", "it's only a yarn, but"] }

@@ -3,6 +3,7 @@ import { settlement, terrain } from './layout.ts';
 import { populate } from './population.ts';
 import { checkTown, playtestTown, townContent } from './qa.ts';
 import { seedTensions } from './tensions.ts';
+import { nameAndDescribe } from './text.ts';
 import { GEN_VERSION, type GeneratedTown, type TownRecipe } from './types.ts';
 
 export { checkTown, townContent } from './qa.ts';
@@ -31,7 +32,17 @@ export function* generateTownStages(content: ContentBundle, recipe: TownRecipe):
     name: t.site.name,
     description: t.site.description,
   });
-  populate(content, recipe, scenario, homes);
+  const { means } = populate(content, recipe, scenario, homes);
+  nameAndDescribe({
+    content,
+    recipe,
+    site: t.site,
+    places: t.places,
+    scenario,
+    creek: t.creek,
+    ford: t.ford,
+    means,
+  });
   yield 'population';
   const decisions = seedTensions(content, recipe, scenario);
   yield 'tensions';

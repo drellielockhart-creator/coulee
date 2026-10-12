@@ -1,0 +1,1308 @@
+# News, wave 5 (group D). OWNER: module:social. Read by packages/core/src/social/talk.ts, same rules as talk.toml.
+#
+# The `said` lines here carry the rumor itself and go on the private belief.transmitted event. A hearer
+# answers according to their own belief (`heard`: credits / doubts / already), the kind of news (`rumor`),
+# whom it is about (`about`), and who they are (`target = { culture/occupation/trait }`, `target_mood`),
+# which is why a character who is asked the same thing twice does not give the same answer twice
+# (playtest r2: the player's character answered every rumor 'I'd want more than talk before I'd credit that').
+
+# =============================================================================================
+# Gossip, asking, confiding and warning: the act (what witnesses overhear: never the news itself)
+# =============================================================================================
+
+[[talk]]
+id = "gossip_sit_down"
+on = ["gossip"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Sit down, {you}. You'll want to for this." },
+  { by = "target", text = "Now I'm worried. Go on." },
+]
+
+[[talk]]
+id = "gossip_dont_repeat"
+on = ["gossip"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Don't repeat this, {you}." },
+  { by = "target", text = "When have I ever?" },
+  { by = "initiator", text = "Every time. But I tell you anyway." },
+]
+
+[[talk]]
+id = "gossip_between_us"
+on = ["gossip"]
+weight = 5
+when = { told = true, label = "friend" }
+lines = [
+  { by = "initiator", text = "This is between us, {you}." },
+  { by = "target", text = "Then it'll go no further than the next person I see." },
+]
+
+[[talk]]
+id = "gossip_strangers"
+on = ["gossip"]
+weight = 5
+when = { told = true, label = "stranger" }
+lines = [
+  { by = "initiator", text = "You're new, {you}, so you may as well hear how things stand." },
+  { by = "target", text = "I'd be glad of it." },
+]
+
+[[talk]]
+id = "gossip_store"
+on = ["gossip"]
+weight = 2
+when = { told = true, venue = "store" }
+lines = [
+  { by = "initiator", text = "The counter's the best place for news, {you}. Lean closer." },
+  { by = "target", text = "I'm leaning." },
+]
+
+[[talk]]
+id = "gossip_tavern"
+on = ["gossip"]
+weight = 2
+when = { told = true, venue = "tavern" }
+lines = [
+  { by = "initiator", text = "Come here, {you}, and don't tell the barkeep I said so." },
+  { by = "target", text = "He hears everything anyway." },
+]
+
+[[talk]]
+id = "gossip_church_steps"
+on = ["gossip"]
+weight = 2
+when = { told = true, venue = "church", sabbath = true }
+lines = [
+  { by = "initiator", text = "After meeting, {you}, on the steps. I've a thing to tell." },
+  { by = "target", text = "The steps have heard worse." },
+]
+
+[[talk]]
+id = "gossip_rain"
+on = ["gossip"]
+weight = 2
+when = { told = true, weather = "rain" }
+lines = [
+  { by = "initiator", text = "A bad day for walking, and a good one for news." },
+  { by = "target", text = "Then talk. I've nowhere to be." },
+]
+
+[[talk]]
+id = "gossip_evening"
+on = ["gossip"]
+weight = 2
+when = { told = true, part = "evening" }
+lines = [
+  { by = "initiator", text = "I've been carrying this all day, {you}." },
+  { by = "target", text = "Put it down here. I'll mind it." },
+]
+
+[[talk]]
+id = "gossip_wag"
+on = ["gossip"]
+weight = 5
+when = { told = true, initiator = { trait = "gossip" } }
+lines = [
+  { by = "initiator", text = "I know a thing about someone. I shan't say who, but I'll say what." },
+  { by = "target", text = "That's worse than saying who." },
+]
+
+[[talk]]
+id = "gossip_drunk"
+on = ["gossip"]
+weight = 5
+when = { told = true, mood = "drunk" }
+lines = [
+  { by = "initiator", text = "I shouldn't say this, and I will, and tomorrow I'll deny it." },
+  { by = "target", text = "I'll make a note of it." },
+]
+
+[[talk]]
+id = "gossip_none_quiet"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "I've nothing for you today, {you}. The town is all backbone and no gossip." },
+  { by = "target", text = "That's a shame. I'd a taste for something." },
+]
+
+[[talk]]
+id = "gossip_none_stale"
+on = ["gossip"]
+weight = 2
+when = { told = false, stale = true }
+lines = [
+  { by = "initiator", text = "Everything I know, you know. We've used it up." },
+  { by = "target", text = "Then it's the weather again." },
+]
+
+[[talk]]
+id = "gossip_none_weather"
+on = ["gossip"]
+weight = 2
+when = { told = false, weather = "rain" }
+lines = [
+  { by = "initiator", text = "I'd hoped to have something, {you}, but the whole place has gone to sleep." },
+  { by = "target", text = "It's the weather. News never gets up in this." },
+]
+
+[[talk]]
+id = "gossip_none_church"
+on = ["gossip"]
+weight = 2
+when = { told = false, sabbath = true }
+lines = [
+  { by = "initiator", text = "Not a word, {you}. Not a whisper. Not even Mrs. Whoever." },
+  { by = "target", text = "Then it's a holy week." },
+]
+
+[[talk]]
+id = "gossip_none_apologetic"
+on = ["gossip"]
+weight = 5
+when = { told = false, label = "friend" }
+lines = [
+  { by = "initiator", text = "I'd tell you if I had it, {you}. Honest." },
+  { by = "target", text = "I believe you. It's the only reason I keep asking." },
+]
+
+# =============================================================================================
+# Gossip told: the teller's words and the hearer's reply (part = said). The hearer may be anyone, the player's character included.
+# =============================================================================================
+
+[[talk]]
+id = "gs_credit_explains"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", secondhand = false }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "That would account for a good deal." },
+]
+
+[[talk]]
+id = "gs_credit_watch"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", secondhand = false }
+lines = [
+  { by = "initiator", text = "Between us, {rumor}." },
+  { by = "target", text = "I'll say nothing. But I'll watch." },
+]
+
+[[talk]]
+id = "gs_credit_poor"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other" }
+lines = [
+  { by = "initiator", text = "They're saying that {rumor}." },
+  { by = "target", text = "Poor soul. Or poor us; I can't tell which." },
+]
+
+[[talk]]
+id = "gs_credit_always"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", secondhand = false }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "I always wondered. Now I know." },
+]
+
+[[talk]]
+id = "gs_credit_god_help"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", rumor = "scandal" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "God help them, then." },
+]
+
+[[talk]]
+id = "gs_credit_shameful"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", rumor = "scandal" }
+lines = [
+  { by = "initiator", text = "I'll tell you what I heard: {rumor}." },
+  { by = "target", text = "Shameful, if it's true. And I'm afraid it is." },
+]
+
+[[talk]]
+id = "gs_credit_good_news"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", rumor = "kind" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Well. That's good news for once." },
+]
+
+[[talk]]
+id = "gs_credit_kind_glad"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", rumor = "kind" }
+lines = [
+  { by = "initiator", text = "Here's a thing to cheer you: {rumor}." },
+  { by = "target", text = "I needed that. Thank you for bringing it." },
+]
+
+[[talk]]
+id = "gs_credit_plain"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", rumor = "plain" }
+lines = [
+  { by = "initiator", text = "I heard that {rumor}." },
+  { by = "target", text = "Did you? I hadn't. Thank you." },
+]
+
+[[talk]]
+id = "gs_credit_plain_2"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", rumor = "plain" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Is that so. I'll bear it in mind." },
+]
+
+[[talk]]
+id = "gs_credit_who_else"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", secondhand = true }
+lines = [
+  { by = "initiator", text = "{^source} told me {rumor}." },
+  { by = "target", text = "And who else has heard it? Never mind. I believe it." },
+]
+
+[[talk]]
+id = "gs_credit_source_known"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", secondhand = true }
+lines = [
+  { by = "initiator", text = "{^source} had it from the horse's mouth: {rumor}." },
+  { by = "target", text = "Then it's as good as sworn." },
+]
+
+[[talk]]
+id = "gs_credit_pastor"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "credits", about = "other", target = { occupation = "pastor" } }
+lines = [
+  { by = "initiator", text = "Since you're the pastor, I thought you should know: {rumor}." },
+  { by = "target", text = "Thank you. It's heavy to carry, but better with warning." },
+]
+
+[[talk]]
+id = "gs_credit_friend"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "credits", about = "other", label = "friend" }
+lines = [
+  { by = "initiator", text = "You'd want to know, {you}, so I'm telling you: {rumor}." },
+  { by = "target", text = "I would. Thank you for that." },
+]
+
+[[talk]]
+id = "gs_credit_wag"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "credits", about = "other", target = { trait = "gossip" } }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Now that's news worth a pot of coffee." },
+]
+
+[[talk]]
+id = "gs_credit_evening"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other", part = "evening" }
+lines = [
+  { by = "initiator", text = "I had this from a reliable quarter: {rumor}." },
+  { by = "target", text = "Then it'll be all over {town} by supper." },
+]
+
+[[talk]]
+id = "gs_doubt_tall"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "That's a tall tale, if ever I heard one." },
+]
+
+[[talk]]
+id = "gs_doubt_who"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other", secondhand = false }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Who said so? I'd like to hear it from them." },
+]
+
+[[talk]]
+id = "gs_doubt_tuesday"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "They're saying {rumor}." },
+  { by = "target", text = "Folk will say anything on a Tuesday." },
+]
+
+[[talk]]
+id = "gs_doubt_see"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "I'll believe it when I see it, and not before." },
+]
+
+[[talk]]
+id = "gs_doubt_proof"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Ask me again when there's proof." },
+]
+
+[[talk]]
+id = "gs_doubt_hearsay"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "I'm told {rumor}." },
+  { by = "target", text = "Hearsay. I don't trade in it." },
+]
+
+[[talk]]
+id = "gs_doubt_almanac"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "I'd sooner trust the almanac." },
+]
+
+[[talk]]
+id = "gs_doubt_poor_story"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "It's a story, and not a good one." },
+]
+
+[[talk]]
+id = "gs_doubt_source_bad"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other", secondhand = true }
+lines = [
+  { by = "initiator", text = "{^source} says {rumor}." },
+  { by = "target", text = "{^source} would say the sun was a lamp, if it got a laugh." },
+]
+
+[[talk]]
+id = "gs_doubt_source_ask"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other", secondhand = true }
+lines = [
+  { by = "initiator", text = "{^source} told me {rumor}." },
+  { by = "target", text = "Then I'll ask {source} myself, and see if the tale keeps." },
+]
+
+[[talk]]
+id = "gs_doubt_honest"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "I can't say you're wrong. I can't say you're right either." },
+]
+
+[[talk]]
+id = "gs_doubt_scandal"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other", rumor = "scandal" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "That's a hard thing to say of a neighbor on so little." },
+]
+
+[[talk]]
+id = "gs_doubt_kind"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other", rumor = "kind" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "It would be a fine thing if it were so. I'll wait and see." },
+]
+
+[[talk]]
+id = "gs_doubt_pious"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "doubts", about = "other", target_mood = "piety" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Bear not false witness, {you}. Not on this evidence." },
+]
+
+[[talk]]
+id = "gs_doubt_norwegian"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "doubts", about = "other", target = { culture = "norwegian" } }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Ja, ja. We'll see what the spring says." },
+]
+
+[[talk]]
+id = "gs_doubt_german"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "doubts", about = "other", target = { culture = "german" } }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Na, na. Without a witness it is only noise." },
+]
+
+[[talk]]
+id = "gs_doubt_irish"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "doubts", about = "other", target = { culture = "irish" } }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "I'd not believe the half of it, and I'd not tell the other half." },
+]
+
+[[talk]]
+id = "gs_doubt_yankee"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "doubts", about = "other", target = { culture = "yankee" } }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Show me the paper it's written on." },
+]
+
+[[talk]]
+id = "gs_doubt_cornish"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "doubts", about = "other", target = { culture = "cornish" } }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Ar, I've heard better yarns from the bal." },
+]
+
+[[talk]]
+id = "gs_already_third"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "already", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "You're the third to tell me." },
+]
+
+[[talk]]
+id = "gs_already_cold"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "already", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "It made the rounds like a cold. I had it Thursday." },
+]
+
+[[talk]]
+id = "gs_already_who_believes"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "already", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Everyone's heard it. The question is who believes it." },
+]
+
+[[talk]]
+id = "gs_already_what_think"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "already", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Yes, yes. And what do you make of it?" },
+]
+
+[[talk]]
+id = "gs_already_old"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { heard = "already", about = "other", secondhand = true }
+lines = [
+  { by = "initiator", text = "I had it from {source}: {rumor}." },
+  { by = "target", text = "Old news, I'm afraid. It came by Tuesday." },
+]
+
+[[talk]]
+id = "gs_already_sorry"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { heard = "already", about = "other", label = "friend" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Kind of you to tell me. I'd heard it, but not from anyone I trust." },
+]
+
+[[talk]]
+id = "gs_uncanny_horseshoe"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { rumor = "uncanny", heard = "credits", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "I'll hang a horseshoe over the door tonight. It can't hurt." },
+]
+
+[[talk]]
+id = "gs_uncanny_salt"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { rumor = "uncanny", heard = "credits", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}. Salt on the sill, {you}." },
+  { by = "target", text = "Salt on the sill. I have a whole barrel." },
+]
+
+[[talk]]
+id = "gs_uncanny_dislike"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { rumor = "uncanny", heard = "credits", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "I don't like it. I don't like it at all." },
+]
+
+[[talk]]
+id = "gs_uncanny_old_wives"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { rumor = "uncanny", heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Old wives' tales, {you}. My grandmother had a hundred." },
+]
+
+[[talk]]
+id = "gs_uncanny_mud"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { rumor = "uncanny", heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "I've lived here years and seen nothing but mud." },
+]
+
+[[talk]]
+id = "gs_uncanny_marsh"
+on = ["gossip"]
+part = "said"
+weight = 3
+when = { rumor = "uncanny", heard = "doubts", about = "other", target_mood = "drunk" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Marsh gas, and a good deal of whiskey. That's your uncanny." },
+]
+
+[[talk]]
+id = "gs_uncanny_already"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { rumor = "uncanny", heard = "already", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "So I hear. I've begun keeping the lamp lit." },
+]
+
+[[talk]]
+id = "gs_you_who"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { about = "you", secondhand = false }
+lines = [
+  { by = "initiator", text = "Folk say {rumor}, {you}." },
+  { by = "target", text = "Who? ...Never mind. It doesn't matter who." },
+]
+
+[[talk]]
+id = "gs_you_lie"
+on = ["gossip"]
+part = "said"
+weight = 4
+when = { about = "you" }
+lines = [
+  { by = "initiator", text = "I'm told {rumor}." },
+  { by = "target", text = "That's a lie. But a clever one, and I'll give them that." },
+]
+
+[[talk]]
+id = "gs_you_sting"
+on = ["gossip"]
+part = "said"
+weight = 4
+when = { about = "you" }
+lines = [
+  { by = "initiator", text = "They're saying that {rumor}." },
+  { by = "target", text = "I won't pretend it doesn't sting. Thank you for telling me." },
+]
+
+[[talk]]
+id = "gs_you_busier"
+on = ["gossip"]
+part = "said"
+weight = 5
+when = { about = "you", target_mood = "rage" }
+lines = [
+  { by = "initiator", text = "It's all over {town} that {rumor}." },
+  { by = "target", text = "Then they've been busy. I'll see they're busier." },
+]
+
+[[talk]]
+id = "gs_you_obliged"
+on = ["gossip"]
+part = "said"
+weight = 5
+when = { about = "you", label = "friend" }
+lines = [
+  { by = "initiator", text = "I'd want to know, in your place: {rumor}." },
+  { by = "target", text = "I'm obliged. It's not pleasant, but I'd sooner know." },
+]
+
+[[talk]]
+id = "gs_you_source"
+on = ["gossip"]
+part = "said"
+weight = 2
+when = { about = "you", secondhand = true }
+lines = [
+  { by = "initiator", text = "{^source} says {rumor}, {you}." },
+  { by = "target", text = "Does {source} now. I'll have a word." },
+]
+
+[[talk]]
+id = "gs_you_calm"
+on = ["gossip"]
+part = "said"
+weight = 5
+when = { about = "you", target_mood = "easy" }
+lines = [
+  { by = "initiator", text = "There's a rumor that {rumor}." },
+  { by = "target", text = "It isn't true. I'll say it once, calmly, and then I'll act on it." },
+]
+
+[[talk]]
+id = "gs_you_shame"
+on = ["gossip"]
+part = "said"
+weight = 5
+when = { about = "you", target_mood = "shame" }
+lines = [
+  { by = "initiator", text = "I heard that {rumor}, {you}." },
+  { by = "target", text = "I... don't know what to say to that." },
+]
+
+[[talk]]
+id = "gs_self_asked"
+on = ["gossip"]
+part = "said"
+weight = 4
+when = { about = "self" }
+lines = [
+  { by = "initiator", text = "You may as well hear it from me: {rumor}." },
+  { by = "target", text = "That can't have been easy to say." },
+]
+
+[[talk]]
+id = "gs_self_guessed"
+on = ["gossip"]
+part = "said"
+weight = 4
+when = { about = "self" }
+lines = [
+  { by = "initiator", text = "It's true what they say: {rumor}." },
+  { by = "target", text = "I'd guessed. But thank you for saying it." },
+]
+
+[[talk]]
+id = "gs_self_safe"
+on = ["gossip"]
+part = "said"
+weight = 5
+when = { about = "self", label = "friend" }
+lines = [
+  { by = "initiator", text = "I'll tell you plainly: {rumor}." },
+  { by = "target", text = "It's safe with me." },
+]
+
+[[talk]]
+id = "gs_self_no_need"
+on = ["gossip"]
+part = "said"
+weight = 4
+when = { about = "self" }
+lines = [
+  { by = "initiator", text = "I'd rather you heard it from me: {rumor}." },
+  { by = "target", text = "You needn't have told me. But I'm glad you did." },
+]
+
+[[talk]]
+id = "gs_self_pastor"
+on = ["gossip"]
+part = "said"
+weight = 5
+when = { about = "self", target = { occupation = "pastor" } }
+lines = [
+  { by = "initiator", text = "Pastor, there's a thing I must say: {rumor}." },
+  { by = "target", text = "Say it, and God will hear it with you." },
+]
+
+# =============================================================================================
+# Asking about the news: the teller is the one asked (the target)
+# =============================================================================================
+
+[[talk]]
+id = "ask_know_anything"
+on = ["ask_about"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "What do you know, {you}?" },
+  { by = "target", text = "More than I should, less than I'd like. Sit down." },
+]
+
+[[talk]]
+id = "ask_what_say"
+on = ["ask_about"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "What are folk saying?" },
+  { by = "target", text = "What they always say. But there's one thing new." },
+]
+
+[[talk]]
+id = "ask_ear"
+on = ["ask_about"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "You've your ear to the ground, {you}. What's it hearing?" },
+  { by = "target", text = "Mostly mud. But there's something." },
+]
+
+[[talk]]
+id = "ask_store"
+on = ["ask_about"]
+weight = 2
+when = { told = true, venue = "store" }
+lines = [
+  { by = "initiator", text = "Anything come in with the wagon besides sugar?" },
+  { by = "target", text = "News did. Close the door." },
+]
+
+[[talk]]
+id = "ask_tavern"
+on = ["ask_about"]
+weight = 2
+when = { told = true, venue = "tavern" }
+lines = [
+  { by = "initiator", text = "What's the talk by the bar tonight?" },
+  { by = "target", text = "Lean in, and keep your hat on." },
+]
+
+[[talk]]
+id = "ask_pastor"
+on = ["ask_about"]
+weight = 5
+when = { told = true, target = { occupation = ["pastor", "lay_preacher"] } }
+lines = [
+  { by = "initiator", text = "Is there anything I ought to pray about, {you}?" },
+  { by = "target", text = "There might be. Come into the vestry." },
+]
+
+[[talk]]
+id = "ask_printer"
+on = ["ask_about"]
+weight = 5
+when = { told = true, target = { occupation = "editor_printer" } }
+lines = [
+  { by = "initiator", text = "Anything that didn't make the paper, {you}?" },
+  { by = "target", text = "Plenty. That's the best of it." },
+]
+
+[[talk]]
+id = "ask_gossip"
+on = ["ask_about"]
+weight = 5
+when = { told = true, target = { trait = "gossip" } }
+lines = [
+  { by = "initiator", text = "{you}! Tell me everything." },
+  { by = "target", text = "Oh, I knew you'd ask." },
+]
+
+[[talk]]
+id = "ask_nobody"
+on = ["ask_about"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Anything of interest?" },
+  { by = "target", text = "Not a word. It's all been said, and said again." },
+]
+
+[[talk]]
+id = "ask_quiet_week"
+on = ["ask_about"]
+weight = 2
+when = { told = false, season = "summer" }
+lines = [
+  { by = "initiator", text = "Any news this week?" },
+  { by = "target", text = "A very quiet week. The best kind." },
+]
+
+[[talk]]
+id = "ask_cold_news"
+on = ["ask_about"]
+weight = 2
+when = { told = false, temp = "freezing" }
+lines = [
+  { by = "initiator", text = "Anything stirring?" },
+  { by = "target", text = "Only the stove. It's too cold for news." },
+]
+
+[[talk]]
+id = "ask_busy"
+on = ["ask_about"]
+weight = 5
+when = { told = false, initiator = { occupation = "farmer" } }
+lines = [
+  { by = "initiator", text = "I don't suppose you've heard anything?" },
+  { by = "target", text = "I've been too busy to hear my own name." },
+]
+
+[[talk]]
+id = "ask_know_nothing"
+on = ["ask_about"]
+weight = 5
+when = { told = false, label = "acquaintance" }
+lines = [
+  { by = "initiator", text = "What do you hear, {you}?" },
+  { by = "target", text = "Nothing I'd repeat. Ask me something I can answer." },
+]
+
+[[talk]]
+id = "ask_stranger_cautious"
+on = ["ask_about"]
+weight = 5
+when = { told = false, label = "stranger" }
+lines = [
+  { by = "initiator", text = "I'm new, and I'd like to know how things stand." },
+  { by = "target", text = "I'd tell you if I trusted you. Ask again in a month." },
+]
+
+[[talk]]
+id = "ask_said_cheerful"
+on = ["ask_about"]
+part = "said"
+weight = 4
+when = { about = "other" }
+lines = [
+  { by = "target", text = "Here's a bit for you: {rumor}." },
+  { by = "initiator", text = "Is it so? Well, that's something to chew on." },
+]
+
+[[talk]]
+id = "ask_said_oddly"
+on = ["ask_about"]
+part = "said"
+weight = 4
+when = { about = "other" }
+lines = [
+  { by = "target", text = "I'll tell you what I heard, and you may do with it what you like: {rumor}." },
+  { by = "initiator", text = "I'll do nothing at all. But I'll think about it." },
+]
+
+[[talk]]
+id = "ask_said_doubts_2"
+on = ["ask_about"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "target", text = "{^hedge} {rumor}." },
+  { by = "initiator", text = "That's a lot of weight on a thin string." },
+]
+
+[[talk]]
+id = "ask_said_doubts_3"
+on = ["ask_about"]
+part = "said"
+weight = 2
+when = { heard = "doubts", about = "other" }
+lines = [
+  { by = "target", text = "{^hedge} {rumor}." },
+  { by = "initiator", text = "I'll ask around before I believe a word of it." },
+]
+
+[[talk]]
+id = "ask_said_credits_2"
+on = ["ask_about"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other" }
+lines = [
+  { by = "target", text = "{^hedge} {rumor}." },
+  { by = "initiator", text = "I'd wondered. Thank you for telling me plainly." },
+]
+
+[[talk]]
+id = "ask_said_credits_3"
+on = ["ask_about"]
+part = "said"
+weight = 2
+when = { heard = "credits", about = "other" }
+lines = [
+  { by = "target", text = "{^hedge} {rumor}." },
+  { by = "initiator", text = "Then I'll know to be careful. Much obliged." },
+]
+
+[[talk]]
+id = "ask_said_already_2"
+on = ["ask_about"]
+part = "said"
+weight = 2
+when = { heard = "already", about = "other" }
+lines = [
+  { by = "target", text = "It's no secret: {rumor}." },
+  { by = "initiator", text = "No, it's not. I just wanted to hear how you'd tell it." },
+]
+
+[[talk]]
+id = "ask_said_uncanny_2"
+on = ["ask_about"]
+part = "said"
+weight = 2
+when = { rumor = "uncanny", about = "other" }
+lines = [
+  { by = "target", text = "{^hedge} {rumor}. Keep your lamp lit." },
+  { by = "initiator", text = "I always do. It's a habit I've never regretted." },
+]
+
+[[talk]]
+id = "ask_said_scandal_2"
+on = ["ask_about"]
+part = "said"
+weight = 2
+when = { rumor = "scandal", about = "other" }
+lines = [
+  { by = "target", text = "{^hedge} {rumor}. Mind you don't say I told you." },
+  { by = "initiator", text = "I never heard a word from you. I'll swear to it." },
+]
+
+[[talk]]
+id = "ask_said_kind_2"
+on = ["ask_about"]
+part = "said"
+weight = 2
+when = { rumor = "kind", about = "other" }
+lines = [
+  { by = "target", text = "{^hedge} {rumor}. A bit of good news." },
+  { by = "initiator", text = "There's so little going about. Thank you." },
+]
+
+[[talk]]
+id = "ask_said_you_2"
+on = ["ask_about"]
+part = "said"
+weight = 4
+when = { about = "you" }
+lines = [
+  { by = "target", text = "You asked, so: folk say {rumor}." },
+  { by = "initiator", text = "Do they. I'd sooner they said it to me." },
+]
+
+[[talk]]
+id = "ask_said_self_2"
+on = ["ask_about"]
+part = "said"
+weight = 4
+when = { about = "self" }
+lines = [
+  { by = "target", text = "I'd as soon you heard it from me: {rumor}." },
+  { by = "initiator", text = "I'm glad I asked, then." },
+]
+
+# =============================================================================================
+# Confiding and warning, said
+# =============================================================================================
+
+[[talk]]
+id = "confide_hush"
+on = ["confide"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Keep your voice down, {you}. What I'm going to say can't be taken back." },
+  { by = "target", text = "I'm listening. Say it." },
+]
+
+[[talk]]
+id = "confide_hard"
+on = ["confide"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "It's a hard thing to say aloud, {you}." },
+  { by = "target", text = "Then say it slowly. I've got time." },
+]
+
+[[talk]]
+id = "confide_truth"
+on = ["confide"]
+weight = 5
+when = { told = true, label = "friend" }
+lines = [
+  { by = "initiator", text = "I've never told this to anyone. I hope I'm not a fool to tell it to you." },
+  { by = "target", text = "You're not. Go on." },
+]
+
+[[talk]]
+id = "confide_pastor"
+on = ["confide"]
+weight = 5
+when = { told = true, target = { occupation = "pastor" } }
+lines = [
+  { by = "initiator", text = "Pastor, may I speak to you in confidence?" },
+  { by = "target", text = "Always. The vestry's empty." },
+]
+
+[[talk]]
+id = "confide_night"
+on = ["confide"]
+weight = 2
+when = { told = true, part = "night" }
+lines = [
+  { by = "initiator", text = "I can't sleep, {you}, for thinking of it." },
+  { by = "target", text = "Then tell me. Two heads on a pillow are better than one." },
+]
+
+[[talk]]
+id = "confide_nothing_2"
+on = ["confide"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "I wanted to say something, {you}, and now I can't find it." },
+  { by = "target", text = "It'll come back. Sit with me till it does." },
+]
+
+[[talk]]
+id = "confide_nothing_3"
+on = ["confide"]
+weight = 5
+when = { told = false, mood = "anxious" }
+lines = [
+  { by = "initiator", text = "Sometimes I want to tell someone everything, and there's no everything to tell." },
+  { by = "target", text = "That's the commonest burden. Sit down." },
+]
+
+[[talk]]
+id = "confide_said_other_2"
+on = ["confide"]
+part = "said"
+weight = 4
+when = { about = "other" }
+lines = [
+  { by = "initiator", text = "I've held this long enough: {rumor}." },
+  { by = "target", text = "It'll stay with me." },
+]
+
+[[talk]]
+id = "confide_said_self_2"
+on = ["confide"]
+part = "said"
+weight = 4
+when = { about = "self" }
+lines = [
+  { by = "initiator", text = "{^rumor}. There. I've said it." },
+  { by = "target", text = "Thank you for trusting me with it." },
+]
+
+[[talk]]
+id = "confide_said_you_2"
+on = ["confide"]
+part = "said"
+weight = 2
+when = { about = "you", heard = "doubts" }
+lines = [
+  { by = "initiator", text = "They say {rumor}, {you}, and I wanted you to know I don't believe it." },
+  { by = "target", text = "I'm grateful. Truly." },
+]
+
+[[talk]]
+id = "warn_said_sure"
+on = ["warn"]
+part = "said"
+weight = 4
+when = { about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}. Be careful." },
+  { by = "target", text = "I'll be careful, and I'll be grateful." },
+]
+
+[[talk]]
+id = "warn_said_lamp"
+on = ["warn"]
+part = "said"
+weight = 2
+when = { about = "other", part = "evening" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}. Keep a lamp lit tonight." },
+  { by = "target", text = "I always do." },
+]
+
+[[talk]]
+id = "warn_said_door"
+on = ["warn"]
+part = "said"
+weight = 2
+when = { about = "other", heard = "already" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}. Bar the door." },
+  { by = "target", text = "It's been barred since September." },
+]
+
+[[talk]]
+id = "warn_said_roads"
+on = ["warn"]
+part = "said"
+weight = 2
+when = { about = "other", weather = "rain" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}. Stay off the low road." },
+  { by = "target", text = "The low road and I have an understanding already." },
+]
+
+[[talk]]
+id = "warn_said_ask"
+on = ["warn"]
+part = "said"
+weight = 2
+when = { about = "other", secondhand = false }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Why are you telling me?" },
+  { by = "initiator", text = "Because you'd do the same for me." },
+]
+
+[[talk]]
+id = "warn_said_doubts_2"
+on = ["warn"]
+part = "said"
+weight = 2
+when = { about = "other", heard = "doubts" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}. I thought you should know." },
+  { by = "target", text = "I'll take it under advisement, as the lawyers say." },
+]
+
+[[talk]]
+id = "warn_said_credit_2"
+on = ["warn"]
+part = "said"
+weight = 2
+when = { about = "other", heard = "credits" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}. Mind yourself." },
+  { by = "target", text = "I will. I'd rather be careful than be a fool." },
+]

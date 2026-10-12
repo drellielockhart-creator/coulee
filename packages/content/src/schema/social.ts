@@ -612,6 +612,30 @@ export const TALK_LABELS = ['friend', 'enemy', 'rival', 'admirer', 'cowed', 'acq
  */
 export const TALK_STATES = ['anxious', 'drunk', 'hungry', 'weary', 'easy'] as const;
 
+/** One id or a list of them (`occupation = "ferryman"` or `["ferryman", "boatman"]`). */
+const TalkIds = z.union([id(), z.array(id()).min(1)]).transform((v) => (Array.isArray(v) ? v : [v]));
+
+/**
+ * Who a speaker is, for lines that belong to a person or to a kind of person (wave 5, group D;
+ * additive). A story with a teller (`initiator = { actor = "amos_whitcomb" }`) is only ever told
+ * by that person; a rib about it (`target = { actor = "amos_whitcomb" }`) is only said to them. A
+ * kind of person works in generated towns, where nobody has an authored key: a riverman's yarn
+ * is `{ occupation = ["ferryman", "boatman"] }`, a grandmother's `{ sex = "female", age = "elder" }`.
+ * Every field listed must hold (ids within a field are alternatives).
+ */
+export const TalkWhoSchema = z.strictObject({
+  /** Scenario actor key(s) (the `key` of a scenario `[[actors]]`). */
+  actor: TalkIds.optional(),
+  occupation: TalkIds.optional(),
+  /** Culture the speaker was raised in (content/base/cultures). */
+  culture: TalkIds.optional(),
+  trait: TalkIds.optional(),
+  sex: z.enum(['female', 'male']).optional(),
+  /** young: 13–24, prime: 25–49, elder: 50 and over. */
+  age: z.enum(['young', 'prime', 'elder']).optional(),
+});
+export type TalkWho = z.output<typeof TalkWhoSchema>;
+
 /**
  * Conditions a talk line needs, all read from the live world at the moment it is said (P1:
  * nothing is claimed the sim did not feel). Omitted = any. "Initiator" is whoever opened the
@@ -668,6 +692,9 @@ const TalkWhenSchema = z
      */
     child: z.boolean().optional(),
     target_child: z.boolean().optional(),
+    /** Who the initiator / target is (a teller who owns a story; a kind of person). See TalkWhoSchema. */
+    initiator: TalkWhoSchema.optional(),
+    target: TalkWhoSchema.optional(),
   })
   .default({});
 
@@ -841,6 +868,21 @@ export function socialRefs(b: ContentBundle): Issue[] {
           path: 'when.mood',
           message: `unknown mood '${mood}' (a drive, a norm, or ${TALK_STATES.join('/')})`,
         });
+    }
+    // `initiator` / `target` blocks: occupations, cultures and traits exist; an actor key is a
+    // scenario actor's key in some scenario (the line belongs to that person).
+    for (const [side, who] of [
+      ['initiator', l.when.initiator],
+      ['target', l.when.target],
+    ] as const) {
+      if (!who) continue;
+      const path = `when.${side}`;
+      checkRefs(issues, where, `${path}.occupation`, who.occupation ?? [], b.occupations ?? {}, 'occupation');
+      checkRefs(issues, where, `${path}.culture`, who.culture ?? [], b.cultures ?? {}, 'culture');
+      checkRefs(issues, where, `${path}.trait`, who.trait ?? [], b.traits ?? {}, 'trait');
+      for (const key of who.actor ?? [])
+        if (!Object.values(b.scenarios ?? {}).some((s) => s.actors.some((a) => a.key === key)))
+          issues.push({ where, path: `${path}.actor`, message: `no scenario actor has the key '${key}'` });
     }
     for (const turn of l.lines) {
       for (const m of turn.text.matchAll(/#([a-z][a-z0-9_]*)#/g))

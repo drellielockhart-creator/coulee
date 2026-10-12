@@ -1,0 +1,2105 @@
+# Depth, wave 5 (group D). OWNER: module:social. Read by packages/core/src/social/talk.ts, same rules as talk.toml.
+# The lines that fit any day, for the interactions neighbors repeat most (help, chat, prayer, deep talk,
+# comfort, compliments, introductions, gossip and asking): seasonal and venue lines only apply some of the
+# time, so in any given fortnight this unconditioned pool is what repeats.
+
+# =============================================================================================
+# Depth: everyday lines that fit any day, for the interactions neighbors repeat most (wave 5)
+# =============================================================================================
+
+# The seasonal and venue lines elsewhere only apply some of the time; in any given fortnight the pool
+# that is always eligible is what repeats. These are that pool: plain work, plain talk, plain faith.
+
+[[talk]]
+id = "hd_ladder"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me hold the ladder while you see to that shingle." },
+  { by = "target", text = "Mind the third rung. It's been promising to break since Michaelmas." },
+]
+
+[[talk]]
+id = "hd_grindstone"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll turn the grindstone while you sharpen." },
+  { by = "target", text = "Steady, now. You turn like a man churning butter." },
+]
+
+[[talk]]
+id = "hd_horse"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Here, I'll hold the horse." },
+  { by = "target", text = "He bites, but only when he's unsure of you." },
+]
+
+[[talk]]
+id = "hd_wash_in"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Shall I bring in the wash before it comes on to rain?" },
+  { by = "target", text = "Please. The sky has the look." },
+]
+
+[[talk]]
+id = "hd_watch_kids"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll watch the children while you finish." },
+  { by = "target", text = "Bless you. They'll test you, I warn you." },
+]
+
+[[talk]]
+id = "hd_bucket"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me carry that bucket." },
+  { by = "target", text = "It's mostly slops. Mind your good boots." },
+]
+
+[[talk]]
+id = "hd_churn"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll take a turn at the churn." },
+  { by = "target", text = "Slowly. It's not a race, though my arms think it is." },
+]
+
+[[talk]]
+id = "hd_peel"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll peel while you talk." },
+  { by = "target", text = "Then I'll talk. You'll regret offering." },
+]
+
+[[talk]]
+id = "hd_wagon"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you need the wagon, {you}? Mine's sitting idle." },
+  { by = "target", text = "Till Thursday only. I'll bring it back with a bed of clean straw." },
+]
+
+[[talk]]
+id = "hd_splice"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me splice that rope for you." },
+  { by = "target", text = "A clean splice. Where did you learn that?" },
+]
+
+[[talk]]
+id = "hd_lantern"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll hold the lantern while you look." },
+  { by = "target", text = "A little to the left. There. That's it." },
+]
+
+[[talk]]
+id = "hd_sit_up"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll sit up with the sick one tonight." },
+  { by = "target", text = "I couldn't ask it. ...But thank you." },
+]
+
+[[talk]]
+id = "hd_table"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me set the table." },
+  { by = "target", text = "The forks are in the other drawer. They always are." },
+]
+
+[[talk]]
+id = "hd_ironing"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll do the ironing, if you'll do the mending." },
+  { by = "target", text = "A fair trade. Mine is the worse job, so I'll take it." },
+]
+
+[[talk]]
+id = "hd_shell_corn"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll shell corn while we talk." },
+  { by = "target", text = "The cob pile will be a mountain by supper." },
+]
+
+[[talk]]
+id = "hd_saw"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Hand me the other end of that saw." },
+  { by = "target", text = "Pull, don't push. The saw knows its job." },
+]
+
+[[talk]]
+id = "hd_doctor"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Shall I fetch the doctor, if you like?" },
+  { by = "target", text = "Not yet. But I'll remember you offered." },
+]
+
+[[talk]]
+id = "hd_kindling"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Shall I split a bit of kindling for you?" },
+  { by = "target", text = "Please do. I've been pretending the box was full." },
+]
+
+[[talk]]
+id = "hd_loaf"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll bring you a loaf tomorrow, {you}." },
+  { by = "target", text = "Bring two. The first will be gone by noon." },
+]
+
+[[talk]]
+id = "hd_porch"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll sweep the porch while you finish up." },
+  { by = "target", text = "And I'll put the kettle on for the pair of us." },
+]
+
+[[talk]]
+id = "hd_yarn"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me wind that yarn." },
+  { by = "target", text = "Hold your hands up. And don't tangle it." },
+]
+
+[[talk]]
+id = "hd_mud_arm"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Take my arm over the mud, {you}." },
+  { by = "target", text = "I'll take it gladly. I've lost one boot already." },
+]
+
+[[talk]]
+id = "hd_cow_home"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll walk the cow home for you." },
+  { by = "target", text = "She'll lead you. Don't argue with her." },
+]
+
+[[talk]]
+id = "hd_letter"
+on = ["help"]
+weight = 8
+when = { initiator = { trait = "honest" } }
+lines = [
+  { by = "initiator", text = "I'll write the letter for you, if you like." },
+  { by = "target", text = "I'd be glad. I can't get the words to sit still." },
+]
+
+[[talk]]
+id = "hd_notice"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Shall I read that notice to you?" },
+  { by = "target", text = "Would you? My eyes aren't what they were." },
+]
+
+[[talk]]
+id = "hd_stove"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me mind the stove while you go." },
+  { by = "target", text = "Don't let it go out. And don't let it go hot." },
+]
+
+[[talk]]
+id = "hd_eggs"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll take your eggs to market, {you}." },
+  { by = "target", text = "The speckled ones are the best. Sell those first." },
+]
+
+[[talk]]
+id = "hd_bellows"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll work the bellows if you'll hammer." },
+  { by = "target", text = "Slow and steady. We'll bring the glow up between us." },
+]
+
+[[talk]]
+id = "hd_scrub"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me scrub the floor." },
+  { by = "target", text = "You're a saint. I'll hold the lamp so you can see the dirt." },
+]
+
+[[talk]]
+id = "hd_baby"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Give me the baby a minute, {you}. You've been carrying her all morning." },
+  { by = "target", text = "A minute. Only a minute. I'll take her back at once." },
+]
+
+[[talk]]
+id = "hd_wood_shed"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll stack the wood in the shed." },
+  { by = "target", text = "Bark side up. It sheds the rain." },
+]
+
+[[talk]]
+id = "hd_pump"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll pump while you fill." },
+  { by = "target", text = "Quick strokes, now. The handle's eager." },
+]
+
+[[talk]]
+id = "hd_gate_latch"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "That latch needs a nail. Hold the gate." },
+  { by = "target", text = "I've held it all week. It's fond of me." },
+]
+
+[[talk]]
+id = "hd_bread_knead"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me knead for a while." },
+  { by = "target", text = "Put your back into it. Bread forgives nothing." },
+]
+
+[[talk]]
+id = "hd_sew_button"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Your cuff is hanging by a thread. Give it here." },
+  { by = "target", text = "It's been hanging since Christmas. I thought it would hold." },
+]
+
+[[talk]]
+id = "hd_hoe"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll take the next row with the hoe." },
+  { by = "target", text = "Mind the beans. They're thin but they're mine." },
+]
+
+[[talk]]
+id = "hd_carry_flour"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me shoulder that flour sack." },
+  { by = "target", text = "It weighs fifty pounds. I'll walk beside you and pretend I'm not impressed." },
+]
+
+[[talk]]
+id = "hd_rope_well"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "The well rope's frayed. Let me restring it." },
+  { by = "target", text = "Quickly, before it takes the bucket with it." },
+]
+
+[[talk]]
+id = "hd_dishes"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll wash and you dry." },
+  { by = "target", text = "Done. Don't break the blue one. It was my mother's." },
+]
+
+[[talk]]
+id = "hd_hang_door"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Hold the door while I set the hinge." },
+  { by = "target", text = "Hold it straight. It sags in the middle, like most of us." },
+]
+
+[[talk]]
+id = "hd_stew_stir"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll stir the pot, {you}. Go and sit." },
+  { by = "target", text = "If I sit, I'll sleep. Wake me for supper." },
+]
+
+[[talk]]
+id = "hd_chicken"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll shut up the hens at dusk." },
+  { by = "target", text = "Count them. One has a habit of staying out." },
+]
+
+[[talk]]
+id = "hd_nails"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll pull the old nails while you saw." },
+  { by = "target", text = "Save the straight ones. Nails don't grow on trees." },
+]
+
+[[talk]]
+id = "hd_rake"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Give me the rake. I'll finish the yard." },
+  { by = "target", text = "Leave the leaves by the fence. They keep the cold off the roses." },
+]
+
+[[talk]]
+id = "hd_unload"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me help you unload." },
+  { by = "target", text = "The heavy crate first. Then we'll see how we feel." },
+]
+
+[[talk]]
+id = "hd_message"
+on = ["help"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'm passing your brother's place. Shall I take a message?" },
+  { by = "target", text = "Tell him I haven't forgotten the plow. And I haven't remembered it either." },
+]
+
+[[talk]]
+id = "hd_bury_help"
+on = ["help"]
+weight = 8
+when = { mood = "neighborliness" }
+lines = [
+  { by = "initiator", text = "I'll dig with you. Two spades go faster." },
+  { by = "target", text = "It's hard ground. Thank you." },
+]
+
+[[talk]]
+id = "hd_wrap_up"
+on = ["help"]
+weight = 4
+when = { temp = "freezing" }
+lines = [
+  { by = "initiator", text = "Wrap yourself up and let me do the outdoor chores." },
+  { by = "target", text = "You're a good soul. I'll owe you." },
+]
+
+[[talk]]
+id = "hd_hot_work"
+on = ["help"]
+weight = 4
+when = { temp = "hot" }
+lines = [
+  { by = "initiator", text = "Sit in the shade. I'll finish the sunny side." },
+  { by = "target", text = "I'll bring you lemonade. If we've lemons." },
+]
+
+[[talk]]
+id = "cd_cough"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "How's that cough of yours?" },
+  { by = "target", text = "Stubborn. It's moved in and brought its relatives." },
+]
+
+[[talk]]
+id = "cd_boy"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "How's the boy, {you}?" },
+  { by = "target", text = "Growing out of his shoes faster than I can pay for them." },
+]
+
+[[talk]]
+id = "cd_girl"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "And how's your girl?" },
+  { by = "target", text = "Reading everything in the house. Including the almanac. Twice." },
+]
+
+[[talk]]
+id = "cd_sleeping"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Did you sleep well, {you}?" },
+  { by = "target", text = "Like a man in a boat. Rocking, and unsure of the destination." },
+]
+
+[[talk]]
+id = "cd_fashion"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you seen the new bonnets at the store?" },
+  { by = "target", text = "I saw one. It looked like a basket with ambitions." },
+]
+
+[[talk]]
+id = "cd_dog"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Your dog's followed me half a mile." },
+  { by = "target", text = "He does that. He's collecting people." },
+]
+
+[[talk]]
+id = "cd_railroad"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "They say the railroad's coming through the valley." },
+  { by = "target", text = "They've been saying that since I arrived. I'll believe it when I hear the whistle." },
+]
+
+[[talk]]
+id = "cd_plank_road"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "They're talking of a plank road to the river." },
+  { by = "target", text = "Then we'll drown in a better class of mud." },
+]
+
+[[talk]]
+id = "cd_maine_law"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you read about the Maine Law?" },
+  { by = "target", text = "I have. The men in the tavern read it aloud and drank to its failure." },
+]
+
+[[talk]]
+id = "cd_kansas"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "There's talk of trouble in Kansas." },
+  { by = "target", text = "I read it twice and still can't get my breakfast down." },
+]
+
+[[talk]]
+id = "cd_know_nothing"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you heard about the Know-Nothing lodge?" },
+  { by = "target", text = "I've heard of it. I don't mean to know any more." },
+]
+
+[[talk]]
+id = "cd_cholera"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "There's cholera in St. Louis, they say." },
+  { by = "target", text = "They always say it. I boil my water and mind my prayers." },
+]
+
+[[talk]]
+id = "cd_steamboat"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "A steamboat blew her whistle at the landing last night." },
+  { by = "target", text = "I heard it. It's the nearest thing to city life we get." },
+]
+
+[[talk]]
+id = "cd_land_office"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you been to the land office?" },
+  { by = "target", text = "Twice. Both times the clerk was at his dinner." },
+]
+
+[[talk]]
+id = "cd_new_settlers"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "There are new settlers taking up the claim by the creek." },
+  { by = "target", text = "More the merrier, as long as they bring their own plow." },
+]
+
+[[talk]]
+id = "cd_mail"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Anything in the post for you?" },
+  { by = "target", text = "A bill and a tract. The tract's more welcome." },
+]
+
+[[talk]]
+id = "cd_butter"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Is the butter selling?" },
+  { by = "target", text = "Slowly. Everybody has butter and nobody has coin." },
+]
+
+[[talk]]
+id = "cd_hens"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "How are the hens laying?" },
+  { by = "target", text = "Occasionally. They're not committed to the project." },
+]
+
+[[talk]]
+id = "cd_cow"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Is your cow giving well?" },
+  { by = "target", text = "Better than my wife expects and worse than I hoped." },
+]
+
+[[talk]]
+id = "cd_roof"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "How's your roof?" },
+  { by = "target", text = "It lets in the weather. That's about all I can say for it." },
+]
+
+[[talk]]
+id = "cd_neighbor_wall"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you seen the new fence next door?" },
+  { by = "target", text = "I've seen it. I don't mean to remark on it." },
+]
+
+[[talk]]
+id = "cd_preacher"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Did you hear that preacher from Prairie du Chien?" },
+  { by = "target", text = "I did. He preached for three hours, and the cows were quiet for two." },
+]
+
+[[talk]]
+id = "cd_schoolbook"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "The children have a new reader." },
+  { by = "target", text = "Good. The old one's been read to pieces." },
+]
+
+[[talk]]
+id = "cd_apple_tree"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I put in an apple tree last year. It lived." },
+  { by = "target", text = "Then you've done better than most. Mine hasn't spoken to me since." },
+]
+
+[[talk]]
+id = "cd_old_age"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I don't move as quickly as I did." },
+  { by = "target", text = "No one does. Even the clock is slower." },
+]
+
+[[talk]]
+id = "cd_visitors"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "We had company last night." },
+  { by = "target", text = "Pleasant company, or the other kind?" },
+  { by = "initiator", text = "The kind that stays till morning." },
+]
+
+[[talk]]
+id = "cd_prices_tea"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Tea's gone dear." },
+  { by = "target", text = "Everything's gone dear. Only my wages have stayed put." },
+]
+
+[[talk]]
+id = "cd_tobacco"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you tobacco to spare?" },
+  { by = "target", text = "Not a pipeful. Ask me after the next wagon." },
+]
+
+[[talk]]
+id = "cd_clock"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What time have you got?" },
+  { by = "target", text = "Whatever the sun says. I trust it more than the clock." },
+]
+
+[[talk]]
+id = "cd_ague"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Has anyone been down with the ague?" },
+  { by = "target", text = "Half the bottoms. They shake in rhythm." },
+]
+
+[[talk]]
+id = "cd_corn_price"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What's corn fetching at the landing?" },
+  { by = "target", text = "Not enough. It never is." },
+]
+
+[[talk]]
+id = "cd_wool"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Is the wool good this year?" },
+  { by = "target", text = "Fair. The sheep are cleverer than the shearers." },
+]
+
+[[talk]]
+id = "cd_trade_wind"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Wind's shifted." },
+  { by = "target", text = "Then we'll have a change by morning. Or by evening. Or never." },
+]
+
+[[talk]]
+id = "cd_pension"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you think the pension will come through?" },
+  { by = "target", text = "I've stopped thinking. It saves energy." },
+]
+
+[[talk]]
+id = "cd_mill_wait"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Did you wait long at the mill?" },
+  { by = "target", text = "Long enough to count the flies. I got to eleven." },
+]
+
+[[talk]]
+id = "cd_favorite"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What's your favorite hymn, {you}?" },
+  { by = "target", text = "Whichever one the organist can actually play." },
+]
+
+[[talk]]
+id = "cd_candle"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'm running low on candles." },
+  { by = "target", text = "Make your own. Tallow's cheap and you can burn the smell." },
+]
+
+[[talk]]
+id = "cd_grafting"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you thought of grafting your pear?" },
+  { by = "target", text = "Thought of it. It's the doing I've yet to get to." },
+]
+
+[[talk]]
+id = "cd_strangers_road"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "There were two strangers on the road this morning." },
+  { by = "target", text = "Only two? That's a quiet day." },
+]
+
+[[talk]]
+id = "cd_blacksmith_gossip"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Has the smith been working late again?" },
+  { by = "target", text = "Every night. You can hear it from the ford." },
+]
+
+[[talk]]
+id = "cd_sunday_best"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "My Sunday coat's gone green at the seams." },
+  { by = "target", text = "Green's in fashion. Or it will be, once you've worn it long enough." },
+]
+
+[[talk]]
+id = "cd_tooth"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you a remedy for the toothache?" },
+  { by = "target", text = "A hot poultice and patience. Mostly patience." },
+]
+
+[[talk]]
+id = "cd_late_frost"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you think the frost is done?" },
+  { by = "target", text = "Ask me tomorrow. Frost lies." },
+]
+
+[[talk]]
+id = "cd_old_neighbors"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you remember when there was only one house in the valley?" },
+  { by = "target", text = "I remember when there was none. And I remember complaining about the quiet." },
+]
+
+[[talk]]
+id = "cd_time_flies"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "It seems only last week it was Christmas." },
+  { by = "target", text = "It seems only last week it was Michaelmas. Time has a good horse." },
+]
+
+[[talk]]
+id = "cd_loan_book"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Did you borrow my book, {you}?" },
+  { by = "target", text = "I borrowed it. I returned it. I lost the borrowing somewhere in between." },
+]
+
+[[talk]]
+id = "cd_coffee_beans"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Is there any coffee left at the store?" },
+  { by = "target", text = "Only the green. You'll have to roast your own, like a Christian." },
+]
+
+[[talk]]
+id = "cd_garden_slug"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "The slugs have been at my cabbages." },
+  { by = "target", text = "Salt on the leaves. And a curse, if you've one handy." },
+]
+
+[[talk]]
+id = "cd_priest_visit"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you seen the circuit rider this month?" },
+  { by = "target", text = "Not since March. He's either lost or very devout." },
+]
+
+[[talk]]
+id = "cd_bake_oven"
+on = ["chat"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Are you firing the bake oven today?" },
+  { by = "target", text = "Tomorrow. Today I'm sharpening my appetite." },
+]
+
+[[talk]]
+id = "cd_stars"
+on = ["chat"]
+weight = 4
+when = { part = "night" }
+lines = [
+  { by = "initiator", text = "Do you know any of the constellations?" },
+  { by = "target", text = "The Plow and the Dipper. The rest I call 'sky'." },
+]
+
+[[talk]]
+id = "cd_dark_early"
+on = ["chat"]
+weight = 4
+when = { part = "evening" }
+lines = [
+  { by = "initiator", text = "Dark's coming sooner each night." },
+  { by = "target", text = "And the wood's going sooner each day. Arithmetic is cruel." },
+]
+
+[[talk]]
+id = "cd_noon_meal"
+on = ["chat"]
+weight = 4
+when = { part = "midday" }
+lines = [
+  { by = "initiator", text = "What's for dinner?" },
+  { by = "target", text = "Whatever the stove permits. Possibly beans." },
+]
+
+[[talk]]
+id = "cd_supper_late"
+on = ["chat"]
+weight = 4
+when = { part = "evening" }
+lines = [
+  { by = "initiator", text = "Late for supper, I fear." },
+  { by = "target", text = "It'll keep. Everything does, if you cover it." },
+]
+
+[[talk]]
+id = "cd_dawn"
+on = ["chat"]
+weight = 4
+when = { part = "morning" }
+lines = [
+  { by = "initiator", text = "Up with the lark, I see." },
+  { by = "target", text = "Up with the rooster. The lark has more sense." },
+]
+
+[[talk]]
+id = "cd_afternoon_tea"
+on = ["chat"]
+weight = 4
+when = { part = "afternoon" }
+lines = [
+  { by = "initiator", text = "Will you have a cup before you go?" },
+  { by = "target", text = "One cup. Then I truly must." },
+]
+
+[[talk]]
+id = "pd_121"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I will lift up mine eyes unto the hills, from whence cometh my help." },
+  { by = "target", text = "My help cometh from the Lord, which made heaven and earth." },
+]
+
+[[talk]]
+id = "pd_127"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Except the Lord build the house, they labour in vain that build it." },
+  { by = "target", text = "Except the Lord keep the city, the watchman waketh but in vain." },
+]
+
+[[talk]]
+id = "pd_90"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "So teach us to number our days, that we may apply our hearts unto wisdom." },
+  { by = "target", text = "Amen. And give us enough days to learn it." },
+]
+
+[[talk]]
+id = "pd_isaiah"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "They that wait upon the Lord shall renew their strength." },
+  { by = "target", text = "They shall mount up with wings as eagles. Amen." },
+]
+
+[[talk]]
+id = "pd_tomorrow"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Take therefore no thought for the morrow." },
+  { by = "target", text = "For the morrow shall take thought for the things of itself. Amen." },
+]
+
+[[talk]]
+id = "pd_philippians"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Be careful for nothing, but in every thing by prayer and supplication let your requests be made known." },
+  { by = "target", text = "And the peace of God shall keep our hearts. Amen." },
+]
+
+[[talk]]
+id = "pd_romans"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "All things work together for good to them that love God." },
+  { by = "target", text = "Even the mud, I suppose. Amen." },
+]
+
+[[talk]]
+id = "pd_wisdom"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "If any of you lack wisdom, let him ask of God." },
+  { by = "target", text = "Then I'm asking. Loudly. Amen." },
+]
+
+[[talk]]
+id = "pd_trust"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Trust in the Lord with all thine heart." },
+  { by = "target", text = "And lean not unto thine own understanding. Amen." },
+]
+
+[[talk]]
+id = "pd_blessing"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "The Lord bless thee, and keep thee." },
+  { by = "target", text = "The Lord make his face shine upon thee, and be gracious unto thee. Amen." },
+]
+
+[[talk]]
+id = "pd_mercies"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Great is thy faithfulness." },
+  { by = "target", text = "New every morning. Amen." },
+]
+
+[[talk]]
+id = "pd_forgive"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Forgive us our debts, as we forgive our debtors." },
+  { by = "target", text = "Particularly the ones at the store. Amen." },
+]
+
+[[talk]]
+id = "pd_keep_us"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Keep us, Lord, as the apple of an eye." },
+  { by = "target", text = "Hide us under the shadow of thy wings. Amen." },
+]
+
+[[talk]]
+id = "pd_daily"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Lord, we are small, and the day is long." },
+  { by = "target", text = "Be our strength for it. Amen." },
+]
+
+[[talk]]
+id = "pd_thanks_small"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "For the roof, the fire and the bread: thanks, Lord." },
+  { by = "target", text = "And for each other. Amen." },
+]
+
+[[talk]]
+id = "pd_shepherd_2"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Surely goodness and mercy shall follow me all the days of my life." },
+  { by = "target", text = "And I will dwell in the house of the Lord for ever. Amen." },
+]
+
+[[talk]]
+id = "dd_what_matters"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What matters most to you, {you}?" },
+  { by = "target", text = "That nobody in this house goes hungry. The rest I can bear." },
+]
+
+[[talk]]
+id = "dd_proudest"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What are you proudest of?" },
+  { by = "target", text = "The first fence I built straight. And the second." },
+]
+
+[[talk]]
+id = "dd_trust"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Who do you trust, {you}?" },
+  { by = "target", text = "Three people. Two are dead and the third is you." },
+]
+
+[[talk]]
+id = "dd_luck"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you believe in luck?" },
+  { by = "target", text = "I believe in work. Luck is what work looks like to the lazy." },
+]
+
+[[talk]]
+id = "dd_wish"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What would you wish for, if you could?" },
+  { by = "target", text = "A winter without a funeral in it." },
+]
+
+[[talk]]
+id = "dd_learn"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What did you have to learn the hard way?" },
+  { by = "target", text = "That a promise made to a man can't be kept by a prayer." },
+]
+
+[[talk]]
+id = "dd_god"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Where do you find God, out here?" },
+  { by = "target", text = "In the barn at dawn, with the cows and a lantern." },
+]
+
+[[talk]]
+id = "dd_old_home"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you ever go back, in your mind?" },
+  { by = "target", text = "Daily. Then I come back and the porch needs mending." },
+]
+
+[[talk]]
+id = "dd_afraid_children"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What are you afraid for them?" },
+  { by = "target", text = "That I'll teach them what to fear before I teach them what to love." },
+]
+
+[[talk]]
+id = "dd_decision"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What was the hardest decision you made?" },
+  { by = "target", text = "Leaving. And then staying, which was harder." },
+]
+
+[[talk]]
+id = "dd_friends"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "How many true friends does a person get?" },
+  { by = "target", text = "One, if you're careful. Two, if you're lucky. Three, if you're lying." },
+]
+
+[[talk]]
+id = "dd_quiet"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you like the quiet?" },
+  { by = "target", text = "I like it better when someone else is in it." },
+]
+
+[[talk]]
+id = "dd_change_mind"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Have you ever changed your mind about something big?" },
+  { by = "target", text = "Twice. Each time I was sure I hadn't." },
+]
+
+[[talk]]
+id = "dd_money"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What would you do if you were rich?" },
+  { by = "target", text = "Buy a clock and a good bed. Then I'd worry about the rest." },
+]
+
+[[talk]]
+id = "dd_best_advice"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What was the best advice you ever got?" },
+  { by = "target", text = "Don't plant till the oak leaves are the size of a squirrel's ear." },
+]
+
+[[talk]]
+id = "dd_family_stories"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What story does your family tell?" },
+  { by = "target", text = "About the cow that outlived three husbands. We tell it at funerals." },
+]
+
+[[talk]]
+id = "dd_fairness"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you think it's a fair world?" },
+  { by = "target", text = "No. But it's the one with the apples in it." },
+]
+
+[[talk]]
+id = "dd_courage"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "When have you been most afraid?" },
+  { by = "target", text = "The night the fever came. I counted breaths until morning." },
+]
+
+[[talk]]
+id = "dd_name_day"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you keep your birthday?" },
+  { by = "target", text = "I keep the memory of it. The date has slipped." },
+]
+
+[[talk]]
+id = "dd_loyalty"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What would you do for a friend?" },
+  { by = "target", text = "Almost anything. I'd draw the line at moving a piano." },
+]
+
+[[talk]]
+id = "dd_silence"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Is it hard to be silent?" },
+  { by = "target", text = "Harder than speaking. And twice as useful." },
+]
+
+[[talk]]
+id = "dd_ambition"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What did you hope to be, as a child?" },
+  { by = "target", text = "A sea captain. I've never seen the sea." },
+]
+
+[[talk]]
+id = "dd_homesick_for_here"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you think you'll ever feel at home here?" },
+  { by = "target", text = "Already do, some mornings. The rest of the day I'm a visitor." },
+]
+
+[[talk]]
+id = "dd_blessings"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What do you count among your blessings?" },
+  { by = "target", text = "A good stove. A better neighbor. A third thing that I'll think of." },
+]
+
+[[talk]]
+id = "cm_one_day"
+on = ["comfort"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "One day at a time, {you}." },
+  { by = "target", text = "That's all I've ever managed. Thank you for reminding me." },
+]
+
+[[talk]]
+id = "cm_tea"
+on = ["comfort"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "Let me make you a cup of tea." },
+  { by = "target", text = "Strong, with sugar. It's the only medicine that works." },
+]
+
+[[talk]]
+id = "cm_not_alone"
+on = ["comfort"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "You're not the only one who's felt this." },
+  { by = "target", text = "I know. It helps and it doesn't." },
+]
+
+[[talk]]
+id = "cm_sit_quiet"
+on = ["comfort"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "I'll sit with you. We needn't speak." },
+  { by = "target", text = "Good. I've nothing to say, and everything to feel." },
+]
+
+[[talk]]
+id = "cm_blanket"
+on = ["comfort"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "Here, put this round your shoulders." },
+  { by = "target", text = "It smells of woodsmoke. It's perfect." },
+]
+
+[[talk]]
+id = "cm_pie"
+on = ["comfort"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "I've brought a pie. It's not a cure, but it's a pie." },
+  { by = "target", text = "It's the best cure I've heard of." },
+]
+
+[[talk]]
+id = "cm_mend"
+on = ["comfort"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "Things have a way of mending, {you}." },
+  { by = "target", text = "Slowly. Like a bone." },
+]
+
+[[talk]]
+id = "cm_wrong_words"
+on = ["comfort"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "I don't know what to say, {you}." },
+  { by = "target", text = "Then don't. Stay. That's enough." },
+]
+
+[[talk]]
+id = "cm_ought"
+on = ["comfort"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "You ought to be glad it wasn't worse." },
+  { by = "target", text = "I'd be glad if it were nothing. Don't tell me what I ought." },
+]
+
+[[talk]]
+id = "cm_cheer_up"
+on = ["comfort"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "Cheer up, {you}!" },
+  { by = "target", text = "Cheer up? You may as well tell the river to run uphill." },
+]
+
+[[talk]]
+id = "cm_no_use"
+on = ["comfort"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "There's no use crying over it." },
+  { by = "target", text = "There's no use telling me so, either." },
+]
+
+[[talk]]
+id = "cp_hair"
+on = ["compliment"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "You've a way of making the plainest thing look easy, {you}." },
+  { by = "target", text = "Years of practice and no choice." },
+]
+
+[[talk]]
+id = "cp_hat"
+on = ["compliment"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "That hat suits you, {you}." },
+  { by = "target", text = "It suits the weather. I suit it by accident." },
+]
+
+[[talk]]
+id = "cp_laugh"
+on = ["compliment"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "You've a good laugh, {you}. It carries." },
+  { by = "target", text = "It's the only thing about me that does." },
+]
+
+[[talk]]
+id = "cp_hands"
+on = ["compliment"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "You've good hands, {you}. Honest hands." },
+  { by = "target", text = "They're mostly calluses. But I thank you." },
+]
+
+[[talk]]
+id = "cp_memory"
+on = ["compliment"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "You remember everything, {you}. I envy it." },
+  { by = "target", text = "It's not a gift. It's a haunting." },
+]
+
+[[talk]]
+id = "cp_manners"
+on = ["compliment"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "You've the best manners in the district." },
+  { by = "target", text = "I got them from my mother and a good deal of bruising." },
+]
+
+[[talk]]
+id = "cp_dry_wit"
+on = ["compliment"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "You've a dry wit, {you}." },
+  { by = "target", text = "The Lord made me dry. I merely took advantage." },
+]
+
+[[talk]]
+id = "cp_steady"
+on = ["compliment"]
+outcome = "success"
+weight = 12
+lines = [
+  { by = "initiator", text = "You're the steadiest person I know." },
+  { by = "target", text = "I'm steady because I'm tired. Don't confuse the two." },
+]
+
+[[talk]]
+id = "cp_forced"
+on = ["compliment"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "Well, that was... a good speech." },
+  { by = "target", text = "It was a terrible speech. But you tried." },
+]
+
+[[talk]]
+id = "cp_obvious"
+on = ["compliment"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "You're a hard worker, {you}." },
+  { by = "target", text = "Is that the best you could do?" },
+]
+
+[[talk]]
+id = "cp_suspicious"
+on = ["compliment"]
+outcome = "failure"
+weight = 8
+when = { label = "acquaintance" }
+lines = [
+  { by = "initiator", text = "You're a remarkable person, {you}." },
+  { by = "target", text = "And you want a favor. Say it." },
+]
+
+[[talk]]
+id = "id_new_here"
+on = ["introduce"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I'm new here. {initiator}. Would you point me to the store?" },
+  { by = "target", text = "{target}. Down the street, the one with the barrels. You can't miss it." },
+]
+
+[[talk]]
+id = "id_neighbor_move"
+on = ["introduce"]
+weight = 12
+lines = [
+  { by = "initiator", text = "{initiator}. We've taken the old Keller place." },
+  { by = "target", text = "{target}. That chimney's been waiting for someone. You'll find the well is good." },
+]
+
+[[talk]]
+id = "id_surname"
+on = ["introduce"]
+weight = 12
+lines = [
+  { by = "initiator", text = "{initiator}. You'll have heard the name, perhaps." },
+  { by = "target", text = "{target}. I've heard many names. Yours is new." },
+]
+
+[[talk]]
+id = "id_hand"
+on = ["introduce"]
+weight = 12
+lines = [
+  { by = "initiator", text = "My hand, {you}, and my name: {initiator}." },
+  { by = "target", text = "{target}. A good grip. A farmer's, I'd say." },
+]
+
+[[talk]]
+id = "id_tall"
+on = ["introduce"]
+weight = 12
+lines = [
+  { by = "initiator", text = "{initiator}. I'm told you're the one to ask about wells." },
+  { by = "target", text = "{target}. I know two, and one's dry." },
+]
+
+[[talk]]
+id = "id_courtesy"
+on = ["introduce"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Allow me to introduce myself. {initiator}." },
+  { by = "target", text = "{target}. Delighted. Don't be too formal, or I'll feel obliged to match." },
+]
+
+[[talk]]
+id = "id_traveler"
+on = ["introduce"]
+weight = 12
+lines = [
+  { by = "initiator", text = "{initiator}. I'm only passing through." },
+  { by = "target", text = "{target}. Everyone is, until they aren't." },
+]
+
+[[talk]]
+id = "id_letter"
+on = ["introduce"]
+weight = 12
+lines = [
+  { by = "initiator", text = "I have a letter for the district. {initiator}." },
+  { by = "target", text = "{target}. Which district? We have several, and they don't speak." },
+]
+
+[[talk]]
+id = "gd_rumor_open"
+on = ["gossip"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Have you a minute, {you}?" },
+  { by = "target", text = "For news? Always." },
+]
+
+[[talk]]
+id = "gd_rumor_sit"
+on = ["gossip"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "I'd tell the church, but the church is already full of it." },
+  { by = "target", text = "Then tell me. I'll be quiet." },
+]
+
+[[talk]]
+id = "gd_rumor_sly"
+on = ["gossip"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "A little bird told me something." },
+  { by = "target", text = "A little bird with a loud mouth, I'd wager." },
+]
+
+[[talk]]
+id = "gd_rumor_hush"
+on = ["gossip"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "I oughtn't, but I'm going to." },
+  { by = "target", text = "The best kind of news." },
+]
+
+[[talk]]
+id = "gd_rumor_cant_hold"
+on = ["gossip"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "I can't carry this alone." },
+  { by = "target", text = "Then give me half." },
+]
+
+[[talk]]
+id = "gd_none_sorry"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "I'd love to tell you something, {you}, but I'm as dry as a well in August." },
+  { by = "target", text = "Then we'll fill it with the weather." },
+]
+
+[[talk]]
+id = "gd_none_ear"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "I haven't a scrap. My ear's been shut." },
+  { by = "target", text = "Open it a little. Something will fall in." },
+]
+
+[[talk]]
+id = "gd_none_yes"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "I'd tell you, but I've forgotten what it was." },
+  { by = "target", text = "Convenient. Let me know when it returns." },
+]
+
+[[talk]]
+id = "ad_know_it_all"
+on = ["ask_about"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "You always know, {you}. What is it?" },
+  { by = "target", text = "You flatter. But sit down." },
+]
+
+[[talk]]
+id = "ad_rumor_open"
+on = ["ask_about"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "What's the word?" },
+  { by = "target", text = "There's a word. Several. Pick one." },
+]
+
+[[talk]]
+id = "ad_nothing_2"
+on = ["ask_about"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "What's the word?" },
+  { by = "target", text = "Not a one. They're all out for the season." },
+]
+
+[[talk]]
+id = "ad_nothing_3"
+on = ["ask_about"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Heard anything, {you}?" },
+  { by = "target", text = "Only my own heart. It's quiet." },
+]
+
+[[talk]]
+id = "ad_nothing_4"
+on = ["ask_about"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Anything doing?" },
+  { by = "target", text = "Nothing but what you see: wind and mud and work." },
+]
+
+[[talk]]
+id = "wd_take_care"
+on = ["warn"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Take care on the road, {you}." },
+  { by = "target", text = "And you on yours." },
+]
+
+[[talk]]
+id = "wd_wits"
+on = ["warn"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Keep your wits about you this week." },
+  { by = "target", text = "I've little else to keep." },
+]
+
+[[talk]]
+id = "wd_things"
+on = ["warn"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "I don't like the look of things." },
+  { by = "target", text = "What things?" },
+  { by = "initiator", text = "Things in general." },
+]
+
+[[talk]]
+id = "wd_lock_up"
+on = ["warn"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Lock up tonight, {you}, and sleep light." },
+  { by = "target", text = "I do both. It's the second that's hard." },
+]
+
+[[talk]]
+id = "wd_feeling"
+on = ["warn"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "There's a strange feeling about, {you}." },
+  { by = "target", text = "There's always a strange feeling about. I take it for the weather." },
+]
+
+[[talk]]
+id = "wd_step"
+on = ["warn"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Watch your step." },
+  { by = "target", text = "I do. It's the others I can't watch." },
+]
+
+[[talk]]
+id = "wd_wish"
+on = ["warn"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "It's not a warning, only a wish: be careful." },
+  { by = "target", text = "Wishes are always welcome." },
+]
+
+[[talk]]
+id = "wd_keep_from"
+on = ["warn"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "I'd keep this from you if I could, {you}." },
+  { by = "target", text = "Then I'm glad you can't." },
+]
+
+[[talk]]
+id = "wd_not_from_me"
+on = ["warn"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "You didn't hear this from me." },
+  { by = "target", text = "Hear what?" },
+  { by = "initiator", text = "Exactly." },
+]
+
+[[talk]]
+id = "wd_stand"
+on = ["warn"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Stand up, {you}. This isn't for sitting." },
+  { by = "target", text = "Now I'm anxious. Out with it." },
+]
+
+[[talk]]
+id = "wd_listen_close"
+on = ["warn"]
+weight = 4
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Listen close, {you}." },
+  { by = "target", text = "I'm listening. I've both ears." },
+]
+
+[[talk]]
+id = "gd_none_whisper"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Not a whisper, {you}." },
+  { by = "target", text = "Then the walls are asleep." },
+]
+
+[[talk]]
+id = "gd_none_stove"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "I've heard nothing but the stove." },
+  { by = "target", text = "The stove tells no tales." },
+]
+
+[[talk]]
+id = "gd_none_dry"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "A dry week for talk." },
+  { by = "target", text = "And a wet one for everything else." },
+]
+
+[[talk]]
+id = "gd_none_sources"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "My sources have gone quiet." },
+  { by = "target", text = "Tell them I'm paying." },
+]
+
+[[talk]]
+id = "gd_none_would_tell"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "If I knew anything, I'd tell it." },
+  { by = "target", text = "You'd tell it even if you didn't." },
+]
+
+[[talk]]
+id = "gd_none_bed"
+on = ["gossip"]
+weight = 4
+when = { told = false }
+lines = [
+  { by = "initiator", text = "The town's gone to bed, {you}." },
+  { by = "target", text = "Then the rumors are still up." },
+]
+
+[[talk]]
+id = "pd_tree"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "He shall be like a tree planted by the rivers of water." },
+  { by = "target", text = "That bringeth forth his fruit in his season. Amen." },
+]
+
+[[talk]]
+id = "pd_words"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Let the words of my mouth, and the meditation of my heart, be acceptable in thy sight." },
+  { by = "target", text = "O Lord, my strength, and my redeemer. Amen." },
+]
+
+[[talk]]
+id = "pd_valley"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Yea, though I walk through the valley of the shadow of death." },
+  { by = "target", text = "I will fear no evil: for thou art with me." },
+]
+
+[[talk]]
+id = "pd_light"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "The Lord is my light and my salvation; whom shall I fear?" },
+  { by = "target", text = "The Lord is the strength of my life; of whom shall I be afraid?" },
+]
+
+[[talk]]
+id = "pd_taste"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "O taste and see that the Lord is good." },
+  { by = "target", text = "Blessed is the man that trusteth in him. Amen." },
+]
+
+[[talk]]
+id = "pd_commit"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Commit thy way unto the Lord; trust also in him." },
+  { by = "target", text = "And he shall bring it to pass. Amen." },
+]
+
+[[talk]]
+id = "pd_clean_heart"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Create in me a clean heart, O God." },
+  { by = "target", text = "And renew a right spirit within me. Amen." },
+]
+
+[[talk]]
+id = "pd_joyful"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Make a joyful noise unto the Lord, all ye lands." },
+  { by = "target", text = "Serve the Lord with gladness. Amen." },
+]
+
+[[talk]]
+id = "pd_lamp"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Thy word is a lamp unto my feet." },
+  { by = "target", text = "And a light unto my path. Amen." },
+]
+
+[[talk]]
+id = "pd_wings"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "If I take the wings of the morning, and dwell in the uttermost parts of the sea." },
+  { by = "target", text = "Even there shall thy hand lead me. Amen." },
+]
+
+[[talk]]
+id = "pd_meat"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "The eyes of all wait upon thee; and thou givest them their meat in due season." },
+  { by = "target", text = "Thou openest thine hand, and satisfiest. Amen." },
+]
+
+[[talk]]
+id = "pd_peace"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Peace I leave with you, my peace I give unto you." },
+  { by = "target", text = "Not as the world giveth. Amen." },
+]
+
+[[talk]]
+id = "pd_charity"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "And now abideth faith, hope, charity, these three." },
+  { by = "target", text = "But the greatest of these is charity. Amen." },
+]
+
+[[talk]]
+id = "pd_micah"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What doth the Lord require of thee, but to do justly, and to love mercy." },
+  { by = "target", text = "And to walk humbly with thy God. Amen." },
+]
+
+[[talk]]
+id = "pd_ruth"
+on = ["pray_with"]
+weight = 8
+when = { courting = true }
+lines = [
+  { by = "initiator", text = "Whither thou goest, I will go." },
+  { by = "target", text = "And where thou lodgest, I will lodge. Amen." },
+]
+
+[[talk]]
+id = "pd_speed"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "O God, make speed to save us." },
+  { by = "target", text = "O Lord, make haste to help us. Amen." },
+]
+
+[[talk]]
+id = "pd_doxology"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Praise God, from whom all blessings flow." },
+  { by = "target", text = "Praise him, all creatures here below. Amen." },
+]
+
+[[talk]]
+id = "pd_beatitude"
+on = ["pray_with"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Blessed are the meek: for they shall inherit the earth." },
+  { by = "target", text = "Blessed are the peacemakers. Amen." },
+]
+
+[[talk]]
+id = "pd_morning_mercy"
+on = ["pray_with"]
+weight = 4
+when = { part = "morning" }
+lines = [
+  { by = "initiator", text = "Satisfy us early with thy mercy." },
+  { by = "target", text = "That we may rejoice and be glad all our days. Amen." },
+]
+
+[[talk]]
+id = "pd_evening_abide"
+on = ["pray_with"]
+weight = 4
+when = { part = "evening" }
+lines = [
+  { by = "initiator", text = "Abide with us, for it is toward evening." },
+  { by = "target", text = "And the day is far spent. Amen." },
+]

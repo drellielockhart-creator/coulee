@@ -19,6 +19,21 @@
 # mouth: "I owe...", "you have..."), {hedge}, {source}, {subject}. {^slot} capitalizes.
 # {a|b} picks one; #word# is the speaker's idiom (social/talk-words.toml).
 # Period voice, Driftless 1855; no game-rules text.
+#
+# Wave 5 (group D) additions, all additive:
+#  * `when.initiator` / `when.target` = { actor, occupation, culture, trait, sex, age }: who is speaking
+#    (schema: TalkWhoSchema). `actor` is a scenario actor key, so a story can belong to one teller
+#    (`initiator = { actor = "elias_hurd" }`); `occupation` names a trade, which in a town is one person
+#    (the ferryman, the miller), so it works in generated towns where no one has an authored key. A rib
+#    about someone's yarn is aimed at them with `target = { actor = ... }`. Each field takes one id or a
+#    list; every field named must hold. Fields inside the block count toward a line's specificity.
+#  * `weight` (1..100) is now set on most lines to equalize their pull: the picker multiplies it by
+#    (1 + 2 x conditions named), so a line that names only the season (true for months) is given a low
+#    weight, while a line that names a personal condition (mood, relationship, memory, a teller) keeps
+#    the boost. Without this a season's few seasonal lines said themselves dozens of times.
+#  * New lines live in talk-tales.toml (yarns), talk-chat.toml, talk-everyday.toml (prayer, help, deep
+#    talk), talk-manners.toml, talk-news.toml (gossip, asking, warning, said lines) and talk-depth.toml
+#    (lines that fit any day). The ids are unique across all talk*.toml files.
 
 # =============================================================================================
 # Chat: weather, crops, prices, the glue of a village
@@ -27,6 +42,7 @@
 [[talk]]
 id = "chat_keeping"
 on = ["chat"]
+weight = 12
 lines = [
   { by = "initiator", text = "#hello#, {you}. Keeping well?" },
   { by = "target", text = "Middling, and no use complaining. Yourself?" },
@@ -35,6 +51,7 @@ lines = [
 [[talk]]
 id = "chat_complain"
 on = ["chat"]
+weight = 12
 lines = [
   { by = "initiator", text = "How are you keeping, {you}?" },
   { by = "target", text = "Can't complain, and wouldn't be listened to if I did." },
@@ -43,6 +60,7 @@ lines = [
 [[talk]]
 id = "chat_busy"
 on = ["chat"]
+weight = 12
 lines = [
   { by = "initiator", text = "Busy as ever, {you}?" },
   { by = "target", text = "Busier. There's no end to it this time of year." },
@@ -51,6 +69,7 @@ lines = [
 [[talk]]
 id = "chat_letters"
 on = ["chat"]
+weight = 12
 lines = [
   { by = "initiator", text = "Any letters from #homeland# lately, {you}?" },
   { by = "target", text = "Not since the thaw. The mails are slow as cold molasses." },
@@ -59,6 +78,7 @@ lines = [
 [[talk]]
 id = "chat_quiet"
 on = ["chat"]
+weight = 12
 lines = [
   { by = "initiator", text = "Quiet in {town} today." },
   { by = "target", text = "Quiet suits me {well enough|fine}." },
@@ -67,6 +87,7 @@ lines = [
 [[talk]]
 id = "chat_roads"
 on = ["chat"]
+weight = 12
 lines = [
   { by = "initiator", text = "How are the roads out your way, {you}?" },
   { by = "target", text = "{Ruts you could lose a calf in|Passable, if you don't mind walking beside the wagon}." },
@@ -75,6 +96,7 @@ lines = [
 [[talk]]
 id = "chat_family"
 on = ["chat"]
+weight = 8
 when = { label = "acquaintance" }
 lines = [
   { by = "initiator", text = "And how are all at home, {you}?" },
@@ -84,6 +106,7 @@ lines = [
 [[talk]]
 id = "chat_rain_duck"
 on = ["chat"]
+weight = 4
 when = { weather = "rain" }
 lines = [
   { by = "initiator", text = "Wet enough for you, {you}?" },
@@ -93,6 +116,7 @@ lines = [
 [[talk]]
 id = "chat_rain_creek"
 on = ["chat"]
+weight = 4
 when = { weather = "rain" }
 lines = [
   { by = "initiator", text = "This rain will bring {creek} up." },
@@ -102,6 +126,7 @@ lines = [
 [[talk]]
 id = "chat_rain_hay"
 on = ["chat"]
+weight = 2
 when = { weather = "rain", season = "summer" }
 lines = [
   { by = "initiator", text = "Rain on the hay again." },
@@ -111,6 +136,7 @@ lines = [
 [[talk]]
 id = "chat_snow"
 on = ["chat"]
+weight = 4
 when = { weather = "snow" }
 lines = [
   { by = "initiator", text = "Snow again, {you}." },
@@ -120,6 +146,7 @@ lines = [
 [[talk]]
 id = "chat_bitter"
 on = ["chat"]
+weight = 2
 when = { temp = "freezing", weather = "dry" }
 lines = [
   { by = "initiator", text = "Bitter out, {you}." },
@@ -129,6 +156,7 @@ lines = [
 [[talk]]
 id = "chat_cold"
 on = ["chat"]
+weight = 4
 when = { temp = "cold" }
 lines = [
   { by = "initiator", text = "There's a nip in the air yet." },
@@ -138,6 +166,7 @@ lines = [
 [[talk]]
 id = "chat_hot"
 on = ["chat"]
+weight = 4
 when = { temp = "hot" }
 lines = [
   { by = "initiator", text = "Hot as a bake-oven today." },
@@ -147,6 +176,7 @@ lines = [
 [[talk]]
 id = "chat_spring_dry"
 on = ["chat"]
+weight = 2
 when = { season = "spring", weather = "dry" }
 lines = [
   { by = "initiator", text = "Ground's drying out at last." },
@@ -156,6 +186,7 @@ lines = [
 [[talk]]
 id = "chat_spring_garden"
 on = ["chat"]
+weight = 4
 when = { season = "spring" }
 lines = [
   { by = "initiator", text = "Have you got your garden in yet, {you}?" },
@@ -165,6 +196,7 @@ lines = [
 [[talk]]
 id = "chat_spring_mud"
 on = ["chat"]
+weight = 4
 when = { season = "spring" }
 lines = [
   { by = "initiator", text = "Mud to the axles on {main_street}." },
@@ -174,6 +206,7 @@ lines = [
 [[talk]]
 id = "chat_summer_hay"
 on = ["chat"]
+weight = 2
 when = { season = "summer", weather = "dry" }
 lines = [
   { by = "initiator", text = "Hay's looking heavy this year." },
@@ -183,6 +216,7 @@ lines = [
 [[talk]]
 id = "chat_autumn"
 on = ["chat"]
+weight = 4
 when = { season = "autumn" }
 lines = [
   { by = "initiator", text = "Leaves are turning on the bluffs." },
@@ -192,6 +226,7 @@ lines = [
 [[talk]]
 id = "chat_winter"
 on = ["chat"]
+weight = 4
 when = { season = "winter" }
 lines = [
   { by = "initiator", text = "A long winter yet, {you}." },
@@ -201,6 +236,7 @@ lines = [
 [[talk]]
 id = "chat_morning"
 on = ["chat"]
+weight = 4
 when = { part = "morning" }
 lines = [
   { by = "initiator", text = "Early start, {you}?" },
@@ -210,6 +246,7 @@ lines = [
 [[talk]]
 id = "chat_evening"
 on = ["chat"]
+weight = 4
 when = { part = "evening" }
 lines = [
   { by = "initiator", text = "#evening#, {you}. Long day?" },
@@ -219,6 +256,7 @@ lines = [
 [[talk]]
 id = "chat_night"
 on = ["chat"]
+weight = 4
 when = { part = "night" }
 lines = [
   { by = "initiator", text = "You're up late, {you}." },
@@ -228,6 +266,7 @@ lines = [
 [[talk]]
 id = "chat_sermon"
 on = ["chat"]
+weight = 2
 when = { sabbath = true, venue = "church" }
 lines = [
   { by = "initiator", text = "A fine sermon, I thought." },
@@ -237,6 +276,7 @@ lines = [
 [[talk]]
 id = "chat_sabbath_cows"
 on = ["chat"]
+weight = 4
 when = { sabbath = true }
 lines = [
   { by = "initiator", text = "Day of rest, {you}." },
@@ -246,6 +286,7 @@ lines = [
 [[talk]]
 id = "chat_market"
 on = ["chat"]
+weight = 4
 when = { observance = "market_day" }
 lines = [
   { by = "initiator", text = "Town's full for market day." },
@@ -255,6 +296,7 @@ lines = [
 [[talk]]
 id = "chat_market_eggs"
 on = ["chat"]
+weight = 2
 when = { observance = "market_day", part = "morning" }
 lines = [
   { by = "initiator", text = "Did you bring anything in to sell, {you}?" },
@@ -264,6 +306,7 @@ lines = [
 [[talk]]
 id = "chat_price"
 on = ["chat"]
+weight = 4
 when = { price = true }
 lines = [
   { by = "initiator", text = "I hear {price_item} is {price} at {store}." },
@@ -273,6 +316,7 @@ lines = [
 [[talk]]
 id = "chat_price_thrift"
 on = ["chat"]
+weight = 5
 when = { price = true, mood = "thrift" }
 lines = [
   { by = "initiator", text = "{^price_item}, {price} at {store}. I counted twice." },
@@ -282,6 +326,7 @@ lines = [
 [[talk]]
 id = "chat_misfortune"
 on = ["chat"]
+weight = 8
 when = { misfortune = true }
 lines = [
   { by = "initiator", text = "Did you hear? {^misfortune}." },
@@ -291,6 +336,7 @@ lines = [
 [[talk]]
 id = "chat_misfortune_quiet"
 on = ["chat"]
+weight = 8
 when = { misfortune = true }
 lines = [
   { by = "initiator", text = "{^misfortune}. You'll have heard." },
@@ -302,6 +348,7 @@ lines = [
 [[talk]]
 id = "chat_mood_hunger"
 on = ["chat"]
+weight = 8
 when = { mood = "hunger" }
 lines = [
   { by = "initiator", text = "I could eat a horse and chase the rider." },
@@ -311,6 +358,7 @@ lines = [
 [[talk]]
 id = "chat_mood_hungry"
 on = ["chat"]
+weight = 8
 when = { mood = "hungry" }
 lines = [
   { by = "initiator", text = "I've had nothing since morning but coffee and good intentions." },
@@ -320,6 +368,7 @@ lines = [
 [[talk]]
 id = "chat_mood_weary"
 on = ["chat"]
+weight = 8
 when = { mood = "weary" }
 lines = [
   { by = "initiator", text = "I'm dead on my feet, {you}." },
@@ -329,6 +378,7 @@ lines = [
 [[talk]]
 id = "chat_mood_drunk"
 on = ["chat"]
+weight = 8
 when = { mood = "drunk" }
 lines = [
   { by = "initiator", text = "#friend#! Have #drink# with me. Have two!" },
@@ -338,6 +388,7 @@ lines = [
 [[talk]]
 id = "chat_mood_anxious"
 on = ["chat"]
+weight = 8
 when = { mood = "anxious" }
 lines = [
   { by = "initiator", text = "I can't settle today, {you}. I couldn't tell you why." },
@@ -347,6 +398,7 @@ lines = [
 [[talk]]
 id = "chat_mood_fear"
 on = ["chat"]
+weight = 8
 when = { mood = "fear" }
 lines = [
   { by = "initiator", text = "I don't like the lights on the bluff of a night." },
@@ -356,6 +408,7 @@ lines = [
 [[talk]]
 id = "chat_mood_longing"
 on = ["chat"]
+weight = 8
 when = { mood = "longing" }
 lines = [
   { by = "initiator", text = "Some days I'd give a good deal to see #homeland# again." },
@@ -365,6 +418,7 @@ lines = [
 [[talk]]
 id = "chat_mood_envy"
 on = ["chat"]
+weight = 8
 when = { mood = "envy" }
 lines = [
   { by = "initiator", text = "Some folk have all the luck, {you}." },
@@ -374,6 +428,7 @@ lines = [
 [[talk]]
 id = "chat_mood_greed"
 on = ["chat"]
+weight = 8
 when = { mood = "greed" }
 lines = [
   { by = "initiator", text = "There's money to be made here, for them as look for it." },
@@ -383,6 +438,7 @@ lines = [
 [[talk]]
 id = "chat_mood_sloth"
 on = ["chat"]
+weight = 8
 when = { mood = "sloth" }
 lines = [
   { by = "initiator", text = "I've a mind to sit and do nothing the whole afternoon." },
@@ -392,6 +448,7 @@ lines = [
 [[talk]]
 id = "chat_mood_rage"
 on = ["chat"]
+weight = 8
 when = { mood = "rage" }
 lines = [
   { by = "initiator", text = "Don't mind me, {you}. I'm out of sorts." },
@@ -401,6 +458,7 @@ lines = [
 [[talk]]
 id = "chat_mood_lust"
 on = ["chat"]
+weight = 8
 when = { mood = "lust" }
 lines = [
   { by = "initiator", text = "You're looking well today, {you}. Very well." },
@@ -410,6 +468,7 @@ lines = [
 [[talk]]
 id = "chat_mood_duty"
 on = ["chat"]
+weight = 8
 when = { mood = "duty" }
 lines = [
   { by = "initiator", text = "Can't stop long; there's work wanting." },
@@ -419,6 +478,7 @@ lines = [
 [[talk]]
 id = "chat_mood_piety"
 on = ["chat"]
+weight = 8
 when = { mood = "piety" }
 lines = [
   { by = "initiator", text = "Will we see you at meeting this Sabbath, {you}?" },
@@ -428,6 +488,7 @@ lines = [
 [[talk]]
 id = "chat_mood_sabbath"
 on = ["chat"]
+weight = 5
 when = { mood = "sabbath", sabbath = true }
 lines = [
   { by = "initiator", text = "Mind it's the Lord's day, {you}." },
@@ -437,6 +498,7 @@ lines = [
 [[talk]]
 id = "chat_mood_temperance"
 on = ["chat"]
+weight = 8
 when = { mood = "temperance" }
 lines = [
   { by = "initiator", text = "I'll not stop for #drink#, thank you all the same." },
@@ -446,6 +508,7 @@ lines = [
 [[talk]]
 id = "chat_mood_thrift"
 on = ["chat"]
+weight = 8
 when = { mood = "thrift" }
 lines = [
   { by = "initiator", text = "Everything costs so. A body can't turn round without spending." },
@@ -455,6 +518,7 @@ lines = [
 [[talk]]
 id = "chat_mood_neighborly"
 on = ["chat"]
+weight = 8
 when = { mood = "neighborliness" }
 lines = [
   { by = "initiator", text = "If you need a hand with anything, {you}, you've only to say." },
@@ -464,6 +528,7 @@ lines = [
 [[talk]]
 id = "chat_mood_shame"
 on = ["chat"]
+weight = 8
 when = { mood = "shame" }
 lines = [
   { by = "initiator", text = "I've not been myself lately, {you}." },
@@ -473,6 +538,7 @@ lines = [
 [[talk]]
 id = "chat_mood_propriety"
 on = ["chat"]
+weight = 8
 when = { mood = "propriety" }
 lines = [
   { by = "initiator", text = "People will talk, {you}, if we stand here gossiping all day." },
@@ -482,6 +548,7 @@ lines = [
 [[talk]]
 id = "chat_mood_easy"
 on = ["chat"]
+weight = 5
 when = { mood = "easy", weather = "dry" }
 lines = [
   { by = "initiator", text = "A good day, {you}." },
@@ -493,6 +560,7 @@ lines = [
 [[talk]]
 id = "chat_friend_hoping"
 on = ["chat"]
+weight = 8
 when = { label = "friend" }
 lines = [
   { by = "initiator", text = "There you are, {you}. I was hoping I'd see you." },
@@ -502,6 +570,7 @@ lines = [
 [[talk]]
 id = "chat_friend_family"
 on = ["chat"]
+weight = 8
 when = { label = "friend" }
 lines = [
   { by = "initiator", text = "{you}! How are all your people?" },
@@ -512,6 +581,7 @@ lines = [
 [[talk]]
 id = "chat_enemy"
 on = ["chat"]
+weight = 8
 when = { label = "enemy" }
 lines = [
   { by = "initiator", text = "{you}." },
@@ -522,6 +592,7 @@ lines = [
 [[talk]]
 id = "chat_rival"
 on = ["chat"]
+weight = 8
 when = { label = "rival" }
 lines = [
   { by = "initiator", text = "Doing well for yourself, I see." },
@@ -531,6 +602,7 @@ lines = [
 [[talk]]
 id = "chat_admirer"
 on = ["chat"]
+weight = 8
 when = { label = "admirer" }
 lines = [
   { by = "initiator", text = "I wanted to ask your advice on something, {you}, if you've a minute." },
@@ -540,6 +612,7 @@ lines = [
 [[talk]]
 id = "chat_stranger"
 on = ["chat"]
+weight = 8
 when = { label = "stranger" }
 lines = [
   { by = "initiator", text = "#hello#, {you}. Fine day, if it holds." },
@@ -549,6 +622,7 @@ lines = [
 [[talk]]
 id = "chat_kin_supper"
 on = ["chat"]
+weight = 7
 when = { kin = true, household = false }
 lines = [
   { by = "initiator", text = "You'll come to supper Sunday, {you}?" },
@@ -558,6 +632,7 @@ lines = [
 [[talk]]
 id = "chat_household_fire"
 on = ["chat"]
+weight = 8
 when = { household = true }
 lines = [
   { by = "initiator", text = "Did you bank the fire?" },
@@ -567,6 +642,7 @@ lines = [
 [[talk]]
 id = "chat_household_supper"
 on = ["chat"]
+weight = 5
 when = { household = true, part = "evening" }
 lines = [
   { by = "initiator", text = "What's for supper?" },
@@ -576,6 +652,7 @@ lines = [
 [[talk]]
 id = "chat_courting"
 on = ["chat"]
+weight = 8
 when = { courting = true }
 lines = [
   { by = "initiator", text = "I was hoping you'd be here, {you}." },
@@ -585,6 +662,7 @@ lines = [
 [[talk]]
 id = "chat_remember_help"
 on = ["chat"]
+weight = 8
 when = { remembers = "help" }
 lines = [
   { by = "initiator", text = "I've not forgotten the hand you lent me {memory_place}, {you}." },
@@ -594,6 +672,7 @@ lines = [
 [[talk]]
 id = "chat_remember_gift"
 on = ["chat"]
+weight = 8
 when = { remembers = "gift" }
 lines = [
   { by = "initiator", text = "That was a kind thing you brought me, {you}." },
@@ -603,6 +682,7 @@ lines = [
 [[talk]]
 id = "chat_remember_insult"
 on = ["chat"]
+weight = 8
 when = { remembers = "insult" }
 lines = [
   { by = "initiator", text = "I've not forgotten what you said {memory_place}." },
@@ -612,6 +692,7 @@ lines = [
 [[talk]]
 id = "chat_owe"
 on = ["chat"]
+weight = 8
 when = { owes = "initiator" }
 lines = [
   { by = "initiator", text = "I've not forgotten what I owe you, {you}." },
@@ -621,6 +702,7 @@ lines = [
 [[talk]]
 id = "chat_owed"
 on = ["chat"]
+weight = 8
 when = { owes = "target" }
 lines = [
   { by = "initiator", text = "Fine weather for settling accounts, {you}." },
@@ -630,6 +712,7 @@ lines = [
 [[talk]]
 id = "chat_tavern"
 on = ["chat"]
+weight = 2
 when = { venue = "tavern", part = "evening" }
 lines = [
   { by = "initiator", text = "Busy in here tonight." },
@@ -639,6 +722,7 @@ lines = [
 [[talk]]
 id = "chat_store"
 on = ["chat"]
+weight = 4
 when = { venue = "store" }
 lines = [
   { by = "initiator", text = "Did the new goods come in?" },
@@ -648,6 +732,7 @@ lines = [
 [[talk]]
 id = "chat_church"
 on = ["chat"]
+weight = 4
 when = { venue = "church" }
 lines = [
   { by = "initiator", text = "The pews get harder every week." },
@@ -657,6 +742,7 @@ lines = [
 [[talk]]
 id = "chat_mill"
 on = ["chat"]
+weight = 4
 when = { venue = "mill" }
 lines = [
   { by = "initiator", text = "Water high enough for grinding?" },
@@ -666,6 +752,7 @@ lines = [
 [[talk]]
 id = "chat_smithy"
 on = ["chat"]
+weight = 4
 when = { venue = "smithy" }
 lines = [
   { by = "initiator", text = "Hot work, {you}." },
@@ -679,6 +766,7 @@ lines = [
 [[talk]]
 id = "intro_plain"
 on = ["introduce"]
+weight = 12
 lines = [
   { by = "initiator", text = "#hello#. {initiator}, and pleased to know you." },
   { by = "target", text = "{target}. Likewise, I'm sure." },
@@ -687,6 +775,7 @@ lines = [
 [[talk]]
 id = "intro_face"
 on = ["introduce"]
+weight = 12
 lines = [
   { by = "initiator", text = "I don't think I know your face. {initiator}." },
   { by = "target", text = "{target}. Nor I yours, but that's mended now." },
@@ -695,6 +784,7 @@ lines = [
 [[talk]]
 id = "intro_meaning"
 on = ["introduce"]
+weight = 12
 lines = [
   { by = "initiator", text = "{initiator}. I've been meaning to make your acquaintance." },
   { by = "target", text = "And now you have. {target}." },
@@ -703,6 +793,7 @@ lines = [
 [[talk]]
 id = "intro_where_from"
 on = ["introduce"]
+weight = 12
 lines = [
   { by = "initiator", text = "#hello#! The name's {initiator}." },
   { by = "target", text = "{target}. And where do you hail from?" },
@@ -712,6 +803,7 @@ lines = [
 [[talk]]
 id = "intro_evening"
 on = ["introduce"]
+weight = 4
 when = { part = "evening" }
 lines = [
   { by = "initiator", text = "#evening#. We've not been introduced: {initiator}." },
@@ -721,6 +813,7 @@ lines = [
 [[talk]]
 id = "intro_church"
 on = ["introduce"]
+weight = 4
 when = { venue = "church" }
 lines = [
   { by = "initiator", text = "{initiator}. I don't think I've seen you at meeting before." },
@@ -730,6 +823,7 @@ lines = [
 [[talk]]
 id = "intro_store"
 on = ["introduce"]
+weight = 4
 when = { venue = "store" }
 lines = [
   { by = "initiator", text = "{initiator}. I'll be in here often, I expect, if the prices hold." },
@@ -739,6 +833,7 @@ lines = [
 [[talk]]
 id = "intro_tavern"
 on = ["introduce"]
+weight = 4
 when = { venue = "tavern" }
 lines = [
   { by = "initiator", text = "I don't believe we've met. {initiator}." },
@@ -752,6 +847,7 @@ lines = [
 [[talk]]
 id = "gossip_latest"
 on = ["gossip"]
+weight = 4
 when = { told = true }
 lines = [
   { by = "initiator", text = "Have you heard the latest, {you}?" },
@@ -761,6 +857,7 @@ lines = [
 [[talk]]
 id = "gossip_believe"
 on = ["gossip"]
+weight = 4
 when = { told = true }
 lines = [
   { by = "initiator", text = "You'll not believe what I heard." },
@@ -770,6 +867,7 @@ lines = [
 [[talk]]
 id = "gossip_closer"
 on = ["gossip"]
+weight = 2
 when = { told = true, rumor = "scandal" }
 lines = [
   { by = "initiator", text = "Come closer; this isn't for every ear." },
@@ -779,6 +877,7 @@ lines = [
 [[talk]]
 id = "gossip_queer"
 on = ["gossip"]
+weight = 2
 when = { told = true, rumor = "uncanny" }
 lines = [
   { by = "initiator", text = "There's something queer going on, {you}. Mark me." },
@@ -788,6 +887,7 @@ lines = [
 [[talk]]
 id = "gossip_nothing"
 on = ["gossip"]
+weight = 4
 when = { told = false }
 lines = [
   { by = "initiator", text = "Quiet times, {you}. I've heard nothing worth repeating." },
@@ -797,6 +897,7 @@ lines = [
 [[talk]]
 id = "gossip_nothing_news"
 on = ["gossip"]
+weight = 4
 when = { told = false }
 lines = [
   { by = "initiator", text = "I'd tell you the news if there were any." },
@@ -806,6 +907,7 @@ lines = [
 [[talk]]
 id = "gossip_nothing_stale"
 on = ["gossip"]
+weight = 2
 when = { told = false, stale = true }
 lines = [
   { by = "initiator", text = "Nothing new. Only the same old talk, and I'm tired of the sound of it." },
@@ -816,6 +918,7 @@ lines = [
 id = "gossip_said_source_credits"
 on = ["gossip"]
 part = "said"
+weight = 2
 when = { secondhand = true, heard = "credits", about = "other" }
 lines = [
   { by = "initiator", text = "{^source} says {rumor}." },
@@ -826,6 +929,7 @@ lines = [
 id = "gossip_said_source_doubts"
 on = ["gossip"]
 part = "said"
+weight = 2
 when = { secondhand = true, heard = "doubts", about = "other" }
 lines = [
   { by = "initiator", text = "{^source} told me {rumor}." },
@@ -836,6 +940,7 @@ lines = [
 id = "gossip_said_hedge_credits"
 on = ["gossip"]
 part = "said"
+weight = 2
 when = { secondhand = false, heard = "credits", about = "other" }
 lines = [
   { by = "initiator", text = "{^hedge} {rumor}." },
@@ -846,6 +951,7 @@ lines = [
 id = "gossip_said_hedge_doubts"
 on = ["gossip"]
 part = "said"
+weight = 2
 when = { secondhand = false, heard = "doubts", about = "other" }
 lines = [
   { by = "initiator", text = "{^hedge} {rumor}." },
@@ -867,6 +973,7 @@ lines = [
 id = "gossip_said_uncanny"
 on = ["gossip"]
 part = "said"
+weight = 2
 when = { rumor = "uncanny", heard = "credits", about = "other" }
 lines = [
   { by = "initiator", text = "{^hedge} {rumor}. I've put iron over my door, and I'd advise the same." },
@@ -877,6 +984,7 @@ lines = [
 id = "gossip_said_uncanny_doubts"
 on = ["gossip"]
 part = "said"
+weight = 2
 when = { rumor = "uncanny", heard = "doubts", about = "other" }
 lines = [
   { by = "initiator", text = "{^hedge} {rumor}." },
@@ -887,6 +995,7 @@ lines = [
 id = "gossip_said_you_source"
 on = ["gossip"]
 part = "said"
+weight = 2
 when = { about = "you", secondhand = true }
 lines = [
   { by = "initiator", text = "You should know what {source} is saying, {you}: that {rumor}." },
@@ -897,6 +1006,7 @@ lines = [
 id = "gossip_said_you"
 on = ["gossip"]
 part = "said"
+weight = 2
 when = { about = "you", secondhand = false }
 lines = [
   { by = "initiator", text = "I'll not dress it up, {you}: folk say {rumor}." },
@@ -907,6 +1017,7 @@ lines = [
 id = "gossip_said_self"
 on = ["gossip"]
 part = "said"
+weight = 4
 when = { about = "self" }
 lines = [
   { by = "initiator", text = "You may as well hear it from me: {rumor}." },
@@ -916,6 +1027,7 @@ lines = [
 [[talk]]
 id = "ask_heard"
 on = ["ask_about"]
+weight = 4
 when = { told = true }
 lines = [
   { by = "initiator", text = "What's the news, {you}?" },
@@ -925,6 +1037,7 @@ lines = [
 [[talk]]
 id = "ask_heard_anything"
 on = ["ask_about"]
+weight = 4
 when = { told = true }
 lines = [
   { by = "initiator", text = "Heard anything, {you}?" },
@@ -934,6 +1047,7 @@ lines = [
 [[talk]]
 id = "ask_heard_scandal"
 on = ["ask_about"]
+weight = 2
 when = { told = true, rumor = "scandal" }
 lines = [
   { by = "initiator", text = "Anything stirring, {you}?" },
@@ -943,6 +1057,7 @@ lines = [
 [[talk]]
 id = "ask_nothing_roads"
 on = ["ask_about"]
+weight = 4
 when = { told = false }
 lines = [
   { by = "initiator", text = "Any news, {you}?" },
@@ -952,6 +1067,7 @@ lines = [
 [[talk]]
 id = "ask_nothing_quiet"
 on = ["ask_about"]
+weight = 4
 when = { told = false }
 lines = [
   { by = "initiator", text = "What's the news, {you}?" },
@@ -961,6 +1077,7 @@ lines = [
 [[talk]]
 id = "ask_nothing_stale"
 on = ["ask_about"]
+weight = 2
 when = { told = false, stale = true }
 lines = [
   { by = "initiator", text = "Anything new, {you}?" },
@@ -970,6 +1087,7 @@ lines = [
 [[talk]]
 id = "ask_nothing_rain"
 on = ["ask_about"]
+weight = 2
 when = { told = false, weather = "rain" }
 lines = [
   { by = "initiator", text = "Any news, {you}?" },
@@ -979,6 +1097,7 @@ lines = [
 [[talk]]
 id = "ask_nothing_market"
 on = ["ask_about"]
+weight = 2
 when = { told = false, observance = "market_day" }
 lines = [
   { by = "initiator", text = "Any news, {you}?" },
@@ -999,6 +1118,7 @@ lines = [
 id = "ask_said_source"
 on = ["ask_about"]
 part = "said"
+weight = 2
 when = { secondhand = true, about = "other" }
 lines = [
   { by = "target", text = "{^source} says {rumor}." },
@@ -1009,6 +1129,7 @@ lines = [
 id = "ask_said_source_doubts"
 on = ["ask_about"]
 part = "said"
+weight = 2
 when = { secondhand = true, heard = "doubts", about = "other" }
 lines = [
   { by = "target", text = "{^source} has it that {rumor}. Make of it what you will." },
@@ -1019,6 +1140,7 @@ lines = [
 id = "ask_said_hedge"
 on = ["ask_about"]
 part = "said"
+weight = 2
 when = { secondhand = false, about = "other" }
 lines = [
   { by = "target", text = "{^hedge} {rumor}." },
@@ -1040,6 +1162,7 @@ lines = [
 id = "ask_said_uncanny"
 on = ["ask_about"]
 part = "said"
+weight = 2
 when = { rumor = "uncanny", about = "other" }
 lines = [
   { by = "target", text = "{^hedge} {rumor}. Keep your iron about you." },
@@ -1050,6 +1173,7 @@ lines = [
 id = "ask_said_you"
 on = ["ask_about"]
 part = "said"
+weight = 4
 when = { about = "you" }
 lines = [
   { by = "target", text = "Since you ask: there's talk that {rumor}." },
@@ -1061,6 +1185,7 @@ lines = [
 id = "ask_said_self"
 on = ["ask_about"]
 part = "said"
+weight = 4
 when = { about = "self" }
 lines = [
   { by = "target", text = "You'll hear it soon enough, so hear it from me: {rumor}." },
@@ -1070,6 +1195,7 @@ lines = [
 [[talk]]
 id = "warn_word"
 on = ["warn"]
+weight = 4
 when = { told = true }
 lines = [
   { by = "initiator", text = "A word in your ear, {you}." },
@@ -1079,6 +1205,7 @@ lines = [
 [[talk]]
 id = "warn_friend"
 on = ["warn"]
+weight = 4
 when = { told = true }
 lines = [
   { by = "initiator", text = "You'd best hear this from a friend." },
@@ -1088,6 +1215,7 @@ lines = [
 [[talk]]
 id = "warn_nothing"
 on = ["warn"]
+weight = 4
 when = { told = false }
 lines = [
   { by = "initiator", text = "Mind how you go, {you}. These are uneasy times." },
@@ -1097,6 +1225,7 @@ lines = [
 [[talk]]
 id = "warn_nothing_night"
 on = ["warn"]
+weight = 2
 when = { told = false, part = "evening" }
 lines = [
   { by = "initiator", text = "Keep to the road going home, {you}. It's dark early on the bluff." },
@@ -1107,6 +1236,7 @@ lines = [
 id = "warn_said"
 on = ["warn"]
 part = "said"
+weight = 2
 when = { about = "other", secondhand = true }
 lines = [
   { by = "initiator", text = "Mind yourself. {^source} says {rumor}." },
@@ -1117,6 +1247,7 @@ lines = [
 id = "warn_said_hedge"
 on = ["warn"]
 part = "said"
+weight = 2
 when = { about = "other", secondhand = false }
 lines = [
   { by = "initiator", text = "Watch yourself. {^hedge} {rumor}." },
@@ -1127,6 +1258,7 @@ lines = [
 id = "warn_said_uncanny"
 on = ["warn"]
 part = "said"
+weight = 2
 when = { rumor = "uncanny", about = "other" }
 lines = [
   { by = "initiator", text = "Keep to the road after dark. {^hedge} {rumor}." },
@@ -1148,6 +1280,7 @@ lines = [
 id = "warn_said_you"
 on = ["warn"]
 part = "said"
+weight = 4
 when = { about = "you" }
 lines = [
   { by = "initiator", text = "Watch yourself, {you}. Folk are saying {rumor}." },
@@ -1158,6 +1291,7 @@ lines = [
 id = "warn_said_self"
 on = ["warn"]
 part = "said"
+weight = 4
 when = { about = "self" }
 lines = [
   { by = "initiator", text = "Better you hear it from me than from them: {rumor}." },
@@ -1167,6 +1301,7 @@ lines = [
 [[talk]]
 id = "confide_close"
 on = ["confide"]
+weight = 4
 when = { told = true }
 lines = [
   { by = "initiator", text = "Can I tell you something, {you}, and you'll keep it close?" },
@@ -1176,6 +1311,7 @@ lines = [
 [[talk]]
 id = "confide_door"
 on = ["confide"]
+weight = 4
 when = { told = true }
 lines = [
   { by = "initiator", text = "Shut the door a minute, {you}." },
@@ -1185,6 +1321,7 @@ lines = [
 [[talk]]
 id = "confide_weight"
 on = ["confide"]
+weight = 4
 when = { told = false }
 lines = [
   { by = "initiator", text = "I've a weight on me, {you}, and no name for it." },
@@ -1194,6 +1331,7 @@ lines = [
 [[talk]]
 id = "confide_sleep"
 on = ["confide"]
+weight = 5
 when = { told = false, mood = "anxious" }
 lines = [
   { by = "initiator", text = "I can't sleep for worrying, {you}, and I couldn't tell you what about." },
@@ -1203,6 +1341,7 @@ lines = [
 [[talk]]
 id = "confide_nothing_home"
 on = ["confide"]
+weight = 4
 when = { told = false }
 lines = [
   { by = "initiator", text = "Do you ever think we were fools to come out here, {you}?" },
@@ -1213,6 +1352,7 @@ lines = [
 id = "confide_said_self"
 on = ["confide"]
 part = "said"
+weight = 2
 when = { about = "self", heard = "credits" }
 lines = [
   { by = "initiator", text = "{^rumor}. There. I've said it to nobody else." },
@@ -1223,6 +1363,7 @@ lines = [
 id = "confide_said_self_doubts"
 on = ["confide"]
 part = "said"
+weight = 2
 when = { about = "self", heard = "doubts" }
 lines = [
   { by = "initiator", text = "{^rumor}. I've told no one." },
@@ -1244,6 +1385,7 @@ lines = [
 id = "confide_said_other"
 on = ["confide"]
 part = "said"
+weight = 4
 when = { about = "other" }
 lines = [
   { by = "initiator", text = "I've not said it aloud before: {rumor}. I can't get it out of my head." },
@@ -1254,6 +1396,7 @@ lines = [
 id = "confide_said_you"
 on = ["confide"]
 part = "said"
+weight = 4
 when = { about = "you" }
 lines = [
   { by = "initiator", text = "I've held this back too long, {you}: they say {rumor}." },
@@ -1268,6 +1411,7 @@ lines = [
 [[talk]]
 id = "deep_go_back"
 on = ["deep_talk"]
+weight = 12
 lines = [
   { by = "initiator", text = "Do you ever think about going back to #homeland#, {you}?" },
   { by = "target", text = "Every winter. Never in spring. You?" },
@@ -1277,6 +1421,7 @@ lines = [
 [[talk]]
 id = "deep_want"
 on = ["deep_talk"]
+weight = 12
 lines = [
   { by = "initiator", text = "What do you want out of all this, {you}? Truly?" },
   { by = "target", text = "A roof that doesn't leak and a little put by. And you?" },
@@ -1286,6 +1431,7 @@ lines = [
 [[talk]]
 id = "deep_young"
 on = ["deep_talk"]
+weight = 12
 lines = [
   { by = "initiator", text = "I worry for the young ones, out here." },
   { by = "target", text = "They'll be tougher than us, and kinder, #god_willing#." },
@@ -1294,6 +1440,7 @@ lines = [
 [[talk]]
 id = "deep_grew_up"
 on = ["deep_talk"]
+weight = 12
 lines = [
   { by = "initiator", text = "Tell me about where you grew up, {you}." },
   { by = "target", text = "It's a long story." },
@@ -1303,6 +1450,7 @@ lines = [
 [[talk]]
 id = "deep_longing"
 on = ["deep_talk"]
+weight = 8
 when = { mood = "longing" }
 lines = [
   { by = "initiator", text = "I dreamt of home again last night." },
@@ -1312,6 +1460,7 @@ lines = [
 [[talk]]
 id = "deep_anxious"
 on = ["deep_talk"]
+weight = 8
 when = { mood = "anxious" }
 lines = [
   { by = "initiator", text = "Something's not right with me lately, {you}." },
@@ -1321,6 +1470,7 @@ lines = [
 [[talk]]
 id = "deep_friend"
 on = ["deep_talk"]
+weight = 8
 when = { label = "friend" }
 lines = [
   { by = "initiator", text = "I don't know what I'd do without you, {you}." },
@@ -1330,6 +1480,7 @@ lines = [
 [[talk]]
 id = "deep_courting"
 on = ["deep_talk"]
+weight = 8
 when = { courting = true }
 lines = [
   { by = "initiator", text = "I've been thinking about the future, {you}. Ours." },
@@ -1339,6 +1490,7 @@ lines = [
 [[talk]]
 id = "deep_winter"
 on = ["deep_talk"]
+weight = 4
 when = { season = "winter" }
 lines = [
   { by = "initiator", text = "These long nights do get into a person." },
@@ -1348,6 +1500,7 @@ lines = [
 [[talk]]
 id = "deep_faith"
 on = ["deep_talk"]
+weight = 8
 when = { mood = "piety" }
 lines = [
   { by = "initiator", text = "Do you think the Lord sees us, {you}, all the way out here?" },
@@ -1358,6 +1511,7 @@ lines = [
 id = "compliment_work"
 on = ["compliment"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "That's a fine piece of work, {you}." },
   { by = "target", text = "#thanks#. It took long enough." },
@@ -1367,6 +1521,7 @@ lines = [
 id = "compliment_baking"
 on = ["compliment"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "I've not had better {bread|pie|coffee} in {town}, {you}." },
   { by = "target", text = "Go on with you. Have another." },
@@ -1376,6 +1531,7 @@ lines = [
 id = "compliment_smithy"
 on = ["compliment"]
 outcome = "success"
+weight = 4
 when = { venue = "smithy" }
 lines = [
   { by = "initiator", text = "You've a fine hand with the iron, {you}." },
@@ -1386,6 +1542,7 @@ lines = [
 id = "compliment_store"
 on = ["compliment"]
 outcome = "success"
+weight = 4
 when = { venue = "store" }
 lines = [
   { by = "initiator", text = "You keep a tidy store, {you}." },
@@ -1396,6 +1553,7 @@ lines = [
 id = "compliment_children"
 on = ["compliment"]
 outcome = "success"
+weight = 8
 when = { label = "acquaintance" }
 lines = [
   { by = "initiator", text = "Your people always look so well turned out, {you}." },
@@ -1406,6 +1564,7 @@ lines = [
 id = "compliment_thick"
 on = ["compliment"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Finest garden in the county, I'd say." },
   { by = "target", text = "Would you. And what is it you want?" },
@@ -1415,6 +1574,7 @@ lines = [
 id = "compliment_hardest"
 on = ["compliment"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Nobody in {town} works harder than you, {you}." },
   { by = "target", text = "Laying it on a bit thick, aren't you?" },
@@ -1424,6 +1584,7 @@ lines = [
 id = "compliment_tired"
 on = ["compliment"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "You look well, {you}." },
   { by = "target", text = "I look tired, and you know it." },
@@ -1432,6 +1593,7 @@ lines = [
 [[talk]]
 id = "help_end"
 on = ["help"]
+weight = 12
 lines = [
   { by = "initiator", text = "Here, let me take the other end of that." },
   { by = "target", text = "#thanks#. I'd have been at it all day." },
@@ -1440,6 +1602,7 @@ lines = [
 [[talk]]
 id = "help_hands"
 on = ["help"]
+weight = 12
 lines = [
   { by = "initiator", text = "You're short a pair of hands, {you}. Mine are free." },
   { by = "target", text = "I'll not say no." },
@@ -1448,6 +1611,7 @@ lines = [
 [[talk]]
 id = "help_harness"
 on = ["help"]
+weight = 12
 lines = [
   { by = "initiator", text = "That harness wants mending. Hand me the awl." },
   { by = "target", text = "#bless#. I've been meaning to get to it for a week." },
@@ -1456,6 +1620,7 @@ lines = [
 [[talk]]
 id = "help_rain"
 on = ["help"]
+weight = 4
 when = { weather = "rain" }
 lines = [
   { by = "initiator", text = "Let's get that under cover before it soaks." },
@@ -1465,6 +1630,7 @@ lines = [
 [[talk]]
 id = "help_wood"
 on = ["help"]
+weight = 4
 when = { season = "autumn" }
 lines = [
   { by = "initiator", text = "I'll help you with the wood, {you}. Winter won't wait." },
@@ -1474,6 +1640,7 @@ lines = [
 [[talk]]
 id = "help_spring"
 on = ["help"]
+weight = 2
 when = { season = "spring", venue = "farm" }
 lines = [
   { by = "initiator", text = "I'll help you get the seed in while the ground's right." },
@@ -1483,6 +1650,7 @@ lines = [
 [[talk]]
 id = "help_neighborly"
 on = ["help"]
+weight = 8
 when = { mood = "neighborliness" }
 lines = [
   { by = "initiator", text = "Many hands, {you}." },
@@ -1493,6 +1661,7 @@ lines = [
 [[talk]]
 id = "help_done_in"
 on = ["help"]
+weight = 8
 when = { target_mood = "weary" }
 lines = [
   { by = "initiator", text = "You look done in. Sit; I'll finish this." },
@@ -1502,6 +1671,7 @@ lines = [
 [[talk]]
 id = "help_kin"
 on = ["help"]
+weight = 8
 when = { kin = true }
 lines = [
   { by = "initiator", text = "Give it here. That's what family's for." },
@@ -1511,6 +1681,7 @@ lines = [
 [[talk]]
 id = "help_gate"
 on = ["help"]
+weight = 12
 lines = [
   { by = "initiator", text = "Your gate's off its hinge again. Hold it while I set the pin." },
   { by = "target", text = "#thanks#. It's been dragging a week." },
@@ -1519,6 +1690,7 @@ lines = [
 [[talk]]
 id = "help_water"
 on = ["help"]
+weight = 12
 lines = [
   { by = "initiator", text = "Give me one of those buckets, {you}." },
   { by = "target", text = "#thanks#. The well gets further off every year." },
@@ -1527,6 +1699,7 @@ lines = [
 [[talk]]
 id = "help_errand"
 on = ["help"]
+weight = 12
 lines = [
   { by = "initiator", text = "I'm going by the store. Want anything fetched, {you}?" },
   { by = "target", text = "A paper of pins, if you would. You're a saint." },
@@ -1535,6 +1708,7 @@ lines = [
 [[talk]]
 id = "help_store"
 on = ["help"]
+weight = 4
 when = { venue = "store" }
 lines = [
   { by = "initiator", text = "I'll mind the counter a minute, {you}, if you want your dinner." },
@@ -1544,6 +1718,7 @@ lines = [
 [[talk]]
 id = "help_tavern"
 on = ["help"]
+weight = 4
 when = { venue = "tavern" }
 lines = [
   { by = "initiator", text = "Let me carry those plates, {you}." },
@@ -1553,6 +1728,7 @@ lines = [
 [[talk]]
 id = "help_church"
 on = ["help"]
+weight = 4
 when = { venue = "church" }
 lines = [
   { by = "initiator", text = "I'll help you put the hymnals away." },
@@ -1562,6 +1738,7 @@ lines = [
 [[talk]]
 id = "pray_evening"
 on = ["pray_with"]
+weight = 4
 when = { part = "evening" }
 lines = [
   { by = "initiator", text = "Lighten our darkness, we beseech thee, O Lord." },
@@ -1571,6 +1748,7 @@ lines = [
 [[talk]]
 id = "pray_grace"
 on = ["pray_with"]
+weight = 5
 when = { household = true, part = "midday" }
 lines = [
   { by = "initiator", text = "Come, Lord Jesus, be our guest." },
@@ -1580,6 +1758,7 @@ lines = [
 [[talk]]
 id = "pray_shepherd"
 on = ["pray_with"]
+weight = 12
 lines = [
   { by = "initiator", text = "The Lord is my shepherd; I shall not want." },
   { by = "target", text = "He maketh me to lie down in green pastures. Amen." },
@@ -1588,6 +1767,7 @@ lines = [
 [[talk]]
 id = "pray_trouble"
 on = ["pray_with"]
+weight = 8
 when = { mood = "anxious" }
 lines = [
   { by = "initiator", text = "Pray with me, {you}. I can't find the words alone today." },
@@ -1597,6 +1777,7 @@ lines = [
 [[talk]]
 id = "gift_something"
 on = ["gift"]
+weight = 12
 lines = [
   { by = "initiator", text = "I brought you a little something, {you}." },
   { by = "target", text = "You shouldn't have. #thanks#." },
@@ -1605,6 +1786,7 @@ lines = [
 [[talk]]
 id = "gift_table"
 on = ["gift"]
+weight = 12
 lines = [
   { by = "initiator", text = "{A loaf|Some eggs|A twist of tobacco|A jar of preserves} for your table, {you}." },
   { by = "target", text = "#oath#, that's kind. I'll not forget it." },
@@ -1613,6 +1795,7 @@ lines = [
 [[talk]]
 id = "gift_amends"
 on = ["gift"]
+weight = 8
 when = { target_remembers = "insult" }
 lines = [
   { by = "initiator", text = "I'd like to make up for what I said. Take this." },
@@ -1622,6 +1805,7 @@ lines = [
 [[talk]]
 id = "gift_ribbon"
 on = ["gift"]
+weight = 8
 when = { courting = true }
 lines = [
   { by = "initiator", text = "A ribbon. I thought of you when I saw it." },
@@ -1631,6 +1815,7 @@ lines = [
 [[talk]]
 id = "gift_winter"
 on = ["gift"]
+weight = 4
 when = { season = "winter" }
 lines = [
   { by = "initiator", text = "Something to keep the cold out." },
@@ -1641,6 +1826,7 @@ lines = [
 id = "toast_town"
 on = ["toast"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "A round for the house! To {town}, and good neighbors!" },
   { by = "target", text = "To {town}!" },
@@ -1650,6 +1836,7 @@ lines = [
 id = "toast_spring"
 on = ["toast"]
 outcome = "success"
+weight = 4
 when = { season = "spring" }
 lines = [
   { by = "initiator", text = "Fill them up! To the spring, and a dry seedbed!" },
@@ -1660,6 +1847,7 @@ lines = [
 id = "toast_winter"
 on = ["toast"]
 outcome = "success"
+weight = 4
 when = { season = "winter" }
 lines = [
   { by = "initiator", text = "To the thaw, whenever it comes!" },
@@ -1670,6 +1858,7 @@ lines = [
 id = "toast_market"
 on = ["toast"]
 outcome = "success"
+weight = 4
 when = { observance = "market_day" }
 lines = [
   { by = "initiator", text = "To market day, and the money we'll not keep!" },
@@ -1680,6 +1869,7 @@ lines = [
 id = "toast_flat"
 on = ["toast"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "A toast! To... to whatever it was." },
   { by = "target", text = "Sit down before you fall down." },
@@ -1689,72 +1879,17 @@ lines = [
 id = "toast_nobody"
 on = ["toast"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Who'll drink with me? Anybody?" },
   { by = "target", text = "Put your purse away; nobody's drinking to that." },
 ]
 
 [[talk]]
-id = "tale_winter42"
-on = ["tell_tale"]
-outcome = "success"
-lines = [
-  { by = "initiator", text = "Did I ever tell you about the winter of '42, when the snow came up to the eaves?" },
-  { by = "target", text = "Go on, then." },
-]
-
-[[talk]]
-id = "tale_panther"
-on = ["tell_tale"]
-outcome = "success"
-lines = [
-  { by = "initiator", text = "There was a panther on the Kickapoo once, big as a yearling calf." },
-  { by = "target", text = "And you with only a stick?" },
-  { by = "initiator", text = "Only a stick, and my two legs, and they did the most of it." },
-]
-
-[[talk]]
-id = "tale_ring"
-on = ["tell_tale"]
-outcome = "success"
-lines = [
-  { by = "initiator", text = "My grandmother swore she saw the hidden folk dancing in a ring, the night before the flood." },
-  { by = "target", text = "I've heard worse stories, and believed them." },
-]
-
-[[talk]]
-id = "tale_raft"
-on = ["tell_tale"]
-outcome = "success"
-when = { venue = "tavern" }
-lines = [
-  { by = "initiator", text = "We took a raft of pine down to Galena in '49, and lost the cook at Cassville." },
-  { by = "target", text = "Lost him how?" },
-  { by = "initiator", text = "Married. Worse than drowned, he says." },
-]
-
-[[talk]]
-id = "tale_tall"
-on = ["tell_tale"]
-outcome = "failure"
-lines = [
-  { by = "initiator", text = "...and the fish was longer than the boat." },
-  { by = "target", text = "And I'm the Queen of England." },
-]
-
-[[talk]]
-id = "tale_different"
-on = ["tell_tale"]
-outcome = "failure"
-lines = [
-  { by = "initiator", text = "So there I was, alone on the bluff, with the wolves all round..." },
-  { by = "target", text = "You told it different last week. There were fewer wolves." },
-]
-
-[[talk]]
 id = "comfort_right"
 on = ["comfort"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "It'll come right, {you}. These things do." },
   { by = "target", text = "#thanks#. I needed to hear it." },
@@ -1764,6 +1899,7 @@ lines = [
 id = "comfort_coffee"
 on = ["comfort"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "Sit down. I'll put the coffee on." },
   { by = "target", text = "You're a good soul, {you}." },
@@ -1773,6 +1909,7 @@ lines = [
 id = "comfort_fear"
 on = ["comfort"]
 outcome = "success"
+weight = 8
 when = { target_mood = "fear" }
 lines = [
   { by = "initiator", text = "Whatever it is, you're not alone with it." },
@@ -1783,6 +1920,7 @@ lines = [
 id = "comfort_pray"
 on = ["comfort"]
 outcome = "success"
+weight = 8
 when = { mood = "piety" }
 lines = [
   { by = "initiator", text = "Cast your burden on the Lord, {you}, and some of it on me." },
@@ -1793,6 +1931,7 @@ lines = [
 id = "comfort_half"
 on = ["comfort"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Come now, it can't be as bad as all that." },
   { by = "target", text = "You don't know the half of it." },
@@ -1802,6 +1941,7 @@ lines = [
 id = "comfort_alone"
 on = ["comfort"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Is there anything I can do, {you}?" },
   { by = "target", text = "Leave me be, if it's all the same to you." },
@@ -1815,6 +1955,7 @@ lines = [
 id = "flirt_eyes"
 on = ["flirt"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "You've a way of looking at a person, {you}." },
   { by = "target", text = "Have I? Then I'd best look somewhere else. Or not." },
@@ -1824,6 +1965,7 @@ lines = [
 id = "flirt_well"
 on = ["flirt"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "Save me a place at the singing school, {you}?" },
   { by = "target", text = "I might. If you can carry a tune." },
@@ -1833,6 +1975,7 @@ lines = [
 id = "flirt_dance"
 on = ["flirt"]
 outcome = "success"
+weight = 4
 when = { venue = "tavern" }
 lines = [
   { by = "initiator", text = "If there were a fiddler, I'd ask you to dance." },
@@ -1843,6 +1986,7 @@ lines = [
 id = "flirt_bonnet"
 on = ["flirt"]
 outcome = "success"
+weight = 2
 when = { sabbath = true, venue = "church" }
 lines = [
   { by = "initiator", text = "I didn't hear a word of the sermon, {you}, for looking across the aisle." },
@@ -1853,6 +1997,7 @@ lines = [
 id = "flirt_cold"
 on = ["flirt"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "You've a way of looking at a person, {you}." },
   { by = "target", text = "I've a way of looking at the clock, too." },
@@ -1862,6 +2007,7 @@ lines = [
 id = "flirt_busy"
 on = ["flirt"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Walk a little way with me?" },
   { by = "target", text = "I've work, and so have you. Good day." },
@@ -1871,6 +2017,7 @@ lines = [
 id = "flirt_laugh"
 on = ["flirt"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Save me a place at the singing school?" },
   { by = "target", text = "I'll save you a hymnbook. You'll need one." },
@@ -1880,6 +2027,7 @@ lines = [
 id = "court_walk"
 on = ["court"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "Would you walk out with me Sunday afternoon, {you}?" },
   { by = "target", text = "I would. Come by after dinner, and mind your boots are clean." },
@@ -1889,6 +2037,7 @@ lines = [
 id = "court_porch"
 on = ["court"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "I'd like to call on you, {you}. Properly." },
   { by = "target", text = "Then call. The porch light will be lit." },
@@ -1898,6 +2047,7 @@ lines = [
 id = "court_no"
 on = ["court"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Would you walk out with me Sunday, {you}?" },
   { by = "target", text = "I think not. You're kind to ask." },
@@ -1907,6 +2057,7 @@ lines = [
 id = "court_no_cold"
 on = ["court"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "I'd like to call on you, {you}." },
   { by = "target", text = "I'd rather you didn't." },
@@ -1916,6 +2067,7 @@ lines = [
 id = "propose_yes"
 on = ["propose"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "{you}, I've not much, but what I have is yours. Will you marry me?" },
   { by = "target", text = "Yes. Yes, you great fool, of course I will." },
@@ -1925,6 +2077,7 @@ lines = [
 id = "propose_yes_spring"
 on = ["propose"]
 outcome = "success"
+weight = 4
 when = { season = "spring" }
 lines = [
   { by = "initiator", text = "Marry me before the harvest, {you}." },
@@ -1935,6 +2088,7 @@ lines = [
 id = "propose_no"
 on = ["propose"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "{you}, will you marry me?" },
   { by = "target", text = "I can't. Don't ask me why. Not now." },
@@ -1944,6 +2098,7 @@ lines = [
 id = "propose_no_wait"
 on = ["propose"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Will you have me, {you}?" },
   { by = "target", text = "Ask me again in a year, if you still want to." },
@@ -1957,6 +2112,7 @@ lines = [
 id = "preach_sabbath"
 on = ["preach_at"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "Remember the Sabbath, {you}, and keep it holy. Not for my sake: for yours." },
   { by = "target", text = "You're right, and I know it. I'll be there." },
@@ -1966,6 +2122,7 @@ lines = [
 id = "preach_drink"
 on = ["preach_at"]
 outcome = "success"
+weight = 4
 when = { venue = "tavern" }
 lines = [
   { by = "initiator", text = "Wine is a mocker, {you}, and strong drink is raging." },
@@ -1976,6 +2133,7 @@ lines = [
 id = "preach_soul"
 on = ["preach_at"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "What shall it profit a man, {you}, if he gain the whole world?" },
   { by = "target", text = "I've been asking myself the same, lately." },
@@ -1985,6 +2143,7 @@ lines = [
 id = "preach_back"
 on = ["preach_at"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Remember the Sabbath, {you}, and keep it holy." },
   { by = "target", text = "And you remember to mind your own fences." },
@@ -1994,6 +2153,7 @@ lines = [
 id = "preach_back_tavern"
 on = ["preach_at"]
 outcome = "failure"
+weight = 4
 when = { venue = "tavern" }
 lines = [
   { by = "initiator", text = "Strong drink is raging, {you}." },
@@ -2003,6 +2163,7 @@ lines = [
 [[talk]]
 id = "pray_together"
 on = ["pray_with"]
+weight = 12
 lines = [
   { by = "initiator", text = "Will you pray with me, {you}?" },
   { by = "target", text = "Gladly. Our Father, which art in heaven..." },
@@ -2011,6 +2172,7 @@ lines = [
 [[talk]]
 id = "pray_rain"
 on = ["pray_with"]
+weight = 2
 when = { weather = "rain", season = "summer" }
 lines = [
   { by = "initiator", text = "Lord, send us dry weather for the hay, and patience if Thou wilt not." },
@@ -2020,6 +2182,7 @@ lines = [
 [[talk]]
 id = "pray_spring"
 on = ["pray_with"]
+weight = 4
 when = { season = "spring" }
 lines = [
   { by = "initiator", text = "Bless the seed in the ground, Lord, and the hands that put it there." },
@@ -2029,6 +2192,7 @@ lines = [
 [[talk]]
 id = "pray_misfortune"
 on = ["pray_with"]
+weight = 8
 when = { misfortune = true }
 lines = [
   { by = "initiator", text = "Let us remember our neighbors in their trouble: {misfortune}." },
@@ -2038,6 +2202,7 @@ lines = [
 [[talk]]
 id = "pray_household"
 on = ["pray_with"]
+weight = 8
 when = { household = true }
 lines = [
   { by = "initiator", text = "Bless this house, Lord, and all under its roof." },
@@ -2047,6 +2212,7 @@ lines = [
 [[talk]]
 id = "pray_sabbath"
 on = ["pray_with"]
+weight = 2
 when = { sabbath = true, venue = "church" }
 lines = [
   { by = "initiator", text = "The Lord be with you, {you}." },
@@ -2056,6 +2222,7 @@ lines = [
 [[talk]]
 id = "confess_burden"
 on = ["confess"]
+weight = 12
 lines = [
   { by = "initiator", text = "I've done a thing I'm ashamed of, {you}." },
   { by = "target", text = "Tell it, then, and be done carrying it." },
@@ -2064,6 +2231,7 @@ lines = [
 [[talk]]
 id = "confess_listen"
 on = ["confess"]
+weight = 12
 lines = [
   { by = "initiator", text = "I need to say something out loud, or it'll choke me." },
   { by = "target", text = "Say it. I'll not judge you; that's not my office." },
@@ -2072,6 +2240,7 @@ lines = [
 [[talk]]
 id = "confess_shame"
 on = ["confess"]
+weight = 8
 when = { mood = "shame" }
 lines = [
   { by = "initiator", text = "I can't look myself in the glass, {you}." },
@@ -2086,6 +2255,7 @@ lines = [
 id = "apologize_sorry"
 on = ["apologize"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "I was wrong, {you}, and I'm sorry for it." },
   { by = "target", text = "#well#. It takes a big person to say so. Let's say no more." },
@@ -2095,6 +2265,7 @@ lines = [
 id = "apologize_hand"
 on = ["apologize"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "I spoke out of turn. Will you shake on it?" },
   { by = "target", text = "I will. And I was no saint either." },
@@ -2104,6 +2275,7 @@ lines = [
 id = "apologize_remember"
 on = ["apologize"]
 outcome = "success"
+weight = 8
 when = { target_remembers = "insult" }
 lines = [
   { by = "initiator", text = "What I said {memory_place}: I've been sorry ever since." },
@@ -2114,6 +2286,7 @@ lines = [
 id = "apologize_cold"
 on = ["apologize"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "I was wrong, {you}, and I'm sorry for it." },
   { by = "target", text = "Words come cheap. We'll see." },
@@ -2123,6 +2296,7 @@ lines = [
 id = "apologize_turned"
 on = ["apologize"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Can we put it behind us, {you}?" },
   { by = "target", text = "You can put it where you like. I'll keep mine." },
@@ -2131,6 +2305,7 @@ lines = [
 [[talk]]
 id = "forgive_done"
 on = ["forgive"]
+weight = 12
 lines = [
   { by = "initiator", text = "I've thought on it, {you}. It's forgiven." },
   { by = "target", text = "#thanks#. I'd not have blamed you for holding out." },
@@ -2139,6 +2314,7 @@ lines = [
 [[talk]]
 id = "forgive_life"
 on = ["forgive"]
+weight = 12
 lines = [
   { by = "initiator", text = "Life's too short, and the winters too long, to keep a grudge, {you}." },
   { by = "target", text = "Then we're square?" },
@@ -2148,6 +2324,7 @@ lines = [
 [[talk]]
 id = "forgive_piety"
 on = ["forgive"]
+weight = 8
 when = { mood = "piety" }
 lines = [
   { by = "initiator", text = "Forgive us our trespasses, it says. I'd be a poor Christian not to." },
@@ -2161,6 +2338,7 @@ lines = [
 [[talk]]
 id = "lend_offer"
 on = ["lend"]
+weight = 12
 lines = [
   { by = "initiator", text = "Here, {you}: {cents}, until things come right." },
   { by = "target", text = "I'll pay it back, every cent. You have my word." },
@@ -2169,6 +2347,7 @@ lines = [
 [[talk]]
 id = "lend_short"
 on = ["lend"]
+weight = 12
 lines = [
   { by = "initiator", text = "You look a little short. Will {cents} see you through?" },
   { by = "target", text = "It will. #thanks#. I'll not forget it." },
@@ -2177,6 +2356,7 @@ lines = [
 [[talk]]
 id = "lend_kin"
 on = ["lend"]
+weight = 8
 when = { kin = true }
 lines = [
   { by = "initiator", text = "Take it. {cents}, and don't argue." },
@@ -2188,6 +2368,7 @@ lines = [
 id = "borrow_ask"
 on = ["borrow"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "I hate to ask, {you}, but could you see your way to {cents}?" },
   { by = "target", text = "I can. Till the end of the month, mind." },
@@ -2197,6 +2378,7 @@ lines = [
 id = "borrow_ask_spring"
 on = ["borrow"]
 outcome = "success"
+weight = 4
 when = { season = "spring" }
 lines = [
   { by = "initiator", text = "It's a hungry spring, {you}. {cents} would carry me to harvest." },
@@ -2207,6 +2389,7 @@ lines = [
 id = "borrow_no"
 on = ["borrow"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Could you see your way to a little money, {you}?" },
   { by = "target", text = "I've none to spare, and I'd not lend it if I had." },
@@ -2216,6 +2399,7 @@ lines = [
 id = "borrow_no_soft"
 on = ["borrow"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "I hate to ask, but I'm short this week." },
   { by = "target", text = "So am I, {you}. So is everybody." },
@@ -2224,6 +2408,7 @@ lines = [
 [[talk]]
 id = "repay_square"
 on = ["repay"]
+weight = 12
 lines = [
   { by = "initiator", text = "There: {cents}. We're square, {you}." },
   { by = "target", text = "Square it is. #thanks#." },
@@ -2232,6 +2417,7 @@ lines = [
 [[talk]]
 id = "repay_coin"
 on = ["repay"]
+weight = 12
 lines = [
   { by = "initiator", text = "{^cents}, counted out. I said I would." },
   { by = "target", text = "You did, and you have. I'll not forget it either." },
@@ -2241,6 +2427,7 @@ lines = [
 id = "dun_press"
 on = ["dun"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "About the {cents}, {you}. It's past due." },
   { by = "target", text = "I know it. You'll have it Saturday." },
@@ -2250,6 +2437,7 @@ lines = [
 id = "dun_press_public"
 on = ["dun"]
 outcome = "success"
+weight = 4
 when = { venue = "store" }
 lines = [
   { by = "initiator", text = "{^cents}, {you}. I'll have it now, or I'll have it on the slate in front of everyone." },
@@ -2260,6 +2448,7 @@ lines = [
 id = "dun_fails"
 on = ["dun"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "About the {cents}, {you}." },
   { by = "target", text = "You'll have it when I have it, and not before." },
@@ -2272,6 +2461,7 @@ lines = [
 [[talk]]
 id = "slight_curt"
 on = ["slight"]
+weight = 12
 lines = [
   { by = "initiator", text = "Hm." },
   { by = "target", text = "Good day to you too, {you}." },
@@ -2280,6 +2470,7 @@ lines = [
 [[talk]]
 id = "slight_busy"
 on = ["slight"]
+weight = 12
 lines = [
   { by = "initiator", text = "I've no time for you today, {you}." },
   { by = "target", text = "You never have." },
@@ -2288,6 +2479,7 @@ lines = [
 [[talk]]
 id = "slight_counter"
 on = ["slight"]
+weight = 4
 when = { venue = "store" }
 lines = [
   { by = "initiator", text = "Wait your turn." },
@@ -2297,6 +2489,7 @@ lines = [
 [[talk]]
 id = "snub_dead"
 on = ["snub"]
+weight = 12
 lines = [
   { by = "target", text = "{you}? {you}, I'm speaking to you." },
 ]
@@ -2304,6 +2497,7 @@ lines = [
 [[talk]]
 id = "snub_eyes"
 on = ["snub"]
+weight = 12
 lines = [
   { by = "target", text = "#hello#, {you}." },
   { by = "initiator", text = "..." },
@@ -2313,6 +2507,7 @@ lines = [
 id = "mock_hat"
 on = ["mock"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "Look at {target}, dressed up like a parson at a horse race!" },
   { by = "target", text = "Laugh, then. I'll remember who laughed." },
@@ -2322,6 +2517,7 @@ lines = [
 id = "mock_farm"
 on = ["mock"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "{^target} could plow a field crooked with a rope for a guide." },
   { by = "target", text = "Very funny. Very funny indeed." },
@@ -2331,6 +2527,7 @@ lines = [
 id = "mock_drunk"
 on = ["mock"]
 outcome = "success"
+weight = 8
 when = { mood = "drunk" }
 lines = [
   { by = "initiator", text = "Here's {target}, the wisest head in {town}, ask anybody! Ask the mule!" },
@@ -2341,6 +2538,7 @@ lines = [
 id = "mock_flat"
 on = ["mock"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Look at {target}, dressed up like a parson at a horse race!" },
   { by = "target", text = "Is that the best you've got? Nobody's laughing." },
@@ -2350,6 +2548,7 @@ lines = [
 id = "mock_flat_turn"
 on = ["mock"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "{^target} could plow a field crooked with a rope for a guide." },
   { by = "target", text = "And you couldn't find the field." },
@@ -2359,6 +2558,7 @@ lines = [
 id = "insult_fool"
 on = ["insult"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "You're #fool#, {you}, and everybody knows it but you." },
   { by = "target", text = "Say that again." },
@@ -2368,6 +2568,7 @@ lines = [
 id = "insult_liar"
 on = ["insult"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "You're a liar and a cheat, and your word's not worth the breath." },
   { by = "target", text = "You'll answer for that." },
@@ -2377,6 +2578,7 @@ lines = [
 id = "insult_remember"
 on = ["insult"]
 outcome = "success"
+weight = 8
 when = { remembers = "insult" }
 lines = [
   { by = "initiator", text = "After what you said {memory_place}, you've a nerve showing your face." },
@@ -2387,6 +2589,7 @@ lines = [
 id = "insult_drunk"
 on = ["insult"]
 outcome = "success"
+weight = 8
 when = { mood = "drunk" }
 lines = [
   { by = "initiator", text = "You! You're the worst of the lot, you are!" },
@@ -2397,6 +2600,7 @@ lines = [
 id = "insult_shrug"
 on = ["insult"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "You're #fool#, {you}." },
   { by = "target", text = "Better a fool than a bully. Go home." },
@@ -2406,6 +2610,7 @@ lines = [
 id = "insult_laughed"
 on = ["insult"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Your word's not worth the breath, {you}." },
   { by = "target", text = "And yet here you are, wasting yours on me." },
@@ -2415,6 +2620,7 @@ lines = [
 id = "threaten_pay"
 on = ["threaten"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "You'll pay, {you}. One way or another." },
   { by = "target", text = "I... I don't want any trouble." },
@@ -2424,6 +2630,7 @@ lines = [
 id = "threaten_dark"
 on = ["threaten"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "It's a long walk home in the dark, {you}. Remember that." },
   { by = "target", text = "Is that a threat?" },
@@ -2434,6 +2641,7 @@ lines = [
 id = "threaten_scorn"
 on = ["threaten"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "You'll pay, {you}. One way or another." },
   { by = "target", text = "Big talk. Come and collect, then." },
@@ -2443,6 +2651,7 @@ lines = [
 id = "fight_won"
 on = ["fight"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "Come on, then!" },
   { by = "target", text = "Enough! Enough, I say!" },
@@ -2452,6 +2661,7 @@ lines = [
 id = "fight_won_drunk"
 on = ["fight"]
 outcome = "success"
+weight = 8
 when = { mood = "drunk" }
 lines = [
   { by = "initiator", text = "Outside! Right now!" },
@@ -2462,6 +2672,7 @@ lines = [
 id = "fight_lost"
 on = ["fight"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Come on, then!" },
   { by = "target", text = "Had enough? Go home and put a steak on that eye." },
@@ -2471,6 +2682,7 @@ lines = [
 id = "accuse_know"
 on = ["accuse"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "Let everyone hear it: I know what you are, {you}, and what you've done." },
   { by = "target", text = "That's a lie! Every word of it!" },
@@ -2480,6 +2692,7 @@ lines = [
 id = "accuse_shame"
 on = ["accuse"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "You should be ashamed to show your face among decent people." },
   { by = "target", text = "And you should be ashamed of that tongue." },
@@ -2489,6 +2702,7 @@ lines = [
 id = "accuse_nothing"
 on = ["accuse"]
 outcome = "success"
+weight = 4
 when = { told = false }
 lines = [
   { by = "initiator", text = "There's something wrong about you, {you}, and I'll find out what." },
@@ -2499,6 +2713,7 @@ lines = [
 id = "accuse_flat"
 on = ["accuse"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Let everyone hear it: I know what you are!" },
   { by = "target", text = "Everyone hears you. Everyone knows you, too." },
@@ -2508,6 +2723,7 @@ lines = [
 id = "accuse_said"
 on = ["accuse"]
 part = "said"
+weight = 4
 when = { about = "you" }
 lines = [
   { by = "initiator", text = "{^rumor}. Deny it if you can." },
@@ -2518,6 +2734,7 @@ lines = [
 id = "accuse_said_third"
 on = ["accuse"]
 part = "said"
+weight = 4
 when = { about = "other" }
 lines = [
   { by = "initiator", text = "They say {rumor}. Deny it if you can." },
@@ -2528,6 +2745,7 @@ lines = [
 id = "shun_cut"
 on = ["shun_lobby"]
 outcome = "success"
+weight = 12
 lines = [
   { by = "initiator", text = "Have nothing more to do with them, {you}. No credit, no help, not a word." },
   { by = "target", text = "If you say so. I'll keep my distance." },
@@ -2537,6 +2755,7 @@ lines = [
 id = "shun_nothing"
 on = ["shun_lobby"]
 outcome = "success"
+weight = 4
 when = { told = false }
 lines = [
   { by = "initiator", text = "Keep away from bad company, {you}. You know who I mean." },
@@ -2547,6 +2766,7 @@ lines = [
 id = "shun_refuse"
 on = ["shun_lobby"]
 outcome = "failure"
+weight = 12
 lines = [
   { by = "initiator", text = "Have nothing more to do with them, {you}." },
   { by = "target", text = "I'll choose my own neighbors, thank you." },
@@ -2556,6 +2776,7 @@ lines = [
 id = "shun_said"
 on = ["shun_lobby"]
 part = "said"
+weight = 12
 lines = [
   { by = "initiator", text = "{^hedge} {rumor}. Decent people will have nothing to do with it." },
   { by = "target", text = "I'll bear it in mind." },
@@ -2568,6 +2789,7 @@ lines = [
 [[talk]]
 id = "kid_chat_help"
 on = ["chat"]
+weight = 7
 when = { child = true, target_child = false }
 lines = [
   { by = "initiator", text = "Can I help, {you}?" },
@@ -2577,6 +2799,7 @@ lines = [
 [[talk]]
 id = "kid_chat_why"
 on = ["chat"]
+weight = 7
 when = { child = true, target_child = false }
 lines = [
   { by = "initiator", text = "{you}, why does {creek} run backwards in a flood?" },
@@ -2586,6 +2809,7 @@ lines = [
 [[talk]]
 id = "kid_chat_snow"
 on = ["chat"]
+weight = 5
 when = { child = true, weather = "snow" }
 lines = [
   { by = "initiator", text = "Snow! Will there be sledding?" },
@@ -2595,6 +2819,7 @@ lines = [
 [[talk]]
 id = "kid_chat_lights"
 on = ["chat"]
+weight = 5
 when = { child = true, target_child = false, part = "evening" }
 lines = [
   { by = "initiator", text = "Is it true about the lights on the bluff, {you}?" },
@@ -2604,6 +2829,7 @@ lines = [
 [[talk]]
 id = "kid_chat_adult"
 on = ["chat"]
+weight = 7
 when = { child = false, target_child = true }
 lines = [
   { by = "initiator", text = "Minding your elders, {you}?" },
@@ -2613,6 +2839,7 @@ lines = [
 [[talk]]
 id = "kid_chat_adult_grown"
 on = ["chat"]
+weight = 7
 when = { child = false, target_child = true }
 lines = [
   { by = "initiator", text = "Look how you've grown, {you}. You'll be taller than me by harvest." },
@@ -2622,6 +2849,7 @@ lines = [
 [[talk]]
 id = "kid_chat_kids"
 on = ["chat"]
+weight = 7
 when = { child = true, target_child = true }
 lines = [
   { by = "initiator", text = "I can hold my breath longer than you." },
@@ -2632,6 +2860,7 @@ lines = [
 [[talk]]
 id = "kid_chat_kids_frog"
 on = ["chat"]
+weight = 7
 when = { child = true, target_child = true }
 lines = [
   { by = "initiator", text = "I found a frog down by {creek}. A big one." },
@@ -2641,6 +2870,7 @@ lines = [
 [[talk]]
 id = "kid_intro"
 on = ["introduce"]
+weight = 8
 when = { child = true }
 lines = [
   { by = "initiator", text = "I'm {initiator_given}. Who are you?" },
@@ -2650,6 +2880,7 @@ lines = [
 [[talk]]
 id = "kid_intro_adult"
 on = ["introduce"]
+weight = 7
 when = { target_child = true, child = false }
 lines = [
   { by = "initiator", text = "And who might you be?" },
@@ -2659,6 +2890,7 @@ lines = [
 [[talk]]
 id = "kid_help"
 on = ["help"]
+weight = 8
 when = { child = true }
 lines = [
   { by = "initiator", text = "I can carry that, {you}. I'm strong." },
@@ -2668,6 +2900,7 @@ lines = [
 [[talk]]
 id = "kid_help_adult"
 on = ["help"]
+weight = 7
 when = { child = false, target_child = true }
 lines = [
   { by = "initiator", text = "Here, {you}, let me show you how." },
@@ -2677,6 +2910,7 @@ lines = [
 [[talk]]
 id = "kid_pray"
 on = ["pray_with"]
+weight = 8
 when = { target_child = true }
 lines = [
   { by = "initiator", text = "Now I lay me down to sleep, {you}. Say it with me." },
@@ -2686,6 +2920,7 @@ lines = [
 [[talk]]
 id = "kid_pray_self"
 on = ["pray_with"]
+weight = 8
 when = { child = true }
 lines = [
   { by = "initiator", text = "Will you say grace with me, {you}?" },
@@ -2696,6 +2931,7 @@ lines = [
 id = "kid_comfort"
 on = ["comfort"]
 outcome = "success"
+weight = 8
 when = { target_child = true }
 lines = [
   { by = "initiator", text = "There now, {you}. Dry your eyes. It's mended already." },
@@ -2706,6 +2942,7 @@ lines = [
 [[talk]]
 id = "kid_tease"
 on = ["mock", "insult", "slight"]
+weight = 7
 when = { child = true, target_child = true }
 lines = [
   { by = "initiator", text = "{target_given} smells like the pig pen!" },
@@ -2715,6 +2952,7 @@ lines = [
 [[talk]]
 id = "kid_cheek"
 on = ["mock", "insult", "slight"]
+weight = 7
 when = { child = true, target_child = false }
 lines = [
   { by = "initiator", text = "Shan't, and you can't make me." },
@@ -2724,6 +2962,7 @@ lines = [
 [[talk]]
 id = "kid_scold"
 on = ["insult", "slight", "mock", "threaten"]
+weight = 7
 when = { child = false, target_child = true }
 lines = [
   { by = "initiator", text = "Out from underfoot, {you}, before I tan your hide." },
@@ -2733,15 +2972,17 @@ lines = [
 [[talk]]
 id = "kid_tale"
 on = ["tell_tale"]
+weight = 8
 when = { target_child = true }
 lines = [
-  { by = "initiator", text = "Did I ever tell you about the panther on the Kickapoo, {you}?" },
+  { by = "initiator", text = "Did I ever tell you about the bear who stole the churn, {you}?" },
   { by = "target", text = "Tell it again!" },
 ]
 
 [[talk]]
 id = "kid_gift"
 on = ["gift"]
+weight = 8
 when = { target_child = true }
 lines = [
   { by = "initiator", text = "A peppermint for you, {you}. Don't tell."},
