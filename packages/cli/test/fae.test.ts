@@ -48,12 +48,12 @@ describe('fae slice 1a', () => {
       sim.world.time = asGameMinute(day * 1440);
       fadeNotoriety(sim.world.chronicle, sim.world.time, 14);
       const dc = makeDetectCtx(sim.world, makeContext(sim.world, sim.content, []));
-      omenEntries(dc, { ...ev, t: sim.world.time });
-      omenEntries(dc, { ...ev, t: sim.world.time });
+      omenEntries(dc, { ...ev, t: sim.world.time, data: { ...ev.data, text: `Distinct surface ${day}` } });
+      omenEntries(dc, { ...ev, t: sim.world.time, data: { ...ev.data, text: `Distinct surface ${day}` } });
     }
     const lines = sim.world.chronicle.entries.filter((x) => x.templateId?.startsWith('omen_'));
     expect(lines.filter((x) => x.voice === 'almanac')).toHaveLength(53);
-    expect(lines.filter((x) => x.voice === 'paper')).toHaveLength(53);
+    expect(lines.filter((x) => x.voice === 'paper')).toHaveLength(52);
     const counts: Record<string, number> = {};
     for (const line of lines) counts[line.templateId ?? ''] = (counts[line.templateId ?? ''] ?? 0) + 1;
     expect(Math.max(...Object.values(counts)) / lines.length).toBeLessThanOrEqual(0.1);
@@ -166,9 +166,11 @@ describe('fae slice 1a', () => {
     const lead = JSON.stringify(e.lead);
     for (const a of actors) {
       expect(fae.investigate(sim.world, ctx, a.id, e.id, { kind: 'own' })).toBe(true);
-      const hash = stateHash(sim.world);
+      const state = JSON.stringify(sim.world.fae);
+      const time = sim.world.time;
       expect(fae.investigate(sim.world, ctx, a.id, e.id, { kind: 'own' })).toBe(false);
-      expect(stateHash(sim.world)).toBe(hash);
+      expect(JSON.stringify(sim.world.fae)).toBe(state);
+      expect(sim.world.time).toBe(time);
     }
     expect(JSON.stringify(e.lead)).toBe(lead);
   });

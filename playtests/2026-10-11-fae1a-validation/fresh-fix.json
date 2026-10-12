@@ -1,0 +1,2101 @@
+{
+  "route": "One fixed circuit for all ten seeds: buy hardtack on days 1 and 5; visit East sandstone, East limestone, West sandstone, West limestone in the morning and again from 15:00; investigate any offered sign at each stop; refill at the upper creek and sleep each night. Choices use only fair observations; truth is audited separately after each day. No seeds discarded.",
+  "policies": [
+    {
+      "policy": "supplied",
+      "freshEightPassed": 5,
+      "reports": [
+        {
+          "seed": 1,
+          "noticed": 6,
+          "real": 4,
+          "actionable": 1,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "1dfd5051578970d2",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 3240,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:3:noon",
+              "truth": "fae",
+              "family": "lights",
+              "at": 5040,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:3:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 5340,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:5:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 7560,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:7:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 11100,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "noticed": 4,
+          "real": 1,
+          "actionable": 1,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "7975b25113966f28",
+          "episodes": [
+            {
+              "id": "26:0:dawn",
+              "truth": "fae",
+              "family": "hearth",
+              "at": 540,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3240,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:3:dusk",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 5340,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:5:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 7620,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "noticed": 5,
+          "real": 0,
+          "actionable": 1,
+          "followed": 1,
+          "alive": true,
+          "ending": null,
+          "hash": "b38632c77c5b0903",
+          "episodes": [
+            {
+              "id": "4:0:noon",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:0:dusk",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 1200,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:2:noon",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 3720,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:3:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 4740,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "5:4:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 6780,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "noticed": 8,
+          "real": 6,
+          "actionable": 1,
+          "followed": 1,
+          "alive": true,
+          "ending": null,
+          "hash": "90f67faf29491100",
+          "episodes": [
+            {
+              "id": "22:0:dusk",
+              "truth": "fae",
+              "family": "hearth",
+              "at": 1020,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:1:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 2460,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3240,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:2:dawn",
+              "truth": "fae",
+              "family": "echo",
+              "at": 3300,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "5:2:noon",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3600,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "6:4:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 6840,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "5:7:dawn",
+              "truth": "fae",
+              "family": "echo",
+              "at": 10500,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:7:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 11100,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "noticed": 4,
+          "real": 1,
+          "actionable": 0,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "020800ba9b6d9b21",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:3:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 4680,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:4:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 6840,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:7:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 11100,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 6,
+          "noticed": 4,
+          "real": 0,
+          "actionable": 1,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "9f0728a50ddbc363",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:3:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 4680,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:4:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 6960,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:6:dusk",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 9660,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 7,
+          "noticed": 3,
+          "real": 2,
+          "actionable": 2,
+          "followed": 1,
+          "alive": true,
+          "ending": null,
+          "hash": "33cacb83fa4686b1",
+          "episodes": [
+            {
+              "id": "5:0:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 1200,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:0:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 1260,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "4:1:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1920,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 8,
+          "noticed": 8,
+          "real": 4,
+          "actionable": 1,
+          "followed": 1,
+          "alive": true,
+          "ending": null,
+          "hash": "9012a8954b6804f9",
+          "episodes": [
+            {
+              "id": "24:0:dawn",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 540,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:0:dusk",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 1200,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:0:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 1260,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 3240,
+              "lead": "actor",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:2:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 3300,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:3:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 5340,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "24:4:midnight",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 6120,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:4:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 6780,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            }
+          ]
+        },
+        {
+          "seed": 9,
+          "noticed": 8,
+          "real": 4,
+          "actionable": 1,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "13ad1ee80f251b84",
+          "episodes": [
+            {
+              "id": "25:0:dawn",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 240,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:0:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 1080,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:2:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3240,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:2:dusk",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 3900,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:5:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 7560,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:5:noon",
+              "truth": "fae",
+              "family": "bells",
+              "at": 8040,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:7:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 10440,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:7:dusk",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 11100,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 10,
+          "noticed": 4,
+          "real": 1,
+          "actionable": 2,
+          "followed": 1,
+          "alive": true,
+          "ending": null,
+          "hash": "df48427b88aa4da2",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 1080,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:0:dusk",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 1260,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "26:0:dusk",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 1020,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:2:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3240,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "policy": "both-banks",
+      "freshEightPassed": 4,
+      "reports": [
+        {
+          "seed": 1,
+          "noticed": 5,
+          "real": 3,
+          "actionable": 1,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "58c7b65b28dfe4a2",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 3240,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "29:3:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 5340,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:5:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 7560,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "28:5:dawn",
+              "truth": "fae",
+              "family": "echo",
+              "at": 7620,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "noticed": 3,
+          "real": 2,
+          "actionable": 0,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "dd59b62651de5f9e",
+          "episodes": [
+            {
+              "id": "26:0:dawn",
+              "truth": "fae",
+              "family": "hearth",
+              "at": 540,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3240,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "31:7:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 11100,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "noticed": 4,
+          "real": 0,
+          "actionable": 0,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "ef8a31a73505e3e4",
+          "episodes": [
+            {
+              "id": "4:0:noon",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:0:dusk",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 1200,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:2:noon",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 3720,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:4:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 6780,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "noticed": 6,
+          "real": 3,
+          "actionable": 1,
+          "followed": 1,
+          "alive": true,
+          "ending": null,
+          "hash": "f45d3e501f5829bc",
+          "episodes": [
+            {
+              "id": "22:0:dusk",
+              "truth": "fae",
+              "family": "hearth",
+              "at": 1020,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3240,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:2:dawn",
+              "truth": "fae",
+              "family": "echo",
+              "at": 3300,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "5:2:noon",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3600,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "6:4:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 6840,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "27:5:dusk",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 8220,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "noticed": 3,
+          "real": 1,
+          "actionable": 0,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "dbd1ee0c7cc1afd7",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:3:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 4680,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:4:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 6840,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 6,
+          "noticed": 5,
+          "real": 0,
+          "actionable": 1,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "4415da4c58bb889e",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:3:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 4680,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:4:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 6960,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:6:dusk",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 9660,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "31:7:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 11100,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 7,
+          "noticed": 4,
+          "real": 3,
+          "actionable": 2,
+          "followed": 1,
+          "alive": true,
+          "ending": null,
+          "hash": "20e2b69e2b62c0f6",
+          "episodes": [
+            {
+              "id": "5:0:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 1200,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:0:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 1260,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "4:1:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1920,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "27:1:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 2460,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 8,
+          "noticed": 9,
+          "real": 5,
+          "actionable": 1,
+          "followed": 1,
+          "alive": true,
+          "ending": null,
+          "hash": "74996cfaf855510c",
+          "episodes": [
+            {
+              "id": "24:0:dawn",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 540,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:0:dusk",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 1200,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:0:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 1260,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 3240,
+              "lead": "actor",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:2:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 3300,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "24:4:midnight",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 6120,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:4:noon",
+              "truth": "fae",
+              "family": "bells",
+              "at": 6840,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:4:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 6780,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "29:7:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 11100,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 9,
+          "noticed": 6,
+          "real": 3,
+          "actionable": 1,
+          "followed": 0,
+          "alive": true,
+          "ending": null,
+          "hash": "1eebc73a91bb0afb",
+          "episodes": [
+            {
+              "id": "25:0:dawn",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 240,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:0:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 1080,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:2:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3240,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:2:dusk",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 3900,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:5:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 7560,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:7:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 10440,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 10,
+          "noticed": 5,
+          "real": 2,
+          "actionable": 2,
+          "followed": 1,
+          "alive": true,
+          "ending": null,
+          "hash": "f8c3a68c62fafc5a",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 1080,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:0:dusk",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 1260,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "26:0:dusk",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 1020,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:2:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3240,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:2:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 3900,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "policy": "circuit",
+      "freshEightPassed": 8,
+      "reports": [
+        {
+          "seed": 1,
+          "noticed": 9,
+          "real": 7,
+          "actionable": 2,
+          "followed": 0,
+          "alive": true,
+          "hash": "076b3e8a5f365a6c",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:2:midnight",
+              "truth": "fae",
+              "family": "echo",
+              "at": 3240,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "5:3:noon",
+              "truth": "fae",
+              "family": "lights",
+              "at": 5280,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "5:3:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 5340,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:5:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 7680,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "29:5:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 8220,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:6:midnight",
+              "truth": "fae",
+              "family": "echo",
+              "at": 9000,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "29:6:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 9660,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "28:7:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 11160,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 2,
+          "noticed": 9,
+          "real": 6,
+          "actionable": 2,
+          "followed": 0,
+          "alive": true,
+          "hash": "ae84eab8a4071d0b",
+          "episodes": [
+            {
+              "id": "26:0:dawn",
+              "truth": "fae",
+              "family": "hearth",
+              "at": 540,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3180,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:2:midnight",
+              "truth": "fae",
+              "family": "bells",
+              "at": 3240,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "30:4:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 6960,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "30:5:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 8280,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:6:dawn",
+              "truth": "fae",
+              "family": "bells",
+              "at": 9000,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "30:6:dawn",
+              "truth": "fae",
+              "family": "lights",
+              "at": 9240,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "31:7:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 10560,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "31:7:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 11100,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 3,
+          "noticed": 6,
+          "real": 1,
+          "actionable": 1,
+          "followed": 1,
+          "alive": true,
+          "hash": "b547816d6e717202",
+          "episodes": [
+            {
+              "id": "4:0:noon",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:0:dusk",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 1260,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:2:noon",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 3780,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:3:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 4740,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "5:4:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 6900,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "26:6:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 9720,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 4,
+          "noticed": 10,
+          "real": 7,
+          "actionable": 4,
+          "followed": 0,
+          "alive": true,
+          "hash": "bb47027012b825e7",
+          "episodes": [
+            {
+              "id": "22:0:dusk",
+              "truth": "fae",
+              "family": "hearth",
+              "at": 1020,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:2:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3180,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "5:2:dawn",
+              "truth": "fae",
+              "family": "echo",
+              "at": 3300,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "5:2:noon",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3840,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "26:2:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 4020,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:4:dawn",
+              "truth": "fae",
+              "family": "lights",
+              "at": 6060,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:4:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 6780,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "27:5:dusk",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 8220,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "27:6:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 9660,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:7:dawn",
+              "truth": "fae",
+              "family": "echo",
+              "at": 10500,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 5,
+          "noticed": 7,
+          "real": 3,
+          "actionable": 1,
+          "followed": 0,
+          "alive": true,
+          "hash": "6476b9eca4dfaf44",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "29:2:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3360,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:3:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 4620,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "28:3:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 5400,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:4:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 6780,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:6:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 9000,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:7:midnight",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 10440,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 6,
+          "noticed": 7,
+          "real": 2,
+          "actionable": 2,
+          "followed": 0,
+          "alive": true,
+          "hash": "44950dadf622abad",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 1080,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "31:2:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 3360,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "30:2:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 3960,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:4:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 7020,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:6:midnight",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 9000,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "31:6:dawn",
+              "truth": "fae",
+              "family": "echo",
+              "at": 9180,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "31:7:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 10560,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 7,
+          "noticed": 8,
+          "real": 5,
+          "actionable": 2,
+          "followed": 1,
+          "alive": true,
+          "hash": "3d1bebc7f2ef67e6",
+          "episodes": [
+            {
+              "id": "5:0:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 1320,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:0:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 1200,
+              "lead": "place",
+              "discovered": true,
+              "followed": true
+            },
+            {
+              "id": "27:1:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 2460,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:2:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 3240,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:2:dawn",
+              "truth": "fae",
+              "family": "bells",
+              "at": 3240,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:6:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 9000,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:7:midnight",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 10440,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "27:7:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 10620,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 8,
+          "noticed": 14,
+          "real": 7,
+          "actionable": 3,
+          "followed": 0,
+          "alive": true,
+          "hash": "0833ad570ac9aff7",
+          "episodes": [
+            {
+              "id": "24:0:dawn",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 540,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:0:dusk",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 1320,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:0:dusk",
+              "truth": "fae",
+              "family": "bells",
+              "at": 1200,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "28:1:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 2520,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:2:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 3360,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:2:dawn",
+              "truth": "fae",
+              "family": "bells",
+              "at": 3240,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:2:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 4020,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "24:4:midnight",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 6120,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:4:noon",
+              "truth": "fae",
+              "family": "bells",
+              "at": 6780,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "5:4:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 6900,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "29:6:dawn",
+              "truth": "fae",
+              "family": "lights",
+              "at": 9120,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "28:6:dusk",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 9720,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "28:7:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 11220,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "29:7:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 11100,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 9,
+          "noticed": 11,
+          "real": 7,
+          "actionable": 3,
+          "followed": 0,
+          "alive": true,
+          "hash": "7115fa7f1cc6020c",
+          "episodes": [
+            {
+              "id": "25:0:dawn",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 240,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:0:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 1080,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:2:midnight",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3240,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "26:2:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 3480,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:3:midnight",
+              "truth": "fae",
+              "family": "bells",
+              "at": 4680,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "27:3:dawn",
+              "truth": "fae",
+              "family": "echo",
+              "at": 4860,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "4:4:dawn",
+              "truth": "fae",
+              "family": "lights",
+              "at": 6060,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "27:4:dusk",
+              "truth": "fae",
+              "family": "echo",
+              "at": 6900,
+              "lead": "nothing",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:5:noon",
+              "truth": "fae",
+              "family": "bells",
+              "at": 8100,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "27:6:dawn",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 9120,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:7:midnight",
+              "truth": "fae",
+              "family": "lights",
+              "at": 10380,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        },
+        {
+          "seed": 10,
+          "noticed": 7,
+          "real": 2,
+          "actionable": 3,
+          "followed": 0,
+          "alive": true,
+          "hash": "c30ed945ee8bc508",
+          "episodes": [
+            {
+              "id": "4:0:dusk",
+              "truth": "fae",
+              "family": "lights",
+              "at": 1080,
+              "lead": "trace",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "6:0:dusk",
+              "truth": "mundane",
+              "family": "bells",
+              "at": 1200,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "26:0:dusk",
+              "truth": "mundane",
+              "family": "hearth",
+              "at": 1020,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "30:1:midnight",
+              "truth": "mundane",
+              "family": "echo",
+              "at": 1440,
+              "lead": "place",
+              "discovered": true,
+              "followed": false
+            },
+            {
+              "id": "4:2:dawn",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 3180,
+              "lead": "trace",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "30:6:dusk",
+              "truth": "mundane",
+              "family": "lights",
+              "at": 9720,
+              "lead": "nothing",
+              "discovered": false,
+              "followed": false
+            },
+            {
+              "id": "6:7:midnight",
+              "truth": "fae",
+              "family": "bells",
+              "at": 10440,
+              "lead": "place",
+              "discovered": false,
+              "followed": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

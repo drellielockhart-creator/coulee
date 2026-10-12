@@ -4,7 +4,7 @@
  * commanded character's hands unordered.
  */
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { closeSync, mkdtempSync, openSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -407,16 +407,22 @@ it('the stateless CLI shows arrivals, stopped waits and camp in words, never as 
   const dir = mkdtempSync(join(tmpdir(), 'coulee-polish-'));
   try {
     const run = (...args: string[]) => {
+      // File descriptors also work in sandboxes that deny synchronous pipe reads.
+      const output = `${dir}-cli-output.txt`;
+      const fd = openSync(output, 'w');
       const r = spawnSync(
         process.execPath,
         ['--import', 'tsx', 'packages/cli/src/main.ts', 'play', '--session', dir, ...args],
         {
-          encoding: 'utf8',
+          stdio: ['ignore', fd, fd],
           timeout: 120000,
         },
       );
-      expect(r.status, r.stderr || r.stdout).toBe(0);
-      return r.stdout;
+      closeSync(fd);
+      const text = readFileSync(output, 'utf8');
+      expect(r.error).toBeUndefined();
+      expect(r.status, text).toBe(0);
+      return text;
     };
     run('--new', '--scenario', 'iron_ford', '--seed', '42');
     const go = run('go Pratt');

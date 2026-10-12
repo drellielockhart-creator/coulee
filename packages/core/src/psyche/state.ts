@@ -140,6 +140,7 @@ export interface ActorPsyche {
 }
 
 export interface PsycheState {
+  standingCapabilities?: import('../content.ts').ContentBundle['standingCapabilities'];
   counters: {
     thought: number;
     // ---- additive ----
@@ -226,6 +227,14 @@ export function refreshShadowList(p: ActorPsyche): void {
  * Persona and Shadow (10 §8.1–8.2), and Insight (10 §8.5).
  */
 export function initPsycheState(world: World, ctx: InitContext): void {
+  world.psyche.standingCapabilities = Object.fromEntries(
+    Object.keys(ctx.content.standingCapabilities ?? {})
+      .sort()
+      .flatMap((id) => {
+        const d = ctx.content.standingCapabilities[id];
+        return d ? [[id, { ...d, item_tags: [...d.item_tags] }]] : [];
+      }),
+  );
   const seeds = new Map(ctx.scenario.actors.map((a) => [a.key, a]));
   const driveIds = Object.keys(ctx.content.drives ?? {}).sort();
   const normIds = Object.keys(ctx.content.norms ?? {}).sort();

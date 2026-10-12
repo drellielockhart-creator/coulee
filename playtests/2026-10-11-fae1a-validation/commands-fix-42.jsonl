@@ -1,0 +1,22 @@
+{"type":"session","format":1,"spec":{"source":"iron_ford","seed":42,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"b03c2c31396abd36605f8cf9e183ed067e7493272d92f0bc38abf36531e5d84b"}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"sleep"}},"issuer":{"kind":"player"}},"before":"4c99b9af513e50a8","after":"0d56a0c5b0b9a393","at":0,"end":60}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":1440,"untilTime":480},"issuer":{"kind":"player"}},"before":"0d56a0c5b0b9a393","after":"a7a8fda0bbef1891","at":60,"end":480}
+{"type":"command","command":{"kind":"core.standing_orders","actorId":41,"data":{"orders":{"sleep":true,"eat":true,"drink":true,"warmth":true,"lodging":false,"activities":[]}},"issuer":{"kind":"player"}},"before":"a7a8fda0bbef1891","after":"8569b97c8fbb837c","at":480,"end":540}
+{"type":"command","command":{"kind":"activity.observe","actorId":41,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"8569b97c8fbb837c","after":"8569b97c8fbb837c","at":540,"end":540}
+{"type":"command","command":{"kind":"activity.observe","actorId":41,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"8569b97c8fbb837c","after":"8569b97c8fbb837c","at":540,"end":540}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":25}},"issuer":{"kind":"player"}},"before":"8569b97c8fbb837c","after":"eac7e2a49126b752","at":540,"end":600}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":1440,"untilTime":1080},"issuer":{"kind":"player"}},"before":"eac7e2a49126b752","after":"2cc3fd092f758e2f","at":600,"end":900}
+{"type":"command","command":{"kind":"fae.signs","actorId":41,"data":{},"issuer":{"kind":"player"}},"before":"2cc3fd092f758e2f","after":"2cc3fd092f758e2f","at":900,"end":900}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":1440,"untilTime":1080},"issuer":{"kind":"player"}},"before":"2cc3fd092f758e2f","after":"0e794d02b46601d4","at":900,"end":1080}
+{"type":"command","command":{"kind":"fae.signs","actorId":41,"data":{},"issuer":{"kind":"player"}},"before":"0e794d02b46601d4","after":"0e794d02b46601d4","at":1080,"end":1080}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":17}},"issuer":{"kind":"player"}},"before":"0e794d02b46601d4","after":"13092fd33454f704","at":1080,"end":1140}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":1440,"untilTime":1800},"issuer":{"kind":"player"}},"before":"13092fd33454f704","after":"11cfbae6076357b4","at":1140,"end":1260}
+{"type":"command","command":{"kind":"activity.observe","actorId":41,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"11cfbae6076357b4","after":"11cfbae6076357b4","at":1260,"end":1260}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":1080},"issuer":{"kind":"player"}},"before":"11cfbae6076357b4","after":"5f99a5483dd31912","at":1260,"end":1320}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":1020},"issuer":{"kind":"player"}},"before":"5f99a5483dd31912","after":"19c895d427a96443","at":1320,"end":1680}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":660},"issuer":{"kind":"player"}},"before":"19c895d427a96443","after":"7c8de5982c2bd152","at":1680,"end":2160}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":180},"issuer":{"kind":"player"}},"before":"7c8de5982c2bd152","after":"97cbaa59cbca955b","at":2160,"end":2340}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":60},"issuer":{"kind":"player"}},"before":"97cbaa59cbca955b","after":"7570ed4f36273a3d","at":2340,"end":2400}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":3}},"issuer":{"kind":"player"}},"before":"7570ed4f36273a3d","after":"d6d6e7fd5a810c0f","at":2400,"end":2460}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":60},"issuer":{"kind":"player"}},"before":"d6d6e7fd5a810c0f","after":"ecf3396f7aaf3ab8","at":2460,"end":2520}
+{"type":"command","command":{"kind":"fae.signs","actorId":41,"data":{},"issuer":{"kind":"player"}},"before":"ecf3396f7aaf3ab8","after":"ecf3396f7aaf3ab8","at":2520,"end":2520}

@@ -1,0 +1,79 @@
+[
+  {
+    "actorId": 21,
+    "name": {
+      "given": "Augusta",
+      "family": "Pratt",
+      "nickname": "Gussie"
+    },
+    "credence": 99,
+    "propId": 21,
+    "sources": [
+      {
+        "actor": 22,
+        "type": "statement"
+      }
+    ]
+  },
+  {
+    "actorId": 22,
+    "name": {
+      "given": "Lydia",
+      "family": "Pratt"
+    },
+    "credence": 73,
+    "propId": 21,
+    "sources": [
+      {
+        "actor": 21,
+        "type": "statement"
+      }
+    ]
+  },
+  {
+    "actorId": 6,
+    "name": {
+      "given": "Loveday",
+      "family": "Trevenna"
+    },
+    "credence": 60,
+    "propId": 27,
+    "sources": [
+      {
+        "actor": 7,
+        "type": "statement"
+      }
+    ]
+  },
+  {
+    "actorId": 29,
+    "name": {
+      "given": "Nora",
+      "family": "Dunleavy"
+    },
+    "credence": 41,
+    "propId": 26,
+    "sources": [
+      {
+        "actor": 1,
+        "type": "statement"
+      }
+    ]
+  },
+  {
+    "actorId": 26,
+    "name": {
+      "given": "Anders",
+      "family": "Tveit",
+      "nickname": "Pastor Tveit"
+    },
+    "credence": 42,
+    "propId": 19,
+    "sources": [
+      {
+        "actor": 27,
+        "type": "statement"
+      }
+    ]
+  }
+]

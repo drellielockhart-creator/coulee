@@ -33,3 +33,11 @@ id = "shelter"
 act = "shelter"
 legacy = "lodging"
 default = true
+
+[[standing]]
+id = "buy_staples"
+act = "purchase"
+default = false
+max_cents = 50
+period_minutes = 10080
+item_tags = ["food"]

@@ -1,5 +1,5 @@
 import type { ActorId, PlaceId } from '../ids.ts';
-import { authorizeAct } from '../psyche/api.ts';
+import { authorizationExplain, authorizeAct, type Basis } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { resolveInteraction } from './interact.ts';
@@ -8,12 +8,17 @@ export interface PendingRequest {
   from: ActorId;
   to: ActorId;
   interactionId: string;
+  response?: 'lend' | 'borrow' | 'proposal' | 'accept_favor' | 'disclose';
+  basis?: Basis;
+  topic?: import('../ids.ts').PropId;
   placeId: PlaceId | null;
   until: number;
   status: 'pending' | 'accepted' | 'refused' | 'no answer';
 }
 export function pendingRequests(world: World, id: ActorId): PendingRequest[] {
-  return (world.social.pendingRequests ?? []).filter((r) => r.to === id && r.status === 'pending');
+  return (world.social.pendingRequests ?? []).filter(
+    (r) => r.to === id && r.status === 'pending' && r.until >= world.time,
+  );
 }
 export function requestsHour(world: World, ctx: SimContext): void {
   for (const r of world.social.pendingRequests ?? []) {
@@ -25,10 +30,24 @@ export function requestsHour(world: World, ctx: SimContext): void {
       const auth = authorizeAct(
         world,
         r.to,
-        { kind: 'lend' },
+        { kind: r.response ?? 'lend', targetId: r.from },
         { kind: 'command', issuer: answer.issuer ?? { kind: 'player' } },
       );
-      if (!auth.ok) continue;
+      if (!auth.ok) {
+        ctx.emit({
+          kind: 'social.act_refused',
+          data: { actorId: r.to, reason: auth.reason },
+          roles: [{ actor: r.to, role: 'agent' }],
+          visibility: 'private',
+          explain: authorizationExplain(
+            world,
+            r.to,
+            { kind: r.response ?? 'lend', targetId: r.from },
+            { kind: 'command', issuer: answer.issuer ?? { kind: 'player' } },
+          ),
+        });
+        continue;
+      }
       r.status = answer.data.accept ? 'accepted' : 'refused';
       const def = ctx.content.interactions[r.interactionId];
       if (answer.data.accept && def)
@@ -41,6 +60,7 @@ export function requestsHour(world: World, ctx: SimContext): void {
           mode: 'forced',
           via: 'urge',
           acceptedRequestId: r.id,
+          ...(r.topic !== undefined ? { topic: r.topic } : {}),
         });
     } else if (ctx.now > r.until) r.status = 'no answer';
     else continue;

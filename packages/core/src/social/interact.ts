@@ -202,7 +202,16 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   const t = tuningOf(content);
   const i = req.initiatorId;
   const tg = req.targetId;
-  const basis = commandBasis(ctx, i, ['core.urge']);
+  const accepted = world.social.pendingRequests?.find(
+    (r) =>
+      r.id === req.acceptedRequestId &&
+      r.status === 'accepted' &&
+      r.from === i &&
+      r.to === tg &&
+      r.interactionId === def.id &&
+      ctx.now <= r.until,
+  );
+  const basis = accepted?.basis ?? commandBasis(ctx, i, ['core.urge']);
   const permission = authorizeAct(world, i, { kind: 'interaction', targetId: tg }, basis);
   if (!permission.ok) {
     const eventId = ctx.emit({
@@ -220,22 +229,40 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   const tName = tgt ? shortName(tgt) : `#${tg}`;
   const place = req.placeId !== null ? world.places[req.placeId] : undefined;
 
-  if (
-    (def.success.ledger.cents < 0 || def.failure.ledger.cents < 0) &&
-    !authorizeAct(world, tg, { kind: 'lend' }, { kind: 'own' }).ok &&
-    !world.social.pendingRequests?.some(
-      (r) => r.id === req.acceptedRequestId && r.status === 'accepted' && r.from === i && r.to === tg,
-    )
-  ) {
+  // A response that undertakes an obligation, relationship or disclosure is an act too.
+  const effects = [def.success, def.failure];
+  const response = effects.some((e) => e.ledger.cents < 0)
+    ? 'lend'
+    : effects.some((e) => e.ledger.cents > 0)
+      ? 'borrow'
+      : effects.some(
+            (e) =>
+              e.add_relationship === 'courting' ||
+              e.add_relationship === 'spouse' ||
+              e.add_relationship === 'betrothed',
+          )
+        ? 'proposal'
+        : effects.some((e) => e.ledger.favors !== 0)
+          ? 'accept_favor'
+          : def.transmits_rumor && def.rumor_speaker === 'target'
+            ? 'disclose'
+            : null;
+  const targetBasis = accepted ? commandBasis(ctx, tg, ['social.answer_request']) : { kind: 'own' as const };
+  if (response && !authorizeAct(world, tg, { kind: response, targetId: i }, targetBasis).ok) {
     const id = `${i}:${tg}:${ctx.now}:${def.id}`;
     world.social.pendingRequests ??= [];
-    const pending = world.social.pendingRequests.find((r) => r.from === i && r.to === tg && r.status === 'pending');
+    const pending = world.social.pendingRequests.find(
+      (r) => r.from === i && r.to === tg && r.interactionId === def.id && r.status === 'pending',
+    );
     if (!pending)
       world.social.pendingRequests.push({
         id,
         from: i,
         to: tg,
         interactionId: def.id,
+        response,
+        basis,
+        ...(req.topic !== undefined ? { topic: req.topic } : {}),
         placeId: req.placeId,
         until: ctx.now + 60,
         status: 'pending',
@@ -246,7 +273,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
         requestId: pending?.id ?? id,
         actorId: tg,
         from: i,
-        text: `${iName} asks for a loan. Answer within the hour; silence means no answer.`,
+        text: `${iName} ${response === 'lend' ? 'asks for a loan' : response === 'borrow' ? 'offers you a loan' : response === 'proposal' ? 'offers a courtship or proposal' : response === 'disclose' ? 'asks you for information' : 'offers a favor with an obligation'}. Answer within the hour; silence means no answer.`,
       },
       visibility: 'private',
       roles: [
@@ -261,6 +288,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
         terms: [],
         total: 0,
         outcome: 'pending',
+        children: [authorizationExplain(world, tg, { kind: response, targetId: i }, targetBasis)],
       },
     });
     return { eventId, success: false, told: null, escalatedEventId: null };
@@ -531,7 +559,16 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   if (ledger.cents !== 0) {
     const lender = ledger.cents > 0 ? i : tg;
     const borrower = lender === i ? tg : i;
-    const moved = transferCash(world, ctx, lender, borrower, Math.abs(ledger.cents), def.name, eventId);
+    const moved = transferCash(
+      world,
+      ctx,
+      lender,
+      borrower,
+      Math.abs(ledger.cents),
+      def.name,
+      eventId,
+      lender === i ? basis : targetBasis,
+    );
     ledger = { favors: ledger.favors, cents: ledger.cents > 0 ? moved : -moved };
   }
   if (ledger.favors !== 0 || ledger.cents !== 0) {

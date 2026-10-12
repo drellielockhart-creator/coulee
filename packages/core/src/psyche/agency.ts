@@ -13,6 +13,7 @@ export interface StandingOrders {
   lodging: boolean;
   /** Explicitly authorized activity ids; consequential interaction urges remain commands. */
   activities: string[];
+  capabilities?: string[];
 }
 export const DEFAULT_STANDING_ORDERS: StandingOrders = {
   sleep: true,
@@ -61,11 +62,13 @@ export interface Act {
   targetId?: ActorId;
   itemId?: ItemId;
   cents?: number;
+  itemTags?: readonly string[];
 }
 export interface AgencyState {
   mode: AgencyMode | 'fits';
   issuer: Issuer | null;
   standing: StandingId[];
+  standingUsage?: Record<string, { period: number; cents: number }>;
   compulsion: 'off' | 'capped' | 'full';
   until: number | null;
   source: { kind: 'charm' | 'working' | 'bargain'; id: string } | null;
@@ -107,21 +110,52 @@ export function authorizeAct(
     return same ? { ok: true } : { ok: false, reason: 'Command issuer does not hold agency' };
   }
   const orders = standingOrders(world, id);
-  const defaults: Record<string, boolean> = {
-    sleep: orders.sleep,
-    eat_own_stores: orders.eat,
-    drink: orders.drink,
-    keep_warm: orders.warmth,
-    go_home: orders.lodging,
-    shelter: orders.lodging,
+  const def = world.psyche.standingCapabilities?.[basis.capability];
+  // Migration compatibility for saves predating the content catalogue.
+  const oldDefaults: Record<string, keyof StandingOrders> = {
+    sleep: 'sleep',
+    eat_own_stores: 'eat',
+    drink: 'drink',
+    keep_warm: 'warmth',
+    go_home: 'lodging',
+    shelter: 'lodging',
   };
+  const legacy = (def?.legacy ?? (!world.psyche.standingCapabilities ? oldDefaults[basis.capability] : undefined)) as
+    | keyof StandingOrders
+    | undefined;
   const granted =
-    defaults[basis.capability] === true ||
+    ((def?.default === true || !world.psyche.standingCapabilities) &&
+      legacy !== undefined &&
+      orders[legacy] === true) ||
     policy.standing.includes(basis.capability) ||
+    orders.capabilities?.includes(basis.capability) ||
     orders.activities.includes(basis.capability);
-  return granted && act.kind === basis.capability
-    ? { ok: true }
-    : { ok: false, reason: `No standing capability for ${act.kind}` };
+  if (!granted || act.kind !== (def?.act ?? basis.capability))
+    return { ok: false, reason: `No standing capability for ${act.kind}` };
+  if (def?.item_tags.length && !def.item_tags.some((t) => act.itemTags?.includes(t)))
+    return { ok: false, reason: 'Standing order does not cover this item' };
+  if (def?.max_cents !== undefined) {
+    const period = Math.floor(world.time / def.period_minutes);
+    const usage = policy.standingUsage?.[basis.capability];
+    const spent = usage?.period === period ? usage.cents : 0;
+    if (act.cents === undefined || !Number.isInteger(act.cents) || act.cents < 0 || spent + act.cents > def.max_cents)
+      return { ok: false, reason: `Standing spending limit: ${def.max_cents - spent} cents remain` };
+  }
+  return { ok: true };
+}
+/** Book only a completed transaction, after the executor has validated and moved the goods. */
+export function recordStandingSpend(world: World, id: ActorId, capability: string, cents: number): void {
+  const def = world.psyche.standingCapabilities?.[capability];
+  if (def?.max_cents === undefined) return;
+  const policy = agencyOf(world, id);
+  const period = Math.floor(world.time / def.period_minutes);
+  const old = policy.standingUsage?.[capability];
+  policy.standingUsage ??= {};
+  policy.standingUsage[capability] = {
+    period,
+    cents: (old?.period === period ? old.cents : 0) + Math.max(0, Math.floor(cents)),
+  };
+  setAgency(world, id, policy);
 }
 
 export function authorizationExplain(

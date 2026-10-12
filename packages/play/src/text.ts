@@ -99,7 +99,10 @@ ${o.epilogue ?? ''}`;
       : []),
     o.place.description,
     ...o.remains.map((r) => `${r.buried ? 'Grave' : 'Body'}: ${r.name}.`),
-    ...o.requests.map((r) => `Pending loan request: answer:${r.id}:yes or answer:${r.id}:no (expires within the hour)`),
+    ...o.requests.map(
+      (r) =>
+        `Pending ${r.response === 'borrow' ? 'loan offer (you would borrow)' : r.response === 'lend' || !r.response ? 'loan request (you would lend)' : r.response === 'proposal' ? 'proposal' : r.response === 'disclose' ? 'information request' : 'favor with an obligation'}: answer:${r.id}:yes or answer:${r.id}:no (expires within the hour)`,
+    ),
     ...o.signs
       .filter((q) => q.closedAt === null)
       .slice(-2)

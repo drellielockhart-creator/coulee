@@ -35,15 +35,19 @@ export function omenEntries(dc: DetectCtx, e: Extract<Event, { kind: 'fae.omen' 
     periods[`omen:journal:${pc}`] = day + 1;
     writeEntry(dc, newDraft({ ...base, bind: bindFor('journal'), voice: 'journal', basis: 'witnessed', authorId: pc }));
   }
-  if (periods['omen:almanac'] !== week + 1) {
+  for (const key of Object.keys(periods).sort())
+    if (key.startsWith('omen:text:') && (periods[key] ?? 0) <= e.t) delete periods[key];
+  if (periods['omen:almanac'] !== week + 1 && !periods[`omen:text:published:${e.data.text}`]) {
     periods['omen:almanac'] = week + 1;
+    periods[`omen:text:published:${e.data.text}`] = e.t + 43200;
     writeEntry(
       dc,
       newDraft({ ...base, bind: bindFor('almanac'), voice: 'almanac', basis: 'witnessed', kind: 'digest' }),
     );
   }
-  if (witnesses.length >= 3 && periods['omen:paper'] !== week + 1) {
+  if (witnesses.length >= 3 && periods['omen:paper'] !== week + 1 && !periods[`omen:text:published:${e.data.text}`]) {
     periods['omen:paper'] = week + 1;
+    periods[`omen:text:published:${e.data.text}`] = e.t + 43200;
     writeEntry(dc, newDraft({ ...base, bind: bindFor('paper'), voice: 'paper', basis: 'witnessed' }));
   }
 }

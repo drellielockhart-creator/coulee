@@ -312,7 +312,11 @@ export class PlaySession {
         );
         if (interaction)
           detail = eventView(interaction, this.playerId, mode, { world: this.sim.world, content: this.sim.content });
-        else if (socialSave && needs.canAct(this.sim.world, this.playerId)) {
+        else if (
+          socialSave &&
+          needs.canAct(this.sim.world, this.playerId) &&
+          !recent.some((e) => e.kind === 'social.requested' && e.data.from === this.playerId)
+        ) {
           const reason =
             urge.targetId === undefined
               ? 'No target'

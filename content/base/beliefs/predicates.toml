@@ -356,3 +356,18 @@ text = "a fae court gathers at {0}"
 juiciness = 65
 supernatural = true
 prior = 5
+
+[[predicate]]
+id = "natural_sign"
+args = ["place"]
+text = "ordinary causes account for the signs at {0}"
+juiciness = 20
+prior = 40
+
+[[predicate]]
+id = "portent"
+args = ["actor"]
+text = "a portent concerns {0}"
+juiciness = 35
+supernatural = true
+prior = 10

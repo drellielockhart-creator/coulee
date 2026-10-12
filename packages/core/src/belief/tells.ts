@@ -1,5 +1,6 @@
 import { hourInBlock, isAsleep } from '../activity/api.ts';
 import { resolveCheck, type SaveId, saveTerms, skillCheck } from '../checks.ts';
+import { effectiveFi } from '../fae/api.ts';
 import { rowsOf } from '../ids.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -24,7 +25,7 @@ export function processTells(world: World, ctx: SimContext): void {
       if (
         !actor.alive ||
         !place ||
-        place.faeIntensity < tell.min_fae_intensity ||
+        effectiveFi(world, place, ctx.now) < tell.min_fae_intensity ||
         (tell.place_tags_any.length && !tell.place_tags_any.some((t) => place.tags.includes(t))) ||
         tell.subject_not_place_tags.some((t) => place.tags.includes(t)) ||
         (tell.subject_min_age > 0 && yearsBetween(actor.born, ctx.now) < tell.subject_min_age) ||
