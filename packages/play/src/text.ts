@@ -4,7 +4,7 @@ import { obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
 export const HELP = `One action = one game-hour; queries take no time. Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on.
 Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects use the previous hour's activity.
-Out on open ground with bedding, sleep makes camp where you stand; wait lets your standing orders do the same.
+Out on open ground with bedding, sleep makes camp where you stand; wait follows your lodging order, returning to a nearby paid or own bed when available.
 look | signs | investigate <sign id> | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
 buy <item> [qty] | sell <item> [qty] | eat <item> [servings] [method] | cook <item> [servings] [method]
 drink | meal | sleep | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
@@ -80,12 +80,12 @@ ${o.epilogue ?? ''}`;
     `${o.self.name} — ${doing(o)}. Purse $${(o.self.provisions.purseCents / 100).toFixed(2)}; household $${(o.self.provisions.householdCents / 100).toFixed(2)}. ${o.weather.temperatureF}°F, ${o.weather.description.toLowerCase()}.`,
     `Food ${(r.daysOfFoodTenths / 10).toFixed(1)} days; ${o.self.inventory.loadBand}, ${(o.self.inventory.totalWeightG / 1000).toFixed(1)} kg.`,
     `Vitals: ${o.self.needs.list
-      .filter((n) => n.kind === 'physical')
+      .filter((n) => n.kind === 'physical' && (n.id !== 'drink' || n.band))
       .map((n) => `${n.name} ${n.value}${n.band ? ` (${n.band})` : ''}`)
       .join('; ')}`,
     ...(o.self.needs.survival
       ? [
-          `Health: Vigor ${o.self.needs.survival.vigor}/${o.self.needs.survival.maxVigor}; Wounds ${o.self.needs.survival.wounds}/${o.self.needs.survival.woundLimit}. ${o.self.needs.survival.conditions.join(', ')}`,
+          `Health: Vigor ${o.self.needs.survival.vigor}/${o.self.needs.survival.maxVigor}; Wounds ${o.self.needs.survival.wounds}/${o.self.needs.survival.woundLimit}. ${o.self.needs.survival.conditions.join(', ')}`.trimEnd(),
         ]
       : []),
     ...(o.self.needs.warnings ?? []),
@@ -110,11 +110,12 @@ ${o.epilogue ?? ''}`;
         .map((a) => `${a.name} (#${a.id}${/sleep/i.test(a.activity) ? ', asleep' : ''})`)
         .join(', ') || 'no one else'
     }${o.present.length > 6 ? `; ${o.present.length - 6} more (inspect by name)` : ''}.`,
-    ...['Appetite', 'Conscience'].flatMap((voice) => {
+    ...(o.self.activity.asleep ? [] : ['Appetite', 'Conscience']).flatMap((voice) => {
       const t = [...o.self.mind.thoughts]
         .filter(
           (t) =>
             t.voice === voice &&
+            !(!o.place.fireLit && t.urge === 'activity:cook') &&
             t.stance !== 'against' &&
             (o.self.agencyMode !== 'commanded' || t.urge !== o.self.mind.chosen?.urge),
         )
@@ -151,7 +152,7 @@ ${o.epilogue ?? ''}`;
           ? ['  Nothing worth repeating is said.']
           : [],
     ),
-    ...r.warnings.slice(0, 2).map((w) => `Kit: ${w}`),
+    ...(changes.elapsed === 0 ? r.warnings.slice(0, 2).map((w) => `Kit: ${w}`) : []),
     ...menuActions(o, page).map((a, i) => `${i + 1}. ${a.label} [${a.id}]`),
     `Actions ${o.actions.length}; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.`,
   ];

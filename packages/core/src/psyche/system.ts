@@ -22,13 +22,14 @@
  * slight), never into ostentatious kindness. Social executes the defense urge with the
  * interactions of its `defense_interactions` row, which must name hostile/exposing acts.
  */
-import { currentActivity } from '../activity/api.ts';
+import { currentActivity, walkMinutes } from '../activity/api.ts';
 import { formProjection, suspicionOf } from '../belief/api.ts';
 import type { ContentBundle, DefenseId } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import { type ActorId, idsOf } from '../ids.ts';
-import { campContext, campSleepActivity } from '../items/api.ts';
+import { campContext, campSleepActivity, loadReport } from '../items/api.ts';
 import { needValue } from '../needs/api.ts';
+import { lodgingPlace } from '../provisions/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addDefenseReason, areKin, familiarityOf, opinionOf, strifeCount, wearinessPermille } from '../social/api.ts';
@@ -199,15 +200,18 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
       out.satisfaction.clear();
       out.urge = allowed?.urge ?? { kind: 'activity', activityId: 'idle_at_home', placeId: m.actor.placeId };
       if (out.urge.kind === 'activity') {
-        // The lodging order is for a town with a lodging house near. Out on open ground nothing
-        // walks her home: a standing sleep beds down where she stands (if she carries bedding), a
-        // standing meal is eaten from her pack on the spot, and the chores that belong to the
-        // house (water, the fire) wait until she is back at one.
         const camp = campContext(world, content, actorId);
         const campId = campSleepActivity(content);
         const def = content.activities[out.urge.activityId];
         const here = m.actor.placeId;
-        if (camp.afield && def?.asleep && campId !== null && out.urge.activityId !== campId)
+        const bed = standingOrders(world, actorId).lodging ? lodgingPlace(world, content, actorId, ctx.now) : null;
+        const speed = def?.asleep ? loadReport(world, content, actorId).band.speedPct : 100;
+        const minutes =
+          bed === null || speed === 0 ? 1440 : Math.ceil((walkMinutes(world, content, here, bed) * 100) / speed);
+        const reachableBed =
+          bed !== null && minutes <= 60 && lodgingPlace(world, content, actorId, ctx.now + minutes) === bed;
+        if (def?.asleep && reachableBed) out.urge = { ...out.urge, placeId: bed };
+        else if (camp.afield && def?.asleep && campId !== null && out.urge.activityId !== campId)
           out.urge = camp.bedding
             ? { kind: 'activity', activityId: campId, placeId: here }
             : { kind: 'activity', activityId: 'idle_at_home', placeId: here };

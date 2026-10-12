@@ -4,7 +4,7 @@
  * commanded character's hands unordered.
  */
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { closeSync, mkdtempSync, openSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -407,16 +407,30 @@ it('the stateless CLI shows arrivals, stopped waits and camp in words, never as 
   const dir = mkdtempSync(join(tmpdir(), 'coulee-polish-'));
   try {
     const run = (...args: string[]) => {
-      const r = spawnSync(
-        process.execPath,
-        ['--import', 'tsx', 'packages/cli/src/main.ts', 'play', '--session', dir, ...args],
-        {
-          encoding: 'utf8',
-          timeout: 120000,
-        },
-      );
-      expect(r.status, r.stderr || r.stdout).toBe(0);
-      return r.stdout;
+      // File descriptors work in the socket-restricted agent sandbox too; default
+      // child-process pipes fail there with EPERM despite a misleading status of 0.
+      const stdout = join(dir, 'stdout.txt'),
+        stderr = join(dir, 'stderr.txt');
+      const outFd = openSync(stdout, 'w'),
+        errFd = openSync(stderr, 'w');
+      let r: ReturnType<typeof spawnSync>;
+      try {
+        r = spawnSync(
+          process.execPath,
+          ['--import', 'tsx', 'packages/cli/src/main.ts', 'play', '--session', join(dir, 'session'), ...args],
+          {
+            stdio: ['ignore', outFd, errFd],
+            timeout: 120000,
+          },
+        );
+      } finally {
+        closeSync(outFd);
+        closeSync(errFd);
+      }
+      expect(r.error).toBeUndefined();
+      const output = readFileSync(stdout, 'utf8');
+      expect(r.status, readFileSync(stderr, 'utf8') || output).toBe(0);
+      return output;
     };
     run('--new', '--scenario', 'iron_ford', '--seed', '42');
     const go = run('go Pratt');

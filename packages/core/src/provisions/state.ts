@@ -135,6 +135,9 @@ export interface PendingMeal {
   placeId: PlaceId;
   householdId: HouseholdId | null;
   cookId: ActorId;
+  /** An able, consenting helper serves reserved plates to incapacitated diners. */
+  caregiverId?: ActorId;
+  caregiverBasis?: import('../psyche/api.ts').Basis;
   startedAt: number;
   completesAt: number;
   activeUntil: number;
@@ -176,6 +179,15 @@ export interface ProvisionsState {
   /** Paid bed access, actor -> expiry game minute. Optional for old saves. */
   beds?: Record<number, { placeId: PlaceId; until: number }>;
   pendingMeals?: PendingMeal[];
+  /** Immutable succession history; active balances live on the representative's social ledger. */
+  estates?: Array<{
+    deceasedId: ActorId;
+    representativeId: ActorId;
+    at: number;
+    rule: 'inherit';
+    claims: Array<{ creditorId: ActorId; debtorId: ActorId; cents: number; since?: number }>;
+  }>;
+
   /** Signed cumulative money crossing the county boundary; freight currently pays outward. */
   externalCashCents?: number;
   employment?: Record<

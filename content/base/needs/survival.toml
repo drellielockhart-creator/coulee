@@ -2,6 +2,10 @@
 [[survival_tuning]]
 id = "survival"
 aid_interval_hours = 1
+estate_money = "inherit"
+care_visit_hours = 6
+care_ration_pct = 100
+care_visit_max_minutes = 30
 aid_water_ml = 1000
 
 [[survival_rule]]

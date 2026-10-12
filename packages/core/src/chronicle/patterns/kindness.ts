@@ -4,27 +4,12 @@
  * neighbor who keeps helping, is what a town remembers. Keyed by the one who helps.
  * OWNER: module:chronicle.
  */
-import type { ActorId } from '../../ids.ts';
 import type { Fact } from '../facts.ts';
 import type { PatternParams } from '../params.ts';
 import type { ThreadFact } from '../state.ts';
 import { numberWord } from '../text.ts';
 import type { Accept, DetectCtx, PatternDef } from './types.ts';
 import { accept, DAY, distinct, householdOfActor, ofKind, sortedByTime, spanWords, tfOf } from './util.ts';
-
-/** Is the target's household in the middle of a shortage (told or not)? */
-function pinched(dc: DetectCtx, target: number, now: number, p: PatternParams): boolean {
-  const hid = dc.world.actors[target as ActorId]?.householdId ?? 0;
-  if (!hid) return false;
-  const windowMin = p.n('need_window_days', 14) * DAY;
-  return dc.world.chronicle.threads.some(
-    (t) =>
-      t.pattern === 'shortage' &&
-      t.key === `h${hid}` &&
-      now - t.lastAt <= windowMin &&
-      t.facts.some((f) => f.k === 'short'),
-  );
-}
 
 function recent(facts: readonly ThreadFact[], p: PatternParams): ThreadFact[] {
   const all = sortedByTime(facts);
@@ -38,18 +23,23 @@ export const kindness: PatternDef = {
   topic: 'kindness',
   importance: 45,
   suppressSingles: true,
-  closingLevel: 2,
 
-  accept(f: Fact, dc: DetectCtx, p: PatternParams): Accept[] {
-    if (f.cls !== 'help' || !f.agent || !f.target || f.success === false) return [];
-    // Looking after your own is not a story; the neighbor's kindness is.
-    if (householdOfActor(dc, f.agent) > 0 && householdOfActor(dc, f.agent) === householdOfActor(dc, f.target))
-      return [];
-    const needy = pinched(dc, f.target, f.t, p);
-    return [accept(`k${f.agent}`, tfOf(f, needy ? 'aid' : 'help'), { actors: [f.agent, f.target] })];
+  accept(f: Fact, dc: DetectCtx, _p: PatternParams): Accept[] {
+    const meal = f.ev.kind === 'provisions.meal' ? f.ev.data : null;
+    const food = meal !== null && meal.kcal > 0 && meal.assistedBy !== undefined;
+    const agent = food ? (meal.assistedBy ?? 0) : f.agent;
+    const target = food ? meal.actorId : f.target;
+    if ((!food && f.cls !== 'help') || !agent || !target || f.success === false) return [];
+    if (householdOfActor(dc, agent) > 0 && householdOfActor(dc, agent) === householdOfActor(dc, target)) return [];
+    return [
+      accept(`k${agent}`, { ...tfOf(f, food ? 'aid' : 'help'), a: agent, b: target }, { actors: [agent, target] }),
+    ];
   },
 
-  level(facts, _th, _dc, p) {
+  level(facts, _th, dc, p, view) {
+    const told = dc.world.chronicle.recent[`kindness|${view}`];
+    const lastAt = sortedByTime(facts).at(-1)?.t ?? 0;
+    if (told !== undefined && lastAt - told < p.n('repeat_days', 7) * DAY) return 0;
     const r = recent(facts, p);
     const aid = ofKind(r, 'aid');
     const recipients = distinct(r.map((f) => f.b)).length;
@@ -60,7 +50,8 @@ export const kindness: PatternDef = {
   },
 
   cast(facts) {
-    const a = sortedByTime(facts).pop();
+    const aid = ofKind(facts, 'aid');
+    const a = sortedByTime(aid.length ? aid : facts).pop();
     return a ? [a.a, a.b] : [];
   },
 
@@ -79,6 +70,10 @@ export const kindness: PatternDef = {
       interaction_name: dc.content.interactions?.[id]?.name?.toLowerCase() ?? id.replace(/_/g, ' '),
       level_word: level >= 3 ? 'known' : level === 2 ? 'steady' : 'timely',
     };
+  },
+
+  repeat(_th, _level, p) {
+    return { key: 'kindness', days: p.n('repeat_days', 7) };
   },
 
   importanceAt(level, _th, p) {

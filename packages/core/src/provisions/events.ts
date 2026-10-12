@@ -81,6 +81,7 @@ export type ProvisionsEvent =
         kcal: number;
         hot: boolean;
         morale: number;
+        assistedBy?: ActorId;
       }
     >
   /** Food spoiled (temperature/wetness/packaging named in the Explain). */

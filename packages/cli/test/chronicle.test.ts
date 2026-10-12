@@ -1083,17 +1083,84 @@ describe('pattern: defense fired', () => {
 });
 
 describe('pattern: kindness', () => {
-  it('notices help given to a household that is going without', () => {
+  it('requires actual assisted intake for a food relief story', () => {
     const sim = newSim();
     const helper = who(sim, 'horace_bell');
     const needy = who(sim, 'johann_brenner');
     shortage(sim, 'brenner', 1000, { days: 40, ration: 70 });
-    interaction(sim, 'gift', helper, needy, 1000 + DAY);
+    interaction(sim, 'help', helper, needy, 1000 + DAY);
     sift(sim, 1000 + DAY);
+    expect(entriesOf(sim, 'kindness')).toEqual([]);
+    emit(
+      sim,
+      {
+        kind: 'provisions.meal',
+        data: {
+          actorId: needy as never,
+          assistedBy: helper as never,
+          householdId: null,
+          items: [],
+          kcal: 500,
+          hot: true,
+          morale: 0,
+        },
+        roles: [
+          { actor: helper as never, role: 'agent' },
+          { actor: needy as never, role: 'beneficiary' },
+        ],
+        visibility: 'public',
+      },
+      1000 + 2 * DAY,
+    );
+    sift(sim, 1000 + 2 * DAY);
     const k = entriesOf(sim, 'kindness');
     expect(k.length).toBeGreaterThan(0);
     expect(k[0]?.text).toMatch(/Bell/);
     noArtifacts(k[0]?.text ?? '');
+  });
+
+  it('aggregates ordinary favors with generic prose and caps kindness across helpers to weekly', () => {
+    const sim = newSim();
+    const helper = who(sim, 'horace_bell');
+    const targets = ['johann_brenner', 'gussie_pratt', 'amos_whitcomb'].map((k) => who(sim, k));
+    for (let i = 0; i < 4; i++) interaction(sim, 'help', helper, targets[i % 3] ?? 0, 1000 + i);
+    sift(sim, 1004);
+    const ordinary = entriesOf(sim, 'kindness').filter((e) => e.voice === 'paper');
+    expect(ordinary.length).toBe(1);
+    expect(ordinary[0]?.text).not.toMatch(/pantry|pot|meal|hungry|table|relief/);
+    const patient = who(sim, 'joel_pike');
+    for (let day = 1; day < 10; day++) {
+      const giver = targets[day % 3] ?? 0;
+      emit(
+        sim,
+        {
+          kind: 'provisions.meal',
+          data: {
+            actorId: patient as never,
+            assistedBy: giver as never,
+            householdId: null,
+            items: [],
+            kcal: 500,
+            hot: true,
+            morale: 0,
+          },
+          roles: [
+            { actor: giver as never, role: 'agent' },
+            { actor: patient as never, role: 'beneficiary' },
+          ],
+          visibility: 'public',
+        },
+        1000 + day * DAY,
+      );
+      sift(sim, 1000 + day * DAY);
+    }
+    const paper = entriesOf(sim, 'kindness').filter((e) => e.voice === 'paper');
+    expect(paper.length).toBeGreaterThan(1);
+    expect(nonHeading(sim.world).filter((entry) => entry.voice === 'paper' && entry.topics?.includes('help'))).toEqual(
+      [],
+    );
+    for (let i = 1; i < paper.length; i++)
+      expect((paper[i]?.t ?? 0) - (paper[i - 1]?.t ?? 0)).toBeGreaterThanOrEqual(7 * DAY);
   });
 
   it('is quiet about a favor to someone who is fine, or to one’s own family', () => {
@@ -1633,6 +1700,7 @@ describe('iron_ford seed 42', () => {
     const md30 = chronicle.renderChronicleMarkdown(sim.world, content, 'Iron Ford, Spring 1855: seed 42, 30 days');
     // Reconciled play: posted shop hours and real tavern board change meals, errands and resulting stories.
     // Survival wave: both captives now live in fae time; their missing deprivation events change the chronicle.
+    // Wave 4: timed caregiver meals and evidence-based, weekly kindness replace false food-relief stories.
     await expect(md30).toMatchFileSnapshot('./__snapshots__/chronicle-iron_ford-42-30d.md');
     assertNoLeak(sim);
     for (const e of nonHeading(sim.world)) noArtifacts(e.text);

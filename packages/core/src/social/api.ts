@@ -6,7 +6,7 @@
  * volatile), strength = cited memory salience | 10 × cited belief credence | 1000.
  */
 import type { ContentBundle, DefenseId } from '../content.ts';
-import type { ActorId, EventId, MemoryId } from '../ids.ts';
+import { type ActorId, type EventId, idsOf, type MemoryId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { insertMemory, ownerMemories } from './memory.ts';
@@ -183,3 +183,51 @@ export function markBereaved(world: World, ctx: SimContext, deceased: ActorId): 
   }
 }
 export { pendingRequests } from './requests.ts';
+
+/** Move monetary claims/liabilities to an estate representative; personal favors stay historical. */
+export function inheritMoneyLedger(world: World, ctx: SimContext, deceased: ActorId, heir: ActorId) {
+  const history: Array<{ creditorId: ActorId; debtorId: ActorId; cents: number; since: number }> = [];
+  for (const other of idsOf<ActorId>(world.actors)) {
+    if (other === deceased) continue;
+    const cents = opinionRecord(world, deceased, other)?.obligation.cents ?? 0;
+    if (!cents) continue;
+    const original = world.social.relationships.find(
+      (edge) =>
+        edge.kind === 'creditor' &&
+        edge.a === (cents > 0 ? deceased : other) &&
+        edge.b === (cents > 0 ? other : deceased),
+    );
+    const since = original?.since ?? ctx.now;
+    history.push({
+      since,
+      creditorId: cents > 0 ? deceased : other,
+      debtorId: cents > 0 ? other : deceased,
+      cents: Math.abs(cents),
+    });
+    adjustLedger(world, ctx.content, deceased, other, { favors: 0, cents: -cents });
+    // Mutual claims against the representative settle by merger; others inherit net balances.
+    if (other !== heir) {
+      adjustLedger(world, ctx.content, heir, other, { favors: 0, cents });
+      for (const [a, b] of [
+        [heir, other],
+        [other, heir],
+      ] as const) {
+        const amount = owedCents(world, a, b);
+        const edge = world.social.relationships.find((e) => e.kind === 'creditor' && e.a === a && e.b === b);
+        if (edge) {
+          edge.amountCents = amount;
+          if (amount) edge.since = Math.min(edge.since, since) as typeof edge.since;
+        } else if (amount) world.social.relationships.push({ a, b, kind: 'creditor', since, amountCents: amount });
+      }
+      refreshBase(world, ctx.content, heir, other);
+    }
+    for (const edge of world.social.relationships)
+      if (
+        edge.kind === 'creditor' &&
+        ((edge.a === deceased && edge.b === other) || (edge.b === deceased && edge.a === other))
+      )
+        edge.amountCents = 0;
+    refreshBase(world, ctx.content, deceased, other);
+  }
+  return history;
+}

@@ -1,12 +1,19 @@
-import { relocateForCare } from '../activity/api.ts';
+import { isAsleep, relocateForCare, walkMinutes } from '../activity/api.ts';
 import { displayName } from '../actor.ts';
 import { reportMisfortune } from '../belief/api.ts';
 import { resolveCheck } from '../checks.ts';
 import { term } from '../explain.ts';
 import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
 import { carriedBy, moveStack, pantryOf, stacksAt, withInventoryPass } from '../items/api.ts';
-import { assistIntake, careHome, settleEstate } from '../provisions/api.ts';
-import { addAnxiety, addThought, authorizeAct, psycheOf } from '../psyche/api.ts';
+import {
+  assistIntake,
+  careHome,
+  careSuppliesAvailable,
+  foodToHand,
+  settleEstate,
+  synchronizeStoreTabs,
+} from '../provisions/api.ts';
+import { addAnxiety, addThought, authorizeAct, commandBasis, psycheOf } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addMemory, addOpinionReason, areKin, isAcquainted, markBereaved, opinionOf } from '../social/api.ts';
@@ -59,6 +66,7 @@ function helpPass(world: World, ctx: SimContext): void {
       !s ||
       !needsHelp(world, targetId) ||
       !canAct(world, helperId) ||
+      !authorizeAct(world, helperId, { kind: 'aid' }, commandBasis(ctx, helperId, ['needs.aid'])).ok ||
       helper.placeId !== target.placeId ||
       world.activity.byActor[helperId]?.travel ||
       used.has(helperId)
@@ -97,9 +105,9 @@ function helpPass(world: World, ctx: SimContext): void {
         relocateForCare(world, ctx, targetId, home);
         carried = true;
       }
-      waterMl = assistIntake(world, ctx, helperId, targetId, tuning.aid_water_ml);
-      // Care takes the helper's hour, even at home.
+      // Reserve the care hour first; preparation may extend it through serving time.
       relocateForCare(world, ctx, helperId, helper.placeId);
+      waterMl = assistIntake(world, ctx, helperId, targetId, tuning.aid_water_ml);
     }
     const eventId = ctx.emit({
       kind: 'needs.aid',
@@ -138,7 +146,7 @@ function helpPass(world: World, ctx: SimContext): void {
           since: ctx.now,
         });
     }
-    return true;
+    return result.success || commanded;
   };
   for (const cmd of ctx.commands)
     if (cmd.kind === 'needs.aid' && !aid(cmd.actorId, cmd.data.targetId, true))
@@ -166,11 +174,41 @@ function helpPass(world: World, ctx: SimContext): void {
     )
       continue;
     s.lastAid = ctx.now;
-    for (const helper of idsOf<ActorId>(world.actors))
+    const householdId = world.actors[id]?.householdId;
+    for (const helper of idsOf<ActorId>(world.actors).sort(
+      (a, b) =>
+        Number(world.actors[b]?.householdId === householdId) - Number(world.actors[a]?.householdId === householdId) ||
+        a - b,
+    ))
       if (
         helper !== id &&
         authorizeAct(world, helper, { kind: 'consequential' }, { kind: 'own' }).ok &&
-        aid(helper, id, false)
+        (!needsHelp(world, helper) || foodToHand(world, ctx.content, helper)) &&
+        careSuppliesAvailable(world, ctx.content, helper, id) &&
+        (() => {
+          const person = world.actors[helper],
+            patient = world.actors[id];
+          if (!person || !patient || !canAct(world, helper) || used.has(helper)) return false;
+          if (person.placeId !== patient.placeId) {
+            // A missed household routine prompts a daytime check-in by kin or a known neighbor.
+            if (
+              !s.collapsed ||
+              patient.placeId !== world.households[patient.householdId]?.homePlaceId ||
+              !ctx.cal.isDaylight ||
+              ctx.cal.hour % tuning.care_visit_hours !== 0 ||
+              world.activity.byActor[helper]?.travel ||
+              isAsleep(world, ctx, helper) ||
+              (person.householdId !== patient.householdId &&
+                !areKin(world, helper, id) &&
+                !isAcquainted(world, helper, id)) ||
+              world.places[person.placeId]?.siteId !== world.places[patient.placeId]?.siteId ||
+              walkMinutes(world, ctx.content, person.placeId, patient.placeId) > tuning.care_visit_max_minutes
+            )
+              return false;
+            relocateForCare(world, ctx, helper, patient.placeId);
+          }
+          return aid(helper, id, false);
+        })()
       )
         break;
   }
@@ -208,8 +246,9 @@ function reformHousehold(world: World, ctx: SimContext, id: ActorId): ActorId | 
         moveStack(world, ctx, stack.id, stack.qty, pantryOf(newHome.id));
     }
   }
-  if (household.headId === id || !world.actors[household.headId]?.alive) household.headId = heir;
   settleEstate(world, ctx, id, heir);
+  if (household.headId === id || !world.actors[household.headId]?.alive) household.headId = heir;
+  synchronizeStoreTabs(world);
   for (const stack of stacksAt(world, carriedBy(id)))
     moveStack(world, ctx, stack.id, stack.qty, pantryOf(world.actors[heir]?.householdId ?? household.id));
   ctx.emit({

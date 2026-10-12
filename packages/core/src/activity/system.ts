@@ -41,7 +41,8 @@ export function activitySystem(world: World, ctx: SimContext): void {
     const load = loadReport(world, ctx.content, id, inventory);
     if (state.travel && load.band.speedPct === 0) continue;
     if (state.travel) {
-      if (ctx.now < state.travel.arrive) continue;
+      if (ctx.now + 60 < state.travel.arrive) continue;
+      const arrivedAt = state.travel.arrive;
       const from = actor.placeId;
       const minutes = Math.max(0, state.travel.arrive - state.since);
       actor.placeId = state.travel.to;
@@ -59,7 +60,7 @@ export function activitySystem(world: World, ctx: SimContext): void {
           subjects: [id],
           knowledge: 'public',
           terms: [],
-          total: ctx.now,
+          total: arrivedAt,
           outcome: 'arrived',
         },
       });
@@ -113,7 +114,7 @@ export function activitySystem(world: World, ctx: SimContext): void {
         if (extra === null) continue;
         walked += extra;
       }
-      if (walked >= 60) {
+      if (walked > 60) {
         state.travel = { from, to: placeId, arrive: (ctx.now + walked) as import('../time.ts').GameMinute };
         state.activityId = activityId;
         state.source = source;
