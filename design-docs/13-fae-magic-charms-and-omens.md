@@ -53,7 +53,7 @@
 | **The River is not a court** (`01` §4.3) | This doc says **counterparty** for "a court or the River" (Tally, strings, returns) |
 | **Forfeits** (`01` §4.5) | Fae compulsion needs one of `01`'s listed forfeits. This doc adds none |
 | **Working DCs** | Iron and consecrated ground mirror `02` §10.4 exactly (§4.4) |
-| **Object-mediated harm** [AMENDMENT to `01` §4.5] | A charm is an instrument. Its effects on third parties (a draw, Rain-Hem's spilled rain) are the **keeper's** act, as a witch's curse is (`01` §4.4: a human hand may harm humans), so the target needs no forfeit. A fae *actor* using a charm on a human still needs one |
+| **Object-mediated harm** [DECISION 2026-10-11, Ellie: **per-charm data**; AMENDMENT to `01` §4.5] | Each charm definition declares `harm_basis = "instrument" \| "fae"` for its effects on third parties.<br>• `instrument`: the effect is the **keeper's** act, as a witch's curse is (`01` §4.4: a human hand may harm humans), so the target needs no forfeit. Slice 1b's Never-Empty Sack draw and Rain-Hem's spilled rain use this.<br>• `fae`: the effect is fae harm and touches only people who have forfeited protection; otherwise it fizzles, disclosed in the Explain.<br>• A fae *actor* using any charm on a human always needs a forfeit.<br>The basis is shown on identification (P1) |
 | **Effective FI** | One function, `fae.api.effectiveFi(world, place, t)`, in one order: base `Place.faeIntensity` → seasonal shift (`world.fae.fiShift`, §3.7) → `spring` +1 → calendar (§3.3) → `aura` → incursion, clamped to 0..5 once, and 0 at a protected site. Iron is a phenomenon multiplier and a DC term, never an FI term. Dreams, checks and omens all call it |
 
 ---
@@ -808,7 +808,7 @@ The protected-site check runs before every hook. **FI field** (layer 4): seeded 
 12. **Heavy strings.** River's Token (a death toll), Huldra's Comb (love glamour), the Rush Bridle (agency). *Rec: on by default behind World toggles*, with deaths off-screen and the comb under `06`'s seduction toggle (consistent with `06` Q42).
 13. **Under the Counter.** May Gussie Pratt hold one secondhand charm at a time, with no charm ever stocked by type? *Rec: yes.*
 
-**New since review:** the object-mediated harm reading of the Forfeit Rule (§1.1) is an **[AMENDMENT]** to `01` §4.5 and needs Ellie's decision.
+**Decided 2026-10-11 (Ellie):** object-mediated harm under the Forfeit Rule is **per-charm data** (`harm_basis = instrument | fae`, §1.1), an amendment to `01` §4.5.
 
 ---
 

@@ -200,6 +200,7 @@ Every doc uses these terms with these meanings.
     - the Cold Stair at FI 1 (algific);
     - heavy strings behind World toggles;
     - one secondhand charm at a time under the store counter.
+  - **Forfeit Rule and charms (13 §1.1):** whether a charm's harm to third parties is the human keeper's act or fae harm is **per-charm data** (`harm_basis = instrument | fae`).
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.
