@@ -44,27 +44,32 @@ _Updated 2026-10-11, night. The repo is https://github.com/drellielockhart-creat
 - **Web:** the app plays through `PlaySession` (a web command log replays headlessly to the same hash), with the Outfitter storefront and buy preview, Kit Sheet Explains, and the pocket flow. M4 UI acceptance #5 and #6 are met.
 - **Codex quota ran out** at 2026-10-11 ~22:36 PT. Ellie applied one of her banked resets on 2026-10-12, so Codex is available again.
 
-## Wave 5 (paused 2026-10-12 at Ellie's request; Claude session limits)
-**Merged into `main`** (`b275497`):
-- r2 fix groups D (text), B (social and play) and A (provisions/water/standing orders);
-- the county worldgen stage (M5a v2: dendritic terrain, routes, `coulee gen county`; maps in `docs/impl/worldgen/`);
-- Ellie's 2026-10-12 decisions: watercolor art direction (in `CLAUDE.md` and `00`), and backlog entries for parties and for elevation, the sky and flying things.
+## Wave 5 (DONE, merged 2026-10-12; `just check` 728 green)
+- **r2 fixes:** text, social and play, provisions/water/standing orders.
+- **Codex review fixes:** `fix-social` and `fix-prov`.
+- **Fae slice 1b** with the r2 sign fixes and butter on credit.
+- **County worldgen:** v2 terrain, then v3 names and roads; maps in `docs/impl/worldgen/`.
+- **Ellie's 2026-10-12 decisions** in 00:
+  - watercolor art direction;
+  - parties and elevation in the backlog;
+  - butter on credit;
+  - church-time loan misses accepted;
+  - a keeper's refusal has costs on both sides.
 
-**Committed on branches, NOT yet merged.** Merge in this order:
-1. **`wave5/fae1b`** (worktree `../coulee-w5-fae1b`). Fae slice 1b plus the r2 sign fixes; report in `playtests/2026-10-12-fae1b/report.md`.
-   - A `git merge --no-commit main` is **in progress** in that worktree. The agent had resolved the 9 conflicts and was running `just check` when it was paused.
-   - **Resume:** check `git status` there; if no conflict markers remain, run `just check`, then commit the merge, merge the branch into `main`, and push.
-2. **`wave5/fix-social`** (Codex fixes for the social review). Will conflict with fae 1b in `social/interact.ts` (loans and repayment).
-3. **`wave5/fix-prov`** (Claude fixes for the provisions review: refill load cap, `empty` Command, forecast, winter freight, partial drink).
+## Wave 6 (in flight)
+| Job | What | Where |
+|---|---|---|
+| Poor relief | Codex astra: knowing want, neighbor charity, church/club relief offices, credit by opinion, generic desperation theft (api entry), PC parity; M4 acceptance 3 harness; tavern store keeper bug | `../coulee-w6-relief`, branch `wave6/relief` |
+| Charm pressure | Claude Opus (the fae 1b agent): refusal guilt for keepers, resentment/covet/gossip for the refused; rota and batch numbers | `../coulee-w6-charm-pressure`, branch `wave6/charm-pressure` |
+| M5 plan | Codex astra: planning only, writes `docs/impl/M5-PLAN.md` (world model, travel, integration, web, slices, risks) | `../coulee-w6-m5plan`, branch `wave6/m5-plan` |
 
-**Then:**
-- **Poor relief / poverty trap.** One gen:town 7 death per year, in a household at its credit limit with zero cash. Wire doc 04's relief: neighbor charity on known want, church or club relief as office interactions, credit by opinion, desperation theft (04 §529, §719, §750; M4 acceptance 3).
-- **Listener-heard dialogue repeats** are still about 33–38% over 30 days. This needs listener memory or a lower ambient chat volume (which would also help perf).
-- **Fae 1b design calls for Ellie:**
-  - butter on credit for the poorest households, or a lender who benefits from a loan that comes back fed (that would keep the year-long rota going);
-  - the honor-loans breaches come from coordination misses (Sunday church, work shifts).
-- **Small county follow-ups:** repeated settlement names within a county, and long straight roads.
-- **Perf wave 2:** readiness projections. Then r3 persona playtests.
+## Next
+1. Merge the relief and charm-pressure branches (both touch social: relief owns theft).
+2. Review the M5 plan, then build slice 1.
+3. **Perf wave 2:** readiness projections; hash-identical.
+4. **Listener-heard dialogue repeats** are still 33–38%: add listener memory or lower the ambient chat volume.
+5. **r3 persona playtests** after relief and charm pressure land, with each agent keeping its helper scripts in its own dir.
+6. **Small follow-up:** stacked county name qualifiers ("West Upper Silver Mills").
 
 The parking lot is `docs/impl/BACKLOG.md`. Ellie asked for vehicles and river trade there.
 
