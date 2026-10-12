@@ -1,10 +1,10 @@
 # Next session: how to pick up
 
-_Updated 2026-10-11, late evening. The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
+_Updated 2026-10-11, night. The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
 
 ## Where things stand
 
-- **The M1–M3 town slice plus wave 3 is integrated and green** (`just check`: 543 tests, invariants, content).
+- **The M1–M3 town slice plus waves 3–4 is integrated and green** (`just check`: 573+ tests, invariants, content).
   - Iron Ford runs for a year deterministically.
   - The chronicle tells feuds, rumors, scapegoats, courtship, hunger and a faekin-suspicion arc in period voice.
   - The pocket and desktop web shell works.
@@ -35,20 +35,27 @@ _Updated 2026-10-11, late evening. The repo is https://github.com/drellielockhar
 - **Play polish** (Claude Sonnet): same-hour short walks, the PC's own talk lines, `describeEvent` plain-English text, camping, held-money guard and an obligations view.
 - Known from the merge and smoke play: "Three tools lie with their handles pointing to the threshold" five times in the 30-day golden; "A Timely Kindness" 11 times; waits stop on bands the standing orders already handle. More notes are in the session scratch `w4/smoke-notes.md`, to be folded into the wave-4 fix brief.
 
-## In flight (wave 4)
+## Wave 4 (merged 2026-10-11, `5188b00`)
+- **Reviews** (Codex astra) of wave 3 found 11 real problems; all were fixed in `wave4/fae-fix` and `wave4/survival-fix`. Reports: `playtests/2026-10-11-fae1a-validation/report-fix.md` and `playtests/2026-10-11-survival-wave3/report-fix.md`.
+  - **Fae:** loan consent for held actors, witnessed-only omens in fair output, no truth in failed-read Explains, leads you can follow, 8 paired text variants per omen family. The fae 1a gates now pass: four omens by day-2 dusk on Iron Ford 42, and 8/8 fresh seeds on the explorer route.
+  - **Survival:** caregivers cook and serve the incapacitated, estates carry debts, collapsed people don't shop, same-step arrivals, and evidence-based kindness stories. The play loop no longer stops waits for bands the standing orders handle, and prefers a nearby paid bed to camping.
+  - **Year deaths:** Iron Ford 0, gen 73 0 (was 5), gen 7 1. The open defect: a zero-food household gets no neighbor relief.
+- **Perf:** hash-identical, Iron Ford 39.8 → 17.1 ms/h (`docs/impl/perf/2026-10-11-wave4.md`). Readiness projections are now the top cost.
+- **Web:** the app plays through `PlaySession` (a web command log replays headlessly to the same hash), with the Outfitter storefront and buy preview, Kit Sheet Explains, and the pocket flow. M4 UI acceptance #5 and #6 are met.
+- **Codex quota ran out** at 2026-10-11 ~22:36 PT and resets 2026-10-18 (Ellie has banked resets she can apply). Until then the Claude pool does everything.
+
+## In flight (wave 5)
 | Job | What | Where |
 |---|---|---|
-| `w4-review-fae` | Codex astra adversarial review: agency coverage, fair-play leaks of omen truth, fae determinism, protected sites, chronicle repeats, orders across ticks | read-only worktree `../coulee-w4-review`, output `runs/codex/w4-review-fae/last.md` |
-| `w4-review-survival` | Codex astra adversarial review: thirst deaths in river towns, death aftermath, endings, polish regressions, `describeEvent` coverage | same worktree, `runs/codex/w4-review-survival/last.md` |
-| `w4-perf` | Codex astra hash-identical perf pass toward under 5 ms per game-hour | worktree `../coulee-w4-perf`, branch `wave4/perf` |
+| Regression playtests | 7 Claude personas: greenhorn ×2 (Haiku), socialite (Opus), catalog kid, explorer, edge-case QA (Sonnet), pocket (Haiku) | `playtests/2026-10-11-r2-*` on the main checkout (don't merge into `main` while they play) |
+| Fae slice 1b | Claude Opus: Never-Empty Sack, Rain-Hem, loan model, draws/discovery, the "Charm at ‹town›" detector, fixture `charm_at_iron_ford` | worktree `../coulee-w5-fae1b`, branch `wave5/fae1b` |
 
 ## Next, in order
-1. **Merge `wave4/perf`** only if the final hashes are identical and the golden is unchanged.
-2. **Fix wave from the two reviews plus the smoke notes**, combined with **fae 1a completion** (the report's gap list, the Iron Ford 42 dusk gate, text-variant cooldown, lookalike pairing, `effectiveFi` in `belief/tells.ts`).
-3. **Fae slice 1b** (doc 13): the Never-Empty Sack, Rain-Hem, the loan model, draw-vs-discovery, and the "Charm at ‹town›" detector with causal ablations.
-4. **Regression playtests.** Rerun the personas on Iron Ford 42 and `gen:town` 7 (mostly Codex; Claude for the socialite and greenhorn). Use neutral QA wording for Codex.
-5. **M4 Outfitter UI and web PlaySession:** the web is still a spectator UI. Give it a PC via PlaySession (UI parity) with the Book/Kit Sheet.
-6. **Ellie's open decisions** in `design-docs/08-open-questions.md` "Start here", minus Q05 (answered).
+1. **Triage the r2 playtests** into `docs/impl/PLAYTEST-TRIAGE-2026-10-11-r2.md`, then a fix wave.
+2. **Merge fae 1b** after its acceptance check and an adversarial review (Codex if a reset is applied, else a Claude reviewer).
+3. **Neighbor relief for zero-food households** (doc 04 club relief; M4 acceptance 3).
+4. **Perf wave 2:** readiness projections, then psyche arbitration, all hash-identical.
+5. **Ellie's open decisions** in `design-docs/08-open-questions.md` "Start here", minus Q05 (answered).
 
 The parking lot is `docs/impl/BACKLOG.md`. Ellie asked for vehicles and river trade there.
 
