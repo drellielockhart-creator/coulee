@@ -1128,8 +1128,8 @@ on = ["deep_talk"]
 weight = 8
 when = { initiator = { culture = "irish" } }
 lines = [
-  { by = "initiator", text = "Do you think of Ireland?" },
-  { by = "target", text = "Every day. But I think of my children's bread more." },
+  { by = "initiator", text = "Do you think much about Ireland?" },
+  { by = "target", text = "Often. But a person has to think about tomorrow's bread as well." },
 ]
 
 [[talk]]

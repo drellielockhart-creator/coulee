@@ -289,7 +289,7 @@ weight = 2
 when = { season = "winter", part = "afternoon" }
 lines = [
   { by = "initiator", text = "Dark by four o'clock." },
-  { by = "target", text = "Dark by three, in my kitchen. I've started eating supper at breakfast to save the oil." },
+  { by = "target", text = "A person could eat supper at breakfast to save the oil." },
 ]
 
 [[talk]]
@@ -308,8 +308,8 @@ on = ["chat"]
 weight = 2
 when = { weather = "rain", temp = "warm" }
 lines = [
-  { by = "initiator", text = "Do you own an umbrella, {you}?" },
-  { by = "target", text = "I own the frame of one. The cloth went to a better cause." },
+  { by = "initiator", text = "Would an umbrella stand this rain, {you}?" },
+  { by = "target", text = "The frame might. I wouldn't wager on the cloth." },
 ]
 
 [[talk]]
@@ -428,8 +428,8 @@ on = ["chat"]
 weight = 4
 when = { observance = "haying_and_harvest" }
 lines = [
-  { by = "initiator", text = "I could use a hand with the wheat, {you}, if you've a day." },
-  { by = "target", text = "I've two. And I'll want yours for my oats." },
+  { by = "initiator", text = "There's no end to the work at harvest, {you}." },
+  { by = "target", text = "Nor to the appetite it brings." },
 ]
 
 [[talk]]
@@ -508,8 +508,8 @@ on = ["chat"]
 weight = 4
 when = { observance = "election_day" }
 lines = [
-  { by = "initiator", text = "Whom are you voting for, {you}?" },
-  { by = "target", text = "That's between me, the ballot box, and the Lord. And my wife, she'll find out." },
+  { by = "initiator", text = "Whom would you vote for, {you}?" },
+  { by = "target", text = "That's between me, the ballot box, and the Lord." },
 ]
 
 [[talk]]
@@ -608,8 +608,8 @@ on = ["chat"]
 weight = 4
 when = { observance = "county_fair" }
 lines = [
-  { by = "initiator", text = "Will you enter the county fair, {you}?" },
-  { by = "target", text = "My pumpkin, if it lives. And my wife's preserves, if she lets me carry them." },
+  { by = "initiator", text = "What would you like to see at the county fair, {you}?" },
+  { by = "target", text = "Pumpkins and preserves. Things worth arguing over." },
 ]
 
 [[talk]]
@@ -960,8 +960,8 @@ on = ["chat"]
 weight = 8
 when = { target = { occupation = "pellar" } }
 lines = [
-  { by = "initiator", text = "I don't hold with charms, {you}, but my cow has a cough." },
-  { by = "target", text = "Then it's lucky she does. Bring her by." },
+  { by = "initiator", text = "Do people ask you about sick cattle, {you}?" },
+  { by = "target", text = "Often enough. Cattle can't ask for themselves." },
 ]
 
 [[talk]]
@@ -1250,8 +1250,8 @@ on = ["chat"]
 weight = 8
 when = { initiator = { culture = "german" } }
 lines = [
-  { by = "initiator", text = "There's a Turner meeting Saturday, {you}. Will you come?" },
-  { by = "target", text = "If I may bring my wife and my opinions. She has the better ones." },
+  { by = "initiator", text = "Would you care to see a Turner meeting, {you}?" },
+  { by = "target", text = "If I may bring my opinions. I can hardly leave them behind." },
 ]
 
 [[talk]]
@@ -1280,8 +1280,8 @@ on = ["chat"]
 weight = 8
 when = { initiator = { culture = "irish" } }
 lines = [
-  { by = "initiator", text = "Have you news from home, {you}? I've not had a letter in ages." },
-  { by = "target", text = "Only a few lines. My sister writes everything twice." },
+  { by = "initiator", text = "Do you ever wish for more news from Ireland, {you}?" },
+  { by = "target", text = "News travels slowly when you're waiting for it." },
 ]
 
 [[talk]]
@@ -1330,8 +1330,8 @@ on = ["chat"]
 weight = 8
 when = { initiator = { culture = "black_ohio" } }
 lines = [
-  { by = "initiator", text = "There's a school meeting Saturday. Will you come?" },
-  { by = "target", text = "I'll come, and bring my children's sums." },
+  { by = "initiator", text = "Would you come to a school meeting?" },
+  { by = "target", text = "Gladly. There's always more to learn." },
 ]
 
 [[talk]]
@@ -1600,9 +1600,9 @@ on = ["chat"]
 weight = 8
 when = { courting = true }
 lines = [
-  { by = "initiator", text = "My mother asked about you." },
-  { by = "target", text = "What did you tell her?" },
-  { by = "initiator", text = "That you've good teeth and a better temper." },
+  { by = "initiator", text = "What would you tell someone who asked about me?" },
+  { by = "target", text = "That you've good teeth and a better temper." },
+  { by = "initiator", text = "I could ask for worse." },
 ]
 
 [[talk]]
@@ -1814,7 +1814,7 @@ weight = 8
 when = { mood = "lust" }
 lines = [
   { by = "initiator", text = "It's a fine day for a walk by the river, {you}." },
-  { by = "target", text = "It is. But I shall bring my sister." },
+  { by = "target", text = "It is. In good company, perhaps." },
 ]
 
 [[talk]]
@@ -1973,9 +1973,9 @@ on = ["chat"]
 weight = 7
 when = { child = true, target_child = false }
 lines = [
-  { by = "initiator", text = "My dog can do a trick!" },
-  { by = "target", text = "Let's see it." },
-  { by = "initiator", text = "Sit! ...He's thinking about it." },
+  { by = "initiator", text = "Could a dog learn to count?" },
+  { by = "target", text = "Only if you paid it in scraps." },
+  { by = "initiator", text = "Then it would count the scraps!" },
 ]
 
 [[talk]]
@@ -1984,9 +1984,9 @@ on = ["chat"]
 weight = 7
 when = { child = true, target_child = false }
 lines = [
-  { by = "initiator", text = "Our cat had kittens in the hay!" },
-  { by = "target", text = "How many?" },
-  { by = "initiator", text = "Four. And one's already mine." },
+  { by = "initiator", text = "Why do cats like sleeping in hay?" },
+  { by = "target", text = "Wouldn't you, if nobody made you get up?" },
+  { by = "initiator", text = "I'd stay there all morning." },
 ]
 
 [[talk]]

@@ -9,6 +9,7 @@ import type { ContentBundle } from '../content.ts';
 import type { ActorId } from '../ids.ts';
 import { carriedBy, pantryOf, stacksDeep } from '../items/api.ts';
 import type { ItemStack } from '../items/state.ts';
+import { accessibleStack } from '../provisions/api.ts';
 import type { World } from '../world.ts';
 import { tuningOf } from './tuning.ts';
 
@@ -22,6 +23,7 @@ export function giftStack(world: World, content: ContentBundle, giverId: ActorId
     const def = content.items[s.defId];
     return (
       def !== undefined &&
+      accessibleStack(world, giverId, s) &&
       sections.has(def.section) &&
       def.value_cents > 0 &&
       def.container === undefined &&

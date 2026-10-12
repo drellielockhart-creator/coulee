@@ -148,6 +148,38 @@ describe('stateless play CLI (a new process per call)', () => {
     expect(cli('--session', dir, '--new').code).toBe(2);
   }, 120000);
 
+  it('persists branching in both replay headers and verifies metadata as well as hashes', () => {
+    const dir = directory();
+    const fork = join(directory(), 'branch');
+    const second = join(directory(), 'second');
+    ok('--session', dir, '--new');
+    ok('--session', dir, '--fork', fork);
+    ok('--session', dir, '--fork', second);
+    for (const branch of [dir, fork, second]) {
+      expect(log(branch)[0].branched).toBe(true);
+      expect(saved(branch).branched).toBe(true);
+      ok('--session', branch, 'retire confirm');
+      const loaded = PlaySession.load(baseContent(), read(branch, 'save.json'));
+      const replayed = PlaySession.replay(baseContent(), log(branch));
+      expect(replayed.isBranched).toBe(true);
+      expect(replayed.hash).toBe(loaded.hash);
+      expect(replayed.observe().epilogue).toEqual(loaded.observe().epilogue);
+      const output = JSON.parse(ok('--replay', join(branch, 'commands.jsonl'), '--jsonl'));
+      expect(output.epilogue).toEqual(loaded.observe().epilogue);
+      expect(output.epilogue).toContain('stays untold here');
+      expect(output.epilogue).not.toContain('## What the county never knew');
+      expect(ok('--session', branch, '--verify')).toContain('Verified');
+    }
+    const rows = log(fork);
+    delete rows[0].branched;
+    writeFileSync(join(fork, 'commands.jsonl'), rows.map((row) => JSON.stringify(row)).join('\n') + '\n');
+    // The world hash still matches: the policy metadata is an independent verification input.
+    expect(PlaySession.replay(baseContent(), rows).hash).toBe(saved(fork).finalHash);
+    const failed = cli('--session', fork, '--verify');
+    expect(failed.code).toBe(1);
+    expect(failed.err).toContain('branch metadata mismatch');
+  }, 120000);
+
   it('verifies god-only explanations and reports corrupted saves as short internal errors', () => {
     const dir = directory();
     ok('--session', dir, '--new', '--god');

@@ -166,22 +166,40 @@ function runCheck(world: World, ctx: SimContext, req: InteractionRequest): Check
       r,
     );
     const explain: Explain = { ...res.explain, subjects: [req.initiatorId, req.targetId], children };
+    // The actor knows their own effort and the response, not the other's private regard.
+    if (def.check.attitude) {
+      children.push({
+        ...res.explain,
+        label: `${shortName(tgt)}'s private regard`,
+        subjects: [req.targetId],
+        knowledge: 'self',
+      });
+      delete explain.dc;
+      delete explain.margin;
+    }
     // Below the target's minimum regard the answer is no, whatever the roll (courtship).
     const regard = def.check.min_regard;
     if (regard !== undefined) {
       const fond = pairTargetOpinionOf(world, ctx, req).affection;
+      children.push({
+        kind: 'formula',
+        label: 'Courtship regard',
+        subjects: [req.targetId],
+        knowledge: 'self',
+        terms: [term('opinion', 'Affection', fond)],
+        total: fond,
+        dc: { total: regard, terms: [term('policy', 'Minimum regard', regard)] },
+        outcome: fond < regard ? 'failure' : 'success',
+        note: `${shortName(tgt)}'s Affection for ${shortName(init)} is ${fond}; below ${regard} the answer is no whatever is said.`,
+      });
       if (fond < regard)
         return {
           success: false,
           checked: true,
           explain: {
             ...explain,
-            terms: [
-              ...explain.terms,
-              term('opinion', `${shortName(tgt)} is not fond enough of ${shortName(init)} yet (needs ${regard})`, 0),
-            ],
             outcome: 'failure',
-            note: `${shortName(tgt)}'s Affection for ${shortName(init)} is ${fond}; below ${regard} the answer is no whatever is said.`,
+            note: `${shortName(tgt)} gave ${shortName(init)} no encouragement.`,
           },
         };
     }
@@ -336,16 +354,44 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     success = false;
     check.explain = { ...check.explain, outcome: 'failure', note: `${iName} had nothing fit to give.` };
   }
-  const eff = success ? def.success : def.failure;
-  // Held on purpose in talk during working hours (at work, or due there) at work not done while
-  // talking: it costs a little of the target's regard (social_tuning.kept_from_work).
-  const atWork = req.via === 'urge' && req.mode === 'urge' && keepsFromWork(workStatus(world, content, tg));
-  // A loan paid straight back proves nothing: no trust is earned by it (social_tuning.repay_trust_min_hours).
-  const debtEdge =
-    eff.settle === 'initiator_debt' && def.requires.debt !== 'favors'
-      ? world.social.relationships.find((r) => r.kind === 'creditor' && r.a === tg && r.b === i)
-      : undefined;
+  // Move the payment before choosing words, memories or rewards: a promise is not payment.
+  const repaying = success && def.success.settle === 'initiator_debt' && def.requires.debt !== 'favors';
+  const debtEdge = repaying
+    ? world.social.relationships.find((r) => r.kind === 'creditor' && r.a === tg && r.b === i)
+    : undefined;
   const quickRepay = debtEdge !== undefined && ctx.now - debtEdge.since < t.repay_trust_min_hours * 60;
+  const owed = repaying ? owedCents(world, tg, i) : 0;
+  const paid = repaying ? transferCash(world, ctx, i, tg, owed, def.name, undefined, basis, 'purse') : 0;
+  const paymentEvent = paid > 0 ? (world.log.lastId as EventId) : undefined;
+  const remaining = owed - paid;
+  if (repaying) {
+    // Consumers treat repayment success as a closed debt; an installment is still incomplete.
+    success = paid > 0 && remaining === 0;
+    check.explain = {
+      ...check.explain,
+      subjects: [i, tg],
+      knowledge: 'participants',
+      outcome: success ? 'success' : 'failure',
+      note: `${iName} paid ${formatCents(paid)}; ${formatCents(remaining)} remains owed to ${tName}.`,
+    };
+  }
+  let eff = success ? def.success : def.failure;
+  if (repaying && remaining > 0) {
+    const summary = `${iName} paid ${tName} ${formatCents(paid)}; ${formatCents(remaining)} still owed`;
+    // Gratitude for settling is earned once, on completion, not for each tiny installment.
+    eff = {
+      ...eff,
+      target_memory: summary,
+      initiator_memory: summary,
+      target_reason: summary,
+      initiator_reason: summary,
+      target_opinion: { affection: 0, respect: 0, trust: 0, fear: 0 },
+      initiator_opinion: { affection: 0, respect: 0, trust: 0, fear: 0 },
+      audience_opinion: { affection: 0, respect: 0, trust: 0, fear: 0 },
+    };
+  }
+  // Held on purpose in talk during working hours: it costs a little of the target's regard.
+  const atWork = req.via === 'urge' && req.mode === 'urge' && keepsFromWork(workStatus(world, content, tg));
 
   // Witnesses and audience: sampled from those present (04 §11.2: 0–2 witnesses).
   const declared = def.visibility === 'auto' ? (def.notable ? 'public' : 'witnessed') : def.visibility;
@@ -382,7 +428,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   }
 
   const ledgerCents = eff.ledger.cents;
-  const cents = centsAt(world, def, i, tg, ledgerCents);
+  const cents = repaying ? paid : centsAt(world, def, i, tg, ledgerCents);
   const vars: Record<string, string> = {
     initiator: iName,
     target: tName,
@@ -418,7 +464,11 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   const actFacts: TalkFacts = {
     ...(def.transmits_rumor ? { told: plan !== null } : {}),
     ...(def.transmits_rumor && plan === null ? { stale: holdsNews(world, teller) } : {}),
-    slots: { cents: cents > 0 ? formatCents(cents) : 'a little money' },
+    slots: {
+      cents: repaying || cents > 0 ? formatCents(cents) : 'a little money',
+      remaining: formatCents(remaining),
+      settlement: remaining > 0 ? `${formatCents(remaining)} still owed.` : "We're square.",
+    },
   };
   if (plan) actFacts.rumor = rumorKind(ctx, world, plan.propId);
   const exchange = composeExchange(world, ctx, {
@@ -441,7 +491,11 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     visibility,
     ...(req.placeId !== null ? { place: req.placeId } : {}),
     ...(importance !== undefined ? { importance } : {}),
-    ...(req.causes && req.causes.length > 0 ? { causes: req.causes } : {}),
+    ...(paymentEvent !== undefined
+      ? { causes: [...(req.causes ?? []), paymentEvent] }
+      : req.causes?.length
+        ? { causes: req.causes }
+        : {}),
     explain: check.explain,
     data: {
       interactionId: def.id,
@@ -637,33 +691,10 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   }
   if (ledger.favors !== 0 || ledger.cents !== 0) {
     adjustLedger(world, content, i, tg, ledger);
-    if (ledger.cents !== 0) {
-      const creditor = ledger.cents > 0 ? i : tg;
-      const debtor = creditor === i ? tg : i;
-      const e = world.social.relationships.find((r) => r.kind === 'creditor' && r.a === creditor && r.b === debtor);
-      if (e) e.amountCents = (e.amountCents ?? 0) + Math.abs(ledger.cents);
-      else {
-        world.social.relationships.push({
-          a: creditor,
-          b: debtor,
-          kind: 'creditor',
-          since: ctx.now,
-          amountCents: Math.abs(ledger.cents),
-        });
-        refreshBase(world, content, creditor, debtor);
-      }
-    }
   }
-  if (eff.settle === 'initiator_debt') {
-    // Repaying hands over what the debtor can: all of it settles the debt, part of it reduces it.
-    const owed = def.requires.debt === 'favors' ? 0 : owedCents(world, tg, i);
-    const paid = owed > 0 ? transferCash(world, ctx, i, tg, owed, def.name, eventId, undefined, 'purse') : 0;
-    if (owed === 0 || paid >= owed) settleDebt(world, content, i, tg, def.requires.debt);
-    else if (paid > 0) {
-      adjustLedger(world, content, tg, i, { favors: 0, cents: -paid });
-      const e = world.social.relationships.find((r) => r.kind === 'creditor' && r.a === tg && r.b === i);
-      if (e) e.amountCents = Math.max(0, (e.amountCents ?? 0) - paid);
-    }
+  if (repaying || eff.settle === 'initiator_debt') {
+    if (def.requires.debt === 'favors' || paid >= owed) settleDebt(world, content, i, tg, def.requires.debt);
+    else if (paid > 0) adjustLedger(world, content, tg, i, { favors: 0, cents: -paid });
   }
   if (eff.settle === 'target_debt') settleDebt(world, content, tg, i, def.requires.debt);
 

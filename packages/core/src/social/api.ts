@@ -150,23 +150,6 @@ export function baseOpinion(world: World, content: ContentBundle, from: ActorId,
 export function extendCredit(world: World, ctx: SimContext, creditor: ActorId, debtor: ActorId, cents: number): void {
   if (!Number.isSafeInteger(cents) || cents <= 0 || creditor === debtor) return;
   adjustLedger(world, ctx.content, creditor, debtor, { favors: 0, cents });
-  let structural = false;
-  for (const [from, to] of [
-    [creditor, debtor],
-    [debtor, creditor],
-  ] as const) {
-    const owed = owedCents(world, from, to);
-    const edge = world.social.relationships.find((r) => r.kind === 'creditor' && r.a === from && r.b === to);
-    if (owed > 0 && edge) edge.amountCents = owed;
-    else if (owed > 0) {
-      world.social.relationships.push({ a: from, b: to, kind: 'creditor', since: ctx.now, amountCents: owed });
-      structural = true;
-    } else if (edge) {
-      world.social.relationships = world.social.relationships.filter((r) => r !== edge);
-      structural = true;
-    }
-  }
-  if (structural) refreshBase(world, ctx.content, creditor, debtor);
 }
 
 export { interactionAvailability } from './availability.ts';

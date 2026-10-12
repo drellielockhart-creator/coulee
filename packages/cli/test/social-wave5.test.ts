@@ -112,7 +112,12 @@ describe('exploits closed (playtest r2)', () => {
     const act = eventsSince(w.log, last).find((e) => e.kind === 'social.interaction' && e.data.initiatorId === pc);
     expect(act?.kind === 'social.interaction' && act.data.interactionId).toBe('court');
     expect(act?.kind === 'social.interaction' && act.data.success).toBe(false);
-    expect(act?.explain?.note).toMatch(/below 15 the answer is no/);
+    expect(act?.explain?.note).toContain('no encouragement');
+    expect(
+      act?.explain?.children?.some(
+        (child) => child.knowledge === 'self' && child.subjects[0] === target && child.note?.includes('below 15'),
+      ),
+    ).toBe(true);
   });
 
   it('a gift hands over a real thing from the giver’s kit, and with nothing fit to give there is no gift', () => {

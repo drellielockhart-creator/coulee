@@ -796,8 +796,8 @@ on = ["introduce"]
 weight = 12
 lines = [
   { by = "initiator", text = "#hello#! The name's {initiator}." },
-  { by = "target", text = "{target}. And where do you hail from?" },
-  { by = "initiator", text = "From #homeland#, first, and a good many places since." },
+  { by = "target", text = "{target}. And how do you find the place?" },
+  { by = "initiator", text = "Better for having someone to speak to." },
 ]
 
 [[talk]]
@@ -2408,19 +2408,21 @@ lines = [
 [[talk]]
 id = "repay_square"
 on = ["repay"]
+outcome = "success"
 weight = 12
 lines = [
-  { by = "initiator", text = "There: {cents}. We're square, {you}." },
-  { by = "target", text = "Square it is. #thanks#." },
+  { by = "initiator", text = "There: {cents} toward the debt, {you}." },
+  { by = "target", text = "{settlement} #thanks#." },
 ]
 
 [[talk]]
 id = "repay_coin"
 on = ["repay"]
+outcome = "success"
 weight = 12
 lines = [
   { by = "initiator", text = "{^cents}, counted out. I said I would." },
-  { by = "target", text = "You did, and you have. I'll not forget it either." },
+  { by = "target", text = "{settlement} I'll mark the payment." },
 ]
 
 [[talk]]
@@ -2884,7 +2886,7 @@ weight = 7
 when = { target_child = true, child = false }
 lines = [
   { by = "initiator", text = "And who might you be?" },
-  { by = "target", text = "{target_given}. I live just there." },
+  { by = "target", text = "{target_given}. Pleased to meet you." },
 ]
 
 [[talk]]
@@ -2987,4 +2989,14 @@ when = { target_child = true }
 lines = [
   { by = "initiator", text = "A peppermint for you, {you}. Don't tell."},
   { by = "target", text = "I won't! Thank you!" },
+]
+
+[[talk]]
+id = "repay_empty"
+on = ["repay"]
+outcome = "failure"
+weight = 12
+lines = [
+  { by = "initiator", text = "That's {cents} paid toward the debt, {you}." },
+  { by = "target", text = "Then {remaining} is still owed." },
 ]

@@ -837,9 +837,9 @@ outcome = "success"
 weight = 12
 when = { initiator = { culture = "norwegian" } }
 lines = [
-  { by = "initiator", text = "The voyage over took eleven weeks, and I was sick for ten of them." },
+  { by = "initiator", text = "There is a tale of a traveler whose voyage took eleven weeks. He was sick for ten." },
   { by = "target", text = "And the eleventh?" },
-  { by = "initiator", text = "I was too busy kissing the ground." },
+  { by = "initiator", text = "He was too busy kissing the ground." },
 ]
 
 [[talk]]
@@ -861,7 +861,7 @@ outcome = "success"
 weight = 12
 when = { initiator = { culture = "german" } }
 lines = [
-  { by = "initiator", text = "On my wedding day the band played so loud that the pig broke out of its sty and led the dance." },
+  { by = "initiator", text = "There is a wedding tale: the band played so loud that a pig broke out of its sty and led the dance." },
   { by = "target", text = "Did the bride mind?" },
   { by = "initiator", text = "She said it was the best-looking partner there." },
 ]
@@ -873,7 +873,7 @@ outcome = "success"
 weight = 12
 when = { initiator = { culture = "german" } }
 lines = [
-  { by = "initiator", text = "The first winter, my wife put up sauerkraut from the only cabbages in the county." },
+  { by = "initiator", text = "In an old tale, a woman puts up sauerkraut from the only cabbages in the county." },
   { by = "target", text = "And?" },
   { by = "initiator", text = "She sold half of it back to the men who'd grown them. They said it tasted better in a barrel." },
 ]
@@ -897,7 +897,7 @@ outcome = "success"
 weight = 12
 when = { initiator = { culture = "irish" } }
 lines = [
-  { by = "initiator", text = "My father won a fiddle at cards and it was the only thing he ever kept." },
+  { by = "initiator", text = "A fellow in a story won a fiddle at cards. It was the only thing he ever kept." },
   { by = "target", text = "Could he play?" },
   { by = "initiator", text = "Not a note. He said it was a comfort to know it could be played." },
 ]
@@ -909,7 +909,7 @@ outcome = "success"
 weight = 12
 when = { initiator = { culture = "cornish" } }
 lines = [
-  { by = "initiator", text = "I came out from the Camborne mines in '43, with my tools and a bad hat." },
+  { by = "initiator", text = "There's a story of a miner who left Camborne with his tools and a bad hat." },
   { by = "target", text = "And what became of the hat?" },
   { by = "initiator", text = "It's still down a shaft, doing good work." },
 ]
@@ -933,7 +933,7 @@ outcome = "success"
 weight = 12
 when = { initiator = { culture = "yankee" } }
 lines = [
-  { by = "initiator", text = "My father drove six cows from Vermont to Ohio, and sold five to pay the tolls." },
+  { by = "initiator", text = "In a story, a farmer drove six cows from Vermont to Ohio, and sold five to pay the tolls." },
   { by = "target", text = "And the sixth?" },
   { by = "initiator", text = "Died in Ohio, of old age. He said she'd earned it." },
 ]
@@ -945,9 +945,9 @@ outcome = "success"
 weight = 12
 when = { initiator = { culture = "yankee" } }
 lines = [
-  { by = "initiator", text = "I lectured at the lyceum in '51 on the Moral Uses of Mud." },
+  { by = "initiator", text = "The story goes that a man lectured on the Moral Uses of Mud." },
   { by = "target", text = "Was it well attended?" },
-  { by = "initiator", text = "The hall was knee-deep. We all had practical experience." },
+  { by = "initiator", text = "The hall was knee-deep. Everyone had practical experience." },
 ]
 
 [[talk]]
@@ -957,9 +957,9 @@ outcome = "success"
 weight = 12
 when = { initiator = { culture = "black_ohio" } }
 lines = [
-  { by = "initiator", text = "My father bought his freedom, and then the farm, and he used to say the farm was the cheaper of the two." },
+  { by = "initiator", text = "There is a story of a man who bought his freedom, then a farm. He said the farm was the cheaper of the two." },
   { by = "target", text = "Did he mean it?" },
-  { by = "initiator", text = "He never smiled when he said it. That was how I knew." },
+  { by = "initiator", text = "In the telling, he never smiles when he says it." },
 ]
 
 [[talk]]
@@ -969,7 +969,7 @@ outcome = "success"
 weight = 12
 when = { initiator = { culture = "black_ohio" } }
 lines = [
-  { by = "initiator", text = "Our first school in Ohio met in a barn, and the teacher ran it on slates made from roofing." },
+  { by = "initiator", text = "There is a tale of a school in Ohio that met in a barn, with slates made from roofing." },
   { by = "target", text = "Did the scholars learn?" },
   { by = "initiator", text = "Every one of them could read the roof by spring." },
 ]

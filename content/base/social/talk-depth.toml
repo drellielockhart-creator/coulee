@@ -358,8 +358,8 @@ id = "hd_dishes"
 on = ["help"]
 weight = 12
 lines = [
-  { by = "initiator", text = "I'll wash and you dry." },
-  { by = "target", text = "Done. Don't break the blue one. It was my mother's." },
+  { by = "initiator", text = "Shall I lend a hand with the washing?" },
+  { by = "target", text = "Gladly. Two pairs of hands finish sooner." },
 ]
 
 [[talk]]
@@ -622,8 +622,8 @@ id = "cd_cow"
 on = ["chat"]
 weight = 12
 lines = [
-  { by = "initiator", text = "Is your cow giving well?" },
-  { by = "target", text = "Better than my wife expects and worse than I hoped." },
+  { by = "initiator", text = "What makes a cow give good milk?" },
+  { by = "target", text = "Feed and patience. Much like people." },
 ]
 
 [[talk]]
@@ -785,8 +785,8 @@ id = "cd_candle"
 on = ["chat"]
 weight = 12
 lines = [
-  { by = "initiator", text = "I'm running low on candles." },
-  { by = "target", text = "Make your own. Tallow's cheap and you can burn the smell." },
+  { by = "initiator", text = "Do you prefer candles to an oil lamp?" },
+  { by = "target", text = "Either beats finding the door in the dark." },
 ]
 
 [[talk]]
@@ -794,8 +794,8 @@ id = "cd_grafting"
 on = ["chat"]
 weight = 12
 lines = [
-  { by = "initiator", text = "Have you thought of grafting your pear?" },
-  { by = "target", text = "Thought of it. It's the doing I've yet to get to." },
+  { by = "initiator", text = "Is grafting pears difficult?" },
+  { by = "target", text = "Less difficult than waiting for the fruit, I'd say." },
 ]
 
 [[talk]]
@@ -821,8 +821,8 @@ id = "cd_sunday_best"
 on = ["chat"]
 weight = 12
 lines = [
-  { by = "initiator", text = "My Sunday coat's gone green at the seams." },
-  { by = "target", text = "Green's in fashion. Or it will be, once you've worn it long enough." },
+  { by = "initiator", text = "Does a green coat ever come into fashion?" },
+  { by = "target", text = "It will, if people wear it long enough." },
 ]
 
 [[talk]]
@@ -848,8 +848,8 @@ id = "cd_old_neighbors"
 on = ["chat"]
 weight = 12
 lines = [
-  { by = "initiator", text = "Do you remember when there was only one house in the valley?" },
-  { by = "target", text = "I remember when there was none. And I remember complaining about the quiet." },
+  { by = "initiator", text = "Can you imagine this valley with no houses?" },
+  { by = "target", text = "Quiet. Though somebody would still find cause to complain." },
 ]
 
 [[talk]]
@@ -866,8 +866,8 @@ id = "cd_loan_book"
 on = ["chat"]
 weight = 12
 lines = [
-  { by = "initiator", text = "Did you borrow my book, {you}?" },
-  { by = "target", text = "I borrowed it. I returned it. I lost the borrowing somewhere in between." },
+  { by = "initiator", text = "Is it wise to lend books, {you}?" },
+  { by = "target", text = "Only if you enjoy asking for them back." },
 ]
 
 [[talk]]
@@ -884,8 +884,8 @@ id = "cd_garden_slug"
 on = ["chat"]
 weight = 12
 lines = [
-  { by = "initiator", text = "The slugs have been at my cabbages." },
-  { by = "target", text = "Salt on the leaves. And a curse, if you've one handy." },
+  { by = "initiator", text = "What's to be done about slugs in the cabbages?" },
+  { by = "target", text = "Patience, mostly. The slugs have plenty of it." },
 ]
 
 [[talk]]
@@ -1493,7 +1493,7 @@ outcome = "success"
 weight = 12
 lines = [
   { by = "initiator", text = "You've the best manners in the district." },
-  { by = "target", text = "I got them from my mother and a good deal of bruising." },
+  { by = "target", text = "A civil word goes a long way." },
 ]
 
 [[talk]]
@@ -1552,8 +1552,8 @@ id = "id_new_here"
 on = ["introduce"]
 weight = 12
 lines = [
-  { by = "initiator", text = "I'm new here. {initiator}. Would you point me to the store?" },
-  { by = "target", text = "{target}. Down the street, the one with the barrels. You can't miss it." },
+  { by = "initiator", text = "I don't believe we've been introduced. {initiator}." },
+  { by = "target", text = "{target}. Well, that puts a name to a face." },
 ]
 
 [[talk]]
@@ -1561,8 +1561,8 @@ id = "id_neighbor_move"
 on = ["introduce"]
 weight = 12
 lines = [
-  { by = "initiator", text = "{initiator}. We've taken the old Keller place." },
-  { by = "target", text = "{target}. That chimney's been waiting for someone. You'll find the well is good." },
+  { by = "initiator", text = "{initiator}. I thought we ought to know each other's names." },
+  { by = "target", text = "{target}. Neighbors ought to, whenever they meet." },
 ]
 
 [[talk]]
@@ -1580,7 +1580,7 @@ on = ["introduce"]
 weight = 12
 lines = [
   { by = "initiator", text = "My hand, {you}, and my name: {initiator}." },
-  { by = "target", text = "{target}. A good grip. A farmer's, I'd say." },
+  { by = "target", text = "{target}. Pleased to meet you." },
 ]
 
 [[talk]]
@@ -1588,8 +1588,8 @@ id = "id_tall"
 on = ["introduce"]
 weight = 12
 lines = [
-  { by = "initiator", text = "{initiator}. I'm told you're the one to ask about wells." },
-  { by = "target", text = "{target}. I know two, and one's dry." },
+  { by = "initiator", text = "{initiator}. A pleasure to stop and speak." },
+  { by = "target", text = "{target}. There's always time for a name." },
 ]
 
 [[talk]]
@@ -1606,8 +1606,8 @@ id = "id_traveler"
 on = ["introduce"]
 weight = 12
 lines = [
-  { by = "initiator", text = "{initiator}. I'm only passing through." },
-  { by = "target", text = "{target}. Everyone is, until they aren't." },
+  { by = "initiator", text = "{initiator}. Shall we stop a moment and speak?" },
+  { by = "target", text = "{target}. Gladly. The road will wait." },
 ]
 
 [[talk]]
@@ -1615,8 +1615,8 @@ id = "id_letter"
 on = ["introduce"]
 weight = 12
 lines = [
-  { by = "initiator", text = "I have a letter for the district. {initiator}." },
-  { by = "target", text = "{target}. Which district? We have several, and they don't speak." },
+  { by = "initiator", text = "May I introduce myself? {initiator}." },
+  { by = "target", text = "{target}. You may, and welcome." },
 ]
 
 [[talk]]

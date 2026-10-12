@@ -1702,6 +1702,7 @@ describe('iron_ford seed 42', () => {
     // Survival wave: both captives now live in fae time; their missing deprivation events change the chronicle.
     // Fae review: witnessed cooldowns, paired variants and competing readings change beliefs and capped omen prose.
     // Wave 4: timed caregiver meals and evidence-based, weekly kindness replace false food-relief stories.
+    // Wave 5 social review: actual repayments, net creditor edges and accessible gifts change downstream stories.
     await expect(md30).toMatchFileSnapshot('./__snapshots__/chronicle-iron_ford-42-30d.md');
     assertNoLeak(sim);
     for (const e of nonHeading(sim.world)) noArtifacts(e.text);

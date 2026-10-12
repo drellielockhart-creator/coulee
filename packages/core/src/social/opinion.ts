@@ -30,7 +30,7 @@ import {
   weightDims,
   ZERO_DIMS,
 } from './model.ts';
-import type { Opinion, OpinionDims, OpinionReason, Relationship } from './state.ts';
+import type { Opinion, OpinionDims, OpinionReason } from './state.ts';
 import { tuningOf, valueView } from './tuning.ts';
 
 // ---------------------------------------------------------------- reading
@@ -395,6 +395,30 @@ export function adjustLedger(
   const b = ensureOpinion(world, content, target, initiator);
   a.obligation = { favors: a.obligation.favors + delta.favors, cents: a.obligation.cents + delta.cents };
   b.obligation = { favors: b.obligation.favors - delta.favors, cents: b.obligation.cents - delta.cents };
+  reconcileCredit(world, content, initiator, target);
+}
+
+/** Creditor edges are a projection of the net ledger, including reverse loans and partial repayments. */
+function reconcileCredit(world: World, content: ContentBundle, a: ActorId, b: ActorId): void {
+  let structural = false;
+  for (const [from, to] of [
+    [a, b],
+    [b, a],
+  ] as const) {
+    const owed = owedCents(world, from, to);
+    const edges = world.social.relationships.filter((r) => r.kind === 'creditor' && r.a === from && r.b === to);
+    const keep = owed > 0 ? edges[0] : undefined;
+    if (keep) keep.amountCents = owed;
+    else if (owed > 0) {
+      world.social.relationships.push({ a: from, b: to, kind: 'creditor', since: world.time, amountCents: owed });
+      structural = true;
+    }
+    if (edges.some((r) => r !== keep)) {
+      world.social.relationships = world.social.relationships.filter((r) => !edges.includes(r) || r === keep);
+      structural = true;
+    }
+  }
+  if (structural) refreshBase(world, content, a, b);
 }
 
 /** Cents `debtor` owes `creditor` (0 if none). */
@@ -421,12 +445,6 @@ export function settleDebt(
   const favors = debt === 'cents' ? 0 : owedFavors(world, creditor, debtor);
   if (cents === 0 && favors === 0) return 0;
   adjustLedger(world, content, creditor, debtor, { favors: -favors, cents: -cents });
-  if (owedCents(world, creditor, debtor) > 0) return cents;
-  const before = world.social.relationships.length;
-  world.social.relationships = world.social.relationships.filter(
-    (r: Relationship) => !(r.kind === 'creditor' && r.a === creditor && r.b === debtor),
-  );
-  if (world.social.relationships.length !== before) refreshBase(world, content, creditor, debtor);
   return cents;
 }
 
