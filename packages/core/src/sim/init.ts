@@ -8,6 +8,8 @@ import { createBeliefState, initBeliefState } from '../belief/state.ts';
 import { createChronicleState, initChronicleState } from '../chronicle/state.ts';
 import { type ContentBundle, VALUES } from '../content.ts';
 import { appendEvent, DEFAULT_LOG_RETENTION, type EventInput, emptyLog, type LogRetention } from '../events/index.ts';
+import { createFaeState } from '../fae/state.ts';
+import { initFaeState } from '../fae/system.ts';
 import { asActorId, asHouseholdId, asPlaceId, type HouseholdId, mustGet, nextId, type PlaceId } from '../ids.ts';
 import { createItemsState, initItemsState } from '../items/state.ts';
 import { createNeedsState, initNeedsState } from '../needs/state.ts';
@@ -44,6 +46,7 @@ const MODULE_INITS = [
   initItemsState,
   initProvisionsState,
   initChronicleState,
+  initFaeState,
 ] as const;
 
 export function createWorld(content: ContentBundle, opts: CreateWorldOptions): World {
@@ -63,6 +66,7 @@ export function createWorld(content: ContentBundle, opts: CreateWorldOptions): W
     places: {},
     index: { actorByKey: {}, householdByKey: {}, placeByDef: {} },
     log: emptyLog(opts.logRetention === undefined ? DEFAULT_LOG_RETENTION : opts.logRetention),
+    fae: createFaeState(),
     needs: createNeedsState(),
     activity: createActivityState(),
     psyche: createPsycheState(),
@@ -82,6 +86,7 @@ export function createWorld(content: ContentBundle, opts: CreateWorldOptions): W
     const site = content.sites[def.site];
     world.places[id] = {
       id,
+      description: def.description,
       defId: def.id,
       siteId: def.site,
       name: def.name,
@@ -175,6 +180,7 @@ export function createWorld(content: ContentBundle, opts: CreateWorldOptions): W
     scenario,
     seed,
     now,
+    rngAt: (stream, at, key) => rng(seed, stream, at, key),
     rng: (stream: Stream, key: number) => rng(seed, stream, now, key),
     emit: (e: EventInput) => appendEvent(world.log, e, now),
   };

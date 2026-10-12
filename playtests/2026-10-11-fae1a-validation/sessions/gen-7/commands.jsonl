@@ -1,0 +1,12 @@
+{"type":"session","format":1,"spec":{"source":{"kind":"generated","recipe":{"genVersion":2,"seed":7}},"seed":7,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"ba1b6843100337e09d6d8d11dabaf2d195aa13f9a325228137ad1de7db0c9ed0"}
+{"type":"command","command":{"kind":"core.urge","actorId":25,"data":{"urge":{"kind":"activity","activityId":"sleep"}},"issuer":{"kind":"player"}},"before":"7a3f2cd61f97e8c2","after":"ebb0818fabc80ca6","at":0,"end":60}
+{"type":"command","command":{"kind":"activity.wait","actorId":25,"data":{"minutes":420},"issuer":{"kind":"player"}},"before":"ebb0818fabc80ca6","after":"d6165997d4d0bba5","at":60,"end":420}
+{"type":"command","command":{"kind":"core.standing_orders","actorId":25,"data":{"orders":{"sleep":true,"eat":true,"drink":true,"warmth":true,"lodging":false,"activities":[]}},"issuer":{"kind":"player"}},"before":"d6165997d4d0bba5","after":"769d29bcc85e6adf","at":420,"end":480}
+{"type":"command","command":{"kind":"activity.observe","actorId":25,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"769d29bcc85e6adf","after":"769d29bcc85e6adf","at":480,"end":480}
+{"type":"command","command":{"kind":"core.urge","actorId":25,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":6}},"issuer":{"kind":"player"}},"before":"769d29bcc85e6adf","after":"4fa8f271ec9ae395","at":480,"end":540}
+{"type":"command","command":{"kind":"activity.wait","actorId":25,"data":{"minutes":60},"issuer":{"kind":"player"}},"before":"4fa8f271ec9ae395","after":"493ecf31e6c0a2db","at":540,"end":600}
+{"type":"command","command":{"kind":"activity.wait","actorId":25,"data":{"minutes":480},"issuer":{"kind":"player"}},"before":"493ecf31e6c0a2db","after":"7888ff9f8add12c4","at":600,"end":840}
+{"type":"command","command":{"kind":"activity.wait","actorId":25,"data":{"minutes":240},"issuer":{"kind":"player"}},"before":"7888ff9f8add12c4","after":"6471ada60bfe992d","at":840,"end":1080}
+{"type":"command","command":{"kind":"fae.signs","actorId":25,"data":{},"issuer":{"kind":"player"}},"before":"6471ada60bfe992d","after":"6471ada60bfe992d","at":1080,"end":1080}
+{"type":"command","command":{"kind":"fae.investigate","actorId":25,"data":{"signId":"6:0:dusk"},"issuer":{"kind":"player"}},"before":"6471ada60bfe992d","after":"e796460697afb6d3","at":1080,"end":1140}
+{"type":"command","command":{"kind":"activity.observe","actorId":25,"data":{"query":"journal"},"issuer":{"kind":"player"}},"before":"e796460697afb6d3","after":"e796460697afb6d3","at":1140,"end":1140}

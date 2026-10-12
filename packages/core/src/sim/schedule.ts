@@ -2,9 +2,11 @@
  * The fixed system order (ADR 0001 invariant 6). FOUNDATION-OWNED.
  * Changing the order is an architecture decision: ask the orchestrator / Ellie.
  */
+
 import { activitySystem } from '../activity/system.ts';
 import { beliefSystem } from '../belief/system.ts';
 import { chronicleSystem } from '../chronicle/system.ts';
+import { faeSystem } from '../fae/system.ts';
 import { needsSystem } from '../needs/system.ts';
 import { provisionsSystem } from '../provisions/system.ts';
 import { psycheSystem } from '../psyche/system.ts';
@@ -19,6 +21,7 @@ export const HOURLY_SYSTEMS: ReadonlyArray<{ id: string; run: SystemFn }> = [
   { id: 'needs', run: needsSystem },
   { id: 'psyche', run: psycheSystem },
   { id: 'activity', run: activitySystem },
+  { id: 'fae', run: faeSystem },
   { id: 'social', run: socialSystem },
   { id: 'belief', run: beliefSystem },
   { id: 'provisions', run: provisionsSystem },

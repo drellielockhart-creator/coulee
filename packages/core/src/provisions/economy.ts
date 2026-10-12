@@ -1,4 +1,4 @@
-import { autonomous } from '../psyche/api.ts';
+import { authorizeAct, commandBasis } from '../psyche/api.ts';
 /** Cash, credit and physical goods share one transaction path for commands and errands. */
 
 import { isShunning } from '../belief/api.ts';
@@ -36,6 +36,7 @@ export function purchase(
   onCredit: boolean,
   to: ItemLocation = carriedBy(actorId),
 ): number {
+  if (!authorizeAct(world, actorId, { kind: 'purchase' }, commandBasis(ctx, actorId, ['provisions.buy'])).ok) return 0;
   synchronizeStoreTabs(world);
   const actor = world.actors[actorId],
     store = world.provisions.stores[placeId];
@@ -141,6 +142,15 @@ export function transferCash(
   reason: string,
   causeEventId?: number,
 ): number {
+  if (
+    !authorizeAct(
+      world,
+      fromId,
+      { kind: 'transfer', targetId: toId, cents },
+      commandBasis(ctx, fromId, ['core.urge', 'social.answer_request', 'provisions.board_meal']),
+    ).ok
+  )
+    return 0;
   const from = world.actors[fromId];
   const to = world.actors[toId];
   const wanted = Math.max(0, Math.floor(cents));
@@ -237,7 +247,12 @@ export function householdDay(world: World, ctx: SimContext): void {
     if (!h) continue;
     const members = membersOf(world, { householdId: household.id });
     replenishDomestic(world, ctx, household.id);
-    if (!world.provisions.settings.autoRations || !members.length || !autonomous(world, household.headId)) continue;
+    if (
+      !world.provisions.settings.autoRations ||
+      !members.length ||
+      !authorizeAct(world, household.headId, { kind: 'consequential' }, { kind: 'own' }).ok
+    )
+      continue;
     // The ration decision only compares against its thresholds, so project only as far as can matter:
     // at full rations the question is "below the first cut?"; on short rations, "back above restore?".
     const firstCut = Math.max(...RATION_STEPS.map((s) => s.belowDays));
@@ -335,7 +350,11 @@ export function shoppingHour(world: World, ctx: SimContext): void {
     // Whoever of the household is at a store this hour buys (the head first, then by id).
     const atStore = (id: ActorId) => {
       const a = world.actors[id];
-      return a?.alive === true && autonomous(world, id) && world.provisions.stores[a.placeId] !== undefined;
+      return (
+        a?.alive === true &&
+        authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok &&
+        world.provisions.stores[a.placeId] !== undefined
+      );
     };
     const buyerId = atStore(household.headId) ? household.headId : household.memberIds.find(atStore);
     const buyer = buyerId === undefined ? undefined : world.actors[buyerId];

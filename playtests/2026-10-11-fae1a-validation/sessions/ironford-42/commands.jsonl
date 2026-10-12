@@ -1,0 +1,20 @@
+{"type":"session","format":1,"spec":{"source":"iron_ford","seed":42,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"ba1b6843100337e09d6d8d11dabaf2d195aa13f9a325228137ad1de7db0c9ed0"}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"sleep"}},"issuer":{"kind":"player"}},"before":"d25d0de8cef8d207","after":"e8476abf3ef7055e","at":0,"end":60}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":420},"issuer":{"kind":"player"}},"before":"e8476abf3ef7055e","after":"61f905c8892aaaf3","at":60,"end":480}
+{"type":"command","command":{"kind":"core.standing_orders","actorId":41,"data":{"orders":{"sleep":true,"eat":true,"drink":true,"warmth":true,"lodging":false,"activities":[]}},"issuer":{"kind":"player"}},"before":"61f905c8892aaaf3","after":"33a29a938e79d406","at":480,"end":540}
+{"type":"command","command":{"kind":"activity.observe","actorId":41,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"33a29a938e79d406","after":"33a29a938e79d406","at":540,"end":540}
+{"type":"command","command":{"kind":"activity.observe","actorId":41,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"33a29a938e79d406","after":"33a29a938e79d406","at":540,"end":540}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":25}},"issuer":{"kind":"player"}},"before":"33a29a938e79d406","after":"a87ef084e811a68d","at":540,"end":600}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":60},"issuer":{"kind":"player"}},"before":"a87ef084e811a68d","after":"078bee99aee67f37","at":600,"end":660}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":480},"issuer":{"kind":"player"}},"before":"078bee99aee67f37","after":"ba717a6afac0b691","at":660,"end":840}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":240},"issuer":{"kind":"player"}},"before":"ba717a6afac0b691","after":"178ac1a84c7efa99","at":840,"end":1080}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":17}},"issuer":{"kind":"player"}},"before":"178ac1a84c7efa99","after":"5db8afd7c3989e5e","at":1080,"end":1140}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":60},"issuer":{"kind":"player"}},"before":"5db8afd7c3989e5e","after":"d633079b1c9c0b91","at":1140,"end":1200}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":600},"issuer":{"kind":"player"}},"before":"d633079b1c9c0b91","after":"8c3dc8836af38c56","at":1200,"end":1260}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":600},"issuer":{"kind":"player"}},"before":"8c3dc8836af38c56","after":"dbc3e340aec33348","at":1260,"end":1440}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":480},"issuer":{"kind":"player"}},"before":"dbc3e340aec33348","after":"53ae0e5731f25eca","at":1440,"end":1860}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":480},"issuer":{"kind":"player"}},"before":"53ae0e5731f25eca","after":"85e40ee7a009cdb4","at":1860,"end":2340}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":60},"issuer":{"kind":"player"}},"before":"85e40ee7a009cdb4","after":"c89bb5d2caeaf62d","at":2340,"end":2400}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":3}},"issuer":{"kind":"player"}},"before":"c89bb5d2caeaf62d","after":"93a7d9e0478c6b72","at":2400,"end":2460}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":60},"issuer":{"kind":"player"}},"before":"93a7d9e0478c6b72","after":"169c2221a7bce357","at":2460,"end":2520}
+{"type":"command","command":{"kind":"fae.signs","actorId":41,"data":{},"issuer":{"kind":"player"}},"before":"169c2221a7bce357","after":"169c2221a7bce357","at":2520,"end":2520}

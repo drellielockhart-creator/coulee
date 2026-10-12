@@ -7,10 +7,12 @@
  *   3. Run HOURLY_SYSTEMS in fixed order (sim/schedule.ts).
  *   4. Advance world.time by 60.
  */
+
 import type { Command } from '../command.ts';
 import type { ContentBundle } from '../content.ts';
 import { appendEvent, type Event, type EventInput, trimLog } from '../events/index.ts';
 import { hashValue } from '../hash.ts';
+import { authorizeAct } from '../psyche/api.ts';
 import { rng, type Stream } from '../rng.ts';
 import { type PackedJson, unpackJson } from '../serialization.ts';
 import { asGameMinute, calendarAt, MINUTES_PER_DAY, minuteOfDay } from '../time.ts';
@@ -64,7 +66,12 @@ export function makeContext(
     now,
     cal: calendarAt(now),
     isNewDay: minuteOfDay(now) === 0,
-    commands,
+    commands: commands.filter(
+      (c) =>
+        authorizeAct(world, c.actorId, { kind: c.kind }, { kind: 'command', issuer: c.issuer ?? { kind: 'player' } })
+          .ok,
+    ),
+    rngAt: (stream, at, key) => rng(seed, stream, at, key),
     rng: (stream: Stream, key: number) => rng(seed, stream, now, key),
     emit: sink
       ? (e: EventInput) => {

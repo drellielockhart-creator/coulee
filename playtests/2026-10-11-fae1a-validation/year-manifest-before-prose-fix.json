@@ -1,0 +1,50 @@
+{
+  "scenario": "iron_ford",
+  "seed": 42,
+  "worldSource": {
+    "kind": "authored",
+    "scenarioId": "iron_ford"
+  },
+  "commandLog": [],
+  "hours": 8760,
+  "contentHash": "30e10e0c463ad04912da1a2d6b62408a9e45f07d19a0f3472a828a00e0e93ddb",
+  "mods": [
+    "base"
+  ],
+  "finalTime": "1856-03-31 00:00",
+  "stateHash": "852fd6d9045a946b",
+  "events": 1001535,
+  "eventsRetained": 8802,
+  "msPerGameHour": 35.4,
+  "saveBytes": 6065161,
+  "saveBytesBySlice": {
+    "log": 9266600,
+    "social": 4804477,
+    "chronicle": 2087812,
+    "belief": 879495,
+    "psyche": 374988,
+    "items": 273095,
+    "provisions": 162928,
+    "fae": 90244,
+    "actors": 25860,
+    "needs": 22808,
+    "activity": 17844,
+    "places": 12766,
+    "index": 1756,
+    "households": 1677,
+    "meta": 144,
+    "counters": 38,
+    "time": 6
+  },
+  "heapUsedMB": 350,
+  "systemsMs": {
+    "needs": 7692,
+    "psyche": 150391,
+    "activity": 4798,
+    "fae": 1626,
+    "social": 20576,
+    "belief": 7468,
+    "provisions": 113166,
+    "chronicle": 3839
+  }
+}

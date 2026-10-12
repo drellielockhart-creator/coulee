@@ -5,6 +5,9 @@ import type { EventOf } from '../events/base.ts';
 import type { ActorId, MemoryId, PlaceId } from '../ids.ts';
 
 export type SocialEvent =
+  | EventOf<'social.act_refused', { actorId: ActorId; reason: string }>
+  | EventOf<'social.requested', { requestId: string; actorId: ActorId; from: ActorId; text: string }>
+  | EventOf<'social.request_answered', { requestId: string; actorId: ActorId; status: string }>
   /** An interaction resolved (04 §10). Explain carries the check. Witnesses in roles. */
   | EventOf<
       'social.interaction',

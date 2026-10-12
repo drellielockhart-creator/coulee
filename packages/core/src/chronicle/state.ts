@@ -170,6 +170,9 @@ export interface ChronicleState {
   cast: Record<number, number>;
   /** Repeat suppression: key -> game minute last told. */
   recent: Record<string, number>;
+  /** Omen caps use day/week indices, independent of timestamp-based repeat cleanup. */
+  omenPeriods?: Record<string, number>;
+  omenCounts?: Record<string, number>;
   /** Template id -> variant index last used (variety). */
   variants: Record<string, number>;
   /** Entries written this week, for the fatigue term. */

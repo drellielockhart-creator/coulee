@@ -111,7 +111,12 @@ export function checkTown(base: ContentBundle, town: Pick<GeneratedTown, 'scenar
     }),
   );
   check('ford', places.some((p) => p.tags.includes('ford')) ? [] : ['no ford']);
-  check('fae anchor', places.some((p) => (p.fae_intensity ?? site.fae_intensity) >= 4) ? [] : ['no strong fae anchor']);
+  check(
+    'fae anchor',
+    places.some((p) => (p.fae_intensity ?? site.fae_intensity) + (p.tags.includes('spring') ? 1 : 0) >= 4)
+      ? []
+      : ['no strong fae anchor'],
+  );
   check(
     'concealed faekin',
     s.actors.some(

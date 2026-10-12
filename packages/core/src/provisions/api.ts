@@ -1,4 +1,4 @@
-import { autonomous, standingOrders } from '../psyche/api.ts';
+import { authorizeAct, commandBasis, standingOrders } from '../psyche/api.ts';
 /**
  * Provisions cross-module API. OWNER: module:provisions.
  */
@@ -220,6 +220,8 @@ export function sell(
   itemId: ItemId,
   qty: number,
 ): boolean {
+  if (!authorizeAct(world, actorId, { kind: 'sell', itemId }, commandBasis(ctx, actorId, ['provisions.sell'])).ok)
+    return false;
   const actor = world.actors[actorId],
     store = world.provisions.stores[placeId],
     stack = world.items.stacks[itemId];
@@ -364,7 +366,8 @@ export function waterHour(world: World, ctx: SimContext): void {
     if (
       !actor.alive ||
       isAsleep(world, ctx, actor.id) ||
-      (!autonomous(world, actor.id) && !standingOrders(world, actor.id).drink)
+      (!authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok &&
+        !standingOrders(world, actor.id).drink)
     )
       continue;
     const value = needValue(world, actor.id, 'thirst');

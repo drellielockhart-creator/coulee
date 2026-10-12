@@ -35,7 +35,7 @@ import { addMinutes, yearsBetween } from '../time.ts';
 import type { ChoiceVoice, ChosenUrge, Urge } from '../urge.ts';
 import { sameUrge, urgeLabel } from '../urge.ts';
 import type { World } from '../world.ts';
-import { autonomous, standingOrders, standingUrge } from './agency.ts';
+import { authorizationExplain, authorizeAct, commandBasis, standingOrders, standingUrge } from './agency.ts';
 import {
   accrueAnxiety,
   addToPools,
@@ -190,7 +190,7 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
   let mode = 'plain';
   const sat = new Map<Thought, number>();
   if (res) {
-    const held = !autonomous(world, actorId) && !lastCmd;
+    const held = !authorizeAct(world, actorId, { kind: 'consequential' }, { kind: 'own' }).ok && !lastCmd;
     const allowed = held ? res.ranked.find((o) => standingUrge(world, ctx, actorId, o.urge)) : undefined;
     const out = decide(m, held ? { ...res, winner: allowed ?? res.winner, command: true } : res);
     if (held) {
@@ -227,6 +227,27 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
       at: ctx.now,
       explain: out.explain,
     };
+    if (lastCmd) {
+      chosen.explain.children = [
+        ...(chosen.explain.children ?? []),
+        authorizationExplain(world, actorId, { kind: out.urge.kind }, commandBasis(ctx, actorId, ['core.urge'])),
+      ];
+    } else if (held && allowed && out.urge.kind === 'activity') {
+      const activity = out.urge.activityId;
+      const capability = standingOrders(world, actorId).activities.includes(activity)
+        ? activity
+        : content.activities[activity]?.asleep
+          ? 'sleep'
+          : activity === 'take_meal'
+            ? 'eat_own_stores'
+            : activity === 'fetch_water'
+              ? 'drink'
+              : 'keep_warm';
+      chosen.explain.children = [
+        ...(chosen.explain.children ?? []),
+        authorizationExplain(world, actorId, { kind: capability }, { kind: 'standing', capability }),
+      ];
+    }
     p.chosen = chosen;
     p.lastMode = mode;
     const ctr = world.psyche.counters;
@@ -252,7 +273,7 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
         explain: out.explain,
       });
     }
-  } else if (!autonomous(world, actorId)) {
+  } else if (!authorizeAct(world, actorId, { kind: 'consequential' }, { kind: 'own' }).ok) {
     chosenUrge = { kind: 'activity', activityId: 'idle_at_home', placeId: m.actor.placeId };
     p.chosen = {
       urge: chosenUrge,
@@ -281,7 +302,11 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
   discharge(m, mode);
 
   // 4. Defenses.
-  maybeDefend(m, fearDrives, mode === 'command' || !autonomous(world, actorId));
+  maybeDefend(
+    m,
+    fearDrives,
+    mode === 'command' || !authorizeAct(world, actorId, { kind: 'consequential' }, { kind: 'own' }).ok,
+  );
 
   // 5. End of hour.
   decayThoughts(p);

@@ -87,6 +87,7 @@ export interface Place {
   capacity: number;
   model: string | null;
   faeIntensity: number;
+  description?: string;
 }
 
 export const abilityMod = (score: number): number => Math.floor((score - 10) / 2);

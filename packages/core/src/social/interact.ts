@@ -21,7 +21,7 @@ import type { ActorId, EventId, MemoryId, PlaceId, PropId } from '../ids.ts';
 import { loadCheckTerms } from '../items/api.ts';
 import { satisfyNeed } from '../needs/api.ts';
 import { synchronizeStoreTabs, transferCash } from '../provisions/api.ts';
-import { addAnxiety, addThought, autonomous } from '../psyche/api.ts';
+import { addAnxiety, addThought, authorizationExplain, authorizeAct, commandBasis } from '../psyche/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -51,6 +51,7 @@ const SALT_ESCALATE = 0xe5ca1a;
 export type InteractionVia = 'encounter' | 'urge' | 'defense' | 'escalation';
 
 export interface InteractionRequest {
+  acceptedRequestId?: string;
   def: InteractionDef;
   initiatorId: ActorId;
   targetId: ActorId;
@@ -201,12 +202,69 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   const t = tuningOf(content);
   const i = req.initiatorId;
   const tg = req.targetId;
+  const basis = commandBasis(ctx, i, ['core.urge']);
+  const permission = authorizeAct(world, i, { kind: 'interaction', targetId: tg }, basis);
+  if (!permission.ok) {
+    const eventId = ctx.emit({
+      kind: 'social.act_refused',
+      data: { actorId: i, reason: permission.reason },
+      roles: [{ actor: i, role: 'agent' }],
+      visibility: 'private',
+      explain: authorizationExplain(world, i, { kind: 'interaction', targetId: tg }, basis),
+    });
+    return { eventId, success: false, told: null, escalatedEventId: null };
+  }
   const init = world.actors[i];
   const tgt = world.actors[tg];
   const iName = init ? shortName(init) : `#${i}`;
   const tName = tgt ? shortName(tgt) : `#${tg}`;
   const place = req.placeId !== null ? world.places[req.placeId] : undefined;
 
+  if (
+    (def.success.ledger.cents < 0 || def.failure.ledger.cents < 0) &&
+    !authorizeAct(world, tg, { kind: 'lend' }, { kind: 'own' }).ok &&
+    !world.social.pendingRequests?.some(
+      (r) => r.id === req.acceptedRequestId && r.status === 'accepted' && r.from === i && r.to === tg,
+    )
+  ) {
+    const id = `${i}:${tg}:${ctx.now}:${def.id}`;
+    world.social.pendingRequests ??= [];
+    const pending = world.social.pendingRequests.find((r) => r.from === i && r.to === tg && r.status === 'pending');
+    if (!pending)
+      world.social.pendingRequests.push({
+        id,
+        from: i,
+        to: tg,
+        interactionId: def.id,
+        placeId: req.placeId,
+        until: ctx.now + 60,
+        status: 'pending',
+      });
+    const eventId = ctx.emit({
+      kind: 'social.requested',
+      data: {
+        requestId: pending?.id ?? id,
+        actorId: tg,
+        from: i,
+        text: `${iName} asks for a loan. Answer within the hour; silence means no answer.`,
+      },
+      visibility: 'private',
+      roles: [
+        { actor: i, role: 'speaker' },
+        { actor: tg, role: 'listener' },
+      ],
+      explain: {
+        kind: 'choice',
+        label: 'Request awaits the issuer',
+        subjects: [tg],
+        knowledge: 'self',
+        terms: [],
+        total: 0,
+        outcome: 'pending',
+      },
+    });
+    return { eventId, success: false, told: null, escalatedEventId: null };
+  }
   const check = runCheck(world, ctx, req);
   const success = check.success;
   const eff = success ? def.success : def.failure;
@@ -601,7 +659,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
         },
         er,
       );
-      if (!save.success && autonomous(world, tg)) {
+      if (!save.success && authorizeAct(world, tg, { kind: 'consequential' }, { kind: 'own' }).ok) {
         const pair = makePair(world, ctx, tg, i, req.placeId, req.present.length);
         if (pair && requiresFail(pair, next, 'forced') === null) {
           const present = req.present;

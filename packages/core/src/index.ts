@@ -13,6 +13,7 @@ export * from './command.ts';
 export * from './content.ts';
 export * from './events/index.ts';
 export * from './explain.ts';
+export * as fae from './fae/index.ts';
 export * from './hash.ts';
 export * from './ids.ts';
 export * as items from './items/index.ts';

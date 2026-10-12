@@ -3,7 +3,7 @@ import type { AvailableAction } from './actions.ts';
 import type { Observation } from './observation.ts';
 export const HELP = `One action = one game-hour; queries take no time. Sleep locks 4 hours.
 Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects use the previous hour's activity.
-look | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
+look | signs | investigate <sign id> | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
 buy <item> [qty] | sell <item> | eat <item> [servings] [method] | cook <item> [servings] [method]
 drink | meal | sleep | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
 prices | places [page] | standing <sleep|eat|drink|warmth|lodging> <on|off> | agency <commanded|psyche>
@@ -16,6 +16,7 @@ export function menuActions(o: Observation, page = 0): AvailableAction[] {
   if (page > 0) return o.actions.slice((page - 1) * 20, page * 20);
   const basic = [
     'look',
+    'signs',
     'plan',
     'journal',
     'activity:sleep',
@@ -58,6 +59,11 @@ export function renderObservation(o: Observation, page = 0, previous?: Observati
         ]
       : []),
     o.place.description,
+    ...o.requests.map((r) => `Pending loan request: answer:${r.id}:yes or answer:${r.id}:no (expires within the hour)`),
+    ...o.signs
+      .filter((q) => q.closedAt === null)
+      .slice(-2)
+      .map((q) => `Open sign: ${q.text} (investigate ${q.signId})`),
     `Here: ${
       o.present
         .slice(0, 6)
@@ -139,6 +145,8 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
   const action = o.actions.find((a) => a.id === text);
   if (action) return action.command;
   if (/^[+-]?\d+$/.test(text)) return menuActions(o, page)[Number(text) - 1]?.command ?? 'No such menu number';
+  if (verb === 'signs') return { kind: 'fae.signs', actorId: pc, data: {} };
+  if (verb === 'investigate') return { kind: 'fae.investigate', actorId: pc, data: { signId: tail } };
   if (verb === 'help') return HELP;
   if (verb === 'agency' || verb === 'standing') {
     const orders = { ...o.self.standingOrders, activities: [...o.self.standingOrders.activities] };
@@ -359,6 +367,13 @@ export function renderDetail(detail: unknown): string {
   }
   if (detail && typeof detail === 'object' && 'knowledge' in detail && 'terms' in detail)
     return explainLine(detail as Parameters<typeof explainLine>[0]);
+  if (Array.isArray(detail) && detail.some((e) => e && typeof e === 'object' && 'signId' in e))
+    return detail
+      .map(
+        (e) =>
+          `[${e.signId}] ${e.closedAt === null ? 'Open question' : 'Read sign'}: ${e.text}\n${e.evidence ?? ''}${e.available ? ` — investigate ${e.signId}` : ' — trace faded'}`,
+      )
+      .join('\n');
   if (Array.isArray(detail))
     return detail.length
       ? detail

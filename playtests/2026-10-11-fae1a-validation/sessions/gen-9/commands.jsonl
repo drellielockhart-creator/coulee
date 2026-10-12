@@ -1,0 +1,10 @@
+{"type":"session","format":1,"spec":{"source":{"kind":"generated","recipe":{"genVersion":2,"seed":9}},"seed":9,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"ba1b6843100337e09d6d8d11dabaf2d195aa13f9a325228137ad1de7db0c9ed0"}
+{"type":"command","command":{"kind":"core.urge","actorId":24,"data":{"urge":{"kind":"activity","activityId":"sleep"}},"issuer":{"kind":"player"}},"before":"2d8d5972b8582e70","after":"fe311cb1fdc0b690","at":0,"end":60}
+{"type":"command","command":{"kind":"activity.wait","actorId":24,"data":{"minutes":420},"issuer":{"kind":"player"}},"before":"fe311cb1fdc0b690","after":"3bd7071840215796","at":60,"end":480}
+{"type":"command","command":{"kind":"core.standing_orders","actorId":24,"data":{"orders":{"sleep":true,"eat":true,"drink":true,"warmth":true,"lodging":false,"activities":[]}},"issuer":{"kind":"player"}},"before":"3bd7071840215796","after":"d5c15f5fd0234a8e","at":480,"end":540}
+{"type":"command","command":{"kind":"activity.observe","actorId":24,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"d5c15f5fd0234a8e","after":"d5c15f5fd0234a8e","at":540,"end":540}
+{"type":"command","command":{"kind":"core.urge","actorId":24,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":6}},"issuer":{"kind":"player"}},"before":"d5c15f5fd0234a8e","after":"36b894f3e9ac3727","at":540,"end":600}
+{"type":"command","command":{"kind":"activity.wait","actorId":24,"data":{"minutes":60},"issuer":{"kind":"player"}},"before":"36b894f3e9ac3727","after":"6b5d097eced82eca","at":600,"end":660}
+{"type":"command","command":{"kind":"activity.wait","actorId":24,"data":{"minutes":480},"issuer":{"kind":"player"}},"before":"6b5d097eced82eca","after":"7ac2a5265b00ace7","at":660,"end":840}
+{"type":"command","command":{"kind":"activity.wait","actorId":24,"data":{"minutes":240},"issuer":{"kind":"player"}},"before":"7ac2a5265b00ace7","after":"7081471c1ba03b32","at":840,"end":1080}
+{"type":"command","command":{"kind":"fae.signs","actorId":24,"data":{},"issuer":{"kind":"player"}},"before":"7081471c1ba03b32","after":"7081471c1ba03b32","at":1080,"end":1080}

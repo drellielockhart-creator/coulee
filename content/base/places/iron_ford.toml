@@ -73,8 +73,8 @@ id = "lantern_spring"
 site = "iron_ford"
 name = "Lantern Spring"
 kind = "wild"
-description = "Head of Lantern Coulee. Wisps at night; the Prince's court is held here."
-tags = ["wild", "court", "fae"]
+description = "Head of Lantern Coulee. Hazels crowd a narrow clearing beneath the bluffs."
+tags = ["wild", "fae_court", "fae"]
 x = 6
 y = 0
 w = 5
@@ -100,19 +100,19 @@ site = "iron_ford"
 name = "The Cold Stair"
 kind = "wild"
 description = "An algific slope with an erratic boulder: ice in July. A refuge from fae, and cold storage for anyone brave enough."
-tags = ["wild", "algific", "cold", "fae"]
+tags = ["wild", "algific", "cold"]
 x = 5
 y = 5
 w = 5
 h = 5
-fae_intensity = 3
+fae_intensity = 1
 
 [[place]]
 id = "huldras_shelf"
 site = "iron_ford"
 name = "Huldra's Shelf"
 kind = "wild"
-description = "Goat prairie where huldre cattle graze; their bells carry at dusk. The survey line runs here."
+description = "Goat prairie, steep to the southwest, bluestem and pasqueflower between the ledges. Survey stakes run across it."
 tags = ["wild", "goat_prairie", "fae"]
 x = 12
 y = 5
@@ -346,6 +346,7 @@ model = "cabin"
 
 [[place]]
 id = "lutheran_church"
+bell_range_tiles = 18
 site = "iron_ford"
 name = "Iron Ford Lutheran Church"
 kind = "building"

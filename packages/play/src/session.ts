@@ -5,6 +5,7 @@ import {
   type ContentBundle,
   type Event,
   eventsSince,
+  fae,
   items,
   needs,
   provisions,
@@ -138,7 +139,8 @@ export class PlaySession {
   }
   act(input: Command | string, mode: ObservationMode = 'fair'): ActResult {
     const offered = availableActions(this.sim, this.playerId);
-    const command = typeof input === 'string' ? offered.find((a) => a.id === input)?.command : input;
+    const proposed = typeof input === 'string' ? offered.find((a) => a.id === input)?.command : input;
+    const command = proposed ? { ...proposed, issuer: proposed.issuer ?? { kind: 'player' as const } } : undefined;
     if (!command) return this.fail('Unknown action id; use look for current actions', mode);
     let error: string | null;
     try {
@@ -157,7 +159,9 @@ export class PlaySession {
     let detail: unknown;
     const interrupts: Interrupt[] = [];
     let warning: string | undefined;
-    if (command.kind === 'activity.observe') {
+    if (command.kind === 'fae.signs') {
+      detail = fae.signs(this.sim.world, this.playerId);
+    } else if (command.kind === 'activity.observe') {
       const o = this.observe(mode),
         d = command.data;
       if (d.query === 'explain') {

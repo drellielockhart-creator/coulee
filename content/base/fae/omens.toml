@@ -1,0 +1,82 @@
+[[omen]]
+id = "providence"
+family = "providence"
+fi_min = 0
+fi_max = 0
+notice_dc = 8
+thins = 0
+text = ["A small bird beats at the inside of the window.", "A picture tilts on its nail though the room is still."]
+plain = ["A bird has mistaken the window for sky.", "The nail is loose in the plaster."]
+signature = "A worn threshold catches the light."
+reading = "People call such household accidents portents; this is no proof."
+counter = "A latch and a sound nail answer this sign."
+
+[[omen]]
+id = "hearth"
+family = "hearth"
+fi_min = 1
+fi_max = 5
+notice_dc = 8
+thins = 5
+tags = ["home", "farm", "store", "mill"]
+text = ["The porridge bowl is licked clean on the outside.", "A neat plait has appeared in the loose straw by the door.", "Three tools lie with their handles pointing to the threshold."]
+plain = ["Small claw marks betray the pantry visitor.", "The straw has caught on a bent nail.", "Someone set the tools down here."]
+signature = "Ash gathers on the wrong side of the hearthstone."
+reading = "A hearth guest has been attending to the threshold."
+counter = "Iron at a threshold keeps small visitors out."
+
+[[omen]]
+id = "lights"
+family = "lights"
+fi_min = 2
+fi_max = 4
+notice_dc = 12
+thins = 15
+subtle = true
+text = ["Lights in the bottoms, low, keeping pace with nothing.", "A pale light slips between two trunks and leaves no shadow.", "Under the hazels, three low lights turn together."]
+plain = ["Fox fire shines in the rotting wood.", "A lantern on the ridge shines through the brush.", "Marsh gas burns low over the wet ground."]
+signature = "A pale glimmer rests where the bank hides the sky."
+reading = "These lights hold their distance like guests waiting to be invited."
+counter = "Do not follow a light across running water."
+
+[[omen]]
+id = "echo"
+family = "echo"
+fi_min = 2
+fi_max = 5
+tags = ["bluff", "cave", "mine"]
+notice_dc = 10
+thins = 10
+text = ["The echo answers before the call has ended.", "A second footfall sounds from inside the ledge."]
+plain = ["Two rock faces throw the sound back at different times.", "Loose stone falls in the cleft."]
+signature = "The ledge returns a footstep from an awkward direction."
+reading = "An answering echo: someone under the stone is listening."
+counter = "Give no name to an answering rock."
+
+[[omen]]
+id = "bells"
+family = "bells"
+fi_min = 2
+fi_max = 5
+tags = ["goat_prairie"]
+notice_dc = 8
+thins = 15
+text = ["A cow-bell sounds upslope, though nobody grazes stock here.", "Bells move through the bluestem without bending it.", "A little herd of bells passes below the ledge; no cattle follow."]
+plain = ["A grazing bell carries from the far ridge.", "A neighbor's harness jingles along the lower track."]
+signature = "A cow-bell sounds somewhere beyond the empty ledges."
+reading = "Bells on ungrazed prairie: huldre cattle. Do not follow them."
+counter = "The iron-shod survey post stands silent; the bells keep away."
+
+[[omen]]
+id = "ice"
+family = "ice"
+fi_min = 1
+fi_max = 5
+tags = ["algific"]
+notice_dc = 8
+thins = -20
+text = ["Frost has sorted the fallen leaves into narrow ranks.", "The boulder is rimed white; every bird nearby has fallen silent.", "Cold breath rises from the talus against the warmer wind."]
+plain = ["Cold air drains from a crevice in the algific slope.", "Old ice under the talus has held through the warm afternoon."]
+signature = "Cold air wells between the talus stones."
+reading = "Ice keeps its own law here. The wandering folk avoid this stair."
+counter = "The cold stone offers a refuge from wandering lights."

@@ -5,9 +5,11 @@
  * handled by the owning module during its system, by the SAME rules as AI decisions.
  * Registry pattern as for events: each module declares `XCommand` in its own commands.ts.
  */
+
 import type { ActivityCommand } from './activity/commands.ts';
 import type { BeliefCommand } from './belief/commands.ts';
 import type { ChronicleCommand } from './chronicle/commands.ts';
+import type { FaeCommand } from './fae/commands.ts';
 import type { ActorId } from './ids.ts';
 import type { NeedsCommand } from './needs/commands.ts';
 import type { ProvisionsCommand } from './provisions/commands.ts';
@@ -16,7 +18,12 @@ import type { SocialCommand } from './social/commands.ts';
 import type { Urge } from './urge.ts';
 
 /** Define one command kind: `CommandOf<'provisions.buy', { itemDefId: string; qty: number }>`. */
-export type CommandOf<K extends string, D> = { kind: K; actorId: ActorId; data: D };
+export type CommandOf<K extends string, D> = {
+  kind: K;
+  actorId: ActorId;
+  issuer?: import('./psyche/agency.ts').Issuer;
+  data: D;
+};
 
 export type CoreCommand =
   /**
@@ -26,6 +33,7 @@ export type CoreCommand =
   CommandOf<'core.urge', { urge: Urge }>;
 
 export type Command =
+  | FaeCommand
   | CoreCommand
   | NeedsCommand
   | ActivityCommand

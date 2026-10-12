@@ -278,3 +278,10 @@ id = "other"
 name = "Other"
 valence = "neutral"
 tau_days = 7
+
+[[memory_kind]]
+id = "omen"
+name = "An uncanny sign"
+valence = "neutral"
+tau_days = 14
+summary = "Remembered uncanny signs {count} times since {since}"

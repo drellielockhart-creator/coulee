@@ -3,10 +3,12 @@
  * FOUNDATION-OWNED. Modules add domains by adding entries to their own `xDomains` object
  * (in their own schema file) — this file picks them up via the spreads below.
  */
+
 import type { z } from 'zod';
 import { beliefDomains, beliefRefs } from './belief.ts';
 import { chronicleDomains, chronicleRefs } from './chronicle.ts';
 import type { DomainSpec, Issue } from './common.ts';
+import { faeDomains } from './fae.ts';
 import { itemsDomains, itemsRefs } from './items.ts';
 import { needsActivitiesDomains, needsActivitiesRefs } from './needs-activities.ts';
 import { psycheDomains, psycheRefs } from './psyche.ts';
@@ -16,6 +18,7 @@ import { socialDomains, socialRefs } from './social.ts';
 import { worldDomains, worldRefs } from './world.ts';
 
 export const DOMAINS = {
+  ...faeDomains,
   ...rulesDomains,
   ...worldDomains,
   ...needsActivitiesDomains,

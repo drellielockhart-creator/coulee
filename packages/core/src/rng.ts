@@ -15,6 +15,7 @@
 
 /** The closed set of random streams. Add one only via the foundation owner (see MODULES.md). */
 export const STREAMS = [
+  'fae',
   'worldgen',
   'census',
   'needs',

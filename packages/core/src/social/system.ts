@@ -14,13 +14,14 @@
  *      from encounter.ts (top ties present + 1 stranger slot; O(n·k)); the interaction is
  *      the best by volition + noise over its threshold.
  */
+
 import { currentActivity, isAsleep, venues } from '../activity/api.ts';
 import { hasCondition } from '../actor.ts';
 import type { DefenseId, InteractionDef } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
-import { autonomous, chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
+import { authorizeAct, chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { ChosenUrge } from '../urge.ts';
@@ -30,6 +31,7 @@ import { type InteractionVia, resolveInteraction } from './interact.ts';
 import { consolidateMemories, decayMemoriesDaily } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
 import { dailyOpinionUpkeep, opinionOf, pruneCooldowns, refreshLabel, repointReasons } from './opinion.ts';
+import { requestsHour } from './requests.ts';
 import { emptyDaily } from './state.ts';
 import { dailyStrife, mediationHour } from './strife.ts';
 import { pruneTalk } from './talk.ts';
@@ -59,6 +61,7 @@ interface HourState {
 }
 
 export function socialSystem(world: World, ctx: SimContext): void {
+  requestsHour(world, ctx);
   if (ctx.isNewDay) {
     dailySocial(world, ctx);
     world.social.daily = emptyDaily();
@@ -105,7 +108,7 @@ export function socialSystem(world: World, ctx: SimContext): void {
   // ---- 2b. displaced anger stored for someone not there at the time lands when they meet
   // (10 §7.2): within the day, at the first venue they share, before the encounters.
   for (const id of urgeActors) {
-    if (!autonomous(world, id)) continue;
+    if (!authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok) continue;
     const stored = storedDisplacement(world, id, ctx.now);
     if (!stored || !free(id) || !free(stored.targetId)) continue;
     const venue = hs.poolOf.get(id);
@@ -127,7 +130,7 @@ export function socialSystem(world: World, ctx: SimContext): void {
       }
     }
     for (const id of v.pool) {
-      if (!autonomous(world, id)) continue;
+      if (!authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok) continue;
       const actor = world.actors[id];
       if (!actor) continue;
       const r = ctx.rng('social', mixKey(id, SALT_ENCOUNTER));

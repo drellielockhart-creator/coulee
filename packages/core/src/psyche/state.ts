@@ -76,6 +76,7 @@ export interface AnxietyPools {
 
 export interface ActorPsyche {
   /** Absent means psyche; preserves existing NPC state hashes. */
+  agency?: import('./agency.ts').AgencyState;
   agencyMode?: import('./agency.ts').AgencyMode;
   standingOrders?: import('./agency.ts').StandingOrders;
   ego: number;

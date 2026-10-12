@@ -30,7 +30,16 @@ export type Voice = 'id' | 'superego';
 export type ChoiceVoice = Voice | 'ego' | 'command';
 
 /** Module ids that may propose urges (also used to tag sources in Explain). */
-export type ModuleId = 'core' | 'needs' | 'activity' | 'psyche' | 'social' | 'belief' | 'provisions' | 'chronicle';
+export type ModuleId =
+  | 'fae'
+  | 'core'
+  | 'needs'
+  | 'activity'
+  | 'psyche'
+  | 'social'
+  | 'belief'
+  | 'provisions'
+  | 'chronicle';
 
 export interface UrgeProposal {
   urge: Urge;

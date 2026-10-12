@@ -1,0 +1,252 @@
+[[template]]
+id = "omen_journal_0"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 0 }
+text = ["At {place}: {omen} I would like to know what made it."]
+
+[[template]]
+id = "omen_journal_1"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 1 }
+text = ["I put this down before memory alters it. {place}: {omen}"]
+
+[[template]]
+id = "omen_journal_2"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 2 }
+text = ["There was something to ask about at {place}. {omen}"]
+
+[[template]]
+id = "omen_journal_3"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 3 }
+text = ["{omen} That was at {place}; I shall remember the place."]
+
+[[template]]
+id = "omen_journal_4"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 4 }
+text = ["I was at {place} when I saw this: {omen}"]
+
+[[template]]
+id = "omen_journal_5"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 5 }
+text = ["An observation for later inquiry, from {place}: {omen}"]
+
+[[template]]
+id = "omen_journal_6"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 6 }
+text = ["I remember the place plainly: {place}. {omen}"]
+
+[[template]]
+id = "omen_journal_7"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 7 }
+text = ["This belongs among my questions about {place}: {omen}"]
+
+[[template]]
+id = "omen_journal_8"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 8 }
+text = ["At {place} I stopped to notice: {omen}"]
+
+[[template]]
+id = "omen_journal_9"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 9 }
+text = ["I have written the sight as I remember it. {place}: {omen}"]
+
+[[template]]
+id = "omen_journal_10"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 10 }
+text = ["Perhaps another traveler can explain {place}. {omen}"]
+
+[[template]]
+id = "omen_journal_11"
+on = "fae.omen"
+voice = "journal"
+when = { edition = 11 }
+text = ["I carry this question away from {place}: {omen}"]
+
+[[template]]
+id = "omen_almanac_0"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 0 }
+text = ["A report from {place}: {omen}"]
+
+[[template]]
+id = "omen_almanac_1"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 1 }
+text = ["Among this week's observations, at {place}: {omen}"]
+
+[[template]]
+id = "omen_almanac_2"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 2 }
+text = ["The weather book has this beside {place}: {omen}"]
+
+[[template]]
+id = "omen_almanac_3"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 3 }
+text = ["A traveler notes {place}. {omen}"]
+
+[[template]]
+id = "omen_almanac_4"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 4 }
+text = ["Entered beside {place} in the weekly register: {omen}"]
+
+[[template]]
+id = "omen_almanac_5"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 5 }
+text = ["An observation collected at {place}: {omen}"]
+
+[[template]]
+id = "omen_almanac_6"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 6 }
+text = ["This week brought an account from {place}. {omen}"]
+
+[[template]]
+id = "omen_almanac_7"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 7 }
+text = ["The register records this sight at {place}: {omen}"]
+
+[[template]]
+id = "omen_almanac_8"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 8 }
+text = ["Noted by those passing {place}: {omen}"]
+
+[[template]]
+id = "omen_almanac_9"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 9 }
+text = ["A witness supplies this detail of {place}: {omen}"]
+
+[[template]]
+id = "omen_almanac_10"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 10 }
+text = ["Among the local reports is one from {place}. {omen}"]
+
+[[template]]
+id = "omen_almanac_11"
+on = "fae.omen"
+voice = "almanac"
+when = { edition = 11 }
+text = ["The week’s book preserves an account of {place}: {omen}"]
+
+[[template]]
+id = "omen_paper_0"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 0 }
+text = ["Correspondents mention {place}. {omen} We print the observation without deciding its cause."]
+
+[[template]]
+id = "omen_paper_1"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 1 }
+text = ["Several persons at {place} report the following: {omen}"]
+
+[[template]]
+id = "omen_paper_2"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 2 }
+text = ["A curious report reaches us from {place}: {omen}"]
+
+[[template]]
+id = "omen_paper_3"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 3 }
+text = ["Our readers may judge the account from {place}. {omen}"]
+
+[[template]]
+id = "omen_paper_4"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 4 }
+text = ["A witness places this occurrence at {place}: {omen}"]
+
+[[template]]
+id = "omen_paper_5"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 5 }
+text = ["We invite further accounts concerning {place}. {omen}"]
+
+[[template]]
+id = "omen_paper_6"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 6 }
+text = ["The following observation at {place} awaits an explanation: {omen}"]
+
+[[template]]
+id = "omen_paper_7"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 7 }
+text = ["From {place}, an account on which the witnesses agree: {omen}"]
+
+[[template]]
+id = "omen_paper_8"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 8 }
+text = ["Several witnesses bring word of {place}. {omen}"]
+
+[[template]]
+id = "omen_paper_9"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 9 }
+text = ["An item of local curiosity concerns {place}: {omen}"]
+
+[[template]]
+id = "omen_paper_10"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 10 }
+text = ["Readers familiar with {place} may recognize this account: {omen}"]
+
+[[template]]
+id = "omen_paper_11"
+on = "fae.omen"
+voice = "paper"
+when = { edition = 11 }
+text = ["The witnesses give the location as {place}. {omen}"]
+

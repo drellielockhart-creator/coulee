@@ -5,7 +5,7 @@ import { type ActorId, rowsOf } from '../ids.ts';
 import { carriedBy, inventoryIndex, moveStack, withInventoryPass } from '../items/api.ts';
 import { rootLocation } from '../items/containers.ts';
 import { needValue } from '../needs/api.ts';
-import { autonomous, chosenUrge, standingOrders } from '../psyche/api.ts';
+import { authorizeAct, chosenUrge, standingOrders } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { autonomousProvisioning } from './agency.ts';
@@ -173,11 +173,13 @@ function provisionsHour(world: World, ctx: SimContext): void {
     )
       continue;
     if (
-      !autonomous(world, actor.id) &&
+      !authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok &&
       (!standingOrders(world, actor.id).eat || needValue(world, actor.id, 'hunger') >= 600)
     )
       continue;
-    const holder = !autonomous(world, actor.id) ? { actorId: actor.id } : holderOfActor(world, actor.id),
+    const holder = !authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok
+        ? { actorId: actor.id }
+        : holderOfActor(world, actor.id),
       meal = dueMeal(world, ctx.content, holder, ctx.cal.hour);
     const urge = chosenUrge(world, actor.id);
     const eating = urge?.urge.kind === 'activity' && urge.urge.activityId === 'take_meal';

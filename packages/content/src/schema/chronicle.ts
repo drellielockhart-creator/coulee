@@ -42,6 +42,8 @@ export const TONES = [
  * these names (a cli test keeps the two lists equal).
  */
 export const TEMPLATE_SLOTS = [
+  'omen',
+  'edition',
   // time and place
   'town',
   'main_street',

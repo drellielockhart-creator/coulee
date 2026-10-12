@@ -170,3 +170,5 @@ export function extendCredit(world: World, ctx: SimContext, creditor: ActorId, d
 }
 
 export { interactionAvailability } from './availability.ts';
+
+export { pendingRequests } from './requests.ts';

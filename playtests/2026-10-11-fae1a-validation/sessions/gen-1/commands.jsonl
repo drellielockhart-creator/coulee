@@ -1,0 +1,11 @@
+{"type":"session","format":1,"spec":{"source":{"kind":"generated","recipe":{"genVersion":2,"seed":1}},"seed":1,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"ba1b6843100337e09d6d8d11dabaf2d195aa13f9a325228137ad1de7db0c9ed0"}
+{"type":"command","command":{"kind":"core.urge","actorId":26,"data":{"urge":{"kind":"activity","activityId":"sleep"}},"issuer":{"kind":"player"}},"before":"e23f7aa0203f579e","after":"10f6fe39fe68f762","at":0,"end":60}
+{"type":"command","command":{"kind":"activity.wait","actorId":26,"data":{"minutes":420},"issuer":{"kind":"player"}},"before":"10f6fe39fe68f762","after":"9f3b7ee9423d92e2","at":60,"end":480}
+{"type":"command","command":{"kind":"core.standing_orders","actorId":26,"data":{"orders":{"sleep":true,"eat":true,"drink":true,"warmth":true,"lodging":false,"activities":[]}},"issuer":{"kind":"player"}},"before":"9f3b7ee9423d92e2","after":"edf4df035add2bab","at":480,"end":540}
+{"type":"command","command":{"kind":"activity.observe","actorId":26,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"edf4df035add2bab","after":"edf4df035add2bab","at":540,"end":540}
+{"type":"command","command":{"kind":"core.urge","actorId":26,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":6}},"issuer":{"kind":"player"}},"before":"edf4df035add2bab","after":"34576632ff6cf044","at":540,"end":600}
+{"type":"command","command":{"kind":"activity.wait","actorId":26,"data":{"minutes":60},"issuer":{"kind":"player"}},"before":"34576632ff6cf044","after":"e399aab556345e6a","at":600,"end":660}
+{"type":"command","command":{"kind":"activity.wait","actorId":26,"data":{"minutes":480},"issuer":{"kind":"player"}},"before":"e399aab556345e6a","after":"c0997d4c6cd188cb","at":660,"end":840}
+{"type":"command","command":{"kind":"activity.wait","actorId":26,"data":{"minutes":240},"issuer":{"kind":"player"}},"before":"c0997d4c6cd188cb","after":"9f811cadb739af0b","at":840,"end":1080}
+{"type":"command","command":{"kind":"fae.signs","actorId":26,"data":{},"issuer":{"kind":"player"}},"before":"9f811cadb739af0b","after":"9f811cadb739af0b","at":1080,"end":1080}
+{"type":"command","command":{"kind":"fae.investigate","actorId":26,"data":{"signId":"6:0:dusk"},"issuer":{"kind":"player"}},"before":"9f811cadb739af0b","after":"89cb822c16b55498","at":1080,"end":1140}
