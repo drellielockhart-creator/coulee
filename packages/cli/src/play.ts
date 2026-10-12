@@ -5,6 +5,7 @@ import { loadContentOrThrow } from '@coulee/content';
 import { HELP, PlaySession, parseText, type ReplayLog, renderDetail, renderObservation } from '@coulee/play';
 import { sessionCLI } from './play-session.ts';
 export interface PlayOptions {
+  compact?: boolean;
   text?: boolean;
   jsonl?: boolean;
   replay?: string;

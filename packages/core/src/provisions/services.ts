@@ -2,6 +2,7 @@
 import { hourInBlock } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { type ActorId, type PlaceId, rowsOf } from '../ids.ts';
+import { autonomous, chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
@@ -43,6 +44,7 @@ export function admitSleep(world: World, ctx: SimContext, actorId: ActorId, plac
   if (keeper.householdId === world.actors[actorId]?.householdId) return true;
   const bed = world.provisions.beds?.[actorId];
   if (bed?.placeId === placeId && bed.until > ctx.now) return true;
+  if (!autonomous(world, actorId) && chosenUrge(world, actorId)?.voice !== 'command') return false;
   if (cashOf(world, actorId) < service.bed_cents)
     return reject(world, ctx, actorId, 'Cannot afford a bed; seek another place to sleep');
   transferCash(world, ctx, actorId, keeper.id, service.bed_cents, 'Tavern bed');
@@ -52,6 +54,16 @@ export function admitSleep(world: World, ctx: SimContext, actorId: ActorId, plac
 }
 /** A bought meal consumes the host's real pantry and cooking resources before money changes hands. */
 export function boardMeal(world: World, ctx: SimContext, actorId: ActorId): boolean {
+  if (
+    !autonomous(world, actorId) &&
+    !ctx.commands.some(
+      (c) =>
+        c.actorId === actorId &&
+        (c.kind === 'provisions.board_meal' ||
+          (c.kind === 'core.urge' && c.data.urge.kind === 'activity' && c.data.urge.activityId === 'take_meal')),
+    )
+  )
+    return false;
   const actor = world.actors[actorId];
   if (!actor?.alive) return false;
   const service = serviceAt(world, ctx.content, actor.placeId);

@@ -20,7 +20,7 @@ import type { DefenseId, InteractionDef } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
-import { chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
+import { autonomous, chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { ChosenUrge } from '../urge.ts';
@@ -86,7 +86,10 @@ export function socialSystem(world: World, ctx: SimContext): void {
   };
 
   // ---- 2. chosen urges (interaction / defense), ascending actor ids
-  const urgeActors = [...hs.poolOf.keys()].sort((a, b) => a - b) as ActorId[];
+  const urgeActors = ([...hs.poolOf.keys()] as ActorId[]).sort(
+    (a, b) =>
+      Number(chosenUrge(world, b)?.voice === 'command') - Number(chosenUrge(world, a)?.voice === 'command') || a - b,
+  ) as ActorId[];
   for (const id of urgeActors) {
     const chosen = chosenUrge(world, id);
     if (!chosen || chosen.at !== ctx.now) continue;
@@ -100,6 +103,7 @@ export function socialSystem(world: World, ctx: SimContext): void {
   // ---- 2b. displaced anger stored for someone not there at the time lands when they meet
   // (10 §7.2): within the day, at the first venue they share, before the encounters.
   for (const id of urgeActors) {
+    if (!autonomous(world, id)) continue;
     const stored = storedDisplacement(world, id, ctx.now);
     if (!stored || !free(id) || !free(stored.targetId)) continue;
     const venue = hs.poolOf.get(id);
@@ -121,6 +125,7 @@ export function socialSystem(world: World, ctx: SimContext): void {
       }
     }
     for (const id of v.pool) {
+      if (!autonomous(world, id)) continue;
       const actor = world.actors[id];
       if (!actor) continue;
       const r = ctx.rng('social', mixKey(id, SALT_ENCOUNTER));

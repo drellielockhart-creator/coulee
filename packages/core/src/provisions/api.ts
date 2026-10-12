@@ -1,3 +1,4 @@
+import { autonomous, standingOrders } from '../psyche/api.ts';
 /**
  * Provisions cross-module API. OWNER: module:provisions.
  */
@@ -345,7 +346,12 @@ export function refillWater(world: World, ctx: SimContext, actorId: ActorId, ite
 export function waterHour(world: World, ctx: SimContext): void {
   const index = inventoryIndex(world);
   for (const actor of rowsOf(world.actors)) {
-    if (!actor.alive || isAsleep(world, ctx, actor.id)) continue;
+    if (
+      !actor.alive ||
+      isAsleep(world, ctx, actor.id) ||
+      (!autonomous(world, actor.id) && !standingOrders(world, actor.id).drink)
+    )
+      continue;
     const value = needValue(world, actor.id, 'thirst');
     if (value < 600) {
       const def = ctx.content.needs.thirst;

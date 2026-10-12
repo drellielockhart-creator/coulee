@@ -365,6 +365,18 @@ export const psycheDomains = {
 
 /** Per-actor scenario fields owned by psyche. */
 export const psycheActorFields = {
+  /** Missing means psyche, retaining legacy serialized NPC defaults. */
+  agency_mode: z.enum(['psyche', 'commanded']).optional(),
+  standing_orders: z
+    .strictObject({
+      sleep: z.boolean(),
+      eat: z.boolean(),
+      drink: z.boolean(),
+      warmth: z.boolean(),
+      lodging: z.boolean(),
+      activities: z.array(id()),
+    })
+    .optional(),
   /** Base psyche numbers before trait shifts. Defaults 50/50/50. */
   psyche: z
     .strictObject({

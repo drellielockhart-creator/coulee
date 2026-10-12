@@ -15,14 +15,15 @@ import { join, resolve } from 'node:path';
 import type { ContentBundle } from '@coulee/core';
 import {
   type AvailableAction,
-  HELP,
   menuActions,
+  type Observation,
   type ObservationMode,
   PlaySession,
   parseText,
   type ReplayLog,
   renderDetail,
   renderObservation,
+  SESSION_HELP,
   type SessionSpec,
 } from '@coulee/play';
 import type { PlayOptions } from './play.ts';
@@ -35,6 +36,8 @@ interface Manifest {
 interface MenuState {
   page: number;
   menu: AvailableAction[];
+  previous?: Observation;
+  compact?: boolean;
 }
 const files = ['session.json', 'save.json', 'commands.jsonl', 'metrics.jsonl', 'transcript.txt'];
 const jsonl = (rows: unknown[]) => rows.map((row) => JSON.stringify(row) + '\n').join('');
@@ -86,7 +89,12 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
       writeFileSync(join(dir, 'metrics.jsonl'), '');
       const text = renderObservation(observation);
       writeFileSync(join(dir, 'transcript.txt'), text + '\n');
-      save(dir, session, { page: 0, menu: menuActions(observation) });
+      save(dir, session, {
+        page: 0,
+        menu: menuActions(observation),
+        previous: observation,
+        compact: o.compact ?? false,
+      });
       console.log(text);
       return 0;
     }
@@ -94,7 +102,7 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     const mode = manifest.mode;
     const observation = session.observe(mode);
     const invalid = (reason: string): 2 => {
-      const text = `${reason}\n${renderObservation(observation, menu.page)}`;
+      const text = `${reason}. No game time spent.\n${renderObservation({ ...observation, changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 } }, menu.page)}`;
       appendFileSync(join(dir, 'transcript.txt'), `${line === undefined ? '' : '> ' + line + '\n'}${text}\n`);
       console.log(text);
       return 2;
@@ -127,16 +135,23 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     const [verb, ...args] = text.split(/\s+/);
     let page = 0;
     let detail: string | undefined;
-    if (verb?.toLowerCase() === 'help') detail = HELP;
-    else if (verb?.toLowerCase() === 'actions') {
+    if (verb?.toLowerCase() === 'help') detail = SESSION_HELP;
+    else if (verb?.toLowerCase() === 'actions' || verb?.toLowerCase() === 'places') {
       page = Number(args[0] ?? 1);
-      if (args.length > 1 || !Number.isSafeInteger(page) || page < 1 || !menuActions(observation, page).length)
+      if (verb?.toLowerCase() === 'places') page = -page;
+      if (
+        args.length > 1 ||
+        !Number.isSafeInteger(page) ||
+        page === 0 ||
+        (page < 0 && verb?.toLowerCase() !== 'places') ||
+        !menuActions(observation, page).length
+      )
         return invalid('Use actions <page> with an available positive page number.');
     }
     const command =
-      detail !== undefined || page > 0
+      detail !== undefined || page !== 0
         ? parseText('look', observation)
-        : /^\d+$/.test(text)
+        : /^[+-]?\d+$/.test(text)
           ? (menu.menu[Number(text) - 1]?.command ?? 'No such menu number')
           : parseText(text, observation);
     if (typeof command === 'string') return invalid(command);
@@ -148,14 +163,23 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
       result.warning,
       result.interrupts.length ? `Stopped: ${result.interrupts.map((i) => i.reason).join('; ')}` : undefined,
       detail ?? (result.detail === undefined ? undefined : renderDetail(result.detail)),
-      renderObservation(result.observation, page),
+      renderObservation(
+        result.observation,
+        page,
+        (o.compact ?? menu.compact) && !['look', 'actions', 'places'].includes(verb ?? '') ? menu.previous : undefined,
+      ),
     ]
       .filter((part) => part !== undefined)
       .join('\n');
     appendFileSync(join(dir, 'commands.jsonl'), jsonl(session.commandLog.slice(oldCommands)));
     appendFileSync(join(dir, 'metrics.jsonl'), jsonl(session.telemetry.slice(oldMetrics)));
     appendFileSync(join(dir, 'transcript.txt'), `> ${line}\n${output}\n`);
-    save(dir, session, { page, menu: menuActions(result.observation, page) });
+    save(dir, session, {
+      page,
+      menu: menuActions(result.observation, page),
+      previous: result.observation,
+      compact: o.compact ?? menu.compact,
+    });
     console.log(output);
     return 0;
   } finally {

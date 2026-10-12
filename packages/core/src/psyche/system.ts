@@ -35,6 +35,7 @@ import { addMinutes, yearsBetween } from '../time.ts';
 import type { ChoiceVoice, ChosenUrge, Urge } from '../urge.ts';
 import { sameUrge, urgeLabel } from '../urge.ts';
 import type { World } from '../world.ts';
+import { autonomous, standingOrders, standingUrge } from './agency.ts';
 import {
   accrueAnxiety,
   addToPools,
@@ -118,6 +119,13 @@ const CHOLERIC = 60;
 const STYLE_GAIN = 1;
 
 export function psycheSystem(world: World, ctx: SimContext): void {
+  for (const cmd of ctx.commands) {
+    if (cmd.kind !== 'core.standing_orders') continue;
+    const p = world.psyche.byActor[cmd.actorId];
+    if (!p) continue;
+    if (cmd.data.agencyMode) p.agencyMode = cmd.data.agencyMode;
+    p.standingOrders = { ...cmd.data.orders, activities: [...cmd.data.orders.activities] };
+  }
   const idx = buildTagIndex(ctx.content);
   for (const id of idsOf<ActorId>(world.psyche.byActor)) {
     const p = world.psyche.byActor[id];
@@ -182,14 +190,30 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
   let mode = 'plain';
   const sat = new Map<Thought, number>();
   if (res) {
-    const out = decide(m, res);
+    const held = !autonomous(world, actorId) && !lastCmd;
+    const allowed = held ? res.ranked.find((o) => standingUrge(world, ctx, actorId, o.urge)) : undefined;
+    const out = decide(m, held ? { ...res, winner: allowed ?? res.winner, command: true } : res);
+    if (held) {
+      out.mode = 'standing';
+      out.satisfaction.clear();
+      out.urge = allowed?.urge ?? { kind: 'activity', activityId: 'idle_at_home', placeId: m.actor.placeId };
+      if (out.urge.kind === 'activity' && !standingOrders(world, actorId).lodging)
+        out.urge = { ...out.urge, placeId: m.actor.placeId };
+      out.explain = arbitrationExplain(
+        actorId,
+        'Held for your order; routine standing orders only',
+        res,
+        allowed?.key ?? '',
+        'held for your order',
+      );
+    }
     chosenUrge = out.urge;
     mode = out.mode;
     for (const [t, f] of out.satisfaction) sat.set(t, f);
     const voice: ChoiceVoice =
       mode === 'command'
         ? 'command'
-        : mode === 'compromise' || mode === 'sublimation'
+        : mode === 'compromise' || mode === 'sublimation' || mode === 'standing'
           ? 'ego'
           : ((v) => (v === 'none' ? 'ego' : v))(dominantVoice(out.winner));
     const supporter = [...p.thoughts]
@@ -228,6 +252,24 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
         explain: out.explain,
       });
     }
+  } else if (!autonomous(world, actorId)) {
+    chosenUrge = { kind: 'activity', activityId: 'idle_at_home', placeId: m.actor.placeId };
+    p.chosen = {
+      urge: chosenUrge,
+      voice: 'ego',
+      compromise: false,
+      at: ctx.now,
+      explain: {
+        kind: 'arbitration',
+        label: 'Held for your order',
+        subjects: [actorId],
+        knowledge: 'self',
+        terms: [],
+        total: 0,
+        outcome: 'held for your order',
+      },
+    };
+    p.lastMode = 'standing';
   } else {
     p.chosen = null;
     p.lastMode = 'none';
@@ -239,7 +281,7 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
   discharge(m, mode);
 
   // 4. Defenses.
-  maybeDefend(m, fearDrives, mode === 'command');
+  maybeDefend(m, fearDrives, mode === 'command' || !autonomous(world, actorId));
 
   // 5. End of hour.
   decayThoughts(p);

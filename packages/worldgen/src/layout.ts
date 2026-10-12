@@ -66,7 +66,7 @@ export function terrain(recipe: TownRecipe) {
       w,
       h,
       tags,
-      description,
+      description: describePlace(name, kind, x, y, description),
       model,
       fae_intensity: fi,
     });
@@ -271,7 +271,7 @@ export function settlement(recipe: TownRecipe, t: TerrainDraft) {
     );
     add(
       `field${i}`,
-      'Kitchen garden and stubble',
+      `Kitchen garden and stubble (${x + 6}, ${y})`,
       'field',
       x + 6,
       y,
@@ -296,4 +296,10 @@ export function settlement(recipe: TownRecipe, t: TerrainDraft) {
     );
   }
   return homes;
+}
+
+/** Stable local texture; no random draw that could disturb population or layout. */
+export function describePlace(name: string, kind: string, x: number, y: number, authored = ''): string {
+  if (authored) return authored;
+  return `${name} stands at (${x}, ${y}) on the village map. ${kind === 'home' ? 'A worn doorstep faces the lane; split wood is stacked under the eaves.' : 'Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs.'}`;
 }

@@ -1,3 +1,4 @@
+import { autonomous } from '../psyche/api.ts';
 /** Cash, credit and physical goods share one transaction path for commands and errands. */
 
 import { isShunning } from '../belief/api.ts';
@@ -332,7 +333,7 @@ export function shoppingHour(world: World, ctx: SimContext): void {
     // Whoever of the household is at a store this hour buys (the head first, then by id).
     const atStore = (id: ActorId) => {
       const a = world.actors[id];
-      return a?.alive === true && world.provisions.stores[a.placeId] !== undefined;
+      return a?.alive === true && autonomous(world, id) && world.provisions.stores[a.placeId] !== undefined;
     };
     const buyerId = atStore(household.headId) ? household.headId : household.memberIds.find(atStore);
     const buyer = buyerId === undefined ? undefined : world.actors[buyerId];
