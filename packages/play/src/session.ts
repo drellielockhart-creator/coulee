@@ -18,7 +18,15 @@ import { GEN_VERSION } from '@coulee/worldgen';
 import { availableActions, validateCommand } from './actions.ts';
 import { alertForEvent, type Interrupt, perceivedEvents, provisionsAlert } from './interrupts.ts';
 import { packKnowledge, unpackKnowledge } from './knowledge.ts';
-import { eventView, type KnownEvent, knownExplain, type ObservationMode, observation } from './observation.ts';
+import {
+  eventView,
+  type KnownEvent,
+  knownExplain,
+  type MoneyChange,
+  type Observation,
+  type ObservationMode,
+  observation,
+} from './observation.ts';
 import { type SessionSpec, sessionContent, sessionSim } from './source.ts';
 export interface LogStep {
   type: 'command';
@@ -67,6 +75,8 @@ export class PlaySession {
   private knowledge: KnownEvent[] = [];
   private entries: LogStep[] = [];
   private metrics: Metric[] = [];
+  private money: MoneyChange[] = [];
+  private changes: Observation['changes'] = { elapsed: 0, money: [], needs: [], events: [], skipped: 0 };
   private base: ContentBundle;
   private configuration: SessionSpec;
   get spec(): SessionSpec {
@@ -111,11 +121,20 @@ export class PlaySession {
   }
   observe(mode: ObservationMode = 'fair') {
     return JSON.parse(
-      JSON.stringify(observation(this.sim, this.playerId, this.known, mode, this.knowledge)),
+      JSON.stringify({
+        ...observation(this.sim, this.playerId, this.known, mode, this.knowledge),
+        changes: this.changes,
+      }),
     ) as ReturnType<typeof observation>;
   }
   private fail(reason: string, mode: ObservationMode): ActResult {
-    return { ok: false, reason, elapsedMinutes: 0, interrupts: [], observation: this.observe(mode) };
+    return {
+      ok: false,
+      reason,
+      elapsedMinutes: 0,
+      interrupts: [],
+      observation: { ...this.observe(mode), changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 } },
+    };
   }
   act(input: Command | string, mode: ObservationMode = 'fair'): ActResult {
     const offered = availableActions(this.sim, this.playerId);
@@ -128,6 +147,11 @@ export class PlaySession {
       error = 'Malformed command';
     }
     if (error) return this.fail(error, mode);
+    const socialSave =
+      command.kind === 'core.urge' && command.data.urge.kind === 'interaction' ? this.save() : undefined;
+    const previous = this.observe(mode);
+    const moneyStart = this.money.length,
+      knowledgeStart = this.knowledge.length;
     const before = this.hash,
       at = this.sim.world.time;
     let detail: unknown;
@@ -154,19 +178,37 @@ export class PlaySession {
           return this.fail('No known explanation with that id', mode);
         detail = knownExplain(event.explain ?? undefined, this.playerId, mode);
         if (!detail) return this.fail('That explanation is not known to your character', mode);
-      } else if (d.query === 'plan') detail = { ...o.self.provisions.readiness, ...o.self.inventory };
+      } else if (d.query === 'look' && d.target === 'prices') detail = { prices: o.store.stock ?? [] };
+      else if (d.query === 'plan') detail = { ...o.self.provisions.readiness, ...o.self.inventory };
       else if (d.query === 'journal')
         detail = observation(this.sim, this.playerId, this.known, mode, this.knowledge, 0).journal;
       else if (d.query === 'inspect') {
         const [kind, id] = (d.target ?? '').split(':');
-        detail =
-          kind === 'actor'
-            ? Number(id) === this.playerId
-              ? o.self
-              : o.present.find((a) => a.id === Number(id))
-            : kind === 'item'
-              ? o.self.inventory.carried.find((i) => i.id === Number(id))
-              : o.places.find((p) => p.id === Number(id));
+        if (kind === 'actor' && Number(id) !== this.playerId) {
+          const person = o.knownPeople.find((a) => a.id === Number(id));
+          const opinion = o.self.social.opinions.find((a) => a.targetId === Number(id));
+          const target = person?.id;
+          const record = target === undefined ? undefined : this.sim.world.social.opinions[this.playerId]?.[target];
+          const reasons =
+            target === undefined
+              ? []
+              : social.reasonsOf(this.sim.world, this.playerId, target).map((r) => ({
+                  label: r.label,
+                  ...social.reasonContribution(this.sim.world, this.playerId, target, r),
+                }));
+          detail = {
+            person,
+            opinion,
+            base: record?.base,
+            volatile: record?.volatile,
+            reasons,
+            relationships: o.self.social.relationships.filter((r) => r.otherId === target),
+            memories: o.self.social.memories.filter((m) => person && m.summary.includes(person.name)),
+          };
+        } else if (kind === 'item') {
+          const item = o.self.inventory.carried.find((i) => i.id === Number(id));
+          detail = item ? { item, catalog: this.sim.content.items[item.defId] } : undefined;
+        } else detail = kind === 'actor' ? o.self : o.places.find((p) => p.id === Number(id));
       }
     } else if (command.kind === 'activity.wait') {
       const end = command.data.untilTime ?? at + command.data.minutes;
@@ -193,10 +235,43 @@ export class PlaySession {
             (urge.targetId === undefined || e.data.targetId === urge.targetId),
         );
         if (interaction) detail = eventView(interaction, this.playerId, mode);
-        else
-          warning = 'The requested conversation did not take place: the other person may have left or be unavailable.';
+        else if (socialSave) {
+          const reason =
+            urge.targetId === undefined
+              ? 'No target'
+              : social.interactionAvailability(
+                  this.sim.world,
+                  this.sim.content,
+                  this.playerId,
+                  urge.targetId,
+                  urge.interactionId,
+                ).reason;
+          const restored = PlaySession.load(this.base, socialSave);
+          this.sim = restored.sim;
+          this.known = restored.known;
+          this.knowledge = restored.knowledge;
+          this.metrics = restored.metrics;
+          this.money = restored.money;
+          this.changes = restored.changes;
+          return this.fail(reason ?? 'The conversation cannot take place this hour; no time spent', mode);
+        }
       }
     }
+    const next = this.observe(mode);
+    const recentKnown = this.knowledge.slice(knowledgeStart);
+    const background = recentKnown.filter(
+      (e) => e.kind === 'social.interaction' && !interrupts.some((i) => i.eventId === e.id),
+    );
+    this.changes = {
+      elapsed: this.sim.world.time - at,
+      money: this.money.slice(moneyStart),
+      needs: next.self.needs.list.flatMap((n) => {
+        const old = previous.self.needs.list.find((p) => p.id === n.id);
+        return old?.band !== n.band ? [`${n.name}: ${old?.band || 'steady'} → ${n.band || 'steady'}`] : [];
+      }),
+      events: recentKnown.filter((e) => interrupts.some((i) => i.eventId === e.id)).map((e) => e.summary),
+      skipped: command.kind === 'activity.wait' ? background.length : 0,
+    };
     this.entries.push({
       type: 'command',
       command: JSON.parse(JSON.stringify(command)),
@@ -279,7 +354,30 @@ export class PlaySession {
         data: { urge: { kind: 'activity', activityId: 'idle_at_home', placeId: prior } },
       });
 
+    let purse = w.provisions.purses[pc] ?? 0;
+    const householdId = w.actors[pc]?.householdId ?? 0;
+    let household = w.provisions.households[householdId]?.cashCents ?? 0;
+    this.sim.sink = (event) => {
+      const p = w.provisions.purses[pc] ?? 0,
+        h = w.provisions.households[householdId]?.cashCents ?? 0;
+      if (
+        (p !== purse || h !== household) &&
+        [
+          'provisions.cash_transfer',
+          'provisions.purchase',
+          'provisions.sale',
+          'provisions.wages',
+          'provisions.restock',
+        ].includes(event.kind)
+      ) {
+        const reason = event.kind === 'provisions.wages' ? 'Wages' : eventView(event, pc, 'fair').summary;
+        this.money.push({ at: event.t, eventId: event.id, purse: p - purse, household: h - household, reason });
+        purse = p;
+        household = h;
+      }
+    };
     step(this.sim, actual);
+    this.sim.sink = undefined;
     const recent = eventsSince(w.log, lastId);
     // Perception and alert classification are shared with the web worker (ADR 0002 §3).
     const seen: Event[] = perceivedEvents(recent, pc, prior);
@@ -364,6 +462,8 @@ export class PlaySession {
       knowledgeArchive: packKnowledge(this.knowledge),
       entries: this.entries,
       metrics: this.metrics,
+      money: this.money,
+      changes: this.changes,
       // Retain generated source content so loading does not regenerate a town or run QA.
       ...(typeof this.configuration.source === 'object' ? { generatedContent: this.sim.content } : {}),
     });
@@ -389,6 +489,8 @@ export class PlaySession {
         .map((e: Event) => eventView(e, session.playerId, 'fair'));
     session.entries = saved.entries;
     session.metrics = saved.metrics;
+    session.money = saved.money ?? [];
+    session.changes = saved.changes ?? session.changes;
     return session;
   }
   fork(): PlaySession {
@@ -400,6 +502,8 @@ export class PlaySession {
     copy.knowledge = JSON.parse(JSON.stringify(this.knowledge));
     copy.entries = JSON.parse(JSON.stringify(this.entries));
     copy.metrics = JSON.parse(JSON.stringify(this.metrics));
+    copy.money = JSON.parse(JSON.stringify(this.money));
+    copy.changes = JSON.parse(JSON.stringify(this.changes));
     return copy;
   }
   static replay(content: ContentBundle, log: ReplayLog, mode: ObservationMode = 'fair'): PlaySession {

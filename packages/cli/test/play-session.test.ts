@@ -97,6 +97,8 @@ describe('stateless play CLI (a new process per call)', () => {
     const before = read(dir, 'save.json');
     const commands = read(dir, 'commands.jsonl');
     for (const line of [
+      '-1',
+      '0',
       '99999',
       'definitely-not-a-command',
       'wait nonsense',

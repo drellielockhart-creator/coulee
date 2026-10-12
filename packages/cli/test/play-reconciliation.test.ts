@@ -313,8 +313,9 @@ it('does not report a spontaneous conversation as the requested interaction when
     actorId: s.playerId,
     data: { urge: { kind: 'interaction', interactionId: 'insult', targetId: lydia } },
   });
-  expect(r.ok).toBe(true);
-  expect(r.warning).toContain('requested conversation did not take place');
+  expect(r.ok).toBe(false);
+  expect(r.elapsedMinutes).toBe(0);
+  expect(r.reason).toContain('leaving');
   expect(r.detail).toBeUndefined();
   const w = JSON.parse(s.save()).world as World;
   expect(
@@ -325,7 +326,7 @@ it('does not report a spontaneous conversation as the requested interaction when
         e.data.initiatorId === s.playerId &&
         e.data.interactionId !== 'insult',
     ),
-  ).toBe(true);
+  ).toBe(false);
 }, 120000);
 
 it('a failed apology is not narrated as a reconciliation', () => {

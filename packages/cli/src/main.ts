@@ -224,6 +224,7 @@ cli
 cli
   .command('play [command]', 'Play a newcomer headlessly (fair knowledge by default)')
   .option('--text', 'Readable text REPL (default)')
+  .option('--compact', 'Omit unchanged session status/menu lines')
   .option('--jsonl', 'One JSON Command in, one JSON observation out')
   .option('--replay <file>', 'Replay commands.jsonl and verify every state hash')
   .option('--god', 'Reveal ground truth')
@@ -244,7 +245,10 @@ cli
   );
 
 cli.help();
-cli.parse();
+// Negative menu numbers are positional play input, not CAC flags.
+const cliArgs = process.argv.slice();
+if (cliArgs[2] === 'play' && /^-\d+$/.test(cliArgs.at(-1) ?? '')) cliArgs[cliArgs.length - 1] = ` ${cliArgs.at(-1)}`;
+cli.parse(cliArgs);
 if (!cli.matchedCommand && process.argv.length > 2) {
   console.error(`unknown command: ${process.argv.slice(2).join(' ')}`);
   cli.outputHelp();

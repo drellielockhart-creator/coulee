@@ -6,6 +6,7 @@ import {
   hashValue,
   items,
   provisions,
+  psyche,
   type Sim,
   social,
 } from '@coulee/core';
@@ -34,9 +35,15 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     });
   for (const p of Object.values(w.places)) inspect(`place:${p.id}`, p.name);
   for (const other of Object.values(w.actors))
-    if (other.placeId === a.placeId) inspect(`actor:${other.id}`, `${other.name.given} ${other.name.family}`.trim());
+    if (other.placeId === a.placeId || social.isAcquainted(w, pc, other.id))
+      inspect(`actor:${other.id}`, `${other.name.given} ${other.name.family}`.trim());
   const carried = items.stacksDeep(w, items.carriedBy(pc)).map((s) => s.stack);
   for (const s of carried) inspect(`item:${s.id}`, c.items[s.defId]?.name ?? s.defId);
+  add('prices', 'Prices / local stock', {
+    kind: 'activity.observe',
+    actorId: pc,
+    data: { query: 'look', target: 'prices' },
+  });
   if (!a.alive) return out;
   add('wait', 'Wait 1 hour', { kind: 'activity.wait', actorId: pc, data: { minutes: 60 } });
   const state = activity.currentActivity(w, pc);
@@ -60,8 +67,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     for (const other of Object.values(w.actors))
       if (other.id !== pc && other.alive && other.placeId === a.placeId)
         for (const def of Object.values(c.interactions)) {
-          const acquainted = social.isAcquainted(w, pc, other.id);
-          if ((def.requires.stranger && acquainted) || (def.requires.acquainted && !acquainted)) continue;
+          if (!social.interactionAvailability(w, c, pc, other.id, def.id).ok) continue;
           add(`talk:${def.id}:${other.id}`, `${def.name}: ${other.name.given} ${other.name.family}`.trim(), {
             kind: 'core.urge',
             actorId: pc,
@@ -183,9 +189,22 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
           d.untilTime >= w.time &&
           d.untilTime % 60 === 0 &&
           d.untilTime - w.time <= 43200)) &&
-      (d.untilEvent === undefined || (typeof d.untilEvent === 'string' && d.untilEvent.length > 0))
+      (d.untilEvent === undefined ||
+        ['social.interaction', 'belief.transmitted', 'provisions.wages', 'activity.gathering'].includes(d.untilEvent))
       ? null
       : 'Wait uses whole hours, at most 30 days';
+  }
+  if (command.kind === 'core.standing_orders') {
+    const d = command.data;
+    return (d.agencyMode === undefined || ['commanded', 'psyche'].includes(d.agencyMode)) &&
+      d.orders &&
+      Object.keys(psyche.DEFAULT_STANDING_ORDERS).every((key) =>
+        key === 'activities'
+          ? Array.isArray(d.orders.activities) && d.orders.activities.every((id) => !!c.activities[id])
+          : typeof d.orders[key as keyof typeof d.orders] === 'boolean',
+      )
+      ? null
+      : 'Invalid standing orders';
   }
   if (command.kind === 'provisions.refill')
     return provisions.refillQuote(w, c, pc, command.data.itemId, command.data.ml) !== null
@@ -219,16 +238,32 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   }
   if (command.kind === 'core.urge' && command.data.urge.kind === 'interaction') {
     const u = command.data.urge;
-    const target = u.targetId === undefined ? undefined : w.actors[u.targetId];
-    const state = activity.currentActivity(w, pc);
-    if (
-      c.interactions[u.interactionId] &&
-      target?.alive &&
-      target.id !== pc &&
-      target.placeId === actor.placeId &&
-      (state?.lockedUntil == null || state.lockedUntil <= w.time)
-    )
-      return null;
+    if (u.targetId === undefined) return 'Choose a person';
+    return social.interactionAvailability(w, c, pc, u.targetId, u.interactionId).reason ?? null;
+  }
+  if (command.kind === 'provisions.buy' || command.kind === 'provisions.sell') {
+    if (!Number.isSafeInteger(command.data.qty) || command.data.qty <= 0)
+      return 'Quantity must be a positive whole number';
+  }
+  if (command.kind === 'provisions.sell') {
+    const d = command.data,
+      stack = w.items.stacks[d.itemId];
+    if (!stack || d.qty > stack.qty) return 'Quantity exceeds available stock';
+    const quote = provisions.saleQuote(w, c, d.placeId, d.itemId);
+    const shop = w.provisions.stores[d.placeId];
+    const cash =
+      shop?.ownerHouseholdId == null
+        ? (shop?.tillCents ?? 0)
+        : (w.provisions.households[shop.ownerHouseholdId]?.cashCents ?? 0);
+    return d.placeId === actor.placeId &&
+      shop &&
+      provisions.storeOpen(w, c, d.placeId) &&
+      items.rootOf(w, stack).kind === 'actor' &&
+      provisions.accessibleStack(w, pc, stack) &&
+      quote !== null &&
+      quote * d.qty <= cash
+      ? null
+      : 'Sale unavailable: check ownership, shop hours and shop cash';
   }
   if (command.kind === 'provisions.buy') {
     if (!provisions.storeOpen(w, c, command.data.placeId)) return 'The shop is closed';
@@ -239,6 +274,7 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
       .stacksAt(w, items.atPlace(d.placeId))
       .filter((s) => s.defId === d.defId && !s.partial && !s.foodPartialPm && s.condition > 0 && s.spoilage < 1000)
       .reduce((n, s) => n + s.qty, 0);
+    if (d.qty > stock) return 'Quantity exceeds available stock';
     const funds =
       (w.provisions.purses[pc] ?? 0) +
       (w.provisions.households[actor.householdId]?.cashCents ?? 0) +

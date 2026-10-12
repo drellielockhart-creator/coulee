@@ -1,2 +1,3 @@
-/** Psyche commands. OWNER: module:psyche. Player urges arrive as 'core.urge' (command.ts). */
-export type PsycheCommand = never;
+import type { CommandOf } from '../command.ts';
+import type { AgencyMode, StandingOrders } from './agency.ts';
+export type PsycheCommand = CommandOf<'core.standing_orders', { agencyMode?: AgencyMode; orders: StandingOrders }>;

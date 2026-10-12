@@ -13,7 +13,7 @@ import type { ActorId, EventId, MemoryId, PlaceId, PropId } from '../ids.ts';
 import { loadCheckTerms } from '../items/api.ts';
 import { satisfyNeed } from '../needs/api.ts';
 import { synchronizeStoreTabs, transferCash } from '../provisions/api.ts';
-import { addAnxiety, addThought } from '../psyche/api.ts';
+import { addAnxiety, addThought, autonomous } from '../psyche/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -558,7 +558,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
         },
         er,
       );
-      if (!save.success) {
+      if (!save.success && autonomous(world, tg)) {
         const pair = makePair(world, ctx, tg, i, req.placeId, req.present.length);
         if (pair && requiresFail(pair, next, 'forced') === null) {
           const present = req.present;

@@ -109,7 +109,12 @@ export function observation(
       raining: provisions.isRaining(w.meta.seed, calendarAt(w.time)),
       description: provisions.isRaining(w.meta.seed, calendarAt(w.time)) ? 'Rain' : 'Dry',
     },
-    place: { id: a.placeId, name: w.places[a.placeId]?.name ?? 'Unknown', kind: w.places[a.placeId]?.kind ?? '' },
+    place: {
+      id: a.placeId,
+      name: w.places[a.placeId]?.name ?? 'Unknown',
+      kind: w.places[a.placeId]?.kind ?? '',
+      description: c.places[w.places[a.placeId]?.defId ?? '']?.description ?? '',
+    },
     self: {
       id: pc,
       name: `${a.name.given} ${a.name.family}`.trim(),
@@ -130,12 +135,24 @@ export function observation(
       social: social.viewSocialActor(w, c, pc, opts),
       belief: belief.viewBeliefActor(w, c, pc, opts),
       inventory: items.viewItemsActor(w, c, pc, opts),
-      provisions: ownProvisions,
+      provisions: { ...ownProvisions, householdCents: w.provisions.households[a.householdId]?.cashCents ?? 0 },
+      agencyMode: psyche.agencyMode(w, pc),
+      standingOrders: psyche.standingOrders(w, pc),
     },
     present: Object.values(w.actors)
       .filter((other) => other.id !== pc && other.placeId === a.placeId)
       .map((other) => publicActor(other.id)),
-    places: Object.values(w.places).map((p) => ({ id: p.id, name: p.name, kind: p.kind })),
+    places: Object.values(w.places).map((p) => ({
+      id: p.id,
+      name: p.name,
+      kind: p.kind,
+      description: c.places[p.defId]?.description ?? '',
+    })),
+    knownPeople: Object.values(w.actors)
+      .filter((other) => other.placeId === a.placeId || social.isAcquainted(w, pc, other.id))
+      .map((other) => publicActor(other.id)),
+    interactionVerbs: Object.values(c.interactions).map((d) => ({ id: d.id, name: d.name })),
+    changes: { elapsed: 0, money: [] as MoneyChange[], needs: [] as string[], events: [] as string[], skipped: 0 },
     store: provisions.viewProvisionsPlace(w, c, a.placeId, opts),
     events: mode === 'god' ? w.log.events.slice(-8).map((e) => eventView(e, pc, mode)) : knowledge.slice(-8),
     rumors: knowledge.filter((e) => e.kind === 'belief.transmitted' && e.summary.startsWith('Heard:')),
@@ -145,3 +162,11 @@ export function observation(
   };
 }
 export type Observation = ReturnType<typeof observation>;
+
+export interface MoneyChange {
+  at: number;
+  eventId: number;
+  purse: number;
+  household: number;
+  reason: string;
+}

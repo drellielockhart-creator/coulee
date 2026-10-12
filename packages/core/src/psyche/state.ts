@@ -75,6 +75,9 @@ export interface AnxietyPools {
 }
 
 export interface ActorPsyche {
+  /** Absent means psyche; preserves existing NPC state hashes. */
+  agencyMode?: import('./agency.ts').AgencyMode;
+  standingOrders?: import('./agency.ts').StandingOrders;
   ego: number;
   superego: number;
   idAppetite: number;
@@ -287,6 +290,10 @@ export function initPsycheState(world: World, ctx: InitContext): void {
     const discretion = actor.values.discretion ?? 0;
     const p: ActorPsyche = {
       ...blankPsyche(),
+      ...(seed?.agency_mode ? { agencyMode: seed.agency_mode } : {}),
+      ...(seed?.standing_orders
+        ? { standingOrders: { ...seed.standing_orders, activities: [...seed.standing_orders.activities] } }
+        : {}),
       ego,
       superego,
       idAppetite,

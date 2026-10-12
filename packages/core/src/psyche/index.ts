@@ -1,5 +1,6 @@
 /** module:psyche. OWNER: module:psyche. */
 
+export type { AgencyMode, StandingOrders } from './agency.ts';
 export {
   ACCRUAL_CAP,
   anxietyBand,

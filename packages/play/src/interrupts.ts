@@ -1,6 +1,6 @@
 /** Shared worker/headless policy, 11 §1.6. Input must already be perspective-filtered.
  * Host wall-clock coalescing belongs outside this deterministic policy. */
-import type { ActorId, ContentBundle, Event, PlaceId, World } from '@coulee/core';
+import { type ActorId, type ContentBundle, type Event, type PlaceId, social, type World } from '@coulee/core';
 
 export interface AlertEvent {
   id: number;
@@ -87,17 +87,32 @@ export function perceivedEvents(events: readonly Event[], pc: ActorId, priorPlac
 
 /** Classify one perceived event for the alert policy (danger, summons, vitals, arrival). */
 export function alertForEvent(world: World, content: ContentBundle, pc: ActorId, e: Event): Interrupt {
+  const participant =
+    e.roles.some((r) => r.actor === pc && r.role !== 'witness') ||
+    (e.kind === 'social.interaction' && (e.data.initiatorId === pc || e.data.targetId === pc));
+  const strongTie = e.roles.some(
+    (r) => social.areKin(world, pc, r.actor) || Math.abs(social.opinionOf(world, pc, r.actor).affection) >= 50,
+  );
+  const hostile =
+    e.kind === 'social.interaction' && !!content.interactions[e.data.interactionId]?.tags.includes('hostile');
+  if (e.kind === 'social.interaction' && !participant && !strongTie && !hostile)
+    return { category: 'background', reason: e.kind, eventId: e.id, score: 0, pause: false };
   return alertFor({
     id: e.id,
+    notablePerson: strongTie,
     kind: e.kind,
     importance: e.importance,
     participant: e.roles.some((r) => r.actor === pc && r.role !== 'witness'),
-    addressed: e.kind === 'social.interaction' && e.data.targetId === pc,
+    addressed:
+      (e.kind === 'social.interaction' && e.data.targetId === pc) ||
+      (e.kind === 'belief.transmitted' &&
+        e.data.listenerId === pc &&
+        !!world.belief.props[e.data.propId]?.args.some((arg) => arg.kind === 'actor' && arg.id === pc)),
     danger:
       (String(e.kind) === 'core.actor_died' && e.roles.some((r) => r.actor === pc)) ||
       (e.kind === 'social.interaction' &&
         !!content.interactions[e.data.interactionId]?.tags.includes('hostile') &&
-        (e.data.targetId === pc || e.data.initiatorId === pc)),
+        (participant || e.place === world.actors[pc]?.placeId)),
     arrival:
       e.kind === 'activity.moved' && (e.data.actorId === pc || (world.chronicle.notoriety[e.data.actorId] ?? 0) >= 50),
     worseVital:

@@ -1,9 +1,11 @@
 import { type ContentBundle, ScenarioActorSchema, ScenarioHouseholdSchema } from '@coulee/content/schema';
-import { createSim, hashValue } from '@coulee/core';
+import { createSim, hashValue, psyche } from '@coulee/core';
 import { GEN_VERSION, generateTown, type TownRecipe, townContent } from '@coulee/worldgen';
 
 export type WorldSource = string | { kind: 'generated'; recipe: TownRecipe };
 export interface PCSpec {
+  agencyMode?: psyche.AgencyMode;
+  standingOrders?: psyche.StandingOrders;
   name?: string;
   kit?: string;
   ancestry?: string;
@@ -46,6 +48,8 @@ export function sessionContent(base: ContentBundle, spec: SessionSpec) {
   if (!content.peoples[ancestry]) throw new Error('Unknown ancestry');
   const actor = ScenarioActorSchema.parse({
     key,
+    agency_mode: spec.pc?.agencyMode ?? 'commanded',
+    standing_orders: spec.pc?.standingOrders ?? psyche.DEFAULT_STANDING_ORDERS,
     given: spec.pc?.name ?? 'Ellis Wayfarer',
     family: '',
     sex: 'female',

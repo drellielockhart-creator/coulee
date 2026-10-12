@@ -4,6 +4,7 @@ import { inventoryIndex, loadReport, movementDelay } from '../items/api.ts';
 import { admitSleep } from '../provisions/api.ts';
 import { chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
+import { interactionAvailability } from '../social/api.ts';
 import { addHours } from '../time.ts';
 import type { World } from '../world.ts';
 import { noteCall, resolveActivityPlace } from './api.ts';
@@ -13,6 +14,18 @@ import { activityExplain } from './explain.ts';
 import { type ActivitySource, recomputeOccupancy } from './state.ts';
 
 export function activitySystem(world: World, ctx: SimContext): void {
+  // Accepted conversations reserve both participants for this hour, before anyone moves.
+  const invited = new Set<ActorId>();
+  for (const cmd of ctx.commands) {
+    if (cmd.kind !== 'core.urge' || cmd.data.urge.kind !== 'interaction' || cmd.data.urge.targetId === undefined)
+      continue;
+    const u = cmd.data.urge;
+    if (
+      u.targetId !== undefined &&
+      interactionAvailability(world, ctx.content, cmd.actorId, u.targetId, u.interactionId).ok
+    )
+      invited.add(u.targetId);
+  }
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   for (const id of idsOf<ActorId>(world.actors)) {
     const actor = requiredRow(world.actors, id);
@@ -49,8 +62,8 @@ export function activitySystem(world: World, ctx: SimContext): void {
     const urge = chosen?.urge;
     // An explicit conversation occupies this hour at the current venue. A schedule must
     // not carry its speaker away (or put them to sleep) before social resolves it.
-    const conversation = chosen?.voice === 'command' && urge?.kind === 'interaction';
-    let activityId = urge?.kind === 'activity' ? urge.activityId : conversation ? 'idle_at_home' : routine?.activityId;
+    const conversation = (chosen?.voice === 'command' && urge?.kind === 'interaction') || invited.has(id);
+    let activityId = conversation ? 'idle_at_home' : urge?.kind === 'activity' ? urge.activityId : routine?.activityId;
     let source: ActivitySource = conversation
       ? 'command'
       : urge?.kind === 'activity'

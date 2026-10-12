@@ -130,7 +130,10 @@ describe('headless sessions', () => {
     expect(s.fork().act(cmd.doActivity(pc, 'sleep')).ok).toBe(true);
     const target = s.observe().present[0];
     expect(target).toBeDefined();
-    expect(s.fork().act(cmd.interact(pc, 'chat', required(target).id)).ok).toBe(true);
+    const sleeping = s.fork().act(cmd.interact(pc, 'chat', required(target).id));
+    expect(sleeping.ok).toBe(false);
+    expect(sleeping.elapsedMinutes).toBe(0);
+    expect(sleeping.reason).toContain('asleep');
     while (s.observe().time.t < 6 * 60) s.advance(60);
     doText(s, 'go Pratt');
     const o = s.observe(),
@@ -211,7 +214,7 @@ describe('headless sessions', () => {
           }
         }
         if (!bought && unlocked) {
-          const store = o.places.find((p) => /outfit|store/i.test(p.name));
+          const store = o.places.find((p) => /outfit|store|mercantile/i.test(p.name));
           const go = store ? available(`go:${store.id}`) : undefined;
           if (go) {
             run(go);
