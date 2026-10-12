@@ -188,6 +188,18 @@ Every doc uses these terms with these meanings.
     - **Fae artifacts and charms find their way into mortal settlements and disrupt them.** A single wondrous, useful thing arrives in a town and reshapes desire, envy, ownership, rumor, faith and feud around itself; the town's story becomes the object's story.
     - The touchpoint is the "object falls from the sky" premise of *The Gods Must Be Crazy*, used only as a narrative shape and **not** homaged. Avoid its colonial/primitivist framing: every people here is equally sophisticated, and the charm disrupts *because* it is genuinely useful and genuinely strange.
     - Charms are also **real gameplay items** for the PC, with uses, costs and consequences. See `13-fae-magic-charms-and-omens.md`.
+  - **Doc 13's thirteen recommendations are approved** (13 §10). These include:
+    - the **conservation rule**: no fae effect creates kcal, cents or stacks, only moves or borrows them;
+    - Fae Courtesy as the working check;
+    - the Tally as an Obligation-ledger debt;
+    - debt as the road to the Witch's Debt Origin;
+    - `capped` fae compulsion on the PC by default;
+    - charms working at FI 0 and thinning their town;
+    - Director windfalls only from pre-existing reservoir charms;
+    - about one county charm thread every 6–8 weeks;
+    - the Cold Stair at FI 1 (algific);
+    - heavy strings behind World toggles;
+    - one secondhand charm at a time under the store counter.
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.
