@@ -6,8 +6,10 @@ import { PlaceSchema, ScenarioSchema, SiteSchema } from '@coulee/content/schema'
 import { createSim, findNonIntegers, runHours, stateHash, toViewModel } from '@coulee/core';
 import { checkTown, GEN_VERSION, type GeneratedTown, generateTown, townContent } from '@coulee/worldgen';
 import { afterAll, describe, expect, it } from 'vitest';
+import { sha256 } from '../../worldgen/src/hash.ts';
 import { generateTimedTown, writeGeneratedTown } from '../src/generation.ts';
 import { runScenario, writeRunOutputs } from '../src/harness.ts';
+import layoutHashes from './fixtures/town-v2-layout-hashes.json';
 import { baseContent } from './helpers.ts';
 
 const towns = new Map<number, GeneratedTown>();
@@ -40,6 +42,10 @@ describe('procedural ford towns', () => {
     'seed %i: schemas, structural QA and 30 days without collapse',
     (seed) => {
       const t = town(seed);
+      // Pre-county cc3307c layouts: optional region context must not move existing towns.
+      expect(sha256(JSON.stringify({ scenario: t.scenario, site: t.site, places: t.places }))).toBe(
+        layoutHashes[seed - 1],
+      );
       expect(ScenarioSchema.parse(t.scenario)).toEqual(t.scenario);
       expect(SiteSchema.parse(t.site)).toEqual(t.site);
       for (const p of t.places) expect(PlaceSchema.parse(p)).toEqual(p);
