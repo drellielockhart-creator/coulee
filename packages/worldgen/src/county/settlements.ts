@@ -1,34 +1,30 @@
 import { countyRandom, distance } from './common.ts';
-import type { CountySettlement, EcologyCell, FaeLayer, ResolvedCountyRecipe, TerrainCell, WaterCell } from './types.ts';
+import { nameCountySettlements } from './names.ts';
+import type {
+  CountyNamedFeature,
+  CountySettlement,
+  EcologyCell,
+  FaeLayer,
+  ResolvedCountyRecipe,
+  TerrainCell,
+  WaterCell,
+} from './types.ts';
 
-const NAMES = [
-  'Iron',
-  'Lantern',
-  'Kvale',
-  'Penhallow',
-  'Hollin',
-  'Hazel',
-  'Basswood',
-  'Alder',
-  'Flint',
-  'Willow',
-  'Kettle',
-  'Bell',
-];
-const SUFFIX = { ford_town: 'Ford', mill: 'Mills', landing: 'Landing', diggings: 'Diggings', farm: 'Prairie' };
 export function countySettlements(
   r: ResolvedCountyRecipe,
   t: TerrainCell[],
   water: WaterCell[],
   e: EcologyCell[],
   fae: FaeLayer,
+  features: CountyNamedFeature[] = [],
 ): CountySettlement[] {
   const result: CountySettlement[] = [];
   const count = Math.max(6, Math.round(t.length / 1800)) + (r.preset === 'river' ? 1 : 0);
   const kinds: CountySettlement['kind'][] = ['ford_town', 'landing', 'mill', 'diggings', 'farm', 'landing'];
   for (let i = 6; i < count; i++) kinds.push(i % 3 === 0 ? 'ford_town' : i % 3 === 1 ? 'farm' : 'landing');
-  const names = countyRandom(r, 'settlements', 'names').shuffleByKey(NAMES, (n) => NAMES.indexOf(n));
-  for (const [i, kind] of kinds.entries()) {
+  // Siting has not changed: retain its v2/version-1 draws independently of text.
+  const sitingRecipe = { ...r, layerVersions: { ...r.layerVersions, settlements: 1 } };
+  for (const kind of kinds) {
     const candidates = t
       .filter((c) => {
         if (
@@ -55,7 +51,7 @@ export function countySettlements(
       .map((c) => {
         const anchorDistance = Math.min(...fae.anchors.map((a) => distance(a.cell, c.id, r.size.width)));
         const score =
-          countyRandom(r, 'settlements', `${kind}:${c.id}`).int(0, 100) +
+          countyRandom(sitingRecipe, 'settlements', `${kind}:${c.id}`).int(0, 100) +
           (kind === 'ford_town'
             ? 600 - anchorDistance * 15 + (water[c.id] as WaterCell).order * 30
             : kind === 'mill'
@@ -73,7 +69,7 @@ export function countySettlements(
     result.push({
       id: `${kind}_${best.c.id}`,
       cell: best.c.id,
-      name: `${names[i % names.length]} ${SUFFIX[kind]}`,
+      name: '',
       kind,
       suitability: best.score,
       required: true,
@@ -97,11 +93,12 @@ export function countySettlements(
     result.push({
       id: `farm_${cell.id}`,
       cell: cell.id,
-      name: `${names[result.length % names.length]} Farmsteads`,
+      name: '',
       kind: 'farm',
       suitability: 500 - cell.slopePm * 5,
       required: true,
     });
   }
+  nameCountySettlements(r, t, water, e, result, features);
   return result;
 }

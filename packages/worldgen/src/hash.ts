@@ -11,23 +11,43 @@ const K = [
 ];
 const rotate = (n: number, bits: number) => (n >>> bits) | (n << (32 - bits));
 export function sha256(text: string): string {
-  const bytes: number[] = [];
-  for (const char of text) {
-    let c = char.codePointAt(0) as number;
-    if (c >= 0xd800 && c <= 0xdfff) c = 0xfffd;
-    if (c < 0x80) bytes.push(c);
-    else if (c < 0x800) bytes.push(0xc0 | (c >>> 6), 0x80 | (c & 63));
-    else if (c < 0x10000) bytes.push(0xe0 | (c >>> 12), 0x80 | ((c >>> 6) & 63), 0x80 | (c & 63));
-    else bytes.push(0xf0 | (c >>> 18), 0x80 | ((c >>> 12) & 63), 0x80 | ((c >>> 6) & 63), 0x80 | (c & 63));
+  // A typed buffer avoids a large boxed-number array for county raster JSON.
+  // UTF-16 units require at most three UTF-8 bytes each, including replacements.
+  const bytes = new Uint8Array(Math.ceil((text.length * 3 + 9) / 64) * 64);
+  let length = 0;
+  for (let i = 0; i < text.length; i++) {
+    let c = text.charCodeAt(i);
+    if (c >= 0xd800 && c <= 0xdbff) {
+      const low = text.charCodeAt(i + 1);
+      if (low >= 0xdc00 && low <= 0xdfff) {
+        c = 0x10000 + (c - 0xd800) * 1024 + low - 0xdc00;
+        i++;
+      } else c = 0xfffd;
+    } else if (c >= 0xdc00 && c <= 0xdfff) c = 0xfffd;
+    if (c < 0x80) bytes[length++] = c;
+    else if (c < 0x800) {
+      bytes[length++] = 0xc0 | (c >>> 6);
+      bytes[length++] = 0x80 | (c & 63);
+    } else if (c < 0x10000) {
+      bytes[length++] = 0xe0 | (c >>> 12);
+      bytes[length++] = 0x80 | ((c >>> 6) & 63);
+      bytes[length++] = 0x80 | (c & 63);
+    } else {
+      bytes[length++] = 0xf0 | (c >>> 18);
+      bytes[length++] = 0x80 | ((c >>> 12) & 63);
+      bytes[length++] = 0x80 | ((c >>> 6) & 63);
+      bytes[length++] = 0x80 | (c & 63);
+    }
   }
-  const bits = bytes.length * 8;
-  bytes.push(0x80);
-  while (bytes.length % 64 !== 56) bytes.push(0);
+  const bits = length * 8;
+  bytes[length] = 0x80;
+  const paddedLength = Math.ceil((length + 9) / 64) * 64;
+  length = paddedLength - 8;
   const high = Math.floor(bits / 4294967296);
-  for (const word of [high, bits >>> 0]) for (const shift of [24, 16, 8, 0]) bytes.push((word >>> shift) & 255);
+  for (const word of [high, bits >>> 0]) for (const shift of [24, 16, 8, 0]) bytes[length++] = (word >>> shift) & 255;
   const h = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
-  const w = new Array<number>(64).fill(0);
-  for (let offset = 0; offset < bytes.length; offset += 64) {
+  const w = new Int32Array(64);
+  for (let offset = 0; offset < paddedLength; offset += 64) {
     for (let i = 0; i < 16; i++) {
       const j = offset + i * 4;
       w[i] =

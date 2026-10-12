@@ -22,6 +22,7 @@ import { streamOrders } from '../../worldgen/src/county/common.ts';
 import { randomFor } from '../../worldgen/src/layout.ts';
 import { generateTimedCounty, writeGeneratedCounty } from '../src/county-generation.ts';
 import { writeGeneratedTown } from '../src/generation.ts';
+import earlierHashes from './fixtures/county-v2-earlier-hashes.json';
 import { baseContent } from './helpers.ts';
 
 const recipe = { genVersion: COUNTY_GEN_VERSION, seed: 42 };
@@ -45,6 +46,12 @@ describe('county layers', () => {
           `${preset}/${seed}`,
         ).toEqual([]);
         expect(findNonIntegers(c)).toEqual([]);
+        expect(new Set(c.settlements.map((s) => s.name)).size).toBe(c.settlements.length);
+        if (preset === 'coulee') {
+          const baseline = earlierHashes[String(seed) as keyof typeof earlierHashes];
+          for (const layer of ['terrain', 'hydrology', 'ecology', 'fae'] as const)
+            expect(c.report.hashes[layer]).toBe(baseline[layer]);
+        }
         expect(c.graph.edges.some((e) => e.kind === 'river')).toBe(true);
         rows.push({ seed, preset, stats: c.report.stats, timing, hash: c.report.hash, qa: c.report.qa });
       }
@@ -64,6 +71,58 @@ describe('county layers', () => {
       ),
     );
   }, 180_000);
+  it('names every creek reach, major valleys and settlements from their surroundings or families', () => {
+    const c = county(),
+      features = c.namedFeatures ?? [];
+    expect(new Set(features.map((f) => f.name)).size).toBe(features.length);
+    const namedCreekCells = features.filter((f) => f.kind === 'creek').flatMap((f) => f.cells);
+    expect(new Set(namedCreekCells).size).toBe(namedCreekCells.length);
+    expect([...namedCreekCells].sort((a, b) => a - b)).toEqual(
+      c.hydrology.filter((v) => v.kind === 'creek').map((v) => v.cell),
+    );
+    expect(features.some((f) => f.kind === 'valley' && f.major)).toBe(true);
+    const svg = renderCountySvg(c);
+    expect(svg).toContain('id="geography"');
+    expect(svg).toMatch(/>[^<]+ Creek<\/text>/);
+    expect(svg).toMatch(/>[^<]+ Valley<\/text>/);
+    expect(
+      new Set(c.settlements.filter((s) => s.kind === 'farm').map((s) => s.name.split(' ').at(-1))).size,
+    ).toBeGreaterThan(1);
+    for (const s of c.settlements) {
+      expect(s.foundingFamily).toBeTruthy();
+      expect(features.some((f) => f.id === s.namedFeatureId)).toBe(true);
+      expect(/\d|Farmsteads/.test(s.name)).toBe(false);
+    }
+    const bad = structuredClone(c);
+    const first = bad.settlements[0],
+      second = bad.settlements[1];
+    if (!first || !second) throw new Error('missing settlements');
+    second.name = first.name;
+    expect(checkCounty(bad).find((q) => q.check === 'settlement names')?.pass).toBe(false);
+  });
+  it('reports road sinuosity and bends the reviewed seeds with terrain', () => {
+    for (const seed of [7, 42, 63]) {
+      const c = seed === 42 ? county() : generateCounty({ ...recipe, seed });
+      const roads = c.graph.edges.filter((e) => e.kind.endsWith('_road'));
+      let longestStraight = 0;
+      for (const e of roads) {
+        let previousStep = 0,
+          run = 0;
+        for (let i = 1; i < e.cells.length; i++) {
+          const step = (e.cells[i] as number) - (e.cells[i - 1] as number);
+          run = step === previousStep ? run + 1 : 1;
+          previousStep = step;
+          longestStraight = Math.max(longestStraight, run);
+        }
+        const a = c.terrain[e.cells[0] as number],
+          b = c.terrain[e.cells.at(-1) as number];
+        if (!a || !b) throw new Error('missing road endpoints');
+        expect(e.sinuosityPm).toBe(Math.round((1000 * e.lengthFt) / (1320 * Math.hypot(a.x - b.x, a.y - b.y))));
+      }
+      expect(c.report.stats.roadSinuosityMeanPm).toBeGreaterThan(1160);
+      expect(longestStraight).toBeLessThanOrEqual(13);
+    }
+  });
   it('counts channel Strahler order from confluences, excluding dry feeder cells', () => {
     const base = county().terrain[0] as TerrainCell;
     const downstream = [2, 2, 6, 5, 5, 6, null];
@@ -142,7 +201,7 @@ describe('county layers', () => {
     expect(generateCounty(recipe)).toEqual(a);
     for (let i = 1; i < COUNTY_LAYERS.length; i++) {
       const layer = COUNTY_LAYERS[i] as (typeof COUNTY_LAYERS)[number];
-      const b = generateCounty({ ...recipe, layerVersions: { [layer]: 2 } });
+      const b = generateCounty({ ...recipe, layerVersions: { [layer]: a.recipe.layerVersions[layer] + 1 } });
       for (const earlier of COUNTY_LAYERS.slice(0, i)) expect(b.report.hashes[earlier]).toBe(a.report.hashes[earlier]);
       expect(b.report.hashes[layer]).not.toBe(a.report.hashes[layer]);
     }

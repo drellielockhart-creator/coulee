@@ -94,7 +94,7 @@ sandboxes do not need the `tsx` executable's IPC socket. Build the web content
 artifact with `just bundle` before the first `just check` in a fresh worktree.
 
 
-## County generation (M5a slice 2, version 2)
+## County generation (M5a slice 2, version 3)
 
 `generateCounty({genVersion: COUNTY_GEN_VERSION, seed, preset?, size?, layerVersions?, constraints?})` returns the six pure layers, graph, recipe, SHA-256 hashes and integer QA statistics. Default: 100 × 128 forty-acre cells, 800 square miles. Dimensions accept 32–256; impossible constraints reject. Town generation keeps its independent version.
 
@@ -160,3 +160,50 @@ Changed this revision: `src/county/{common,terrain,nature,types,index,metrics,ro
 Deferred: M5 travel, non-town layouts, fair starting-food/travel acceptance, real device benchmarks, Q07 Native-nations content, Q08 census/history pre-roll, and the fae reservoir.
 
 Final validation: `VITEST_MAX_WORKERS=4 just check` passed: 645 tests / 61 files, invariants (189 files), and content validation (91 files). No commits.
+
+
+### County polish (version 3)
+
+County recipes now use version 3; settlement/cartography and route layer versions
+advance to 2. The v2 RNG namespace and the first four default layer versions stay
+fixed. All 64 `coulee` terrain, hydrology, ecology and fae hashes match the saved
+v2 fixture, and settlement cells are unchanged. Town generation retains version
+2 and its existing no-context byte regression.
+
+The settlement stage adds `namedFeatures`: named creek reaches (every wet creek
+cell belongs to exactly one), plus major valleys. At confluences the largest
+contributing tributary retains the name. Names use local geology, vegetation,
+landmarks, existing creek names and Hollin family templates from design doc 01.
+Settlements record a founding-family surname for the future census and a nearby
+feature reference; no census actors or history are invented. Generic parts
+follow the site: Ford, Landing, Mills, Diggings, Prairie, Ridge, Hollow, Valley
+or Settlement. Geographic qualifiers resolve collisions without numeric names.
+SVG creek/valley labels reserve space around settlement labels.
+
+Road cost adds quadratic grade, distance from interfluve crests, local relief,
+stronger hillside penalties and explicit ford/bridge costs. Distance fields are
+computed once per county, and shared roads still form the connected region graph.
+Each road exports integer `sinuosityPm` (path length divided by Euclidean endpoint
+distance × 1000); QA statistics include the mean and maximum. Straight connectors
+remain possible across level ground. Portable SHA-256 uses a typed UTF-8 buffer
+and generation reuses its computed QA metrics, preserving all hash values while
+reducing allocations and repeated work.
+
+Seeds 1–64 (`coulee`): repeated settlement-name occurrences **176 → 0**;
+affected counties **52 → 0**. Unweighted mean road-edge sinuosity **1.1266 →
+1.1993** (3,947 / 3,660 edges); minima 1.000 / 1.000, maxima 4.040 / 4.246.
+Reviewed seeds 7/42/63: **1.1178 / 1.1313 / 1.1244 → 1.1862 / 1.2498 /
+1.2143**. Their longest constant-direction road runs fall from **35 / 17 /
+15 cells to 13 / 12 / 11**. All existing county QA bands pass all 128 counties across both presets. Standalone full
+generation, including hashing/QA: **85 / 97 / 170 ms** minimum/mean/maximum;
+all 64 samples are below 200 ms. Final measurement excludes competing simulation tests; timing varies with shared CPU load and cold
+startup; rendering and town survival QA are excluded.
+
+Audit artifacts: `runs/county-polish-before.json`, `runs/county-polish-after.json`;
+PNGs rendered with `rsvg-convert`: `runs/county-{7,42,63}/map.png`.
+
+
+Version-3 validation: `VITEST_MAX_WORKERS=4 just check` passed: **667 tests / 63
+files**, invariants (**191 files**), content validation (**91 files**). Includes
+county-to-town export/reload and the unchanged 50-seed no-context town fixture.
+No commits.

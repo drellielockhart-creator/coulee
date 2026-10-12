@@ -94,7 +94,20 @@ export function countyMetrics(c: Pick<GeneratedCounty, 'recipe' | 'terrain' | 'h
       if (t.soil === 'loess' || water[b]?.floodplain) corridor += ft;
     }
   const pm = (a: number, b: number) => Math.round((1000 * a) / Math.max(1, b));
+  const roadSinuosities = c.graph.edges
+    .filter((e) => e.kind.endsWith('_road'))
+    .map((e) => {
+      const a = e.cells[0] as number,
+        b = e.cells[e.cells.length - 1] as number;
+      const dx = (a % w) - (b % w),
+        dy = Math.floor(a / w) - Math.floor(b / w);
+      return e.lengthFt / Math.max(1, 1320 * Math.sqrt(dx * dx + dy * dy));
+    });
   return {
+    roadSinuosityMeanPm: Math.round(
+      (1000 * roadSinuosities.reduce((a, b) => a + b, 0)) / Math.max(1, roadSinuosities.length),
+    ),
+    roadSinuosityMaxPm: Math.round(1000 * Math.max(1, ...roadSinuosities)),
     axisSharePm: pm(axis, creeks.length),
     maxDirectionSharePm: pm(Math.max(...dirs), creeks.length),
     bifurcationRatioX1000: pm(numerator, denominator),

@@ -38,10 +38,47 @@ export function countyRoutes(
   dist[source] = 0;
   heap.push([0, source]);
   const jitter = t.map((c) => countyRandom(r, 'routes', c.id).int(0, 9));
+  // Two linear multi-source distance transforms identify the medial crests of
+  // interfluves. Unlike a loess mask, these narrow corridors bend with drainage.
+  const adjacent = t.map((c) => neighbors8(c.id, r.size.width, r.size.height));
+  const distanceField = (sources: number[]) => {
+    const distance = new Int32Array(t.length).fill(t.length),
+      queue = [...sources];
+    for (const id of sources) distance[id] = 0;
+    for (let i = 0; i < queue.length; i++) {
+      const id = queue[i] as number;
+      for (const next of adjacent[id] as number[])
+        if (distance[next] === t.length) {
+          distance[next] = (distance[id] as number) + 1;
+          queue.push(next);
+        }
+    }
+    return distance;
+  };
+  const fromWater = distanceField(water.filter((v) => v.kind !== 'dry').map((v) => v.cell));
+  const crests = t
+    .filter(
+      (c) =>
+        (fromWater[c.id] as number) >= 2 &&
+        (adjacent[c.id] as number[]).every((n) => (fromWater[n] as number) <= (fromWater[c.id] as number)),
+    )
+    .map((c) => c.id);
+  const fromCrest = distanceField(crests);
+  const crestPenalties = t.map((c) =>
+    c.soil === 'loess'
+      ? Math.max(
+          0,
+          neighbors8(c.id, r.size.width, r.size.height).reduce(
+            (sum, n) => sum + (t[n] as TerrainCell).elevationFt - c.elevationFt,
+            0,
+          ),
+        ) * 6
+      : 0,
+  );
   while (heap.data.length) {
     const [d, id] = heap.pop();
     if (d !== dist[id]) continue;
-    for (const next of neighbors8(id, r.size.width, r.size.height)) {
+    for (const next of adjacent[id] as number[]) {
       const c = t[next] as TerrainCell,
         w = water[next] as WaterCell;
       if (c.protected || (w.kind === 'river' && !byCell.has(next))) continue;
@@ -56,16 +93,23 @@ export function countyRoutes(
         )
           continue;
       }
-      const rise = Math.abs(c.elevationFt - (t[id] as TerrainCell).elevationFt);
+      const rise = Math.abs(c.elevationFt - from.elevationFt);
+      const step = segmentFt(id, next, r.size.width);
+      const gradePm = Math.round((rise * 1000) / step);
+      // Uplands alone are too broad a corridor: prefer the crest within them.
+      // Valley roads follow contour benches; steep grades cost quadratically.
       const cost =
-        Math.round(segmentFt(id, next, r.size.width) / 13.2) +
-        rise * 5 +
+        Math.round(step / 13.2) +
+        rise * 10 +
+        gradePm * gradePm * 2 +
+        (crestPenalties[next] as number) +
+        (c.soil === 'loess' ? (fromCrest[next] as number) * (fromCrest[next] as number) * 60 : 0) +
         (c.x <= 1 || c.x >= r.size.width - 2 || c.y <= 1 || c.y >= r.size.height - 2 ? 3000 : 0) +
-        (c.soil === 'loess' || w.floodplain ? 0 : 180) +
+        (c.soil === 'loess' || w.floodplain ? 0 : 2000) +
         (c.bluff ? 200 : 0) +
         (c.slopePm > 80 ? 80 : 0) +
         (jitter[next] as number) +
-        (w.kind === 'creek' && !w.ford ? 4000 : 0);
+        (w.kind === 'creek' ? (w.ford ? 500 : 6000) : 0);
       if (d + cost < (dist[next] as number)) {
         dist[next] = d + cost;
         previous[next] = id;
@@ -130,6 +174,16 @@ export function countyRoutes(
       kind,
       cells,
       lengthFt,
+      sinuosityPm: Math.round(
+        (lengthFt * 1000) /
+          (CELL_FT *
+            Math.sqrt(
+              ((a.cell % r.size.width) - (b.cell % r.size.width)) *
+                ((a.cell % r.size.width) - (b.cell % r.size.width)) +
+                (Math.floor(a.cell / r.size.width) - Math.floor(b.cell / r.size.width)) *
+                  (Math.floor(a.cell / r.size.width) - Math.floor(b.cell / r.size.width)),
+            )),
+      ),
       crossings: cells
         .filter((id) => water[id]?.kind === 'creek')
         .map((cell) => ({ cell, kind: water[cell]?.ford ? ('ford' as const) : ('timber_bridge' as const) })),

@@ -1,5 +1,5 @@
 import type { QaResult } from '../types.ts';
-export const COUNTY_GEN_VERSION = 2;
+export const COUNTY_GEN_VERSION = 3;
 export const COUNTY_LAYERS = ['terrain', 'hydrology', 'ecology', 'fae', 'settlements', 'routes'] as const;
 export type CountyLayer = (typeof COUNTY_LAYERS)[number];
 export interface CountyRecipe {
@@ -81,6 +81,9 @@ export interface CountySettlement {
   cell: number;
   name: string;
   kind: 'ford_town' | 'mill' | 'landing' | 'diggings' | 'farm';
+  /** Surname reserved for the future census; no actor/history is materialized here. */
+  foundingFamily?: string;
+  namedFeatureId?: string;
   suitability: number;
   required: boolean;
 }
@@ -103,6 +106,8 @@ export interface RegionEdge {
   climbFt: number;
   descentFt: number;
   gradePm: number;
+  /** Path length / endpoint distance, rounded to per mille (roads only). */
+  sinuosityPm?: number;
   crossings?: Array<{ cell: number; kind: 'ford' | 'timber_bridge' }>;
   surface: 'earth' | 'gravel' | 'water' | 'other';
   availableMonths: number[];
@@ -125,12 +130,22 @@ export interface CountyStats extends ReturnType<typeof import('./metrics.ts').co
   anchors: number;
   roadFt: number;
 }
+export interface CountyNamedFeature {
+  id: string;
+  kind: 'creek' | 'valley';
+  name: string;
+  cells: number[];
+  labelCell: number;
+  /** Long, high-order reaches are candidates for map labels. */
+  major: boolean;
+}
 export interface GeneratedCounty {
   recipe: ResolvedCountyRecipe;
   terrain: TerrainCell[];
   hydrology: WaterCell[];
   ecology: EcologyCell[];
   fae: FaeLayer;
+  namedFeatures?: CountyNamedFeature[];
   settlements: CountySettlement[];
   graph: RegionGraph;
   report: { qa: QaResult[]; stats: CountyStats; hashes: Record<CountyLayer, string>; hash: string; deferred: string[] };

@@ -12,7 +12,8 @@ export const countyRandom = (r: ResolvedCountyRecipe, layer: CountyLayer, key: n
     r.seed,
     'worldgen',
     r.layerVersions[layer],
-    mixKey(r.genVersion, hashString32(`county:${layer}`), typeof key === 'number' ? key : hashString32(key)),
+    // The raster namespace remains v2; revisions advance only affected layers.
+    mixKey(2, hashString32(`county:${layer}`), typeof key === 'number' ? key : hashString32(key)),
   );
 export function resolveRecipe(r: CountyRecipe): ResolvedCountyRecipe {
   if (r.genVersion !== COUNTY_GEN_VERSION) throw new Error('Unsupported county genVersion');
@@ -22,10 +23,9 @@ export function resolveRecipe(r: CountyRecipe): ResolvedCountyRecipe {
   const size = { ...(r.size ?? { width: 100, height: 128 }) };
   if (![size.width, size.height].every((n) => Number.isInteger(n) && n >= 32 && n <= 256))
     throw new Error('County dimensions must be 32..256 cells');
-  const layerVersions = Object.fromEntries(COUNTY_LAYERS.map((l) => [l, r.layerVersions?.[l] ?? 1])) as Record<
-    CountyLayer,
-    number
-  >;
+  const layerVersions = Object.fromEntries(
+    COUNTY_LAYERS.map((l) => [l, r.layerVersions?.[l] ?? (l === 'settlements' || l === 'routes' ? 2 : 1)]),
+  ) as Record<CountyLayer, number>;
   if (Object.values(layerVersions).some((n) => !Number.isSafeInteger(n) || n < 1 || n > 0xffffffff))
     throw new Error('Layer versions must be positive uint32');
   const protectedCells = [...new Set(r.constraints?.protectedCells ?? [])].sort((a, b) => a - b);

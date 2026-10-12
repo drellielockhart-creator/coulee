@@ -1,10 +1,17 @@
 import type { QaResult } from '../types.ts';
 import { countyMetrics, segmentFt } from './metrics.ts';
 import type { GeneratedCounty } from './types.ts';
-export function checkCounty(c: GeneratedCounty): QaResult[] {
+export function checkCounty(c: GeneratedCounty, metrics = countyMetrics(c)): QaResult[] {
   const out: QaResult[] = [];
   const check = (name: string, errors: string[]) =>
     out.push({ check: name, pass: errors.length === 0, detail: errors.length ? errors.slice(0, 12).join('; ') : 'ok' });
+  const settlementNames = new Set<string>();
+  const nameErrors: string[] = [];
+  for (const s of c.settlements) {
+    if (!s.name.trim() || settlementNames.has(s.name)) nameErrors.push(`repeated or empty name: ${s.name}`);
+    settlementNames.add(s.name);
+  }
+  check('settlement names', nameErrors);
   check(
     'ford town',
     c.settlements.some((s) => s.kind === 'ford_town' && c.hydrology[s.cell]?.ford) ? [] : ['No ford town'],
@@ -136,7 +143,7 @@ export function checkCounty(c: GeneratedCounty): QaResult[] {
       graphErrors.push(`water direction ${edge.id}`);
   }
   check('region graph', graphErrors);
-  const m = countyMetrics(c),
+  const m = metrics,
     area = c.terrain.length / 12800;
   const band = (name: string, value: number, min: number, max: number) =>
     out.push({ check: name, pass: value >= min && value <= max, detail: `${value}; band ${min}..${max}` });

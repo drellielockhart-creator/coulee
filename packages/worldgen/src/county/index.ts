@@ -2,6 +2,7 @@ import { canonicalStringify } from '@coulee/core';
 import { sha256 } from '../hash.ts';
 import { resolveRecipe } from './common.ts';
 import { countyMetrics } from './metrics.ts';
+import { countyNamedFeatures } from './names.ts';
 import { countyEcology, countyFae, countyHydrology } from './nature.ts';
 import { checkCounty } from './qa.ts';
 import { countyRoutes } from './routes.ts';
@@ -29,7 +30,8 @@ export function* generateCountyStages(input: CountyRecipe): Generator<CountyLaye
   yield 'ecology';
   const fae = countyFae(recipe, terrain, hydrology, ecology);
   yield 'fae';
-  const settlements = countySettlements(recipe, terrain, hydrology, ecology, fae);
+  const namedFeatures = countyNamedFeatures(recipe, terrain, hydrology, ecology);
+  const settlements = countySettlements(recipe, terrain, hydrology, ecology, fae, namedFeatures);
   yield 'settlements';
   const graph = countyRoutes(recipe, terrain, hydrology, fae, settlements);
   yield 'routes';
@@ -40,6 +42,7 @@ export function* generateCountyStages(input: CountyRecipe): Generator<CountyLaye
   const rasterPayload = (rows: object[]) => ({ columns: Object.keys(rows[0] ?? {}), rows: rows.map(Object.values) });
   const hashPayloads = {
     ...layers,
+    settlements: { settlements, namedFeatures },
     terrain: rasterPayload(terrain),
     hydrology: rasterPayload(hydrology),
     ecology: rasterPayload(ecology),
@@ -55,6 +58,7 @@ export function* generateCountyStages(input: CountyRecipe): Generator<CountyLaye
     ecology,
     fae,
     settlements,
+    namedFeatures,
     graph,
     report: {
       qa: [],
@@ -78,7 +82,7 @@ export function* generateCountyStages(input: CountyRecipe): Generator<CountyLaye
       ],
     },
   };
-  county.report.qa = checkCounty(county);
+  county.report.qa = checkCounty(county, county.report.stats);
   const failures = county.report.qa.filter((q) => !q.pass);
   if (failures.length)
     throw new Error(`County seed ${recipe.seed}: ${failures.map((f) => `${f.check}: ${f.detail}`).join('; ')}`);
@@ -103,7 +107,10 @@ export function countyTownContext(c: GeneratedCounty, settlementId?: string): Co
     settlementId: s.id,
     townName: s.name,
     cell: s.cell,
-    creekName: c.hydrology[s.cell]?.stream ?? 'Creek',
+    creekName:
+      c.namedFeatures?.find((f) => f.kind === 'creek' && f.cells.includes(s.cell))?.name ??
+      c.hydrology[s.cell]?.stream ??
+      'Creek',
     riverName: 'Big River',
     onRiver: t.x <= 2,
     elevationFt: t.elevationFt,
