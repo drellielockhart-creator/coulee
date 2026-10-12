@@ -5,6 +5,7 @@ import type { ProtectionId } from '../content.ts';
 import { term } from '../explain.ts';
 import { type ItemId, rowsOf } from '../ids.ts';
 import {
+  allStacks,
   campThermal,
   consumeStack,
   consumeSupply,
@@ -43,7 +44,7 @@ export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo)
         campShelter.set(actor.id, campThermal(world, ctx.content, actor.id, true, index).shelter >= 20);
     }
   }
-  for (const stack of rowsOf(world.items.stacks)) {
+  for (const stack of allStacks(world)) {
     const def = ctx.content.items[stack.defId];
     if (!def) continue;
     let placed = memo?.[stack.id];
@@ -135,7 +136,7 @@ export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo)
 /** Atomic supply draw: devices do not grant light when they cannot sustain this hour. */
 export function devicesHour(world: World, ctx: SimContext): void {
   const inventory = inventoryIndex(world);
-  for (const stack of rowsOf(world.items.stacks)) {
+  for (const stack of allStacks(world)) {
     const def = ctx.content.items[stack.defId];
     const consumes = def?.consumes.filter((c) => c.per === 'hour' || c.per === 'day') ?? [];
     if (!def || !consumes.length) continue;

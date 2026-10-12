@@ -27,7 +27,7 @@ import { formProjection, suspicionOf } from '../belief/api.ts';
 import type { ContentBundle, DefenseId } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import { type ActorId, idsOf } from '../ids.ts';
-import { campContext, campSleepActivity } from '../items/api.ts';
+import { campContext, campSleepActivity, withInventoryPass } from '../items/api.ts';
 import { needValue } from '../needs/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -120,6 +120,12 @@ const CHOLERIC = 60;
 const STYLE_GAIN = 1;
 
 export function psycheSystem(world: World, ctx: SimContext): void {
+  // Proposals read the same inventory throughout this synchronous pass. The item API
+  // checks deletions live and invalidates creations/moves; nothing survives the call.
+  withInventoryPass(world, () => psychePass(world, ctx));
+}
+
+function psychePass(world: World, ctx: SimContext): void {
   for (const cmd of ctx.commands) {
     if (cmd.kind !== 'core.standing_orders') continue;
     const p = world.psyche.byActor[cmd.actorId];

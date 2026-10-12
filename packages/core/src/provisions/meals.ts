@@ -78,6 +78,12 @@ export function dailyKcal(world: World, content: ContentBundle, id: ActorId, now
   const schedule = content.occupations[a.occupationId]?.schedule ?? [];
   const hunger = Object.values(content.needs).find((n) => n.intake?.unit === 'kcal');
   if (!hunger?.intake) return BASE_KCAL_PER_DAY;
+  // These factors are constant across the 24 schedule slots. Keep multiplication
+  // order below unchanged: rounding the hourly result is part of the food rules.
+  let values = 100;
+  for (const clause of hunger.value_pct) values += clause.per_step_pct * a.values[clause.value];
+  const valueFactor = Math.max(0, values) / 100;
+  const physiology = (agePct(yearsBetween(a.born, cal.t)) * peopleKcalPct(content.peoples[a.ancestryId])) / 10000;
   let total = 0;
   for (let hour = 0; hour < 24; hour++) {
     const block = schedule.find(
@@ -91,11 +97,9 @@ export function dailyKcal(world: World, content: ContentBundle, id: ActorId, now
     let points =
       ((hunger.decay_per_hour * hunger.labor_pct[activity?.labor ?? 'light']) / 100) *
       (activity?.asleep ? hunger.asleep_pct / 100 : 1);
-    let values = 100;
-    for (const clause of hunger.value_pct) values += clause.per_step_pct * a.values[clause.value];
-    points *= Math.max(0, values) / 100;
+    points *= valueFactor;
     for (const trait of a.traits) points *= (hunger.trait_pct[trait] ?? 100) / 100;
-    points *= (agePct(yearsBetween(a.born, cal.t)) * peopleKcalPct(content.peoples[a.ancestryId])) / 10000;
+    points *= physiology;
     const air = airTempF({ ...cal, hour });
     let weather = 100;
     for (const clause of hunger.temperature_pct)
