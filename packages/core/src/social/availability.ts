@@ -7,6 +7,7 @@ import { canAct } from '../needs/api.ts';
 import { makeContext } from '../sim/sim.ts';
 import { calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
+import { ageYears, tuningOf } from './tuning.ts';
 import { makePair, requiresFail } from './volition.ts';
 export function interactionAvailability(
   world: World,
@@ -24,6 +25,8 @@ export function interactionAvailability(
   const name = `${target.name.given} ${target.name.family}`.trim();
   if (!target.alive || target.placeId !== actor.placeId) return no(`${name} is not here`);
   const ctx = makeContext(world, content, []);
+  // An infant is carried about, not talked with: social never puts one in a conversation.
+  if (ageYears(target, world.time) < tuningOf(content).min_social_age) return no(`${name} is too young to talk with`);
   const block = scheduledBlock(world, ctx, targetId, calendarAt(world.time));
   const state = currentActivity(world, targetId);
   if (state?.travel) return no(`${name} is leaving for ${world.places[state.travel.to]?.name ?? 'another place'}`);

@@ -15,6 +15,7 @@ import type { ActivityDef, InteractionDef } from '../content.ts';
 import { term } from '../explain.ts';
 import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
+import { autonomous } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -81,12 +82,45 @@ function companyUrge(world: World, ctx: SimContext, actorId: ActorId): UrgePropo
   };
 }
 
+/**
+ * A debt that has come due is a duty on the debtor's conscience. An actor who settles up by her
+ * own volition gets it through the ordinary targeted urge below; one held for orders is never
+ * moved to repay by that urge, so the due debt is put to her as a standing duty thought (she may
+ * order it) whether or not the creditor is in the room.
+ */
+function dueDebtDuties(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
+  if (autonomous(world, actorId)) return [];
+  const repay = Object.keys(ctx.content.interactions)
+    .sort()
+    .find((k) => ctx.content.interactions[k]?.success.settle === 'initiator_debt');
+  if (repay === undefined) return [];
+  const graceMinutes = (ctx.content.chroniclePatterns?.debt?.params.overdue_days ?? 30) * 1440;
+  const out: UrgeProposal[] = [];
+  for (const r of world.social.relationships) {
+    if (r.kind !== 'creditor' || r.b !== actorId || !r.amountCents || r.amountCents <= 0) continue;
+    const late = ctx.now - (r.since + graceMinutes);
+    const creditor = world.actors[r.a];
+    if (late < 0 || !creditor?.alive) continue;
+    const intensity = clampInt(300 + floorDiv(late, 1440) * 20, 300, 700);
+    out.push({
+      urge: { kind: 'interaction', interactionId: repay, targetId: r.a },
+      voice: 'superego',
+      intensity,
+      label: `Pay what you owe ${shortName(creditor)}`,
+      source: 'social',
+      reasons: [term('memory', `A debt of ${r.amountCents} cents, due ${floorDiv(late, 1440)} days ago`, intensity)],
+      norm: 'duty',
+    });
+  }
+  return out;
+}
+
 /** Urges to seek company / confront / repay / court... (proposed to psyche each hour). */
 export function proposeSocialUrges(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
   const actor = world.actors[actorId];
   if (!actor?.alive || isAsleep(world, ctx, actorId)) return [];
   const t = tuningOf(ctx.content);
-  const out: UrgeProposal[] = [];
+  const out: UrgeProposal[] = [...dueDebtDuties(world, ctx, actorId)];
   const company = companyUrge(world, ctx, actorId);
   if (company) out.push(company);
   if (t.max_targeted_urges <= 0) return out;

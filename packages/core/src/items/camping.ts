@@ -6,7 +6,37 @@ import { isRaining } from '../provisions/temperature.ts';
 import { mixKey, rng } from '../rng.ts';
 import { calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
-import { carriedBy, type InventoryIndex, stackAffordance, stacksDeep } from './api.ts';
+import { affordanceAt, carriedBy, type InventoryIndex, stackAffordance, stacksDeep } from './api.ts';
+
+/** Ground that is nobody's bed: open country and the wild (not roads, yards, farmsteads or buildings). */
+const OPEN_GROUND = ['field', 'outdoor', 'wild'];
+
+/**
+ * Where an actor stands for the purposes of bedding down: `afield` when the place is open ground
+ * that is not her own lodgings, `bedding` when she carries something to sleep in. Ordinary
+ * sleeping and waiting use it to camp in place instead of walking back to a paid bed, for any
+ * actor alike.
+ */
+export function campContext(
+  world: World,
+  content: ContentBundle,
+  actorId: ActorId,
+): { afield: boolean; bedding: boolean } {
+  const actor = world.actors[actorId];
+  const place = actor && world.places[actor.placeId];
+  if (!actor || !place) return { afield: false, bedding: false };
+  const afield = OPEN_GROUND.includes(place.kind) && world.households[actor.householdId]?.homePlaceId !== place.id;
+  return { afield, bedding: afield && affordanceAt(world, content, carriedBy(actorId), 'insulate') > 0 };
+}
+
+/** The activity that makes a camp bed: asleep, tagged 'camp', happening wherever she stands. */
+export function campSleepActivity(content: ContentBundle): string | null {
+  for (const id of Object.keys(content.activities).sort()) {
+    const def = content.activities[id];
+    if (def?.asleep && def.at === 'anywhere' && def.tags.includes('camp')) return id;
+  }
+  return null;
+}
 
 export function campThermal(
   world: World,

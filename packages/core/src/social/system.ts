@@ -233,6 +233,11 @@ function chooseInteraction(
   return { def: best.def, explain: chosen };
 }
 
+/** An act that lends, borrows or repays: money changes hands or a money debt is settled. */
+function movesMoney(def: InteractionDef): boolean {
+  return def.success.ledger.cents !== 0 || def.failure.ledger.cents !== 0 || def.success.settle === 'initiator_debt';
+}
+
 function runUrge(
   world: World,
   ctx: SimContext,
@@ -254,6 +259,8 @@ function runUrge(
     via: InteractionVia,
     extra: Partial<Parameters<typeof resolveInteraction>[2]> = {},
   ): boolean => {
+    // Money leaves the hands of an actor held for orders (a loan, a repayment) only on their order.
+    if (!autonomous(world, id) && chosen.voice !== 'command' && movesMoney(def)) return false;
     const pair = makePair(world, ctx, id, target, venue.placeId, venue.pool.length - 2);
     if (!pair || requiresFail(pair, def, 'urge') !== null) return false;
     take(id, target);

@@ -387,5 +387,5 @@ export function rootOf(world: World, stack: ItemStack): ItemLocation {
   return rootLocation(world, stack);
 }
 
-export { campThermal } from './camping.ts';
+export { campContext, campSleepActivity, campThermal } from './camping.ts';
 export { loadCheckTerms, loadFatigue, loadReport, movementDelay } from './encumbrance.ts';

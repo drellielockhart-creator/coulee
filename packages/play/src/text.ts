@@ -1,14 +1,16 @@
-import { type Command, explainLine } from '@coulee/core';
+import { asActorId, type Command, explainLine, timeView } from '@coulee/core';
 import type { AvailableAction } from './actions.ts';
+import { obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
-export const HELP = `One action = one game-hour; queries take no time. Sleep locks 4 hours.
+export const HELP = `One action = one game-hour; queries take no time. Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on.
 Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects use the previous hour's activity.
+Out on open ground with bedding, sleep makes camp where you stand; wait lets your standing orders do the same.
 look | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
-buy <item> [qty] | sell <item> | eat <item> [servings] [method] | cook <item> [servings] [method]
+buy <item> [qty] | sell <item> [qty] | eat <item> [servings] [method] | cook <item> [servings] [method]
 drink | meal | sleep | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
 prices | places [page] | standing <sleep|eat|drink|warmth|lodging> <on|off> | agency <commanded|psyche>
-inspect <actor/item/place> | pack <item> into <container> | unpack <item>
-aid <person> | retire | depart | rations <10..150> | plan | journal | explain <event id>
+inspect <person/item/place> | pack <item> into <container> (moves one) | unpack <item>
+aid <person> | retire | depart | rations <10..150> | plan | journal (lists what you owe) | explain <event id>
 Enter a menu number or stable action id. save <file> | load <file> | fork | help | quit`;
 export const SESSION_HELP = HELP.replace('save <file> | load <file> | fork | help | quit', 'help');
 export function menuActions(o: Observation, page = 0): AvailableAction[] {
@@ -33,6 +35,30 @@ export function menuActions(o: Observation, page = 0): AvailableAction[] {
     ...o.actions.filter((a) => a.id.startsWith('eat:')).slice(0, 2),
   ];
 }
+/** A held urge as the verb the player would type: "sleep", "take a meal", "repay Michael Dunleavy". */
+function orderHint(o: Observation, urge: string): string {
+  if (urge === 'activity:sleep') return 'sleep';
+  const activity = /^activity:(.+)$/.exec(urge);
+  if (activity?.[1]) {
+    const label = o.actions.find((a) => a.id === urge)?.label;
+    return label ? label.charAt(0).toLowerCase() + label.slice(1) : activity[1].replaceAll('_', ' ');
+  }
+  return urge
+    .replace(/^interaction:/, '')
+    .replace(/->(\d+)/, (_, id) => ' ' + (o.knownPeople.find((p) => p.id === Number(id))?.name ?? '#' + id));
+}
+/** What the character is doing, in a phrase: on the road with the minutes left, or the activity's verb. */
+function doing(o: Observation): string {
+  const a = o.self.activity;
+  if (a.travelingTo !== null && a.arriveAt !== null) {
+    const left = Math.max(1, a.arriveAt - o.time.t);
+    const to = o.places.find((p) => p.id === a.travelingTo)?.name ?? 'your destination';
+    return `on the road to ${to}, about ${left} min more`;
+  }
+  // "At home, at leisure" is only true at her lodgings.
+  if (a.activityId === 'idle_at_home' && o.self.lodging && o.place.id !== o.self.lodging.placeId) return 'at leisure';
+  return a.verb;
+}
 export function renderObservation(o: Observation, page = 0, previous?: Observation): string {
   if (o.ending)
     return `This life has ended: ${o.ending.type} — ${o.ending.cause}.
@@ -45,10 +71,12 @@ ${o.epilogue ?? ''}`;
   const lines = [
     `Since last look: ${changes.elapsed ? `${changes.elapsed / 60}h passed` : 'no time passed'}${changes.needs.length ? '; ' + changes.needs.join('; ') : ''}.`,
     ...changes.money.map((m) => `Money: purse ${cash(m.purse)}, household ${cash(m.household)} — ${m.reason}`),
-    ...(changes.skipped ? [`Skipped ${changes.skipped} minor conversations nearby.`] : []),
+    ...(changes.skipped
+      ? [`Skipped ${changes.skipped} minor conversation${changes.skipped === 1 ? '' : 's'} nearby.`]
+      : []),
     ...changes.events.slice(-3),
     `${o.time.stamp} | ${o.mode.toUpperCase()} | ${o.place.name}`,
-    `${o.self.name} — ${o.self.activity.verb}. Purse $${(o.self.provisions.purseCents / 100).toFixed(2)}; household $${(o.self.provisions.householdCents / 100).toFixed(2)}. ${o.weather.temperatureF}°F, ${o.weather.description.toLowerCase()}.`,
+    `${o.self.name} — ${doing(o)}. Purse $${(o.self.provisions.purseCents / 100).toFixed(2)}; household $${(o.self.provisions.householdCents / 100).toFixed(2)}. ${o.weather.temperatureF}°F, ${o.weather.description.toLowerCase()}.`,
     `Food ${(r.daysOfFoodTenths / 10).toFixed(1)} days; ${o.self.inventory.loadBand}, ${(o.self.inventory.totalWeightG / 1000).toFixed(1)} kg.`,
     `Vitals: ${o.self.needs.list
       .filter((n) => n.kind === 'physical')
@@ -73,7 +101,7 @@ ${o.epilogue ?? ''}`;
     `Here: ${
       o.present
         .slice(0, 6)
-        .map((a) => `${a.name} (#${a.id})`)
+        .map((a) => `${a.name} (#${a.id}${/sleep/i.test(a.activity) ? ', asleep' : ''})`)
         .join(', ') || 'no one else'
     }${o.present.length > 6 ? `; ${o.present.length - 6} more (inspect by name)` : ''}.`,
     ...['Appetite', 'Conscience'].flatMap((voice) => {
@@ -91,32 +119,32 @@ ${o.epilogue ?? ''}`;
               !o.self.needs.survival?.collapsed &&
               o.self.agencyMode === 'commanded' &&
               t.urge !== o.self.mind.chosen?.urge
-                ? ` (held for your order; you may: ${t.urge
-                    .replace(/^activity:sleep$/, 'sleep')
-                    .replace(/^interaction:/, '')
-                    .replace(
-                      /->(\d+)/,
-                      (_, id) => ' ' + (o.knownPeople.find((p) => p.id === Number(id))?.name ?? '#' + id),
-                    )})`
+                ? ` (held for your order; you may: ${orderHint(o, t.urge)})`
                 : ''
             }`,
           ]
         : [];
     }),
     ...(o.self.mind.chosen?.voice === 'Self-Command'
-      ? [`Self-Command: ${o.self.mind.verdict?.label ?? o.self.mind.chosen.urge}`]
+      ? [
+          `Self-Command: ${o.self.mind.verdict?.label ?? o.self.mind.chosen.urge}${
+            o.self.mind.verdictEventId === undefined ? '' : ` — explain ${o.self.mind.verdictEventId}`
+          }`,
+        ]
       : []),
-    ...o.self.belief.beliefs.slice(-2).map((b) => `Heard: ${b.text}`),
-    ...o.events
-      .filter(
-        (e) =>
-          !previous?.events.some((p) => p.id === e.id) &&
-          !(o.changes.skipped > 0 && e.kind === 'social.interaction' && !o.changes.events.includes(e.summary)),
-      )
-      .slice(-2)
-      .map((e) => `[${e.id}] ${e.summary}${e.explain ? ' — explain ' + e.id : ''}`),
-    // What was said this hour, in the speakers' words (social talk lines).
-    ...(o.said ?? []).flatMap((e) => (e.lines ?? []).map((l) => `  ${l.speaker}: “${l.text}”`)),
+    // What she has been told shows when it happens (as an event); a look lists what she holds.
+    ...(changes.elapsed === 0 ? o.self.belief.beliefs.slice(-2).map((b) => `Heard: ${b.text}`) : []),
+    ...o.self.obligations.filter((d) => d.overdue || d.daysLeft <= 7).map((d) => obligationText(d)),
+    ...freshEvents(o, previous).map((e) => `[${e.id}] ${e.summary}${e.explain ? ' — explain ' + e.id : ''}`),
+    // What was said this hour, in the speakers' words (social talk lines). Her own exchange comes
+    // first; an act whose words were not worth composing still says so rather than vanishing.
+    ...(o.said ?? []).flatMap((e) =>
+      e.lines?.length
+        ? e.lines.map((l) => `  ${l.speaker}: “${l.text}”`)
+        : e.speakerId === o.self.id
+          ? ['  Nothing worth repeating is said.']
+          : [],
+    ),
     ...r.warnings.slice(0, 2).map((w) => `Kit: ${w}`),
     ...menuActions(o, page).map((a, i) => `${i + 1}. ${a.label} [${a.id}]`),
     `Actions ${o.actions.length}; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.`,
@@ -127,31 +155,75 @@ ${o.epilogue ?? ''}`;
     .filter((line) => line && (!oldLines.has(line) || line.startsWith('Since last look:') || line.startsWith('Money:')))
     .join('\n');
 }
+/** The few events worth a line this turn: not routine bookkeeping, not already said above. */
+function freshEvents(o: Observation, previous?: Observation) {
+  const since = o.time.t - Math.max(60, o.changes.elapsed);
+  return o.events
+    .filter(
+      (e) =>
+        !e.routine &&
+        e.t >= since &&
+        !previous?.events.some((p) => p.id === e.id) &&
+        !o.changes.events.includes(e.summary) &&
+        !(o.changes.skipped > 0 && e.kind === 'social.interaction'),
+    )
+    .slice(-3);
+}
+/**
+ * Lines about interrupts: a wait cut short says when it stopped and for what it was meant (the
+ * cause itself is in the lines below); an alert with no event behind it is simply stated.
+ */
+export function renderInterrupts(result: {
+  interrupts: Array<{ reason: string; eventId?: number }>;
+  stopped?: { at: number; wanted: number | null; reasons: string[] };
+  observation: { changes: { events: string[] } };
+}): string[] {
+  const stamp = (t: number) => timeView(t).stamp;
+  const lines: string[] = [];
+  if (result.stopped) {
+    const { at, wanted, reasons } = result.stopped;
+    const when =
+      wanted === null
+        ? ''
+        : ` (you meant to wait until ${wanted - at > 1380 ? stamp(wanted).slice(5) : stamp(wanted).slice(-5)})`;
+    const unsaid = reasons.filter((r) => !result.observation.changes.events.includes(r));
+    lines.push(`Wait stopped at ${stamp(at).slice(-5)}${when}${unsaid.length ? `: ${unsaid.join('; ')}` : ''}.`);
+  }
+  for (const i of result.interrupts) if (i.eventId === undefined && !result.stopped) lines.push(`${i.reason}.`);
+  return lines;
+}
 const normalized = (s: string) => s.trim().toLowerCase().replaceAll('_', ' ');
 export function parseText(line: string, o: Observation, page = 0): Command | string {
   const text = line.trim(),
     words = text.split(/\s+/),
     verb = words.shift()?.toLowerCase() ?? '',
     tail = words.join(' ');
+  const choose = (matches: AvailableAction[], query: string): Command | string => {
+    if (matches.length === 1 && matches[0]) return matches[0].command;
+    if (!matches.length) return `Nothing here matches “${query.trim()}”; try look, prices, places or actions`;
+    // Say what each candidate is (names and prices), then the id that picks one exactly.
+    const shown = matches.slice(0, 8).map((a) => `${a.label} [${a.id}]`);
+    return `Which one? ${shown.join('; ')}${matches.length > 8 ? `; and ${matches.length - 8} more` : ''}`;
+  };
   const find = (actions: AvailableAction[], query: string): Command | string => {
     const q = normalized(query);
     const exact = actions.filter((a) => normalized(a.id) === q || normalized(a.label) === q);
-    const matches = exact.length
-      ? exact
-      : actions.filter((a) => normalized(a.label).includes(q) || normalized(a.id).includes(q));
-    return matches.length === 1 && matches[0]
-      ? matches[0].command
-      : matches.length
-        ? 'Ambiguous: ' +
-          matches
-            .slice(0, 8)
-            .map((a) => a.id)
-            .join(', ')
-        : 'No available action matches; use look or actions';
+    return choose(
+      exact.length ? exact : actions.filter((a) => normalized(a.label).includes(q) || normalized(a.id).includes(q)),
+      query,
+    );
   };
   const pc = o.self.id;
   const action = o.actions.find((a) => a.id === text);
   if (action) return action.command;
+  // A stable social id that is not on offer now still goes to the game, which says exactly why not.
+  const talk = /^talk:([a-z_]+):(\d+)$/.exec(text);
+  if (talk?.[1] && o.interactionVerbs.some((d) => d.id === talk[1]))
+    return {
+      kind: 'core.urge',
+      actorId: pc,
+      data: { urge: { kind: 'interaction', interactionId: talk[1], targetId: asActorId(Number(talk[2])) } },
+    };
   if (/^[+-]?\d+$/.test(text)) return menuActions(o, page)[Number(text) - 1]?.command ?? 'No such menu number';
   if (verb === 'help') return HELP;
   const reading = ['look', 'plan', 'journal', 'explain', 'inspect', 'prices'].includes(verb);
@@ -176,11 +248,15 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
   if (['look', 'journal', 'plan'].includes(verb))
     return { kind: 'activity.observe', actorId: pc, data: { query: verb as 'look' | 'journal' | 'plan' } };
   if (verb === 'explain') return { kind: 'activity.observe', actorId: pc, data: { query: 'explain', target: tail } };
-  if (verb === 'inspect')
-    return find(
+  if (verb === 'inspect') {
+    const found = find(
       o.actions.filter((a) => a.id.startsWith('inspect:')),
       tail,
     );
+    return typeof found === 'string' && found.startsWith('Nothing here matches')
+      ? `You cannot inspect “${tail}”: it is not here, in your pack, or someone you know. Try look, plan or places`
+      : found;
+  }
   if (verb === 'aid')
     return find(
       o.actions.filter((a) => a.id.startsWith('aid:')),
@@ -227,6 +303,10 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
       o.actions,
       `activity:${{ sleep: 'sleep', rest: 'idle_at_home', drink: 'fetch_water', work: 'work' }[verb]}`,
     );
+  if ((verb === 'buy' || verb === 'sell') && !words.length)
+    return verb === 'buy'
+      ? 'Buy what? Type prices to see what is for sale, then buy <item> [qty]'
+      : 'Sell what? Type plan to see what you carry, then sell <item> [qty]';
   if (verb === 'buy' || verb === 'sell') {
     const last = words.at(-1),
       qty = last && /^[+-]?\d+(?:\.\d+)?$/.test(last) ? Number(words.pop()) : 1;
@@ -284,11 +364,16 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
       tail,
     );
   if (verb === 'pack') {
+    // "Pack <item> into <container>": the item is what comes before "into", the container after.
     const [item, box] = tail.split(/ into /i);
-    return find(
-      o.actions.filter((a) => a.id.startsWith('pack:') && normalized(a.label).includes(normalized(box ?? ''))),
-      item ?? '',
-    );
+    if (!item || !box) return 'Use pack <item> into <container>';
+    const [wantItem, wantBox] = [normalized(item), normalized(box)];
+    const matched = o.actions.filter((a) => {
+      if (!a.id.startsWith('pack:')) return false;
+      const parts = /^Pack (.+) into (.+)$/.exec(a.label);
+      return !!parts && normalized(parts[1] ?? '').includes(wantItem) && normalized(parts[2] ?? '').includes(wantBox);
+    });
+    return choose(matched, `${item} into ${box}`);
   }
   const socialVerb =
     verb === 'talk' || verb === 'interact' ? 'chat' : verb === 'ask' && words[0] === 'about' ? 'ask_about' : verb;

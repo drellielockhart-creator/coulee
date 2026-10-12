@@ -13,11 +13,14 @@ import {
   social,
   stateHash,
   step,
+  timeView,
 } from '@coulee/core';
 import { GEN_VERSION } from '@coulee/worldgen';
 import { availableActions, validateCommand } from './actions.ts';
+import { moneyReason } from './describe.ts';
 import { alertForEvent, type Interrupt, perceivedEvents, provisionsAlert } from './interrupts.ts';
 import { packKnowledge, unpackKnowledge } from './knowledge.ts';
+import { obligationsOf, obligationText } from './obligations.ts';
 import {
   eventView,
   type KnownEvent,
@@ -60,10 +63,20 @@ export interface Metric {
   decidingMinutes: number;
   decidingTimeBasis: 'simulation';
 }
+/** A wait that ended before the hour the player named: when, what was wanted, and why. */
+export interface WaitStopped {
+  at: number;
+  wanted: number | null;
+  reasons: string[];
+}
 export interface ActResult {
   ok: boolean;
   reason?: string;
   warning?: string;
+  /** A plain confirmation of what the command did, when the world's events do not say it. */
+  notice?: string;
+  /** Set when a wait stopped early. */
+  stopped?: WaitStopped;
   elapsedMinutes: number;
   interrupts: Interrupt[];
   observation: ReturnType<PlaySession['observe']>;
@@ -133,7 +146,12 @@ export class PlaySession {
       reason,
       elapsedMinutes: 0,
       interrupts: [],
-      observation: { ...this.observe(mode), changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 } },
+      observation: {
+        ...this.observe(mode),
+        changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 },
+        events: [],
+        said: [],
+      },
     };
   }
   act(input: Command | string, mode: ObservationMode = 'fair'): ActResult {
@@ -157,6 +175,8 @@ export class PlaySession {
     let detail: unknown;
     const interrupts: Interrupt[] = [];
     let warning: string | undefined;
+    let notice: string | undefined;
+    let stopped: WaitStopped | undefined;
     if (command.kind === 'activity.observe') {
       const o = this.observe(mode),
         d = command.data;
@@ -186,9 +206,26 @@ export class PlaySession {
           survival: o.self.needs.survival,
           warnings: o.self.needs.warnings,
         };
-      else if (d.query === 'journal')
-        detail = observation(this.sim, this.playerId, this.known, mode, this.knowledge, 0).journal;
-      else if (d.query === 'inspect') {
+      else if (d.query === 'journal') {
+        const entries = observation(this.sim, this.playerId, this.known, mode, this.knowledge, 0).journal;
+        // Open debts close the journal as obligations with their due dates.
+        const owed = obligationsOf(this.sim.world, this.sim.content, this.playerId);
+        detail = [
+          ...entries,
+          ...owed.map((o, i) => ({
+            id: -1 - i,
+            t: o.since,
+            stamp: timeView(o.since).stamp,
+            voice: 'journal',
+            headline: null,
+            text: obligationText(o),
+            importance: 0,
+            actorIds: [o.creditorId],
+            pattern: null,
+            knowledge: 'self',
+          })),
+        ];
+      } else if (d.query === 'inspect') {
         const [kind, id] = (d.target ?? '').split(':');
         if (kind === 'actor' && Number(id) !== this.playerId) {
           const person = o.knownPeople.find((a) => a.id === Number(id));
@@ -218,20 +255,31 @@ export class PlaySession {
       }
     } else if (command.kind === 'activity.wait') {
       const end = command.data.untilTime ?? at + command.data.minutes;
+      let event: string | undefined;
       while (this.sim.world.time < end) {
         const lastId = this.sim.world.log.lastId;
         const alerts = this.tick([], true);
         interrupts.push(...alerts.filter((a) => a.pause));
         const recent = eventsSince(this.sim.world.log, lastId).filter((e) => this.known.includes(e.id));
-        if (
-          this.sim.world.needs.byActor[this.playerId]?.survival?.ending ||
-          interrupts.length ||
-          recent.some((e) => e.kind === command.data.untilEvent)
-        )
-          break;
+        const awaited = recent.find((e) => e.kind === command.data.untilEvent);
+        if (awaited) event = this.knowledge.find((k) => k.id === awaited.id)?.summary;
+        if (this.sim.world.needs.byActor[this.playerId]?.survival?.ending || interrupts.length || awaited) break;
       }
+      if (this.sim.world.time < end)
+        stopped = {
+          at: this.sim.world.time,
+          wanted: end,
+          reasons: interrupts.length
+            ? interrupts.map((i) => i.reason)
+            : [event ?? 'what you were waiting for happened'],
+        };
     } else {
       const start = this.sim.world.log.lastId;
+      const urge = command.kind === 'core.urge' && command.data.urge.kind === 'activity' ? command.data.urge : null;
+      const bedDef = urge ? this.sim.content.activities[urge.activityId] : undefined;
+      // Out on open ground with nothing to sleep in, a bed means the walk back to her lodgings.
+      if (bedDef?.asleep && bedDef.at === 'home' && previous.self.camp.afield && !previous.self.camp.bedding)
+        notice = 'You carry nothing to sleep in out here, so you head back to your lodgings.';
       interrupts.push(...this.tick([command], false).filter((a) => a.pause));
       const recent = eventsSince(this.sim.world.log, start);
       const rejected = recent.find(
@@ -241,6 +289,14 @@ export class PlaySession {
       );
       if (rejected?.kind === 'provisions.command_rejected' || rejected?.kind === 'needs.command_rejected')
         warning = rejected.data.reason;
+      else if (command.kind === 'provisions.pack') {
+        const name = (id: number) => {
+          const stack = this.sim.world.items.stacks[id as never];
+          return stack ? (this.sim.content.items[stack.defId]?.name ?? 'item') : 'item';
+        };
+        const d = command.data;
+        notice = `Moved ${d.qty} of your ${name(d.itemId)} ${d.intoItemId === null ? 'out of its container' : `into the ${name(d.intoItemId)}`}.`;
+      }
       if (command.kind === 'core.urge' && command.data.urge.kind === 'interaction') {
         const urge = command.data.urge;
         const interaction = recent.find(
@@ -250,7 +306,8 @@ export class PlaySession {
             e.data.interactionId === urge.interactionId &&
             (urge.targetId === undefined || e.data.targetId === urge.targetId),
         );
-        if (interaction) detail = eventView(interaction, this.playerId, mode);
+        if (interaction)
+          detail = eventView(interaction, this.playerId, mode, { world: this.sim.world, content: this.sim.content });
         else if (socialSave && needs.canAct(this.sim.world, this.playerId)) {
           const reason =
             urge.targetId === undefined
@@ -299,6 +356,8 @@ export class PlaySession {
     return {
       ok: true,
       ...(warning ? { warning } : {}),
+      ...(notice ? { notice } : {}),
+      ...(stopped ? { stopped } : {}),
       elapsedMinutes: this.sim.world.time - at,
       interrupts,
       observation: this.observe(mode),
@@ -386,7 +445,7 @@ export class PlaySession {
           'provisions.restock',
         ].includes(event.kind)
       ) {
-        const reason = event.kind === 'provisions.wages' ? 'Wages' : eventView(event, pc, 'fair').summary;
+        const reason = moneyReason(w, c, pc, event);
         this.money.push({ at: event.t, eventId: event.id, purse: p - purse, household: h - household, reason });
         purse = p;
         household = h;
@@ -401,7 +460,7 @@ export class PlaySession {
       this.known.push(e.id);
       if (!['needs.changed', 'core.command', 'provisions.water'].includes(e.kind))
         this.knowledge.push({
-          ...eventView(e, pc, 'fair'),
+          ...eventView(e, pc, 'fair', { world: w, content: c }),
           ...(e.kind === 'belief.transmitted'
             ? { summary: `${e.data.listenerId === pc ? 'Heard' : 'Told'}: ${belief.propText(w, c, e.data.propId)}` }
             : {}),
@@ -502,7 +561,9 @@ export class PlaySession {
             e.kind !== 'psyche.defense' &&
             !(e.kind === 'belief.tell' && !e.data.noticed && e.data.targetId !== session.playerId),
         )
-        .map((e: Event) => eventView(e, session.playerId, 'fair'));
+        .map((e: Event) =>
+          eventView(e, session.playerId, 'fair', { world: session.sim.world, content: session.sim.content }),
+        );
     session.entries = saved.entries;
     session.metrics = saved.metrics;
     session.money = saved.money ?? [];

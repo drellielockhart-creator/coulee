@@ -614,7 +614,9 @@ describe('P8 review regressions', () => {
     expect(loaded.delta).toBeLessThan(before.delta);
     expect(loaded.terms.some((t) => t.source === 'load')).toBe(true);
     expect(loadCheckTerms(w, content, A, 'stealth')[0]?.value).toBe(-5);
-    // A commanded destination exercises the same activity transition as an NPC urge.
+    // A commanded destination exercises the same activity transition as an NPC urge. The store is
+    // far enough off (30,000 ft) that the trip outlasts the hour: a short hop is simply done.
+    mustGet(w.places, STORE, 'place').x = 3000;
     const state = mustGet(w.activity.byActor, A, 'activity');
     state.travel = null;
     w.psyche.byActor[A] = {

@@ -22,6 +22,7 @@ import {
   parseText,
   type ReplayLog,
   renderDetail,
+  renderInterrupts,
   renderObservation,
   SESSION_HELP,
   type SessionSpec,
@@ -102,7 +103,10 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     const mode = manifest.mode;
     const observation = session.observe(mode);
     const invalid = (reason: string): 2 => {
-      const text = `${reason}. No game time spent.\n${renderObservation({ ...observation, changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 } }, menu.page)}`;
+      const text = `${reason}. No game time spent.\n${renderObservation(
+        { ...observation, changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 }, events: [], said: [] },
+        menu.page,
+      )}`;
       appendFileSync(join(dir, 'transcript.txt'), `${line === undefined ? '' : '> ' + line + '\n'}${text}\n`);
       console.log(text);
       return 2;
@@ -161,7 +165,8 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     if (!result.ok) return invalid(result.reason ?? 'Invalid command');
     const output = [
       result.warning,
-      result.interrupts.length ? `Stopped: ${result.interrupts.map((i) => i.reason).join('; ')}` : undefined,
+      result.notice,
+      ...renderInterrupts(result),
       detail ?? (result.detail === undefined ? undefined : renderDetail(result.detail)),
       renderObservation(
         result.observation,

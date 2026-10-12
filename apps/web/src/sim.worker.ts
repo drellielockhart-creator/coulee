@@ -159,7 +159,8 @@ function alertText(it: Interrupt, e: Event | null): string {
         ? `You arrive at ${sim.world.places[e.data.to]?.name ?? 'your destination'}`
         : `${nameOf(e.data.actorId)} arrives at ${sim.world.places[e.data.to]?.name ?? 'the place'}`;
     default:
-      return e.kind.replace(/^[a-z]+\./, '').replaceAll('_', ' ');
+      // The shared policy already put it in words (packages/play describe.ts).
+      return it.reason;
   }
 }
 
