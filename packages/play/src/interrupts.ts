@@ -78,6 +78,7 @@ export function perceivedEvents(events: readonly Event[], pc: ActorId, priorPlac
   const seen: Event[] = [];
   for (const e of events) {
     if (e.kind === 'activity.moved' && e.data.actorId === pc) place = e.data.to;
+    if (e.kind === 'fae.omen' && !e.data.witnesses.includes(pc)) continue;
     const role = e.roles.find((r) => r.actor === pc);
     const own =
       role &&

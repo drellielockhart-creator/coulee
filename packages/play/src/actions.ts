@@ -33,7 +33,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     for (const accept of [true, false])
       add(
         `answer:${r.id}:${accept ? 'yes' : 'no'}`,
-        `${accept ? 'Accept' : 'Refuse'} loan request from ${w.actors[r.from]?.name.given}`,
+        `${accept ? 'Accept' : 'Refuse'} ${r.response === 'borrow' ? 'loan offer' : r.response === 'lend' || !r.response ? 'loan request' : r.response === 'proposal' ? 'proposal' : r.response === 'disclose' ? 'request for information' : 'favor with an obligation'} from ${w.actors[r.from]?.name.given}`,
         { kind: 'social.answer_request', actorId: pc, data: { requestId: r.id, accept } },
       );
   add('signs', 'Signs & Wonders', { kind: 'fae.signs', actorId: pc, data: {} });
@@ -269,6 +269,8 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     const d = command.data;
     return (d.agencyMode === undefined || ['commanded', 'psyche'].includes(d.agencyMode)) &&
       d.orders &&
+      (d.orders.capabilities === undefined ||
+        (Array.isArray(d.orders.capabilities) && d.orders.capabilities.every((id) => !!c.standingCapabilities[id]))) &&
       Object.keys(psyche.DEFAULT_STANDING_ORDERS).every((key) =>
         key === 'activities'
           ? Array.isArray(d.orders.activities) && d.orders.activities.every((id) => !!c.activities[id])

@@ -131,7 +131,11 @@ function psychePass(world: World, ctx: SimContext): void {
     const p = world.psyche.byActor[cmd.actorId];
     if (!p) continue;
     if (cmd.data.agencyMode) p.agencyMode = cmd.data.agencyMode;
-    p.standingOrders = { ...cmd.data.orders, activities: [...cmd.data.orders.activities] };
+    p.standingOrders = {
+      ...cmd.data.orders,
+      activities: [...cmd.data.orders.activities],
+      ...(cmd.data.orders.capabilities ? { capabilities: [...cmd.data.orders.capabilities] } : {}),
+    };
   }
   const idx = buildTagIndex(ctx.content);
   for (const id of idsOf<ActorId>(world.psyche.byActor)) {

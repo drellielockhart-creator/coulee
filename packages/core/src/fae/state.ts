@@ -12,6 +12,11 @@ export interface Snapshot {
   families: string[];
   moon: string;
   rain: boolean;
+  fog?: boolean;
+  thunder?: boolean;
+  firstSnow?: boolean;
+  ironG?: number;
+  familyWeights?: number[];
   bells: boolean;
   leadPlaces: PlaceId[];
   leadActors: ActorId[];
@@ -39,6 +44,7 @@ export interface Episode {
   lead: { kind: 'trace' | 'place' | 'actor' | 'nothing'; placeId: PlaceId; actorId?: ActorId };
   observers: Record<number, Observer>;
   attempts: Record<number, { at: number; found: boolean; explain: Explain }>;
+  followups?: Record<number, { at: number; text: string }>;
   witnessed: boolean;
   eventId: number | null;
   propId?: import('../ids.ts').PropId;
@@ -53,6 +59,9 @@ export interface Question {
 }
 export interface FaeState {
   episodes: Record<string, Episode>;
+  drift?: Record<number, number>;
+  snowSeason?: number;
+  firstSnowDay?: number;
   thinning: Record<number, number>;
   fiShift: number;
   signatures: Record<number, string>;

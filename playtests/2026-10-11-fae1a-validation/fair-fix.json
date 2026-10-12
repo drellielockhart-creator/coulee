@@ -1,0 +1,46 @@
+[
+  {
+    "session": "42",
+    "verification": [
+      "Verified 21 commands; final hash ecf3396f7aaf3ab8."
+    ],
+    "observationQuotes": [
+      "[4782] You cannot say what it was. An open question remains; use signs. \u2014 explain 4782",
+      "Verified 21 commands; final hash ecf3396f7aaf3ab8."
+    ]
+  },
+  {
+    "session": "3",
+    "verification": [
+      "Verified 24 commands; final hash db429104265e8d76."
+    ],
+    "observationQuotes": [
+      "[1253] You cannot say what it was. An open question remains; use signs. \u2014 explain 1253",
+      "[1366] The trace runs toward East limestone cap. Return there at dusk; the timing matters. \u2014 explain 1366",
+      "[1492] You cannot say what it was. An open question remains; use signs. \u2014 explain 1492",
+      "[3018] At East limestone cap, dusk reveals the end of the trace: Marsh gas burns low over the wet ground. \u2014 explain 3018",
+      "Reading the sign: 0 () -> You cannot say what it was.",
+      "Verified 24 commands; final hash db429104265e8d76."
+    ]
+  },
+  {
+    "session": "7",
+    "verification": [
+      "Verified 13 commands; final hash a5ea18ac4093e88e."
+    ],
+    "observationQuotes": [
+      "Verified 13 commands; final hash a5ea18ac4093e88e."
+    ]
+  },
+  {
+    "session": "42-offer",
+    "verification": [
+      "Verified 91 commands; final hash e2d57d691a341622."
+    ],
+    "observationQuotes": [
+      "Pending loan offer (you would borrow): answer:28:41:7980:lend:yes or answer:28:41:7980:lend:no (expires within the hour)",
+      "[15287] Your answer on the request: refused \u2014 explain 15287",
+      "Verified 91 commands; final hash e2d57d691a341622."
+    ]
+  }
+]

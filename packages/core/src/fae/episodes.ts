@@ -1,12 +1,12 @@
 import type { Place } from '../actor.ts';
 import type { ContentBundle } from '../content.ts';
 import { rowsOf } from '../ids.ts';
-import { isRaining } from '../provisions/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
 import { effectiveFi } from './api.ts';
+import { ironByPlace, weatherAt } from './conditions.ts';
 import { isProtectedSite } from './sites.ts';
 import type { Episode, Snapshot, Window } from './state.ts';
 export function windows(place: Place, day: number) {
@@ -33,10 +33,17 @@ export function eligibleFamilies(content: ContentBundle, p: Place, fi: number): 
       return fi >= d.fi_min && fi <= d.fi_max && (!d.tags.length || d.tags.some((t) => p.tags.includes(t)));
     });
 }
-export function snapshotWindow(world: World, ctx: SimContext, p: Place, period: Window, at: number): Snapshot {
+export function snapshotWindow(
+  world: World,
+  ctx: SimContext,
+  p: Place,
+  period: Window,
+  at: number,
+  iron?: Record<number, number>,
+): Snapshot {
   const c = calendarAt(asGameMinute(at)),
     fi = effectiveFi(world, p, asGameMinute(at));
-  const families = eligibleFamilies(ctx.content, p, fi);
+  const families = eligibleFamilies(ctx.content, p, fi === 0 ? 0 : Math.min(5, fi + (c.season === 'winter' ? 1 : 0)));
   const bells =
     c.isSabbath &&
     c.hour >= 6 &&
@@ -47,17 +54,30 @@ export function snapshotWindow(world: World, ctx: SimContext, p: Place, period: 
         range > 0 && b.siteId === p.siteId && (b.x - p.x) * (b.x - p.x) + (b.y - p.y) * (b.y - p.y) <= range * range
       );
     });
-  const rain = isRaining(ctx.seed, c);
+  const { rain, fog, thunder } = weatherAt(world, p, at, ctx);
+  const firstSnow = world.fae.firstSnowDay === c.dayIndex;
+  const ironG = (iron ?? ironByPlace(world, ctx.content))[p.id] ?? 0;
+  const familyWeights = families.map((id) => {
+    const d = ctx.content.omens[id];
+    if (!d) return 0;
+    let weight = d.weight;
+    for (const tag of [...p.tags].sort()) weight *= (d.tag_weights[tag] ?? 1000) / 1000;
+    if (c.moon.phase === 'full' && ['lights', 'bells'].includes(d.family)) weight *= 2;
+    if (c.moon.phase === 'new' && d.family === 'echo') weight *= 1.5;
+    if (ironG >= 2270 && d.subtle) weight *= 0.2;
+    return Math.round(weight);
+  });
   // Rates share the same ordered multipliers and are rounded only once.
   let factor = { dawn: 700, noon: 150, dusk: 1000, midnight: 600 }[period] / 1000;
-  if (c.moon.phase === 'full' && families.some((f) => ['lights', 'bells'].includes(f))) factor *= 2;
-  if (c.moon.phase === 'new' && families.includes('echo')) factor *= 1.5;
+  const baseWeight = families.reduce((n, id) => n + (ctx.content.omens[id]?.weight ?? 0), 0);
+  if (baseWeight) factor *= familyWeights.reduce((n, w) => n + w, 0) / baseWeight;
   if (bells || p.tags.includes('church')) factor = 0;
   else if (c.isSabbath && period === 'dusk') factor *= 1.5;
   if (c.season === 'winter') factor *= 0.6;
-  if (rain) factor *= 0.5;
+  if (fog) factor *= 3;
+  if (firstSnow) factor *= 1.5;
+  if (thunder) factor *= 0.2;
   if (p.tags.includes('spring')) factor *= 2;
-  if (p.tags.includes('iron') && families.every((f) => ctx.content.omens[f]?.subtle)) factor *= 0.2;
   let tr = ([0, 40, 180, 350, 600, 850][fi] ?? 0) * factor;
   let lr = ([60, 160, 120, 60, 40, 0][fi] ?? 0) * factor;
   const scale = tr + lr > 950 ? 950 / (tr + lr) : 1;
@@ -84,6 +104,11 @@ export function snapshotWindow(world: World, ctx: SimContext, p: Place, period: 
     families,
     moon: c.moon.phase,
     rain,
+    fog,
+    thunder,
+    firstSnow,
+    ironG,
+    familyWeights,
     bells,
     leadPlaces: leadPlaces.map((q) => q.id),
     leadActors,
@@ -98,12 +123,23 @@ export function resolveEpisode(world: World, ctx: SimContext, s: Snapshot): Epis
   const r = ctx.rngAt('fae', asGameMinute(s.at), mixKey(s.placeId, s.day, hashString32(s.window), 0xfae1));
   const roll = r.int(0, 999);
   if (roll >= s.trueRate + s.lookRate) return null;
-  const defId = r.pick(s.families);
+  const weights = s.familyWeights ?? s.families.map(() => 100);
+  const sum = weights.reduce((n, w) => n + w, 0);
+  if (!sum) return null;
+  let familyDraw = r.int(0, sum - 1);
+  const defId = s.families.find((_, i) => {
+    familyDraw -= weights[i] ?? 0;
+    return familyDraw < 0;
+  });
   if (!defId) return null;
   const d = ctx.content.omens[defId];
   if (!d) return null;
   const truth = roll < s.trueRate ? 'fae' : 'mundane';
-  const variant = r.int(0, d.text.length - 1);
+  const variants = d.text
+    .map((_, i) => i)
+    .filter((i) => (world.fae.cooldowns[`text:place:${p.id}:${d.text[i]}`] ?? -1) <= s.at);
+  const variant = r.pick(variants);
+  if (variant === undefined) return null;
   const candidates: Array<{ weight: number; lead: Episode['lead'] }> = [
     { weight: 600, lead: { kind: 'nothing', placeId: p.id } },
     { weight: 200, lead: { kind: 'trace', placeId: p.id } },
@@ -131,7 +167,7 @@ export function resolveEpisode(world: World, ctx: SimContext, s: Snapshot): Epis
     end: s.at + d.duration_minutes,
     traceEnd: s.at + d.trace_minutes,
     text: d.text[variant] ?? '',
-    plain: r.pick(d.plain) ?? '',
+    plain: d.plain[variant] ?? '',
     variant,
     lead,
     observers: {},

@@ -1,0 +1,113 @@
+{
+  "monthly": [
+    {
+      "date": "1855-04-30",
+      "actors_alive": "40",
+      "need_hunger_mean": "752",
+      "need_rest_mean": "462",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "97098",
+      "provisions_cash_cents": "40799"
+    },
+    {
+      "date": "1855-05-31",
+      "actors_alive": "40",
+      "need_hunger_mean": "778",
+      "need_rest_mean": "435",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "100881",
+      "provisions_cash_cents": "37707"
+    },
+    {
+      "date": "1855-06-30",
+      "actors_alive": "40",
+      "need_hunger_mean": "723",
+      "need_rest_mean": "391",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "92199",
+      "provisions_cash_cents": "34334"
+    },
+    {
+      "date": "1855-07-31",
+      "actors_alive": "40",
+      "need_hunger_mean": "694",
+      "need_rest_mean": "434",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "98110",
+      "provisions_cash_cents": "31143"
+    },
+    {
+      "date": "1855-08-31",
+      "actors_alive": "40",
+      "need_hunger_mean": "741",
+      "need_rest_mean": "448",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "100727",
+      "provisions_cash_cents": "29130"
+    },
+    {
+      "date": "1855-09-30",
+      "actors_alive": "40",
+      "need_hunger_mean": "794",
+      "need_rest_mean": "666",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "78063",
+      "provisions_cash_cents": "26853"
+    },
+    {
+      "date": "1855-10-31",
+      "actors_alive": "40",
+      "need_hunger_mean": "826",
+      "need_rest_mean": "427",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "103660",
+      "provisions_cash_cents": "18178"
+    },
+    {
+      "date": "1855-11-30",
+      "actors_alive": "40",
+      "need_hunger_mean": "813",
+      "need_rest_mean": "418",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "97319",
+      "provisions_cash_cents": "17338"
+    },
+    {
+      "date": "1855-12-31",
+      "actors_alive": "40",
+      "need_hunger_mean": "787",
+      "need_rest_mean": "464",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "109187",
+      "provisions_cash_cents": "17404"
+    },
+    {
+      "date": "1856-01-31",
+      "actors_alive": "40",
+      "need_hunger_mean": "809",
+      "need_rest_mean": "491",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "108999",
+      "provisions_cash_cents": "17343"
+    },
+    {
+      "date": "1856-02-29",
+      "actors_alive": "40",
+      "need_hunger_mean": "774",
+      "need_rest_mean": "424",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "101255",
+      "provisions_cash_cents": "17653"
+    },
+    {
+      "date": "1856-03-30",
+      "actors_alive": "40",
+      "need_hunger_mean": "742",
+      "need_rest_mean": "620",
+      "need_warmth_mean": "995",
+      "provisions_kcal": "73880",
+      "provisions_cash_cents": "16865"
+    }
+  ],
+  "printedRepeatViolations": []
+}

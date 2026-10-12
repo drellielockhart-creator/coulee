@@ -167,6 +167,7 @@ export {
   autonomous,
   commandBasis,
   DEFAULT_STANDING_ORDERS,
+  recordStandingSpend,
   setAgency,
   standingOrders,
 } from './agency.ts';

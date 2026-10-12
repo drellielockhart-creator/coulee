@@ -1,4 +1,4 @@
-import { authorizeAct, commandBasis } from '../psyche/api.ts';
+import { authorizeAct, commandBasis, recordStandingSpend } from '../psyche/api.ts';
 /** Cash, credit and physical goods share one transaction path for commands and errands. */
 
 import { isShunning } from '../belief/api.ts';
@@ -36,7 +36,19 @@ export function purchase(
   onCredit: boolean,
   to: ItemLocation = carriedBy(actorId),
 ): number {
-  if (!authorizeAct(world, actorId, { kind: 'purchase' }, commandBasis(ctx, actorId, ['provisions.buy'])).ok) return 0;
+  let basis = commandBasis(ctx, actorId, ['provisions.buy']);
+  if (!authorizeAct(world, actorId, { kind: 'purchase' }, basis).ok) {
+    if (
+      !authorizeAct(
+        world,
+        actorId,
+        { kind: 'purchase', cents: 0, itemTags: ['food'] },
+        { kind: 'standing', capability: 'buy_staples' },
+      ).ok
+    )
+      return 0;
+    basis = { kind: 'standing', capability: 'buy_staples' };
+  }
   synchronizeStoreTabs(world);
   const actor = world.actors[actorId],
     store = world.provisions.stores[placeId];
@@ -65,6 +77,23 @@ export function purchase(
   const credit =
     onCredit && !shunned && keeper !== undefined ? Math.max(0, store.creditLimitCents - (store.tabs[actorId] ?? 0)) : 0;
   let remaining = price > 0 ? Math.min(wanted, Math.floor((cash + credit) / price)) : wanted;
+  if (basis.kind === 'standing') {
+    const itemTags = [...(ctx.content.items[defId]?.tags ?? []), ...(ctx.content.items[defId]?.food ? ['food'] : [])];
+    // A bounded order never opens credit; shrink the basket to its remaining allowance.
+    remaining =
+      price > 0
+        ? Math.min(
+            remaining,
+            Math.floor(cash / price),
+            Math.floor((world.psyche.standingCapabilities?.[basis.capability]?.max_cents ?? 0) / price),
+          )
+        : remaining;
+    while (
+      remaining > 0 &&
+      !authorizeAct(world, actorId, { kind: 'purchase', cents: remaining * price, itemTags }, basis).ok
+    )
+      remaining--;
+  }
   let bought = 0;
   for (const { stack } of stacksDeep(world, atPlace(placeId))) {
     if (
@@ -83,6 +112,7 @@ export function purchase(
   }
   if (!bought) return 0;
   const cost = bought * price;
+  if (basis.kind === 'standing') recordStandingSpend(world, actorId, basis.capability, cost);
   let pay = Math.min(cost, cash);
   const pursePay = Math.min(purse, pay);
   world.provisions.purses[actorId] = purse - pursePay;
@@ -141,13 +171,14 @@ export function transferCash(
   cents: number,
   reason: string,
   causeEventId?: number,
+  basis?: import('../psyche/api.ts').Basis,
 ): number {
   if (
     !authorizeAct(
       world,
       fromId,
       { kind: 'transfer', targetId: toId, cents },
-      commandBasis(ctx, fromId, ['core.urge', 'social.answer_request', 'provisions.board_meal']),
+      basis ?? commandBasis(ctx, fromId, ['core.urge', 'social.answer_request', 'provisions.board_meal']),
     ).ok
   )
     return 0;
@@ -352,7 +383,13 @@ export function shoppingHour(world: World, ctx: SimContext): void {
       const a = world.actors[id];
       return (
         a?.alive === true &&
-        authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok &&
+        (authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok ||
+          authorizeAct(
+            world,
+            id,
+            { kind: 'purchase', cents: 0, itemTags: ['food'] },
+            { kind: 'standing', capability: 'buy_staples' },
+          ).ok) &&
         world.provisions.stores[a.placeId] !== undefined
       );
     };

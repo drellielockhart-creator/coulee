@@ -356,7 +356,15 @@ export const psycheDomains = {
   standingCapabilities: defineDomain({
     dir: 'psyche',
     key: 'standing',
-    schema: z.strictObject({ id: id(), default: z.boolean(), act: id(), legacy: id() }),
+    schema: z.strictObject({
+      id: id(),
+      default: z.boolean(),
+      act: id(),
+      legacy: id().optional(),
+      max_cents: int().min(0).optional(),
+      period_minutes: int().min(1).default(10080),
+      item_tags: z.array(id()).default([]),
+    }),
   }),
   traits: defineDomain({ dir: 'traits', key: 'trait', schema: TraitSchema }),
   drives: defineDomain({ dir: 'psyche', key: 'drive', schema: DriveSchema }),

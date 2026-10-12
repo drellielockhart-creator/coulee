@@ -1,0 +1,86 @@
+{
+  "baseline": "458c3bd",
+  "status": "PARTIAL",
+  "acceptance": [
+    {
+      "gate": 1,
+      "before": "MET",
+      "after": "MET",
+      "evidence": "Final just check, 558 tests; deliberate golden reason in chronicle.test.ts."
+    },
+    {
+      "gate": 2,
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "evidence": "Canonical-time, insertion-order, save/load/fork regressions; four real CLI replays verified. Staggered-arrival coverage is not exhaustive."
+    },
+    {
+      "gate": 3,
+      "before": "NOT MET",
+      "after": "MET",
+      "evidence": "Iron Ford 42: four noticed omens by day-two dusk on Lower Lantern Coulee \u2192 Huldra\u2019s Shelf \u2192 Cold Stair. Three lookalikes and one true sign, audited after fair play. Ice-only regression passes."
+    },
+    {
+      "gate": 4,
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "evidence": "Existing layered-description and purity tests pass; weather/light and activity/trace prose layers remain incomplete."
+    },
+    {
+      "gate": 5,
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "evidence": "R4 fixed: discovery and destination follow-up are separately cached; destination dusk window enforced; refusals cost no time. Testimony/recurrence closure remains incomplete."
+    },
+    {
+      "gate": 6,
+      "before": "MET",
+      "after": "MET",
+      "evidence": "Current day-four audit: Gussie Pratt 99, Lydia Pratt 73, Loveday Trevenna 60, Nora Dunleavy 41, Anders Tveit 42, each with non-self evidence."
+    },
+    {
+      "gate": 7,
+      "before": "MET",
+      "after": "MET",
+      "evidence": "No-witness, bell-range, FI-zero ablation regressions pass."
+    },
+    {
+      "gate": 8,
+      "before": "MET",
+      "after": "MET",
+      "evidence": "Consent regressions now cover target responses; existing 64-seed forced-omen checks pass. Prior 64\u00d730-day soak was not repeated; 14-day all-NPC social/economy equivalence was repeated."
+    },
+    {
+      "gate": 9,
+      "before": "MET",
+      "after": "MET",
+      "evidence": "Protected-tag and Ice-only tests pass; fictional-barrow geometry schema remains an inherited gap."
+    },
+    {
+      "gate": 10,
+      "before": "PARTIAL",
+      "after": "MET",
+      "evidence": "Full year after cap fix; 2,734 omen events / 1,011,429 total (0.2703%); 92 published omen entries; maximum template share 5.44%; zero surface repeats within 30 days across both consumers."
+    },
+    {
+      "gate": 11,
+      "before": "PARTIAL",
+      "after": "MET",
+      "evidence": "One fixed fair circuit: first eight seeds 8/8, all ten 10/10, alive. Each has a real sign and discovered trace/destination. Earlier supplied and alternating-bank routes scored 5/8 and 4/8; no seeds discarded."
+    },
+    {
+      "gate": 12,
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "evidence": "Final four-year matrix against main 458c3bd; fae system under 0.3 ms/h. Not all whole-run/downstream/save deltas meet budgets. Shared-host contention limits timing conclusions."
+    }
+  ],
+  "remaining": [
+    "Complete self-sourced honesty/fitting-Figure read weights and DC15/DC20 read tiers.",
+    "Uniform refusal Explain coverage outside fae/social.",
+    "Full weather/light/activity/trace description layers; testimony/recurrence closure; bell/iron/debunk thinning and ward consumers.",
+    "Fictional-barrow geometry separation.",
+    "Performance delta budgets are not all met; see perf-fix.json."
+  ],
+  "goldenReason": "Witnessed cooldowns, paired variants and competing readings change beliefs and capped omen prose."
+}
