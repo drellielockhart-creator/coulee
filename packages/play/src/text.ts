@@ -101,6 +101,8 @@ export function renderObservation(o: Observation, page = 0, previous?: Observati
       )
       .slice(-2)
       .map((e) => `[${e.id}] ${e.summary}${e.explain ? ' — explain ' + e.id : ''}`),
+    // What was said this hour, in the speakers' words (social talk lines).
+    ...(o.said ?? []).flatMap((e) => (e.lines ?? []).map((l) => `  ${l.speaker}: “${l.text}”`)),
     ...r.warnings.slice(0, 2).map((w) => `Kit: ${w}`),
     ...menuActions(o, page).map((a, i) => `${i + 1}. ${a.label} [${a.id}]`),
     `Actions ${o.actions.length}; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.`,

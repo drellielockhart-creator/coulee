@@ -70,6 +70,8 @@ export const kindness: PatternDef = {
     const id = last?.x ?? '';
     const first = sortedByTime(r)[0];
     return {
+      // "Again" only when this neighbor has been kind to this same person before, lately.
+      again: r.filter((f) => f.b === last?.b).length > 1,
       span: first && last ? spanWords(first.t, last.t) : 'a few days',
       count: r.length,
       count_word: numberWord(r.length),

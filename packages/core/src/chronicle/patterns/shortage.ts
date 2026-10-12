@@ -5,7 +5,8 @@
  * cost (the board, the spoilage, scurvy); the ending is "they held". The town knows a
  * neighbor is pinched once it has gone on for a while. OWNER: module:chronicle.
  */
-import type { ActorId } from '../../ids.ts';
+import type { ActorId, HouseholdId } from '../../ids.ts';
+import { yearsBetween } from '../../time.ts';
 import type { Fact } from '../facts.ts';
 import { conditionName, familiesOf, familyOfHousehold, itemName } from '../names.ts';
 import type { ThreadFact } from '../state.ts';
@@ -96,6 +97,11 @@ export const shortage: PatternDef = {
       families: familiesOf(dc.world, hid),
       household: familyOfHousehold(dc.world, hid),
       level_word: level >= 4 ? 'long' : level === 3 ? 'hard' : level === 2 ? 'close' : 'short',
+      // Only a house with children in it can say the children no longer ask.
+      children: (dc.world.households[hid as HouseholdId]?.memberIds ?? []).some((m) => {
+        const a = dc.world.actors[m];
+        return a?.alive === true && yearsBetween(a.born, dc.ctx.now) < 13;
+      }),
       detail: r.shorts.length > 0,
       // How long the thread has run is the story's own length, which the town can see.
       span: spanWords(th.openedAt, th.lastAt),

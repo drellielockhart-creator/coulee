@@ -80,7 +80,8 @@ export const pairDigest = (p: Pair): MemoryDigest =>
   (p.cache.digest ??= p.cache.digests
     ? (p.cache.digests().get(p.target.id) ?? { done: {}, did: {}, negative: 0 })
     : memoryDigest(p.world, p.content, p.initiator.id, p.target.id));
-const pairRumor = (p: Pair): boolean => (p.cache.rumor ??= hasRumorFor(p.world, p.initiator.id, p.target.id));
+const pairRumor = (p: Pair): boolean =>
+  (p.cache.rumor ??= hasRumorFor(p.world, p.initiator.id, p.target.id, p.content));
 export const pairGrudge = (p: Pair): number =>
   (p.cache.grudge ??= grievance(p.world, p.content, p.initiator.id, p.target.id, pairDigest(p)));
 

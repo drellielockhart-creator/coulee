@@ -155,6 +155,8 @@ export const TEMPLATE_SLOTS = [
   'mediator',
   'mediator_short',
   'fights',
+  // playtest 2026-10-11: the diarist's own side of a feud
+  'other_families',
 ] as const;
 export type TemplateSlot = (typeof TEMPLATE_SLOTS)[number];
 
@@ -204,6 +206,11 @@ export const WHEN_ONLY_KEYS = [
   'via_defense',
   'confined',
   'mediated',
+  // playtest 2026-10-11: the diarist is a party (feud), the PC's real stores (shortage)
+  'me',
+  'children',
+  'stocked',
+  'again',
 ] as const;
 
 export const WHEN_KEYS: readonly string[] = [...TEMPLATE_SLOTS, ...WHEN_ONLY_KEYS, 'interaction'];

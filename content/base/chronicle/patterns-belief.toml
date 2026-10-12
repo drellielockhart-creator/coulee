@@ -197,7 +197,7 @@ voice = "journal"
 when = { actor_me = false }
 text = [
   "The talk of {actor} has hardened: \"{rumor}.\" I do not say it is true. I say I have put iron on the sill, and it cost me nothing.",
-  "More said of {actor} today than yesterday, and nothing proven. I do not like the way the room leans when {actor_short} is named.",
+  "More said of {actor} today than yesterday, and nothing proven. I do not like the way the room leans when {his} name comes up.",
 ]
 
 [[template]]

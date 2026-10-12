@@ -36,6 +36,7 @@ export {
   reasonStrength,
 } from './opinion.ts';
 export { dailyStrife, isEstranged, mediationHour, strifeCount, wearinessPermille } from './strife.ts';
+export { composeExchange, type Exchange, moodOf, referTo, type TalkFacts, type TalkTurn } from './talk.ts';
 export { tuningOf } from './tuning.ts';
 export { proposeSocialUrges } from './urges.ts';
 export { attraction, eligible, makePair, requiresFail, volition } from './volition.ts';

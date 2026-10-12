@@ -103,7 +103,14 @@ export const feud: PatternDef = {
     const A = toNames(sa);
     const B = toNames(sb);
     const interaction = (last?.x ?? '').split('|')[1] ?? '';
+    // The diarist's own house is a side: the journal cannot claim to keep out of it.
+    const pc = dc.pcId;
+    const pcSide = pc > 0 ? [`a${pc}`, `h${householdOfActor(dc, pc)}`] : [];
+    const meA = pcSide.includes(sa);
+    const meB = pcSide.includes(sb);
     return {
+      me: meA || meB,
+      other_families: meA ? B.families : A.families,
       stage: stage(level),
       family: A.family,
       family_b: B.family,

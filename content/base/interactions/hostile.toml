@@ -242,6 +242,7 @@ check = { kind = "opposed", skill = "persuade", vs = "will" }
 memory = { kind = "accusation", emotion = "anger", intensity = 70 }
 juiciness = 80
 transmits_rumor = true
+rumor_mode = "charge"
 notable = true
 importance = 60
 visibility = "public"
@@ -283,6 +284,7 @@ check = { kind = "opposed", skill = "persuade", vs = "will" }
 memory = { kind = "accusation", emotion = "disgust", intensity = 45 }
 juiciness = 60
 transmits_rumor = true
+rumor_mode = "warning"
 notable = true
 importance = 55
 visibility = "public"

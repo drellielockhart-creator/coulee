@@ -399,6 +399,13 @@ export const InteractionSchema = z.strictObject({
   /** Whether this interaction carries a rumor (gossip) through belief.transmit(). */
   rumor_speaker: z.enum(['initiator', 'target']).optional(),
   transmits_rumor: z.boolean().default(false),
+  /**
+   * What kind of telling it is: `news` (the teller's freshest news), `warning` (ill news first:
+   * scandal, the uncanny), `confidence` (a private matter: the teller's unvoiced or secret
+   * beliefs, which the hearer then keeps close), or `charge` (what the teller holds against the
+   * hearer, said to their face).
+   */
+  rumor_mode: z.enum(['news', 'warning', 'confidence', 'charge']).default('news'),
   /** Flag for chronicle/director: big events (04 §11.2). */
   notable: z.boolean().default(false),
   /** Game-minutes the interaction takes. */
@@ -486,6 +493,8 @@ export const SocialTuningSchema = z.strictObject({
   sociability_per_neighborliness: int().default(15),
   sociability_per_company_deficit: int().default(8),
   sociability_drunk: int().default(40),
+  /** Below this age (years) a person is not yet in conversation: no talk to or from an infant. */
+  min_social_age: int().min(0).max(18).default(3),
   /** Hard caps (budget): initiations and participations per actor per hour. */
   max_initiations_per_hour: int().min(0).max(10).default(2),
   max_participations_per_hour: int().min(1).max(20).default(3),
@@ -589,10 +598,124 @@ export const SocialTuningSchema = z.strictObject({
 });
 export type SocialTuningDef = z.output<typeof SocialTuningSchema>;
 
+// ---- talk: what is said (playtest 2026-10-11: social verbs returned no content) ----
+
+/** Relationship label of one party's view of the other (opinion.ts labels, plus the unlabeled). */
+export const TALK_LABELS = ['friend', 'enemy', 'rival', 'admirer', 'cowed', 'acquaintance', 'stranger'] as const;
+
+/**
+ * Moods a speaker's psyche can lend a line: the drive or norm of their loudest live thought
+ * (Appetite: hunger, lust, rage, sloth, greed, fear, envy, longing; Conscience: duty, piety,
+ * sabbath, temperance, propriety, shame, neighborliness, thrift, honesty, our_own), or a state
+ * that colors everything said ('anxious', 'drunk', 'hungry', 'weary', 'easy').
+ */
+export const TALK_STATES = ['anxious', 'drunk', 'hungry', 'weary', 'easy'] as const;
+
+/**
+ * Conditions a talk line needs, all read from the live world at the moment it is said (P1:
+ * nothing is claimed the sim did not feel). Omitted = any. "Initiator" is whoever opened the
+ * exchange; `target_*` reads the other side.
+ */
+const TalkWhenSchema = z
+  .strictObject({
+    /** The sky this hour: falling rain, falling snow, or dry. */
+    weather: z.enum(['rain', 'snow', 'dry']).optional(),
+    /** Air temperature band: freezing ≤ 32°F, cold < 50, mild < 70, warm < 85, hot. */
+    temp: z.enum(['freezing', 'cold', 'mild', 'warm', 'hot']).optional(),
+    season: z.enum(['spring', 'summer', 'autumn', 'winter']).optional(),
+    /** Part of the day: morning 5–11, midday 11–14, afternoon 14–18, evening 18–22, night. */
+    part: z.enum(['morning', 'midday', 'afternoon', 'evening', 'night']).optional(),
+    sabbath: z.boolean().optional(),
+    /** A calendar observance active today (activities/calendar.toml: market_day, christmas...). */
+    observance: id().optional(),
+    /** A tag of the place where it is said (tavern, church, store, smithy...). */
+    venue: id().optional(),
+    /** The initiator's settled view of the target, and the target's of the initiator. */
+    label: z.enum(TALK_LABELS).optional(),
+    target_label: z.enum(TALK_LABELS).optional(),
+    kin: z.boolean().optional(),
+    household: z.boolean().optional(),
+    /** The two are courting or betrothed. */
+    courting: z.boolean().optional(),
+    /** Mood of the initiator / target (a drive, a norm, or a TALK_STATES entry). */
+    mood: id().optional(),
+    target_mood: id().optional(),
+    /** The initiator remembers the target doing this (salience ≥ 200), and the reverse. */
+    remembers: z.enum(MEMORY_KINDS).optional(),
+    target_remembers: z.enum(MEMORY_KINDS).optional(),
+    /** Money owed between them, by whom (binds {owed}). */
+    owes: z.enum(['initiator', 'target']).optional(),
+    /** The initiator has heard of (and credits) a misfortune of the last fortnight (binds {misfortune}). */
+    misfortune: z.boolean().optional(),
+    /** A store in town is open for trade (binds {price_item}, {price}, {store}). */
+    price: z.boolean().optional(),
+    /** For news-carrying acts: something was told (true) or the teller had nothing (false). */
+    told: z.boolean().optional(),
+    /** Nothing told, though the teller does hold news: only old talk everyone has had. */
+    stale: z.boolean().optional(),
+    /** The kind of thing told: scandal (ill of someone), uncanny (fae, curses), kind, or plain news. */
+    rumor: z.enum(['scandal', 'uncanny', 'kind', 'plain']).optional(),
+    /** The hearer already had it, credits it (credence ≥ 50 after), or doubts it. */
+    heard: z.enum(['already', 'credits', 'doubts']).optional(),
+    /** The teller had it from someone else (binds {source}) rather than knowing it first-hand. */
+    secondhand: z.boolean().optional(),
+    /** Whom the news is about: the teller themselves, the hearer (to their face), or another. */
+    about: z.enum(['self', 'you', 'other']).optional(),
+    /**
+     * The initiator / target is a child (under 13). When a child is party to an exchange, lines
+     * that name `child` or `target_child` are preferred over grown-up talk.
+     */
+    child: z.boolean().optional(),
+    target_child: z.boolean().optional(),
+  })
+  .default({});
+
+/** One turn of an exchange: who speaks and the words (alternatives {a|b}, slots, #words#). */
+const TalkTurnSchema = z.strictObject({
+  by: z.enum(['initiator', 'target']),
+  text: z.string().min(1),
+});
+
+/**
+ * A talk line: a 1–3 turn exchange voiced for an interaction and outcome, picked by the
+ * conditions it meets (more specific lines weigh more), never repeated between the same pair
+ * within a week. `part = "said"` lines carry the news itself on the private `belief.transmitted`
+ * event (only teller and hearer know the words); `part = "act"` lines (the default) go on the
+ * `social.interaction` event, which witnesses may overhear.
+ */
+export const TalkLineSchema = z.strictObject({
+  id: id(),
+  /** Interaction ids this line can voice. */
+  on: z.array(id()).default([]),
+  /** ...or any interaction carrying one of these tags (friendly, hostile, talk, amends...). */
+  on_tags: z.array(id()).default([]),
+  part: z.enum(['act', 'said']).default('act'),
+  outcome: z.enum(['success', 'failure', 'any']).default('any'),
+  when: TalkWhenSchema,
+  /** Relative weight among the lines that fit (scaled up by how many conditions it names). */
+  weight: int().min(1).max(100).default(10),
+  lines: z.array(TalkTurnSchema).min(1).max(3),
+});
+export type TalkLineDef = z.output<typeof TalkLineSchema>;
+
+/**
+ * A word or phrase in a speaker's own idiom: `#hello#` in a line becomes one of `words`, or of
+ * `by_culture[<speaker's culture>]` when the speaker was raised in it. Light flavor only: a
+ * greeting, an oath, a thank-you; never dialect spelling or caricature.
+ */
+export const TalkWordSchema = z.strictObject({
+  id: id(),
+  words: z.array(z.string().min(1)).min(1),
+  by_culture: z.record(id(), z.array(z.string().min(1)).min(1)).default({}),
+});
+export type TalkWordDef = z.output<typeof TalkWordSchema>;
+
 export const socialDomains = {
   interactions: defineDomain({ dir: 'interactions', key: 'interaction', schema: InteractionSchema }),
   memory_kinds: defineDomain({ dir: 'social', key: 'memory_kind', schema: MemoryKindSchema }),
   social_tuning: defineDomain({ dir: 'social', key: 'social_tuning', schema: SocialTuningSchema }),
+  talk_lines: defineDomain({ dir: 'social', key: 'talk', schema: TalkLineSchema }),
+  talk_words: defineDomain({ dir: 'social', key: 'talk_word', schema: TalkWordSchema }),
 };
 
 /** Top-level scenario fields owned by social. Actor references are scenario actor keys. */
@@ -693,6 +816,51 @@ export function socialRefs(b: ContentBundle): Issue[] {
       checkRefs(issues, `scenarios:${s.id}/memories`, 'owner/about', [m.owner, m.about], actorKeys, 'actor key');
       if (Object.keys(b.memory_kinds).length > 0)
         checkRefs(issues, `scenarios:${s.id}/memories`, 'kind', [m.kind], b.memory_kinds, 'memory_kind');
+    }
+  }
+  // Talk lines: known interactions, observances and cultures; #words# that exist; every
+  // interaction has at least one line for each outcome it can have (no exchange left empty).
+  const words = b.talk_words ?? {};
+  for (const l of Object.values(b.talk_lines ?? {})) {
+    const where = `talk_lines:${l.id}`;
+    checkRefs(issues, where, 'on', l.on, b.interactions, 'interaction');
+    if (l.when.observance !== undefined)
+      checkRefs(issues, where, 'when.observance', [l.when.observance], b.observances ?? {}, 'observance');
+    if (l.on.length === 0 && l.on_tags.length === 0)
+      issues.push({ where, path: 'on', message: 'a talk line needs `on` or `on_tags`' });
+    for (const mood of [l.when.mood, l.when.target_mood]) {
+      if (
+        mood !== undefined &&
+        !(TALK_STATES as readonly string[]).includes(mood) &&
+        !Object.hasOwn(b.drives ?? {}, mood) &&
+        !Object.hasOwn(b.norms ?? {}, mood)
+      )
+        issues.push({
+          where,
+          path: 'when.mood',
+          message: `unknown mood '${mood}' (a drive, a norm, or ${TALK_STATES.join('/')})`,
+        });
+    }
+    for (const turn of l.lines) {
+      for (const m of turn.text.matchAll(/#([a-z][a-z0-9_]*)#/g))
+        if (!Object.hasOwn(words, m[1] as string))
+          issues.push({ where, path: 'lines', message: `unknown talk word '#${m[1]}#'` });
+    }
+  }
+  for (const w of Object.values(words))
+    checkRefs(issues, `talk_words:${w.id}`, 'by_culture', Object.keys(w.by_culture), b.cultures ?? {}, 'culture');
+  if (Object.keys(b.talk_lines ?? {}).length > 0) {
+    for (const i of Object.values(b.interactions)) {
+      const covers = (outcome: 'success' | 'failure') =>
+        Object.values(b.talk_lines).some(
+          (l) =>
+            l.part === 'act' &&
+            (l.outcome === 'any' || l.outcome === outcome) &&
+            (l.on.includes(i.id) || l.on_tags.some((t) => i.tags.includes(t))),
+        );
+      if (!covers('success')) issues.push({ where: `interactions:${i.id}`, message: 'no talk line for success' });
+      if (i.check.kind !== 'none' && !covers('failure'))
+        issues.push({ where: `interactions:${i.id}`, message: 'no talk line for failure' });
     }
   }
   for (const t of Object.values(b.social_tuning)) {

@@ -1,0 +1,93 @@
+# Talk words: a speaker's own idiom (#word# in social/talk.toml). OWNER: module:social.
+#
+# `words` is how anyone says it; `by_culture` is how someone raised in that culture says it
+# (content/base/cultures). Light flavor only: a greeting, a thank-you, an oath, the odd word of
+# the old country that a settler would really use. Never dialect spelling, never caricature:
+# these people are as sharp as anyone, and most of their talk is plain English.
+
+[[talk_word]]
+id = "hello"
+words = ["Good day", "Good day to you", "How do"]
+by_culture = { yankee = ["How do", "Good day"], norwegian = ["God dag", "Good day"], german = ["Guten Tag", "Grüß Gott", "Good day"], cornish = ["Good day", "Well now"], irish = ["God save you", "Good day to you"], elf_hall = ["Good day", "Well met"] }
+
+[[talk_word]]
+id = "evening"
+words = ["Good evening", "Evening"]
+by_culture = { norwegian = ["God kveld", "Evening"], german = ["Guten Abend", "Evening"], irish = ["God bless the evening", "Evening"], cornish = ["Evening", "Good evening"] }
+
+[[talk_word]]
+id = "bye"
+words = ["Good day, then", "I'll be off", "Mind how you go"]
+by_culture = { norwegian = ["Ha det", "I'll be off, then"], german = ["Adieu", "Good day, then"], irish = ["God bless", "Safe home"], cornish = ["I'll see you dreckly", "Mind how you go"], yankee = ["Well, I'll be getting on", "Good day, then"] }
+
+[[talk_word]]
+id = "thanks"
+words = ["Thank you", "I'm obliged", "Much obliged"]
+by_culture = { norwegian = ["Takk", "Tusen takk", "I thank you"], german = ["Danke", "Danke schön", "I thank you"], irish = ["God bless you for it", "Thanks be to God", "I'm obliged"], cornish = ["Thank 'ee kindly", "I'm obliged"], yankee = ["Much obliged", "I'm obliged to you"] }
+
+[[talk_word]]
+id = "yes"
+words = ["Yes", "Aye, well", "That's so"]
+by_culture = { norwegian = ["Ja", "Ja, ja"], german = ["Ja", "Ja, so"], irish = ["It is", "Sure it is"], cornish = ["'Tis so", "Aye"], yankee = ["Yes", "I guess so", "That's a fact"] }
+
+[[talk_word]]
+id = "well"
+words = ["Well", "Now", "Well now"]
+by_culture = { norwegian = ["Ja, well", "Well"], german = ["Na", "So", "Well"], irish = ["Sure", "Well now"], cornish = ["Well, my handsome", "Well now"], yankee = ["Well", "Well, now", "Now then"] }
+
+[[talk_word]]
+id = "oath"
+words = ["Lord", "Mercy", "Good heavens"]
+by_culture = { norwegian = ["Uff", "Herregud", "Lord"], german = ["Ach", "Gott im Himmel", "Lord"], irish = ["Glory be", "God help us", "Mother of God"], cornish = ["Lor'", "Dear life"], yankee = ["Land sakes", "My stars", "Lord"] }
+
+[[talk_word]]
+id = "god_willing"
+words = ["God willing", "Lord willing"]
+by_culture = { norwegian = ["om Gud vil", "God willing"], german = ["so Gott will", "God willing"], irish = ["please God", "with the help of God"], cornish = ["God willing"], yankee = ["Lord willing and the creek don't rise", "Lord willing"] }
+
+[[talk_word]]
+id = "friend"
+words = ["friend", "neighbor"]
+by_culture = { norwegian = ["min venn", "neighbor"], german = ["mein Freund", "neighbor"], irish = ["friend", "my friend"], cornish = ["my handsome", "my bird"], yankee = ["neighbor", "friend"] }
+
+[[talk_word]]
+id = "drink"
+words = ["a glass", "a drop"]
+by_culture = { norwegian = ["a dram", "a glass"], german = ["a glass of beer", "a Schnapps"], irish = ["a drop", "a small one"], cornish = ["a drop of something", "a glass"], yankee = ["a glass of cider", "a drop"] }
+
+[[talk_word]]
+id = "bad_business"
+words = ["a bad business", "a sorry thing", "a hard thing"]
+by_culture = { norwegian = ["a sad thing", "a hard thing"], german = ["a bad business, that", "a sorry thing"], irish = ["a terrible thing", "a cruel hard thing"], cornish = ["a poor old job", "a hard thing"], yankee = ["a bad business", "a sorry piece of work"] }
+
+[[talk_word]]
+id = "fool"
+words = ["a fool", "a blockhead"]
+by_culture = { norwegian = ["a tosk", "a fool"], german = ["a Dummkopf", "a fool"], irish = ["an omadhaun", "a fool"], cornish = ["a gawk", "a fool"], yankee = ["a numbskull", "a fool"] }
+
+[[talk_word]]
+id = "homeland"
+words = ["the old country", "the old place"]
+by_culture = { norwegian = ["Norway", "the old country"], german = ["the old country", "Baden"], irish = ["Ireland", "the old country"], cornish = ["Cornwall", "the old country"], yankee = ["New England", "York State"], black_ohio = ["Ohio", "the river towns"] }
+
+[[talk_word]]
+id = "bless"
+words = ["God bless you", "Bless you"]
+by_culture = { norwegian = ["Gud velsigne deg", "God bless you"], german = ["Gott segne dich", "God bless you"], irish = ["God and Mary bless you", "God bless you"], cornish = ["Bless 'ee", "God bless you"] }
+
+# ---- how sure the teller is (said lines: {hedge}) ----
+
+[[talk_word]]
+id = "hedge_sure"
+words = ["it's certain:", "it's true as I stand here:", "there's no doubt of it:"]
+by_culture = { irish = ["sure it's well known:", "it's certain:"], norwegian = ["it is true, ja:", "it's certain:"], yankee = ["it's a fact:", "it's certain:"] }
+
+[[talk_word]]
+id = "hedge_likely"
+words = ["I'd not swear to it, but", "by all accounts", "so they say,"]
+by_culture = { irish = ["they say, and I believe it,", "by all accounts"], german = ["so one hears:", "by all accounts"], cornish = ["so 'tis said,", "by all accounts"] }
+
+[[talk_word]]
+id = "hedge_doubt"
+words = ["I don't credit it myself, but", "for what it's worth,", "it's only talk, mind, but"]
+by_culture = { yankee = ["I take it with a grain of salt, but", "it's only talk, but"], irish = ["I'd not believe the half of it, but", "it's only talk, mind, but"] }

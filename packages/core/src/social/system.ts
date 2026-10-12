@@ -32,7 +32,8 @@ import { clampInt, floorDiv } from './model.ts';
 import { dailyOpinionUpkeep, opinionOf, pruneCooldowns, refreshLabel, repointReasons } from './opinion.ts';
 import { emptyDaily } from './state.ts';
 import { dailyStrife, mediationHour } from './strife.ts';
-import { tuningOf, valueView } from './tuning.ts';
+import { pruneTalk } from './talk.ts';
+import { ageYears, tuningOf, valueView } from './tuning.ts';
 import { makePair, requiresFail, volition } from './volition.ts';
 
 const SALT_ENCOUNTER = 0xe7c0;
@@ -65,7 +66,8 @@ export function socialSystem(world: World, ctx: SimContext): void {
   const t = tuningOf(ctx.content);
   const awake = (id: ActorId): boolean => {
     const a = world.actors[id];
-    return a?.alive === true && !isAsleep(world, ctx, id);
+    // An infant is carried about, not talked with (and does not answer back).
+    return a?.alive === true && ageYears(a, ctx.now) >= t.min_social_age && !isAsleep(world, ctx, id);
   };
   const hs: HourState = { participations: new Map(), initiations: new Map(), poolOf: new Map() };
   const pools: Array<{ placeId: PlaceId; pool: ActorId[]; present: Set<number> }> = [];
@@ -393,6 +395,7 @@ function dailySocial(world: World, ctx: SimContext): void {
   if (ctx.cal.weekday === 'sun') repointReasons(world, consolidateMemories(world, content));
   dailyOpinionUpkeep(world, content);
   pruneCooldowns(world, ctx.now);
+  pruneTalk(world, ctx.now);
   dailyStrife(world, ctx);
   for (const from of Object.keys(world.social.opinions)
     .map(Number)

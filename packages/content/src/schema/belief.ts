@@ -35,6 +35,13 @@ export const PredicateSchema = z.strictObject({
   args: z.array(z.enum(ARG_KINDS)).min(1).max(4),
   /** Rendering template with positional slots: "{0} is a witch". */
   text: z.string().min(1),
+  /**
+   * The same claim in the teller's own mouth when they are its subject ("I owe {1} {2.money}"),
+   * and said to its subject's face ("you owe {1} {2.money}"). Without them a teller does not
+   * confide such a thing about themselves, and speaks of the hearer in the third person.
+   */
+  text_self: z.string().min(1).optional(),
+  text_you: z.string().min(1).optional(),
   description: z.string().default(''),
   /** Base juiciness 0..100 as gossip (04 §8.1); ×10 to per mille at runtime. */
   juiciness: int().min(0).max(100).default(20),

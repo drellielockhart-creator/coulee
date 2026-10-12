@@ -6,6 +6,7 @@
 import type { ContentBundle } from '../content.ts';
 import type { Event } from '../events/index.ts';
 import type { ActorId, HouseholdId } from '../ids.ts';
+import { readinessOf } from '../provisions/api.ts';
 import type { World } from '../world.ts';
 import {
   conditionName,
@@ -166,6 +167,20 @@ export function knowledgeOf(ev: Event, extra: readonly number[]): { pub: boolean
   }
 }
 
+/** At three weeks of food in hand nobody is short (provisions' first ration cut, rules.ts). */
+const SHORT_TENTHS = 210;
+
+/** Days of food (tenths) every member carries beyond the pantry: the least any one of them has. */
+function carriedTenths(world: World, content: ContentBundle, members: readonly number[], t: number): number {
+  let least = Number.MAX_SAFE_INTEGER;
+  for (const m of members) {
+    if (!world.actors[m as ActorId]?.alive) continue;
+    least = Math.min(least, readinessOf(world, content, { actorId: m as ActorId }, t, 22).daysOfFoodTenths);
+    if (least === 0) break;
+  }
+  return least === Number.MAX_SAFE_INTEGER ? 0 : least;
+}
+
 function householdMembers(world: World, hid: number): number[] {
   return (world.households[hid as HouseholdId]?.memberIds ?? []).map((m) => m as number);
 }
@@ -190,8 +205,10 @@ function classOfInteraction(
   let cls: FactClass = 'other';
   if (v.dunIds.includes(interactionId) || v.dunKinds.includes(kind)) cls = 'dun';
   else if (v.repayIds.includes(interactionId) || v.repayKinds.includes(kind)) cls = 'repay';
-  else if (def?.transmits_rumor || kind === 'gossip') cls = 'gossip';
+  // A charge flung in someone's face is harm, not news, though it carries a claim; a confidence
+  // is close talk, not gossip (playtest 2026-10-11: the journal wondered what an accusation was about).
   else if (v.harmKinds.includes(kind) || v.harmIds.includes(interactionId)) cls = 'harm';
+  else if ((def?.transmits_rumor && def.rumor_mode !== 'confidence') || kind === 'gossip') cls = 'gossip';
   else if (v.helpKinds.includes(kind) || v.helpIds.includes(interactionId)) cls = 'help';
   else if (v.courtKinds.includes(kind) || v.courtIds.includes(interactionId)) cls = 'courtship';
   else if (v.amendsKinds.includes(kind)) cls = 'amends';
@@ -491,6 +508,11 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
     case 'provisions.shortage': {
       const d = ev.data;
       const members = householdMembers(world, d.householdId);
+      // The larder count the story tells is what the household really has to eat: the pantry
+      // and what every one of its people carries (a newcomer's pack is food, playtest
+      // 2026-10-11). Counting both, a household that is not short at all is no story.
+      const real = d.daysOfFoodTenths + carriedTenths(world, content, members, ev.t);
+      if (real >= SHORT_TENTHS) return null;
       const k = knowledgeOf(ev, members);
       const f = base(
         {
@@ -498,7 +520,7 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
           sub: String(d.householdId),
           agent: 0,
           target: 0,
-          weight: d.daysOfFoodTenths,
+          weight: real,
           valence: -40,
           base: ev.importance ?? (d.daysOfFoodTenths < 30 ? 55 : 35),
           bind: { cls: 'shortage', ration_pct: d.rationPct },
