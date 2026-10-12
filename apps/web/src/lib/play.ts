@@ -42,6 +42,7 @@ export function groupOf(a: AvailableAction, catalog: ActionCatalog): ActGroup {
     case 'drink':
     case 'meal':
     case 'refill':
+    case 'empty':
       return 'eat';
     case 'wait':
       return 'rest';

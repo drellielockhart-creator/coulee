@@ -315,9 +315,14 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'provisions.prep_failed':
       return out(`Cannot prepare that: missing ${e.data.missing.join(', ') || 'something'}`);
     case 'provisions.refilled':
+      // A fill the load limit cut short is said aloud; a full one is bookkeeping.
       return out(
-        `${Who(e.data.actorId)} ${e.data.actorId === pc ? 'filled' : 'fills'} ${stackName(e.data.itemId)} (${e.data.ml} ml)`,
-        true,
+        `${Who(e.data.actorId)} ${e.data.actorId === pc ? 'filled' : 'fills'} ${stackName(e.data.itemId)} (${e.data.ml} ml${e.data.shortMl ? `; ${e.data.shortMl} ml more would be too heavy to walk with` : ''})`,
+        !e.data.shortMl,
+      );
+    case 'provisions.emptied':
+      return out(
+        `${Who(e.data.actorId)} ${e.data.actorId === pc ? 'poured' : 'pours'} out ${stackName(e.data.itemId)} (${e.data.ml} ml)`,
       );
     case 'provisions.fire':
       return out(

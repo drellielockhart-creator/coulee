@@ -107,6 +107,13 @@ export interface Store {
   lastRestockDay: number | null;
   /** Item def id -> usual stock level (the opening shelves), the scarcity baseline. */
   targets: Record<string, number>;
+  /**
+   * Item def id -> hundredths of a unit still owed from reduced (river-closed) deliveries, 0..99.
+   * A 15% load of a 4-unit shortfall is 0.6 of a unit: the remainder rides to the next freight, so
+   * small orders still arrive every few shipments instead of rounding to nothing. Optional for
+   * earlier saves; absent entries are zero.
+   */
+  freightOwed?: Record<string, number>;
 }
 
 export interface Fire {

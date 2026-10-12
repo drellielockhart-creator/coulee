@@ -110,6 +110,16 @@ export function loadReport(world: World, content: ContentBundle, actorId: ActorI
   return { weightG: w, capacityG: cap, loadPct: pct, band, lines };
 }
 
+/**
+ * Grams the actor can still take on and be able to move (up to MOVE_LIMIT_PCT of capacity): what
+ * a purchase, a refill or any other weight added to the pack must stay inside. Zero when already
+ * at or over the limit.
+ */
+export function movableRoomG(world: World, content: ContentBundle, actorId: ActorId, index?: InventoryIndex): number {
+  const report = loadReport(world, content, actorId, index);
+  return Math.max(0, Math.floor((report.capacityG * MOVE_LIMIT_PCT) / 100) - report.weightG);
+}
+
 /** Shared modifiers for any simulated skill check involving this physical load. */
 export function loadCheckTerms(world: World, content: ContentBundle, actorId: ActorId, skill: string): ExplainTerm[] {
   if (!['stealth', 'climb', 'swim'].includes(skill)) return [];

@@ -14,7 +14,17 @@ export type ProvisionsEvent =
       { actorId: ActorId; loadPct: number; speedPct: number; minutes: number; blocked: boolean }
     >
   | EventOf<'provisions.fire', { placeId: PlaceId; lit: boolean; fuelMinutes: number; ignition: string }>
-  | EventOf<'provisions.refilled', { actorId: ActorId; itemId: ItemId; ml: number }>
+  | EventOf<
+      'provisions.refilled',
+      {
+        actorId: ActorId;
+        itemId: ItemId;
+        ml: number;
+        /** Millilitres left unfilled because the extra weight would leave the carrier unable to move. */
+        shortMl?: number;
+      }
+    >
+  | EventOf<'provisions.emptied', { actorId: ActorId; itemId: ItemId; ml: number }>
   | EventOf<'provisions.prep_started', { cookId: ActorId; completesAt: number; activeMinutes: number; minutes: number }>
   | EventOf<
       'provisions.shopping_plan',

@@ -7,8 +7,8 @@ Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects use the pr
 Out on open ground with bedding, sleep makes camp where you stand; wait follows your lodging order, returning to a nearby paid or own bed when available.
 look | signs | investigate <sign id> | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
 buy <item> [qty] | sell <item> [qty] | eat <item> [servings] [method] | cook <item> [servings] [method]
-drink | fill <canteen/kettle> | fetch water | meal | sleep | wake | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
-Springs, creeks, rivers and fords are water: drink raw there and fill your vessels; fetch water walks to the nearest.
+drink | fill <canteen/kettle> | empty <canteen/kettle> | fetch water | meal | sleep | wake | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
+Springs, creeks, rivers and fords are water: drink raw there and fill your vessels (a litre weighs a kilo: a fill stops where you could no longer walk, and empty pours a vessel out); fetch water walks to the nearest.
 prices [page|word] | places [page] | standing [<sleep|eat|drink|warmth|lodging> <on|off>] | agency [commanded|psyche]
 inspect <person/item/place/me> | pack <item> into <container> (moves one) | unpack <item>
 yes | no (answer what you were asked) | aid <person> | rations [10..150] | plan | journal (lists what you owe) | explain <event id>
@@ -269,7 +269,7 @@ function drinkRefusal(o: Observation): string {
     ? 'You carry no water vessel'
     : water === 0
       ? `Your ${vessels.map((v) => v.name.split(',')[0]?.toLowerCase()).join(' and ')} ${vessels.length > 1 ? 'are' : 'is'} empty`
-      : `You carry only ${water} ml (a drink is 500 ml)`;
+      : `You carry ${water} ml but cannot drink just now`;
   return `${what}, and there is no spring, creek or ford here${where}`;
 }
 /** Household purchases go to the pantry at her lodgings: the status line says how much is there. */
@@ -498,6 +498,18 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
     return vessel
       ? { kind: 'provisions.refill', actorId: pc, data: { itemId: asItemId(vessel.id) } }
       : `You carry nothing called “${tail}”; plan lists your pack`;
+  }
+  if (verb === 'empty' || (verb === 'pour' && words[0] === 'out')) {
+    const query = verb === 'pour' ? words.slice(1).join(' ') : tail;
+    if (!query) return 'Empty what? Use empty <canteen, kettle or other vessel>';
+    const vessels = o.self.inventory.carried.filter((s) => normalized(s.name).includes(normalized(query)));
+    const offered = o.actions.filter((a) => a.id.startsWith('empty:') && vessels.some((v) => a.id === `empty:${v.id}`));
+    if (offered.length) return choose(offered, query);
+    // Not on offer (already dry, not a vessel): hand the game the pour so it says exactly why not.
+    const vessel = vessels.find((v) => v.waterMl !== undefined) ?? vessels[0];
+    return vessel
+      ? { kind: 'provisions.empty', actorId: pc, data: { itemId: asItemId(vessel.id) } }
+      : `You carry nothing called “${query}”; plan lists your pack`;
   }
   if (verb === 'wake') return find(o.actions, 'activity:idle_at_home');
   if (['sleep', 'rest', 'work'].includes(verb)) {

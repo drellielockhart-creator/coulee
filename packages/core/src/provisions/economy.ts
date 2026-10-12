@@ -27,6 +27,7 @@ import {
 import { nutritionTargets } from './nutrition.ts';
 import { RATION_RESTORE_DAYS, RATION_STEPS, SHUNNED, shoppingDays, WOODPILE } from './rules.ts';
 import { storeOpen } from './services.ts';
+import type { Store } from './state.ts';
 
 export function purchase(
   world: World,
@@ -297,6 +298,17 @@ export function replenishDomestic(world: World, ctx: SimContext, householdId: Ho
   }
 }
 
+/** Record the hundredths of a unit a store is owed from reduced freight (zero clears the entry). */
+function setFreightOwed(store: Store, defId: string, hundredths: number): void {
+  if (hundredths > 0) {
+    store.freightOwed ??= {};
+    store.freightOwed[defId] = hundredths;
+  } else if (store.freightOwed) {
+    delete store.freightOwed[defId];
+    if (!Object.keys(store.freightOwed).length) delete store.freightOwed;
+  }
+}
+
 export function householdDay(world: World, ctx: SimContext): void {
   for (const household of rowsOf(world.households)) {
     const h = world.provisions.households[household.id];
@@ -369,7 +381,15 @@ export function householdDay(world: World, ctx: SimContext): void {
         .filter((s) => s.stack.defId === line.item)
         .reduce((n, s) => n + s.stack.qty, 0);
       let qty = Math.max(0, Math.min(line.target_qty - have, line.max_delivery ?? line.target_qty));
-      if (restock.river_closed_months.includes(ctx.cal.month)) qty = Math.floor((qty * restock.river_closed_pct) / 100);
+      const owed = store.freightOwed?.[line.item] ?? 0;
+      if (restock.river_closed_months.includes(ctx.cal.month)) {
+        if (!qty) continue;
+        // A reduced load is whole units: the hundredths a shipment cannot carry ride to the next one
+        // (a 15% load of 4 kettles is 0.6, then 1.2 owed: one arrives on the second freight).
+        const scaled = qty * restock.river_closed_pct + owed;
+        qty = Math.floor(scaled / 100);
+        setFreightOwed(store, line.item, scaled % 100);
+      } else if (owed) setFreightOwed(store, line.item, 0); // open water: full loads, nothing owed
       if (!qty) continue;
       const cost = Math.round(((ctx.content.items[line.item]?.value_cents ?? 0) * restock.wholesale_pct) / 100) * qty;
       const cash = owner?.cashCents ?? store.tillCents;

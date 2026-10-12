@@ -64,6 +64,7 @@ New Commands, declared only in their owners' command files:
 - `provisions.sell`: a core transaction for intact goods, limited by store cash, with a `provisions.sale` event and price Explain.
 - `provisions.board_meal`: purchases a tavern meal through the same pantry/preparation kernel.
 - `provisions.drink`: consumes accessible water through the meal water kernel and emits the existing needs intake events.
+- `provisions.empty`: pours one water vessel out (`empty <vessel>`, menu id `empty:<item>`; one game-hour, like `fill`). Water weighs 1 g/ml, so `provisions.refill` (and the standing drink order's automatic refilling) stops at the load she can still move with (150% of capacity): a fill past that is trimmed, said aloud (`provisions.refilled.shortMl`), and refused outright when nothing is left to spare. A `drink` is offered whenever any water is to hand, as `min(500, available)` ml with the amount in its label.
 
 Existing `core.urge` supplies movement, rest/sleep/work, and catalog interactions. Existing buy/eat/pack/set_rations Commands are used unchanged. Provisions exposes shared prep/availability/quote/water queries through its API; no host prep math is substituted. Activity keeps an explicit conversational intention at its current venue instead of moving the speaker according to their schedule before social resolves it. Starting kits are a `playStarts` domain in the existing items schema's domain registry (`content/base/play`). The `walk` activity is ordinary content.
 
