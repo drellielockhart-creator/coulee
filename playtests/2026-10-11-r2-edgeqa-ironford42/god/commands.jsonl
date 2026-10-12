@@ -1,0 +1,8 @@
+{"type":"session","format":1,"spec":{"source":"iron_ford","seed":42,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"58ac7102070119393a1aaaee6eb209e3eb438d02b8a1ceff7eba1b28f8267106"}
+{"type":"command","command":{"kind":"fae.signs","actorId":41,"data":{},"issuer":{"kind":"player"}},"before":"1afee60daec86d3b","after":"1afee60daec86d3b","at":0,"end":0}
+{"type":"command","command":{"kind":"activity.observe","actorId":41,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"1afee60daec86d3b","after":"1afee60daec86d3b","at":0,"end":0}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"sleep"}},"issuer":{"kind":"player"}},"before":"1afee60daec86d3b","after":"07a2ba471e9d313a","at":0,"end":60}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":1440,"untilTime":480},"issuer":{"kind":"player"}},"before":"07a2ba471e9d313a","after":"9d92d606ab872e55","at":60,"end":480}
+{"type":"command","command":{"kind":"fae.signs","actorId":41,"data":{},"issuer":{"kind":"player"}},"before":"9d92d606ab872e55","after":"9d92d606ab872e55","at":480,"end":480}
+{"type":"command","command":{"kind":"activity.observe","actorId":41,"data":{"query":"journal"},"issuer":{"kind":"player"}},"before":"9d92d606ab872e55","after":"9d92d606ab872e55","at":480,"end":480}
+{"type":"command","command":{"kind":"activity.observe","actorId":41,"data":{"query":"inspect","target":"actor:29"},"issuer":{"kind":"player"}},"before":"9d92d606ab872e55","after":"9d92d606ab872e55","at":480,"end":480}

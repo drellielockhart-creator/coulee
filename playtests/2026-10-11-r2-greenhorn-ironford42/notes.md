@@ -1,0 +1,43 @@
+# Greenhorn playtest notes - Iron Ford seed 42 (r2)
+Persona: Greenhorn (Ellis Wayfarer). FAIR mode. Session: playtests/2026-10-11-r2-greenhorn-ironford42/session
+
+## Log
+- cmd0 (start, 1855-04-01 00:00 at Dunleavy's Tavern): Purse $50, household $0. Food 6.0 days. Vitals H800 R800 T850 W900. Board: bed $0.25 until noon; meal $0.20.
+- cmd1 help: verbs listed. "One action = one game-hour; queries take no time." "Sleep keeps you in bed at least 4 hours (8 when you camp)". "Eat defaults to ONE serving".
+- cmd: inspect Michael (no time). Introduce to Michael (menu 15) took 1h; output "Resolved: Introduce oneself: 967 (Reality 50 x Self-Command 50%, Voices 1000 x 100%, Impulse (+/-100))". No idea what Reality/Voices/Impulse mean. Confusion.
+- Michael: "offers a favor with an obligation. Answer within the hour; silence means no answer." explain 365 -> "Request awaits the issuer: 0 () -> pending". I never learned what the favor is. Answer string: answer:28:41:0:help:yes/no. Offer re-appears (id 420, 540) after lapsing; explain 1071 -> "no answer: 0 () -> no answer". Journal does NOT list the favor or any obligation.
+- sleep (in tavern bed, $0.25 charged) passed only 1h (01:00->02:00). Then "wait until morning" passed 6h to 08:00 in one command: FIXED-looking. "Skipped 5 minor conversations nearby."
+- AUTO-EAT: during wait until morning, character ate Pemmican, Dried apples, Hardtack (643 kcal) on a standing order without my order. Self-Command "Held for your order; routine standing orders only". I did not order eating.
+- "standing" with no args -> error exit 2 usage text, doesn't show current standing orders. "standing eat" same. "standing eat off" -> consumed 1 game hour (08:00->09:00) and showed no confirmation at all.
+- After that: header "Food 0.0 days" but plan says "17499/16856 usable kcal / 2142 kcal per day" (~8 days). Kit still lists 4 Hardtack, 3 Pemmican, 2 Dried apples after 3 items eaten (counts not decremented). Kit line "Less than four days of usable food". Contradictory food readouts. Also "Less than one day of food or cooking fuel remains." message.
+- "meal" (tavern meal, $0.20) at 09:00 -> 'Money: purse -$0.20 ... Tavern meal'. No eat event, no item in kit, hunger continued to fall at normal rate. "eat meal" -> "No available food/preparation matches. No game time spent." Paid $0.20 for nothing visible. Usable kcal rose 16856 -> 17606 after the meal purchase.
+- Counter open at 08:00 (hours 6-23).
+- Conscience prompts appear: "It is late; the day starts early (held for your order; you may: sleep)", "The table is laid (you may: take a meal)", "The Sabbath must be kept (you may: attend church)".
+- Other: "Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)" — fae sign, new.
+- Overheard event text is plain English and pleasant: "Michael Dunleavy: Lend a hand > Nora Dunleavy (it went well)". "Lucius Vance: 'I've not had better pie in Iron Ford, Mr. Whitcomb.'"
+- 11:00 "eat hardtack": "You ate Milk, whole, Eggs, Cheese, Swiss, Vinegar, cider, Tea, black: 750 kcal, hot" appeared at 11:00 - the $0.20 "meal" bought at 09:00 was delivered and eaten a couple hours later with no explanation. Meal purchase looked like a no-op until then.
+- Signs: "investigate 4:0:dawn" at 11:00 (sign says dawn) -> investigate consumed 1h, output had no result text; sign still "Open question". At dawn (06:00 Apr 2) "investigate 4:0:dawn" -> "You have already tested this sign. Returning cannot change the evidence." So the first test (at noon, not dawn) burned the sign with no visible result. Serious confusion/bug.
+- Outfitter (Pratt & Daughter) at 13:00: "prices" dumps ~230 lines. Bought 10 hardtack $0.80 (money line clear: "Money: purse -$0.80, household +$0.00"). Buy took 1h.
+- "plan" after buy: "Food 0.0 days; 32806 usable kcal / 2142 kcal per day" (= ~15 days) while header says Food 0.0 days and Kit says "Less than four days of usable food at current rations". Kit now lists 4 hardtack (#345) AND 10 hardtack (#861). Contradiction persists all session.
+- "work" at Dunleavy's Tavern: game auto-walked me ("You arrive at Dunleavy's Tavern (2 min on foot)") at 15:00, status "working"; "Resolved: Work: -250 (Reality 0 x Self-Command 50%, Voices -150 x 100%, Impulse (+/-100))". Next hour: "at home, at leisure"; no pay, no message, nothing in journal. Greenhorn does not know where work is or whether I got paid.
+- "Wait stopped at 18:00 (you meant to wait until 08:00)" with no reason on the line; 2nd try "Wait stopped at 21:00" (favor offer). 03:00 stop was "Hunger: steady -> Peckish" (legit reason, shown). "wait until dawn" and earlier "wait until morning" (from 02:00) ran straight through when no interrupts.
+- Favor from Michael (id 1200): I answered "answer:28:41:1200:help:yes" -> "Your answer on the request: accepted". Journal: "Michael Dunleavy helped me, unasked. There are people in this county who keep the word neighbor alive." No debt/obligation line visible in journal or status at any point. I still do not know what I accepted. Other offer lapses -> "no answer" (no visible consequence).
+- Sleep at 16:00: Rest went 450 -> 411 during first sleep hour (need effects use previous hour's activity). Confusing.
+- Kit at 06:00 Apr 2: "Less than a day of stored drinking water; preparation also draws from it."
+- Standing eat: auto-eat happened without order; "standing" command itself has no read-out.
+- "eat hardtack 2" -> "You ate Hardtack (ship's biscuit): 1100 kcal, cold". Good.
+- Pleasant: Place descriptions ("The Outfitter: general store, post-office counter, and the town's ledger of debts"), overheard gossip, "You remember: The broom leans bristles upward..." reminder.
+- Apr 2 07:00: "work" again -> auto-walk to tavern, "You begin working". "wait 4h" -> purse still $48.25, no pay line anywhere. Work never paid (4h x2 + several 1h). Pay not visible at all.
+- "agency commanded" -> consumed 1h, no confirmation text. "agency" (no arg) -> usage error, doesn't show current mode. "rations 100" -> consumed 1h, "Rations are set to 100%" only in explain; header still "Food 0.0 days". "rations" (no arg) -> "Rations must be 10-150%" with no current value.
+- "aid Nora Dunleavy" / "aid Nora" / "aid 29" -> "Nothing here matches ... try look, prices, places or actions". No aid option appears in the menu unless someone needs help; error is misleading.
+- Apr 3 07:00 Outfitter: "buy dried apples 4" and "buy pemmican 2" -> "Nothing here matches". Re-check via prices|grep: Pemmican, Dried apples, Cornmeal, Beans, Cheese, Sugar no longer listed (Pemmican was 24 in stock at 13:00 Apr 1). Stock vanished, no message. Hardtack 120->110, flour 300->203.
+- Apr 3 "plan": "Food 0.0 days; 29506 usable kcal / 2889 kcal per day" (daily need changed from 2142 to 2889 with no message). Header still 0.0.
+- wait stop reasons seen: 14:00 (hunger), 20:00 (Apr 2, woke to "fetching water" standing drink, no reason line for stop), 04:00 Apr 3 (no reason line), 05:00 (peckish, shown), 18:00 Apr 4 (peckish, shown). "wait until morning" from evening passes in 2-3 chunks, not one.
+- Apr 4 00:00 at East Bluff: "Make camp and sleep here" works (camp sleep, no fee). Woke at 00:00 with Thirst 460 "Thirsty", Hunger 449 "Hungry: eat something (held for your order)" -> standing eat is OFF (I turned it off) so food is now mine to order. Good, the off switch works, though it gave no confirmation at the time.
+- "drink" at East Bluff spring -> "No accessible water; fetch water at your lodgings or go to a water source.." (double period). Yet the menu line says "Appetite: Parched: a drink of water (you may: fetch water)". Contradiction.
+- Status line now shows "malnourished" (after ~a week of underfeeding: "You are malnourished after a week of poor eating"), and "fatigued", "thirsty" as inline tags in Health. Exhaustion warning: "You may collapse from exhaustion in about 90 hours if this continues (Fortitude saves vary)." Good, clear.
+- Eating: "eat pemmican 2" -> "You ate Pemmican: 1934 kcal, cold". Hardtack 550 kcal each. Hunger 1000 after. Malnourished stays after eating.
+- Favor (id 5400): answered "no" -> "Your answer on the request: refused". Favor offers recur roughly every half day.
+- Social: "chat" with Amos -> "went well". Overheard NPC-NPC failures show "(it went badly)" with no reason. I have not seen any failure of my own social action with a reason.
+- Money: purse $48.00 at Apr 4 20:00. Spent: bed $0.25 x3 (Apr1 1:00, Apr2 16:00, Apr4 15:00), meal $0.20, hardtack $0.80 => about $2 of $50 over 4 days. No unordered spending seen.
+- Apr 4 "sleep" at 15:00 -> Rest 216 "Tired", "You may collapse from exhaustion in about 90 hours if this continues". Greenhorn did not know rest would drop ~40-50/h awake.

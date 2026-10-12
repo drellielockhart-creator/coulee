@@ -12,3 +12,5 @@ __pycache__/
 # Playtest artifacts: keep reports, notes, command logs, metrics and transcripts; drop regenerable state (replay commands.jsonl to rebuild)
 playtests/**/save.json
 playtests/**/events.jsonl
+# Fork transcripts duplicate the parent session; commands.jsonl replays them
+playtests/**/fork-*/transcript.txt
