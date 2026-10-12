@@ -6,7 +6,7 @@ A simulationist fantasy-frontier game (3.5e-shaped rules × RimWorld), set in a 
 1. `design-docs/00-vision-and-pillars.md`: pillars P1–P8 and the glossary.
 2. `design-docs/adr/0001` to `0003`: stack, invariants, headless play, procedural worldgen.
 3. `docs/impl/MODULES.md`: module ownership, cross-module contracts, acceptance criteria.
-4. Design docs 01–12. 01–07 predate the TypeScript ADR, so ignore their Rust/Godot specifics. "Persona" in 04 means **Figure**.
+4. Design docs 01–13. 01–07 predate the TypeScript ADR, so ignore their Rust/Godot specifics. "Persona" in 04 means **Figure**. 13 covers fae omens, magic and charms (decided 2026-10-11).
 
 ## Commands (run from the repo root)
 - `just check` is the gate: biome, typecheck (all packages + scripts), vitest, invariants, content validation. It must pass before you say you're done.
@@ -23,6 +23,8 @@ A simulationist fantasy-frontier game (3.5e-shaped rules × RimWorld), set in a 
 - `packages/core`: the pure sim. Foundation files plus module dirs (`needs/ activity/ psyche/ social/ belief/ provisions/ items/ chronicle/`), each with `state/events/commands/system/api/view/index.ts`.
 - `packages/content`: zod schemas (`src/schema/*.ts`, the single source of content types), the TOML loader, validator, and bundler.
 - `packages/cli`: the `coulee` harness. Integration tests needing real content go in `packages/cli/test/`.
+- `packages/play`: headless play (ADR 0002): `PlaySession`, fair/god observations, shared interrupt policy (also used by the web's auto-pause), replay/save/fork. Play as an agent with `just run play --session <dir> --new --scenario iron_ford --seed 42`, then `just run play --session <dir> "<command>"` (one command per call; `--verify` replays). See `packages/play/README.md`.
+- `packages/worldgen`: procedural towns (ADR 0003). `--scenario gen:town --seed N` (`--world-seed` to vary separately); `just run gen town --seed N --out runs/gen-N` exports TOML.
 - `apps/web`: Vite + React + three.js PWA. The sim runs in a Web Worker (`src/sim.worker.ts`), and the UI gets view-model snapshots.
 - `content/base`: TOML. `tools/blender`: bpy scripts. `scripts`: repo scripts. `runs/`: gitignored output.
 
@@ -31,7 +33,7 @@ A simulationist fantasy-frontier game (3.5e-shaped rules × RimWorld), set in a 
    - All randomness goes through `ctx.rng(stream, mixKey(...))`: counter-based, and the streams are a closed union in `rng.ts`.
    - Iterate tables with `idsOf()`/`rowsOf()`. Sort only with total comparators.
 2. **Integers in accumulated state.** Money in cents, needs 0..1000, opinions −100..100, credence 0..100, time in game-minutes since 1855-04-01 00:00, fractions in per-mille. Round explicitly before storing. `findNonIntegers(world)` must stay empty.
-3. **Everyone is a character sheet (P2).** The player is an actor whose urges come from Commands. No player-only rule paths; never branch rules on `controller`.
+3. **Everyone is a character sheet (P2).** The player is an actor whose urges come from Commands. No player-only rule paths; never branch rules on `controller`. PC autonomy is the actor's **agency mode** (`commanded` for the PC, `psyche` for NPCs) plus standing orders. Every consequential executor must pass the agency check (`psyche` API; `authorizeAct` per doc 13 §2.2).
 4. **Data over code.** Peoples, needs, traits, activities, interactions, and items live in TOML. Never compare against a people id in sim logic; read its fields.
 5. **Legibility (P1).** Every check and arbitration emits an `Explain` (inputs, named modifiers, roll, DC, outcome) on its event, with a `knowledge` level. Views honor `perspective`/`omniscient`.
 6. **Plain data + functions.** `World` is JSON-able; systems are `(world, ctx) => void` in the fixed order of `sim/schedule.ts`. The event log is append-only.
@@ -52,6 +54,15 @@ A simulationist fantasy-frontier game (3.5e-shaped rules × RimWorld), set in a 
 - The Claude Code plugin `codex@openai-codex` is installed (`/codex:review`, `/codex:adversarial-review`, `/codex:rescue`). Always pass `--model gpt-6.1-sol` (or astra) explicitly.
 - Codex jobs follow the same file-ownership rules, don't run repo-wide formatters while others work, and never commit; the orchestrator commits.
 - Cross-model review is the point: have Codex review Claude's work and vice versa.
+- **Codex sandbox limits:** no localhost sockets or browser (Claude takes screenshots), and `.git` is read-only, so the orchestrator commits. Ellie has spare Codex quota: prefer `gpt-6-astra` for big implementation and review jobs.
+- **Codex content filter:** OpenAI's cybersecurity classifier killed the "exploit hunter / griefer" playtests. Use neutral QA wording (edge-case QA, economy audit, robustness) in Codex prompts.
+- **Claude workflow subagents can't write report files.** Have them return the report as their final message, then save it (`scratchpad/playtest/save-reports.mjs` pattern).
+- **Parallel waves:** give each fix group its own git worktree (`git worktree add -b <branch> ../coulee-<name> main`, then `pnpm install --offline`), then merge one at a time and resolve conflicts. Refresh the golden once after the merges.
+
+## GitHub
+- Remote `origin` = https://github.com/drellielockhart-creator/coulee (public). `gh` is authenticated as drellielockhart-creator, and git uses gh's credential helper.
+- `main` is the integration branch. Push after each green merge; feature/fix branches are pushed too.
+- Never commit `runs/`, playtest `save.json`/`events.jsonl` (gitignored), secrets or large binaries.
 
 ## Working rules
 - Respect file ownership in `docs/impl/MODULES.md`. Change other modules only through their `api.ts`. Contracts (exported types, view shapes, event payloads) are additive-only.
@@ -60,3 +71,4 @@ A simulationist fantasy-frontier game (3.5e-shaped rules × RimWorld), set in a 
 - Core unit tests sit next to the code. Integration tests use `packages/cli/test/helpers.ts`.
 - Golden chronicle diffs are design reviews: update snapshots deliberately, with a one-line reason.
 - Commit only when asked, on the branch the orchestrator or Ellie names. Follow the attribution instructions in the session.
+- Feature ideas Ellie has queued but not prioritized live in `docs/impl/BACKLOG.md` (e.g., vehicles and river trade).

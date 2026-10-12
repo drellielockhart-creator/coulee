@@ -1,70 +1,63 @@
 # Next session: how to pick up
 
-_Written 2026-10-10, when we paused for the 5-hour usage limit. The status table is updated at the pause point._
+_Updated 2026-10-11 evening. The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
 
-## Where we stopped
+## Where things stand
 
-| Track | State at pause |
-|---|---|
-| Design docs 00–12 + ADRs 0001–0003 | Docs workflow (`docs/impl/workflows/02-docs-v2.js`) was finishing its work on 01–06, then sweep and refresh of 08/09. See the status line below. |
-| Implementation (`docs/impl/workflows/01-build-slice.js`) | Run through **Foundation → Modules → Integrate** (commits the playable slice). **Deliberately stopped before Review + Fix** to save usage. |
-| Headless play + playtesting (ADR 0002) | **Not started.** |
-| Procgen readiness + town-site generator (ADR 0003) | **Not started.** |
+- **The M1–M3 town slice is integrated and green** (`just check`: 503 tests, invariants, content).
+  - Iron Ford runs for a year deterministically.
+  - The chronicle tells feuds, rumors, scapegoats, courtship, hunger and a faekin-suspicion arc in period voice.
+  - The pocket and desktop web shell works.
+  - Blender assets exist.
+- **Headless play (ADR 0002)** works.
+  - `coulee play --text|--jsonl|--replay` and the stateless `--session` mode for agents.
+  - Fair and god observations, a shared interrupt policy (the web's auto-pause uses it too), replay, save, fork and verify.
+- **Worldgen first slice (ADR 0003):** `--scenario gen:town --seed N`.
+  - Varied generated ford towns, QA across seeds 1–50, and TOML export.
+- **The first agent playtest wave ran:** 8 personas × 2 worlds, Claude and Codex mixed.
+  - Triage is in `docs/impl/PLAYTEST-TRIAGE-2026-10-11.md`; reports are in `playtests/`.
+  - Fixed since then:
+    - high-agency PC (agency mode and standing orders);
+    - waits that skip NPC chatter;
+    - honest social failure reasons;
+    - money legibility;
+    - period-voice conversation lines and real belief transfer;
+    - rumor damping;
+    - employer-funded wages and money conservation;
+    - camping, and production yields (fishing, foraging, wood, snares);
+    - outfitter catalog stock;
+    - packed saves (3.9 MB at 30 days).
+- **Design doc 13** (fae omens, fae magic anyone can learn, disruptive fae charms) is written, critiqued by Codex, revised, and approved by Ellie.
 
-Status line (updated at pause): see **Actual pause state** below. It supersedes the table above.
+## In flight when this was written (wave 3: worktrees `../coulee-w3-*`, branches `wave3/*`)
 
-## Restart order
+| Branch | Work | Agent |
+|---|---|---|
+| `wave3/fae1a` | Fae slice 1a: `authorizeAct` agency contract, the `fae/` module, six omen families, thinning, place descriptions, `investigate`, protected-site exclusion | Codex gpt-6-astra |
+| `wave3/survival` | Starvation, dehydration, exposure and exhaustion leading to collapse and death; NPC deaths with grief, funerals and obituaries; PC death as an ending; captives in "fae time" | Codex gpt-6-astra |
+| `wave3/polish` | Play-loop polish: `go` arrives, the PC's own talk lines print, humane event text, camping via sleep/wait, agency on repayment | Claude Sonnet |
 
-Paste one of the prompts below into Claude Code from `~/projects/coulee`. Ultracode/workflows are fine. **Use Haiku subagents for mechanical work** (transcription, sweeps, naive-player playtests), Sonnet for mid-level implementation, and Opus for architecture, psyche/social, integration, and review.
+If those branches have uncommitted work in their worktrees, commit each one there (attribution trailers), merge into `main` one at a time, run `just check`, refresh the golden once (`pnpm exec vitest run packages/cli/test/chronicle.test.ts -u`, with a one-line reason), and push.
 
-### Step 1: Finish the slice (review + fix)
-> Read `NEXT_SESSION.md`, `docs/impl/STATUS.md` (if present), `CLAUDE.md`, and `design-docs/adr/*`. The build-slice workflow was stopped after Integrate. Run its **Review** (determinism, story, pocket-UX, crunch lenses, all Opus) and **Fix** phases against the current repo. If this is still the original session, resume run `wf_9bd2e135-f7e` with `docs/impl/workflows/01-build-slice.js`; otherwise write a new workflow from the Review/Fix part of that script. Then write `docs/impl/STATUS.md` if missing.
+## Next, in order
 
-### Step 2: Headless play + procgen readiness + first playtests
-> Implement ADR 0002 and the first slice of ADR 0003 as one workflow:
-> 1. **Build** (Opus): `packages/play` (`PlaySession`: player actor via Commands, fair-mode observation renderer, god mode, interrupt policy shared with the pocket UI's auto-pause, save/load/fork, replay from command log, telemetry JSONL) and `coulee play --text|--jsonl|--replay`. The player arrives in Iron Ford as a newcomer with dollars and a starting pack, and can go places, talk/interact, buy and sell at the store, eat, cook, sleep, wait, inspect, plan provisions, and explain. Enforce **UI parity**: the web UI calls the same Command/PlaySession API.
-> 2. **Procgen readiness** (Opus): audit that core and web draw only from world data (no baked layouts). Create `packages/worldgen` with a deterministic **town-site generator** that emits the same site/place/household shapes as `content/base/scenarios/iron_ford`. Add a `generated_town` scenario option, a worldgen QA check (degenerate-world detectors), and a test that generated and authored towns both run.
-> 3. **Playtest** in parallel with personas from ADR 0002: Greenhorn (Haiku), Catalog kid/min-maxer (Sonnet), Socialite (Opus), Explorer (Sonnet), Exploit hunter (Sonnet). Run each on Iron Ford seed 42 **and** a generated town. Each plays ~7–14 in-game days via `coulee play --text` and writes `playtests/<date>-<persona>-<seed>/report.md` + `commands.jsonl` + `metrics.jsonl`.
-> 4. **Triage** (Opus): dedupe findings into a ranked list.
-> 5. **Fix** (Opus): fix the top items.
-> 6. **Regression playtest** (Haiku + Sonnet): replay the same command logs and confirm fixes.
-> 7. **Update** `design-docs/07-architecture-and-prototype.md`'s milestone plan: add a playtest gate to every milestone, add M5a worldgen (ADR 0003), and add `packages/play` + `packages/worldgen` to the repo layout. Commit.
+1. **Merge wave 3**, then take a Codex gpt-6-astra adversarial review pass over the merged fae, survival and polish work.
+2. **Perf wave.** It runs about 12–20 ms per game-hour on desktop, mostly psyche and provisions; the phone budget is under 5. Hash-identical refactors only.
+3. **Fae slice 1b** (doc 13): the Never-Empty Sack, Rain-Hem, the loan model, draw-vs-discovery, and the "Charm at ‹town›" detector with causal ablations.
+4. **Regression playtests.** Rerun the personas on Iron Ford 42 and `gen:town` 7 (mostly Codex; Claude for the socialite and greenhorn). Use neutral QA wording for Codex.
+5. **M4 Outfitter UI and web PlaySession:** the web is still a spectator UI. Give it a PC via PlaySession (UI parity) with the Book/Kit Sheet.
+6. **Ellie's open decisions** in `design-docs/08-open-questions.md` "Start here", minus Q05 (answered).
 
-### Step 3: Ellie's decisions
-`design-docs/08-open-questions.md` → "Start here" (top 10). Answers there unblock M4+ (Outfitter + provisions UI, region travel, combat, adventurer slice, witch slice).
+The parking lot is `docs/impl/BACKLOG.md`. Ellie asked for vehicles and river trade there.
 
 ## Useful commands
+
 ```fish
 cd ~/projects/coulee
-just check                                              # format, lint, typecheck, tests, invariants, content
-just run --scenario iron_ford --seed 42 --years 1       # headless town year → runs/…/chronicle.md
-just web                                                # dev server; add --host to reach it from a phone on the LAN
-just web-build; just screens                            # production build + phone/desktop screenshots → runs/screens/
-just assets                                             # rebuild Blender low-poly assets
+just check
+just run run --scenario iron_ford --seed 42 --years 1 --profile     # year run + per-system ms/h
+just run play --session runs/me --new --scenario iron_ford --seed 42 # then: just run play --session runs/me "help"
+just run gen town --seed 7 --out runs/gen-7
+just web-build; pnpm exec tsx scripts/screens.ts                    # screenshots -> runs/screens/
+scripts/codex.sh <job> <prompt.md> gpt-6-astra high                 # Codex job; logs in runs/codex/<job>/
 ```
-(Recipe names come from the foundation agent's justfile. If one differs, run `just --list`.)
-
-## Key files
-- `design-docs/00-vision-and-pillars.md`: canon (P1–P8, glossary, decisions log)
-- `design-docs/adr/0001` (TS stack), `0002` (headless play + playtesting), `0003` (procgen)
-- `design-docs/08-open-questions.md`, `09-consistency-notes.md`
-- `docs/impl/MODULES.md` (module contracts), `docs/impl/STATUS.md` (written by the fix phase), `docs/impl/BACKLOG.md`
-- `docs/impl/workflows/*.js`: the workflow scripts used so far
-
----
-
-## Actual pause state (final, 2026-10-10 evening)
-
-We hit the usage limit earlier than planned, so both workflows were **stopped mid-flight**:
-
-- **Design docs: essentially complete.** 10-psyche, 11-interface, 12-peoples, and the TypeScript rewrite of 07 are written. 01–06 were revised to match the decisions, and the stale-reference sweep ran. **The final "refresh" agent (rewriting 08/09 + README) was interrupted.** Check whether 08/09 still mention Rust/Godot or unanswered peoples questions, and if so re-run just that step (the last agent in `docs/impl/workflows/02-docs-v2.js`). The README table may lack 10–12.
-- **Implementation:**
-  - **M0 foundation is committed on `main`** (`f2e3b38`, `just check` green, 41 tests).
-  - The **content-items** module (about 200 catalog items as TOML) finished.
-  - The other **nine modules were interrupted partway**: needs-activities, psyche, social, belief, provisions, chronicle, content-world, web, assets. Their partial work is committed on branch **`wip/modules-2026-10-10`** and is likely not compiling yet.
-  - **Integrate, Review and Fix never ran.**
-
-### Revised Step 1 (replaces Step 1 above)
-> Read `NEXT_SESSION.md`, `CLAUDE.md`, `docs/impl/MODULES.md`, and the ADRs. We're on branch `wip/modules-2026-10-10`, where nine module agents were interrupted mid-work. For each module in MODULES.md, assess how complete it is against its acceptance criteria (Haiku or Sonnet can do the assessment), then finish the incomplete ones in parallel (same model assignments as `docs/impl/workflows/01-build-slice.js`, with the same exclusive file ownership). Then run that script's Integrate → Review → Fix phases. Merge to `main` once `just check` is green and the Iron Ford run is deterministic.
-
-Then do Step 2 (headless play + procgen + playtests) and Step 3 (Ellie's decisions) as written above.
