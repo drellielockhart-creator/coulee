@@ -34,6 +34,8 @@ export interface ItemStackView {
   /** Exact food portions remaining, per mille of one serving. */
   servingsLeftPm: number | null;
   waterMl: number;
+  /** Water a vessel can hold, ml (0 for anything that is not a water vessel). */
+  liquidMl?: number;
   supplyUnitsLeft: number | null;
   lit: boolean;
 }
@@ -68,6 +70,7 @@ export function viewStacks(world: World, content: ContentBundle, loc: ItemLocati
       section: def?.section ?? 'misc',
       servingsLeftPm: def?.food ? (s.qty * def.food.servings - s.partial) * 1000 - (s.foodPartialPm ?? 0) : null,
       waterMl: s.waterMl ?? 0,
+      liquidMl: def?.container?.liquid_ml ?? 0,
       supplyUnitsLeft: def?.supply ? stackSupplyUnits(content, s, def.supply.kind) : null,
       lit: s.lit,
     };

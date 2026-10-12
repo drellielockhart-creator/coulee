@@ -161,6 +161,11 @@ export const PrepSchema = z.strictObject({
   cookware: z.array(id()).default([]),
   /** Water consumed per serving, ml (soaking hardtack, boiling beans, brewing coffee). */
   water_ml: nonNegInt().default(0),
+  /**
+   * Extra drinking water per serving eaten this way, ml: salt meat eaten raw or fried leaves a
+   * thirst that boiling (which draws the salt into the pot) mostly spares. Charged to Thirst.
+   */
+  thirst_ml: nonNegInt().default(0),
   /** Percent of the item's kcal available when eaten this way (raw dry beans ~0). */
   kcal_pct: ratePct().default(100),
   /** Morale delta per serving eaten this way (hot coffee +, cold raw pork −). */

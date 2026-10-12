@@ -78,7 +78,10 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
         data: { targetId: other.id },
       });
   const state = activity.currentActivity(w, pc);
-  const unlocked = state?.lockedUntil === null || state?.lockedUntil === undefined || state.lockedUntil <= w.time;
+  // A sleeper can always be woken by an order (core: activity wakes on a command).
+  const asleep = !!c.activities[state?.activityId ?? '']?.asleep;
+  const unlocked =
+    asleep || state?.lockedUntil === null || state?.lockedUntil === undefined || state.lockedUntil <= w.time;
   if (unlocked) {
     for (const p of Object.values(w.places))
       if (p.id !== a.placeId && c.activities.idle_at_home)
@@ -102,6 +105,23 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
           actorId: pc,
           data: { urge: { kind: 'activity', activityId: campId, placeId: a.placeId } },
         });
+        continue;
+      }
+      // Fetching water goes to the nearest spring, creek or ford (vessels fill there), not home.
+      const source = def.id === 'fetch_water' ? provisions.nearestWaterSource(w, c, pc) : null;
+      if (source) {
+        const where = w.places[source.placeId]?.name ?? 'the water';
+        add(
+          `activity:${def.id}`,
+          source.minutes === 0
+            ? `Fetch water here at ${where} (drink and fill your vessels)`
+            : `Fetch water at ${where} (${source.minutes} min on foot; drink and fill your vessels)`,
+          {
+            kind: 'core.urge',
+            actorId: pc,
+            data: { urge: { kind: 'activity', activityId: def.id, placeId: source.placeId } },
+          },
+        );
         continue;
       }
       if (def.id === 'idle_at_home' && a.placeId !== home) {
@@ -130,7 +150,13 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
         }
   }
   if (provisions.drinkingWater(w, c, pc) >= 500)
-    add('drink', 'Drink water (500 ml)', { kind: 'provisions.drink', actorId: pc, data: { ml: 500 } });
+    add(
+      'drink',
+      provisions.isWaterSource(w, c, a.placeId)
+        ? `Drink from ${w.places[a.placeId]?.name ?? 'the water'} (raw water, 500 ml)`
+        : 'Drink water (500 ml)',
+      { kind: 'provisions.drink', actorId: pc, data: { ml: 500 } },
+    );
   const service = provisions.serviceAt(w, c, a.placeId);
   if (
     service?.meal_cents !== undefined &&
@@ -158,8 +184,9 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     }
   const accessible = Object.values(w.items.stacks).filter((s) => provisions.accessibleStack(w, pc, s));
   for (const s of accessible) {
-    if (provisions.refillQuote(w, c, pc, s.id) !== null)
-      add(`refill:${s.id}`, `Refill ${c.items[s.defId]?.name}`, {
+    const fill = provisions.refillQuote(w, c, pc, s.id);
+    if (fill !== null)
+      add(`refill:${s.id}`, `Fill ${c.items[s.defId]?.name} (${fill} ml)`, {
         kind: 'provisions.refill',
         actorId: pc,
         data: { itemId: s.id },
@@ -218,6 +245,33 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     });
   return out;
 }
+/** Load limits, said before any time passes: no walking over the limit, no buying past it. */
+function loadRefusal(w: Sim['world'], c: Sim['content'], pc: ActorId, command: Command): string | null {
+  const actor = w.actors[pc];
+  if (!actor) return null;
+  const load = items.loadReport(w, c, pc);
+  if (
+    command.kind === 'core.urge' &&
+    command.data.urge.kind === 'activity' &&
+    command.data.urge.placeId !== undefined &&
+    command.data.urge.placeId !== actor.placeId &&
+    load.band.speedPct === 0
+  )
+    return `You cannot move: your load is ${load.loadPct}% of what you can carry (over ${items.MOVE_LIMIT_PCT}%). Drop, sell or unpack something first`;
+  if (command.kind !== 'provisions.buy') return null;
+  // Carried goods must leave her able to walk (core caps the purchase the same way): say so.
+  const d = command.data;
+  const unitG = c.items[d.defId]?.weight_g ?? 0;
+  if (
+    unitG <= 0 ||
+    !Number.isSafeInteger(d.qty) ||
+    (load.weightG + unitG * d.qty) * 100 <= load.capacityG * items.MOVE_LIMIT_PCT
+  )
+    return null;
+  const fits = Math.max(0, Math.floor((load.capacityG * items.MOVE_LIMIT_PCT - load.weightG * 100) / (unitG * 100)));
+  const pct = Math.floor(((load.weightG + unitG * d.qty) * 100) / Math.max(1, load.capacityG));
+  return `Too heavy: ${d.qty} × ${c.items[d.defId]?.name} (${((unitG * d.qty) / 1000).toFixed(1)} kg) would put your load at ${pct}% of what you can carry (now ${load.loadPct}%, ${load.band.label}); over ${items.MOVE_LIMIT_PCT}% you cannot walk. ${fits ? `You can carry ${fits} more` : 'Lighten your pack first'}`;
+}
 /** Exact offered commands plus bounded quantity/ration variants from the same affordance. */
 export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions: AvailableAction[]): string | null {
   if (!command || command.actorId !== pc || !command.data) return 'Command must belong to the newcomer';
@@ -246,6 +300,8 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   );
   if (!authorization.ok) return authorization.reason;
   if (!needs.canAct(w, pc) && command.kind !== 'activity.wait') return 'You have collapsed and need help';
+  const load = loadRefusal(w, c, pc, command);
+  if (load) return load;
   if (offered) return null;
   if (command.kind === 'fae.signs') return null;
   if (command.kind === 'fae.investigate') return fae.investigationEligibility(w, pc, command.data.signId);
@@ -279,10 +335,10 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
       ? null
       : 'Invalid standing orders';
   }
-  if (command.kind === 'provisions.refill')
-    return provisions.refillQuote(w, c, pc, command.data.itemId, command.data.ml) !== null
-      ? null
-      : 'No accessible refill source or vessel capacity';
+  if (command.kind === 'provisions.refill') {
+    const check = provisions.refillCheck(w, c, pc, command.data.itemId, command.data.ml);
+    return 'ml' in check ? null : check.reason;
+  }
   if (command.kind === 'provisions.drink')
     return Number.isSafeInteger(command.data.ml) &&
       command.data.ml > 0 &&
@@ -382,6 +438,12 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     const d = command.data,
       s = w.items.stacks[d.itemId],
       box = d.intoItemId === null ? null : w.items.stacks[asItemId(d.intoItemId)];
+    // Say why it will not go in: full by weight or bulk, holds water, or not a container.
+    if (s && box && box.id !== s.id) {
+      const fit = items.fitsInContainer(w, c, s, Math.max(1, Math.min(d.qty, s.qty)), box);
+      if (!fit.ok)
+        return `${c.items[s.defId]?.name ?? 'That'} will not go into the ${c.items[box.defId]?.name ?? 'container'}: ${fit.reason}`;
+    }
     if (
       s &&
       provisions.accessibleStack(w, pc, s) &&

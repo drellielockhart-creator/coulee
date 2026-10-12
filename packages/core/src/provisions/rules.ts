@@ -56,6 +56,9 @@ export const SCURVY = {
 /** Monotony (03 §3.7.3): 1000 minus a penalty per distinct food and group in the last 14 days. */
 export const MONOTONY = { perFood: 100, perGroup: 50, thinOnset: 600 } as const;
 
+/** The standing eat order skips a meal only when this full (hunger meter); snacks need real hunger (600). */
+export const STANDING_FULL = 900;
+
 /** Malnourishment: mean intake over the last 7 recorded days, percent of need, with hysteresis; and lean-fat floor. */
 export const MALNOURISHED = { onPct: 70, offPct: 85, minDays: 3, fatFloorPct: 10 } as const;
 

@@ -1,17 +1,23 @@
 # Store restock tables (03 §8.2). OWNER: module:provisions.
-# Pratt & Daughter orders from a Galena wholesaler: every week it tops up to `target_qty` at
-# `wholesale_pct` of value. The owner's cash pays first; the rest goes on the wholesaler's
-# account (the debt that drives Gussie's secret in 01 §8.3). The river is closed Dec-Mar.
+# Pratt & Daughter orders from a Galena wholesaler: freight comes up by packet twice a week
+# (every 3 days) and tops up to `target_qty` at `wholesale_pct` of value. The owner's cash pays
+# first; the rest goes on the wholesaler's account (the debt that drives Gussie's secret in 01
+# §8.3). The river is closed Dec-Mar.
+# Demand check (2026-10-11, iron_ford 42): Apr 2 the households stock up and clear the staples
+# (cornmeal 150, beans 57, apples 30, pemmican 24, cheese 25); after that the town buys about
+# 40 lb of cornmeal and 15 lb of beans a day. A weekly freight left the shelves bare for six
+# days; twice weekly, capped by `max_delivery`, keeps up. Prices are unchanged.
 
 [[restock]]
 id = "pratt_wholesale"
 place = "pratt_daughter_outfitters"
-every_days = 7
+every_days = 3
 wholesale_pct = 70
 river_closed_months = [12, 1, 2, 3]
 # Freeze-up does not stop trade, it slows it: sleighs on the river ice and wagons on the
-# Prairie du Chien road bring about a third of a summer week's freight.
-river_closed_pct = 35
+# Prairie du Chien road bring about a third of a summer week's freight (15% of a delivery,
+# every 3 days, is the same weekly volume as the old 35% weekly).
+river_closed_pct = 15
 # A river-town store feeds a town that buys its staples: Iron Ford's ~40 souls eat ~100,000
 # kcal a day, so a week's freight is several hundred pounds of meal and flour plus pork and beans,
 # and the shelves fill through the fall against freeze-up.

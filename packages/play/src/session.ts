@@ -202,13 +202,16 @@ export class PlaySession {
           return this.fail('No known explanation with that id', mode);
         detail = knownExplain(event.explain ?? undefined, this.playerId, mode);
         if (!detail) return this.fail('That explanation is not known to your character', mode);
-      } else if (d.query === 'look' && d.target === 'prices') detail = { prices: o.store.stock ?? [] };
+      } else if (d.query === 'look' && d.target === 'prices')
+        detail = { prices: o.store.stock ?? [], freight: o.store.freight };
       else if (d.query === 'plan')
         detail = {
           ...o.self.provisions.readiness,
           ...o.self.inventory,
           survival: o.self.needs.survival,
-          warnings: o.self.needs.warnings,
+          // Kit warnings and survival warnings are both shown; neither hides the other.
+          warnings: [...(o.self.needs.warnings ?? []), ...o.self.provisions.readiness.warnings],
+          pantry: o.self.pantry,
         };
       else if (d.query === 'journal') {
         const entries = observation(this.sim, this.playerId, this.known, mode, this.knowledge, 0).journal;

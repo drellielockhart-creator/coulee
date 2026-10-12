@@ -6,6 +6,7 @@ import type { ContentBundle } from '../content.ts';
 import { type ActorId, type HouseholdId, type PlaceId, rowsOf } from '../ids.ts';
 import { pantryOf, stacksAt } from '../items/api.ts';
 import { type ItemStackView, viewStacks } from '../items/view.ts';
+import { asGameMinute, calendarAt } from '../time.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
 import type { World } from '../world.ts';
 import { priceAt, type Readiness, readinessOf, serviceAt, storeOpen } from './api.ts';
@@ -51,6 +52,17 @@ export interface ProvisionsPlaceView {
   mealCents?: number;
   /** Store stock with prices, or null if this place is not a store. */
   stock: StockLineView[] | null;
+  /** When the next freight tops the shelves up (stores with a restock table). */
+  freight?: {
+    everyDays: number;
+    dueDay: number;
+    inDays: number;
+    weekday: string;
+    /** Percent of a full delivery while the river is closed at the due date (100 when open). */
+    deliveryPct: number;
+    /** Restocked lines now out of stock (names), which the freight brings back. */
+    awaited: string[];
+  };
 }
 
 export function viewProvisionsActor(
@@ -113,7 +125,8 @@ export function viewProvisionsPlace(
         ...(service.meal_cents !== undefined ? { mealCents: service.meal_cents } : {}),
       }
     : {};
-  if (!world.provisions.stores[placeId]) return { stock: null, ...trade };
+  const store = world.provisions.stores[placeId];
+  if (!store) return { stock: null, ...trade };
   const stock = stacksAt(world, { kind: 'place', placeId }).map((s) => ({
     itemId: s.id,
     defId: s.defId,
@@ -121,7 +134,27 @@ export function viewProvisionsPlace(
     qty: s.qty,
     priceCents: priceAt(world, content, placeId, s.defId) ?? 0,
   }));
-  return { stock, ...trade };
+  const restock = store.restockId ? content.restocks?.[store.restockId] : undefined;
+  if (!restock) return { stock, ...trade };
+  // The same calendar the economy delivers on (economy.ts householdDay): day 0 never delivers.
+  const today = Math.floor(world.time / 1440);
+  const dueDay = (Math.floor(today / restock.every_days) + 1) * restock.every_days;
+  const due = calendarAt(asGameMinute(dueDay * 1440));
+  const have = new Set(stock.filter((l) => l.qty > 0).map((l) => l.defId));
+  return {
+    stock,
+    ...trade,
+    freight: {
+      everyDays: restock.every_days,
+      dueDay,
+      inDays: dueDay - today,
+      weekday: due.weekday,
+      deliveryPct: restock.river_closed_months.includes(due.month) ? restock.river_closed_pct : 100,
+      awaited: restock.lines
+        .filter((l) => !have.has(l.item) && content.items[l.item]?.food)
+        .map((l) => content.items[l.item]?.name ?? l.item),
+    },
+  };
 }
 
 function unknownReadiness(): Readiness {

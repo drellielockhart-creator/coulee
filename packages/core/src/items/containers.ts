@@ -223,6 +223,12 @@ export function fitsInContainer(
   if (!cdef)
     return { ok: false, reason: `${content.items[container.defId]?.name ?? container.defId} is not a container` };
   if (container.id === stack.id) return { ok: false, reason: 'cannot put a thing inside itself' };
+  // A vessel holding water takes nothing else in until it is emptied (cheese in a full canteen).
+  if ((container.waterMl ?? 0) > 0)
+    return {
+      ok: false,
+      reason: `${content.items[container.defId]?.name ?? container.defId} holds ${container.waterMl} ml of water; drink or empty it first`,
+    };
   for (const up of containerChain(world, container)) {
     if (up.id === stack.id) return { ok: false, reason: 'cannot put a container inside its own contents' };
   }

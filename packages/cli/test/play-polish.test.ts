@@ -302,7 +302,11 @@ it('a due debt is an obligation with a due date in the journal and a duty though
   expect(late.self.obligations[0]?.overdue).toBe(true);
   expect(renderObservation(late)).toMatch(/You owe Joel Pike \$1\.50, overdue since .*1855/);
   expect(late.self.mind.thoughts.some((t) => t.urge === `interaction:repay->${joel.id}`)).toBe(true);
-  expect(late.self.provisions.purseCents).toBe(5000);
+  // Never an automatic payment to the creditor (the standing lodging order may pay her bed).
+  const repaid = simOf(s).world.log.events.filter(
+    (e) => e.kind === 'provisions.cash_transfer' && e.data.fromId === s.playerId && e.data.toId === joel.id,
+  );
+  expect(repaid).toEqual([]);
 });
 
 it('a social act that moves money needs her order when she is held for orders; it still runs when ordered', () => {
@@ -355,7 +359,14 @@ it('pack <item> into <container> takes the direction as written', () => {
   expect(name(pack.data.itemId)).toMatch(/canteen/i);
   expect(name(required(pack.data.intoItemId))).toMatch(/knapsack/i);
   expect(parseText('pack knapsack', o)).toMatch(/pack <item> into <container>/);
-  expect(parseText('pack knapsack into canteen', o)).toMatch(/^Nothing here matches/);
+  // Not on offer: the game gives the real reason, at no time cost (wave 5: pack refusals).
+  const wrong = parseText('pack knapsack into canteen', o);
+  expect(typeof wrong).not.toBe('string');
+  const refused = s.act(wrong as Command);
+  expect(refused.ok).toBe(false);
+  expect(refused.reason).toMatch(/will not go into the Canteen.*(holds \d+ ml of water|is full by)/);
+  expect(refused.elapsedMinutes).toBe(0);
+  expect(parseText('pack nonsense into canteen', o)).toMatch(/^You carry nothing called/);
   // Two containers that hold each other make both directions offered: the words pick one.
   const both = JSON.parse(JSON.stringify(o)) as Observation;
   const act = (id: string, label: string) => ({

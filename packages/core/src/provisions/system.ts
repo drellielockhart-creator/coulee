@@ -9,7 +9,7 @@ import { authorizeAct, chosenUrge, standingOrders } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { autonomousProvisioning } from './agency.ts';
-import { boardMeal, drinkWater, refillWater, sell, storeOpen, waterHour } from './api.ts';
+import { boardMeal, drinkWater, refillCheck, refillWater, sell, storeOpen, waterHour } from './api.ts';
 import { householdDay, purchase, shoppingHour } from './economy.ts';
 import { employmentHour } from './employment.ts';
 import { devicesHour, storageHour } from './environment.ts';
@@ -17,6 +17,7 @@ import {
   accessibleStack,
   awaitingMeal,
   dueMeal,
+  foodServings,
   type Holder,
   holderOfActor,
   lightCampfire,
@@ -25,6 +26,11 @@ import {
   serveMeal,
 } from './meals.ts';
 import { nutritionHour } from './nutrition.ts';
+import { STANDING_FULL } from './rules.ts';
+import { settleBeds } from './services.ts';
+
+const clock = (t: number) =>
+  `${String(Math.floor((t % 1440) / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
 
 export function provisionsSystem(world: World, ctx: SimContext): void {
   withInventoryPass(world, () => provisionsHour(world, ctx));
@@ -32,6 +38,7 @@ export function provisionsSystem(world: World, ctx: SimContext): void {
 function provisionsHour(world: World, ctx: SimContext): void {
   employmentHour(world, ctx);
   productionHour(world, ctx);
+  settleBeds(world, ctx);
   for (const actor of rowsOf(world.actors)) {
     const activity = world.activity.byActor[actor.id];
     if (
@@ -68,8 +75,10 @@ function provisionsHour(world: World, ctx: SimContext): void {
         else reject('No meal available: closed, insufficient cash, or kitchen supplies exhausted');
         break;
       case 'provisions.refill':
-        if (!refillWater(world, ctx, actor.id, cmd.data.itemId, cmd.data.ml))
-          reject('Cannot refill: no accessible source or vessel capacity');
+        if (!refillWater(world, ctx, actor.id, cmd.data.itemId, cmd.data.ml)) {
+          const check = refillCheck(world, ctx.content, actor.id, cmd.data.itemId, cmd.data.ml);
+          reject('reason' in check ? check.reason : 'Cannot fill that vessel here');
+        }
         break;
       case 'provisions.drink':
         if (!drinkWater(world, ctx, actor.id, cmd.data.ml)) reject('Not enough accessible water');
@@ -88,15 +97,26 @@ function provisionsHour(world: World, ctx: SimContext): void {
         break;
       case 'provisions.eat': {
         const stack = world.items.stacks[cmd.data.itemId];
-        if (
-          !stack ||
-          !accessibleStack(world, actor.id, stack) ||
-          !Number.isInteger(cmd.data.servings) ||
-          cmd.data.servings <= 0 ||
-          ate.has(actor.id) ||
-          awaitingMeal(world, actor.id)
-        ) {
-          reject('Food is inaccessible or servings are invalid');
+        // Say which: a plate is cooking right here, the food is elsewhere, or the count is wrong.
+        // A plate waiting at another place does not stop her eating from her pack.
+        const waiting = (world.provisions.pendingMeals ?? []).find(
+          (m) => m.placeId === actor.placeId && m.plates.some((p) => p.id === actor.id),
+        );
+        const why = !stack
+          ? 'That food is gone'
+          : !accessibleStack(world, actor.id, stack)
+            ? 'That food is not in your pack, nor in your pantry here'
+            : !Number.isInteger(cmd.data.servings) ||
+                cmd.data.servings <= 0 ||
+                cmd.data.servings > foodServings(ctx.content, stack)
+              ? 'Not that many servings left'
+              : ate.has(actor.id)
+                ? 'You have already eaten this hour'
+                : waiting
+                  ? `Your meal here is still being prepared (ready at ${clock(waiting.completesAt)}); wait for it`
+                  : null;
+        if (why || !stack) {
+          reject(why ?? 'That food is gone');
           break;
         }
         const holder =
@@ -163,38 +183,70 @@ function provisionsHour(world: World, ctx: SimContext): void {
   }
   waterHour(world, ctx);
   shoppingHour(world, ctx);
-  const groups: Array<{ holder: Holder; actors: ActorId[]; share: number; cold: boolean }> = [];
+  const groups: Array<{
+    holder: Holder;
+    actors: ActorId[];
+    share: number;
+    cold: boolean;
+    standing: boolean;
+    cap: Record<number, number>;
+  }> = [];
+  const perPoint = ctx.content.needs.hunger?.intake?.per_point ?? 3;
   for (const actor of rowsOf(world.actors)) {
     if (
       !canAct(world, actor.id) ||
-      awaitingMeal(world, actor.id) ||
+      awaitingMeal(world, actor.id, actor.placeId) ||
       ate.has(actor.id) ||
       world.provisions.nutrition[actor.id]?.lastMealAt === ctx.now
     )
       continue;
-    if (
-      !authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok &&
-      (!standingOrders(world, actor.id).eat || needValue(world, actor.id, 'hunger') >= 600)
-    )
-      continue;
-    const holder = !authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok
-        ? { actorId: actor.id }
-        : holderOfActor(world, actor.id),
-      meal = dueMeal(world, ctx.content, holder, ctx.cal.hour);
+    // Held for orders: the standing eat order feeds them from their own stores (the pack, and the
+    // household larder when home: what foodSeekingUrge offers), at the meals, unless nearly full.
+    const held = !authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok;
+    if (held && !standingOrders(world, actor.id).eat) continue;
+    const hunger = needValue(world, actor.id, 'hunger');
+    const holder = holderOfActor(world, actor.id),
+      meal = dueMeal(world, ctx.content, held ? { actorId: actor.id } : holder, ctx.cal.hour);
     const urge = chosenUrge(world, actor.id);
     const eating = urge?.urge.kind === 'activity' && urge.urge.activityId === 'take_meal';
     if (!meal && !eating) continue;
+    if (held && hunger >= (meal ? STANDING_FULL : 600)) continue;
     // A chosen meal between scheduled meals is a snack; avoid a second full meal within three hours.
     if (!meal && ctx.now - (world.provisions.nutrition[actor.id]?.lastMealAt ?? -10000) < 180) continue;
     if (eating && autonomousProvisioning(world, actor.id) && boardMeal(world, ctx, actor.id)) continue;
     const group = groups.find(
-      (g) => 'householdId' in holder && 'householdId' in g.holder && holder.householdId === g.holder.householdId,
+      (g) =>
+        !held &&
+        !g.standing &&
+        'householdId' in holder &&
+        'householdId' in g.holder &&
+        holder.householdId === g.holder.householdId,
     );
     if (group) group.actors.push(actor.id);
-    else groups.push({ holder, actors: [actor.id], share: meal?.share_pct ?? 30, cold: meal?.cold ?? false });
+    else
+      groups.push({
+        holder,
+        actors: [actor.id],
+        share: meal?.share_pct ?? 30,
+        cold: meal?.cold ?? false,
+        standing: held,
+        // An order never gorges: the plate is sized to the room left in the hunger meter.
+        cap: held ? { [actor.id]: Math.max(0, (1000 - hunger) * perPoint) } : {},
+      });
   }
   const pass = { inventory: inventoryIndex(world), energy: new Map<string, number>() };
   for (const group of groups)
-    serveMeal(world, ctx, group.holder, group.actors, group.share, group.cold, undefined, pass);
+    serveMeal(
+      world,
+      ctx,
+      group.holder,
+      group.actors,
+      group.share,
+      group.cold,
+      undefined,
+      pass,
+      undefined,
+      group.standing ? { capKcal: group.cap, standing: true } : undefined,
+    );
   devicesHour(world, ctx);
 }

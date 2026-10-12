@@ -139,7 +139,9 @@ describe('survival consequences', () => {
     const start = sim.world.time;
     const mind = required(sim.world.psyche.byActor[id]);
     mind.agencyMode = 'commanded';
-    mind.standingOrders = { sleep: true, eat: true, drink: true, warmth: false, lodging: false, activities: [] };
+    // Eat off too (wave 5): a standing eat order now walks him home to his larder when it is
+    // within an hour, which would bring him in from the cold. This test is about the cold.
+    mind.standingOrders = { sleep: true, eat: false, drink: true, warmth: false, lodging: false, activities: [] };
     for (let h = 0; h < 72 && sim.world.actors[id]?.alive; h++) step(sim);
     expect(sim.world.needs.byActor[id]?.survival?.death?.cause).toBe('cold');
     expect(sim.world.time - start).toBeLessThanOrEqual(72 * 60);

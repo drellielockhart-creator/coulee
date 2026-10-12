@@ -106,6 +106,8 @@ export const NeedSchema = z.strictObject({
         label: z.string().min(1),
         /** Condition id (02 §13) applied while in this band, if any. */
         condition: id().optional(),
+        /** This band rouses a sleeper (to drink, eat, or go): a camp bed is no trap. */
+        wakes: z.boolean().optional(),
       }),
     )
     .default([]),
@@ -187,6 +189,11 @@ export const NeedSchema = z.strictObject({
   access: z
     .strictObject({ place_tags: z.array(id()).min(1), below: int().min(1).max(1000), per_hour: posInt() })
     .optional(),
+  /**
+   * For the water need: place tags that mark natural water anyone may drink raw and draw into
+   * vessels (springs, creeks, rivers, fords). Empty means only places tagged `water`.
+   */
+  sources: z.array(id()).optional(),
   /**
    * Exposure model (05 §6.3) for warmth: instead of flat decay, points are lost per degree
    * the effective temperature falls below the comfort edge, which clothing, work and

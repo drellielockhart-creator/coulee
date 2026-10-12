@@ -2,7 +2,7 @@
 
 import { type ActorId, idsOf } from '../ids.ts';
 import { inventoryIndex, loadReport, movementDelay } from '../items/api.ts';
-import { canAct } from '../needs/api.ts';
+import { canAct, rousedBy } from '../needs/api.ts';
 import { admitSleep } from '../provisions/api.ts';
 import { chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -65,8 +65,16 @@ export function activitySystem(world: World, ctx: SimContext): void {
         },
       });
     }
-    if (state.lockedUntil !== null && ctx.now < state.lockedUntil) continue;
     const chosen = chosenUrge(world, id);
+    // Any order wakes a sleeper (to drink, to go), and so does a need in a rousing band (Parched,
+    // Starving) when the standing orders choose something else. Other locks (travel, work) hold.
+    const woken =
+      ctx.content.activities[state.activityId ?? '']?.asleep &&
+      ((chosen?.voice === 'command' && chosen.at === ctx.now) ||
+        (rousedBy(world, ctx.content, id) !== null &&
+          chosen?.urge.kind === 'activity' &&
+          !ctx.content.activities[chosen.urge.activityId]?.asleep));
+    if (state.lockedUntil !== null && ctx.now < state.lockedUntil && !woken) continue;
     const routine = routineFor(world, ctx, id);
     const urge = chosen?.urge;
     // An explicit conversation occupies this hour at the current venue. A schedule must

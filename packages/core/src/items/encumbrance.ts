@@ -37,6 +37,8 @@ export function capacityLb(str: number): number {
 }
 
 const GRAMS_PER_LB = 454;
+/** Above this percent of capacity a load cannot be moved at all (03 §4.1). */
+export const MOVE_LIMIT_PCT = 150;
 
 export interface LoadBand {
   id: 'unburdened' | 'light' | 'medium' | 'heavy' | 'staggering';
@@ -94,7 +96,7 @@ export function loadReport(world: World, content: ContentBundle, actorId: ActorI
   const w = world.items?.stacks ? weightG(world, content, carriedBy(actorId), index) : 0;
   const pct = cap > 0 ? Math.floor((w * 100) / cap) : 0;
   const baseBand = bandForPct(pct);
-  const band = w * 100 > cap * 150 ? { ...baseBand, speedPct: 0 } : baseBand;
+  const band = w * 100 > cap * MOVE_LIMIT_PCT ? { ...baseBand, speedPct: 0 } : baseBand;
   const lines: string[] = [
     `${band.label}: ${pct}% of the ${Math.round(cap / GRAMS_PER_LB)} lb Strength ${str} can manage.`,
   ];
