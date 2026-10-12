@@ -1,8 +1,10 @@
 import { type ContentBundle, ScenarioSchema } from '@coulee/content/schema';
+import { applyCountyContext } from './county/town.ts';
 import { settlement, terrain } from './layout.ts';
 import { populate } from './population.ts';
 import { checkTown, playtestTown, townContent } from './qa.ts';
 import { seedTensions } from './tensions.ts';
+import { nameAndDescribe } from './text.ts';
 import { GEN_VERSION, type GeneratedTown, type TownRecipe } from './types.ts';
 
 export { checkTown, townContent } from './qa.ts';
@@ -21,6 +23,7 @@ export function* generateTownStages(content: ContentBundle, recipe: TownRecipe):
     throw new Error('farmsteads constraint must be 3..5');
   if (recipe.constraints?.townName !== undefined && !recipe.constraints.townName.trim())
     throw new Error('townName must not be empty');
+  if (recipe.regionContext?.protected) throw new Error('Cannot generate a town at a protected site');
   const t = terrain(recipe);
   yield 'terrain';
   const homes = settlement(recipe, t);
@@ -31,7 +34,21 @@ export function* generateTownStages(content: ContentBundle, recipe: TownRecipe):
     name: t.site.name,
     description: t.site.description,
   });
-  populate(content, recipe, scenario, homes);
+  const { means } = populate(content, recipe, scenario, homes);
+  nameAndDescribe({
+    content,
+    recipe,
+    site: t.site,
+    places: t.places,
+    scenario,
+    creek: t.creek,
+    ford: t.ford,
+    means,
+  });
+  if (recipe.regionContext) {
+    applyCountyContext(t.site, t.places, recipe.regionContext);
+    scenario.description = t.site.description;
+  }
   yield 'population';
   const decisions = seedTensions(content, recipe, scenario);
   yield 'tensions';
@@ -65,3 +82,5 @@ export function generateTown(content: ContentBundle, recipe: TownRecipe): Genera
   while (!next.done) next = stages.next();
   return next.value;
 }
+
+export * from './county/index.ts';

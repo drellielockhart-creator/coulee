@@ -15,7 +15,7 @@ export function populate(
   recipe: TownRecipe,
   scenario: ScenarioDef,
   homes: Record<string, PlaceDef>,
-) {
+): { means: Record<string, number> } {
   // Authored casts are fixtures, not a source of recycled generated identities.
   const names = new Set(Object.values(content.scenarios).flatMap((s) => s.actors.map((a) => `${a.given} ${a.family}`)));
 
@@ -27,6 +27,8 @@ export function populate(
     .find((p) => p?.concealed);
   if (!concealed) throw new Error('Town requires a concealed people in content');
   const headOf: Record<string, ScenarioActor> = {};
+  /** Each household's means (1 thin .. 5 comfortable), handed to text.ts for farm and stock prose. */
+  const meansOf: Record<string, number> = {};
   function actor(
     key: string,
     household: string,
@@ -193,6 +195,7 @@ export function populate(
       const spouse = scenario.actors.find((a) => a.key === `${key}_spouse`);
       if (spouse) kin(spouse, child, 'parent');
     }
+    meansOf[key] = means;
     const members = scenario.actors.filter((a) => a.household === key).length;
     const pantry: StackSeed[] = [];
     const stock = (item: string, qty: number, container?: string) => {
@@ -341,12 +344,14 @@ export function populate(
   for (const h of scenario.households) {
     const home = homes[h.key] as PlaceDef;
     home.capacity = Math.max(8, scenario.actors.filter((a) => a.household === h.key).length + 4);
+    // Every other building is named for its owner by text.ts; the tavern's sign is its name.
     if (h.key === 'tavern') {
       // Sign names take a lowercase article in running prose; ownership varies by seed.
       if (randomFor(recipe, 'layout', 'tavern_owner').chancePercent(50))
-        home.name = `${headOf[h.key]?.family}’s ${home.name.slice(4)} Tavern`;
+        home.name = `${headOf[h.key]?.family}'s ${home.name.slice(4)} Tavern`;
       else home.name += ' Tavern';
-    } else home.name = `${headOf[h.key]?.family} ${home.name}`;
+    }
   }
   scenario.player = 'store_child';
+  return { means: meansOf };
 }

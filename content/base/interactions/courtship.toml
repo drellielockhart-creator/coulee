@@ -43,7 +43,9 @@ id = "court"
 name = "Court"
 label = "Walk out"
 description = "Asks to walk out together: Sunday afternoons, the singing school, the porch."
-requires = { eligible = true, acquainted = true, min_affection = 30, min_familiarity = 200, no_relationship = "courting" }
+# Walking out wants an acquaintance on both sides (the target must know the asker: three or so
+# meetings) and some warmth: below Affection 15 for the asker the answer is no whatever is said.
+requires = { eligible = true, acquainted = true, min_affection = 30, min_familiarity = 200, no_relationship = "courting", target_min_familiarity = 120 }
 volition = [
   { driver = "attraction", weight = 30 },
   { driver = "opinion:affection", weight = 30 },
@@ -51,7 +53,7 @@ volition = [
 ]
 threshold = 50
 cooldown_hours = 72
-check = { kind = "dc", skill = "persuade", dc = 14, attitude = true }
+check = { kind = "dc", skill = "persuade", dc = 14, attitude = true, min_regard = 15 }
 memory = { kind = "courtship", emotion = "joy", intensity = 50 }
 juiciness = 50
 notable = true

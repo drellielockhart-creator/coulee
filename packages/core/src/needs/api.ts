@@ -180,6 +180,41 @@ export function proposeNeedUrges(world: World, ctx: SimContext, actorId: ActorId
   return out;
 }
 
+/**
+ * What the coming hour costs this need at the current activity (labor, sleep, values, traits,
+ * physiology, weather), in points: the same ledger the hourly balance applies. Nutrition sums it
+ * into the energy actually spent each day.
+ */
+export function hourlyExpenditure(
+  world: World,
+  content: import('../content.ts').ContentBundle,
+  actorId: ActorId,
+  needId: NeedId,
+  air: number,
+): number {
+  const n = world.needs.byActor[actorId];
+  if (!n || !world.actors[actorId]?.alive || !content.needs[needId]) return 0;
+  const ledger = hourlyLedger(world, content, actorId, needId, air, air, n.values, undefined, false);
+  return Math.max(0, -ledger.delta);
+}
+
+/** The need (by name) whose current band rouses a sleeper (content: band `wakes`), or null. */
+export function rousedBy(
+  world: World,
+  content: import('../content.ts').ContentBundle,
+  actorId: ActorId,
+): string | null {
+  const n = world.needs.byActor[actorId];
+  if (!n) return null;
+  for (const key of Object.keys(content.needs).sort()) {
+    const def = content.needs[key];
+    const value = n.values[key] ?? def?.initial ?? NEED_MAX;
+    const band = def?.bands.filter((b) => value < b.below).sort((a, b) => a.below - b.below)[0];
+    if (band?.wakes) return def?.name ?? key;
+  }
+  return null;
+}
+
 /** Shared hearth state: cooking may use the fire whose heating fuel was paid this hour. */
 export function litHearthAt(world: World, placeId: import('../ids.ts').PlaceId): boolean {
   return (world.needs.hearthLit?.[placeId] ?? 0) > 0;

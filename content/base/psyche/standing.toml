@@ -47,3 +47,13 @@ item_tags = ["food"]
 id = "tie_the_sack_nightly"
 act = "tie_charm"
 default = false
+
+# The lodging order pays for one's bed at one's own lodgings, only when actually sleeping there
+# (a tavern bed is 25 cents until noon): bounded per day, never credit, never another house.
+[[standing]]
+id = "pay_lodging"
+act = "transfer"
+legacy = "lodging"
+default = true
+max_cents = 50
+period_minutes = 1440

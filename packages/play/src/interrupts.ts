@@ -112,6 +112,33 @@ export function alertForEvent(world: World, content: ContentBundle, pc: ActorId,
   // The policy decides on the event; the player is told in words, never in an event kind.
   return { ...classify(world, content, pc, e), reason: describeEvent(world, content, pc, e).text };
 }
+/**
+ * Playtest r2: a wait stops only for what needs an answer or changes her situation. Talk among
+ * others (greetings, slights, gossip, comfort, arrivals) never stops it; what is said or done to
+ * her that asks nothing of her (a good day, a slight, a rumor) goes to the digest. A request
+ * (it needs her answer), her own arrival somewhere, a blow, danger and a worsening body still stop.
+ */
+const background = (e: Event): Interrupt => ({
+  category: 'background',
+  reason: e.kind,
+  kind: e.kind,
+  eventId: e.id,
+  score: 0,
+  pause: false,
+});
+
+/** Said or done to the PC, asking nothing of her: the digest's "to you" lines. */
+export function addressedToPC(content: ContentBundle, pc: ActorId, e: Event): boolean {
+  if (e.kind === 'social.interaction')
+    return (
+      e.data.targetId === pc &&
+      e.data.initiatorId !== pc &&
+      !content.interactions[e.data.interactionId]?.tags.includes('violent')
+    );
+  if (e.kind === 'belief.transmitted') return e.data.listenerId === pc && e.data.speakerId !== pc;
+  return false;
+}
+
 function classify(world: World, content: ContentBundle, pc: ActorId, e: Event): Interrupt {
   const participant =
     e.roles.some((r) => r.actor === pc && r.role !== 'witness') ||
@@ -119,17 +146,24 @@ function classify(world: World, content: ContentBundle, pc: ActorId, e: Event): 
   const strongTie = e.roles.some(
     (r) => social.areKin(world, pc, r.actor) || Math.abs(social.opinionOf(world, pc, r.actor).affection) >= 50,
   );
-  const hostile =
-    e.kind === 'social.interaction' && !!content.interactions[e.data.interactionId]?.tags.includes('hostile');
-  if (e.kind === 'social.interaction' && !participant && !strongTie && !hostile)
-    return { category: 'background', reason: e.kind, kind: e.kind, eventId: e.id, score: 0, pause: false };
+  const violent =
+    e.kind === 'social.interaction' && !!content.interactions[e.data.interactionId]?.tags.includes('violent');
+  // Others' talk and comings and goings are background, even a brawl between two others; so is
+  // what is said to her that needs no answer. A blow aimed at her is not.
+  if (e.kind === 'social.interaction' && e.data.initiatorId !== pc && !(violent && e.data.targetId === pc))
+    return background(e);
+  if (e.kind === 'belief.transmitted' && e.data.speakerId !== pc) return background(e);
+  if (e.kind === 'activity.moved' && e.data.actorId !== pc) return background(e);
+  if (e.kind === 'social.label_changed') return background(e);
   if (e.kind === 'needs.band_changed' && e.data.actorId === pc && e.data.layer !== 'debt') {
     const band = content.needs[e.data.needId]?.bands.find((b) => b.label === e.data.to);
     const orders = psyche.standingOrders(world, pc);
     const handled =
       needs.canAct(world, pc) &&
       ((e.data.needId === 'hunger' && orders.eat && provisions.foodToHand(world, content, pc)) ||
-        (e.data.needId === 'thirst' && orders.drink && provisions.drinkingWater(world, content, pc) > 0));
+        (e.data.needId === 'thirst' && orders.drink && provisions.drinkingWater(world, content, pc) > 0) ||
+        // A mild tiredness band: the sleep order puts her to bed when night comes.
+        (e.data.needId === 'rest' && orders.sleep));
     if (band && band.below > 300 && handled)
       return { category: 'background', reason: e.kind, kind: e.kind, eventId: e.id, score: 0, pause: false };
   }

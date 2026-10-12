@@ -204,8 +204,8 @@ success.audience_opinion = { respect = 1 }
 id = "gift"
 name = "Gift"
 label = "Gift"
-description = "A pie, a twist of tobacco, a ribbon. Makes a debt of the heart."
-requires = { acquainted = true, min_age = 8 }
+description = "A pie, a twist of tobacco, a ribbon. Makes a debt of the heart. The giver hands over something of their own: the small thing nearest a dime's worth from their kit, else the house's stores."
+requires = { acquainted = true, min_age = 8, gift_item = true }
 volition = [
   { driver = "opinion:affection", weight = 20 },
   { driver = "value:ambition", weight = 5 },
@@ -219,6 +219,7 @@ cooldown_hours = 168
 memory = { kind = "gift", emotion = "gratitude", intensity = 30 }
 tags = ["friendly"]
 success.initiator_needs = { standing = 6 }
+success.give_item = true
 success.ledger = { favors = 1 }
 success.target_opinion = { affection = 6, trust = 1 }
 success.target_memory = "{initiator} brought me a little something"

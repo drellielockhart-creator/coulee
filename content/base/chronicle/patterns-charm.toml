@@ -98,6 +98,15 @@ text = [
 ]
 
 [[template]]
+id = "charm_epilogue_1_still"
+on = "charm"
+voice = "epilogue"
+when = { level = 1, stage = "still" }
+text = [
+  "{^charm} went on working in {keeper}'s house, a pound of somebody's flour at a time.",
+]
+
+[[template]]
 id = "charm_epilogue_1_again"
 on = "charm"
 voice = "epilogue"

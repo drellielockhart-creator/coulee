@@ -25,7 +25,7 @@ temperature_pct = [{ below_f = 20, pct = 120, label = "Bitter cold" }]
 bands = [
   { below = 600, label = "Peckish" },
   { below = 300, label = "Hungry", condition = "hungry" },
-  { below = 100, label = "Starving", condition = "starving" },
+  { below = 100, label = "Starving", condition = "starving", wakes = true },
 ]
 urges = [{ activity = "take_meal", below = 600, ceiling = 900, drive = "hunger", label = "Hungry: eat something" }]
 
@@ -53,9 +53,11 @@ temperature_pct = [
 ]
 bands = [
   { below = 500, label = "Thirsty", condition = "thirsty" },
-  { below = 200, label = "Parched", condition = "parched" },
+  { below = 200, label = "Parched", condition = "parched", wakes = true },
 ]
 access = { place_tags = ["home", "water", "tavern", "store", "smithy", "mill", "church", "school"], below = 600, per_hour = 700 }
+# Natural water: drink raw and fill vessels here (no water-borne illness is modeled yet).
+sources = ["water", "spring", "springhouse", "creek", "river", "ford", "dam"]
 urges = [{ activity = "fetch_water", below = 600, ceiling = 900, drive = "hunger", label = "Parched: a drink of water" }]
 
 [need.debt]

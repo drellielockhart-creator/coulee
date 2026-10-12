@@ -1,0 +1,41 @@
+# Running notes (edge-QA / economy audit, Iron Ford seed 42, FAIR session)
+Helper: scratchpad/qa/c.sh ; main session dir = playtests/2026-10-11-r2-edgeqa-ironford42/session
+- cmd idx counted via commands.jsonl line numbers (line 1 = session header; idx = line-1)
+- B1: `signs` with no signs prints "No journal entries known yet." (wrong text; cmd idx 4, 6)
+- B2: `agency commanded` (cmd idx ~14) SPENT 1 hour (480->540) and recorded core.standing_orders w/ all orders true; help text for standing says "No game time spent" but agency w/ arg spends an hour. Bare `agency`/`standing`/`standing eat` = usage only, don't show current state.
+- C1: `buy eggs 1` while counter closed -> "Nothing here matches “eggs”; try look, prices..." (misleading, should say counter closed)
+- C2: `wait until morning` from 01:00 -> 08:00 (not 6:00 when counter opens)
+- Obs: standing-eat auto-ate Pemmican, Dried apples, Hardtack at 08:00 for 643 kcal (inventory counts same; servings).
+- Obs: place description includes omen text ("The broom leans bristles upward...") AND "Open sign" line AND signs entry -- check for fair-mode leak: label "Open question"
+- B3: each `standing <x> on|off` spends 1 game hour (fork-death, 5 toggles = 5 hours) though usage line says "No game time spent."
+- B4 (BUG): `standing eat off` -> status line "Food 0.0 days" and plan "Food 0.0 days; 16856 usable kcal / 2142 kcal per day" and false alert "Less than one day of food or cooking fuel remains." (fork-death; main had Food 6.0 days). Standing eat on => 6.0.
+- B5: place text for Pratt & Daughter: "A ginseng and fur buyer's trade is a placeholder awaiting consultation." (content placeholder leaked to player)
+- B6: "[8381] You are malnourished after a week of poor eating" fired on 1855-04-04 (day 3 of game).
+- sale quote (source): min(retail-1c, lowestRetail-1c, floor(value*65%)) so no arbitrage; blanket sells $1.95 of $3.00 (fair). whiskey tavern $0.30 buy / $0.16 sell
+- buy 150 cornmeal -> load 97kg "Staggering", allowed (no carry cap on buy). 
+- food is nearly free: cornmeal $0.03/lb ~1600kcal, daily need 2142 kcal => ~$0.04/day vs $50 purse.
+- collapse works: all actions refused "You have collapsed and need help. No game time spent." Neighbors fed/watered (ate Dried apples,... 1011 kcal) so char did not die in fork-death
+- NOTE (my source reads): I read content/base/provisions/PLAYTEST-FIXES.md by accident while grepping for wage (fix notes, not a player report); packages/core/src/provisions/api.ts saleQuote; packages/play/src/interrupts.ts.
+- Observation: inspect place lists ALL places incl. "The Cold Stair" (A refuge from fae...) for newcomer in FAIR.
+- B7 (FAIR LEAK, medium): `investigate <id>` refusal text is an existence oracle for UNNOTICED omen episodes. Main session at tavern 16:00 Apr 1: `investigate 1:0:dawn` -> "Go to the sign or its lead first." (episode exists at place 1 Brenner House, PC never noticed/heard) vs `investigate 1:5:dawn` / `2:0:dawn` -> "That sign has left no trace to investigate." Also 10:0:dawn exists. God-mode journal shows "06:00 Correspondents mention Brenner House. Three tools lie with their handles..." which FAIR journal does not. Cause (source): investigationEligibility checks place BEFORE noticed check.
+- B8 (low): `explain <id>` oracle: "That explanation is not known to your character." (id exists, secret) vs "No known explanation with that id." (nonexistent) -> reveals existence of hidden events.
+- B9 (medium/low): `inspect Ellis Wayfarer` (own name) dumps a 1432-line raw JSON actor record (needs, mind thoughts, social opinions, inventory...). Includes "obligations": [] (good) but is a debug dump.
+- B10 (medium): `retire` in a --fork => "Epilogue: what the county never knew ... Nobody in the story had this." reveals NPC private psychology (defenses, e.g. 'Ezra Sloat was not well', 'Captain Hurd') => omniscient spoiler channel via fork+retire. Check whether it names fae identities at later time.
+- OK: edge inputs: buy 0/-1/31/1.5/huge -> refused w/o time. wait 400d -> "Wait uses whole hours, at most 30 days". wait until 7:30 -> "Unknown wait target; ... (whole hours only)". menu 0/-1/99999 -> "No such menu number. No game time spent." After retire: all refused "This life has ended; only reading remains." --verify OK (Verified 64 commands), --fork OK.
+- B11 (low): `rations 100` spends 1 hour; `rations 5` rejected no time. 
+- Typos: "Supply exactly one nonempty command line.." and "That sign has left no trace to investigate.." double periods. places 0 says "Use actions <page>".
+- sell partially eaten goods -> "Nothing here matches “hardtack”" (misleading; store buys intact goods only)
+- `talk <name>` = one hour Chat. 
+- B12 (HIGH-ish, gameplay): STANDING SLEEP ORDER IS INERT FOR A LODGER. Fresh session (playtests/.../fresh, no agency/standing commands): `wait until 21:00` then `wait until 07:00` from 00:00 Apr 1: Rest hit 0 at 18:00 and PC stayed "at home, at leisure" all night (Rest 0 Exhausted at 06:00 Apr 2). Same in main nights of Apr 2 and Apr 3 (even with bed paid at 08:00 Apr 3: payment 'until noon' same day when paid before 12:00). Source: provisions/services.ts admitSleep() refuses to pay for a bed unless chosenUrge.voice === 'command'. Only hint: "Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)". Player must type `sleep` each evening after noon (bed paid after 12:00 lasts until next noon; before 12:00 lasts till noon same day).
+- B13: "Nothing here matches X" is reused for: closed counter (buy eggs @00:00), unaffordable item (buy cuirass $20 with $17), locked activity (go Pratt / sleep while "sitting in judgment"), partial goods (sell hardtack), and already-sold item. Should say why.
+- B14 (low/med): newcomer can pick role activities (Hold court = "sitting in judgment", Keep the tavern) in menu; hold_court locks menu to look/signs/plan/journal/drink/wait/eat for ~2h.
+- sleep payment rule: bed paid once per overnight stay; paid before noon => lasts only to noon same day.
+- Economy: unemployed PC wage = 0 (work/tend_bar/hold_court: purse unchanged). Pure sink: bed $0.25/night + food. ~170 days of runway with $50. buy mail shirt $30 allowed (store price list includes armor up to $30). Staggering load from 150 cornmeal (100.8 kg) allowed.
+- B15: fork-econ: Staggering PC: `go East Bluff` spent 1h and did not arrive (stayed at Pratt's, no message); `sleep` away from tavern charged "Tavern bed" $0.25 (paid Michael Dunleavy) but PC remained at Pratt's awake (Rest 0). (cmd in fork-econ). 
+
+## Final status (end of run)
+- Main session: 1855-04-01 00:00 -> 04-08 08:00, 122 logged commands, --verify "Verified 122 commands; final hash d9576a7dfc3a7da9". Purse 46.16 (reconciles exactly).
+- Real death reached in fork-camp ("This life has ended: death — thirst."); retire in fork-death. Both refuse all actions; --verify and --fork OK.
+- Report file could NOT be written (Write tool refused: subagents return findings as text). Full report delivered in the final handback message instead.
+- B12 refined: success path is main idx 87-88 (sleep after noon paid Apr 4 16:00, then wait follows lodging order).
+- Other: staples sold out at Pratt's by day 6 (Cornmeal 150->0, Pemmican 24->0, Dried apples 30->0, Beans 60->0, Cheese 25->0, Flour 300->157); daily kcal need 2142 -> 2889 unexplained.

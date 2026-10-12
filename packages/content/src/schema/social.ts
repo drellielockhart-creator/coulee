@@ -257,6 +257,8 @@ const EffectSchema = z
     soften_initiator_memories_pct: pct().default(0),
     /** Kin of the target who witness it take this share (percent) of the target's opinion change. */
     kin_share_pct: pct().default(50),
+    /** Hand one unit of the initiator's gift item (see requires.gift_item) to the target. */
+    give_item: z.boolean().default(false),
   })
   .default({
     target_opinion: EMPTY_DELTA,
@@ -275,6 +277,7 @@ const EffectSchema = z
     soften_target_memories_pct: 0,
     soften_initiator_memories_pct: 0,
     kin_share_pct: 50,
+    give_item: false,
   });
 export type InteractionEffect = z.output<typeof EffectSchema>;
 
@@ -336,6 +339,16 @@ export const InteractionSchema = z.strictObject({
       min_grudge: int().min(0).max(100).default(0),
       /** Target anxiety (0..1000) at least this (comfort the frightened). */
       target_min_anxiety: int().min(0).max(1000).default(0),
+      /**
+       * How well the TARGET must know the initiator (their familiarity 0..1000). Structural: it
+       * holds for commands and urges too (nobody walks out with a near stranger on one word).
+       */
+      target_min_familiarity: int().min(0).max(1000).default(0),
+      /**
+       * The initiator must have something to give (an item of a `gift_sections` section, from
+       * their own kit, else their household's stores): no gift is made of thin air.
+       */
+      gift_item: z.boolean().default(false),
     })
     .default({
       acquainted: false,
@@ -359,6 +372,8 @@ export const InteractionSchema = z.strictObject({
       stranger: false,
       min_grudge: 0,
       target_min_anxiety: 0,
+      target_min_familiarity: 0,
+      gift_item: false,
     }),
   /**
    * Volition terms (04 §10, Comme il Faut): named drivers with integer weights. See
@@ -376,6 +391,11 @@ export const InteractionSchema = z.strictObject({
         dc: nonNegInt(),
         /** Adjust the DC by the target's regard for the initiator (Affection, Trust). */
         attitude: z.boolean().default(false),
+        /**
+         * The target's Affection for the initiator below which the answer is no whatever is said:
+         * the check fails outright, with the shortfall as a named term (module:social addition).
+         */
+        min_regard: int().min(-100).max(100).optional(),
       }),
       z.strictObject({
         kind: z.literal('opposed'),
@@ -611,6 +631,33 @@ export const SocialTuningSchema = z.strictObject({
     .default([]),
   /** Place tag → belief channel for gossip (belief/api.ts Channel); default 'street'. */
   channels: z.array(z.strictObject({ tag: id(), channel: id() })).default([]),
+  // ---- availability: talk with people at work (playtest r2) ----
+  /**
+   * Someone at work (a 'labor' activity) can spare this many minutes of talk without stopping:
+   * a greeting, a chat, a debt settled, the news asked. Longer exchanges wait for the end of work.
+   */
+  work_talk_minutes: int().min(0).max(240).default(15),
+  /** Work at least this sociable (keeping the tavern, the shop counter) is done while talking: any exchange, no cost. */
+  work_talk_sociability: int().min(0).max(100).default(50),
+  /**
+   * Holding someone in talk on purpose during their working hours (at less sociable work) costs a
+   * little of their regard: a Reason citing their memory of the exchange, so it fades with it.
+   */
+  kept_from_work: z
+    .strictObject({ reason: z.string().min(1), delta: DimsBlock })
+    .default({ reason: 'Kept me from my work', delta: { affection: -2, respect: 0, trust: 0, fear: 0 } }),
+  // ---- requests (offers and asks that wait on an answer) ----
+  /** Hours before the same asker puts the same request to the same person again. */
+  request_cooldown_hours: nonNegInt().default(72),
+  /** ...and after it was refused or went unanswered. */
+  refused_request_cooldown_hours: nonNegInt().default(168),
+  /** A money debt settled within this many hours of being taken on earns the creditor's trust nothing. */
+  repay_trust_min_hours: nonNegInt().default(24),
+  // ---- gifts ----
+  /** Item catalog sections a gift may be drawn from (trade goods, provisions, a book...). */
+  gift_sections: z.array(id()).default(['trade_goods', 'provisions', 'books', 'medicine', 'wild_food']),
+  /** The value (cents) of a usual small gift: the giver hands over the item nearest it. */
+  gift_value_cents: nonNegInt().default(10),
 });
 export type SocialTuningDef = z.output<typeof SocialTuningSchema>;
 
@@ -626,6 +673,30 @@ export const TALK_LABELS = ['friend', 'enemy', 'rival', 'admirer', 'cowed', 'acq
  * that colors everything said ('anxious', 'drunk', 'hungry', 'weary', 'easy').
  */
 export const TALK_STATES = ['anxious', 'drunk', 'hungry', 'weary', 'easy'] as const;
+
+/** One id or a list of them (`occupation = "ferryman"` or `["ferryman", "boatman"]`). */
+const TalkIds = z.union([id(), z.array(id()).min(1)]).transform((v) => (Array.isArray(v) ? v : [v]));
+
+/**
+ * Who a speaker is, for lines that belong to a person or to a kind of person (wave 5, group D;
+ * additive). A story with a teller (`initiator = { actor = "amos_whitcomb" }`) is only ever told
+ * by that person; a rib about it (`target = { actor = "amos_whitcomb" }`) is only said to them. A
+ * kind of person works in generated towns, where nobody has an authored key: a riverman's yarn
+ * is `{ occupation = ["ferryman", "boatman"] }`, a grandmother's `{ sex = "female", age = "elder" }`.
+ * Every field listed must hold (ids within a field are alternatives).
+ */
+export const TalkWhoSchema = z.strictObject({
+  /** Scenario actor key(s) (the `key` of a scenario `[[actors]]`). */
+  actor: TalkIds.optional(),
+  occupation: TalkIds.optional(),
+  /** Culture the speaker was raised in (content/base/cultures). */
+  culture: TalkIds.optional(),
+  trait: TalkIds.optional(),
+  sex: z.enum(['female', 'male']).optional(),
+  /** young: 13–24, prime: 25–49, elder: 50 and over. */
+  age: z.enum(['young', 'prime', 'elder']).optional(),
+});
+export type TalkWho = z.output<typeof TalkWhoSchema>;
 
 /**
  * Conditions a talk line needs, all read from the live world at the moment it is said (P1:
@@ -683,6 +754,9 @@ const TalkWhenSchema = z
      */
     child: z.boolean().optional(),
     target_child: z.boolean().optional(),
+    /** Who the initiator / target is (a teller who owns a story; a kind of person). See TalkWhoSchema. */
+    initiator: TalkWhoSchema.optional(),
+    target: TalkWhoSchema.optional(),
   })
   .default({});
 
@@ -856,6 +930,21 @@ export function socialRefs(b: ContentBundle): Issue[] {
           path: 'when.mood',
           message: `unknown mood '${mood}' (a drive, a norm, or ${TALK_STATES.join('/')})`,
         });
+    }
+    // `initiator` / `target` blocks: occupations, cultures and traits exist; an actor key is a
+    // scenario actor's key in some scenario (the line belongs to that person).
+    for (const [side, who] of [
+      ['initiator', l.when.initiator],
+      ['target', l.when.target],
+    ] as const) {
+      if (!who) continue;
+      const path = `when.${side}`;
+      checkRefs(issues, where, `${path}.occupation`, who.occupation ?? [], b.occupations ?? {}, 'occupation');
+      checkRefs(issues, where, `${path}.culture`, who.culture ?? [], b.cultures ?? {}, 'culture');
+      checkRefs(issues, where, `${path}.trait`, who.trait ?? [], b.traits ?? {}, 'trait');
+      for (const key of who.actor ?? [])
+        if (!Object.values(b.scenarios ?? {}).some((s) => s.actors.some((a) => a.key === key)))
+          issues.push({ where, path: `${path}.actor`, message: `no scenario actor has the key '${key}'` });
     }
     for (const turn of l.lines) {
       for (const m of turn.text.matchAll(/#([a-z][a-z0-9_]*)#/g))

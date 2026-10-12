@@ -1,0 +1,26 @@
+# Notes (catalogkid ironford42 r2)
+- NOTE: shared scratchpad p.sh was overwritten by sibling agents; some of my first read-only queries (inspect dried apples/knapsack/kettle/canteen/blanket/firewood, prices, places 1, --look x3, inspect hardtack) went to OTHER sessions (r2-explorer-gentown7 etc). Harness collision, not a game bug. Now using play.sh in my own dir.
+- Start kit (from my session): knapsack(cap 13600g/bulk20) 1361g, wool blanket 2268g b8, camp kettle 5161g (3800ml water), canteen 2qt 2354g (1900ml), firewood x2 = 18144g bulk 40 (9kg each!), hardtack 4lb 1650kcal/lb, pemmican 3lb 2900kcal/lb, dried apples 2lb 1100kcal/lb. Food 6.0 days = 17499 kcal / 2142 per day. Load 33374g Medium. Purse $50.
+- Prices saved in prices-outfitter.txt (207 lines incl hardware, guns, clothes, fishing, traps). Shop goods cannot be inspected until bought (1 each). "buy" costs 1 game-hour per command regardless of qty. Shop 6-21.
+- Food data (per lb, price): hardtack 1650kcal $0.08 (20.6k kcal/$, 3638/kg); pemmican 2900 $0.30 (9.7k/$, 6394/kg); dried apples 1100 $0.10 (11k/$,2424/kg); cornmeal 1680 $0.03 (56k/$, boil/fry only); flour 1650 $0.05 (33k/$, bake/fry); bacon 3400 $0.12 (28k/$, 7490/kg, raw/fry/boil, 3.935 servings/lb); parched corn 1800 $0.06 (30k/$); cheese 1800 $0.12 (15k/$, spoils 59.6d); beans dry 1550 $0.04 (38.7k/$, boil); sugar 1720 $0.08, 20 servings; oysters tinned 300kcal/tin $0.40 (750/$ TRAP).
+- Plan "Food N days" vs usable kcal/2142: 17499->6.0, 19149->7.0, 27399->10.0, 35636->12.0 (implies ~2740-2970/day, not 2142). Need to verify against real burn.
+- Sell firewood: bought $0.02, sold $0.01 (50% spread). Start kit has 2 firewood = 18 kg (more than half of load).
+- Eating: hardtack raw 1 serving (550kcal): hunger 541->579 after 1h; pemmican raw 1 serving (967kcal): 579->872.
+- sleep at Outfitter (in town) -> auto-walked to tavern, paid $0.25 bed. 
+- Menu 'actions' lists no buy options; only typed buy. 'buy beans' ambiguous -> "Which one?" prompt, fine.
+- inspect output prints raw JSON for containers: Container: {"capacity_g":13600,...}
+- Day3-4: Shopping bought: matches, tin cup, pan, hatchet, rod, line, hooks, creel, fly, cord, canister, bacon x6, hardtack x6. Each buy = 1 game hour; shop closes 21:00. Load 41.4kg 'Heavy' (bulk 102).
+- pack: cheese INTO canteen with 422ml water worked (1 lb solid in liquid container). "pack knapsack/kettle/hardtack into canteen" -> "Nothing here matches ..." (misleading refusal text). pack takes 1 hour per item; ambiguous stack -> must type stable id e.g. pack:865:463
+- sleeping at Outfitter/Village Green (town) -> pulled to tavern bed $0.25 each time. 'standing lodging off' (cost 1h) did not matter at tavern.
+- Camping: East Bluff menu "Make camp and sleep here". Slept at camp 8h no pull-back. BUT while sleeping at camp the menu has no go/drink; stuck 8h; thirst 444->220 over 8h. No water at wild spots: "drink" -> "No accessible water; fetch water at your lodgings or go to a water source." even at Lantern Spring. activity:fetch_water teleports to tavern.
+- Canteen refilled by 'fill canteen' typed (took 1h, canteen 1900ml) or at-home routine; 'fill kettle' -> Nothing here matches. Kettle stays 0 ml.
+- forage_greens -> relocated to Huldra's Shelf, 'You gathered nothing' (1h). fish_creek -> relocated to Ferry Landing, 'You gathered nothing'. Rest drops ~110/hr when Heavy and active.
+- Conscience says 'pantry is nearly bare: go to the store' while Kit says Food 22 days.
+- Hunger scale: 8h camp sleep hunger 585->985 via standing eat (ate a lot automatically).
+- Staggering (69.2kg, +3 firewood=27kg): walk Outfitter->Tavern "4 min on foot" vs "2 min" at Medium/Heavy -> doubled travel time. Rest -39/hr same as before though.
+- Partly eaten food: stepwise weight (ceil units): pemmican 7.756 servings=3 lb 1362g; 5.756 servings = 2 lb 908g. Bacon stack with 1.588/4 servings still shows 1 lb 454g. Plan Load 69169g stayed same across eating bacon one serving (same unit).
+- Plan 'Food 0.0 days' with 62517 usable kcal at 14:00 Apr4 (after selling 3 firewood and buying gourd canteen, Rest 0 Exhausted) -> back to 21.0 days next morning. Bug.
+- Gourd canteen is bought pre-filled 1900 ml (2127g). 
+- 'standing eat' eats spoil-first items cold in small amounts (867 kcal over 12h); Health shows 'malnourished' with 21 days food, hunger 586 -> still malnourished at hunger 1000 after pemmican x2.
+- wait 1d at camp: stopped at 12:00 'hungry now' (wait interrupts), not pulled back to town. 2nd camp night fine.
+- eat bacon raw: hunger 625->866. 'cook bacon 1 fry' -> no event showing; hunger 866->837 (decay only); bacon stack 3.935 -> 1.588 servings.

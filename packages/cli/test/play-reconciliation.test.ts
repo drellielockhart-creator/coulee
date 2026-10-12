@@ -179,8 +179,17 @@ it('posted hours govern NPC purchases and sales, and beds/meals transfer real mo
     purse = w.provisions.purses[buyer] ?? 0;
   const ctx = makeContext(w, content, []);
   expect(provisions.admitSleep(w, ctx, buyer, tavern.id)).toBe(true);
-  expect(provisions.admitSleep(w, ctx, buyer, tavern.id)).toBe(true);
+  // Admission charges nothing (wave 5, B15): the bed is paid only once she is asleep in it.
+  expect(w.provisions.purses[buyer]).toBe(purse);
+  const state = w.activity.byActor[buyer];
+  if (!state) throw new Error('activity');
+  state.activityId = 'sleep';
+  state.placeId = tavern.id;
+  state.travel = null;
+  provisions.settleBeds(w, ctx);
+  provisions.settleBeds(w, ctx);
   expect(w.provisions.purses[buyer]).toBe(purse - 25);
+  state.activityId = 'idle_at_home';
   expect(provisions.boardMeal(w, ctx, buyer)).toBe(true);
   expect(w.provisions.purses[buyer]).toBe(purse - 45);
   expect(total()).toBe(before);

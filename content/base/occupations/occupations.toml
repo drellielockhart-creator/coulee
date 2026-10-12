@@ -111,7 +111,8 @@ roles = ["tavern_keeper", "jp"]
 schedule = [
   { from = 1, to = 8, activity = "sleep", duty = 300 },
   { from = 8, to = 9, activity = "take_meal", duty = 300 },
-  { from = 9, to = 24, activity = "work", duty = 550 },
+  # Keeping the tavern is talking with the house: the keeper can be asked the news while serving.
+  { from = 9, to = 24, activity = "tend_bar", fallback = "work", duty = 550 },
 ]
 
 [[occupation]]
@@ -185,6 +186,8 @@ schedule = [
   { from = 12, to = 13, activity = "take_meal", duty = 300 },
   { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 17, activity = "work", duty = 550 },
   { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  # Saturday evening at the tavern: the week's talk is had there (r2: evenings were all at home).
+  { days = ["sat"], from = 19, to = 21, activity = "drink_at_tavern", duty = 150 },
   { from = 19, to = 21, activity = "keep_house", duty = 200 },
 ]
 
@@ -240,6 +243,8 @@ schedule = [
   { from = 12, to = 13, activity = "take_meal", duty = 300 },
   { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
   { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  # Saturday evening at the tavern: the week's talk is had there (r2: evenings were all at home).
+  { days = ["sat"], from = 19, to = 21, activity = "drink_at_tavern", duty = 150 },
   { from = 19, to = 21, activity = "keep_house", duty = 200 },
 ]
 
@@ -380,6 +385,8 @@ schedule = [
   { from = 12, to = 13, activity = "take_meal", duty = 300 },
   { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
   { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  # Saturday evening at the tavern: the week's talk is had there (r2: evenings were all at home).
+  { days = ["sat"], from = 19, to = 21, activity = "drink_at_tavern", duty = 150 },
   { from = 19, to = 21, activity = "keep_house", duty = 200 },
 ]
 
@@ -435,6 +442,8 @@ schedule = [
   { from = 12, to = 13, activity = "take_meal", duty = 300 },
   { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 13, to = 18, activity = "work", duty = 550 },
   { from = 18, to = 19, activity = "take_meal", duty = 300 },
+  # Saturday evening at the tavern: the week's talk is had there (r2: evenings were all at home).
+  { days = ["sat"], from = 19, to = 21, activity = "drink_at_tavern", duty = 150 },
   { from = 19, to = 21, activity = "keep_house", duty = 200 },
 ]
 

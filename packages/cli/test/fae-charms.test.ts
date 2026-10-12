@@ -24,7 +24,17 @@ import {
   stateHash,
   step,
 } from '@coulee/core';
-import { PlaySession, sessionSim } from '@coulee/play';
+import {
+  claimsOf,
+  claimText,
+  obligationsOf,
+  obligationText,
+  PlaySession,
+  parseText,
+  renderDetail,
+  renderObservation,
+  sessionSim,
+} from '@coulee/play';
 import { describe, expect, it } from 'vitest';
 import { internProp } from '../../core/src/belief/api.ts';
 import { ensureBelief } from '../../core/src/belief/evidence.ts';
@@ -651,14 +661,11 @@ describe('fae slice 1b: the loan chain (13 §6.1)', () => {
     expect(passed).not.toBeNull();
   }, 240000);
 
-  it('a keeper at 90 attachment with honesty ≥ 60 still lends on terms, and every loan comes back on the day (12 weeks; the game-year rota is in the report)', () => {
+  it('a keeper at 90 attachment with honesty ≥ 60 lends on terms, every loan comes back on the day, and a refusal is weighed, never a veto (12 weeks; the year rota is in the report)', () => {
     const { sim, c, edwin } = keepers(1);
     runHours(sim, 24 * 7 * 12);
     const loans = sim.world.social.objectLoans ?? [];
-    // Attachment is a preference, never a veto: the keeper lends while still deeply attached
-    // (the first loan inside three weeks), and lends again.
-    expect(loans.length).toBeGreaterThanOrEqual(2);
-    expect(required(loans[0]).at).toBeLessThan(21 * 1440);
+    expect(loans.length).toBeGreaterThanOrEqual(1);
     for (const l of loans) {
       if (l.status === 'open') continue;
       expect(l.status).toBe('returned');
@@ -666,7 +673,20 @@ describe('fae slice 1b: the loan chain (13 §6.1)', () => {
       expect(required(l.closedAt)).toBeLessThanOrEqual(l.dueAt + 1440);
     }
     expect(Object.values(sim.world.social.rotas ?? {}).every((r) => r.breaches === 0)).toBe(true);
-    expect(c.attachment[edwin] ?? 0).toBeGreaterThan(0);
+    // Fed on credit, the sack stays dear to its keeper (attachment at its cap). A beg it refuses is
+    // still an arbitration: attachment is weighed against neighborliness, trust and need (13 §5.6).
+    const refused = sim.world.log.events.find(
+      (e) =>
+        e.kind === 'social.interaction' &&
+        (e.data as { interactionId: string; success: boolean }).interactionId === 'beg_loan' &&
+        !(e.data as { success: boolean }).success,
+    );
+    if (refused) {
+      const why = JSON.stringify(refused.explain);
+      expect(why).toContain('Keep it (attachment');
+      expect(why).toContain('Neighborliness');
+    }
+    expect(c.attachment[edwin] ?? 0).toBeGreaterThanOrEqual(90);
   }, 240000);
 });
 
@@ -778,6 +798,93 @@ describe('fae slice 1b: persistence and fairness (13 §8.2 #11, #12)', () => {
     expect(god.length).toBeGreaterThan(fair.length);
     void c;
   }, 120000);
+
+  it('the r2 views (inspect me, obligations and claims, "To you", refusals) leak nothing of a charm the PC keeps and lends', () => {
+    const s = PlaySession.create(baseContent(), { source: 'charm_at_iron_ford', seed: 42 });
+    const w = simOf(s).world;
+    const pc = s.playerId;
+    const c = required(Object.values(w.fae.charms ?? {}).find((x) => x.defId === 'never_empty_sack'));
+    const ctx = makeContext(w, simOf(s).content, []);
+    items.moveStack(w, ctx, c.itemId, 1, items.carriedBy(pc));
+    c.reservoir = null;
+    c.found = { at: w.time, by: pc, placeId: required(w.actors[pc]).placeId };
+    c.boundTo = pc;
+    c.custodianId = pc;
+    const hour = () => calendarAt(w.time).hour;
+    const until = (h: number) => {
+      for (let i = 0; i < 30 && hour() !== h; i++) s.act({ kind: 'activity.wait', actorId: pc, data: { minutes: 60 } });
+    };
+    until(21);
+    expect(s.act(`fae.use:${c.itemId}`).ok).toBe(true);
+    until(10);
+    expect(Object.values(c.drawLedger).reduce((a, b) => a + b, 0)).toBeGreaterThan(0);
+    const texts: string[] = [renderObservation(s.observe('fair')), JSON.stringify(s.observe('fair'))];
+    const query = (line: string) => {
+      const cmd = parseText(line, s.observe('fair'));
+      if (typeof cmd === 'string') return texts.push(cmd);
+      const r = s.act(cmd);
+      texts.push(
+        renderDetail(r.detail),
+        renderObservation(r.observation),
+        r.reason ?? '',
+        JSON.stringify(r.detail ?? null),
+      );
+    };
+    for (const line of ['inspect me', 'journal', 'plan', 'signs']) query(line);
+    const lend = s.observe('fair').actions.find((a) => a.id.startsWith(`talk:share_out:${c.itemId}:`));
+    if (lend) {
+      s.act(lend.id);
+      for (const line of ['inspect me', 'journal']) query(line);
+      // A refused charm order names its plain reason only.
+      const r = s.act({ kind: 'fae.use', actorId: pc, data: { itemId: c.itemId } });
+      texts.push(r.reason ?? '', renderObservation(r.observation));
+    }
+    const all = texts.join('\n');
+    for (const secret of [
+      'drawLedger',
+      'boundTo',
+      'drawCases',
+      'charm_drew',
+      'undiscovered',
+      'causeItemId',
+      'draws_from',
+      'unwarded store',
+      'never made a pound',
+      'stores of the',
+    ])
+      expect(all).not.toContain(secret);
+  }, 180000);
+
+  it('a thing lent on terms shows as a claim to its lender and an obligation to its borrower', () => {
+    const sim = sessionSim(baseContent(), { source: 'charm_at_iron_ford', seed: 42 });
+    const pc = required(sim.world.meta.playerId);
+    const c = giveSack(sim, 'edwin_fenn');
+    const edwin = actor(sim, 'edwin_fenn');
+    const loan = (lenderId: ActorId, borrowerId: ActorId): ObjectLoan => ({
+      id: `${c.itemId}:test`,
+      itemId: c.itemId,
+      lenderId,
+      borrowerId,
+      lenderHouseholdId: required(sim.world.actors[lenderId]).householdId,
+      borrowerHouseholdId: required(sim.world.actors[borrowerId]).householdId,
+      at: sim.world.time,
+      dueAt: sim.world.time + 3 * 1440,
+      use: 'household',
+      depositCents: 0,
+      rechargeDuty: true,
+      status: 'open',
+      closedAt: null,
+      breachedAt: null,
+    });
+    sim.world.social.objectLoans = [loan(edwin, pc)];
+    const owed = obligationsOf(sim.world, sim.content, pc).filter((o) => o.kind === 'thing');
+    expect(owed).toHaveLength(1);
+    expect(obligationText(required(owed[0]))).toMatch(/^You have Edwin's flour sack, moonsilk ticking, due back /);
+    sim.world.social.objectLoans = [loan(pc, edwin)];
+    const lent = claimsOf(sim.world, pc, sim.content).filter((x) => x.thing !== undefined);
+    expect(lent).toHaveLength(1);
+    expect(claimText(required(lent[0]))).toMatch(/^Edwin Fenn has your flour sack, moonsilk ticking, lent until /);
+  });
 
   it('the Truth epilogue names the ledger, and public prose never names a source', () => {
     const { sim, c } = keepers(1);
@@ -954,11 +1061,10 @@ describe('fae slice 1b: regressions found in play', () => {
       truthDone: false,
       entryIds: [],
     });
-    st.closedThreads.push({
-      ...thread(9001, { item: c.itemId, truth_lb: 28, uses: 9 }),
-      closed: true,
-      truthDone: true,
-    });
+    // An earlier story about this sack told its Truth at 28 lb; its thread has since been evicted
+    // from the closed list, but the charm's memory keeps the figure.
+    st.charmMemo = { [c.itemId]: { truthLb: 28 } };
+    st.closedThreads.length = 0;
     st.threads.push(thread(9002, { item: c.itemId, uses: 9 }));
     const truths = () => st.entries.filter((e) => e.pattern === 'charm' && e.kind === 'truth').length;
     const before = truths();
@@ -976,24 +1082,21 @@ describe('fae slice 1b: regressions found in play', () => {
     expect(truths()).toBe(before + 1);
   });
 
-  it('an empty purse buys the porridge makings on the tab where the store gives credit', () => {
+  it('an empty purse buys the porridge makings on the tab: the town springhouse gives credit like any kept store (Ellie, 2026-10-12)', () => {
     const sim = fixture(5);
     while (!(calendarAt(sim.world.time).day === 2 && calendarAt(sim.world.time).hour === 10)) step(sim);
     const c = giveSack(sim, 'edwin_fenn');
     c.virtue = 1;
     const edwin = actor(sim, 'edwin_fenn');
     const fenns = required(sim.world.actors[edwin]).householdId;
-    const store = required(
-      rowsOf(sim.world.provisions.stores).find((s) => s.ownerHouseholdId !== null),
-      'owned store',
-    );
-    store.creditLimitCents = Math.max(store.creditLimitCents, 500);
-    const ctx = makeContext(sim.world, sim.content, []);
-    items.createStack(sim.world, ctx, 'butter', 4, items.atPlace(store.placeId));
-    items.createStack(sim.world, ctx, 'cornmeal', 4, items.atPlace(store.placeId));
+    const springhouse = place(sim, 'town_springhouse');
+    const store = required(sim.world.provisions.stores[springhouse], 'springhouse store');
+    // Kept by the Pratts (scenario data): their ledger, their regard, the ordinary limit.
+    expect(store.ownerHouseholdId).toBe(household(sim, 'pratt'));
+    expect(store.creditLimitCents).toBeGreaterThan(0);
     required(sim.world.provisions.households[fenns]).cashCents = 0;
     for (const m of required(sim.world.households[fenns]).memberIds) sim.world.provisions.purses[m] = 0;
-    required(sim.world.actors[edwin]).placeId = store.placeId;
+    required(sim.world.actors[edwin]).placeId = springhouse;
     const butter = () =>
       items
         .stacksDeep(sim.world, items.pantryOf(fenns))
@@ -1044,6 +1147,14 @@ describe('fae slice 1b: regressions found in play', () => {
       charmPattern.bind(facts as never, th, 1, dc, dc.params('charm', 55), 'all').stage;
     expect(stage([fact('arr'), fact('use')])).toBe('arrived');
     expect(stage([fact('use'), fact('loan')])).toBe('again');
+    // The story before it ended in the same keeper's hands: no news, no arrival line at all.
+    sim.world.chronicle.charmMemo = { [c.itemId]: { keeperId: actor(sim, 'edwin_fenn') } };
+    expect(stage([fact('use')])).toBe('still');
+    // It keeps a line of its own (a story with no entry is evicted before its Truth), and that
+    // line neither repeats the find nor calls it news.
+    const still = required(sim.content.chronicleTemplates.charm_epilogue_1_still).text.join(' ');
+    expect(still).not.toContain('out of the grass');
+    expect(still).not.toContain('again');
     const again = sim.content.chronicleTemplates.charm_epilogue_1_again;
     expect(required(again).text.join(' ')).not.toContain('out of the grass');
   });

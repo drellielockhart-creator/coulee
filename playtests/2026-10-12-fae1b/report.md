@@ -2,8 +2,11 @@
 
 Status: **PARTIAL.** Of the 15 criteria in doc 13 §8.2:
 - 11 are MET;
-- 4 are PARTIAL: 5 (honor loans), 6 (spread), 9 (year-long rota) and 15 (performance);
+- 1 is ACCEPTED by Ellie's ruling: 5 (honor-loans residual breaches are texture);
+- 3 are PARTIAL: 6 (spread), 9 (year-long rota) and 15 (performance);
 - none is NOT MET.
+
+Update 2026-10-12 (later): main's r2 wave was merged into this branch, and Ellie ruled on two of the open design calls. See "Merge with main and Ellie's rulings" below. Sections further down carry the earlier, pre-credit numbers unless marked otherwise.
 
 This pass also covers the six fae-sign fixes the orchestrator sent. Codex was out of quota, so all review is my own adversarial review.
 
@@ -14,9 +17,77 @@ This pass also covers the six fae-sign fixes the orchestrator sent. Codex was ou
 
 ## Gate
 
-`VITEST_MAX_WORKERS=6 just check` is green on the final code: 59 test files and 622 tests, plus lint, typecheck of all packages and scripts, invariants and content (exit 0).
+**Merged tree (final):** `just check` is green: 65 test files and 704 tests, plus lint, typecheck, invariants and content (exit 0). The golden Iron Ford 42 snapshot was refreshed once on the merge, for the same reason as below. The springhouse keeper doesn't change it.
+
+**Branch before the merge:** `VITEST_MAX_WORKERS=6 just check` was green on the final code: 59 test files and 622 tests, plus lint, typecheck of all packages and scripts, invariants and content (exit 0).
 
 There is one golden diff, the Iron Ford 42 30-day chronicle. Store and mill keepers now take a weekly Saturday stock count (17:00–18:00, discovery by count, 13 §5.2), which shifts every later encounter. Iron Ford has no charm.
+
+## Merge with main and Ellie's rulings (2026-10-12, later)
+
+**The merge.** Main's r2 wave was merged into `wave5/fae1b`: provisions (water, standing sleep and eat, `pay_lodging`, freight and restock, readiness), social (availability, waits, requests with terms and menus, gifts as real items, courtship, purse-to-purse loans), text (talk pools), and the county worldgen stage. Nine files conflicted. Both sides' behavior was kept:
+- **`psyche/standing.toml`:** both standing capabilities, `tie_the_sack_nightly` and `pay_lodging`.
+- **`social/events.ts`:** `social.interaction` carries both my `itemId` and main's `atWork`, `cents` and `itemDefId`.
+- **`social/interact.ts`:**
+  - both imports;
+  - the holder's own decision on item requests runs before main's gift check;
+  - the event payload carries both sides' fields;
+  - request text now comes from main's `requestTerms`, which I extended (additively) with the four item responses: "begs the loan of what you keep, to bring it back by Sunday the 8th of April…", "asks for back what you were lent", and the rest. The old inline sentence and `dueWords` are gone.
+- **`provisions/api.ts`:** `Readiness` carries both `charms?` and main's `needExplain?` and `needRange?`.
+- **`provisions/planner.ts`:** main's pending-meal kcal and hypothetical pass, plus my early return through `charmRows` and the projected hem set.
+- **`play/actions.ts`:** main's "Yes to / No to …" request labels. `requestLabel` gained the item cases (no money or favor owed), and my `requestNoun` was retired.
+- **`play/text.ts`:** main's "Asked of you: …" request lines, and my charm lines kept beside them.
+- **`cli/play-session.ts`:** main's one-line refusal. It already strips trailing periods, which was my sign fix 6.
+- **The golden:** refreshed once, with the reason recorded in `chronicle.test.ts`.
+
+**After the merge:**
+- **Obligations and claims.** Main's new views list money and favors; things lent on terms now appear there too.
+  - The lender sees "Michael Dunleavy has your flour sack, moonsilk ticking, lent until Sunday, the 8th of April, 1855."
+  - A borrowing PC sees "You have Edwin's flour sack, moonsilk ticking, due back …".
+  - Test: "a thing lent on terms shows as a claim…".
+- **Fairness re-checked against main's new views.**
+  - Setup: the PC keeps the sack, ties it, sees a draw and lends it.
+  - Views scanned: the rendered observation (with the "To you" digest), `inspect me`, journal, plan, signs, and a refused charm order.
+  - Result: none contains a ledger, case, source wording, `boundTo` or Truth text. Test: "the r2 views … leak nothing".
+- **Agency re-checked against main's free settings.** The 64-seed commanded-keeper test and the standing-order test pass unchanged on the merged tree.
+- **One of main's tests changed.** `worldgen.test.ts` pins a layout hash per generated town. The fae reservoir is now left out of that hash: it isn't layout and comes from its own random stream. With it left out, the pins reproduce main's values exactly.
+
+**Ruling (a): butter on credit.** Implemented as data: `stocks[].keeper`, a new optional scenario field, names the household that keeps a store nobody lives at or works in. Iron Ford's town springhouse is kept by the Pratts, so its credit follows Pratt's rules exactly.
+- **Iron Ford year control.** I ran Iron Ford 42 for a year with and without the keeper line. Hunger, kcal, cash and deaths are identical through September, then diverge slightly. There were no deaths either way.
+- **A stats bug it exposed.** `provisions_tabs_cents` counted a keeper's ledger once per store kept. It now counts each ledger once (`provisions/view.ts`).
+- **Batch after credit** (64 seeds × 60 days):
+
+| arm | draws (lb) | fae tx / violations | loans / returned / breaches | grudges | L2 / L3 | closed peacefully | resolution kinds |
+|---|---:|---:|---:|---:|---:|---:|---|
+| baseline | 15.8 (63) | 1010 / 0 | 59 / 50 / 8 | 8 | 5% / 2% | 70% | quiet, settled |
+| honor-loans | 15.9 (63) | 1020 / 0 | 63 / 52 / 5 | 5 | 3% / 3% | 69% | quiet, settled |
+
+  - The sack no longer goes dormant: draws are up 70%, and `dormant` disappears as a resolution.
+  - Honor loans still cuts breaches (8 → 5); per ruling (b), the rest stand.
+
+**The fixture year after credit:**
+- 140 draws, about 457 lb, mostly from Haugen's Grist Mill.
+- 25 recharges, fed by the Fenns on credit.
+- 3 loans, all in April–May, 2 of them left at the house.
+- `fae.omen` was 0.26% of events.
+- 40 alive all year; monthly hunger means 685–819.
+
+The chronicle reads:
+> **April 15.** The moonsilk flour sack came to Edwin Fenn out of the grass…
+> **June 23.** The moonsilk flour sack was working again, in Minerva Fenn's keeping now…
+> **July 22.** In the end the moonsilk flour sack was kept quietly.
+> **July 29.** The moonsilk flour sack went on working in Minerva Fenn's house, a pound of somebody's flour at a time.
+> **December 10.** The truth of it: … 156 lb from Haugen's Grist Mill, 58 lb from the stores of the Glovers, 46 lb from the stores of Miss Stoughton, 44 lb from the stores of the Pratts …
+> **March 10.** The truth of it: … 257 lb from Haugen's Grist Mill …
+
+**Chronicle fixes found in that year** (each tested):
+- **"Shared out" overstated.** A closure said "shared out between households, week and week about" months after the last loan. `shared` now needs a rota active within the quiet window.
+- **"Working again" repeated.** A story reopened under the same keeper repeated "working again… either". It now gets `when.stage = still` and its own short line.
+- **Stories forgot their history.** Charm stories read their past from the 40-entry closed-thread list, which other patterns' closures evict within days, so the Truth dedupe and the previous keeper could be lost. Both now live in `ChronicleState.charmMemo?`, an optional per-charm memory created on first use.
+
+**Ruling (b): due dates missed while the lender's house is at church or out are texture.** The honor-loans residual breaches stand: criterion 5 is ACCEPTED.
+
+**Sessions.** The archived sessions were recorded on the branch's content before the merge. Merged content has a different hash, so they no longer pass `--verify` against main. That's true of any session archived before a content change; they replay on the pre-merge commit `9117458`.
 
 ## Acceptance audit
 
@@ -26,11 +97,11 @@ There is one golden diff, the Iron Ford 42 30-day chronicle. Store and mill keep
 | 2 | Conservation | MET | See below. |
 | 3 | Discovery | MET | Tests: an undetected draw creates no misfortune, memory or belief. A stock count finds the total loss once; later counts add only bounded evidence. A household that knows and agreed records nothing new. Counting is a weekly duty. |
 | 4 | Loan gate | MET | Test: an autonomous two-household loan, on terms, returned on the day with no `core.command`. Both households and a witness remember it. |
-| 5 | Causal ablations | PARTIAL | Three of four effects met; honor loans reduces breaches but does not remove them (see the ablation table). |
+| 5 | Causal ablations | ACCEPTED (Ellie, 2026-10-12) | Three of four effects met. Under honor loans, breaches fall but aren't removed. Ellie ruled that a due date missed because the lender's house is at church or out is texture, so the residual breaches stand. Rota closures still don't rise within 60 days. |
 | 6 | Spread | PARTIAL (reported, not gating) | See the spread table. |
 | 7 | Readiness | MET | See below. |
 | 8 | Culpability | MET | Test: after the truth is told, some households retract the hired-man blame and some keep it. `kept_drawing` forms only after a warning. |
-| 9 | Attachment, year-long rota | PARTIAL | See "Rota" below. |
+| 9 | Attachment, year-long rota | PARTIAL | After butter on credit, the sack stays fed all year, but a weekly rota holds about 17 weeks in seed 1 and never forms in seed 2. See "Rota" below. |
 | 10 | Iron | MET | Test: a loan falls due while the sack is sealed in iron and the breach still fires; nothing recharges while sealed. Play: "Suppressed: 2.0 lb of iron in contact (Cut nails, lb)". |
 | 11 | Persistence | MET | See below. |
 | 12 | Fairness | MET | See below. |
@@ -142,15 +213,34 @@ Values are month-end figures from `stats.csv`; draws and loans come from `events
 
 ## Rota (criterion 9)
 
-**What holds.** A keeper at attachment 90 with honesty 70 lends early and lends again, and every loan comes back within the day's grace. A 12-week test asserts this.
+### Before butter on credit
 
-**What doesn't.** In 52-week runs (`runs/scratch/rota.ts`), weekly rotas last 6–8 weeks: seed 2 ran days 84–126 with the Glovers and Moes, each loan fed and returned. The rota then lapses when the sack is spent and nobody who can feed it calls.
+- **What held.** A keeper at attachment 90 with honesty 70 lent early and lent again, and every loan came back within the day's grace.
+- **What didn't.** Weekly rotas lasted 6–8 weeks, then lapsed when the sack was spent and nobody who could feed it called. Attachment decayed while the sack was out on loan.
 
-**Why attachment drains.** It decays a point a day once a week passes without benefit, and a sack that is out on loan gives its keeper no benefit.
+### After butter on credit (Ellie, 2026-10-12)
 
-**Fixing it needs a design call from Ellie,** either:
-- a market where the poorest household can get butter on credit; or
-- a rule that a lender benefits from a loan that comes back fed.
+**The change.** The town springhouse is now kept by the Pratts. This is scenario data, `stocks[].keeper = "pratt"`, so its dairy gives ordinary store credit: the Pratts' ledger, their regard for the buyer, the 3000¢ limit. There is no fae-specific money path.
+
+**The sack stops starving.**
+- The Fenns buy butter on the tab and feed it themselves about weekly ("The bowl is licked clean by morning.").
+- The keeper's attachment stays at its cap of 100.
+- In the fixture year, draws rose from 53 to 140 and recharges from 10 to 25.
+
+**52-week rota runs** (`runs/scratch/rota.ts`, keeper at 90, honesty 70, the Moes wanting it):
+
+| seed | loans / returned / breaches | weekly stretch | keeper attachment, virtue at year end |
+|---|---|---|---|
+| 1 | 9 / 9 / 0, all to the Hatches | days 0–7, then near-weekly from day 238 to day 357 (about 17 weeks) | 100, 1 |
+| 2 | 0 | none: the keeper keeps it all year | 100, 2 |
+
+**Why the rota still doesn't hold for a year.** The Fenns can now feed the sack themselves, so they no longer lend it to a neighbor who can. At attachment 100, the keep term in the holder's arbitration is 5 × attachment = 500. Before any rota exists, neighborliness, need and trust rarely outweigh that. In a 12-week run of seed 1, all 17 neighbors' begs were refused, each with an explained arbitration. Once a loan has come back cleanly, the rota-promise term (300 + duty × 3) carries the rota forward, as in seed 1's run from day 238.
+
+**Status: PARTIAL.** Holding a rota for a full year would need another design call:
+- should attachment at its cap still yield to an honest keeper's neighbors (for example, cap the keep weight, or add an honesty term when a neighbor covets it openly)?
+- or should the rota start from the first clean loan, wherever it comes from?
+
+The 12-week test now asserts what holds. The keeper lends on terms, every loan comes back on the day, and a refused beg is an arbitration that weighs attachment against neighborliness, not a veto.
 
 ## Performance (§7.3)
 
@@ -253,7 +343,35 @@ Paper (public):
   - investigation printed nothing;
   - `self` was used as an identifier in core (an invariants violation).
 
+## Remaining issues (after the merge and rulings)
+
+- **Spread stays low** (level 2 in 3–5% of seeds, level 3 in 2–3%). The Fenns are discreet, and fed on credit they now keep the sack to themselves.
+- **Year-long rota (criterion 9).** Attachment at its cap outweighs neighbors' begs until a rota exists; this is a design call (see "Rota").
+- **Iron in ordinary pantries suppresses the sack** (tin plate, a coffee mill, an iron-fitted provisions box). That's the doc 03 rule applied to content data.
+- **Gen-town finds are rare.**
+- **Perf numbers come from a busy shared machine.**
+- **From main, not touched:** Dunleavy's Tavern's store is owned by Whitcomb's Survey Party. Owner resolution takes the first household whose home is the tavern, and the survey party lodges there.
+
 ## Contracts, out-of-area edits, remaining issues, files
+
+**Added in the merge pass** (additive):
+- **Social:** `requestTerms(…, item?)` item phrasing.
+- **Play:**
+  - `requestLabel` gained the item cases;
+  - `Obligation.kind 'thing'` with `thing?`;
+  - `Claim.thing?`, `dueT?`, `overdue?`;
+  - `claimsOf(world, pc, content?)`.
+- **Provisions:** scenario `stocks[].keeper`.
+- **Chronicle:** `when.stage = still` and `ChronicleState.charmMemo?`.
+
+**Out-of-area edits in the merge pass:**
+- `packages/content/src/schema/items.ts` (stocks keeper);
+- `packages/core/src/provisions/{state,view}.ts`;
+- `packages/core/src/social/requests.ts`;
+- `packages/core/src/chronicle/state.ts`;
+- `packages/play/src/{obligations,observation,session,actions,text}.ts`;
+- `packages/cli/test/worldgen.test.ts`;
+- `content/base/scenarios/iron_ford/50-stocks.toml`.
 
 See the summary above; every contract is listed in `docs/impl/MODULES.md` under module:fae, slice 1b.
 

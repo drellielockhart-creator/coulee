@@ -6,7 +6,7 @@ Check a box when answered; record the answer in the owning doc and, when it chan
 
 ## Start here
 
-These ten answers unblock M4 provisions/Outfitter, M5a worldgen, M5 travel, M6 combat, and the M7/M8 slices. A sentence or two each is enough; the full options and sources are in Q01–Q10 below.
+These answers unblock M4 provisions/Outfitter, M5a worldgen, M5 travel, M6 combat, and the M7/M8 slices. A sentence or two each is enough; the full options and sources are in Q01–Q10 below.
 
 1. **Readiness:** should practical judgments be skill-gated and fallible while supplies arithmetic is always correct?
 2. **Provisions difficulty:** use a Period-default Larder dial and an optional gentle spring, or one fixed severity?
@@ -18,6 +18,18 @@ These ten answers unblock M4 provisions/Outfitter, M5a worldgen, M5 travel, M6 c
 8. **Pre-roll/seed QA:** start with five or ten history years, and what starvation makes a generated seed invalid?
 9. **Adventurer slice:** retain M7 before M8, and what starting purse/debt and class scope should its first opening use?
 10. **Witch slice:** adopt 02's half-level + CHA curse DC and 06's nature/claim split, with which offset-combination rule?
+
+**New from the r2 playtests (2026-10-11)**, from [the r2 triage](../docs/impl/PLAYTEST-TRIAGE-2026-10-11-r2.md):
+
+11. **Sub-hour actions.** Every Command costs a full game-hour today, so a 2-minute walk, one purchase or a settings change all take 60 minutes.
+    - Editorial Rec: give each hour a minute budget. Short acts (a walk under about 15 minutes, a purchase line, a chat, a settings change) chain within the hour, while the sim still ticks hourly.
+    - Settings changes cost nothing.
+    - This needs an ADR 0002 amendment.
+12. **Newcomer income.** The PC can't earn; "work" pays only employed actors.
+    - Editorial Rec: day labor and hiring on through ordinary social and economy rules (ask an employer; daily or weekly wages to the purse), plus piece rates for wood, fish and furs at the store.
+    - P8 pressure stays on logistics.
+13. **Others' opinions of you.** Players can't see how anyone feels about them.
+    - Editorial Rec: a perception-gated "seems to feel about you" line on `inspect`, with the visible reasons (what you did to them) and a coarse band, never the number.
 
 ## Already answered
 

@@ -29,7 +29,7 @@ import type { Explain } from '../explain.ts';
 import { type ActorId, idsOf } from '../ids.ts';
 import { campContext, campSleepActivity, loadReport, withInventoryPass } from '../items/api.ts';
 import { needValue } from '../needs/api.ts';
-import { lodgingPlace } from '../provisions/api.ts';
+import { isWaterSource, lodgingPlace } from '../provisions/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addDefenseReason, areKin, familiarityOf, opinionOf, strifeCount, wearinessPermille } from '../social/api.ts';
@@ -37,7 +37,14 @@ import { addMinutes, yearsBetween } from '../time.ts';
 import type { ChoiceVoice, ChosenUrge, Urge } from '../urge.ts';
 import { sameUrge, urgeLabel } from '../urge.ts';
 import type { World } from '../world.ts';
-import { authorizationExplain, authorizeAct, commandBasis, standingOrders, standingUrge } from './agency.ts';
+import {
+  applyStandingOrders,
+  authorizationExplain,
+  authorizeAct,
+  commandBasis,
+  standingOrders,
+  standingUrge,
+} from './agency.ts';
 import {
   accrueAnxiety,
   addToPools,
@@ -129,14 +136,7 @@ export function psycheSystem(world: World, ctx: SimContext): void {
 function psychePass(world: World, ctx: SimContext): void {
   for (const cmd of ctx.commands) {
     if (cmd.kind !== 'core.standing_orders') continue;
-    const p = world.psyche.byActor[cmd.actorId];
-    if (!p) continue;
-    if (cmd.data.agencyMode) p.agencyMode = cmd.data.agencyMode;
-    p.standingOrders = {
-      ...cmd.data.orders,
-      activities: [...cmd.data.orders.activities],
-      ...(cmd.data.orders.capabilities ? { capabilities: [...cmd.data.orders.capabilities] } : {}),
-    };
+    applyStandingOrders(world, cmd.actorId, cmd.data);
   }
   const idx = buildTagIndex(ctx.content);
   for (const id of idsOf<ActorId>(world.psyche.byActor)) {
@@ -214,13 +214,26 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
         const campId = campSleepActivity(content);
         const def = content.activities[out.urge.activityId];
         const here = m.actor.placeId;
-        const bed = standingOrders(world, actorId).lodging ? lodgingPlace(world, content, actorId, ctx.now) : null;
+        // The standing sleep order is entitled to a bed at one's lodgings, paid on arrival; a
+        // camper with bedding afield sleeps where they are instead of walking back to pay.
+        const payable = !(camp.afield && camp.bedding);
+        const bed = standingOrders(world, actorId).lodging
+          ? lodgingPlace(world, content, actorId, ctx.now, payable)
+          : null;
         const speed = def?.asleep ? loadReport(world, content, actorId).band.speedPct : 100;
         const minutes =
           bed === null || speed === 0 ? 1440 : Math.ceil((walkMinutes(world, content, here, bed) * 100) / speed);
         const reachableBed =
-          bed !== null && minutes <= 60 && lodgingPlace(world, content, actorId, ctx.now + minutes) === bed;
-        if (def?.asleep && reachableBed) out.urge = { ...out.urge, placeId: bed };
+          bed !== null && minutes <= 60 && lodgingPlace(world, content, actorId, ctx.now + minutes, payable) === bed;
+        // An urge that already names its place for a reason (water at a spring, a plate waiting
+        // at the table) keeps it; only placeless home chores are redirected afield.
+        const placed =
+          out.urge.placeId !== undefined &&
+          ((out.urge.activityId === 'fetch_water' && isWaterSource(world, content, out.urge.placeId)) ||
+            def?.tags.includes('meal'));
+        if (placed) {
+          // keep
+        } else if (def?.asleep && reachableBed) out.urge = { ...out.urge, placeId: bed };
         else if (camp.afield && def?.asleep && campId !== null && out.urge.activityId !== campId)
           out.urge = camp.bedding
             ? { kind: 'activity', activityId: campId, placeId: here }

@@ -7,6 +7,7 @@ import { term } from '../explain.ts';
 import type { ActorId, EventId, HouseholdId, PlaceId } from '../ids.ts';
 import { rowsOf } from '../ids.ts';
 import { atPlace, carriedBy, createStack, moveStack, pantryOf, stacksDeep, supplyUnits } from '../items/api.ts';
+import { loadReport, MOVE_LIMIT_PCT } from '../items/encumbrance.ts';
 import type { ItemLocation } from '../items/state.ts';
 import { canAct } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -79,6 +80,15 @@ export function purchase(
   const credit =
     onCredit && !shunned && keeper !== undefined ? Math.max(0, store.creditLimitCents - (store.tabs[actorId] ?? 0)) : 0;
   let remaining = price > 0 ? Math.min(wanted, Math.floor((cash + credit) / price)) : wanted;
+  // Goods carried away must leave the buyer able to walk: never past the movement limit.
+  const unitG = ctx.content.items[defId]?.weight_g ?? 0;
+  if (unitG > 0 && to.kind === 'actor' && to.actorId === actorId) {
+    const load = loadReport(world, ctx.content, actorId);
+    remaining = Math.min(
+      remaining,
+      Math.max(0, Math.floor((load.capacityG * MOVE_LIMIT_PCT - load.weightG * 100) / (unitG * 100))),
+    );
+  }
   if (basis.kind === 'standing') {
     const itemTags = [...(ctx.content.items[defId]?.tags ?? []), ...(ctx.content.items[defId]?.food ? ['food'] : [])];
     // A bounded order never opens credit; shrink the basket to its remaining allowance.
@@ -132,7 +142,15 @@ export function purchase(
   }
   ctx.emit({
     kind: 'provisions.purchase',
-    data: { buyerId: actorId, placeId, defId, qty: bought, priceCents: cost, onCredit: debt > 0 },
+    data: {
+      buyerId: actorId,
+      placeId,
+      defId,
+      qty: bought,
+      priceCents: cost,
+      onCredit: debt > 0,
+      ...(to.kind === 'household' ? { toPantry: true } : {}),
+    },
     roles: [{ actor: actorId, role: 'agent' }],
     visibility: 'private',
     explain: mealExplain('Store transaction', [actorId], cost, [
@@ -174,6 +192,11 @@ export function transferCash(
   reason: string,
   causeEventId?: number,
   basis?: import('../psyche/api.ts').Basis,
+  /**
+   * Where the payee keeps it: 'household' (the cash box, the default) or 'purse' (a personal
+   * debt between two people: loans and repayments land where the payer's came from).
+   */
+  pocket: 'household' | 'purse' = 'household',
 ): number {
   if (
     !authorizeAct(
@@ -196,7 +219,7 @@ export function transferCash(
   world.provisions.purses[fromId] = purse - fromPurse;
   if (fromHh && moved > fromPurse) fromHh.cashCents -= moved - fromPurse;
   const toHh = from.householdId === to.householdId ? fromHh : world.provisions.households[to.householdId];
-  if (toHh) toHh.cashCents += moved;
+  if (toHh && pocket === 'household') toHh.cashCents += moved;
   else world.provisions.purses[toId] = (world.provisions.purses[toId] ?? 0) + moved;
   ctx.emit({
     kind: 'provisions.cash_transfer',

@@ -1703,7 +1703,7 @@ describe('iron_ford seed 42', () => {
     // Survival wave: both captives now live in fae time; their missing deprivation events change the chronicle.
     // Fae review: witnessed cooldowns, paired variants and competing readings change beliefs and capped omen prose.
     // Wave 4: timed caregiver meals and evidence-based, weekly kindness replace false food-relief stories.
-    // Fae 1b: store and mill keepers take a weekly Saturday stock count (13 §5.2), shifting later encounters.
+    // Fae 1b (refreshed once on the merge with main r2): store and mill keepers take a weekly Saturday stock count (13 §5.2), shifting later encounters.
     await expect(md30).toMatchFileSnapshot('./__snapshots__/chronicle-iron_ford-42-30d.md');
     assertNoLeak(sim);
     for (const e of nonHeading(sim.world)) noArtifacts(e.text);

@@ -176,8 +176,13 @@ function resolutionOf(dc: DetectCtx, th: ChronicleThread, facts: readonly Thread
   if (count(facts, 'rest') > 0 || (th.data.rest ?? 0) > 0) return 'restitution';
   const cases = Object.values(dc.world.fae?.drawCases ?? {}).filter((x) => x.itemId === itemId);
   if (cases.some((x) => x.accepted)) return 'accepted';
+  // Shared out means a rota still running: two clean returns, the last within the quiet window.
   const rota = Object.values(dc.world.social.rotas ?? {}).find(
-    (r) => r.itemId === itemId && r.returned >= 2 && r.breaches === 0,
+    (r) =>
+      r.itemId === itemId &&
+      r.returned >= 2 &&
+      r.breaches === 0 &&
+      r.lastAt >= (dc.ctx.now as number) - (QUIET_DAYS + 7) * DAY,
   );
   if (rota) return 'shared';
   if (c && c.virtue <= 0) return 'dormant';
@@ -201,6 +206,11 @@ function keeperOfThread(facts: readonly ThreadFact[]): number {
   const last = [...facts].reverse().find((f) => f.k === 'use' || f.k === 'arr' || f.k === 'loan' || f.k === 'ret');
   if (!last) return 0;
   return last.k === 'loan' ? last.b || last.a : last.a;
+}
+
+/** Who kept the charm when its last story closed (-1 if it has had none). */
+function previousKeeper(dc: DetectCtx, th: ChronicleThread): number {
+  return dc.world.chronicle.charmMemo?.[th.data.item ?? 0]?.keeperId ?? -1;
 }
 
 function nameOf(dc: DetectCtx, id: number): string {
@@ -269,15 +279,18 @@ function blameWords(dc: DetectCtx, itemId: number): string {
   return '';
 }
 
-/** The pounds the last Truth for this charm named: this thread's, else its latest closed thread's. */
+/** This charm's story memory, created on first use (worlds without charms keep their hash). */
+function memoOf(dc: DetectCtx, itemId: number): { truthLb?: number; keeperId?: number } {
+  dc.world.chronicle.charmMemo ??= {};
+  const memo = dc.world.chronicle.charmMemo;
+  memo[itemId] ??= {};
+  return memo[itemId] as { truthLb?: number; keeperId?: number };
+}
+
+/** The pounds the last Truth for this charm named: this thread's, else any earlier story's. */
 function lastTruthLb(dc: DetectCtx, th: ChronicleThread): number | undefined {
   if (th.data.truth_lb !== undefined) return th.data.truth_lb;
-  const closed = dc.world.chronicle.closedThreads;
-  for (let i = closed.length - 1; i >= 0; i--) {
-    const c = closed[i];
-    if (c?.pattern === 'charm' && c.data.item === th.data.item && c.data.truth_lb !== undefined) return c.data.truth_lb;
-  }
-  return undefined;
+  return dc.world.chronicle.charmMemo?.[th.data.item ?? 0]?.truthLb;
 }
 
 function writeTruth(dc: DetectCtx, th: ChronicleThread, final: boolean): void {
@@ -322,6 +335,7 @@ function writeTruth(dc: DetectCtx, th: ChronicleThread, final: boolean): void {
   th.truthDone = final || th.truthDone;
   th.data.truth_t = dc.ctx.now as number;
   th.data.truth_lb = src.lb;
+  memoOf(dc, itemId).truthLb = src.lb;
 }
 
 export const charm: PatternDef = {
@@ -381,9 +395,12 @@ export const charm: PatternDef = {
       resolution: RESOLUTION_WORDS[resolution] ?? 'let be',
       level,
       // A story told again (the thread reopened after closing) has no arrival in it: it must not
-      // say the sack came to its present keeper out of the grass.
-      stage: count(facts, 'arr') > 0 ? 'arrived' : 'again',
+      // say the sack came to its present keeper out of the grass; under the same keeper as the
+      // story before it is no news at all ('still': no arrival line).
+      stage: count(facts, 'arr') > 0 ? 'arrived' : previousKeeper(dc, th) === keeper ? 'still' : 'again',
     };
+    // The omniscient view sees every fact: only it records who kept the charm in this story.
+    if (view === 'all' && keeper) th.data.keeper_id = keeper;
     if (view === 'all') {
       const src = sourceWords(dc, itemId);
       out.source = src.text;
@@ -423,6 +440,7 @@ export const charm: PatternDef = {
       th.tags.resolution = resolutionOf(dc, th, th.facts);
       writeTruth(dc, th, true);
     }
+    if (close && th.data.keeper_id) memoOf(dc, th.data.item ?? 0).keeperId = th.data.keeper_id;
     return close;
   },
 };

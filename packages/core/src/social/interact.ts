@@ -19,7 +19,7 @@ import type { DefenseId, InteractionDef } from '../content.ts';
 import { type Explain, type ExplainTerm, signed, term } from '../explain.ts';
 import { noteItemInteraction } from '../fae/api.ts';
 import type { ActorId, EventId, ItemId, MemoryId, PlaceId, PropId } from '../ids.ts';
-import { loadCheckTerms } from '../items/api.ts';
+import { carriedBy, loadCheckTerms, moveStack } from '../items/api.ts';
 import { satisfyNeed } from '../needs/api.ts';
 import { synchronizeStoreTabs, transferCash } from '../provisions/api.ts';
 import { addAnxiety, addThought, authorizationExplain, authorizeAct, commandBasis } from '../psyche/api.ts';
@@ -27,6 +27,8 @@ import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { Terms } from '../urge.ts';
 import type { World } from '../world.ts';
+import { keepsFromWork, workStatus } from './availability.ts';
+import { giftStack } from './gifts.ts';
 import { encodeSalience, insertMemory, isNegativeKind, softenMemories } from './memory.ts';
 import { clampInt, floorDiv, formatCents, isZeroDims, scaleDimsPct } from './model.ts';
 import { applyItemAct, holderDecision, itemPreflight } from './objects.ts';
@@ -41,6 +43,7 @@ import {
   refreshLabel,
   settleDebt,
 } from './opinion.ts';
+import { requestTerms, throttleRequest } from './requests.ts';
 import type { MemorySource, OpinionDims, OpinionReason } from './state.ts';
 import { noteStrife, strifeCount, wearinessPermille } from './strife.ts';
 import { composeExchange, referTo, type TalkFacts } from './talk.ts';
@@ -169,6 +172,25 @@ function runCheck(world: World, ctx: SimContext, req: InteractionRequest): Check
       r,
     );
     const explain: Explain = { ...res.explain, subjects: [req.initiatorId, req.targetId], children };
+    // Below the target's minimum regard the answer is no, whatever the roll (courtship).
+    const regard = def.check.min_regard;
+    if (regard !== undefined) {
+      const fond = pairTargetOpinionOf(world, ctx, req).affection;
+      if (fond < regard)
+        return {
+          success: false,
+          checked: true,
+          explain: {
+            ...explain,
+            terms: [
+              ...explain.terms,
+              term('opinion', `${shortName(tgt)} is not fond enough of ${shortName(init)} yet (needs ${regard})`, 0),
+            ],
+            outcome: 'failure',
+            note: `${shortName(tgt)}'s Affection for ${shortName(init)} is ${fond}; below ${regard} the answer is no whatever is said.`,
+          },
+        };
+    }
     return { success: res.success, explain, checked: true };
   }
   const vs = def.check.vs;
@@ -287,6 +309,10 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     const pending = world.social.pendingRequests.find(
       (r) => r.from === i && r.to === tg && r.interactionId === def.id && r.status === 'pending',
     );
+    // Say what is asked and what a yes undertakes (playtest r2), and do not ask again soon.
+    const terms = requestTerms(world, content, def, i, response, ctx.now, {
+      ...(req.terms ? { terms: req.terms } : {}),
+    });
     if (!pending)
       world.social.pendingRequests.push({
         id,
@@ -301,14 +327,25 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
         placeId: req.placeId,
         until: ctx.now + 60,
         status: 'pending',
+        text: terms.text,
+        cents: terms.cents,
+        favors: terms.favors,
+        dueT: terms.dueT,
       });
+    throttleRequest(world, content, i, tg, def, ctx.now, false);
     const eventId = ctx.emit({
       kind: 'social.requested',
       data: {
         requestId: pending?.id ?? id,
         actorId: tg,
         from: i,
-        text: `${iName} ${response === 'lend' ? 'asks for a loan' : response === 'borrow' ? 'offers you a loan' : response === 'proposal' ? 'offers a courtship or proposal' : response === 'disclose' ? 'asks you for information' : response === 'show_item' ? 'asks to see what you keep' : response === 'lend_item' ? `begs the loan of what you keep${req.terms?.kind === 'loan' ? `, to bring it back by ${dueWords(req.terms.dueAt)}` : ''}` : response === 'return_item' ? 'asks for back what you were lent' : response === 'accept_item' ? 'offers you the loan of what they keep' : 'offers a favor with an obligation'}. Answer within the hour; silence means no answer.`,
+        text: terms.text,
+        interactionId: def.id,
+        response,
+        ...(terms.cents > 0 ? { cents: terms.cents } : {}),
+        ...(terms.favors > 0 ? { favors: terms.favors } : {}),
+        ...(terms.dueT !== null ? { dueT: terms.dueT } : {}),
+        until: (pending?.until ?? ctx.now + 60) as number,
       },
       visibility: 'private',
       roles: [
@@ -337,7 +374,22 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     success = decision.yes;
     check.explain = { ...check.explain, children: [...(check.explain.children ?? []), decision.explain] };
   }
+  // A gift is a thing handed over: nothing fit to give, and the gesture comes to nothing.
+  const giving = success && def.success.give_item ? giftStack(world, content, i) : null;
+  if (success && def.success.give_item && giving === null) {
+    success = false;
+    check.explain = { ...check.explain, outcome: 'failure', note: `${iName} had nothing fit to give.` };
+  }
   const eff = success ? def.success : def.failure;
+  // Held on purpose in talk during working hours (at work, or due there) at work not done while
+  // talking: it costs a little of the target's regard (social_tuning.kept_from_work).
+  const atWork = req.via === 'urge' && req.mode === 'urge' && keepsFromWork(workStatus(world, content, tg));
+  // A loan paid straight back proves nothing: no trust is earned by it (social_tuning.repay_trust_min_hours).
+  const debtEdge =
+    eff.settle === 'initiator_debt' && def.requires.debt !== 'favors'
+      ? world.social.relationships.find((r) => r.kind === 'creditor' && r.a === tg && r.b === i)
+      : undefined;
+  const quickRepay = debtEdge !== undefined && ctx.now - debtEdge.since < t.repay_trust_min_hours * 60;
 
   // Witnesses and audience: sampled from those present (04 §11.2: 0–2 witnesses).
   const declared = def.visibility === 'auto' ? (def.notable ? 'public' : 'witnessed') : def.visibility;
@@ -402,6 +454,8 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       // Asked for the news, or set out to tell it (an urge, a command, a defense): no roll for
       // whether the talk turns that way. Spontaneous gossip still drifts where it will.
       deliberate: tellerIsTarget || req.mode !== 'spontaneous',
+      // Asked for the news, the teller says what they have even if it is small (playtest r2).
+      ...(tellerIsTarget ? { asked: true } : {}),
     });
   }
   const teller = def.rumor_speaker === 'target' ? tg : i;
@@ -444,8 +498,12 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       ...(exchange ? { line: exchange.line, lines: exchange.lines } : {}),
       ...(def.transmits_rumor && success ? { told: plan !== null } : {}),
       ...(req.itemId !== undefined ? { itemId: req.itemId } : {}),
+      ...(atWork ? { atWork: true } : {}),
+      ...(cents > 0 ? { cents } : {}),
+      ...(giving ? { itemDefId: giving.defId } : {}),
     },
   });
+  if (giving) moveStack(world, ctx, giving.id, 1, carriedBy(tg));
 
   const daily = world.social.daily;
   daily.interactions += 1;
@@ -554,7 +612,13 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     since: ctx.now,
   });
   const targetLabel = fill(eff.target_reason ?? eff.target_memory ?? def.name, vars);
-  if (!isZeroDims(eff.target_opinion)) {
+  if (atWork && !isZeroDims(t.kept_from_work.delta)) {
+    const label = fill(t.kept_from_work.reason, vars);
+    if (targetMem !== null)
+      addReason(world, content, tg, i, reasonFor(targetMem, label, t.kept_from_work.delta), ctx.now);
+    else addVolatile(world, content, tg, i, t.kept_from_work.delta);
+  }
+  if (!isZeroDims(eff.target_opinion) && !quickRepay) {
     if (eff.volatile) addVolatile(world, content, tg, i, eff.target_opinion);
     else addReason(world, content, tg, i, reasonFor(targetMem, targetLabel, eff.target_opinion), ctx.now);
   }
@@ -611,6 +675,8 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       def.name,
       eventId,
       lender === i ? basis : targetBasis,
+      // A personal loan goes purse to purse (playtest r2: lend, borrow and repay kept one pocket).
+      'purse',
     );
     ledger = { favors: ledger.favors, cents: ledger.cents > 0 ? moved : -moved };
   }
@@ -636,7 +702,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   if (eff.settle === 'initiator_debt') {
     // Repaying hands over what the debtor can: all of it settles the debt, part of it reduces it.
     const owed = def.requires.debt === 'favors' ? 0 : owedCents(world, tg, i);
-    const paid = owed > 0 ? transferCash(world, ctx, i, tg, owed, def.name, eventId) : 0;
+    const paid = owed > 0 ? transferCash(world, ctx, i, tg, owed, def.name, eventId, undefined, 'purse') : 0;
     if (owed === 0 || paid >= owed) settleDebt(world, content, i, tg, def.requires.debt);
     else if (paid > 0) {
       adjustLedger(world, content, tg, i, { favors: 0, cents: -paid });
@@ -825,13 +891,4 @@ function tellWords(
     },
   });
   return ex ? { line: ex.line, lines: ex.lines } : null;
-}
-
-/** "Sunday noon" style words for a due time within the month. */
-function dueWords(t: number): string {
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const d = Math.floor(t / 1440);
-  const h = Math.floor((t % 1440) / 60);
-  // 1855-04-01 (day 0) is a Sunday.
-  return `${days[((d % 7) + 7) % 7]} ${h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'}`;
 }

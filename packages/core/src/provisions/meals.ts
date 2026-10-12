@@ -6,7 +6,7 @@ import { reservePreparation } from '../activity/api.ts';
 import { skillCheck } from '../checks.ts';
 import type { ContentBundle, ItemDef } from '../content.ts';
 import { type Explain, term } from '../explain.ts';
-import { type ActorId, type HouseholdId, type ItemId, rowsOf } from '../ids.ts';
+import { type ActorId, type HouseholdId, type ItemId, type PlaceId, rowsOf } from '../ids.ts';
 import {
   carriedBy,
   consumeStackSupply,
@@ -22,7 +22,7 @@ import {
 } from '../items/api.ts';
 import { rootLocation, sameLoc } from '../items/containers.ts';
 import { type ItemLocation, type ItemStack, newStack, recordProvenance } from '../items/state.ts';
-import { canAct, drink, feed, litHearthAt, needValue } from '../needs/api.ts';
+import { canAct, drink, feed, litHearthAt, needValue, satisfyNeed } from '../needs/api.ts';
 import { authorizeAct, commandBasis } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -73,18 +73,59 @@ export function holderSupply(
 
 /** The schedule's full day burn, avoiding the noon-labor/overnight-labor estimate discontinuity. */
 export function dailyKcal(world: World, content: ContentBundle, id: ActorId, now: number): number {
+  return dailyKcalParts(world, content, id, now, false).kcal;
+}
+
+/** Hours and energy of one scheduled day by labor class (P1: why the daily need is what it is). */
+export interface DailyNeedParts {
+  kcal: number;
+  /** Hours per labor class awake, plus asleep hours, and the activities filling them. */
+  hours: { heavy: number; light: number; rest: number; asleep: number };
+  kcalBy: { heavy: number; light: number; rest: number; asleep: number };
+  /** Hours whose weather multiplier was not 100%. */
+  weatherHours: number;
+  /** Activity name -> hours, in schedule order of first appearance. */
+  activities: Array<{ name: string; labor: string; hours: number }>;
+  /** Values, traits and physiology together, percent. */
+  personPct: number;
+}
+
+/** The same loop as dailyKcal (one implementation), optionally keeping the breakdown. */
+export function dailyKcalParts(
+  world: World,
+  content: ContentBundle,
+  id: ActorId,
+  now: number,
+  detail = true,
+): DailyNeedParts {
+  const parts: DailyNeedParts = {
+    kcal: 0,
+    hours: { heavy: 0, light: 0, rest: 0, asleep: 0 },
+    kcalBy: { heavy: 0, light: 0, rest: 0, asleep: 0 },
+    weatherHours: 0,
+    activities: [],
+    personPct: 100,
+  };
   const a = world.actors[id];
-  if (!a?.alive) return 0;
+  if (!a?.alive) return parts;
   const cal = calendarAt(asGameMinute(now));
   const schedule = content.occupations[a.occupationId]?.schedule ?? [];
   const hunger = Object.values(content.needs).find((n) => n.intake?.unit === 'kcal');
-  if (!hunger?.intake) return BASE_KCAL_PER_DAY;
+  if (!hunger?.intake) {
+    parts.kcal = BASE_KCAL_PER_DAY;
+    return parts;
+  }
   // These factors are constant across the 24 schedule slots. Keep multiplication
   // order below unchanged: rounding the hourly result is part of the food rules.
   let values = 100;
   for (const clause of hunger.value_pct) values += clause.per_step_pct * a.values[clause.value];
   const valueFactor = Math.max(0, values) / 100;
   const physiology = (agePct(yearsBetween(a.born, cal.t)) * peopleKcalPct(content.peoples[a.ancestryId])) / 10000;
+  if (detail) {
+    let person = valueFactor * physiology;
+    for (const trait of a.traits) person *= (hunger.trait_pct[trait] ?? 100) / 100;
+    parts.personPct = Math.round(person * 100);
+  }
   let total = 0;
   for (let hour = 0; hour < 24; hour++) {
     const block = schedule.find(
@@ -109,9 +150,44 @@ export function dailyKcal(world: World, content: ContentBundle, id: ActorId, now
         (clause.above_f === undefined || air > clause.above_f)
       )
         weather += clause.pct - 100;
-    total += Math.round((points * Math.max(0, weather)) / 100) * hunger.intake.per_point;
+    const kcal = Math.round((points * Math.max(0, weather)) / 100) * hunger.intake.per_point;
+    total += kcal;
+    if (detail) {
+      const labor = activity?.asleep ? 'asleep' : (activity?.labor ?? 'light');
+      parts.hours[labor]++;
+      parts.kcalBy[labor] += kcal;
+      if (weather !== 100) parts.weatherHours++;
+      const name = activity?.name ?? 'Unscheduled';
+      const row = parts.activities.find((r) => r.name === name);
+      if (row) row.hours++;
+      else parts.activities.push({ name, labor, hours: 1 });
+    }
   }
-  return Math.round(total);
+  parts.kcal = Math.round(total);
+  return parts;
+}
+
+/** P1: the daily energy need as an Explain with its named hours (labor, sleep, weather, person). */
+export function dailyNeedExplain(world: World, content: ContentBundle, id: ActorId, now: number): Explain {
+  const p = dailyKcalParts(world, content, id, now);
+  const cal = calendarAt(asGameMinute(now));
+  return {
+    kind: 'formula',
+    label: `Daily energy need (${cal.weekday}): the occupation's scheduled day`,
+    subjects: [id],
+    knowledge: 'self',
+    terms: [
+      term('labor', `Heavy labor ${p.hours.heavy} h, kcal`, p.kcalBy.heavy),
+      term('labor', `Light labor ${p.hours.light} h, kcal`, p.kcalBy.light),
+      term('labor', `Resting ${p.hours.rest} h, kcal`, p.kcalBy.rest),
+      term('labor', `Asleep ${p.hours.asleep} h, kcal`, p.kcalBy.asleep),
+      term('weather', 'Hours with a weather multiplier', p.weatherHours),
+      term('person', 'Values, traits, age and people percent', p.personPct),
+    ],
+    total: p.kcal,
+    outcome: 'projected',
+    note: `Scheduled: ${p.activities.map((a) => `${a.name} ${a.hours} h`).join(', ')}. Carried load costs rest, not food.`,
+  };
 }
 
 export function membersOf(world: World, holder: Holder): ActorId[] {
@@ -155,6 +231,18 @@ export interface Recipe {
   units: number;
 }
 
+/** Natural water (content: the water need's `sources` tags): springs, creeks, rivers, fords. */
+export function isWaterSource(world: World, content: ContentBundle, placeId: PlaceId | undefined): boolean {
+  const place = placeId === undefined ? undefined : world.places[placeId];
+  if (!place) return false;
+  let tags: readonly string[] = ['water'];
+  for (const key in content.needs) {
+    const need = content.needs[key];
+    if (need?.intake?.unit === 'ml' && need.sources?.length) tags = need.sources;
+  }
+  return place.tags.some((t) => tags.includes(t));
+}
+
 /** Household water is hauled daily; travelers need stored water or a water source at their place. */
 export function waterAvailable(world: World, content: ContentBundle, holder: Holder, index?: InventoryIndex): number {
   if ('householdId' in holder) {
@@ -165,7 +253,7 @@ export function waterAvailable(world: World, content: ContentBundle, holder: Hol
     );
   }
   const actor = world.actors[holder.actorId];
-  if (actor && world.places[actor.placeId]?.tags.includes('water')) return 100_000;
+  if (actor && isWaterSource(world, content, actor.placeId)) return 100_000;
   return (
     supplyUnits(world, content, locationOf(holder), 'water', index) +
     stacksDeep(world, locationOf(holder), index).reduce((n, s) => n + (s.stack.waterMl ?? 0), 0)
@@ -188,7 +276,7 @@ export function drawWater(
     return;
   }
   const actor = world.actors[holder.actorId];
-  if (actor && world.places[actor.placeId]?.tags.includes('water')) return;
+  if (actor && isWaterSource(world, content, actor.placeId)) return;
   let remaining = ml - consumeSupply(world, content, locationOf(holder), 'water', ml, index);
   for (const { stack } of stacksDeep(world, locationOf(holder), index)) {
     const take = Math.min(stack.waterMl ?? 0, remaining);
@@ -482,6 +570,8 @@ type Plate = PendingPlate;
 export interface MealPass {
   /** Private projections discard explanations; live meals always retain them. */
   explain?: boolean;
+  /** A readiness projection of what exists: whose order lets them cook is not consulted. */
+  hypothetical?: boolean;
   inventory?: InventoryIndex;
   energy: Map<string, number>;
 }
@@ -494,6 +584,13 @@ export function mealEnergy(world: World, ctx: SimContext, id: ActorId, pass?: Me
     pass.energy.set(key, kcal);
   }
   return kcal;
+}
+/** Per-meal options: a standing order's meal is sized to what the body takes and says so. */
+export interface MealOptions {
+  /** kcal cap per diner (the room left in the hunger meter), so an order never gorges. */
+  capKcal?: Readonly<Record<number, number>>;
+  /** Served by a standing order rather than chosen or commanded (announced as such). */
+  standing?: boolean;
 }
 export interface MealResult {
   target: number;
@@ -514,6 +611,7 @@ export function serveMeal(
   explicit?: { itemId: ItemId; method: string; servings: number },
   passMemo?: MealPass,
   caregiver?: ActorId,
+  opts?: MealOptions,
 ): MealResult {
   const content = ctx.content;
   const trace = passMemo?.explain !== false;
@@ -526,18 +624,19 @@ export function serveMeal(
   const cookId = [...(caregiver === undefined ? cookIds : [caregiver])]
     .filter(
       (id) =>
-        canAct(world, id) &&
-        (caregiver !== undefined ||
-          authorizeAct(
-            world,
-            id,
-            { kind: 'prepare_meal' },
-            commandBasis(ctx, id, ['provisions.eat', 'provisions.board_meal']),
-          ).ok ||
-          ((('actorId' in holder && holder.actorId === id) ||
-            ('householdId' in holder && world.actors[id]?.householdId === holder.householdId)) &&
-            authorizeAct(world, id, { kind: 'eat_own_stores' }, { kind: 'standing', capability: 'eat_own_stores' })
-              .ok)),
+        passMemo?.hypothetical ||
+        (canAct(world, id) &&
+          (caregiver !== undefined ||
+            authorizeAct(
+              world,
+              id,
+              { kind: 'prepare_meal' },
+              commandBasis(ctx, id, ['provisions.eat', 'provisions.board_meal']),
+            ).ok ||
+            ((('actorId' in holder && holder.actorId === id) ||
+              ('householdId' in holder && world.actors[id]?.householdId === holder.householdId)) &&
+              authorizeAct(world, id, { kind: 'eat_own_stores' }, { kind: 'standing', capability: 'eat_own_stores' })
+                .ok))),
     )
     .sort(
       (a, b) =>
@@ -556,7 +655,10 @@ export function serveMeal(
     caregiver === undefined ? rationOf(world, holder) : (content.survival_tuning?.survival?.care_ration_pct ?? 100);
   const plates: Plate[] = diners.map((id) => ({
     id,
-    target: Math.round((mealEnergy(world, ctx, id, passMemo) * rationPct * sharePct) / 10_000),
+    target: Math.min(
+      Math.round((mealEnergy(world, ctx, id, passMemo) * rationPct * sharePct) / 10_000),
+      opts?.capKcal?.[id] ?? Number.MAX_SAFE_INTEGER,
+    ),
     kcal: 0,
     proteinG: 0,
     fatG: 0,
@@ -595,6 +697,8 @@ export function serveMeal(
       )
     );
   });
+  /** A real food (not sugar or molasses) can be prepared: sweets are then a relish, not the meal. */
+  let mainAvailable = false;
   const scores = new Map<ItemId, number>();
   const scoreTerms = new Map<ItemId, Explain['terms']>();
   const mayBeSide = new Set<ItemId>();
@@ -615,6 +719,7 @@ export function serveMeal(
     const trials = recipesFor(world, content, holder, stack, 1, cold, explicit?.method, timeLeft, kitchen);
     if (trials.some((r) => r.kcal <= SIDE_KCAL_MAX)) mayBeSide.add(stack.id);
     const paths = trials.filter((r) => !r.missing.length);
+    if (food.group !== 'sweet' && paths.some((r) => r.kcal > SIDE_KCAL_MAX)) mainAvailable = true;
     const prepMinutes = paths.length ? Math.min(...paths.map((r) => r.minutes)) : timeLeft + 1;
     const terms = [
       term('time', 'Preparation time preference', -prepMinutes * (policy.weights.preparation_time ?? 2)),
@@ -720,6 +825,8 @@ export function serveMeal(
             n = Math.min(n, Math.ceil((remaining * 1000) / Math.max(1, gramsPerServing)));
           }
         }
+        // Sugar and molasses sweeten a meal; while real food is to hand they never make it.
+        if (!explicit && !side && pass < 2 && recipe.food.group === 'sweet' && mainAvailable) n = Math.min(n, 1000);
         portions.push(n);
         havePm -= n;
       }
@@ -872,6 +979,8 @@ export function serveMeal(
         plate.fatG += Math.round((batch.food.fat_g * batch.units * n) / food.servings);
         plate.freshPoints += Math.round((batch.food.fresh * n * batch.units * batch.food.servings) / food.servings);
         if (batch.food.hydrates) plate.waterMl += Math.round((batch.food.liquid_ml * batch.units * n) / food.servings);
+        const salt = batch.steps.reduce((sum, p) => sum + (p.thirst_ml ?? 0), 0);
+        if (salt) plate.saltMl = (plate.saltMl ?? 0) + Math.round(salt * n);
         plate.servings += Math.ceil(n);
         if (!plate.groups.includes(batch.food.group)) plate.groups.push(batch.food.group);
         if (!plate.foods.includes(sourceDefId)) plate.foods.push(sourceDefId);
@@ -917,6 +1026,7 @@ export function serveMeal(
       rationPct,
       plates: plates.filter((p) => p.items.length),
       batches,
+      ...(opts?.standing ? { standing: true } : {}),
     };
     if (totalMinutes > 0) {
       world.provisions.pendingMeals ??= [];
@@ -1022,6 +1132,7 @@ function finishMeal(world: World, ctx: SimContext, meal: PendingMeal): void {
         kcal: plate.kcal,
         hot: plate.hot,
         morale: plate.morale,
+        ...(meal.standing ? { standing: true } : {}),
       },
       roles: [
         { actor: plate.id, role: 'agent' },
@@ -1039,8 +1150,24 @@ function finishMeal(world: World, ctx: SimContext, meal: PendingMeal): void {
     });
     feed(world, ctx, plate.id, plate.kcal, { label: 'Meal', eventId });
     if (plate.waterMl) drink(world, ctx, plate.id, plate.waterMl, { label: 'Drink with meal', eventId });
+    if (plate.saltMl) thirstFromSalt(world, ctx, plate.id, plate.saltMl, eventId);
   }
   meal.plates = remaining;
+}
+/** Salt meat leaves a thirst: the water the salt asks for comes off the Thirst meter (P8). */
+function thirstFromSalt(world: World, ctx: SimContext, id: ActorId, ml: number, eventId: number): void {
+  const thirst = Object.values(ctx.content.needs).find((n) => n.intake?.unit === 'ml');
+  if (!thirst?.intake) return;
+  const points = Math.round(ml / thirst.intake.per_point);
+  satisfyNeed(world, ctx, id, thirst.id, -points, {
+    label: 'Salt meat: thirst',
+    eventId: eventId as import('../ids.ts').EventId,
+    log: true,
+    terms: [
+      { source: 'food', label: `Salt in the meal asks ${ml} ml of water`, value: -points },
+      { source: 'need', label: `Ml per Thirst point ${thirst.intake.per_point}`, value: 0 },
+    ],
+  });
 }
 export function preparationHour(world: World, ctx: SimContext): void {
   for (const fire of rowsOf(world.provisions.fires))
@@ -1051,8 +1178,11 @@ export function preparationHour(world: World, ctx: SimContext): void {
   for (const meal of world.provisions.pendingMeals ?? []) if (meal.completesAt <= ctx.now) finishMeal(world, ctx, meal);
   world.provisions.pendingMeals = (world.provisions.pendingMeals ?? []).filter((m) => m.plates.length > 0);
 }
-export function awaitingMeal(world: World, id: ActorId): boolean {
-  return (world.provisions.pendingMeals ?? []).some((m) => m.plates.some((p) => p.id === id));
+/** A plate is waiting for them (at `placeId` only, when given: a plate elsewhere does not hold them). */
+export function awaitingMeal(world: World, id: ActorId, placeId?: PlaceId): boolean {
+  return (world.provisions.pendingMeals ?? []).some(
+    (m) => (placeId === undefined || m.placeId === placeId) && m.plates.some((p) => p.id === id),
+  );
 }
 
 /** One command-voiced activity can buy four hours of shared heat with real kit/fuel. */

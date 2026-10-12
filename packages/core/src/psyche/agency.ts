@@ -1,6 +1,9 @@
 /** Actor policy, independent of controller. Missing fields preserve legacy psyche saves/hashes. */
+
+import { walkMinutes } from '../activity/api.ts';
 import type { ActorId, ItemId } from '../ids.ts';
 import { canAct, needValue } from '../needs/api.ts';
+import { foodToHand } from '../provisions/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { Urge } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -45,9 +48,18 @@ export function standingUrge(world: World, ctx: SimContext, id: ActorId, urge: U
     authorizeAct(world, id, { kind: capability }, { kind: 'standing', capability }).ok;
   const night = ctx.cal.hour >= 21 || ctx.cal.hour < 6;
   if (def.asleep) return can('sleep') && night && needValue(world, id, 'rest') < 750;
-  if (urge.activityId === 'take_meal') return can('eat_own_stores') && needValue(world, id, 'hunger') < 600;
+  // Never "at table" with nothing to eat: food to hand here, or the meal's place within an hour.
+  if (urge.activityId === 'take_meal')
+    return can('eat_own_stores') && needValue(world, id, 'hunger') < 600 && mealReachable(world, ctx, id, urge);
   if (urge.activityId === 'fetch_water') return can('drink') && needValue(world, id, 'thirst') < 600;
   return can('keep_warm') && (def.needs.warmth ?? 0) > 0 && needValue(world, id, 'warmth') < 500;
+}
+
+function mealReachable(world: World, ctx: SimContext, id: ActorId, urge: Urge & { kind: 'activity' }): boolean {
+  const here = world.actors[id]?.placeId;
+  if (here === undefined) return false;
+  if (urge.placeId === undefined || urge.placeId === here) return foodToHand(world, ctx.content, id);
+  return walkMinutes(world, ctx.content, here, urge.placeId) <= 60;
 }
 
 /** Authorization is independent of the shell/controller and defaults to refusal. */
@@ -182,4 +194,25 @@ export function authorizationExplain(
 export function commandBasis(ctx: SimContext, id: ActorId, kinds: readonly string[]): Basis {
   const command = ctx.commands.find((c) => c.actorId === id && kinds.includes(c.kind));
   return command ? { kind: 'command', issuer: command.issuer ?? { kind: 'player' } } : { kind: 'own' };
+}
+
+/**
+ * Apply a `core.standing_orders` command's settings to an actor's psyche (agency mode and
+ * standing orders). The psyche system applies each hour's commands through it; a host may apply
+ * the same command at the moment it is given, since settings take no game time (playtest r2).
+ */
+export function applyStandingOrders(
+  world: World,
+  actorId: ActorId,
+  data: { agencyMode?: AgencyMode; orders: StandingOrders },
+): boolean {
+  const p = world.psyche.byActor[actorId];
+  if (!p) return false;
+  if (data.agencyMode) p.agencyMode = data.agencyMode;
+  p.standingOrders = {
+    ...data.orders,
+    activities: [...data.orders.activities],
+    ...(data.orders.capabilities ? { capabilities: [...data.orders.capabilities] } : {}),
+  };
+  return true;
 }

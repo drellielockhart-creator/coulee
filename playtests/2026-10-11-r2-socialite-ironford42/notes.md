@@ -1,0 +1,85 @@
+# Notes: r2 socialite, Iron Ford seed 42 (FAIR)
+
+PC: Ellis Wayfarer, newcomer, human, lodging tavern. Start 1855-04-01 00:00 at Dunleavy's Tavern. $50.
+Cmd count note: queries (look/help/actions) are logged in commands.jsonl too.
+
+## Log
+- c1-3: look, help, actions 1. Menu: 173 actions, pages of 20. Here: Amos Whitcomb #1, Joel Pike #2, Michael Dunleavy #28, Nora #29, Brigid #30, Lucius Vance #38.
+- c4 inspect self = giant raw JSON dump (mind: ego/superego/id 50, no thoughts). Unfriendly.
+- c5 introduce Amos at 00:00 -> "Amos Whitcomb is asleep. No game time spent." (REAL REASON - good). But "Here:" line before that did not mark asleep; after 1st action it does mark "(asleep)".
+- c6 introduce Michael Dunleavy: dialogue shown: "Good day to you. Ellis Wayfarer, and pleased to know you." / "Michael Dunleavy. Likewise, I'm sure." Then: "Michael Dunleavy offers a favor with an obligation. Answer within the hour" -- but NO description of what favor/what obligation. explain 365 -> "Request awaits the issuer: 0 () -> pending" (opaque).
+- c8 answered yes -> Michael: "Let me carry those plates, Miss Wayfarer." at 2 AM (no plates). PC is female (Miss).
+- c10 wait until 07:00: omen "The broom leans bristles upward against the shut door." Appetite: "I should tell someone what I saw." Conscience: "The fire wants minding". Overheard: Amos "We took a raft of pine down to Galena in '49, and lost the cook at Cassville." Joel "Lost him how?" Amos "Married. Worse than drowned, he says." / Lucius "...and the fish was longer than the boat." Amos "And I'm the Queen of England."
+- c11 investigate: "You find where the trace ends. It points nowhere further." Sign stays open. Nora: "Strong drink is raging, Mr. Whitcomb." Amos: "So am I, now. Leave me to my glass."
+- c12 meal: paid $0.20, effect lands next hour ("You ate Milk, whole, Eggs, Cheese, Swiss, Vinegar, cider, Tea, black: 750 kcal"). Lucius to Amos: "I've not had better pie in Iron Ford, Mr. Whitcomb." "Go on with you. Have another."
+- c15 chat Lucius: words shown (weather smalltalk). Lucius retold the SAME Galena raft yarn Amos told (shared line pool).
+- c16 explain 1170 (my chat) shows only the Self-Command arbitration, not the social outcome.
+- c17 inspect Lucius: readable text! "affection: 1 = base -3 + reasons 1 + immediate 3". Reasons sum OK (1, 0/-1/+1). base -3 and immediate 3 unexplained. Only MY opinion of him, not his of me.
+- c18 go church: "2 min on foot" but 1h passed. Overheard Ingrid "You'll not believe what I heard." Pastor "Try me." (cut off, no content)
+- c20 attend church: Lucius: "I've not had better pie in Iron Ford, Miss Wayfarer." Me: "Go on with you. Have another." (I have no pie: canned compliment line mismatched to context)
+- c21 introduce Minerva while at church -> "Your current activity is still locked. No game time spent." (real reason but no duration given)
+- c23 introduce Ingrid Tveit -> she gossiped: "It's only talk, mind, but Hester Fenn is of the hidden folk." Me: "I'd want more than talk before I'd credit that." HEARD event 1811. explain 1811: "Choose a rumor to tell: 345 (d1000 244, Topic score, Freshness per mille, Tell probability per mille, Mutation probability per mille) -> applied" -- labels without values.
+- c25 "talk Ingrid" defaults to Chat (1h). "And how are all at home, Mrs. Tveit?" "All well, God willing."
+- Actions pg 8-9: chat, gossip, deep_talk, confide, compliment, help, gift, warn, tell_tale, ask_about, pray_with, confess, slight, snub, mock, insult, threaten, accuse, shun_lobby, lend, borrow. NO court/flirt/woo option visible. "Collapsed" + "Ask a neighbor for care" listed while healthy.
+- c29 ask_about Ingrid: "Anything new, Mrs. Tveit?" / "Only the same old talk, and I'm sick of the sound of it." Then she preached (went badly) and MY PC answered on its own: "And you remember to mind your own fences."
+- c30 inspect Ingrid: affection -4 = base -7 + reasons -1 + immediate 4. Reasons: Civil +1, Took time 0, Preached at me -2 => -1 OK. A zero-valued reason line listed.
+- c31 gossip Ingrid: "Quiet times, Mrs. Tveit. I've heard nothing worth repeating." (I DID hear Hester rumor; maybe won't repeat to source / didn't credit it). Voices 300 vs 1000.
+- c32 back to tavern; standing order auto-ate pemmican+hardtack. Joel: "So there I was, alone on the bluff, with the wolves all round..." Lucius: "You told it different last week. There were fewer wolves."
+- c34 introduce Joel Pike -> "already acquainted" although inspect said "Relationship: no known tie" and I never introduced. Inconsistent.
+- c35 deep_talk Joel: "I worry for the young ones, out here." / "They'll be tougher than us, and kinder, Lord willing and the creek don't rise." Nora introduced herself: "God save you! The name's Nora Dunleavy."
+- c36 typed "court Joel Pike" WORKS though not in menu: "Court: 17 (d20 16, Charisma +1) vs DC 14 -> success". "I'd like to call on you, Mr. Pike. Properly." / "Then call. The porch light will be lit." Lucius: "Spring in this country: half water, half promises." Lemuel Hatch: "Everything costs so. A body can't turn round without spending." Lucius: "Then stand still and save."
+- c38 Joel: Relationship courting; affection 25 = base 22 + reasons 3. Base jumped 2->22 (unexplained). "Your opinion: Neutral" at aff 25 while courting -- label odd. Courting after ~2h acquaintance = very easy.
+- c39-40 sleep / wait until 07:00 interrupted at 02:00: "Joel Pike: Flirt > Ellis Wayfarer (it went badly)" Joel: "You've a way of looking at a person, Ellis." Me: "I've a way of looking at the clock, too."  (PC rebuffs on its own, at 2 AM)
+- c42 journal: "It is the common report that Miss Ellis Wayfarer has been paying court to Mr. J. Pike at Dunleavy's Tavern." / "I paid court to Joel Pike ... My heart did a thing it has no business doing in a person of sense." / "Joel Pike made eyes at me ... I said something clever and have been trying to remember what." / "Michael Dunleavy helped me, unasked." (I said yes to his offer). NO obligation/debt line for Michael's "favor with an obligation". Journal day 1 said "Rain in the evening" -- it stayed dry.
+- c43 Fenn Farm desc: "A failing lower-coulee farm, eleven years in the county. Thin soil, thin fences, a spring that has never gone dry."
+- c44-45 introduce Hester/Minerva -> "Hester Fenn is at work at Fenn Farm until 12:00. No game time spent." (real reason + time: good). But "Here:" doesn't mark "(working)" like it marks "(asleep)".
+- c46 "help Hester Fenn" -> printed the HELP TEXT (verb collision with Help interaction). talk:help:16 -> "at work until 12:00".
+- c48 wait until noon: Edwin: "What do you want out of all this, Minnie? Truly?" Minnie: "A roof that doesn't leak and a little put by. And you?" Edwin: "Much the same, I suppose. And not to be forgotten." Conscience: "The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)" -> store urge maps to fetch_mail?? (I'm a tavern lodger with no pantry).
+- c49 introduce Hester at 12:00 -> "already acquainted" (never met; inspect: "no known tie"). BUG-ish.
+- c50 deep_talk Hester: same line as with Joel ("I worry for the young ones, out here."). Then Hester/Minnie back "at work until 18:00" after 1h lunch.
+- c54-55 Print shop: Horace "at work until 19:00"; Mercy & Eli chat each other but nobody chattable by me. Daytime = everyone working; socialite has nothing to do 8-18.
+- c56 work: walked me to Dunleavy's Tavern (I'm a "Hired hand"). Appetite: "Best not to think of it. (held for your order; you may: )" -- blank action; it's a repression thought "Putting it out of mind" with no object named.
+- c57 self inspect JSON: owedFavors -1 to Michael Dunleavy, but obligations [] and journal shows no favor owed. Belief "Hester Fenn is of the hidden folk" credence 5.
+- c(log52) wait until 18:00 stopped at 16:00 (Trevenna introduced himself). Me: "Ellis Wayfarer. A warm room and a new face; that's a good day's work." Michael: "Do you ever think about going back to the old country, Nora?" Nora: "Every winter. Never in spring. You?" Michael: "Every night, and every morning I get up and feed the stock."
+- BUG: ask_about Josiah Trevenna at 16:00 while he is IN Dunleavy's Tavern (just introduced himself to me) -> "Josiah Trevenna is at work at Penhallow Diggings until 17:00." Same at 17:00: compliment Joel Pike (in tavern, just said "Leave me to my glass") -> "Joel Pike is at work at Huldra's Shelf until 18:00." Reason contradicts location. (not logged since no time spent; state after log line 52/53)
+- insult Lucius: "Insult: 12 () vs DC 14 -> failure" (empty modifier parens). "You're a fool, Mr. Vance." / "Better a fool than a bully. Go home." Arbitration: Voices -670, total -663 -> command (my order overrode inner objection; which voice objected isn't shown in main view). Lucius inspect sums OK (aff -2, resp -3). Only MY opinion visible; can't see his opinion of me.
+- gift Joel: "A ribbon. I thought of you when I saw it." / "It's lovely, Ellis." -- I have no ribbon; purse unchanged. FREE GIFT (exploit?). Appetite: "Something's wrong. I can feel it in my teeth."
+- "ask_about Michael Dunleavy" -> "Ambiguous person; use their full name." (I did!). talk:ask_about:28 -> "at work at Dunleavy's Tavern until 24:00" (barkeep unaskable all evening).
+- ask_about Amos: "What are folk saying, Mr. Whitcomb?" / "What folk say is their business, and I'd as soon it stayed so." Then: "My grandmother swore she saw the hidden folk dancing in a ring, the night before the flood." Me: "I've heard worse stories, and believed them."
+- Line reuse is heavy: wolves-on-the-bluff / fewer-wolves told by Joel, Lucius, Amos in rotation; fish/Queen of England x2; Galena raft x2; deep talk "young ones" x2.
+- Day3: Huldra's Shelf desc: "Goat prairie, steep to the southwest, bluestem and pasqueflower between the ledges. Survey stakes run across it... A cow-bell sounds somewhere beyond the empty ledges. There is danger here; the ordinary rules feel uncertain. The iron-shod survey post stands silent; the bells keep away." Appetite: "That's done and gone. Least said." (blank "you may:")
+- "agency psyche" took 1h game time. Psyche day: auto-shopped (bacon x2, parched corn, hardtack: $3.44), chatted, worked at tavern ("Can't stop long; there's work wanting."), took tavern meal, slept. No insult/gift/court/lend autonomously. Waits stop every 1-3h on introductions (each = command).
+- Outfitter description leaks dev text: "A ginseng and fur buyer's trade is a placeholder awaiting consultation."
+- Work (Hired hand) at tavern several hours: NO wages seen (purse unchanged).
+- Conscience "pantry is nearly bare: go to the store" persists after buying 40+ food items (household pantry $0, I lodge at tavern) -> never satisfiable.
+- Michael comforted me: "It'll come right, Miss Wayfarer. These things do." / "I'm obliged. I needed to hear it."  Self-Command: "Drags out to it, slow about it".
+- Tension: Michael slights Amos: "I've no time for you today, Mr. Whitcomb." / "You never have." Amos: "People will talk, Mr. Dunleavy, if we stand here gossiping all day." / "People will talk whatever we do."
+- Journal gems: "I shut a door in myself today. I cannot say which, only that the house is quieter." / "Miss Ellis Wayfarer aimed a hard word at Mr. L. Vance at Dunleavy's Tavern and hit nothing; Mr. L. Vance was seen to smile, which is worse." / "I insulted Lucius Vance ..., and was sorry before the day was out." / "I made a gift to Joel Pike ... It cost me little and, I think, meant a good deal." / "It was the sensible thing; anyone would agree. I have asked myself and I agree." / "I notice I am saying the same thing to myself over and over, in the same words. A person ought to be able to say a thing once and be done." / "...in close talk with Nora Dunleavy ... I would give a good deal to know the subject."
+- Journal says of Amos news: "I came away knowing more than I went in with" though he refused ("What folk say is their business").
+- Rest drains ~77/h awake (55 + 22 load): Tired by 18:00 from 07:00 wake.
+- Day4 07:00 (Wed): lend Joel / lend Amos -> "at work at Huldra's Shelf until 12:00" while both in Dunleavy's Tavern; I was actually still in a psyche-started sleep (no chat options in menu). 09:00 lend Lucius -> "at work at Dunleavy's Tavern until 12:00".
+- "standing" alone -> "Use standing <sleep|eat|drink|warmth|lodging> <on|off>." Does NOT display current orders. No way to add work as a routine.
+- Michael: "I don't know what I'd do without you, Nora." Nora: "Talk to the cow, most likely. She'd be a poorer listener." Lucius: "Who'll drink with me? Anybody?" Michael: "Put your purse away; nobody's drinking to that."
+- 2nd favor offer from Michael (answer:28:41:4920:help) -> I said no. No visible reaction / reason. 
+- Nora gossip: "I'd not believe the half of it, but Brigid Dunleavy is of the hidden folk." (her own child! changeling story). Me: "I'd want more than talk before I'd credit that." Same template as Hester rumor (mutation?).
+- introduce Brigid -> "Brigid Dunleavy is too young to talk with." (real reason; but nothing in Here/inspect says she's a child)
+- court Joel (Wed 12:00; last court Sun 20:00) -> "You have already courted Joel Pike today; wait for its cooldown." WRONG 'today'.
+- confide Joel: "Do you ever think we were fools to come out here, Joel?" / "Every winter. Never in spring."
+- 13:00 warn Amos -> "Amos Whitcomb is at work at Huldra's Shelf until 18:00" while Amos is in the tavern Here list. (4th instance)
+- Can't see anyone's opinion OF ME; inspect shows only mine of them. Gift/court effect on Joel invisible.
+- Nora gossip #2: "I'd not believe the half of it, but Ingrid Tveit is of a talkative disposition." Me: "I'd want more than talk before I'd credit that." (same response template every rumor). Lucius: "There was a panther on the Kickapoo once, big as a yearling calf." Me: "And you with only a stick?" Lucius: "Only a stick, and my two legs, and they did the most of it."
+- Michael "offers a favor with an obligation" 4 times in ~8h on day 4 (spam; never described).
+- 17:00 lend Joel -> "at work at Huldra's Shelf until 18:00" (Joel in tavern; 5th instance). At 18:00 Joel asleep. Social window for Joel = zero.
+- lend Nora: "You look a little short. Will $1.00 see you through?" / "It will. Thanks be to God. I'll not forget it." Event header "[10411] Lend > $1.00" (target shown as amount). Journal: "Nora Dunleavy owes me, and neither of us mentions it. I do not like being owed. It makes me watchful, and watchfulness is a poor friend."
+- borrow Amos: "Borrow: 17 (d20 16, Charisma +1) vs DC 13 -> success". "It's a hungry spring, Mr. Whitcomb. $1.50 would carry me to harvest." / "Take it. Harvest, then." Nora repaid $1 an hour later: "$1.00, counted out. I said I would." / "You did, and you have. I'll not forget it either." Lent from PURSE but borrow+repay went to HOUSEHOLD.
+- Journal: "Amos Whitcomb has not said a word of the money, which is worse than if he had." / "You owe Amos Whitcomb $1.50, due Friday, the 4th of May, 1855. Settling up is yours to order (repay Amos)." -> money debts as obligations WORK. Favor owed to Michael (owedFavors -1) NOT listed.
+- Day5 07:00: investigate 4:0:dawn -> "That sign has left no trace to investigate.. No game time spent." (double period) but view still shows "Open sign: ... (investigate 4:0:dawn)" every turn. Perpetual uninvestigable open sign.
+- Joel at 07:00: "A round for the house! To Iron Ford, and good neighbors!"
+- Appetite: "Every dollar owed to Amos Whitcomb is a rope around my neck. (you may: work)" -- for $1.50. 
+- Michael favor offer #5 interrupted wait at 15:00. Accepted: "Here, let me take the other end of that." / "Thank you. I'd have been at it all day."
+- warn Hester: "A word in your ear, Miss Fenn." / "What is it?" / "Mind yourself. Mrs. Dunleavy says Ingrid Tveit is of a talkative disposition." / "I'm obliged to you. I'd sooner know." (warned about the gossip herself - apt)
+- Edwin: "Keep to the road going home, Minnie. It's dark early on the bluff."
+- 20:00 tavern: Johann Brenner to Nora: "You're a liar and a cheat, and your word's not worth the breath." Nora: "You'll answer for that." ... one hour later Nora comforts him: "It'll come right, Mr. Brenner. These things do." "Danke. I needed to hear it." (feud evaporates in 1h)
+- repay Amos -> "Amos Whitcomb is asleep." (good reason)
+- Appetite: "Minnie Fenn's always underfoot. (you may: )" -- odd, I barely know her; blank action.
+- ask_about Johann: "Nothing worth the telling, the roads being what they are." ask_about 0 for 4 on actual news; only NPC-initiated gossip delivers news.

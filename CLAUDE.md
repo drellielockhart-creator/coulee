@@ -71,4 +71,5 @@ A simulationist fantasy-frontier game (3.5e-shaped rules × RimWorld), set in a 
 - Core unit tests sit next to the code. Integration tests use `packages/cli/test/helpers.ts`.
 - Golden chronicle diffs are design reviews: update snapshots deliberately, with a one-line reason.
 - Commit only when asked, on the branch the orchestrator or Ellie names. Follow the attribution instructions in the session.
-- Feature ideas Ellie has queued but not prioritized live in `docs/impl/BACKLOG.md` (e.g., vehicles and river trade).
+- Feature ideas Ellie has queued but not prioritized live in `docs/impl/BACKLOG.md`: vehicles and river trade; parties (recruited companions, emergent NPC parties and hunts); elevation, the sky and flying things.
+- **Art direction (Ellie, 2026-10-12):** any work replacing placeholder assets, making new ones, or adding graphics effects or styling aims for a **somewhat crude but attractive watercolor painting**: brush texture, soft bleeding edges, paper grain, and a limited washed palette. It must stay legible from above and on a phone (P6). Until that pass, the placeholder Blender art stands.

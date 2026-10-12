@@ -9,6 +9,7 @@ import { rng } from '../../core/src/rng.ts';
 import { settlement, terrain } from '../../worldgen/src/layout.ts';
 import { populate } from '../../worldgen/src/population.ts';
 import { seedTensions } from '../../worldgen/src/tensions.ts';
+import { nameAndDescribe } from '../../worldgen/src/text.ts';
 import { baseContent } from './helpers.ts';
 
 function draft(seed: number) {
@@ -16,7 +17,17 @@ function draft(seed: number) {
   const t = terrain(recipe);
   const homes = settlement(recipe, t);
   const scenario = ScenarioSchema.parse({ id: t.site.id, site: t.site.id, name: t.site.name });
-  populate(baseContent(), recipe, scenario, homes);
+  const { means } = populate(baseContent(), recipe, scenario, homes);
+  nameAndDescribe({
+    content: baseContent(),
+    recipe,
+    site: t.site,
+    places: t.places,
+    scenario,
+    creek: t.creek,
+    ford: t.ford,
+    means,
+  });
   seedTensions(baseContent(), recipe, scenario);
   return { site: t.site, places: t.places, scenario };
 }

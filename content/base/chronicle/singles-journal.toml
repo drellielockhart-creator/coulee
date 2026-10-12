@@ -201,7 +201,7 @@ text = [
 id = "journal_help_me_target"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "help", target_me = true }
+when = { cls = "help", target_me = true, success = true }
 text = [
   "{^actor} {act} me{_at} {when}, and would not hear thanks. Entered here so I do not forget the debt.",
   "{^weekday}. {^actor} {act} me, unasked. There are people in this county who keep the word neighbor alive.",
@@ -212,7 +212,7 @@ id = "journal_help_me_target_piety"
 on = "social.interaction"
 voice = "journal"
 tone = "piety"
-when = { cls = "help", target_me = true }
+when = { cls = "help", target_me = true, success = true }
 text = [
   "{^actor} {act} me{_at}. The Lord provides, and sometimes does it through the nearest neighbor with a free hand.",
 ]
@@ -222,16 +222,26 @@ id = "journal_help_me_target_thrift"
 on = "social.interaction"
 voice = "journal"
 tone = "thrift"
-when = { cls = "help", target_me = true }
+when = { cls = "help", target_me = true, success = true }
 text = [
   "{^actor} {act} me{_at}. Not a cent asked. I shall return it in kind, and a little over, so no one can say I took.",
+]
+
+[[template]]
+id = "journal_help_me_target_failed"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "help", target_me = true, success = false }
+text = [
+  "{^actor} tried to do me a kindness{_at} {when}. It did not take, but I set down that it was offered.",
+  "{^actor} meant well by me{_at}. It went awry; the meaning stays.",
 ]
 
 [[template]]
 id = "journal_help_me_actor"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "help", actor_me = true }
+when = { cls = "help", actor_me = true, success = true }
 text = [
   "I {act} {target}{_at} {when}. It cost me little and, I think, meant a good deal.",
   "I {act} {target}. Nothing to make a song of, but {target_he} needed it and I had it.",
@@ -242,16 +252,25 @@ id = "journal_help_me_actor_thrift"
 on = "social.interaction"
 voice = "journal"
 tone = "thrift"
-when = { cls = "help", actor_me = true }
+when = { cls = "help", actor_me = true, success = true }
 text = [
   "I {act} {target}{_at}. It comes out of my own stores, and I am marking it down, though I will not say so to {target_him}.",
+]
+
+[[template]]
+id = "journal_help_me_actor_failed"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "help", actor_me = true, success = false }
+text = [
+  "I meant to do {target} a kindness{_at} {when}, and it went awry. I will try again another day.",
 ]
 
 [[template]]
 id = "journal_help_seen"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "help", actor_me = false, target_me = false }
+when = { cls = "help", actor_me = false, target_me = false, success = true }
 text = [
   "{^actor} {act} {target}{_at}. I saw it, and thought the better of {him} for it.",
 ]
@@ -444,20 +463,64 @@ text = [
 ]
 
 [[template]]
+id = "journal_other_failed"
+on = "social.interaction"
+voice = "journal"
+when = { success = false }
+text = [
+  "{^actor} had words with {target}{_at} {when}; nothing came of it.",
+]
+
+[[template]]
 id = "journal_gossip_me_teller"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "gossip", actor_me = true }
+when = { cls = "gossip", actor_me = true, told = true }
 text = [
   "{^target} and I had our heads together{_at} {when}. Whatever the town is saying, we said it too, and a little more.",
-  "I {act} {target}{_at}. I came away knowing more than I went in with, which is the point of such talks.",
+]
+
+[[template]]
+id = "journal_gossip_me_teller_none"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "gossip", actor_me = true, told = false }
+text = [
+  "I stopped to talk with {target}{_at} {when}. There was nothing new in it on either side.",
+]
+
+[[template]]
+id = "journal_gossip_me_asked"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "gossip", interaction = "ask_about", actor_me = true, told = true }
+text = [
+  "I asked {target} for the news{_at}. I came away knowing more than I went in with, which is the point of such talks.",
+]
+
+[[template]]
+id = "journal_gossip_me_asked_none"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "gossip", interaction = "ask_about", actor_me = true, told = false }
+text = [
+  "I asked {target} for the news{_at} {when}. {^target_he} had nothing new for me, or nothing {target_he} would part with.",
+]
+
+[[template]]
+id = "journal_gossip_me_told_none"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "gossip", target_me = true, told = false }
+text = [
+  "{^actor} stopped to talk{_at} {when}. Old talk; I had it already, or there was none.",
 ]
 
 [[template]]
 id = "journal_gossip_me_told"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "gossip", target_me = true }
+when = { cls = "gossip", target_me = true, told = true }
 text = [
   "{^actor} had news for me{_at} {when}, and gave it with relish. Whether I believe it is another matter.",
   "{^actor} took me aside{_at} with the latest. I listened, which is not the same as agreeing.",
@@ -467,7 +530,7 @@ text = [
 id = "journal_gossip_me_warned"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "gossip", interaction = "warn", target_me = true }
+when = { cls = "gossip", interaction = "warn", target_me = true, told = true }
 text = [
   "{^actor} warned me{_at} {when}. {^he} meant it kindly. I have been looking over my shoulder since.",
 ]
@@ -687,7 +750,7 @@ on = "psyche.defense"
 voice = "journal"
 when = { defense = "displacement", aimed = true }
 text = [
-  "I was short with {target} today and had no cause. Something else was the matter, and I will not name it.",
+  "Something set me against {target} today, who had done nothing to earn it. Something else was the matter, and I will not name it.",
 ]
 
 [[template]]

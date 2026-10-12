@@ -164,10 +164,13 @@ servings = 4
 morale = 0
 shelf_life_days = 120
 spoilage = { temperature_pct = { frozen = 2, cold = 30, cool = 100, warm = 220, hot = 450 }, wet_pct = 150, packaging_pct = { brine = 10, airtight = 50 }, vermin = false }
+# Salt: a quarter-pound of salt pork carries a thirst. Raw it asks another 400 ml of drinking
+# water a serving; fried (freshened in a rinse first, as cooks did) 50; boiled, the salt goes
+# into the pot water (charged as water_ml).
 prep = [
-  { method = "raw", minutes = 0, morale = -3 },
-  { method = "fry", minutes = 15, active_minutes = 10, fire_minutes = 15, cookware = ["cook"], morale = 2 },
-  { method = "boil", minutes = 60, active_minutes = 5, fire_minutes = 60, batch_servings = 8, cookware = ["boil"], water_ml = 400, morale = 1 },
+  { method = "raw", minutes = 0, morale = -3, thirst_ml = 400 },
+  { method = "fry", minutes = 15, active_minutes = 10, fire_minutes = 15, cookware = ["cook"], morale = 2, thirst_ml = 50 },
+  { method = "boil", minutes = 60, active_minutes = 5, fire_minutes = 60, batch_servings = 8, cookware = ["boil"], water_ml = 400, morale = 1, thirst_ml = 50 },
 ]
 
 [[item]]
@@ -728,9 +731,9 @@ morale = 0
 shelf_life_days = 365
 spoilage = { wet_pct = 200, packaging_pct = { airtight = 40 }, vermin = true }
 prep = [
-  { method = "raw", minutes = 0, kcal_pct = 60, morale = -4 },
-  { method = "soak", minutes = 720, active_minutes = 5, water_ml = 250, morale = 0 },
-  { method = "boil", minutes = 30, active_minutes = 5, fire_minutes = 30, batch_servings = 8, cookware = ["boil"], water_ml = 150, morale = 2 },
+  { method = "raw", minutes = 0, kcal_pct = 60, morale = -4, thirst_ml = 150 },
+  { method = "soak", minutes = 720, active_minutes = 5, water_ml = 250, morale = 0, thirst_ml = 25 },
+  { method = "boil", minutes = 30, active_minutes = 5, fire_minutes = 30, batch_servings = 8, cookware = ["boil"], water_ml = 150, morale = 2, thirst_ml = 25 },
 ]
 
 [[item]]
@@ -852,7 +855,7 @@ group = "meat"
 servings = 3
 shelf_life_days = 180
 spoilage = { wet_pct = 300, packaging_pct = { airtight = 40 } }
-prep = [{ method = "raw", minutes = 0 }]
+prep = [{ method = "raw", minutes = 0, thirst_ml = 250 }]
 
 [[item]]
 id = "maple_sugar"

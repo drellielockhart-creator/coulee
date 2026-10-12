@@ -41,16 +41,24 @@ it('holds every consequential initiation and purse expense for 14 commanded days
   const sim = sessionSim(baseContent(), { source: 'iron_ford', seed: 42 });
   const pc = required(sim.world.meta.playerId);
   const forbidden: string[] = [];
+  // The one standing expense (wave 5): the lodging order pays for the bed at her own lodgings,
+  // only while she sleeps in it, bounded per day by the pay_lodging capability.
+  const beds: number[] = [];
   sim.sink = (e) => {
     if (e.kind === 'social.interaction' && e.data.initiatorId === pc) forbidden.push(e.data.interactionId);
     if (e.kind === 'provisions.purchase' && e.data.buyerId === pc) forbidden.push('shopping');
-    if (e.kind === 'provisions.cash_transfer' && e.data.fromId === pc) forbidden.push(e.data.reason);
+    if (e.kind === 'provisions.cash_transfer' && e.data.fromId === pc)
+      if (e.data.reason === 'Tavern bed') beds.push(e.data.cents);
+      else forbidden.push(e.data.reason);
   };
   const shop = required(Object.values(sim.world.places).find((p) => sim.world.provisions.stores[p.id]));
   required(sim.world.actors[pc]).placeId = shop.id;
   runHours(sim, 14 * 24);
   expect(forbidden).toEqual([]);
-  expect(sim.world.provisions.purses[pc]).toBe(5000);
+  expect(beds.length).toBeGreaterThan(10);
+  // At most one bed a night: 14 days span 15 nights (the first is paid at 01:00 on day 0).
+  expect(beds.length).toBeLessThanOrEqual(15);
+  expect(sim.world.provisions.purses[pc]).toBe(5000 - beds.reduce((n, c) => n + c, 0));
   expect(psyche.psycheOf(sim.world, pc)?.anxiety).toBeGreaterThan(0);
   expect(findNonIntegers(sim.world)).toEqual([]);
 }, 120000);
@@ -131,7 +139,8 @@ it('social menu and validation use the same feasibility query; Court cannot beco
       const u = a.command.data.urge;
       expect(social.interactionAvailability(w, sim.content, pc, required(u.targetId), u.interactionId).ok).toBe(true);
     }
-  social.bumpFamiliarity(sim.world, sim.content, pc, target.id);
+  // Walking out wants an acquaintance on both sides (playtest r2): three meetings' familiarity.
+  for (let n = 0; n < 3; n++) social.bumpFamiliarity(sim.world, sim.content, pc, target.id);
   required(sim.world.activity.byActor[target.id]).lockedUntil = asGameMinute(sim.world.time + 60);
   const last = sim.world.log.lastId;
   step(sim, [
@@ -219,6 +228,16 @@ it('only related social events interrupt and compact output coalesces minor conv
   } as Event;
   expect(alertForEvent(sim.world, sim.content, pc, event).pause).toBe(false);
   if (event.kind !== 'social.interaction') throw new Error('fixture');
+  // Playtest r2: what is said to her that asks nothing of her goes to the digest, not a stop;
+  // a blow stops the clock, and so does a request that wants her answer.
   event.data.targetId = pc;
+  expect(alertForEvent(sim.world, sim.content, pc, event).pause).toBe(false);
+  event.data.interactionId = 'fight';
   expect(alertForEvent(sim.world, sim.content, pc, event).pause).toBe(true);
+  const asked = {
+    ...event,
+    kind: 'social.requested',
+    data: { requestId: 'x', actorId: pc, from: a, text: 'A request.' },
+  } as Event;
+  expect(alertForEvent(sim.world, sim.content, pc, asked).pause).toBe(true);
 });

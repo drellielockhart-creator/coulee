@@ -18,6 +18,8 @@ import { devicesHour, type PlacementMemo, storageHour } from './environment.ts';
 import {
   awaitingMeal,
   dailyKcal,
+  dailyKcalParts,
+  dailyNeedExplain,
   dueMeal,
   foodServings,
   type Holder,
@@ -74,13 +76,16 @@ export function planReadiness(
   if (!members.length || result.kcalPerDay === 0) return charmRows(undefined);
   const storedWater = waterAvailable(world, content, holder);
   const thirst = content.needs.thirst;
-  const dailyDrinking = members.length * (thirst ? thirst.decay_per_hour * 24 * (thirst.intake?.per_point ?? 2) : 3000);
-  result.daysOfWaterTenths =
-    'householdId' in holder || storedWater >= 100000
-      ? null
-      : Math.floor((storedWater * 10) / Math.max(1, dailyDrinking));
-  if (result.daysOfWaterTenths !== null && result.daysOfWaterTenths < 10)
-    result.warnings.push('Less than a day of stored drinking water; preparation also draws from it.');
+  // A day's drinking: 16 waking hours and 8 asleep at the thirst need's rates (light labor).
+  const dailyDrinking =
+    members.length *
+    (thirst
+      ? Math.round(
+          ((thirst.decay_per_hour * (16 * 100 + 8 * thirst.asleep_pct)) / 100) * (thirst.intake?.per_point ?? 2),
+        )
+      : 3000);
+  const carriedWater = !('householdId' in holder) && storedWater < 100000;
+  result.daysOfWaterTenths = carriedWater ? Math.floor((storedWater * 10) / Math.max(1, dailyDrinking)) : null;
   let fresh = false;
   const kitchen = kitchenOf(world, content, holder);
   for (const stack of stacks) {
@@ -111,10 +116,13 @@ export function planReadiness(
   if (!fresh) result.warnings.push('No fresh food: scurvy watch after about six weeks.');
   if (result.unpreparable.length)
     result.warnings.push('Some food cannot be prepared with the available cookware, fuel, water, or time.');
-  result.kcalOnHand += (world.provisions.pendingMeals ?? []).reduce(
+  // A paid or cooking plate is food on hand. The projection counts it as eaten in the first
+  // window instead of keeping a plate that may wait at another place and block every meal.
+  const pendingKcal = (world.provisions.pendingMeals ?? []).reduce(
     (n, meal) => n + meal.plates.filter((p) => members.includes(p.id)).reduce((sum, p) => sum + p.kcal, 0),
     0,
   );
+  result.kcalOnHand += pendingKcal;
   if (!result.kcalOnHand) return charmRows(undefined);
   // Only owned slices are cloned; neither social nor belief state is touched by this kernel.
   const projection: World = {
@@ -136,11 +144,7 @@ export function planReadiness(
       nutrition: {},
       households: Object.create(null),
       fires: JSON.parse(JSON.stringify(world.provisions.fires)),
-      pendingMeals: JSON.parse(
-        JSON.stringify(
-          (world.provisions.pendingMeals ?? []).filter((m) => m.plates.some((p) => members.includes(p.id))),
-        ),
-      ),
+      pendingMeals: [],
     },
   };
   if ('householdId' in holder) {
@@ -190,7 +194,11 @@ export function planReadiness(
   const fuelStart = holderSupply(world, content, holder, 'fire');
   let fuelDay = 0,
     foodHours = 0,
-    windowKcal = 0;
+    windowKcal = pendingKcal,
+    windowTarget = 0,
+    saltPoints = 0;
+  /** Each judged day's planned energy: the figure the readout prints is their mean (P1). */
+  const targets: number[] = [];
   // Cap at a year: huge debug inventories must not freeze a view query. Report the cap plainly.
   // Household decisions pass a shorter horizon: they only compare against the ration thresholds.
   const horizon = Math.max(1, Math.min(366, Math.floor(horizonDays)));
@@ -199,7 +207,9 @@ export function planReadiness(
   const hasDevices = rowsOf(projection.items.stacks).some((s) =>
     (content.items[s.defId]?.consumes ?? []).some((c) => c.per === 'hour' || c.per === 'day'),
   );
-  const pass = { energy: new Map<string, number>(), explain: false };
+  // Orders change who eats, not what exists: the readout projects the kit as if it is eaten.
+  const pass = { energy: new Map<string, number>(), explain: false, hypothetical: true };
+  const rationPct = rationOf(world, holder);
   // The projection's own hem state: verified charms only, never written back (13 §5.7).
   const hems = world.fae?.charms ? forecastHems(world, content, members, stacks) : undefined;
   withInventoryPass(projection, () => {
@@ -216,6 +226,9 @@ export function planReadiness(
         rng: (stream, key) => rng(world.meta.seed, stream, t, key),
         emit: (event) => {
           if (event.kind === 'provisions.meal') windowKcal += event.data.kcal;
+          // Salt meat is the only thing that lowers Thirst through an event (meals.ts thirstFromSalt).
+          if (event.kind === 'needs.changed' && event.data.needId === thirst?.id && event.data.delta < 0)
+            saltPoints -= event.data.delta;
           return 0 as never;
         },
       };
@@ -234,24 +247,46 @@ export function planReadiness(
       waterHour(projection, ctx);
       if (hasDevices) devicesHour(projection, ctx);
       const meal = dueMeal(projection, content, holder, cal.hour);
-      if (meal && !members.some((id) => awaitingMeal(projection, id))) {
-        serveMeal(projection, ctx, holder, members, meal.share_pct, meal.cold, undefined, pass);
+      if (meal) {
+        // The same per-plate rounding as serveMeal: this is the energy the meal is sized to.
+        windowTarget += members.reduce(
+          (n, id) => n + Math.round((mealEnergy(projection, ctx, id, pass) * rationPct * meal.share_pct) / 10_000),
+          0,
+        );
+        if (!members.some((id) => awaitingMeal(projection, id)))
+          serveMeal(projection, ctx, holder, members, meal.share_pct, meal.cold, undefined, pass);
       }
       if (hour < 24) fuelDay += Math.max(0, fuelBefore - holderSupply(projection, content, holder, 'fire'));
       // A cold noon piece may fail while the two hot meals still cover 80% of the ration.
       // Judge a complete 24-hour window, including preparation completions, against the
       // documented daily 50% threshold. A partial day is never mistaken for exhaustion.
       if (hour % 24 === 23) {
-        const dailyTarget = Math.round(
-          (members.reduce((n, id) => n + mealEnergy(projection, ctx, id, pass), 0) * rationOf(projection, holder)) /
-            100,
-        );
-        if (windowKcal * 2 < dailyTarget) break;
+        targets.push(windowTarget);
+        if (windowKcal * 2 < windowTarget) break;
         foodHours = hour + 1;
         windowKcal = 0;
+        windowTarget = 0;
       }
     }
   });
+  if (targets.length) result.kcalPerDay = Math.round(targets.reduce((n, t) => n + t, 0) / targets.length);
+  // Water carried, with the salt the projected meals add (P8: salt meat costs water).
+  const saltPerDay = Math.round(
+    (saltPoints * (thirst?.intake?.per_point ?? 2)) / Math.max(1, Math.ceil(Math.max(foodHours, 24) / 24)),
+  );
+  if (carriedWater) {
+    const perDay = dailyDrinking + saltPerDay;
+    result.daysOfWaterTenths = Math.floor((storedWater * 10) / Math.max(1, perDay));
+    if (result.daysOfWaterTenths < 10)
+      result.warnings.push(
+        `Water carried: ${(result.daysOfWaterTenths / 10).toFixed(1)} days (${storedWater} ml against about ${perDay} ml a day${saltPerDay ? `, ${saltPerDay} of it for salt meat` : ''}); fill at springs, creeks and fords.`,
+      );
+  }
+  if (saltPerDay >= 300)
+    result.warnings.push(
+      `Salt meat asks about ${saltPerDay} ml more water a day as you would eat it; boiling it draws the salt (a kettle and pot water).`,
+    );
+  needLegibility(world, content, members, now, rationPct, result);
   result.daysOfFoodTenths = Math.round((foodHours * 10) / 24);
   if (world.fae?.charms && hems) {
     const rows = forecastCharms(world, content, members, stacks, hems);
@@ -259,6 +294,34 @@ export function planReadiness(
   }
   result.daysOfFuelTenths = fuelDay > 0 ? Math.floor((fuelStart * 10) / fuelDay) : null;
   if (foodHours >= 24 * horizon) result.warnings.push(`Food horizon capped at ${horizon} days.`);
-  if (result.daysOfFoodTenths < 40) result.warnings.push('Less than four days of usable food at current rations.');
+  // The most urgent line first: hosts show only the first few.
+  if (result.daysOfFoodTenths < 40) result.warnings.unshift('Less than four days of usable food at current rations.');
   return result;
+}
+
+/**
+ * P1: why the daily need is what it is. One eater gets the Explain of today's scheduled day;
+ * when the coming week's days differ by more than a tenth, a Kit line names the heavier day.
+ */
+function needLegibility(
+  world: World,
+  content: ContentBundle,
+  members: readonly import('../ids.ts').ActorId[],
+  now: number,
+  rationPct: number,
+  result: Readiness,
+): void {
+  const id = members.length === 1 ? members[0] : undefined;
+  if (id === undefined) return;
+  result.needExplain = dailyNeedExplain(world, content, id, now);
+  const days = Array.from({ length: 7 }, (_, d) => dailyKcalParts(world, content, id, now + d * 1440));
+  const kcal = (p: (typeof days)[number]) => Math.round((p.kcal * rationPct) / 100);
+  const low = days.reduce((a, b) => (kcal(b) < kcal(a) ? b : a));
+  const high = days.reduce((a, b) => (kcal(b) > kcal(a) ? b : a));
+  result.needRange = { min: kcal(low), max: kcal(high) };
+  if (kcal(high) * 10 <= kcal(low) * 11) return;
+  const heavy = high.activities.filter((a) => a.labor === 'heavy').map((a) => `${a.name} ${a.hours} h`);
+  result.warnings.push(
+    `Daily need runs ${kcal(low)}–${kcal(high)} kcal this week: the heavier days carry ${high.hours.heavy} h of heavy labor${heavy.length ? ` (${heavy.join(', ')})` : ''} against ${low.hours.heavy} h.`,
+  );
 }

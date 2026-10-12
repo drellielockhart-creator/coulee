@@ -231,12 +231,21 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'social.item_refused':
       return out(e.data.reason, e.data.actorId !== pc);
     case 'social.requested':
-      return out(e.data.text);
-    case 'social.request_answered':
+      return out(e.data.text.replace(/\.$/, ''));
+    case 'social.request_answered': {
+      // The request id is "<asker>:<asked>:<minute>:<interaction>".
+      const [from, , , iid] = e.data.requestId.split(':');
+      const asker = actorName(Number(from));
+      const what = content.interactions[iid ?? '']?.name.toLowerCase() ?? 'request';
+      const verb =
+        e.data.status === 'accepted' ? 'accepted' : e.data.status === 'refused' ? 'refused' : 'let pass, unanswered,';
       return out(
-        `${e.data.actorId === pc ? 'Your' : `${actorName(e.data.actorId)}'s`} answer on the request: ${e.data.status}`,
+        e.data.actorId === pc
+          ? `You ${verb} ${asker}'s ${what}`
+          : `${actorName(e.data.actorId)} ${verb} ${asker}'s ${what}`,
         e.data.actorId !== pc,
       );
+    }
     case 'psyche.arbitrated': {
       const d = e.data;
       return out(
@@ -253,8 +262,13 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'social.interaction': {
       const d = e.data;
       const verdict = d.success ? 'it went well' : 'it went badly';
-      if (d.initiatorId === pc) return out(`${d.label} (${verdict})`);
-      return out(`${actorName(d.initiatorId)}: ${d.label} (${verdict})`);
+      // Who it was aimed at, and what changed hands (playtest r2: "Lend ▸ $1.00" hid the person).
+      const label = content.interactions[d.interactionId]?.label ?? d.label.split(' ▸ ')[0] ?? d.label;
+      const extras = [...(d.cents ? [cents(d.cents)] : []), ...(d.itemDefId ? [itemName(d.itemDefId)] : [])];
+      const work = d.atWork ? `; it kept ${actorName(d.targetId)} from work` : '';
+      const act = `${label} ▸ ${who(d.targetId)}${extras.length ? `: ${extras.join('; ')}` : ''} (${verdict}${work})`;
+      if (d.initiatorId === pc) return out(act);
+      return out(`${actorName(d.initiatorId)}: ${act}`);
     }
     case 'social.memory_formed':
       return out(
@@ -303,7 +317,7 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'provisions.purchase': {
       const d = e.data;
       return out(
-        `${Who(d.buyerId)} ${d.buyerId === pc ? 'bought' : 'buys'} ${d.qty} ${itemName(d.defId)} for ${cents(d.priceCents)}${d.onCredit ? ', partly on account' : ''}`,
+        `${Who(d.buyerId)} ${d.buyerId === pc ? 'bought' : 'buys'} ${d.qty} ${itemName(d.defId)} for ${cents(d.priceCents)}${d.onCredit ? ', partly on account' : ''}${d.toPantry && d.buyerId === pc ? ', for the household pantry at your lodgings (not your pack)' : ''}`,
       );
     }
     case 'provisions.sale': {
@@ -315,8 +329,9 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'provisions.meal': {
       const d = e.data;
       const what = d.items.map((i) => itemName(i.defId)).join(', ');
+      // A standing order's meal names the order, so an unordered meal is never a surprise.
       return out(
-        `${Who(d.actorId)} ${d.actorId === pc ? 'ate' : 'eats'}${what ? ` ${what}` : ''}: ${d.kcal} kcal, ${d.hot ? 'hot' : 'cold'}`,
+        `${d.standing && d.actorId === pc ? 'Standing order (eat): you ate' : `${Who(d.actorId)} ${d.actorId === pc ? 'ate' : 'eats'}`}${what ? ` ${what}` : ''}: ${d.kcal} kcal, ${d.hot ? 'hot' : 'cold'}`,
       );
     }
     case 'provisions.intake':
@@ -350,14 +365,30 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'provisions.load_movement':
       return out(
         e.data.blocked
-          ? 'Your load is too heavy to move'
+          ? `You cannot move: your load is ${e.data.loadPct}% of what you can carry, over the 150% limit. Drop, sell or unpack something first`
           : `Your load is ${e.data.loadPct}% of what you can manage: you walk at ${e.data.speedPct}% pace`,
-        true,
+        !e.data.blocked,
       );
     case 'provisions.production': {
       const got = e.data.yields.map((y) => `${y.qty} ${itemName(y.defId)}`).join(', ');
+      if (got || e.data.actorId !== pc)
+        return out(
+          `${Who(e.data.actorId)} ${e.data.actorId === pc ? 'gathered' : 'gathers'}${got ? ` ${got}` : ' nothing'}`,
+        );
+      // Nothing whole yet: say why (season, ground, a poor hour) and what has accrued toward a unit.
+      const outcome = e.explain?.outcome;
+      const def = content.activities[e.data.activityId];
+      const skill = e.explain?.terms.find((t) => t.label === 'Skill yield percent')?.value;
+      const partial = (def?.yields ?? []).flatMap((line) => {
+        const amount = world.provisions.productionCarry?.[`${pc}:${e.data.activityId}:${line.item}`] ?? 0;
+        return amount > 0 ? [`${itemName(line.item)} ${Math.floor(amount / 10000) / 10}`] : [];
+      });
       return out(
-        `${Who(e.data.actorId)} ${e.data.actorId === pc ? 'gathered' : 'gathers'}${got ? ` ${got}` : ' nothing'}`,
+        outcome === 'out_of_season'
+          ? `You gathered nothing: ${def?.name.toLowerCase() ?? 'this'} yields nothing this month`
+          : outcome === 'wrong_habitat'
+            ? `You gathered nothing: this is not the ground for it (try ${def?.venue_tags.join(' or ') ?? 'elsewhere'})`
+            : `You gathered nothing whole yet${skill === 0 ? ' (a poor hour: the skill check failed badly)' : skill === 50 ? ' (half a yield: the skill check failed)' : ''}; found so far: ${partial.join(', ') || 'nothing'} (each adds up to a whole unit over longer forays)`,
       );
     }
     case 'provisions.wages':
@@ -384,9 +415,11 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
         hungover: ['is hungover', 'is over the hangover'],
         scurvy_early: ['has aching gums: the first signs of scurvy', 'is shaking off the signs of scurvy'],
         scurvy: ['has the scurvy', 'is over the scurvy'],
-        malnourished: ['is malnourished after a week of poor eating', 'is eating well enough again'],
+        malnourished: ['is malnourished', 'is eating well enough again'],
       };
-      const phrase = known[d.condition]?.[d.on ? 0 : 1] ?? (d.on ? `shows ${word}` : `is over ${word}`);
+      const base = known[d.condition]?.[d.on ? 0 : 1] ?? (d.on ? `shows ${word}` : `is over ${word}`);
+      // Say why: "3 days eating 64% of the energy spent", not "after a week" on day three.
+      const phrase = d.reason && mine ? `${base}: ${d.reason}` : base;
       return out(
         mine
           ? `You ${phrase
