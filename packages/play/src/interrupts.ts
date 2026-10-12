@@ -161,7 +161,9 @@ function classify(world: World, content: ContentBundle, pc: ActorId, e: Event): 
     const handled =
       needs.canAct(world, pc) &&
       ((e.data.needId === 'hunger' && orders.eat && provisions.foodToHand(world, content, pc)) ||
-        (e.data.needId === 'thirst' && orders.drink && provisions.drinkingWater(world, content, pc) > 0));
+        (e.data.needId === 'thirst' && orders.drink && provisions.drinkingWater(world, content, pc) > 0) ||
+        // A mild tiredness band: the sleep order puts her to bed when night comes.
+        (e.data.needId === 'rest' && orders.sleep));
     if (band && band.below > 300 && handled)
       return { category: 'background', reason: e.kind, kind: e.kind, eventId: e.id, score: 0, pause: false };
   }

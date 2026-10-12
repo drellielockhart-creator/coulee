@@ -82,6 +82,8 @@ export type ProvisionsEvent =
         hot: boolean;
         morale: number;
         assistedBy?: ActorId;
+        /** Eaten under a standing order, not a command or the eater's own choice. */
+        standing?: boolean;
       }
     >
   /** Food spoiled (temperature/wetness/packaging named in the Explain). */
@@ -89,7 +91,16 @@ export type ProvisionsEvent =
   /** Purchase at a store (03 §8). */
   | EventOf<
       'provisions.purchase',
-      { buyerId: ActorId; placeId: PlaceId; defId: string; qty: number; priceCents: number; onCredit: boolean }
+      {
+        buyerId: ActorId;
+        placeId: PlaceId;
+        defId: string;
+        qty: number;
+        priceCents: number;
+        onCredit: boolean;
+        /** Bought for the household pantry (an errand), not carried away in the buyer's pack. */
+        toPantry?: boolean;
+      }
     >
   /** Cash changed hands outside a store (a loan, a repayment): integer cents, purse then household. */
   | EventOf<
@@ -99,4 +110,4 @@ export type ProvisionsEvent =
   /** A household's stores fell below a threshold (days of food), or rations were cut. */
   | EventOf<'provisions.shortage', { householdId: HouseholdId; daysOfFoodTenths: number; rationPct: number }>
   /** Nutrition condition changed (scurvy stages, malnourished). Chronicle-worthy. */
-  | EventOf<'provisions.nutrition', { actorId: ActorId; condition: string; on: boolean }>;
+  | EventOf<'provisions.nutrition', { actorId: ActorId; condition: string; on: boolean; reason?: string }>;

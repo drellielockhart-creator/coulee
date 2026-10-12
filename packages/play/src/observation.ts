@@ -236,6 +236,24 @@ export function observation(
       obligations: obligationsOf(w, c, pc),
       /** What others owe her: money she lent, favors she did (playtest r2). */
       claims: claimsOf(w, pc),
+      // Household errands buy into the household pantry at her lodgings, not into her pack: say so.
+      pantry: (() => {
+        const home = w.households[a.householdId]?.homePlaceId;
+        const food = items
+          .stacksDeep(w, items.pantryOf(a.householdId))
+          .map((s) => s.stack)
+          .filter((s) => c.items[s.defId]?.food && provisions.foodServings(c, s) > 0);
+        if (home === undefined || !food.length) return null;
+        const r = provisions.readinessOf(w, c, { householdId: a.householdId }, w.time, 60);
+        return {
+          placeId: home,
+          placeName: w.places[home]?.name ?? 'your lodgings',
+          withPack: a.placeId === home,
+          daysOfFoodTenths: r.daysOfFoodTenths,
+          kcalOnHand: r.kcalOnHand,
+          items: food.map((s) => ({ id: s.id, name: c.items[s.defId]?.name ?? s.defId, qty: s.qty })),
+        };
+      })(),
     },
     present: Object.values(w.actors)
       .filter((other) => other.id !== pc && other.placeId === a.placeId)

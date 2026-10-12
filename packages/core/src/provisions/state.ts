@@ -40,6 +40,10 @@ export interface DayIntake {
   foods: string[];
   /** Full-ration energy obligation, kcal (need x meal shares); cutting rations does not cut physiology. */
   needKcal: number;
+  /** Energy actually spent that day by the hunger ledger (labor, sleep, weather), kcal. */
+  burnKcal?: number;
+  /** Hours recorded in `burnKcal` (a partial day falls back to the scheduled need). */
+  burnHours?: number;
   /** Σ morale per serving eaten, summed over the day's meals (the food-morale hook). */
   morale: number;
   /** Meals eaten, and how many of them were cold. */
@@ -122,6 +126,8 @@ export interface PendingPlate {
   fatG: number;
   freshPoints: number;
   waterMl: number;
+  /** Extra thirst from salt (prep `thirst_ml`), ml: charged to Thirst when the plate is eaten. */
+  saltMl?: number;
   ethanolPoints: number;
   servings: number;
   groups: string[];
@@ -142,6 +148,8 @@ export interface PendingMeal {
   completesAt: number;
   activeUntil: number;
   rationPct: number;
+  /** Served by a standing order (the meal event says so). */
+  standing?: boolean;
   plates: PendingPlate[];
   batches: Array<{
     itemId: ItemId;

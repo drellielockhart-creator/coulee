@@ -2,7 +2,7 @@
 import { hourInBlock } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { type ActorId, type PlaceId, rowsOf } from '../ids.ts';
-import { authorizeAct, chosenUrge } from '../psyche/api.ts';
+import { authorizeAct, chosenUrge, recordStandingSpend, standingOrders } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
@@ -35,7 +35,32 @@ function reject(_world: World, ctx: SimContext, actorId: ActorId, reason: string
   });
   return false;
 }
-/** A bed is paid once per overnight stay, until noon after the coming night. */
+/**
+ * Who may pay for a bed: their own choice, an order, or the standing sleep order at their own
+ * lodgings (with the lodging order on). A standing order never rents a bed elsewhere.
+ */
+function bedAuthorized(world: World, actorId: ActorId, placeId: PlaceId, cents: number): boolean {
+  return (
+    authorizeAct(world, actorId, { kind: 'consequential' }, { kind: 'own' }).ok ||
+    chosenUrge(world, actorId)?.voice === 'command' ||
+    standingBed(world, actorId, placeId, cents)
+  );
+}
+/** The standing route: sleep and lodging orders, one's own lodgings, a bounded daily spend. */
+function standingBed(world: World, actorId: ActorId, placeId: PlaceId, cents: number): boolean {
+  const actor = world.actors[actorId];
+  return (
+    standingOrders(world, actorId).lodging &&
+    world.households[actor?.householdId ?? -1]?.homePlaceId === placeId &&
+    authorizeAct(world, actorId, { kind: 'sleep' }, { kind: 'standing', capability: 'sleep' }).ok &&
+    authorizeAct(world, actorId, { kind: 'transfer', cents }, { kind: 'standing', capability: STANDING_BED }).ok
+  );
+}
+const STANDING_BED = 'pay_lodging';
+/**
+ * A bed is paid once per overnight stay, until noon after the coming night. This only admits:
+ * the charge falls in the provisions hour, once the sleeper is actually in the bed (B15).
+ */
 export function admitSleep(world: World, ctx: SimContext, actorId: ActorId, placeId: PlaceId): boolean {
   const service = serviceAt(world, ctx.content, placeId);
   if (service?.bed_cents === undefined) return true;
@@ -44,17 +69,50 @@ export function admitSleep(world: World, ctx: SimContext, actorId: ActorId, plac
   if (keeper.householdId === world.actors[actorId]?.householdId) return true;
   const bed = world.provisions.beds?.[actorId];
   if (bed?.placeId === placeId && bed.until > ctx.now) return true;
-  if (
-    !authorizeAct(world, actorId, { kind: 'consequential' }, { kind: 'own' }).ok &&
-    chosenUrge(world, actorId)?.voice !== 'command'
-  )
-    return false;
+  if (!bedAuthorized(world, actorId, placeId, service.bed_cents)) return false;
   if (cashOf(world, actorId) < service.bed_cents)
     return reject(world, ctx, actorId, 'Cannot afford a bed; seek another place to sleep');
-  transferCash(world, ctx, actorId, keeper.id, service.bed_cents, 'Tavern bed');
-  world.provisions.beds ??= {};
-  world.provisions.beds[actorId] = { placeId, until: (ctx.cal.dayIndex + (ctx.cal.hour < 12 ? 0 : 1)) * 1440 + 720 };
   return true;
+}
+/** Charge whoever is asleep in a let bed this hour without one paid through now. */
+export function settleBeds(world: World, ctx: SimContext): void {
+  for (const actor of rowsOf(world.actors)) {
+    const state = world.activity.byActor[actor.id];
+    if (!actor.alive || state?.travel || !ctx.content.activities[state?.activityId ?? '']?.asleep) continue;
+    const service = serviceAt(world, ctx.content, actor.placeId);
+    if (service?.bed_cents === undefined) continue;
+    const keeper = keeperAt(world, ctx.content, actor.placeId);
+    const bed = world.provisions.beds?.[actor.id];
+    if (!keeper || keeper.householdId === actor.householdId || (bed?.placeId === actor.placeId && bed.until > ctx.now))
+      continue;
+    const own =
+      authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok ||
+      chosenUrge(world, actor.id)?.voice === 'command';
+    const standing = !own && standingBed(world, actor.id, actor.placeId, service.bed_cents);
+    const paid =
+      (own || standing) && cashOf(world, actor.id) >= service.bed_cents
+        ? transferCash(
+            world,
+            ctx,
+            actor.id,
+            keeper.id,
+            service.bed_cents,
+            'Tavern bed',
+            undefined,
+            standing ? { kind: 'standing', capability: STANDING_BED } : undefined,
+          )
+        : 0;
+    if (paid < service.bed_cents) {
+      reject(world, ctx, actor.id, 'Cannot pay for the bed; sleeping rough in the common room');
+      continue;
+    }
+    if (standing) recordStandingSpend(world, actor.id, STANDING_BED, paid);
+    world.provisions.beds ??= {};
+    world.provisions.beds[actor.id] = {
+      placeId: actor.placeId,
+      until: (ctx.cal.dayIndex + (ctx.cal.hour < 12 ? 0 : 1)) * 1440 + 720,
+    };
+  }
 }
 /** A bought meal consumes the host's real pantry and cooking resources before money changes hands. */
 export function boardMeal(world: World, ctx: SimContext, actorId: ActorId): boolean {

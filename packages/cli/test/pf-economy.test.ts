@@ -134,7 +134,8 @@ describe('playtest economy regressions', () => {
     for (const defId of ['oilcloth_fly_8x10', 'wall_tent_9x9', 'snare_wire_brass', 'black_powder_canister'])
       expect(stock.some(({ stack }) => stack.defId === defId)).toBe(true);
     for (const { stack } of stock) if (stack.defId === 'oilcloth_fly_8x10') items.deleteStack(w, stack.id);
-    w.time = asGameMinute(7 * 1440);
+    // The next freight day of the table (wave 5: the outfitter's freight comes every 3 days).
+    w.time = asGameMinute(2 * (generated.restocks.pratt_wholesale?.every_days ?? 7) * 1440);
     householdDay(w, makeContext(w, generated, []));
     expect(
       items.stacksDeep(w, items.atPlace(store.placeId)).some(({ stack }) => stack.defId === 'oilcloth_fly_8x10'),

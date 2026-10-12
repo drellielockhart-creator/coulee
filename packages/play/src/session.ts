@@ -237,6 +237,7 @@ export class PlaySession {
         const arg = (d.target ?? '').slice('prices:'.length);
         detail = {
           prices: o.store.stock ?? [],
+          freight: o.store.freight,
           ...(/^\d+$/.test(arg) ? { page: Number(arg) } : arg ? { filter: arg } : {}),
         };
       } else if (d.query === 'plan')
@@ -244,7 +245,9 @@ export class PlaySession {
           ...o.self.provisions.readiness,
           ...o.self.inventory,
           survival: o.self.needs.survival,
-          warnings: o.self.needs.warnings,
+          // Kit warnings and survival warnings are both shown; neither hides the other.
+          warnings: [...(o.self.needs.warnings ?? []), ...o.self.provisions.readiness.warnings],
+          pantry: o.self.pantry,
         };
       else if (d.query === 'journal') {
         const entries = observation(this.sim, this.playerId, this.known, mode, this.knowledge, 0).journal;

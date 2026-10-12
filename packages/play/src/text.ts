@@ -1,13 +1,14 @@
-import { asActorId, type Command, explainLine, timeView } from '@coulee/core';
+import { asActorId, asItemId, type Command, explainLine, timeView } from '@coulee/core';
 import type { AvailableAction } from './actions.ts';
 import { claimText, obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
-export const HELP = `One action = one game-hour; queries take no time, nor do settings (standing, agency, rations). Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on.
+export const HELP = `One action = one game-hour; queries take no time, nor do settings (standing, agency, rations). Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on, or give any order (wake, drink, go) to get up.
 Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects use the previous hour's activity.
 Out on open ground with bedding, sleep makes camp where you stand; wait follows your lodging order, returning to a nearby paid or own bed when available.
 look | signs | investigate <sign id> | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
 buy <item> [qty] | sell <item> [qty] | eat <item> [servings] [method] | cook <item> [servings] [method]
-drink | meal | sleep | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
+drink | fill <canteen/kettle> | fetch water | meal | sleep | wake | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
+Springs, creeks, rivers and fords are water: drink raw there and fill your vessels; fetch water walks to the nearest.
 prices [page|word] | places [page] | standing [<sleep|eat|drink|warmth|lodging> <on|off>] | agency [commanded|psyche]
 inspect <person/item/place/me> | pack <item> into <container> (moves one) | unpack <item>
 yes | no (answer what you were asked) | aid <person> | rations [10..150] | plan | journal (lists what you owe) | explain <event id>
@@ -147,7 +148,7 @@ ${o.epilogue ?? ''}`;
     ...changes.events.filter((e) => !o.requests.some((r) => r.text && e.startsWith(askOf(r.text)))).slice(-3),
     `${o.time.stamp} | ${o.mode.toUpperCase()} | ${o.place.name}`,
     `${o.self.name} — ${doing(o)}. Purse $${(o.self.provisions.purseCents / 100).toFixed(2)}; household $${(o.self.provisions.householdCents / 100).toFixed(2)}. ${o.weather.temperatureF}°F, ${o.weather.description.toLowerCase()}.`,
-    `Food ${(r.daysOfFoodTenths / 10).toFixed(1)} days; ${o.self.inventory.loadBand}, ${(o.self.inventory.totalWeightG / 1000).toFixed(1)} kg.`,
+    `Food ${(r.daysOfFoodTenths / 10).toFixed(1)} days${pantryNote(o)}; ${o.self.inventory.loadBand}, ${(o.self.inventory.totalWeightG / 1000).toFixed(1)} kg.`,
     `Vitals: ${o.self.needs.list
       .filter((n) => n.kind === 'physical' && (n.id !== 'drink' || n.band))
       .map((n) => `${n.name} ${n.value}${n.band ? ` (${n.band})` : ''}`)
@@ -159,7 +160,9 @@ ${o.epilogue ?? ''}`;
       : []),
     ...(o.self.needs.warnings ?? []),
     ...(o.store.hours
-      ? [`Counter ${o.store.open ? 'open' : 'closed'}; hours ${o.store.hours.opens}:00–${o.store.hours.closes}:00.`]
+      ? [
+          `Counter ${o.store.open ? 'open' : 'closed'}; hours ${o.store.hours.opens}:00–${o.store.hours.closes}:00.${o.store.freight ? ` ${freightLine(o.store.freight)}` : ''}`,
+        ]
       : []),
     ...(o.store.bedCents !== undefined
       ? [
@@ -238,6 +241,45 @@ ${o.epilogue ?? ''}`;
 /** A request's ask and terms, without its closing "answer within the hour". */
 function askOf(text: string): string {
   return text.replace(/ Answer yes or no within the hour; silence means no\.?$/, '');
+}
+const WEEKDAYS: Record<string, string> = {
+  sun: 'Sunday',
+  mon: 'Monday',
+  tue: 'Tuesday',
+  wed: 'Wednesday',
+  thu: 'Thursday',
+  fri: 'Friday',
+  sat: 'Saturday',
+};
+/** "Freight due Wednesday (in 2 days; every 3 days); sold out until then: Cornmeal, Pemmican." */
+function freightLine(f: NonNullable<Observation['store']['freight']>): string {
+  const when = f.inDays === 1 ? 'tomorrow' : `${WEEKDAYS[f.weekday] ?? f.weekday} (in ${f.inDays} days)`;
+  return `Freight due ${when}, every ${f.everyDays} days${f.deliveryPct < 100 ? `, a ${f.deliveryPct}% load while the river is closed` : ''}${f.awaited.length ? `; sold out until then: ${f.awaited.slice(0, 6).join(', ')}${f.awaited.length > 6 ? ` and ${f.awaited.length - 6} more` : ''}` : ''}.`;
+}
+/** `drink` was not on offer: say exactly why (asleep, vessels empty, no source here) and where water is. */
+function drinkRefusal(o: Observation): string {
+  const vessels = o.self.inventory.carried.filter((s) => (s.liquidMl ?? 0) > 0);
+  const water = vessels.reduce((n, s) => n + (s.waterMl ?? 0), 0);
+  const fetch = o.actions.find((a) => a.id === 'activity:fetch_water');
+  const near = fetch ? /^Fetch water at (.+?) \((\d+) min on foot/.exec(fetch.label) : null;
+  const where = near
+    ? `. The nearest water is ${near[1]}, ${near[2]} min on foot: fetch water (or go there) to drink and fill`
+    : '';
+  const what = !vessels.length
+    ? 'You carry no water vessel'
+    : water === 0
+      ? `Your ${vessels.map((v) => v.name.split(',')[0]?.toLowerCase()).join(' and ')} ${vessels.length > 1 ? 'are' : 'is'} empty`
+      : `You carry only ${water} ml (a drink is 500 ml)`;
+  return `${what}, and there is no spring, creek or ford here${where}`;
+}
+/** Household purchases go to the pantry at her lodgings: the status line says how much is there. */
+function pantryNote(o: Observation): string {
+  const p = o.self.pantry;
+  if (!p) return '';
+  const days = (p.daysOfFoodTenths / 10).toFixed(1);
+  return p.withPack
+    ? ` in your pack, ${days} with the pantry here`
+    : ` in your pack; ${days} more in the pantry at ${p.placeName}`;
 }
 /** The few events worth a line this turn: not routine bookkeeping, not already said above. */
 function freshEvents(o: Observation, previous?: Observation) {
@@ -443,7 +485,21 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
       actorId: pc,
       data: { householdId: null, rationPct: Number(verb === 'set' ? words[1] : tail) },
     };
-  if (verb === 'drink') return 'No accessible water; fetch water at your lodgings or go to a water source.';
+  if (verb === 'drink') return drinkRefusal(o);
+  if (verb === 'fill' || verb === 'refill') {
+    if (!tail) return 'Fill what? Use fill <canteen, kettle or other vessel>';
+    const vessels = o.self.inventory.carried.filter((s) => normalized(s.name).includes(normalized(tail)));
+    const offered = o.actions.filter(
+      (a) => a.id.startsWith('refill:') && vessels.some((v) => a.id === `refill:${v.id}`),
+    );
+    if (offered[0]) return offered[0].command;
+    // Not on offer: hand the game a refill of the first matching vessel so it says exactly why not.
+    const vessel = vessels.find((v) => v.waterMl !== undefined) ?? vessels[0];
+    return vessel
+      ? { kind: 'provisions.refill', actorId: pc, data: { itemId: asItemId(vessel.id) } }
+      : `You carry nothing called “${tail}”; plan lists your pack`;
+  }
+  if (verb === 'wake') return find(o.actions, 'activity:idle_at_home');
   if (['sleep', 'rest', 'work'].includes(verb)) {
     const activityId = { sleep: 'sleep', rest: 'idle_at_home', work: 'work' }[verb as 'sleep' | 'rest' | 'work'];
     const offered = o.actions.find((a) => a.id === `activity:${activityId}`);
@@ -553,16 +609,15 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
       return !!parts && normalized(parts[1] ?? '').includes(wantItem) && normalized(parts[2] ?? '').includes(wantBox);
     });
     if (matched.length) return choose(matched, `${item} into ${box}`);
-    // Not on offer: name both and let the game say why it will not go (full, not a container...).
-    const carried = o.self.inventory.carried;
-    const thing = carried.find((s) => normalized(s.name).includes(wantItem));
-    const into = carried.find((s) => s.id !== thing?.id && normalized(s.name).includes(wantBox));
-    if (!thing) return `You carry no ${item}`;
-    if (!into) return `You carry no ${box}`;
+    // Not on offer: name both from the pack and let the game give the real reason (full, holds water…).
+    const thing = o.self.inventory.carried.find((s) => normalized(s.name).includes(wantItem));
+    const into = o.self.inventory.carried.find((s) => normalized(s.name).includes(wantBox) && s.id !== thing?.id);
+    if (!thing) return `You carry nothing called “${item.trim()}”; plan lists your pack`;
+    if (!into) return `You carry no container called “${box.trim()}”; plan lists your pack`;
     return {
       kind: 'provisions.pack',
       actorId: pc,
-      data: { itemId: thing.id as never, qty: 1, intoItemId: into.id as never },
+      data: { itemId: asItemId(thing.id), qty: 1, intoItemId: asItemId(into.id) },
     };
   }
   // Social verbs: "chat Amos", "talk to Amos", "talk introduce Amos", "ask about Amos",
@@ -623,8 +678,14 @@ function renderPrices(stock: Observation['store']['stock'], page?: number, filte
 }
 export function renderDetail(detail: unknown): string {
   if (detail && typeof detail === 'object' && 'prices' in detail) {
-    const d = detail as { prices: Observation['store']['stock']; page?: number; filter?: string };
-    return renderPrices(d.prices, d.page, d.filter);
+    const d = detail as {
+      prices: Observation['store']['stock'];
+      page?: number;
+      filter?: string;
+      freight?: Observation['store']['freight'];
+    };
+    const list = renderPrices(d.prices, d.page, d.filter);
+    return d.freight ? `${freightLine(d.freight)}\n${list}` : list;
   }
   if (detail && typeof detail === 'object' && 'selfSummary' in detail) {
     const s = (detail as { selfSummary: Record<string, unknown> }).selfSummary as {
@@ -747,9 +808,30 @@ export function renderDetail(detail: unknown): string {
           .join('\n')
       : 'No journal entries known yet.';
   if (detail && typeof detail === 'object' && 'daysOfFoodTenths' in detail && 'warnings' in detail) {
-    const r = detail as Observation['self']['provisions']['readiness'] & Observation['self']['inventory'];
+    const r = detail as Observation['self']['provisions']['readiness'] &
+      Observation['self']['inventory'] & { pantry?: Observation['self']['pantry'] };
+    const need = r.needExplain;
+    const hours = need?.terms
+      .flatMap((t) => {
+        const m = /^(.+?) (\d+) h, kcal$/.exec(t.label);
+        return m?.[1] && Number(m[2]) > 0 ? [`${m[1].toLowerCase()} ${m[2]} h`] : [];
+      })
+      .join(', ');
     return [
-      `Food ${(r.daysOfFoodTenths / 10).toFixed(1)} days; ${r.kcalOnHand} usable kcal / ${r.kcalPerDay} kcal per day.`,
+      `Food ${(r.daysOfFoodTenths / 10).toFixed(1)} days in your pack; ${r.kcalOnHand} usable kcal / ${r.kcalPerDay} kcal per day (the mean of the days projected).`,
+      ...(need
+        ? [
+            `Daily need today: ${need.total} kcal by your occupation's scheduled day (${hours})${r.needRange && r.needRange.max !== r.needRange.min ? `; this week ${r.needRange.min}–${r.needRange.max} kcal` : ''}. ${need.note ?? ''}`.trimEnd(),
+          ]
+        : []),
+      ...(r.daysOfWaterTenths != null
+        ? [`Water carried: ${(r.daysOfWaterTenths / 10).toFixed(1)} days of drinking.`]
+        : []),
+      ...(r.pantry
+        ? [
+            `Pantry at ${r.pantry.placeName}${r.pantry.withPack ? ' (with your pack)' : ''}: ${(r.pantry.daysOfFoodTenths / 10).toFixed(1)} days; ${r.pantry.items.map((i) => `${i.qty} × ${i.name}`).join(', ')}.`,
+          ]
+        : []),
       `Fuel: ${r.daysOfFuelTenths === null ? 'no cooking fuel required by projected meals' : (r.daysOfFuelTenths / 10).toFixed(1) + ' days'}.`,
       `Spoils first: ${r.spoilsFirst ? `${r.spoilsFirst.name} in ${(r.spoilsFirst.inDaysTenths / 10).toFixed(1)} days` : 'none'}.`,
       `Load: ${r.totalWeightG} g; bulk ${(r.totalBulkTenths / 10).toFixed(1)}; ${r.loadBand}.`,
