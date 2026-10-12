@@ -140,9 +140,19 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
   // Store hours: the head of the household goes when the larder runs low; when it is nearly
   // empty any grown member will go. The duty presses harder the emptier the shelves.
   const adult = yearsBetween(actor.born, ctx.now) >= SHOPPING.minAge;
+  // A lodger boards at another household's table: there is no pantry of their own to keep
+  // stocked (playtest r2: "The pantry is nearly bare: go to the store" for a tavern lodger).
+  const keeper = household ? world.provisions.stores[household.homePlaceId]?.ownerHouseholdId : undefined;
+  const boarding =
+    household !== undefined &&
+    keeper !== undefined &&
+    keeper !== null &&
+    keeper !== household.id &&
+    serviceAt(world, ctx.content, household.homePlaceId)?.bed_cents !== undefined;
   if (
     world.provisions.settings.npcBuying &&
     household &&
+    !boarding &&
     adult &&
     ctx.cal.hour >= SHOPPING.openHour &&
     ctx.cal.hour < SHOPPING.closeHour &&
@@ -650,4 +660,30 @@ export function careSuppliesAvailable(
   )
     return true;
   return needValue(world, patient, 'warmth') < 200 && a.placeId !== world.households[a.householdId]?.homePlaceId;
+}
+
+/**
+ * Set a ration order for oneself (householdId null) or one's own household, as the
+ * `provisions.set_rations` command does. A host may apply it at the moment it is given, since
+ * settings take no game time (playtest r2). Returns the refusal reason, or null when set.
+ */
+export function applyRations(
+  world: World,
+  actorId: ActorId,
+  householdId: HouseholdId | null,
+  rationPct: number,
+): string | null {
+  const actor = world.actors[actorId];
+  if (!actor) return 'No such person';
+  if (!Number.isInteger(rationPct) || rationPct < 10 || rationPct > 150)
+    return 'Rations must be an integer percent from 10 to 150';
+  if (householdId !== null) {
+    const h = world.provisions.households[householdId];
+    if (actor.householdId !== householdId || !h) return 'Cannot set another household’s rations';
+    h.rationPct = rationPct;
+    return null;
+  }
+  const n = world.provisions.nutrition[actorId];
+  if (n) n.rationPct = rationPct;
+  return null;
 }

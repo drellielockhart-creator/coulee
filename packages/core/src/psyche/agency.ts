@@ -183,3 +183,24 @@ export function commandBasis(ctx: SimContext, id: ActorId, kinds: readonly strin
   const command = ctx.commands.find((c) => c.actorId === id && kinds.includes(c.kind));
   return command ? { kind: 'command', issuer: command.issuer ?? { kind: 'player' } } : { kind: 'own' };
 }
+
+/**
+ * Apply a `core.standing_orders` command's settings to an actor's psyche (agency mode and
+ * standing orders). The psyche system applies each hour's commands through it; a host may apply
+ * the same command at the moment it is given, since settings take no game time (playtest r2).
+ */
+export function applyStandingOrders(
+  world: World,
+  actorId: ActorId,
+  data: { agencyMode?: AgencyMode; orders: StandingOrders },
+): boolean {
+  const p = world.psyche.byActor[actorId];
+  if (!p) return false;
+  if (data.agencyMode) p.agencyMode = data.agencyMode;
+  p.standingOrders = {
+    ...data.orders,
+    activities: [...data.orders.activities],
+    ...(data.orders.capabilities ? { capabilities: [...data.orders.capabilities] } : {}),
+  };
+  return true;
+}

@@ -15,16 +15,18 @@ import { join, resolve } from 'node:path';
 import type { ContentBundle } from '@coulee/core';
 import {
   type AvailableAction,
+  confirmEnding,
+  infoFor,
   menuActions,
   type Observation,
   type ObservationMode,
   PlaySession,
   parseText,
   type ReplayLog,
+  renderBrief,
   renderDetail,
   renderInterrupts,
   renderObservation,
-  SESSION_HELP,
   type SessionSpec,
 } from '@coulee/play';
 import type { PlayOptions } from './play.ts';
@@ -102,11 +104,9 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     const { session, manifest, menu, savedHash } = load(content, dir);
     const mode = manifest.mode;
     const observation = session.observe(mode);
+    // A refusal is one line (playtest r2: phone-size output; no doubled period).
     const invalid = (reason: string): 2 => {
-      const text = `${reason}. No game time spent.\n${renderObservation(
-        { ...observation, changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 }, events: [], said: [] },
-        menu.page,
-      )}`;
+      const text = `${reason.replace(/[.\s]+$/, '')}. No game time spent.`;
       appendFileSync(join(dir, 'transcript.txt'), `${line === undefined ? '' : '> ' + line + '\n'}${text}\n`);
       console.log(text);
       return 2;
@@ -119,6 +119,12 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     if (o.fork !== undefined) {
       const target = resolve(o.fork);
       if (target === dir || !emptyDirectory(target)) return invalid('Fork directory must be new or empty.');
+      // Both lines of a forked story are branched: a fair ending in either keeps the county's
+      // secrets (playtest r2: retire in a fork, read the omniscient epilogue, play on).
+      if (!session.isBranched) {
+        session.markBranched();
+        save(dir, session, menu);
+      }
       for (const file of files) copyFileSync(join(dir, file), join(target, file));
       console.log(`Forked to ${target}.\n${renderObservation(observation, menu.page)}`);
       return 0;
@@ -138,9 +144,11 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     if (!text || /[\r\n]/.test(text)) return invalid('Supply exactly one nonempty command line.');
     const [verb, ...args] = text.split(/\s+/);
     let page = 0;
-    let detail: string | undefined;
-    if (verb?.toLowerCase() === 'help') detail = SESSION_HELP;
-    else if (verb?.toLowerCase() === 'actions' || verb?.toLowerCase() === 'places') {
+    // Bare help, standing, agency, rations: read, with no time and no order (help <person> is an act).
+    const detail: string | undefined = infoFor(text, observation) ?? undefined;
+    if (detail !== undefined) {
+      /* reading only */
+    } else if (verb?.toLowerCase() === 'actions' || verb?.toLowerCase() === 'places') {
       page = Number(args[0] ?? 1);
       if (verb?.toLowerCase() === 'places') page = -page;
       if (
@@ -152,39 +160,69 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
       )
         return invalid('Use actions <page> with an available positive page number.');
     }
+    const numbered = /^[+-]?\d+$/.test(text) ? menu.menu[Number(text) - 1]?.command : undefined;
     const command =
       detail !== undefined || page !== 0
         ? parseText('look', observation)
         : /^[+-]?\d+$/.test(text)
-          ? (menu.menu[Number(text) - 1]?.command ?? 'No such menu number')
+          ? numbered
+            ? (confirmEnding(numbered, text) ?? numbered)
+            : 'No such menu number'
           : parseText(text, observation);
     if (typeof command === 'string') return invalid(command);
     const oldCommands = session.commandLog.length;
     const oldMetrics = session.telemetry.length;
     const result = session.act(command, mode);
     if (!result.ok) return invalid(result.reason ?? 'Invalid command');
+    // A reply that took no time is the answer and one line (playtest r2: phone-size output); look,
+    // actions and places show the whole scene. A wait's stop says why on its own line, so the
+    // scene does not repeat the reason.
+    const full = result.elapsedMinutes > 0 || ['look', 'actions', 'places'].includes((verb ?? '').toLowerCase());
+    const stopped = result.stopped?.reasons ?? [];
+    const scene = {
+      ...result.observation,
+      changes: {
+        ...result.observation.changes,
+        events: result.observation.changes.events.filter((e) => !stopped.includes(e)),
+      },
+    };
+    const sceneText = full
+      ? renderObservation(
+          scene,
+          page,
+          (o.compact ?? menu.compact) && !['look', 'actions', 'places'].includes(verb ?? '')
+            ? menu.previous
+            : undefined,
+        )
+      : renderBrief(result.observation);
+    // An act already listed among the scene's events is not said twice.
+    const answer = detail ?? (result.detail === undefined ? undefined : renderDetail(result.detail));
+    const said = answer?.match(/^\[\d+\] /)?.[0];
     const output = [
       result.warning,
       result.notice,
-      ...renderInterrupts(result),
-      detail ?? (result.detail === undefined ? undefined : renderDetail(result.detail)),
-      renderObservation(
-        result.observation,
-        page,
-        (o.compact ?? menu.compact) && !['look', 'actions', 'places'].includes(verb ?? '') ? menu.previous : undefined,
-      ),
+      ...renderInterrupts(result, { allReasons: true }),
+      said && sceneText.includes(`\n${said}`) ? undefined : answer,
+      sceneText,
     ]
       .filter((part) => part !== undefined)
       .join('\n');
     appendFileSync(join(dir, 'commands.jsonl'), jsonl(session.commandLog.slice(oldCommands)));
     appendFileSync(join(dir, 'metrics.jsonl'), jsonl(session.telemetry.slice(oldMetrics)));
     appendFileSync(join(dir, 'transcript.txt'), `> ${line}\n${output}\n`);
-    save(dir, session, {
-      page,
-      menu: menuActions(result.observation, page),
-      previous: result.observation,
-      compact: o.compact ?? menu.compact,
-    });
+    // The numbers refer to the last menu shown: a brief reply leaves it (and the scene) as it was.
+    save(
+      dir,
+      session,
+      full
+        ? {
+            page,
+            menu: menuActions(result.observation, page),
+            previous: result.observation,
+            compact: o.compact ?? menu.compact,
+          }
+        : { ...menu, compact: o.compact ?? menu.compact },
+    );
     console.log(output);
     return 0;
   } finally {

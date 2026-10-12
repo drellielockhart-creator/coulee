@@ -16,6 +16,7 @@ import { effectiveTraits, psycheOf } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { MINUTES_PER_DAY } from '../time.ts';
 import type { World } from '../world.ts';
+import { giftStack } from './gifts.ts';
 import { type MemoryDigest, memoryDigest } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
 import { grievance, isAcquainted, opinionOf, opinionRecord, owedCents, owedFavors } from './opinion.ts';
@@ -213,6 +214,13 @@ export function requiresFail(p: Pair, def: InteractionDef, mode: RequireMode): s
     if (!q.initiator_did.some((k) => (d[k] ?? 0) >= 100)) return 'nothing to atone for';
   }
   if (q.target_min_anxiety > 0 && anxietyOf(w, tg) < q.target_min_anxiety) return 'target at ease';
+  // How well the target knows the initiator binds every mode: a command cannot make a near
+  // stranger agree to walk out (playtest r2: courtship on one roll on the first evening).
+  if ((q.target_min_familiarity ?? 0) > 0 && (opinionRecord(w, tg, i)?.familiarity ?? 0) < q.target_min_familiarity)
+    return 'hardly knows you';
+  // A gift is a thing in hand. (Spontaneous choices check it once, for the act they settle on:
+  // the inventory scan stays out of the per-candidate encounter loop.)
+  if (q.gift_item && mode !== 'spontaneous' && giftStack(w, p.content, i) === null) return 'nothing to give';
   if (mode !== 'spontaneous') return null;
   // hasRumorFor is belief's cheap estimate; a chosen gossip urge goes to transmit(), which
   // decides for real (and may answer told: false).

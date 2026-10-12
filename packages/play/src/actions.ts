@@ -17,6 +17,35 @@ export interface AvailableAction {
   label: string;
   command: Command;
 }
+/** "Michael Dunleavy's offer to lend a hand (you would owe him a favor)": an answer's label. */
+export function requestLabel(w: Sim['world'], r: social.PendingRequest): string {
+  const from = w.actors[r.from];
+  const name = from ? `${from.name.given} ${from.name.family}`.trim() : 'someone';
+  const him = from?.sex === 'male' ? 'him' : from?.sex === 'female' ? 'her' : 'them';
+  const money = r.cents ? `$${(r.cents / 100).toFixed(2)}` : '';
+  switch (r.response) {
+    case 'borrow':
+      return `${name}'s loan of ${money || 'money'} (you would owe ${him} ${money || 'it'})`;
+    case 'lend':
+    case undefined:
+      return `${name}'s request to borrow ${money || 'money'} (${him === 'them' ? 'they' : him === 'him' ? 'he' : 'she'} would owe you)`;
+    case 'proposal':
+      return `${name}'s proposal`;
+    case 'disclose':
+      return `${name}'s question (tell ${him} your news)`;
+    default:
+      return `${name}'s offer (you would owe ${him} ${r.favors && r.favors > 1 ? `${r.favors} favors` : 'a favor'})`;
+  }
+}
+
+const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+const clock = (t: number) =>
+  `${String(Math.floor((t % 1440) / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+function closedText(sim: Sim, placeId: number): string {
+  const s = provisions.serviceAt(sim.world, sim.content, placeId as never);
+  return s ? `The counter is closed; it is open ${s.opens}:00–${s.closes}:00` : 'The shop is closed';
+}
+
 export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
   const { world: w, content: c } = sim;
   const a = w.actors[pc];
@@ -33,7 +62,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     for (const accept of [true, false])
       add(
         `answer:${r.id}:${accept ? 'yes' : 'no'}`,
-        `${accept ? 'Accept' : 'Refuse'} ${r.response === 'borrow' ? 'loan offer' : r.response === 'lend' || !r.response ? 'loan request' : r.response === 'proposal' ? 'proposal' : r.response === 'disclose' ? 'request for information' : 'favor with an obligation'} from ${w.actors[r.from]?.name.given}`,
+        accept ? `Yes to ${requestLabel(w, r)}` : `No to ${requestLabel(w, r).replace(/ \(.*\)$/, '')}`,
         { kind: 'social.answer_request', actorId: pc, data: { requestId: r.id, accept } },
       );
   add('signs', 'Signs & Wonders', { kind: 'fae.signs', actorId: pc, data: {} });
@@ -80,13 +109,26 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
   const state = activity.currentActivity(w, pc);
   const unlocked = state?.lockedUntil === null || state?.lockedUntil === undefined || state.lockedUntil <= w.time;
   if (unlocked) {
-    for (const p of Object.values(w.places))
-      if (p.id !== a.placeId && c.activities.idle_at_home)
-        add(`go:${p.id}`, `Go to ${p.name}`, {
-          kind: 'core.urge',
-          actorId: pc,
-          data: { urge: { kind: 'activity', activityId: 'walk', placeId: p.id } },
-        });
+    // Nearest first, with the minutes on foot (playtest r2: the Go menu showed only 3-4 hubs);
+    // among places as near, the public ones (tavern, store, church, street) before private homes.
+    const publicTags = social.tuningOf(c).public_venue_tags;
+    const isPublic = (p: (typeof w.places)[number]) => (p.tags.some((t) => publicTags.includes(t)) ? 0 : 1);
+    const destinations = Object.values(w.places)
+      .filter((p) => p.id !== a.placeId && c.activities.idle_at_home)
+      .map((p) => ({ p, minutes: activity.walkMinutes(w, c, a.placeId, p.id) }))
+      .sort((x, y) => x.minutes - y.minutes || isPublic(x.p) - isPublic(y.p) || x.p.id - y.p.id);
+    for (const { p, minutes } of destinations)
+      add(`go:${p.id}`, `Go to ${p.name} (${minutes} min)`, {
+        kind: 'core.urge',
+        actorId: pc,
+        data: { urge: { kind: 'activity', activityId: 'walk', placeId: p.id } },
+      });
+    // Another trade's work is not hers to take up (playtest r2: a newcomer offered "Hold court"
+    // and "Keep the tavern"): labor is offered when her own occupation schedules it, or it is a
+    // chore or wild work anyone may do.
+    const own = new Set(
+      (c.occupations[a.occupationId]?.schedule ?? []).flatMap((b) => [b.activity, b.fallback ?? b.activity]),
+    );
     // Away from lodgings on open ground, ordinary sleep is a camp bed on the spot (never a walk
     // back to a paid one), resting is resting here, and the camp activities are on offer.
     const camp = items.campContext(w, c, pc);
@@ -96,6 +138,13 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       if (activity.resolveActivityPlace(w, sim, pc, def.id) === null) continue;
       const isCamp = def.tags.includes('camp') || def.tags.includes('campfire');
       if (isCamp && !camp.afield) continue;
+      if (
+        def.tags.includes('labor') &&
+        !own.has(def.id) &&
+        !def.tags.includes('chore') &&
+        !def.tags.includes('wild_production')
+      )
+        continue;
       if (def.asleep && def.at === 'home' && camp.bedding && campId !== null) {
         add(`activity:${def.id}`, `Make camp and sleep here`, {
           kind: 'core.urge',
@@ -231,6 +280,13 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     /^\d+$/.test(command.data.target ?? '')
   )
     return null;
+  // The counter's prices, a page or a filter at a time (reading: no time, open after an ending).
+  if (
+    command.kind === 'activity.observe' &&
+    command.data.query === 'look' &&
+    /^prices:[\w ,'-]{1,40}$/.test(command.data.target ?? '')
+  )
+    return null;
   const shape = { kind: command.kind, actorId: command.actorId, data: command.data };
   const offered = actions.some(
     (a) => hashValue({ kind: a.command.kind, actorId: a.command.actorId, data: a.command.data }) === hashValue(shape),
@@ -298,6 +354,13 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
       : 'Rations must be 10–150% for yourself or your household';
   if (command.kind === 'core.urge' && command.data.urge.kind === 'activity') {
     const u = command.data.urge;
+    // Say why not (playtest r2: "Nothing here matches" for a locked activity, an internal id leaked).
+    const state = activity.currentActivity(w, pc);
+    if (state?.lockedUntil != null && state.lockedUntil > w.time) {
+      const held = c.activities[state.activityId ?? ''];
+      const camp = held?.tags.includes('camp') === true;
+      return `You are still ${held?.verb ?? 'busy'} until ${clock(state.lockedUntil)}${camp ? ': a night at camp holds you eight hours; wait, and you will wake' : '; wait until then'}`;
+    }
     if (
       actions.some(
         (a) =>
@@ -308,6 +371,20 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
       activity.resolveActivityPlace(w, sim, pc, u.activityId, u.placeId) !== null
     )
       return null;
+    const def = c.activities[u.activityId];
+    if (u.activityId === 'walk') return u.placeId !== undefined && w.places[u.placeId] ? null : 'No such place';
+    if (!def) return 'No such activity';
+    const own = (c.occupations[actor.occupationId]?.schedule ?? []).flatMap((b) => [b.activity, b.fallback]);
+    if (
+      def.tags.includes('labor') &&
+      !own.includes(def.id) &&
+      !def.tags.includes('chore') &&
+      !def.tags.includes('wild_production')
+    )
+      return `${def.name} is not your trade`;
+    if (activity.resolveActivityPlace(w, sim, pc, u.activityId, u.placeId) === null)
+      return `There is nowhere to ${def.name.toLowerCase()} from here`;
+    return `${def.name} is not something you can do here and now`;
   }
   if (command.kind === 'core.urge' && command.data.urge.kind === 'interaction') {
     const u = command.data.urge;
@@ -321,47 +398,44 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   if (command.kind === 'provisions.sell') {
     const d = command.data,
       stack = w.items.stacks[d.itemId];
-    if (!stack || d.qty > stack.qty) return 'Quantity exceeds available stock';
-    const quote = provisions.saleQuote(w, c, d.placeId, d.itemId);
+    const name = stack ? (c.items[stack.defId]?.name ?? stack.defId) : 'that';
+    if (!stack || items.rootOf(w, stack).kind !== 'actor' || !provisions.accessibleStack(w, pc, stack))
+      return 'You are not carrying that';
+    if (d.qty > stack.qty) return `You have only ${stack.qty} ${name}`;
     const shop = w.provisions.stores[d.placeId];
+    if (d.placeId !== actor.placeId || !shop) return 'Nobody buys goods here; try a store';
+    if (!provisions.storeOpen(w, c, d.placeId)) return closedText(sim, d.placeId);
+    if (stack.partial || stack.foodPartialPm) return `Partly used ${name} cannot be sold`;
+    const quote = provisions.saleQuote(w, c, d.placeId, d.itemId);
+    if (quote === null) return `The store does not buy ${name}`;
     const cash =
-      shop?.ownerHouseholdId == null
-        ? (shop?.tillCents ?? 0)
-        : (w.provisions.households[shop.ownerHouseholdId]?.cashCents ?? 0);
-    return d.placeId === actor.placeId &&
-      shop &&
-      provisions.storeOpen(w, c, d.placeId) &&
-      items.rootOf(w, stack).kind === 'actor' &&
-      provisions.accessibleStack(w, pc, stack) &&
-      quote !== null &&
-      quote * d.qty <= cash
-      ? null
-      : 'Sale unavailable: check ownership, shop hours and shop cash';
+      shop.ownerHouseholdId == null ? shop.tillCents : (w.provisions.households[shop.ownerHouseholdId]?.cashCents ?? 0);
+    if (quote * d.qty > cash)
+      return `The store has only ${money(Math.max(0, cash))} to pay out just now; ${d.qty} ${name} would be ${money(quote * d.qty)}`;
+    return null;
   }
   if (command.kind === 'provisions.buy') {
-    if (!provisions.storeOpen(w, c, command.data.placeId)) return 'The shop is closed';
-    const d = command.data,
-      price = provisions.priceAt(w, c, d.placeId, d.defId);
+    const d = command.data;
     const store = w.provisions.stores[d.placeId];
-    const stock = items
-      .stacksAt(w, items.atPlace(d.placeId))
-      .filter((s) => s.defId === d.defId && !s.partial && !s.foodPartialPm && s.condition > 0 && s.spoilage < 1000)
+    const name = c.items[d.defId]?.name ?? d.defId;
+    if (d.placeId !== actor.placeId || !store) return 'Nothing is sold here';
+    if (!provisions.storeOpen(w, c, d.placeId)) return closedText(sim, d.placeId);
+    const price = provisions.priceAt(w, c, d.placeId, d.defId);
+    if (price === null) return `${name} is not sold here`;
+    const here = items.stacksAt(w, items.atPlace(d.placeId)).filter((s) => s.defId === d.defId);
+    const stock = here
+      .filter((s) => !s.partial && !s.foodPartialPm && s.condition > 0 && s.spoilage < 1000)
       .reduce((n, s) => n + s.qty, 0);
-    if (d.qty > stock) return 'Quantity exceeds available stock';
-    const funds =
-      (w.provisions.purses[pc] ?? 0) +
-      (w.provisions.households[actor.householdId]?.cashCents ?? 0) +
-      (d.onCredit && store ? Math.max(0, store.creditLimitCents - (store.tabs[pc] ?? 0)) : 0);
-    if (
-      d.placeId === actor.placeId &&
-      price !== null &&
-      Number.isSafeInteger(d.qty) &&
-      d.qty > 0 &&
-      d.qty <= stock &&
-      d.qty * price <= funds &&
-      typeof d.onCredit === 'boolean'
-    )
-      return null;
+    if (stock === 0)
+      return here.length ? `The only ${name} left here is broken open or spoiled` : `${name} is sold out here`;
+    if (d.qty > stock) return `Only ${stock} ${name} in stock`;
+    const cash =
+      (w.provisions.purses[pc] ?? 0) + Math.max(0, w.provisions.households[actor.householdId]?.cashCents ?? 0);
+    const credit = Math.max(0, store.creditLimitCents - (store.tabs[pc] ?? 0));
+    const funds = cash + (d.onCredit ? credit : 0);
+    if (d.qty * price > funds)
+      return `You cannot afford ${d.qty} ${name} at ${money(price)} (${money(d.qty * price)}); you have ${money(cash)}${!d.onCredit && credit > 0 && d.qty * price <= cash + credit ? '. The keeper would put it on account' : ''}`;
+    if (Number.isSafeInteger(d.qty) && d.qty > 0 && typeof d.onCredit === 'boolean') return null;
   }
   if (command.kind === 'provisions.eat') {
     const d = command.data,
@@ -382,6 +456,13 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     const d = command.data,
       s = w.items.stacks[d.itemId],
       box = d.intoItemId === null ? null : w.items.stacks[asItemId(d.intoItemId)];
+    if (!s || !provisions.accessibleStack(w, pc, s)) return 'You are not carrying that';
+    if (box !== null && box !== undefined) {
+      const fit = items.fitsInContainer(w, c, s, d.qty, box);
+      const itemName = c.items[s.defId]?.name ?? s.defId;
+      if (!provisions.accessibleStack(w, pc, box)) return 'That container is not at hand';
+      if (!fit.ok) return `The ${itemName} will not go in: ${fit.reason}`;
+    }
     if (
       s &&
       provisions.accessibleStack(w, pc, s) &&

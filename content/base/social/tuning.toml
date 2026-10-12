@@ -148,3 +148,21 @@ channels = [
   { tag = "home", channel = "household" },
   { tag = "street", channel = "street" },
 ]
+
+# ---- Availability: talk with people at work (playtest r2) ----
+# Someone at work can spare a short exchange (15 minutes or less: a greeting, a chat, a debt
+# settled, the news asked) without stopping; longer talk waits until work ends. Work this
+# sociable (keeping the tavern 80, the shop 65, the pulpit 70) is done while talking: anything
+# goes, at no cost. Holding someone on purpose during less sociable working hours costs a little
+# of their regard (a Reason citing their memory of the talk, so it fades with it).
+work_talk_minutes = 15
+work_talk_sociability = 50
+kept_from_work = { reason = "Kept me from my work", delta = { affection = -2 } }
+
+# ---- Requests: offers and asks that wait on an answer ----
+# The same asker does not put the same request to the same person again for three days, or a
+# week after a refusal or no answer. A loan repaid within a day of being taken earns the lender
+# no trust: it proved nothing.
+request_cooldown_hours = 72
+refused_request_cooldown_hours = 168
+repay_trust_min_hours = 24

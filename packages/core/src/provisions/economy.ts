@@ -174,6 +174,11 @@ export function transferCash(
   reason: string,
   causeEventId?: number,
   basis?: import('../psyche/api.ts').Basis,
+  /**
+   * Where the payee keeps it: 'household' (the cash box, the default) or 'purse' (a personal
+   * debt between two people: loans and repayments land where the payer's came from).
+   */
+  pocket: 'household' | 'purse' = 'household',
 ): number {
   if (
     !authorizeAct(
@@ -196,7 +201,7 @@ export function transferCash(
   world.provisions.purses[fromId] = purse - fromPurse;
   if (fromHh && moved > fromPurse) fromHh.cashCents -= moved - fromPurse;
   const toHh = from.householdId === to.householdId ? fromHh : world.provisions.households[to.householdId];
-  if (toHh) toHh.cashCents += moved;
+  if (toHh && pocket === 'household') toHh.cashCents += moved;
   else world.provisions.purses[toId] = (world.provisions.purses[toId] ?? 0) + moved;
   ctx.emit({
     kind: 'provisions.cash_transfer',

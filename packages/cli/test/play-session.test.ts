@@ -109,12 +109,19 @@ describe('stateless play CLI (a new process per call)', () => {
     ]) {
       const result = cli('--session', dir, line);
       expect(result.code, result.err || result.out).toBe(2);
-      expect(result.out).toContain(`1. ${menu[0]?.label} [${menu[0]?.id}]`);
+      // A refusal is one line (playtest r2: phone-size output); the menu it leaves stands.
+      expect(result.out.trim()).toMatch(/^[^\n]*No game time spent\.$/);
+      expect(result.out).not.toMatch(/\.\. No game time/);
       expect(read(dir, 'save.json')).toBe(before);
       expect(read(dir, 'commands.jsonl')).toBe(commands);
     }
     ok('--session', dir, '1');
     expect(log(dir).at(-1)).toMatchObject({ command: menu[0]?.command });
+    // A reply that took no time shows no new menu, so the numbers still mean the page last shown;
+    // one that took time shows the first page again.
+    const took = (log(dir).at(-1) as { at: number; end: number }).end > (log(dir).at(-1) as { at: number }).at;
+    expect(saved(dir).cli.page).toBe(took ? 0 : 2);
+    ok('--session', dir, 'wait 1h');
     expect(saved(dir).cli.page).toBe(0);
     expect(ok('--session', dir, '--verify')).toContain('Verified');
     expect(ok('--session', dir, 'help')).toContain('queries take no time');

@@ -171,6 +171,12 @@ export interface TransmitRequest {
    * talk turns that way.
    */
   deliberate?: boolean;
+  /**
+   * The hearer asked for the news (social `ask_about`; playtest r2: asking went 0 for 4 while the
+   * speaker held news). Anything tellable counts, not only what clears the worth-telling floor:
+   * asked, people say what they have, freshest first. Concealed beliefs are still never told.
+   */
+  asked?: boolean;
 }
 
 export interface TransmitResult {
@@ -412,7 +418,7 @@ export function planTransmit(world: World, ctx: SimContext, req: TransmitRequest
         ? 1000
         : Math.max(unheard ? NEWS_TO_A_STRANGER : 0, freshnessOf(world, ctx.now, b, listener.id).pm);
     next = Math.floor((next * fresh) / 1000);
-    if (req.topic === undefined && next < WORTH_TELLING) continue;
+    if (req.topic === undefined && next < WORTH_TELLING && req.asked !== true) continue;
     if (next > score || (next === score && b.id < (selected?.id ?? b.id))) {
       selected = b;
       score = next;

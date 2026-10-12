@@ -9,6 +9,7 @@ import {
   items,
   needs,
   provisions,
+  psyche,
   restoreSim,
   type Sim,
   social,
@@ -19,9 +20,9 @@ import {
 import { GEN_VERSION } from '@coulee/worldgen';
 import { availableActions, validateCommand } from './actions.ts';
 import { moneyReason } from './describe.ts';
-import { alertForEvent, type Interrupt, perceivedEvents, provisionsAlert } from './interrupts.ts';
+import { addressedToPC, alertForEvent, type Interrupt, perceivedEvents, provisionsAlert } from './interrupts.ts';
 import { packKnowledge, unpackKnowledge } from './knowledge.ts';
-import { obligationsOf, obligationText } from './obligations.ts';
+import { claimsOf, claimText, obligationsOf, obligationText } from './obligations.ts';
 import {
   eventView,
   type KnownEvent,
@@ -45,6 +46,8 @@ export interface LogHeader {
   format: 1;
   spec: SessionSpec;
   contentHash: string;
+  /** Additive: a forked story (its fair ending keeps the omniscient epilogue to itself). */
+  branched?: boolean;
 }
 export type ReplayLog = [LogHeader, ...LogStep[]];
 export interface Metric {
@@ -91,6 +94,13 @@ export class PlaySession {
   private metrics: Metric[] = [];
   private money: MoneyChange[] = [];
   private changes: Observation['changes'] = { elapsed: 0, money: [], needs: [], events: [], skipped: 0 };
+  /** Said or done to her during the current order that asked nothing of her (the digest). */
+  private addressed: string[] = [];
+  /**
+   * This story has been forked (or is a fork): a fair ending then keeps "what the county never
+   * knew" to itself, or a fork could read it and play on in the original (playtest r2).
+   */
+  private branched = false;
   private base: ContentBundle;
   private configuration: SessionSpec;
   get spec(): SessionSpec {
@@ -125,7 +135,13 @@ export class PlaySession {
   get commandLog(): ReplayLog {
     return JSON.parse(
       JSON.stringify([
-        { type: 'session', format: 1, spec: this.spec, contentHash: this.base.meta.hash },
+        {
+          type: 'session',
+          format: 1,
+          spec: this.spec,
+          contentHash: this.base.meta.hash,
+          ...(this.branched ? { branched: true } : {}),
+        },
         ...this.entries,
       ]),
     );
@@ -136,7 +152,15 @@ export class PlaySession {
   observe(mode: ObservationMode = 'fair') {
     return JSON.parse(
       JSON.stringify({
-        ...observation(this.sim, this.playerId, this.known, mode, this.knowledge),
+        ...observation(
+          this.sim,
+          this.playerId,
+          this.known,
+          mode,
+          this.knowledge,
+          12,
+          this.branched ? 'fair' : 'omniscient',
+        ),
         changes: this.changes,
       }),
     ) as ReturnType<typeof observation>;
@@ -167,9 +191,14 @@ export class PlaySession {
       error = 'Malformed command';
     }
     if (error) return this.fail(error, mode);
+    // Settings take no game time (playtest r2): the order is logged and applied at once, through
+    // the same setters the systems use, so a replay applies it identically.
+    if (command.kind === 'core.standing_orders' || command.kind === 'provisions.set_rations')
+      return this.settle(command, mode);
     const socialSave =
       command.kind === 'core.urge' && command.data.urge.kind === 'interaction' ? this.save() : undefined;
     const previous = this.observe(mode);
+    this.addressed = [];
     const moneyStart = this.money.length,
       knowledgeStart = this.knowledge.length;
     const before = this.hash,
@@ -199,11 +228,18 @@ export class PlaySession {
                 !event.data.noticed &&
                 event.data.targetId !== this.playerId)))
         )
-          return this.fail('No known explanation with that id', mode);
+          return this.fail(NO_EXPLANATION, mode);
         detail = knownExplain(event.explain ?? undefined, this.playerId, mode);
-        if (!detail) return this.fail('That explanation is not known to your character', mode);
-      } else if (d.query === 'look' && d.target === 'prices') detail = { prices: o.store.stock ?? [] };
-      else if (d.query === 'plan')
+        // One refusal for a secret and a missing id alike: a different answer would be an oracle.
+        if (!detail) return this.fail(NO_EXPLANATION, mode);
+      } else if (d.query === 'look' && /^prices(:.*)?$/.test(d.target ?? '')) {
+        // `prices`, `prices 2` (a page), `prices bacon` (a filter): the counter's stock, a page at a time.
+        const arg = (d.target ?? '').slice('prices:'.length);
+        detail = {
+          prices: o.store.stock ?? [],
+          ...(/^\d+$/.test(arg) ? { page: Number(arg) } : arg ? { filter: arg } : {}),
+        };
+      } else if (d.query === 'plan')
         detail = {
           ...o.self.provisions.readiness,
           ...o.self.inventory,
@@ -214,12 +250,14 @@ export class PlaySession {
         const entries = observation(this.sim, this.playerId, this.known, mode, this.knowledge, 0).journal;
         // Open debts close the journal as obligations with their due dates.
         const owed = obligationsOf(this.sim.world, this.sim.content, this.playerId);
+        // ...and what others owe her (playtest r2: favors and loans never showed in the list).
+        const claims = claimsOf(this.sim.world, this.playerId);
         detail = [
           ...entries,
           ...owed.map((o, i) => ({
             id: -1 - i,
             t: o.since,
-            stamp: timeView(o.since).stamp,
+            stamp: o.kind === 'favor' ? 'Owed:' : timeView(o.since).stamp,
             voice: 'journal',
             headline: null,
             text: obligationText(o),
@@ -228,10 +266,49 @@ export class PlaySession {
             pattern: null,
             knowledge: 'self',
           })),
+          ...claims.map((c, i) => ({
+            id: -1 - owed.length - i,
+            t: c.since,
+            stamp: 'Owed to you:',
+            voice: 'journal',
+            headline: null,
+            text: claimText(c),
+            importance: 0,
+            actorIds: [c.debtorId],
+            pattern: null,
+            knowledge: 'self',
+          })),
         ];
       } else if (d.query === 'inspect') {
         const [kind, id] = (d.target ?? '').split(':');
-        if (kind === 'actor' && Number(id) !== this.playerId) {
+        if (kind === 'actor' && Number(id) === this.playerId) {
+          // Herself, in words (playtest r2: a 1,400-line JSON dump).
+          const me = o.self;
+          detail = {
+            selfSummary: {
+              name: me.name,
+              people: this.sim.content.peoples[this.sim.world.actors[this.playerId]?.presentsAsId ?? '']?.name ?? '',
+              doing: me.activity.verb,
+              place: o.place.name,
+              lodging: me.lodging?.name ?? null,
+              agencyMode: me.agencyMode,
+              orders: me.standingOrders,
+              rationPct: this.sim.world.provisions.nutrition[this.playerId]?.rationPct ?? 100,
+              vitals: me.needs.list
+                .filter((n) => n.kind === 'physical' && (n.id !== 'drink' || n.band))
+                .map((n) => `${n.name} ${n.value}${n.band ? ` (${n.band})` : ''}`),
+              mind: me.needs.list.filter((n) => n.kind !== 'physical' && n.band).map((n) => `${n.name}: ${n.band}`),
+              conditions: me.needs.survival?.conditions ?? [],
+              purseCents: me.provisions.purseCents,
+              householdCents: me.provisions.householdCents,
+              load: `${me.inventory.loadBand}, ${(me.inventory.totalWeightG / 1000).toFixed(1)} kg`,
+              obligations: me.obligations.map((x) => obligationText(x)),
+              claims: claimsOf(this.sim.world, this.playerId).map((x) => claimText(x)),
+              ties: me.social.relationships.map((r) => r.label),
+              known: social.acquaintancesOf(this.sim.world, this.playerId).length,
+            },
+          };
+        } else if (kind === 'actor') {
           const person = o.knownPeople.find((a) => a.id === Number(id));
           const opinion = o.self.social.opinions.find((a) => a.targetId === Number(id));
           const target = person?.id;
@@ -243,6 +320,10 @@ export class PlaySession {
                   label: r.label,
                   ...social.reasonContribution(this.sim.world, this.playerId, target, r),
                 }));
+          const owe = o.self.obligations.filter((x) => x.creditorId === target).map((x) => obligationText(x));
+          const owed = claimsOf(this.sim.world, this.playerId)
+            .filter((x) => x.debtorId === target)
+            .map((x) => claimText(x));
           detail = {
             person,
             opinion,
@@ -251,11 +332,16 @@ export class PlaySession {
             reasons,
             relationships: o.self.social.relationships.filter((r) => r.otherId === target),
             memories: o.self.social.memories.filter((m) => person && m.summary.includes(person.name)),
+            // Additive (playtest r2): met or not, how well, and what lies between you.
+            acquainted: record !== undefined,
+            familiarity: record?.familiarity ?? 0,
+            between: [...owe, ...owed],
           };
         } else if (kind === 'item') {
           const item = o.self.inventory.carried.find((i) => i.id === Number(id));
           detail = item ? { item, catalog: this.sim.content.items[item.defId] } : undefined;
-        } else detail = kind === 'actor' ? o.self : o.places.find((p) => p.id === Number(id));
+          if (!item) return this.fail('That is not in your pack', mode);
+        } else detail = o.places.find((p) => p.id === Number(id));
       }
     } else if (command.kind === 'activity.wait') {
       const end = command.data.untilTime ?? at + command.data.minutes;
@@ -269,13 +355,16 @@ export class PlaySession {
         if (awaited) event = this.knowledge.find((k) => k.id === awaited.id)?.summary;
         if (this.sim.world.needs.byActor[this.playerId]?.survival?.ending || interrupts.length || awaited) break;
       }
+      // A stop always says why (playtest r2: stops with no reason, and a 24-hour stop unexplained).
       if (this.sim.world.time < end)
         stopped = {
           at: this.sim.world.time,
           wanted: end,
           reasons: interrupts.length
-            ? interrupts.map((i) => i.reason)
-            : [event ?? 'what you were waiting for happened'],
+            ? [...new Set(interrupts.map((i) => i.reason))]
+            : this.sim.world.needs.byActor[this.playerId]?.survival?.ending
+              ? ['your life has ended']
+              : [event ?? 'what you were waiting for happened'],
         };
     } else {
       const start = this.sim.world.log.lastId;
@@ -352,6 +441,7 @@ export class PlaySession {
       }),
       events: recentKnown.filter((e) => interrupts.some((i) => i.eventId === e.id)).map((e) => e.summary),
       skipped: command.kind === 'activity.wait' ? background.length : 0,
+      ...(this.addressed.length ? { addressed: [...this.addressed] } : {}),
     };
     this.entries.push({
       type: 'command',
@@ -371,6 +461,41 @@ export class PlaySession {
       observation: this.observe(mode),
       ...(detail === undefined ? {} : { detail }),
     };
+  }
+  /** Apply a settings order (standing orders, agency, rations) now, in no game time. */
+  private settle(command: Command, mode: ObservationMode): ActResult {
+    const w = this.sim.world,
+      pc = this.playerId;
+    const before = this.hash,
+      at = w.time;
+    let notice: string;
+    if (command.kind === 'core.standing_orders') {
+      const was = { mode: psyche.agencyMode(w, pc), orders: psyche.standingOrders(w, pc) };
+      psyche.applyStandingOrders(w, pc, command.data);
+      notice = ordersChange(was, { mode: psyche.agencyMode(w, pc), orders: psyche.standingOrders(w, pc) });
+    } else if (command.kind === 'provisions.set_rations') {
+      const was = w.provisions.nutrition[pc]?.rationPct ?? 100;
+      const refused = provisions.applyRations(w, pc, command.data.householdId, command.data.rationPct);
+      if (refused) return this.fail(refused, mode);
+      notice = `Rations set to ${command.data.rationPct}% (they were ${was}%).`;
+    } else return this.fail('Not a setting', mode);
+    this.changes = { elapsed: 0, money: [], needs: [], events: [], skipped: 0 };
+    this.entries.push({
+      type: 'command',
+      command: JSON.parse(JSON.stringify(command)),
+      before,
+      after: this.hash,
+      at,
+      end: at,
+    });
+    return { ok: true, notice, elapsedMinutes: 0, interrupts: [], observation: this.observe(mode) };
+  }
+  /** Mark this story as branched (forked from, or a fork): its fair ending withholds the omniscient epilogue. */
+  markBranched(): void {
+    this.branched = true;
+  }
+  get isBranched(): boolean {
+    return this.branched;
   }
   advance(
     until: number | { time?: number; event?: string; maxMinutes?: number },
@@ -466,13 +591,17 @@ export class PlaySession {
     const seen: Event[] = perceivedEvents(recent, pc, prior);
     for (const e of seen) {
       this.known.push(e.id);
-      if (!['needs.changed', 'core.command', 'provisions.water'].includes(e.kind))
-        this.knowledge.push({
+      if (!['needs.changed', 'core.command', 'provisions.water'].includes(e.kind)) {
+        const view = {
           ...eventView(e, pc, 'fair', { world: w, content: c }),
           ...(e.kind === 'belief.transmitted'
             ? { summary: `${e.data.listenerId === pc ? 'Heard' : 'Told'}: ${belief.propText(w, c, e.data.propId)}` }
             : {}),
-        });
+        };
+        this.knowledge.push(view);
+        // Said or done to her, asking nothing: the digest, never a stop (playtest r2).
+        if (addressedToPC(c, pc, e)) this.addressed.push(view.summary);
+      }
     }
     const alerts = seen.map((e) => alertForEvent(w, c, pc, e));
     const after = provisions.readinessOf(w, c, { actorId: pc }, w.time);
@@ -547,6 +676,7 @@ export class PlaySession {
       metrics: this.metrics,
       money: this.money,
       changes: this.changes,
+      ...(this.branched ? { branched: true } : {}),
       // Retain generated source content so loading does not regenerate a town or run QA.
       ...(typeof this.configuration.source === 'object' ? { generatedContent: this.sim.content } : {}),
     });
@@ -576,6 +706,7 @@ export class PlaySession {
     session.metrics = saved.metrics;
     session.money = saved.money ?? [];
     session.changes = saved.changes ?? session.changes;
+    session.branched = saved.branched === true;
     return session;
   }
   fork(): PlaySession {
@@ -589,6 +720,9 @@ export class PlaySession {
     copy.metrics = JSON.parse(JSON.stringify(this.metrics));
     copy.money = JSON.parse(JSON.stringify(this.money));
     copy.changes = JSON.parse(JSON.stringify(this.changes));
+    // Both lines of a forked story are branched: neither may read the other's omniscient ending.
+    this.branched = true;
+    copy.branched = true;
     return copy;
   }
   static replay(content: ContentBundle, log: ReplayLog, mode: ObservationMode = 'fair'): PlaySession {
@@ -596,6 +730,7 @@ export class PlaySession {
     if (header.type !== 'session' || header.format !== 1 || header.contentHash !== content.meta.hash)
       throw new Error('Replay content/version mismatch');
     const session = PlaySession.create(content, header.spec);
+    if (header.branched) session.branched = true;
     for (const entry of steps) {
       if (entry.type !== 'command' || entry.before !== session.hash) throw new Error('Replay diverged before command');
       const result = session.act(entry.command, mode);
@@ -606,3 +741,24 @@ export class PlaySession {
   }
 }
 export const replay = PlaySession.replay;
+
+/** The one answer to `explain` for an id she cannot read, whether it is secret or does not exist. */
+export const NO_EXPLANATION = 'No explanation you know of has that id';
+
+/** "Standing orders: sleep on, eat OFF (was on)…; agency commanded." What a settings order changed. */
+export function ordersChange(
+  was: { mode: string; orders: psyche.StandingOrders },
+  now: { mode: string; orders: psyche.StandingOrders },
+): string {
+  const keys = ['sleep', 'eat', 'drink', 'warmth', 'lodging'] as const;
+  const changed = keys.filter((k) => was.orders[k] !== now.orders[k]);
+  const list = keys.map((k) => `${k} ${now.orders[k] ? 'on' : 'off'}`).join(', ');
+  const what =
+    changed.length || was.mode !== now.mode
+      ? `Changed: ${[
+          ...changed.map((k) => `${k} ${now.orders[k] ? 'on' : 'off'}`),
+          ...(was.mode !== now.mode ? [`agency ${now.mode}`] : []),
+        ].join(', ')}.`
+      : 'Nothing changed.';
+  return `${what} Standing orders now: ${list}; agency ${now.mode}.`;
+}

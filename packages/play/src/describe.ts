@@ -200,12 +200,21 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'fae.investigated':
       return out(e.data.text);
     case 'social.requested':
-      return out(e.data.text);
-    case 'social.request_answered':
+      return out(e.data.text.replace(/\.$/, ''));
+    case 'social.request_answered': {
+      // The request id is "<asker>:<asked>:<minute>:<interaction>".
+      const [from, , , iid] = e.data.requestId.split(':');
+      const asker = actorName(Number(from));
+      const what = content.interactions[iid ?? '']?.name.toLowerCase() ?? 'request';
+      const verb =
+        e.data.status === 'accepted' ? 'accepted' : e.data.status === 'refused' ? 'refused' : 'let pass, unanswered,';
       return out(
-        `${e.data.actorId === pc ? 'Your' : `${actorName(e.data.actorId)}'s`} answer on the request: ${e.data.status}`,
+        e.data.actorId === pc
+          ? `You ${verb} ${asker}'s ${what}`
+          : `${actorName(e.data.actorId)} ${verb} ${asker}'s ${what}`,
         e.data.actorId !== pc,
       );
+    }
     case 'psyche.arbitrated': {
       const d = e.data;
       return out(
@@ -222,8 +231,13 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'social.interaction': {
       const d = e.data;
       const verdict = d.success ? 'it went well' : 'it went badly';
-      if (d.initiatorId === pc) return out(`${d.label} (${verdict})`);
-      return out(`${actorName(d.initiatorId)}: ${d.label} (${verdict})`);
+      // Who it was aimed at, and what changed hands (playtest r2: "Lend ▸ $1.00" hid the person).
+      const label = content.interactions[d.interactionId]?.label ?? d.label.split(' ▸ ')[0] ?? d.label;
+      const extras = [...(d.cents ? [cents(d.cents)] : []), ...(d.itemDefId ? [itemName(d.itemDefId)] : [])];
+      const work = d.atWork ? `; it kept ${actorName(d.targetId)} from work` : '';
+      const act = `${label} ▸ ${who(d.targetId)}${extras.length ? `: ${extras.join('; ')}` : ''} (${verdict}${work})`;
+      if (d.initiatorId === pc) return out(act);
+      return out(`${actorName(d.initiatorId)}: ${act}`);
     }
     case 'social.memory_formed':
       return out(

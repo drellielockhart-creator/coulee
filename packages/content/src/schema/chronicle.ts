@@ -216,6 +216,8 @@ export const WHEN_ONLY_KEYS = [
   'children',
   'stocked',
   'again',
+  // playtest r2 (module:social request): a news-carrying act told something, or nothing
+  'told',
 ] as const;
 
 export const WHEN_KEYS: readonly string[] = [...TEMPLATE_SLOTS, ...WHEN_ONLY_KEYS, 'interaction'];

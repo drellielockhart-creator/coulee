@@ -162,6 +162,7 @@ export type { Act, AgencyState, Basis, Issuer, StandingId } from './agency.ts';
 export {
   agencyMode,
   agencyOf,
+  applyStandingOrders,
   authorizationExplain,
   authorizeAct,
   autonomous,

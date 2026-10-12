@@ -21,7 +21,7 @@ import type { ContentBundle, InteractionDef } from '../content.ts';
 import type { ActorId, PlaceId, PropId } from '../ids.ts';
 import { rowsOf } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
-import { airTempF, isRaining, priceAt } from '../provisions/api.ts';
+import { airTempF, bestStore, isRaining, priceAt } from '../provisions/api.ts';
 import { anxietyOf } from '../psyche/api.ts';
 import type { Rng } from '../rng.ts';
 import { hashString32, mixKey } from '../rng.ts';
@@ -139,10 +139,11 @@ function hourFacts(world: World, ctx: SimContext): HourFacts {
       const def = ctx.content.observances[id];
       return def !== undefined && observanceActive(def, cal);
     });
-  // A staple's price at a store whose counter is open (the first store, by place id; the item
-  // rotates with the day so the talk of prices does not fix on flour).
+  // A staple's price at the store the town shops at (provisions' bestStore: the most food on its
+  // shelves, not the first store by place id, which named the tavern; group D's r2 note). The item
+  // rotates with the day so the talk of prices does not fix on flour.
   let price: HourFacts['price'] = null;
-  const store = rowsOf(world.provisions.stores)[0];
+  const store = bestStore(world, ctx);
   if (store) {
     const item = STAPLES[cal.dayIndex % STAPLES.length] as string;
     const cents = priceAt(world, ctx.content, store.placeId, item);
@@ -503,6 +504,12 @@ function pairKey(a: ActorId, b: ActorId): string {
 
 /** Lines said at one place stay out of the room's talk this long (two pairs, one joke). */
 const ROOM = 3 * 60;
+/** A speaker does not say the same line again, to anyone, for this long when another fits. */
+const SPEAKER = 3 * 1440;
+
+function speakerKey(id: ActorId): string {
+  return `s${id}`;
+}
 
 function placeKey(placeId: PlaceId | null): string | null {
   return placeId === null ? null : `p${placeId}`;
@@ -526,7 +533,7 @@ export function pruneTalk(world: World, now: number): void {
   if (!talk) return;
   for (const k of Object.keys(talk)) {
     const rec = talk[k] ?? {};
-    const keep = k.startsWith('p') ? ROOM : WEEK;
+    const keep = k.startsWith('p') ? ROOM : k.startsWith('s') ? SPEAKER : WEEK;
     for (const id of Object.keys(rec)) if (now - (rec[id] ?? 0) >= keep) delete rec[id];
     if (Object.keys(rec).length === 0) delete talk[k];
   }
@@ -565,12 +572,16 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   const room = placeKey(req.placeId);
   const recent = world.social.talk?.[pk];
   const heardHere = room !== null ? world.social.talk?.[room] : undefined;
-  // Fresh: not said between this pair this week, nor in this room in the last few hours.
-  const fresh = fits.filter(
-    (l) =>
-      (recent?.[l.id] === undefined || ctx.now - (recent[l.id] ?? 0) >= WEEK) &&
-      (heardHere?.[l.id] === undefined || ctx.now - (heardHere[l.id] ?? 0) >= ROOM),
-  );
+  const byI = world.social.talk?.[speakerKey(i)];
+  const byT = world.social.talk?.[speakerKey(t)];
+  const within = (rec: Record<string, number> | undefined, id: string, span: number): boolean =>
+    rec?.[id] !== undefined && ctx.now - (rec[id] ?? 0) < span;
+  // Fresh: not said between this pair this week, nor in this room in the last few hours; and,
+  // where there is a choice, not by either speaker to anyone these three days (playtest r2: the
+  // same lines rotated between speakers).
+  const pairFresh = fits.filter((l) => !within(recent, l.id, WEEK) && !within(heardHere, l.id, ROOM));
+  const speakerFresh = pairFresh.filter((l) => !within(byI, l.id, SPEAKER) && !within(byT, l.id, SPEAKER));
+  const fresh = speakerFresh.length > 0 ? speakerFresh : pairFresh;
   const r = ctx.rng('social', mixKey(i, t, hashString32(req.def.id), SALT_TALK, req.part === 'said' ? 1 : 0));
   let line: TalkLine | undefined;
   if (fresh.length > 0) {
@@ -579,8 +590,10 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   } else {
     // Everything that fits was said lately: the one longest unheard (by this pair, and in this
     // room) comes round again.
+    // A repeat to this pair is worse than one in this room, and that worse than one by the speaker.
     const last = (l: TalkLine): number => Math.max(recent?.[l.id] ?? -1, heardHere?.[l.id] ?? -1);
-    line = [...fits].sort((a, b) => last(a) - last(b) || (a.id < b.id ? -1 : 1))[0];
+    const said = (l: TalkLine): number => Math.max(byI?.[l.id] ?? -1, byT?.[l.id] ?? -1);
+    line = [...fits].sort((a, b) => last(a) - last(b) || said(a) - said(b) || (a.id < b.id ? -1 : 1))[0];
   }
   if (!line) return null;
   const base = scene.slots(line);
@@ -598,6 +611,8 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   if (turns.length === 0) return null;
   remember(world, pk, [line.id], ctx.now);
   if (room !== null) remember(world, room, [line.id], ctx.now);
+  remember(world, speakerKey(i), [line.id], ctx.now);
+  remember(world, speakerKey(t), [line.id], ctx.now);
   return {
     line: turns.map((x) => `${x.speaker}: “${x.text}”`).join(' '),
     lines: turns,
