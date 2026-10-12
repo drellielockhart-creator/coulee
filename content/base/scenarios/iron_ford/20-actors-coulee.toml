@@ -97,8 +97,8 @@ ancestry = "human"
 culture = "yankee"
 occupation = "missing"
 household = "whitcomb"
-workplace = "cold_stair"
-place = "cold_stair"
+workplace = "lantern_spring"
+place = "lantern_spring"
 abilities = { str = 12, dex = 12, con = 12, int = 10, wis = 10, cha = 10 }
 skills = { wayfinding = 2, athletics = 2 }
 values = { superstition = 2, neighborliness = 1 }
@@ -107,7 +107,7 @@ psyche = { ego = 35, superego = 50, id_appetite = 50 }
 persona = "the other missing chainman"
 anxiety = 900
 needs = { hunger = 350, rest = 300 }
-notes = "Second missing chainman. Lost near the Cold Stair, cold and hungry and not sure what day it is."
+notes = "Second missing chainman. Taken near the Cold Stair and held at Lantern Spring; time runs otherwise under the hill."
 purse_cents = 0
 
 [[actors]]

@@ -400,7 +400,8 @@ describe('belief: misfortunes need what they strike; the hidden folk keep away f
       const kids = (h?.memberIds ?? []).filter((id) => yearsBetween(sim.world.actors[id]?.born ?? e.t, e.t) < 14);
       expect(kids.length).toBeGreaterThan(0);
     }
-  });
+    // Sixty days with survival and the full event history can exceed a minute under suite concurrency.
+  }, 120_000);
 
   it('a concealed actor who winces at the bell keeps away from the next ones (a belief urge)', () => {
     const sim = simFor({ seed: 1 });

@@ -142,3 +142,31 @@ memory_intensity = 85
 motive_traits = ["rage"]
 aim = "harm"
 description = "Reported by other systems only (no ambient rate)."
+
+[[misfortune]]
+id = "survival_death"
+name = "A death in the household"
+text = "{1} died of privation; {0} are in mourning"
+uncanny = false
+severity = 100
+base_permille_per_household_day = 0
+juiciness = 70
+anxiety = 120
+security_delta = -100
+memory_intensity = 85
+motive_traits = ["rancor"]
+aim = "restitution"
+
+[[misfortune]]
+id = "strange_death"
+name = "A death in the uncanny hills"
+text = "{1} was found dead in the uncanny hills; {0} want an explanation"
+uncanny = true
+severity = 180
+base_permille_per_household_day = 0
+juiciness = 90
+anxiety = 180
+security_delta = -200
+memory_intensity = 95
+motive_traits = ["envy"]
+aim = "expulsion"

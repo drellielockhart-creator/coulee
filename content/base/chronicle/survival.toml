@@ -1,0 +1,27 @@
+[[template]]
+id = "survival_obituary"
+on = "needs.death_discovered"
+voice = "paper"
+headline = "Death in the Coulee"
+text = ["DIED.—{deceased}, from {cause}. An empty chair remains among the living; neighbors are asked to remember the household in its affliction."]
+
+[[template]]
+id = "survival_death_journal"
+on = "needs.died"
+voice = "journal"
+headline = "The Last Entry"
+text = ["{deceased}'s account ends here. Death came by {cause}; the coulee kept its own time."]
+
+[[template]]
+id = "survival_death_truth"
+on = "needs.died"
+voice = "epilogue"
+headline = "What Befell Them"
+text = ["{deceased} died of {cause}. Whether the neighbors knew it or not, this was the truth of the matter."]
+
+[[template]]
+id = "survival_funeral"
+on = "needs.funeral"
+voice = "paper"
+headline = "Laid to Rest"
+text = ["The bell was tolled for {deceased}. {attendance} neighbors attended the burial; afterward each returned to a house a little altered."]

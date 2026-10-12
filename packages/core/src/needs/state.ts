@@ -9,7 +9,31 @@ import type { InitContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { updateBands } from './bands.ts';
 
+export interface SurvivalState {
+  vigor: number;
+  vigorHarm?: Record<string, number>;
+  wounds: number;
+  hours: Record<string, number>;
+  recovering: number;
+  collapsed: boolean;
+  stasis: boolean;
+  lastAid?: number;
+  death?: {
+    at: number;
+    cause: string;
+    placeId: PlaceId;
+    eventId: import('../ids.ts').EventId;
+    discovered: boolean;
+    funeralAt: number;
+    buried: boolean;
+    burialPlaceId?: PlaceId;
+    mourners: ActorId[];
+  };
+  ending?: { type: 'death' | 'retire' | 'depart'; at: number; cause: string };
+}
+
 export interface ActorNeeds {
+  survival?: SurvivalState;
   /** Need id -> 0..1000. */
   values: Record<NeedId, number>;
   /** Need id -> current band label ('' when above all bands), for change detection. */

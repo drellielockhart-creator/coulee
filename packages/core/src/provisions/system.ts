@@ -4,7 +4,7 @@ import { commandsFor } from '../command.ts';
 import { type ActorId, rowsOf } from '../ids.ts';
 import { carriedBy, inventoryIndex, moveStack, withInventoryPass } from '../items/api.ts';
 import { rootLocation } from '../items/containers.ts';
-import { needValue } from '../needs/api.ts';
+import { canAct, needValue } from '../needs/api.ts';
 import { autonomous, chosenUrge, standingOrders } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -35,7 +35,7 @@ function provisionsHour(world: World, ctx: SimContext): void {
   for (const actor of rowsOf(world.actors)) {
     const activity = world.activity.byActor[actor.id];
     if (
-      actor.alive &&
+      canAct(world, actor.id) &&
       !activity?.travel &&
       activity?.activityId &&
       ctx.content.activities[activity.activityId]?.tags.includes('campfire') &&
@@ -166,7 +166,7 @@ function provisionsHour(world: World, ctx: SimContext): void {
   const groups: Array<{ holder: Holder; actors: ActorId[]; share: number; cold: boolean }> = [];
   for (const actor of rowsOf(world.actors)) {
     if (
-      !actor.alive ||
+      !canAct(world, actor.id) ||
       awaitingMeal(world, actor.id) ||
       ate.has(actor.id) ||
       world.provisions.nutrition[actor.id]?.lastMealAt === ctx.now

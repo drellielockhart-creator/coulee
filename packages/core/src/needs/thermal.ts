@@ -1,7 +1,7 @@
 /** Exposure and actual hearth fuel. Weather hook until provisions exposes its temperature API. */
 import { requiredRow } from '../activity/definitions.ts';
 import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
-import { inventoryIndex, pantryOf } from '../items/api.ts';
+import { carriedBy, type InventoryIndex, inventoryIndex, pantryOf, stacksDeep } from '../items/api.ts';
 import { airTempF, heatingFuel } from '../provisions/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { CalendarInfo } from '../time.ts';
@@ -80,4 +80,24 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
   }
   world.needs.placeTempF = temperatures;
   return temperatures;
+}
+
+/** Extra worn garments over ordinary seasonal dress; packed clothes give no protection. */
+export function clothingWarmth(
+  world: World,
+  content: import('../content.ts').ContentBundle,
+  id: ActorId,
+  inventory?: InventoryIndex,
+): number {
+  const slots: Record<string, number> = {};
+  for (const { stack } of stacksDeep(world, carriedBy(id), inventory)) {
+    const garment = content.items[stack.defId]?.wearable;
+    if (!garment || stack.location.kind !== 'actor' || !stack.location.worn) continue;
+    const dry = 100 - Math.floor((stack.wetness * (100 - garment.wet_retention_pct)) / 100);
+    const insulation = Math.floor((garment.insulation * dry * stack.condition) / 10000);
+    slots[garment.slot] = Math.max(slots[garment.slot] ?? 0, insulation);
+  }
+  return Object.keys(slots)
+    .sort()
+    .reduce((sum, slot) => sum + (slots[slot] ?? 0), 0);
 }

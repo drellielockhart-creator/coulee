@@ -21,12 +21,12 @@ import {
   supplyUnits,
 } from '../items/api.ts';
 import { fitsInContainer } from '../items/containers.ts';
-import { drink, needValue } from '../needs/api.ts';
+import { canAct, drink, needValue } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { Urge, UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { larderKcal } from './economy.ts';
-import { accessibleStack, mealExplain } from './meals.ts';
+import { accessibleStack, holderOfActor, mealExplain, serveMeal } from './meals.ts';
 import { storeOpen } from './services.ts';
 
 /** Money outside the store (loans, repayments): see economy.ts. */
@@ -288,7 +288,7 @@ export function drinkWater(
   index?: InventoryIndex,
 ): boolean {
   if (
-    !world.actors[actorId]?.alive ||
+    !canAct(world, actorId) ||
     !Number.isSafeInteger(ml) ||
     ml <= 0 ||
     ml > drinkingWater(world, ctx.content, actorId, index)
@@ -479,3 +479,74 @@ export function heatingFuel(
 }
 
 export { countyCash } from './employment.ts';
+
+/** Aid consumes the same real water and meal supplies as ordinary provisioning. */
+export function assistIntake(
+  world: World,
+  ctx: SimContext,
+  helper: ActorId,
+  patient: ActorId,
+  wantedMl: number,
+): number {
+  if (
+    !canAct(world, helper) ||
+    !world.actors[patient]?.alive ||
+    world.actors[helper]?.placeId !== world.actors[patient]?.placeId
+  )
+    return 0;
+  const giver = homeWaterHolder(world, patient) ? patient : helper;
+  const ml =
+    needValue(world, patient, 'thirst') < 800 ? Math.min(wantedMl, drinkingWater(world, ctx.content, giver)) : 0;
+  const carried = Math.min(ml, waterAvailable(world, ctx.content, { actorId: giver }));
+  drawWater(world, ctx.content, { actorId: giver }, carried);
+  const home = homeWaterHolder(world, giver);
+  if (home && carried < ml) drawWater(world, ctx.content, home, ml - carried);
+  if (ml) drink(world, ctx, patient, ml, { label: 'Water given by a helper' });
+  if (needValue(world, patient, 'hunger') < 200)
+    serveMeal(world, ctx, holderOfActor(world, giver), [patient], 35, true);
+  return ml;
+}
+
+/** A purse and, when a household has no living residents, its cash pass to the heir. */
+export function settleEstate(world: World, _ctx: SimContext, deceased: ActorId, heir: ActorId): void {
+  const a = world.actors[deceased],
+    b = world.actors[heir];
+  if (!a || !b) return;
+  let cents = world.provisions.purses[deceased] ?? 0;
+  world.provisions.purses[deceased] = 0;
+  const old = world.provisions.households[a.householdId],
+    next = world.provisions.households[b.householdId];
+  if (
+    old &&
+    a.householdId !== b.householdId &&
+    !world.households[a.householdId]?.memberIds.some((id) => world.actors[id]?.alive)
+  ) {
+    cents += old.cashCents;
+    old.cashCents = 0;
+  }
+  if (next) next.cashCents += cents;
+  else world.provisions.purses[heir] = (world.provisions.purses[heir] ?? 0) + cents;
+}
+
+/** A place to nurse someone: prefer their own stocked home, then the helper's. */
+export function careHome(world: World, content: ContentBundle, helper: ActorId, patient: ActorId): PlaceId | undefined {
+  const a = world.actors[patient],
+    b = world.actors[helper];
+  if (!a || !b) return undefined;
+  const own = world.households[a.householdId]?.homePlaceId;
+  const donor = world.households[b.householdId]?.homePlaceId;
+  if (needValue(world, patient, 'thirst') < 200 && (world.provisions.households[a.householdId]?.waterMl ?? 0) < 500) {
+    if ((world.provisions.households[b.householdId]?.waterMl ?? 0) >= 500) return donor;
+    const water = rowsOf(world.places).find(
+      (p) => p.siteId === world.places[a.placeId]?.siteId && p.tags.includes('water'),
+    );
+    if (water) return water.id;
+  }
+  if (
+    needValue(world, patient, 'hunger') < 200 &&
+    larderKcal(world, { content }, a.householdId) < 600 &&
+    larderKcal(world, { content }, b.householdId) >= 600
+  )
+    return donor;
+  return own;
+}

@@ -74,7 +74,7 @@ export function perceivedEvents(events: readonly Event[], pc: ActorId, priorPlac
     const visible =
       own ||
       (e.visibility === 'public' && e.place !== undefined && e.place === place) ||
-      (e.kind === 'activity.moved' && (e.visibility === 'witnessed' || e.visibility === 'public') && e.place === place);
+      (e.visibility === 'witnessed' && e.place === place);
     if (
       visible &&
       e.kind !== 'psyche.defense' &&
@@ -109,7 +109,10 @@ export function alertForEvent(world: World, content: ContentBundle, pc: ActorId,
         e.data.listenerId === pc &&
         !!world.belief.props[e.data.propId]?.args.some((arg) => arg.kind === 'actor' && arg.id === pc)),
     danger:
-      (String(e.kind) === 'core.actor_died' && e.roles.some((r) => r.actor === pc)) ||
+      ((e.kind === 'needs.died' ||
+        e.kind === 'needs.collapsed' ||
+        (e.kind === 'needs.survival_check' && e.data.damage > 0)) &&
+        e.roles.some((r) => r.actor === pc)) ||
       (e.kind === 'social.interaction' &&
         !!content.interactions[e.data.interactionId]?.tags.includes('hostile') &&
         (participant || e.place === world.actors[pc]?.placeId)),

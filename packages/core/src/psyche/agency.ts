@@ -1,6 +1,6 @@
 /** Actor policy, independent of controller. Missing fields preserve legacy psyche saves/hashes. */
 import type { ActorId } from '../ids.ts';
-import { needValue } from '../needs/api.ts';
+import { canAct, needValue } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { Urge } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -29,7 +29,7 @@ export function standingOrders(world: World, id: ActorId): StandingOrders {
   return world.psyche.byActor[id]?.standingOrders ?? DEFAULT_STANDING_ORDERS;
 }
 export function autonomous(world: World, id: ActorId): boolean {
-  return agencyMode(world, id) === 'psyche';
+  return canAct(world, id) && agencyMode(world, id) === 'psyche';
 }
 export function standingUrge(world: World, ctx: SimContext, id: ActorId, urge: Urge): boolean {
   if (urge.kind !== 'activity') return false;

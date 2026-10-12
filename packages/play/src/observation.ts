@@ -43,6 +43,19 @@ export function knownExplain(e: Explain | undefined, pc: ActorId, mode: Observat
 export function eventView(e: Event, pc: ActorId, mode: ObservationMode) {
   const explain = knownExplain(e.explain, pc, mode);
   let summary: string = e.kind;
+  if (e.kind === 'needs.collapsed') summary = `Collapsed from ${e.data.cause}; needs help.`;
+  if (e.kind === 'needs.survival_check')
+    summary = `Fortitude against ${e.data.cause}: ${e.data.damage ? `${e.data.damage} harm` : 'held firm'}; Vigor ${e.data.vigor}, Wounds ${e.data.wounds}.`;
+  if (e.kind === 'needs.recovered') summary = 'Conscious again: food, water, warmth and rest are restoring Vigor.';
+  if (e.kind === 'needs.died' || e.kind === 'needs.death_discovered')
+    summary = `${e.data.name} died of ${e.data.cause}.`;
+  if (e.kind === 'needs.funeral')
+    summary = `The church bell tolled for ${e.data.name}; ${e.data.attendees.length} attended the funeral.`;
+  if (e.kind === 'needs.aid')
+    summary = e.data.success
+      ? `Aid given: ${e.data.waterMl} ml water${e.data.carried ? '; carried home' : ''}.`
+      : 'A neighbor hesitated to help.';
+  if (e.kind === 'needs.stasis') summary = 'Time runs otherwise under the hill.';
   if (e.kind === 'social.interaction') summary = `${e.data.label}: ${e.data.success ? 'success' : 'failure'}`;
   if (e.kind === 'belief.formed') summary = `Heard: ${e.data.text}`;
   if (e.kind === 'provisions.cash_transfer') summary = `${e.data.reason}: $${(e.data.cents / 100).toFixed(2)}`;
@@ -85,6 +98,13 @@ export function observation(
   const { world: w, content: c } = sim;
   const a = w.actors[pc];
   if (!a) throw new Error('Missing player');
+  const ending = w.needs.byActor[pc]?.survival?.ending;
+  const epilogue = ending
+    ? chronicle.renderChronicleMarkdown(w, c, `${a.name.given} ${a.name.family}: ${ending.type}`, {
+        perspective: pc,
+        epilogue: true,
+      })
+    : undefined;
   const opts = { perspective: pc, omniscient: mode === 'god', includeExplain: true, recentChronicle: 12 };
   const mind = psyche.viewPsycheActor(w, c, pc, opts);
   const voice = (v: string) =>
@@ -119,6 +139,9 @@ export function observation(
   };
   const ownProvisions = provisions.viewProvisionsActor(w, c, pc, opts);
   return {
+    remains: needs.remainsAt(w, a.placeId),
+    ending: ending ?? null,
+    epilogue: epilogue ?? null,
     mode,
     time: timeView(w.time),
     scenario: w.meta.scenarioId,

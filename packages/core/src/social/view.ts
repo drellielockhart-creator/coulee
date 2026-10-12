@@ -183,7 +183,14 @@ export function viewSocialActor(
       const mine = r.a === actorId;
       const other = mine ? r.b : r.a;
       const inverse = DIRECTED[r.kind];
-      const label = inverse !== undefined ? (mine ? `${r.kind} of` : inverse) : r.kind;
+      const label =
+        r.endedByDeath !== undefined
+          ? 'widowed from'
+          : inverse !== undefined
+            ? mine
+              ? `${r.kind} of`
+              : inverse
+            : r.kind;
       return { otherId: other, otherName: name(other), label };
     });
   return { opinions, memories, relationships };

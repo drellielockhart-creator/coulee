@@ -1,6 +1,8 @@
 /** Execute the chosen activity, falling back to the content calendar. */
+
 import { type ActorId, idsOf } from '../ids.ts';
 import { inventoryIndex, loadReport, movementDelay } from '../items/api.ts';
+import { canAct } from '../needs/api.ts';
 import { admitSleep } from '../provisions/api.ts';
 import { chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -31,6 +33,11 @@ export function activitySystem(world: World, ctx: SimContext): void {
     const actor = requiredRow(world.actors, id);
     const state = world.activity.byActor[id];
     if (!actor.alive || !state) continue;
+    if (!canAct(world, id)) {
+      state.activityId = 'incapacitated';
+      state.travel = null;
+      continue;
+    }
     const load = loadReport(world, ctx.content, id, inventory);
     if (state.travel && load.band.speedPct === 0) continue;
     if (state.travel) {

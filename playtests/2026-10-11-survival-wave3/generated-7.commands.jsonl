@@ -1,0 +1,2 @@
+{"type":"session","format":1,"spec":{"source":{"kind":"generated","recipe":{"genVersion":2,"seed":7}},"seed":7,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"50cc94f3809517049c780b7319d6a2f02ff3001e8c1aef77a6ff7f2951dd631f"}
+{"type":"command","command":{"kind":"needs.retire","actorId":25,"data":{}},"before":"bd7d0054ba7422cf","after":"5705284415fb4c00","at":0,"end":60}

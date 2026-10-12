@@ -14,12 +14,13 @@
  *      from encounter.ts (top ties present + 1 stranger slot; O(n·k)); the interaction is
  *      the best by volition + noise over its threshold.
  */
+
 import { currentActivity, isAsleep, venues } from '../activity/api.ts';
 import { hasCondition } from '../actor.ts';
 import type { DefenseId, InteractionDef } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
-import { needValue } from '../needs/api.ts';
+import { canAct, needValue } from '../needs/api.ts';
 import { autonomous, chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -67,7 +68,9 @@ export function socialSystem(world: World, ctx: SimContext): void {
   const awake = (id: ActorId): boolean => {
     const a = world.actors[id];
     // An infant is carried about, not talked with (and does not answer back).
-    return a?.alive === true && ageYears(a, ctx.now) >= t.min_social_age && !isAsleep(world, ctx, id);
+    return (
+      a?.alive === true && canAct(world, id) && ageYears(a, ctx.now) >= t.min_social_age && !isAsleep(world, ctx, id)
+    );
   };
   const hs: HourState = { participations: new Map(), initiations: new Map(), poolOf: new Map() };
   const pools: Array<{ placeId: PlaceId; pool: ActorId[]; present: Set<number> }> = [];

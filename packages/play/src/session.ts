@@ -179,7 +179,13 @@ export class PlaySession {
         detail = knownExplain(event.explain ?? undefined, this.playerId, mode);
         if (!detail) return this.fail('That explanation is not known to your character', mode);
       } else if (d.query === 'look' && d.target === 'prices') detail = { prices: o.store.stock ?? [] };
-      else if (d.query === 'plan') detail = { ...o.self.provisions.readiness, ...o.self.inventory };
+      else if (d.query === 'plan')
+        detail = {
+          ...o.self.provisions.readiness,
+          ...o.self.inventory,
+          survival: o.self.needs.survival,
+          warnings: o.self.needs.warnings,
+        };
       else if (d.query === 'journal')
         detail = observation(this.sim, this.playerId, this.known, mode, this.knowledge, 0).journal;
       else if (d.query === 'inspect') {
@@ -217,14 +223,24 @@ export class PlaySession {
         const alerts = this.tick([], true);
         interrupts.push(...alerts.filter((a) => a.pause));
         const recent = eventsSince(this.sim.world.log, lastId).filter((e) => this.known.includes(e.id));
-        if (interrupts.length || recent.some((e) => e.kind === command.data.untilEvent)) break;
+        if (
+          this.sim.world.needs.byActor[this.playerId]?.survival?.ending ||
+          interrupts.length ||
+          recent.some((e) => e.kind === command.data.untilEvent)
+        )
+          break;
       }
     } else {
       const start = this.sim.world.log.lastId;
       interrupts.push(...this.tick([command], false).filter((a) => a.pause));
       const recent = eventsSince(this.sim.world.log, start);
-      const rejected = recent.find((e) => e.kind === 'provisions.command_rejected' && e.data.actorId === this.playerId);
-      if (rejected?.kind === 'provisions.command_rejected') warning = rejected.data.reason;
+      const rejected = recent.find(
+        (e) =>
+          (e.kind === 'provisions.command_rejected' || e.kind === 'needs.command_rejected') &&
+          e.data.actorId === this.playerId,
+      );
+      if (rejected?.kind === 'provisions.command_rejected' || rejected?.kind === 'needs.command_rejected')
+        warning = rejected.data.reason;
       if (command.kind === 'core.urge' && command.data.urge.kind === 'interaction') {
         const urge = command.data.urge;
         const interaction = recent.find(
@@ -235,7 +251,7 @@ export class PlaySession {
             (urge.targetId === undefined || e.data.targetId === urge.targetId),
         );
         if (interaction) detail = eventView(interaction, this.playerId, mode);
-        else if (socialSave) {
+        else if (socialSave && needs.canAct(this.sim.world, this.playerId)) {
           const reason =
             urge.targetId === undefined
               ? 'No target'
@@ -445,7 +461,7 @@ export class PlaySession {
         .filter((e) => e.kind === 'psyche.defense' && (e.data.actorId === pc || e.data.targetId === pc))
         .map((e) => e.id),
       storyBeats: recent.filter((e) => e.kind === 'chronicle.pattern_matched').map((e) => e.id),
-      deaths: seen.filter((e) => String(e.kind) === 'core.actor_died').map((e) => e.id),
+      deaths: seen.filter((e) => e.kind === 'needs.died').map((e) => e.id),
       idleMinutes: idle ? 60 : 0,
       decidingMinutes: idle ? 0 : 60,
       decidingTimeBasis: 'simulation',

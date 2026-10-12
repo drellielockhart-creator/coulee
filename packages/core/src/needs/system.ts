@@ -10,7 +10,8 @@ import type { SimContext } from '../sim/context.ts';
 import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
 import { satisfyNeed } from './api.ts';
-import { ambientTemperatureF, heatPlaces } from './thermal.ts';
+import { needsFrozen, survivalHour } from './survival.ts';
+import { ambientTemperatureF, clothingWarmth, heatPlaces } from './thermal.ts';
 
 export interface HourlyLedger {
   /** Net integer change this hour (before clamping and debt). */
@@ -34,6 +35,12 @@ export function hourlyLedger(
   before: Readonly<Record<string, number>>,
   inventory?: InventoryIndex,
 ): HourlyLedger {
+  if (needsFrozen(world, content, id))
+    return {
+      delta: 0,
+      terms: [{ source: 'place', label: 'Time runs otherwise under the hill', value: 0 }],
+      calculations: [],
+    };
   const actor = requiredRow(world.actors, id);
   const def = requiredRow(content.needs, key);
   const ctx = { content };
@@ -121,7 +128,10 @@ export function hourlyLedger(
   if (def.exposure) {
     const e = def.exposure;
     const camp = campThermal(world, content, id, asleep || labor === 'rest', inventory);
-    const effective = placeTempF + e.base_insulation_f + e.activity_f[labor] + (asleep ? e.asleep_f : 0) + camp.bonusF;
+    const clothing = clothingWarmth(world, content, id, inventory);
+    terms.push({ source: 'gear', label: 'Worn clothing after wetness and wear (F)', value: clothing });
+    const effective =
+      placeTempF + e.base_insulation_f + clothing + e.activity_f[labor] + (asleep ? e.asleep_f : 0) + camp.bonusF;
     if (camp.terms.length)
       calculations.push({
         kind: 'formula',
@@ -227,4 +237,5 @@ export function needsSystem(world: World, ctx: SimContext): void {
     }
     n.hourly = hourly;
   }
+  survivalHour(world, ctx);
 }

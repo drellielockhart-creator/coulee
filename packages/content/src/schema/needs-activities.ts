@@ -43,6 +43,35 @@ export const SunAnchorSchema = z.strictObject({
 });
 export type SunAnchor = z.output<typeof SunAnchorSchema>;
 
+export const SurvivalRuleSchema = z.strictObject({
+  id: id(),
+  name: z.string(),
+  need: ref(),
+  condition: id(),
+  grace_hours: nonNegInt(),
+  check_hours: posInt(),
+  damage: posInt(),
+  dc: posInt(),
+  recovery_above: nonNegInt().max(1000).default(200),
+  recover_hours: posInt().default(4),
+  heat_above_f: int().optional(),
+});
+export const SurvivalTuningSchema = z.strictObject({
+  id: id(),
+  vigor_base: posInt().default(6),
+  vigor_per_level: posInt().default(3),
+  vigor_recovery: posInt().default(1),
+  wounds_recovery_hours: posInt().default(24),
+  stasis_place_tags: z.array(id()).default(['fae_time']),
+  aid_dc: posInt().default(10),
+  aid_water_ml: posInt().default(500),
+  aid_interval_hours: posInt().default(4),
+  funeral_delay_hours: posInt().default(24),
+  funeral_place_tags: z.array(id()).default(['church']),
+  grief_anxiety: posInt().default(180),
+  grief_intensity: posInt().max(1000).default(700),
+});
+
 export const NeedSchema = z.strictObject({
   id: id(),
   name: z.string().min(1),
@@ -450,6 +479,8 @@ export const HearthSchema = z.strictObject({
 export type HearthDef = z.output<typeof HearthSchema>;
 
 export const needsActivitiesDomains = {
+  survival_rules: defineDomain({ dir: 'needs', key: 'survival_rule', schema: SurvivalRuleSchema }),
+  survival_tuning: defineDomain({ dir: 'needs', key: 'survival_tuning', schema: SurvivalTuningSchema }),
   needs: defineDomain({ dir: 'needs', key: 'need', schema: NeedSchema }),
   activities: defineDomain({ dir: 'activities', key: 'activity', schema: ActivitySchema }),
   observances: defineDomain({ dir: 'activities', key: 'observance', schema: ObservanceSchema }),
@@ -500,6 +531,8 @@ export function needsActivitiesRefs(b: ContentBundle): Issue[] {
       });
     }
   }
+  for (const r of Object.values(b.survival_rules))
+    checkRefs(issues, `survival_rules:${r.id}`, 'need', [r.need], b.needs, 'need');
   const intakeUnits = new Set<string>();
   for (const n of Object.values(b.needs)) {
     if (!n.intake) continue;

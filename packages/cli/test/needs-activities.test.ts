@@ -113,6 +113,8 @@ describe('needs-activities in Iron Ford', () => {
   });
   it('seed 42 / 14 days: schedule attendance fractions and nightly sleep with no psyche choice', () => {
     const sim = simFor({ seed: 42 });
+    // This schedule-only harness omits provisions: disable survival rather than starve the cast.
+    sim.content = { ...sim.content, survival_tuning: {} };
     attendance(sim, () => {
       const ctx = makeContext(sim.world, sim.content, []);
       needs.needsSystem(sim.world, ctx);

@@ -13,6 +13,11 @@ import { updateBands } from './bands.ts';
 import { hourlyLedger } from './system.ts';
 import { ambientTemperatureF, heatPlaces } from './thermal.ts';
 
+export { canAct, maxVigor, needsFrozen, needsHelp, survivalOf } from './survival.ts';
+
+import { needsFrozen } from './survival.ts';
+import { proposeCareUrges } from './survival-social.ts';
+
 export const NEED_MIN = 0;
 export const NEED_MAX = 1000;
 export function needValue(world: World, actorId: ActorId, needId: NeedId): number {
@@ -39,7 +44,8 @@ export function satisfyNeed(
 ): number {
   const n = world.needs.byActor[actorId];
   const actor = world.actors[actorId];
-  if (!n || !actor?.alive || !Number.isFinite(delta)) return needValue(world, actorId, needId);
+  if (!n || !actor?.alive || needsFrozen(world, ctx.content, actorId) || !Number.isFinite(delta))
+    return needValue(world, actorId, needId);
   const def = ctx.content.needs[needId];
   const before = n.values[needId] ?? def?.initial ?? NEED_MAX;
   const credit = Math.round(delta) || 0;
@@ -142,7 +148,7 @@ export function drink(world: World, ctx: SimContext, actorId: ActorId, ml: numbe
 }
 export function proposeNeedUrges(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
   if (!world.actors[actorId]?.alive) return [];
-  const out: UrgeProposal[] = [];
+  const out: UrgeProposal[] = proposeCareUrges(world, ctx, actorId);
   for (const key of Object.keys(ctx.content.needs).sort()) {
     const def = requiredRow(ctx.content.needs, key);
     const value = needValue(world, actorId, key);
@@ -198,4 +204,17 @@ export function projectWaterHour(world: World, ctx: SimContext): void {
     );
     satisfyNeed(world, ctx, actor.id, 'thirst', ledger.delta, { label: 'Hourly water expenditure', quiet: true });
   }
+}
+
+/** Bodies and graves are lasting world facts, visible only when visiting their place. */
+export function remainsAt(
+  world: World,
+  placeId: import('../ids.ts').PlaceId,
+): Array<{ actorId: ActorId; name: string; buried: boolean }> {
+  return rowsOf(world.actors).flatMap((a) => {
+    const d = world.needs.byActor[a.id]?.survival?.death;
+    return d && (d.buried ? d.burialPlaceId : d.placeId) === placeId
+      ? [{ actorId: a.id, name: `${a.name.given} ${a.name.family}`.trim(), buried: d.buried }]
+      : [];
+  });
 }

@@ -7,10 +7,12 @@
  *   3. Run HOURLY_SYSTEMS in fixed order (sim/schedule.ts).
  *   4. Advance world.time by 60.
  */
+
 import type { Command } from '../command.ts';
 import type { ContentBundle } from '../content.ts';
 import { appendEvent, type Event, type EventInput, trimLog } from '../events/index.ts';
 import { hashValue } from '../hash.ts';
+import { canAct } from '../needs/api.ts';
 import { rng, type Stream } from '../rng.ts';
 import { type PackedJson, unpackJson } from '../serialization.ts';
 import { asGameMinute, calendarAt, MINUTES_PER_DAY, minuteOfDay } from '../time.ts';
@@ -106,8 +108,12 @@ export function step(sim: Sim, commands: readonly Command[] = []): void {
   }
   const wrap = sim.wrapSystem;
   for (const sys of HOURLY_SYSTEMS) {
-    if (wrap) wrap(sys.id, () => sys.run(world, ctx));
-    else sys.run(world, ctx);
+    const admitted = ctx.commands.filter(
+      (c) => c.kind === 'activity.observe' || c.kind === 'activity.wait' || canAct(world, c.actorId),
+    );
+    const systemCtx = { ...ctx, commands: admitted };
+    if (wrap) wrap(sys.id, () => sys.run(world, systemCtx));
+    else sys.run(world, systemCtx);
   }
   // The chronicle (last system) has sifted everything up to lastId: older events may leave memory.
   if (ctx.isNewDay) trimLog(world.log, ctx.now);
