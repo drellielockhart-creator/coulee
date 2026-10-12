@@ -190,7 +190,12 @@ it('a wait stopped early says when, what it was for, and why', () => {
   const r = required(stopped);
   expect(r.stopped).toBeDefined();
   const lines = renderInterrupts(r);
-  expect(lines[0]).toMatch(/^Wait stopped at \d\d:\d\d \(you meant to wait until /);
+  // The day is named on both ends, so a stop never reads as an overshoot (playtest r2), and the
+  // reason is always said.
+  expect(lines[0]).toMatch(
+    /^Wait stopped at \d\d:\d\d on \w+ the \d+\w\w \(you meant to wait until \d\d:\d\d on \w+ the /,
+  );
+  expect(renderInterrupts(r, { allReasons: true })[0]).toMatch(/\): .+\.$/);
   expect(lines.join(' ')).not.toMatch(RAW_KIND);
 });
 
@@ -355,7 +360,12 @@ it('pack <item> into <container> takes the direction as written', () => {
   expect(name(pack.data.itemId)).toMatch(/canteen/i);
   expect(name(required(pack.data.intoItemId))).toMatch(/knapsack/i);
   expect(parseText('pack knapsack', o)).toMatch(/pack <item> into <container>/);
-  expect(parseText('pack knapsack into canteen', o)).toMatch(/^Nothing here matches/);
+  // Not on offer: the order names both, and the game says why it will not go (playtest r2).
+  const misfit = parseText('pack knapsack into canteen', o);
+  expect(typeof misfit).toBe('object');
+  const refused = s.fork().act(misfit as Command);
+  expect(refused.ok).toBe(false);
+  expect(refused.reason).toMatch(/will not go in/);
   // Two containers that hold each other make both directions offered: the words pick one.
   const both = JSON.parse(JSON.stringify(o)) as Observation;
   const act = (id: string, label: string) => ({
@@ -437,7 +447,9 @@ it('the stateless CLI shows arrivals, stopped waits and camp in words, never as 
     expect(go).toContain('You arrive at Pratt & Daughter, Outfitters');
     expect(go).toMatch(/\| Pratt & Daughter, Outfitters\n/);
     const wait = run('wait until 07:00');
-    expect(wait).toMatch(/^Wait stopped at \d\d:\d\d \(you meant to wait until 07:00\)/m);
+    expect(wait).toMatch(
+      /^Wait stopped at \d\d:\d\d on \w+ the \d+\w\w \(you meant to wait until 07:00 on \w+ the \d+\w\w\): /m,
+    );
     for (const out of [go, wait]) {
       expect(out).not.toMatch(/Stopped: /);
       expect(out).not.toMatch(RAW_KIND);

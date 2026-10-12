@@ -27,6 +27,7 @@ import type { SimContext } from '../sim/context.ts';
 import type { ChosenUrge } from '../urge.ts';
 import type { World } from '../world.ts';
 import { sampleCandidates } from './encounter.ts';
+import { giftStack } from './gifts.ts';
 import { type InteractionVia, resolveInteraction } from './interact.ts';
 import { consolidateMemories, decayMemoriesDaily } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
@@ -205,6 +206,7 @@ function chooseInteraction(
   const pair = makePair(world, ctx, initiator, target, venue.placeId, venue.pool.length - 2);
   if (!pair) return null;
   let best: { def: InteractionDef; score: number; explain: Explain } | null = null;
+  let runnerUp: { def: InteractionDef; score: number; explain: Explain } | null = null;
   const children: Explain[] = [];
   for (const def of spontaneousDefs(ctx)) {
     if (requiresFail(pair, def, 'spontaneous') !== null) continue;
@@ -227,8 +229,14 @@ function chooseInteraction(
       outcome: 'candidate',
     };
     children.push(explain);
-    if (!best || score > best.score) best = { def, score, explain };
+    if (!best || score > best.score) {
+      runnerUp = best;
+      best = { def, score, explain };
+    } else if (!runnerUp || score > runnerUp.score) runnerUp = { def, score, explain };
   }
+  // A gift needs a thing to give: checked once, for the act settled on (the next best stands in).
+  if (best?.def.requires.gift_item && giftStack(world, ctx.content, initiator) === null) best = runnerUp;
+  if (best?.def.requires.gift_item && giftStack(world, ctx.content, initiator) === null) best = null;
   if (!best) return null;
   const chosen: Explain = { ...best.explain, outcome: 'chosen' };
   if (children.length > 1) chosen.note = `${children.length} interactions were in the running`;

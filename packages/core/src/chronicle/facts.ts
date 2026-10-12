@@ -306,6 +306,8 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
             act_noun: vocab.verb(d.interactionId)[1] ?? c.name,
             label: d.label,
             success: d.success,
+            // playtest r2: "I came away knowing more" only when something was told.
+            told: d.told === true,
             cls: c.cls,
             via_defense: d.viaDefense ?? '',
             household:

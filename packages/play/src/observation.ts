@@ -17,11 +17,14 @@ import {
   timeView,
   toViewModel,
   type World,
+  yearsBetween,
 } from '@coulee/core';
 import { availableActions } from './actions.ts';
 import { describeEvent, fallbackText } from './describe.ts';
-import { obligationsOf } from './obligations.ts';
+import { claimsOf, obligationsOf } from './obligations.ts';
 export type ObservationMode = 'fair' | 'god';
+/** Under this age someone is marked a child in the Here list. */
+const CHILD_AGE = 13;
 export function knownExplain(e: Explain | undefined, pc: ActorId, mode: ObservationMode): Explain | null {
   if (!e) return null;
   if (
@@ -96,6 +99,10 @@ export function eventView(e: Event, pc: ActorId, mode: ObservationMode, view?: E
   };
 }
 export type KnownEvent = ReturnType<typeof eventView>;
+/** Text that closes a fair epilogue when the omniscient reckoning is withheld (a branched story). */
+export const FAIR_EPILOGUE_NOTE =
+  'What the county never knew stays untold here: this story has a fork that lives on. Play an unforked life to its end, or open a --god session, to read it.';
+
 export function observation(
   sim: Sim,
   pc: ActorId,
@@ -103,16 +110,23 @@ export function observation(
   mode: ObservationMode,
   knowledge: readonly KnownEvent[] = [],
   journalLimit = 12,
+  /**
+   * 'omniscient' appends "what the county never knew" to an ended life's epilogue; 'fair' keeps
+   * the reckoning to what the character knew (playtest r2: a fork could retire, read every
+   * neighbor's private defenses, and play on in the original). God mode always reads it all.
+   */
+  epilogueMode: 'omniscient' | 'fair' = 'omniscient',
 ) {
   const { world: w, content: c } = sim;
   const a = w.actors[pc];
   if (!a) throw new Error('Missing player');
   const ending = w.needs.byActor[pc]?.survival?.ending;
+  const omniscientEpilogue = mode === 'god' || epilogueMode === 'omniscient';
   const epilogue = ending
     ? chronicle.renderChronicleMarkdown(w, c, `${a.name.given} ${a.name.family}: ${ending.type}`, {
         perspective: pc,
-        epilogue: true,
-      })
+        epilogue: omniscientEpilogue,
+      }) + (omniscientEpilogue ? '' : `\n\n${FAIR_EPILOGUE_NOTE}\n`)
     : undefined;
   const opts = { perspective: pc, omniscient: mode === 'god', includeExplain: true, recentChronicle: 12 };
   const mind = psyche.viewPsycheActor(w, c, pc, opts);
@@ -139,11 +153,21 @@ export function observation(
   const publicActor = (id: ActorId) => {
     const actor = w.actors[id];
     if (!actor) throw new Error('Missing actor');
+    const seen = activity.viewActivityActor(w, c, id, opts);
+    const def = seen.activityId ? c.activities[seen.activityId] : undefined;
     return {
       id,
       name: `${actor.name.given} ${actor.name.family}`.trim(),
       people: c.peoples[actor.presentsAsId]?.name ?? actor.presentsAsId,
-      activity: activity.viewActivityActor(w, c, id, opts).verb,
+      activity: seen.verb,
+      // ---- additive (playtest r2: the Here list marks who is working, asleep, a child) ----
+      ...(seen.observed !== false
+        ? {
+            asleep: def?.asleep === true,
+            working: def?.tags.includes('labor') === true,
+            child: yearsBetween(actor.born, w.time) < CHILD_AGE,
+          }
+        : {}),
     };
   };
   const ownProvisions = provisions.viewProvisionsActor(w, c, pc, opts);
@@ -177,6 +201,9 @@ export function observation(
       activity: {
         ...activity.viewActivityActor(w, c, pc, opts),
         asleep: !!c.activities[w.activity.byActor[pc]?.activityId ?? '']?.asleep,
+        /** Until when her present activity holds her (sleep's 4 hours, a camp's 8), when it does. */
+        lockedUntil:
+          (w.activity.byActor[pc]?.lockedUntil ?? 0) > w.time ? (w.activity.byActor[pc]?.lockedUntil ?? null) : null,
       },
       mind: {
         ...mind,
@@ -197,6 +224,8 @@ export function observation(
       provisions: { ...ownProvisions, householdCents: w.provisions.households[a.householdId]?.cashCents ?? 0 },
       agencyMode: psyche.agencyMode(w, pc),
       standingOrders: psyche.standingOrders(w, pc),
+      /** Her own ration order, percent (rations <pct>). */
+      rationPct: w.provisions.nutrition[pc]?.rationPct ?? 100,
       // Where her bed is, and whether she stands on open ground with something to sleep in.
       lodging: (() => {
         const home = w.households[a.householdId]?.homePlaceId;
@@ -205,6 +234,8 @@ export function observation(
       })(),
       camp: items.campContext(w, c, pc),
       obligations: obligationsOf(w, c, pc),
+      /** What others owe her: money she lent, favors she did (playtest r2). */
+      claims: claimsOf(w, pc),
     },
     present: Object.values(w.actors)
       .filter((other) => other.id !== pc && other.placeId === a.placeId)
@@ -219,7 +250,7 @@ export function observation(
       .filter((other) => other.placeId === a.placeId || social.isAcquainted(w, pc, other.id))
       .map((other) => publicActor(other.id)),
     interactionVerbs: Object.values(c.interactions).map((d) => ({ id: d.id, name: d.name })),
-    changes: { elapsed: 0, money: [] as MoneyChange[], needs: [] as string[], events: [] as string[], skipped: 0 },
+    changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 } as ObservationChanges,
     store: provisions.viewProvisionsPlace(w, c, a.placeId, opts),
     events:
       mode === 'god'
@@ -251,6 +282,17 @@ export function observation(
   };
 }
 export type Observation = ReturnType<typeof observation>;
+
+/** What changed since the last order: time, money, needs, the events that stopped a wait. */
+export interface ObservationChanges {
+  elapsed: number;
+  money: MoneyChange[];
+  needs: string[];
+  events: string[];
+  skipped: number;
+  /** Additive (playtest r2): what was said or done to her that asked nothing of her (the digest). */
+  addressed?: string[];
+}
 
 export interface MoneyChange {
   at: number;

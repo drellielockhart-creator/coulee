@@ -79,7 +79,10 @@ describe('headless sessions', () => {
         expect('truth' in fair).toBe(false);
         expect('beliefGraph' in fair).toBe(false);
         for (const actor of fair.present) {
-          expect(Object.keys(actor).sort()).toEqual(['activity', 'id', 'name', 'people']);
+          // Additive (playtest r2): what anyone in the room can see, asleep, working, a child.
+          expect(Object.keys(actor).sort()).toEqual(expect.arrayContaining(['activity', 'id', 'name', 'people']));
+          for (const key of Object.keys(actor))
+            expect(['activity', 'id', 'name', 'people', 'asleep', 'working', 'child']).toContain(key);
           expect(actor.people).not.toMatch(/shadow|faekin/i);
         }
         expect(JSON.stringify(fair)).not.toContain('shadow_faekin');

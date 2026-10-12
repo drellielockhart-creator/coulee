@@ -131,7 +131,8 @@ it('social menu and validation use the same feasibility query; Court cannot beco
       const u = a.command.data.urge;
       expect(social.interactionAvailability(w, sim.content, pc, required(u.targetId), u.interactionId).ok).toBe(true);
     }
-  social.bumpFamiliarity(sim.world, sim.content, pc, target.id);
+  // Walking out wants an acquaintance on both sides (playtest r2): three meetings' familiarity.
+  for (let n = 0; n < 3; n++) social.bumpFamiliarity(sim.world, sim.content, pc, target.id);
   required(sim.world.activity.byActor[target.id]).lockedUntil = asGameMinute(sim.world.time + 60);
   const last = sim.world.log.lastId;
   step(sim, [
@@ -219,6 +220,16 @@ it('only related social events interrupt and compact output coalesces minor conv
   } as Event;
   expect(alertForEvent(sim.world, sim.content, pc, event).pause).toBe(false);
   if (event.kind !== 'social.interaction') throw new Error('fixture');
+  // Playtest r2: what is said to her that asks nothing of her goes to the digest, not a stop;
+  // a blow stops the clock, and so does a request that wants her answer.
   event.data.targetId = pc;
+  expect(alertForEvent(sim.world, sim.content, pc, event).pause).toBe(false);
+  event.data.interactionId = 'fight';
   expect(alertForEvent(sim.world, sim.content, pc, event).pause).toBe(true);
+  const asked = {
+    ...event,
+    kind: 'social.requested',
+    data: { requestId: 'x', actorId: pc, from: a, text: 'A request.' },
+  } as Event;
+  expect(alertForEvent(sim.world, sim.content, pc, asked).pause).toBe(true);
 });

@@ -6,7 +6,26 @@ import type { ActorId, MemoryId, PlaceId } from '../ids.ts';
 
 export type SocialEvent =
   | EventOf<'social.act_refused', { actorId: ActorId; reason: string }>
-  | EventOf<'social.requested', { requestId: string; actorId: ActorId; from: ActorId; text: string }>
+  | EventOf<
+      'social.requested',
+      {
+        requestId: string;
+        actorId: ActorId;
+        from: ActorId;
+        text: string;
+        // ---- additive (playtest r2: requests state their terms) ----
+        interactionId?: string;
+        /** What answering yes undertakes ('lend' | 'borrow' | 'proposal' | 'accept_favor' | 'disclose'). */
+        response?: string;
+        /** Money that would change hands, and favors that would be owed, on a yes. */
+        cents?: number;
+        favors?: number;
+        /** When a money debt taken on a yes ought to be settled (game minute). */
+        dueT?: number;
+        /** The game minute the offer lapses. */
+        until?: number;
+      }
+    >
   | EventOf<'social.request_answered', { requestId: string; actorId: ActorId; status: string }>
   /** An interaction resolved (04 §10). Explain carries the check. Witnesses in roles. */
   | EventOf<
@@ -28,6 +47,13 @@ export type SocialEvent =
         lines?: Array<{ speaker: string; speakerId: ActorId; text: string }>;
         /** A news-carrying act: whether anything was told (the words are on the belief.transmitted it caused). */
         told?: boolean;
+        // ---- additive (playtest r2) ----
+        /** The target was held from their work for it (at work, or due there): it cost a little regard. */
+        atWork?: boolean;
+        /** The money the act was about (a loan, a repayment), in cents. */
+        cents?: number;
+        /** What changed hands (a gift), by item definition id. */
+        itemDefId?: string;
       }
     >
   /** A memory was encoded (inner; for debugging/inspect — keep rare or omit). */

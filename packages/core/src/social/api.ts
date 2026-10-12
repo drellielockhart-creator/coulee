@@ -182,7 +182,9 @@ export function markBereaved(world: World, ctx: SimContext, deceased: ActorId): 
     }
   }
 }
-export { pendingRequests } from './requests.ts';
+export { dayText, keepsFromWork, type WorkStatus, whenText, workAllows, workStatus } from './availability.ts';
+export { giftStack } from './gifts.ts';
+export { type PendingRequest, pendingRequests, type RequestTerms, requestTerms } from './requests.ts';
 
 /** Move monetary claims/liabilities to an estate representative; personal favors stay historical. */
 export function inheritMoneyLedger(world: World, ctx: SimContext, deceased: ActorId, heir: ActorId) {

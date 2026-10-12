@@ -76,6 +76,14 @@ export const DEFAULT_TUNING: SocialTuningDef = {
   shun_volition_penalty: 60,
   defense_interactions: [],
   channels: [],
+  work_talk_minutes: 15,
+  work_talk_sociability: 50,
+  kept_from_work: { reason: 'Kept me from my work', delta: { affection: -2, respect: 0, trust: 0, fear: 0 } },
+  request_cooldown_hours: 72,
+  refused_request_cooldown_hours: 168,
+  repay_trust_min_hours: 24,
+  gift_sections: ['trade_goods', 'provisions', 'books', 'medicine', 'wild_food'],
+  gift_value_cents: 10,
 };
 
 /** The 'default' tuning record, else the first by id, else the schema defaults. */

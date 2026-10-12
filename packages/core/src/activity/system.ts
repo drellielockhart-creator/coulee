@@ -72,7 +72,20 @@ export function activitySystem(world: World, ctx: SimContext): void {
     // An explicit conversation occupies this hour at the current venue. A schedule must
     // not carry its speaker away (or put them to sleep) before social resolves it.
     const conversation = (chosen?.voice === 'command' && urge?.kind === 'interaction') || invited.has(id);
-    let activityId = conversation ? 'idle_at_home' : urge?.kind === 'activity' ? urge.activityId : routine?.activityId;
+    // Someone at work here keeps working while they talk (a word across the counter or the
+    // anvil); anyone else is held, at leisure, where they are (playtest r2 availability).
+    const workingHere =
+      conversation &&
+      state.activityId !== null &&
+      state.placeId === actor.placeId &&
+      ctx.content.activities[state.activityId]?.tags.includes('labor') === true;
+    let activityId = conversation
+      ? workingHere
+        ? (state.activityId ?? 'idle_at_home')
+        : 'idle_at_home'
+      : urge?.kind === 'activity'
+        ? urge.activityId
+        : routine?.activityId;
     let source: ActivitySource = conversation
       ? 'command'
       : urge?.kind === 'activity'

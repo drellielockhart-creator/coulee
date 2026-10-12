@@ -37,7 +37,14 @@ import { addMinutes, yearsBetween } from '../time.ts';
 import type { ChoiceVoice, ChosenUrge, Urge } from '../urge.ts';
 import { sameUrge, urgeLabel } from '../urge.ts';
 import type { World } from '../world.ts';
-import { authorizationExplain, authorizeAct, commandBasis, standingOrders, standingUrge } from './agency.ts';
+import {
+  applyStandingOrders,
+  authorizationExplain,
+  authorizeAct,
+  commandBasis,
+  standingOrders,
+  standingUrge,
+} from './agency.ts';
 import {
   accrueAnxiety,
   addToPools,
@@ -129,14 +136,7 @@ export function psycheSystem(world: World, ctx: SimContext): void {
 function psychePass(world: World, ctx: SimContext): void {
   for (const cmd of ctx.commands) {
     if (cmd.kind !== 'core.standing_orders') continue;
-    const p = world.psyche.byActor[cmd.actorId];
-    if (!p) continue;
-    if (cmd.data.agencyMode) p.agencyMode = cmd.data.agencyMode;
-    p.standingOrders = {
-      ...cmd.data.orders,
-      activities: [...cmd.data.orders.activities],
-      ...(cmd.data.orders.capabilities ? { capabilities: [...cmd.data.orders.capabilities] } : {}),
-    };
+    applyStandingOrders(world, cmd.actorId, cmd.data);
   }
   const idx = buildTagIndex(ctx.content);
   for (const id of idsOf<ActorId>(world.psyche.byActor)) {
