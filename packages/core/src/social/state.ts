@@ -145,6 +145,7 @@ export interface SocialDaily {
 }
 
 export interface SocialState {
+  pendingRequests?: import('./requests.ts').PendingRequest[];
   counters: { memory: number };
   /** opinions[holder][target] */
   opinions: Table<ActorId, Table<ActorId, Opinion>>;

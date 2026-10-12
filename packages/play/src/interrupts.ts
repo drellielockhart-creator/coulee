@@ -119,6 +119,7 @@ function classify(world: World, content: ContentBundle, pc: ActorId, e: Event): 
     importance: e.importance,
     participant: e.roles.some((r) => r.actor === pc && r.role !== 'witness'),
     addressed:
+      (e.kind === 'social.requested' && e.data.actorId === pc) ||
       (e.kind === 'social.interaction' && e.data.targetId === pc) ||
       (e.kind === 'belief.transmitted' &&
         e.data.listenerId === pc &&

@@ -21,7 +21,7 @@ import type { DefenseId, InteractionDef } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { canAct, needValue } from '../needs/api.ts';
-import { autonomous, chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
+import { authorizeAct, chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { ChosenUrge } from '../urge.ts';
@@ -31,6 +31,7 @@ import { type InteractionVia, resolveInteraction } from './interact.ts';
 import { consolidateMemories, decayMemoriesDaily } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
 import { dailyOpinionUpkeep, opinionOf, pruneCooldowns, refreshLabel, repointReasons } from './opinion.ts';
+import { requestsHour } from './requests.ts';
 import { emptyDaily } from './state.ts';
 import { dailyStrife, mediationHour } from './strife.ts';
 import { pruneTalk } from './talk.ts';
@@ -60,6 +61,7 @@ interface HourState {
 }
 
 export function socialSystem(world: World, ctx: SimContext): void {
+  requestsHour(world, ctx);
   if (ctx.isNewDay) {
     dailySocial(world, ctx);
     world.social.daily = emptyDaily();
@@ -108,7 +110,7 @@ export function socialSystem(world: World, ctx: SimContext): void {
   // ---- 2b. displaced anger stored for someone not there at the time lands when they meet
   // (10 §7.2): within the day, at the first venue they share, before the encounters.
   for (const id of urgeActors) {
-    if (!autonomous(world, id)) continue;
+    if (!authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok) continue;
     const stored = storedDisplacement(world, id, ctx.now);
     if (!stored || !free(id) || !free(stored.targetId)) continue;
     const venue = hs.poolOf.get(id);
@@ -130,7 +132,7 @@ export function socialSystem(world: World, ctx: SimContext): void {
       }
     }
     for (const id of v.pool) {
-      if (!autonomous(world, id)) continue;
+      if (!authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok) continue;
       const actor = world.actors[id];
       if (!actor) continue;
       const r = ctx.rng('social', mixKey(id, SALT_ENCOUNTER));
@@ -260,7 +262,12 @@ function runUrge(
     extra: Partial<Parameters<typeof resolveInteraction>[2]> = {},
   ): boolean => {
     // Money leaves the hands of an actor held for orders (a loan, a repayment) only on their order.
-    if (!autonomous(world, id) && chosen.voice !== 'command' && movesMoney(def)) return false;
+    if (
+      chosen.voice !== 'command' &&
+      movesMoney(def) &&
+      !authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok
+    )
+      return false;
     const pair = makePair(world, ctx, id, target, venue.placeId, venue.pool.length - 2);
     if (!pair || requiresFail(pair, def, 'urge') !== null) return false;
     take(id, target);

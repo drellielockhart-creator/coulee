@@ -45,6 +45,8 @@ export const TEMPLATE_SLOTS = [
   'deceased',
   'cause',
   'attendance',
+  'omen',
+  'edition',
   // time and place
   'town',
   'main_street',

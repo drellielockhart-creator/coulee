@@ -19,6 +19,7 @@ import { dailyPatterns, feedFact } from './engine.ts';
 import { newDraft, writeEntry } from './entries.ts';
 import { classVocab, factOf } from './facts.ts';
 import { fadeNotoriety, tallyFact } from './notability.ts';
+import { omenEntries } from './omens.ts';
 import { type PatternParams, patternParams } from './params.ts';
 import type { DetectCtx } from './patterns/types.ts';
 import { buildTemplateIndex, type TemplateIndex } from './prose.ts';
@@ -86,6 +87,10 @@ export function chronicleSystem(world: World, ctx: SimContext): void {
     const vocab = classVocab(dc.params('notability', 0));
     for (const ev of events) {
       if (ev.kind.startsWith('chronicle.')) continue; // sifting is meta
+      if (ev.kind === 'fae.omen') {
+        omenEntries(dc, ev);
+        continue;
+      }
       if (ev.kind === 'core.day_started') {
         onDayStarted(dc, ev);
         continue;

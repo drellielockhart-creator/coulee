@@ -193,6 +193,17 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
       );
     case 'needs.command_rejected':
       return out(e.data.reason);
+    case 'fae.omen':
+    case 'fae.read':
+    case 'fae.investigated':
+      return out(e.data.text);
+    case 'social.requested':
+      return out(e.data.text);
+    case 'social.request_answered':
+      return out(
+        `${e.data.actorId === pc ? 'Your' : `${actorName(e.data.actorId)}'s`} answer on the loan request: ${e.data.status}`,
+        e.data.actorId !== pc,
+      );
     case 'psyche.arbitrated': {
       const d = e.data;
       return out(

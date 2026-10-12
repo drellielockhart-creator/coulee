@@ -34,6 +34,7 @@ export const OpinionDeltaSchema = z
   .default({ affection: 0, respect: 0, trust: 0, fear: 0 });
 
 export const MEMORY_KINDS = [
+  'omen',
   'chat',
   'gossip',
   'kindness',

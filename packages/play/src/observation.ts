@@ -7,6 +7,7 @@ import {
   chronicle,
   type Event,
   type Explain,
+  fae,
   items,
   needs,
   provisions,
@@ -153,6 +154,8 @@ export function observation(
     mode,
     time: timeView(w.time),
     scenario: w.meta.scenarioId,
+    signs: fae.signs(w, pc),
+    requests: social.pendingRequests(w, pc),
     weather: {
       temperatureF: provisions.airTempF(calendarAt(w.time)),
       raining: provisions.isRaining(w.meta.seed, calendarAt(w.time)),
@@ -162,7 +165,8 @@ export function observation(
       id: a.placeId,
       name: w.places[a.placeId]?.name ?? 'Unknown',
       kind: w.places[a.placeId]?.kind ?? '',
-      description: c.places[w.places[a.placeId]?.defId ?? '']?.description ?? '',
+      description: fae.describe(w, c, a.placeId, pc).join(' '),
+      layers: fae.describe(w, c, a.placeId, pc),
     },
     self: {
       id: pc,

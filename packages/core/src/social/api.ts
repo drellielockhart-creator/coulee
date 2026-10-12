@@ -182,3 +182,4 @@ export function markBereaved(world: World, ctx: SimContext, deceased: ActorId): 
     }
   }
 }
+export { pendingRequests } from './requests.ts';

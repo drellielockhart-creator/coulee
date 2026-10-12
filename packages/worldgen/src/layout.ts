@@ -135,7 +135,7 @@ export function terrain(recipe: TownRecipe) {
       ford + 3,
       3,
       31,
-      ['bluff', 'sandstone', 'wild'],
+      ['bluff', 'sandstone', 'wild', side === 'East' ? 'goat_prairie' : 'old_growth'],
       side === 'West'
         ? 'Maple and basswood shade the north-facing cove.'
         : 'Goat prairie and pasqueflower on the warm slope.',
@@ -154,7 +154,7 @@ export function terrain(recipe: TownRecipe) {
     ['spring', 'fae', 'contact'],
     'Cold water issues at the sandstone/dolomite contact. Neighbors leave a clean saucer; nobody admits hearing the bell below the water.',
     undefined,
-    5,
+    3,
   );
   add(
     'bottom',
@@ -164,7 +164,7 @@ export function terrain(recipe: TownRecipe) {
     51,
     12,
     5,
-    ['field', 'floodplain'],
+    ['field', 'floodplain', 'coulee'],
     'Silver maple at the wet edge, last year’s hay stubble on the valley floor.',
   );
   return { site, places, creek, ford, onRiver, add };

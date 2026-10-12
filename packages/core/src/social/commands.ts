@@ -1,2 +1,2 @@
-/** Social commands. OWNER: module:social. Player interactions arrive as 'core.urge' (kind 'interaction'). */
-export type SocialCommand = never;
+import type { CommandOf } from '../command.ts';
+export type SocialCommand = CommandOf<'social.answer_request', { requestId: string; accept: boolean }>;

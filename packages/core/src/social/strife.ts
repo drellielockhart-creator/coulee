@@ -18,7 +18,7 @@ import { skillCheck } from '../checks.ts';
 import type { ContentBundle } from '../content.ts';
 import { type ExplainTerm, term } from '../explain.ts';
 import type { ActorId, EventId, PlaceId } from '../ids.ts';
-import { autonomous } from '../psyche/api.ts';
+import { authorizeAct } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { MINUTES_PER_DAY } from '../time.ts';
@@ -244,7 +244,7 @@ export function mediationHour(
       const venue = poolOf.get(party);
       if (!venue) continue;
       for (const m of venue.pool) {
-        if (m === r.a || m === r.b || !autonomous(world, m)) continue;
+        if (m === r.a || m === r.b || !authorizeAct(world, m, { kind: 'consequential' }, { kind: 'own' }).ok) continue;
         const ma = world.actors[m];
         if (!ma || ageYears(ma, ctx.now) < t.mediation_min_age) continue;
         const rec = opinionRecord(world, m, party);

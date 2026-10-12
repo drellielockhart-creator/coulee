@@ -339,3 +339,20 @@ text_you = "you deal honest"
 juiciness = 10
 valence = 40
 prior = 30
+
+[[predicate]]
+id = "fae_abroad"
+args = ["place"]
+text = "the Good Neighbors are abroad at {0}"
+juiciness = 45
+supernatural = true
+prior = 20
+exaggerates_to = "court_at"
+
+[[predicate]]
+id = "court_at"
+args = ["place"]
+text = "a fae court gathers at {0}"
+juiciness = 65
+supernatural = true
+prior = 5

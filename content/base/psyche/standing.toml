@@ -1,0 +1,35 @@
+[[standing]]
+id = "sleep"
+act = "sleep"
+legacy = "sleep"
+default = true
+
+[[standing]]
+id = "eat_own_stores"
+act = "eat_own_stores"
+legacy = "eat"
+default = true
+
+[[standing]]
+id = "drink"
+act = "drink"
+legacy = "drink"
+default = true
+
+[[standing]]
+id = "keep_warm"
+act = "keep_warm"
+legacy = "warmth"
+default = true
+
+[[standing]]
+id = "go_home"
+act = "go_home"
+legacy = "lodging"
+default = true
+
+[[standing]]
+id = "shelter"
+act = "shelter"
+legacy = "lodging"
+default = true

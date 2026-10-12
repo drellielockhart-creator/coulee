@@ -3,6 +3,7 @@ import {
   activity,
   asItemId,
   type Command,
+  fae,
   hashValue,
   items,
   needs,
@@ -28,6 +29,21 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       actorId: pc,
       data: { query },
     });
+  for (const r of social.pendingRequests(w, pc))
+    for (const accept of [true, false])
+      add(
+        `answer:${r.id}:${accept ? 'yes' : 'no'}`,
+        `${accept ? 'Accept' : 'Refuse'} loan request from ${w.actors[r.from]?.name.given}`,
+        { kind: 'social.answer_request', actorId: pc, data: { requestId: r.id, accept } },
+      );
+  add('signs', 'Signs & Wonders', { kind: 'fae.signs', actorId: pc, data: {} });
+  for (const q of fae.signs(w, pc))
+    if (!fae.investigationEligibility(w, pc, q.signId))
+      add(`investigate:${q.signId}`, `Investigate: ${q.text}`, {
+        kind: 'fae.investigate',
+        actorId: pc,
+        data: { signId: q.signId },
+      });
   const inspect = (target: string, label: string) =>
     add(`inspect:${target}`, `Inspect ${label}`, {
       kind: 'activity.observe',
@@ -205,7 +221,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
 /** Exact offered commands plus bounded quantity/ration variants from the same affordance. */
 export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions: AvailableAction[]): string | null {
   if (!command || command.actorId !== pc || !command.data) return 'Command must belong to the newcomer';
-  if (actions.some((a) => hashValue(a.command) === hashValue(command))) return null;
+
   const { world: w, content: c } = sim;
   const actor = w.actors[pc];
   if (!actor) return 'No player actor';
@@ -215,8 +231,24 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     /^\d+$/.test(command.data.target ?? '')
   )
     return null;
+  const shape = { kind: command.kind, actorId: command.actorId, data: command.data };
+  const offered = actions.some(
+    (a) => hashValue({ kind: a.command.kind, actorId: a.command.actorId, data: a.command.data }) === hashValue(shape),
+  );
+  // Reading (look, journal, plan, signs) never acts, so it stays open after an ending.
+  if (offered && (command.kind === 'activity.observe' || command.kind === 'fae.signs')) return null;
   if (w.needs.byActor[pc]?.survival?.ending || !actor.alive) return 'This life has ended; only reading remains';
+  const authorization = psyche.authorizeAct(
+    w,
+    pc,
+    { kind: command.kind },
+    { kind: 'command', issuer: command.issuer ?? { kind: 'player' } },
+  );
+  if (!authorization.ok) return authorization.reason;
   if (!needs.canAct(w, pc) && command.kind !== 'activity.wait') return 'You have collapsed and need help';
+  if (offered) return null;
+  if (command.kind === 'fae.signs') return null;
+  if (command.kind === 'fae.investigate') return fae.investigationEligibility(w, pc, command.data.signId);
   if (command.kind === 'activity.wait') {
     const d = command.data;
     return Number.isSafeInteger(d.minutes) &&

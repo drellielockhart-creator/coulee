@@ -199,6 +199,7 @@ export const PlaceSchema = z.strictObject({
   model: id().optional(),
   /** Fae intensity override for this place (e.g. a fairy ring). */
   fae_intensity: int().min(0).max(5).optional(),
+  bell_range_tiles: nonNegInt().optional(),
 });
 export type PlaceDef = z.output<typeof PlaceSchema>;
 
@@ -212,6 +213,23 @@ export const worldDomains = {
 
 export function worldRefs(b: ContentBundle): Issue[] {
   const issues: Issue[] = [];
+  for (const p of Object.values(b.places)) {
+    const protectedSite = p.tags.some(
+      (t) =>
+        ['protected', 'protected_site', 'mound', 'burial', 'rock_art', 'rockshelter', 'atrocity_site'].includes(t) ||
+        t.startsWith('mound_'),
+    );
+    if (
+      protectedSite &&
+      (p.tags.some((t) => ['fae', 'fae_court', 'fae_barrow', 'recharge'].includes(t)) || (p.fae_intensity ?? 0) > 0)
+    )
+      issues.push({
+        where: `places:${p.id}`,
+        path: 'tags',
+        message: 'Protected sites cannot carry fae roles or intensity',
+      });
+  }
+
   for (const p of Object.values(b.peoples)) {
     checkRefs(issues, `peoples:${p.id}`, 'passes_as', p.passes_as, b.peoples, 'people');
     if (p.concealed && p.passes_as.length === 0) {

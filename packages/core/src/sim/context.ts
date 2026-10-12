@@ -24,6 +24,7 @@ export interface SimContext {
    * `ctx.rng('social', mixKey(actorA, actorB, SALT))`. Never reuse one Rng across decisions.
    */
   rng(stream: Stream, key: number): Rng;
+  rngAt?(stream: Stream, at: GameMinute, key: number): Rng;
   /** Append an event; returns its id. Defaults: t = now, roles = [], visibility = 'public'. */
   emit(event: EventInput): EventId;
 }
@@ -35,5 +36,6 @@ export interface InitContext {
   readonly seed: number;
   readonly now: GameMinute;
   rng(stream: Stream, key: number): Rng;
+  rngAt?(stream: Stream, at: GameMinute, key: number): Rng;
   emit(event: EventInput): EventId;
 }

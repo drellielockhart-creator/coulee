@@ -12,7 +12,7 @@ import { VALUES } from '../content.ts';
 import { type ExplainTerm, signed, term } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
-import { autonomous, effectiveTraits, psycheOf } from '../psyche/api.ts';
+import { effectiveTraits, psycheOf } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { MINUTES_PER_DAY } from '../time.ts';
 import type { World } from '../world.ts';
@@ -170,8 +170,6 @@ export function requiresFail(p: Pair, def: InteractionDef, mode: RequireMode): s
   const tg = p.target.id;
   const now = p.ctx.now;
   if (i === tg) return 'self';
-  if (!autonomous(w, tg) && (def.success.ledger.cents < 0 || def.failure.ledger.cents < 0))
-    return 'held for their order';
   if (mode !== 'forced') {
     const until = opinionRecord(w, i, tg)?.cooldowns[def.id];
     if (until !== undefined && until > now) return 'cooldown';

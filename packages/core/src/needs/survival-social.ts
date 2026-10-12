@@ -6,7 +6,7 @@ import { term } from '../explain.ts';
 import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
 import { carriedBy, moveStack, pantryOf, stacksAt, withInventoryPass } from '../items/api.ts';
 import { assistIntake, careHome, settleEstate } from '../provisions/api.ts';
-import { addAnxiety, addThought, autonomous, psycheOf } from '../psyche/api.ts';
+import { addAnxiety, addThought, authorizeAct, psycheOf } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addMemory, addOpinionReason, areKin, isAcquainted, markBereaved, opinionOf } from '../social/api.ts';
@@ -167,7 +167,12 @@ function helpPass(world: World, ctx: SimContext): void {
       continue;
     s.lastAid = ctx.now;
     for (const helper of idsOf<ActorId>(world.actors))
-      if (helper !== id && autonomous(world, helper) && aid(helper, id, false)) break;
+      if (
+        helper !== id &&
+        authorizeAct(world, helper, { kind: 'consequential' }, { kind: 'own' }).ok &&
+        aid(helper, id, false)
+      )
+        break;
   }
 }
 
@@ -325,7 +330,7 @@ export function aftermathHour(world: World, ctx: SimContext): void {
       const attendees = death.mourners.filter(
         (x) =>
           canAct(world, x) &&
-          autonomous(world, x) &&
+          authorizeAct(world, x, { kind: 'consequential' }, { kind: 'own' }).ok &&
           world.places[world.actors[x]?.placeId ?? 0]?.siteId === world.places[church]?.siteId,
       );
       for (const x of attendees) relocateForCare(world, ctx, x, church, 'attend_church');

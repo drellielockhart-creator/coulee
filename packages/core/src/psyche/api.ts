@@ -158,4 +158,15 @@ export function effectiveTraits(world: World, actorId: ActorId): readonly string
   return [...innate, ...acquired.filter((t) => !innate.includes(t))];
 }
 
-export { agencyMode, autonomous, DEFAULT_STANDING_ORDERS, standingOrders } from './agency.ts';
+export type { Act, AgencyState, Basis, Issuer, StandingId } from './agency.ts';
+export {
+  agencyMode,
+  agencyOf,
+  authorizationExplain,
+  authorizeAct,
+  autonomous,
+  commandBasis,
+  DEFAULT_STANDING_ORDERS,
+  setAgency,
+  standingOrders,
+} from './agency.ts';

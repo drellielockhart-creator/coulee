@@ -174,7 +174,26 @@ it('cannot borrow from a commanded lender without their order', () => {
   const pair = required(
     social.makePair(sim.world, makeContext(sim.world, sim.content, []), other.id, pc, other.placeId, 0),
   );
-  expect(social.requiresFail(pair, loan, 'urge')).toBe('held for their order');
+  const before = JSON.stringify(sim.world.provisions.purses);
+  const ctx = makeContext(sim.world, sim.content, []);
+  social.resolveInteraction(sim.world, ctx, {
+    def: loan,
+    initiatorId: other.id,
+    targetId: pc,
+    placeId: other.placeId,
+    present: [],
+    mode: 'forced',
+    via: 'urge',
+  });
+  expect(social.pendingRequests(sim.world, pc)).toHaveLength(1);
+  expect(JSON.stringify(sim.world.provisions.purses)).toBe(before);
+  expect(social.requiresFail(pair, loan, 'urge')).toBe('not acquainted');
+  sim.world.time = asGameMinute(sim.world.time + 120);
+  step(sim);
+  expect(social.pendingRequests(sim.world, pc)).toHaveLength(0);
+  expect(sim.world.log.events.some((e) => e.kind === 'social.request_answered' && e.data.status === 'no answer')).toBe(
+    true,
+  );
 });
 
 it('only related social events interrupt and compact output coalesces minor conversations', () => {

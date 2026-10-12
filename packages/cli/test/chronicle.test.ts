@@ -1271,6 +1271,7 @@ describe('voices', () => {
 describe('content coverage', () => {
   it('every template answers an event kind, a pattern (or its closing/truth), or a digest', () => {
     const kinds = new Set([
+      'fae.omen',
       'core.day_started',
       'social.interaction',
       'social.label_changed',

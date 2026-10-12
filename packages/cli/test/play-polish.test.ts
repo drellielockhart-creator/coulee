@@ -315,8 +315,9 @@ it('a social act that moves money needs her order when she is held for orders; i
   activityApi.recomputeOccupancy(w);
   const run = (voice: 'ego' | 'command') => {
     const before = w.log.lastId;
+    const urge = { kind: 'interaction', interactionId: 'repay', targetId: joel.id } as const;
     required(w.psyche.byActor[pc]).chosen = {
-      urge: { kind: 'interaction', interactionId: 'repay', targetId: joel.id },
+      urge,
       voice,
       compromise: false,
       at: w.time,
@@ -331,7 +332,9 @@ it('a social act that moves money needs her order when she is held for orders; i
       },
     } as never;
     const social_ = required(HOURLY_SYSTEMS.find((x) => x.id === 'social'));
-    social_.run(w, makeContext(w, sim.content, []));
+    // An order arrives as a Command in the same tick (authorizeAct reads its issuer).
+    const orders = voice === 'command' ? [{ kind: 'core.urge', actorId: pc, data: { urge } } as never] : [];
+    social_.run(w, makeContext(w, sim.content, orders));
     return w.log.events.filter((e) => e.id > before && e.kind === 'provisions.cash_transfer' && e.data.fromId === pc);
   };
   // The psyche is not the player: an unordered impulse to settle up moves nothing.

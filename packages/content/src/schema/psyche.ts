@@ -353,6 +353,11 @@ export const UrgeTagSchema = z.strictObject({
 export type UrgeTagDef = z.output<typeof UrgeTagSchema>;
 
 export const psycheDomains = {
+  standingCapabilities: defineDomain({
+    dir: 'psyche',
+    key: 'standing',
+    schema: z.strictObject({ id: id(), default: z.boolean(), act: id(), legacy: id() }),
+  }),
   traits: defineDomain({ dir: 'traits', key: 'trait', schema: TraitSchema }),
   drives: defineDomain({ dir: 'psyche', key: 'drive', schema: DriveSchema }),
   norms: defineDomain({ dir: 'psyche', key: 'norm', schema: NormSchema }),

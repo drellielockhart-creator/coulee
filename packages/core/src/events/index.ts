@@ -2,10 +2,12 @@
  * The full Event union and the append-only log. FOUNDATION-OWNED.
  * Modules never edit this file: they add kinds to their own `src/<module>/events.ts`.
  */
+
 import type { ActivityEvent } from '../activity/events.ts';
 import type { BeliefEvent } from '../belief/events.ts';
 import type { ChronicleEvent } from '../chronicle/events.ts';
 import { normalizeExplain } from '../explain.ts';
+import type { FaeEvent } from '../fae/events.ts';
 import { asEventId, type EventId } from '../ids.ts';
 import type { ItemsEvent } from '../items/events.ts';
 import type { NeedsEvent } from '../needs/events.ts';
@@ -20,6 +22,7 @@ export type { DistributiveOmit, EventBase, EventOf, EventRole, EventRoleKind, Vi
 export type { CoreEvent } from './core-events.ts';
 
 export type Event =
+  | FaeEvent
   | CoreEvent
   | NeedsEvent
   | ActivityEvent

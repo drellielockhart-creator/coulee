@@ -1,0 +1,25 @@
+pnpm exec biome check .
+Checked 296 files in 65ms. No fixes applied.
+pnpm -r --workspace-concurrency=1 run typecheck
+Scope: 6 of 7 workspace projects
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+pnpm exec tsc -p tsconfig.scripts.json
+pnpm exec vitest run "$@"
+
+ RUN  v5.0.3 /home/eleanor/projects/coulee-w3-fae1a
+
+
+ Test Files  53 passed (53)
+      Tests  516 passed (516)
+   Start at  20:48:03
+   Duration  1020.29s (tests 94%, import 6%)
+
+node --import tsx scripts/check-invariants.ts
+check-invariants: ok (172 files)
+node --import tsx packages/cli/src/main.ts content check
+content ok (82 files): omens=6 skills=42 peoples=4 namePools=10 sites=1 places=43 cultures=8 needs=9 activities=45 observances=25 hearths=3 occupations=27 standingCapabilities=6 traits=36 drives=8 norms=10 thoughts=19 defenses=7 compromises=7 sublimations=6 urge_tags=9 interactions=33 memory_kinds=38 social_tuning=1 talk_lines=294 talk_words=17 predicates=31 rumorChannels=13 evidenceTypes=14 misfortunes=9 suspicionTells=8 persecutionRungs=4 grudgeAims=6 domesticRules=1 nutritionRules=1 venueServices=2 playStarts=1 items=255 mealPlans=2 rationPolicies=5 restocks=4 chronicleTemplates=377 chronicleLexicon=15 chroniclePatterns=13 scenarios=1

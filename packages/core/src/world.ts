@@ -10,11 +10,13 @@
  *   - Integers only in accumulated state. Tables keyed by integer ids (see ids.ts Table).
  *   - No class instances, Maps, Sets, functions, undefined-in-arrays, or cycles.
  */
+
 import type { ActivityState } from './activity/state.ts';
 import type { ActorCore, Household, Place } from './actor.ts';
 import type { BeliefState } from './belief/state.ts';
 import type { ChronicleState } from './chronicle/state.ts';
 import type { EventLog } from './events/index.ts';
+import type { FaeState } from './fae/state.ts';
 import type { ActorId, HouseholdId, PlaceId, Table } from './ids.ts';
 import type { ItemsState } from './items/state.ts';
 import type { NeedsState } from './needs/state.ts';
@@ -50,6 +52,7 @@ export interface World {
   log: EventLog;
 
   // ---- module slices (each type owned by its module) ----
+  fae: FaeState;
   needs: NeedsState;
   activity: ActivityState;
   psyche: PsycheState;

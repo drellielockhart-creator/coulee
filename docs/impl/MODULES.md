@@ -656,3 +656,7 @@ Keep each glb small (< 50 KB typical).
   change: add `alive`-toggle helper `kill(world, ctx, actorId, cause)` emitting core.actor_died
   why: provisions starvation deaths (P8 acceptance 5)
 ```
+
+## module:fae (wave 3, slice 1a)
+
+Owner: `packages/core/src/fae/**`, `packages/content/src/schema/fae.ts`, `content/base/fae/**`, `packages/cli/test/fae.test.ts`. Slice 1a contracts and acceptance are design-docs/13 §8.1; no charms, workings or Tally ship in this slice. Schedule: activity → fae → social. Fae owns episodes, canonical snapshots, thinning, signatures and open questions. It consumes belief and psyche through their APIs. Agency and authorization remain psyche-owned; pending loan requests remain social-owned. Additive consumers: place descriptions/worldgen, play Commands/observations, chronicle omen prose. Foundation owns the fae stream, composition, unions and optional canonical-time `rngAt` (present on real sim contexts; optional for legacy module fixtures).
