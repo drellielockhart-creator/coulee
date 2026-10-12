@@ -10,9 +10,10 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
 import { CONTENT_ROOT, formatIssues, loadContent, loadContentOrThrow, REPO_ROOT } from '@coulee/content';
 import { formatStamp, toViewModel } from '@coulee/core';
-import { GEN_VERSION } from '@coulee/worldgen';
+import { COUNTY_GEN_VERSION, countyTownContext, GEN_VERSION } from '@coulee/worldgen';
 import { cac } from 'cac';
 import { packJson } from '../../core/src/serialization.ts';
+import { generateTimedCounty, writeGeneratedCounty } from './county-generation.ts';
 import { findActor, renderDossier } from './dossier.ts';
 import { generateTimedTown, writeGeneratedTown } from './generation.ts';
 import { jsonlFileSink, type RunSpec, runScenario, type WorldSource, writeRunOutputs } from './harness.ts';
@@ -126,25 +127,48 @@ cli
   );
 
 cli
-  .command('gen <kind>', 'Generate an editable town content mod and report.md')
+  .command('gen <kind>', 'Generate a town content mod or county JSON and SVG')
   .option('--seed <n>', 'World seed (uint32)', { default: 1 })
   .option('--out <dir>', 'Output directory (default runs/gen-<seed>)')
   .option('--preset <name>', 'coulee or river', { default: 'coulee' })
   .option('--mods <list>', 'Content mods', { default: 'base' })
-  .action((kind: string, o: { seed: number; out?: string; preset: 'coulee' | 'river'; mods?: string }) => {
-    if (kind !== 'town') throw new Error(`Unknown generator '${kind}'`);
-    const seed = Number(o.seed);
-    const town = generateTimedTown(loadContentOrThrow(modsOf(o.mods)), {
-      genVersion: GEN_VERSION,
-      seed,
-      preset: o.preset,
-    });
-    const out = resolveOut(o.out ?? `runs/gen-${seed}`);
-    writeGeneratedTown(out, town);
-    console.log(
-      `Generated ${town.scenario.name}: ${town.scenario.actors.length} people; ${town.report.qa.length} QA checks passed -> ${out}`,
-    );
-  });
+  .option('--town', 'Also export the county’s chosen ford town')
+  .action(
+    (kind: string, o: { seed: number; out?: string; preset: 'coulee' | 'river'; mods?: string; town?: boolean }) => {
+      if (kind === 'county') {
+        const seed = Number(o.seed);
+        const { county, timing } = generateTimedCounty({ genVersion: COUNTY_GEN_VERSION, seed, preset: o.preset });
+        const out = resolveOut(o.out ?? `runs/county-${seed}`);
+        writeGeneratedCounty(out, county, timing);
+        if (o.town) {
+          const regionContext = countyTownContext(county);
+          const town = generateTimedTown(loadContentOrThrow(modsOf(o.mods)), {
+            genVersion: GEN_VERSION,
+            seed,
+            preset: o.preset,
+            regionContext,
+          });
+          writeGeneratedTown(join(out, 'town'), town);
+        }
+        console.log(
+          `Generated county ${seed}: ${county.report.stats.cells} cells; ${timing.desktopMs} ms desktop, ${timing.estimatedPhoneMs} ms phone estimate (no pre-roll) -> ${out}`,
+        );
+        return;
+      }
+      if (kind !== 'town') throw new Error(`Unknown generator '${kind}'`);
+      const seed = Number(o.seed);
+      const town = generateTimedTown(loadContentOrThrow(modsOf(o.mods)), {
+        genVersion: GEN_VERSION,
+        seed,
+        preset: o.preset,
+      });
+      const out = resolveOut(o.out ?? `runs/gen-${seed}`);
+      writeGeneratedTown(out, town);
+      console.log(
+        `Generated ${town.scenario.name}: ${town.scenario.actors.length} people; ${town.report.qa.length} QA checks passed -> ${out}`,
+      );
+    },
+  );
 
 cli
   .command('content <action>', 'Content tools: `content check`')

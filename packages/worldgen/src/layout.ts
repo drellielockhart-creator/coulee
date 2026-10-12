@@ -5,7 +5,12 @@ import type { TownRecipe } from './types.ts';
 // Stable independent layer salts: adding population draws cannot move the creek.
 export const LAYERS = { terrain: 0x74657272, layout: 0x706c6174, population: 0x706f7075, tensions: 0x74656e73 };
 export const randomFor = (r: TownRecipe, layer: keyof typeof LAYERS, key = '') =>
-  rng(r.seed, 'worldgen', r.genVersion, mixKey(LAYERS[layer], hashString32(key)));
+  rng(
+    r.seed,
+    'worldgen',
+    r.genVersion,
+    mixKey(LAYERS[layer], hashString32(r.regionContext ? `${r.regionContext.settlementId}:${key}` : key)),
+  );
 
 /**
  * Tavern signs, as a 5x5 table indexed by the same two draws the old word lists used, so the rest
@@ -35,16 +40,17 @@ export function terrain(recipe: TownRecipe) {
     'Badger',
   ]);
   const defaultName = `${feature} ${names.pick(['Ford', 'Mills', 'Hollow', 'Crossing'])}`;
-  const name = recipe.constraints?.townName ?? defaultName;
+  const name = recipe.constraints?.townName ?? recipe.regionContext?.townName ?? defaultName;
   const landmarks = {
     creek: `${names.pick(['Trout', 'Coldwater', 'Otter', 'Silver', 'Rush', 'Plum'])} Creek`,
     main_street: `${names.pick(['Mill', 'Water', 'Market', 'Front'])} Street`,
     back_road: `${names.pick(['Quarry', 'Ridge', 'Prairie', 'Cove', 'Orchard'])} Road`,
   };
-  const id = `town_v${recipe.genVersion}_${recipe.seed}`;
+  if (recipe.regionContext) landmarks.creek = recipe.regionContext.creekName;
+  const id = `town_v${recipe.genVersion}_${recipe.seed}${recipe.regionContext ? `_${recipe.regionContext.settlementId}` : ''}`;
   const creek = r.int(37, 43);
   const ford = r.int(26, 30);
-  const onRiver = recipe.constraints?.onRiver ?? recipe.preset === 'river';
+  const onRiver = recipe.constraints?.onRiver ?? recipe.regionContext?.onRiver ?? recipe.preset === 'river';
   const site = SiteSchema.parse({
     id,
     name,
