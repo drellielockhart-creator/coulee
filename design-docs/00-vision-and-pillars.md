@@ -166,6 +166,7 @@ Every doc uses these terms with these meanings.
 | `10-psyche.md` | Freudian/Jungian mind model: Id/Ego/Superego thoughts, defenses, Persona/Shadow, archetypes, dreams |
 | `11-interface-and-platforms.md` | Pocket (phone) and desktop interfaces, touch controls, PWA/app packaging |
 | `12-peoples.md` | Humans, elves, shadow-faekin, goblins |
+| `13-fae-magic-charms-and-omens.md` | Omens and signs, fae magic anyone can learn, fae charms as items and as settlement-disrupting artifacts |
 | `adr/` | Architecture decision records (e.g., `0001-typescript-stack.md`) |
 
 ## Decisions log
@@ -178,6 +179,15 @@ Every doc uses these terms with these meanings.
   - Lots of meaningful supply crunch: food types, rations, consumables (P8).
   - **Procedural world generation** is the target (terrain, settlements, population, pre-play history). Hand-authored scenarios are kept as fixtures and curated seeds. See `adr/0003-procedural-world-generation.md`.
   - A **headless play mode** so AI agents can playtest without the UI. Every milestone includes agent playtesting, and every UI action must also be a headless Command. See `adr/0002-headless-play-and-agent-playtesting.md`.
+- **2026-10-11 (Ellie):**
+  - **PC agency: high agency for now (answers 08 Q05).** The player character acts only on the player's Commands plus routine standing orders (sleep, eat from own stores, keep warm). The psyche still voices Id/Superego thoughts, Self-Command still arbitrates, and overriding still costs anxiety, but consequential autonomous acts (spending, hostility, gifts, courting) never happen without an order. **Keep it flexible:** implement it as an **agency mode** on an actor's psyche (`commanded` / `psyche` / later `fits` or a player toggle), a sheet property any actor can have (P2: e.g., a fae-charmed NPC can be put under command). It must not be a branch on `controller`.
+  - **P8 pressure comes from logistics, not prices.** 1855 staples stay period-cheap. The crunch comes from weight, bulk, fuel, water, spoilage, nutrition/scurvy, gear, and trips where you can't buy. The Outfitter stocks the 03 catalog, including camping gear.
+  - **Fae omens, fae magic for anyone, and disruptive fae artifacts.**
+    - **Omens and signs** are keyed to the fae intensity field.
+    - **Learning fae magic is something anyone can theoretically do**: human, elf, goblin, faekin, at a cost.
+    - **Fae artifacts and charms find their way into mortal settlements and disrupt them.** A single wondrous, useful thing arrives in a town and reshapes desire, envy, ownership, rumor, faith and feud around itself; the town's story becomes the object's story.
+    - The touchpoint is the "object falls from the sky" premise of *The Gods Must Be Crazy*, used only as a narrative shape and **not** homaged. Avoid its colonial/primitivist framing: every people here is equally sophisticated, and the charm disrupts *because* it is genuinely useful and genuinely strange.
+    - Charms are also **real gameplay items** for the PC, with uses, costs and consequences. See `13-fae-magic-charms-and-omens.md`.
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.
