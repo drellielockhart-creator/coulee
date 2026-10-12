@@ -56,8 +56,31 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
           actorId: pc,
           data: { urge: { kind: 'activity', activityId: 'walk', placeId: p.id } },
         });
+    // Away from lodgings on open ground, ordinary sleep is a camp bed on the spot (never a walk
+    // back to a paid one), resting is resting here, and the camp activities are on offer.
+    const camp = items.campContext(w, c, pc);
+    const campId = items.campSleepActivity(c);
+    const home = w.households[a.householdId]?.homePlaceId;
     for (const def of Object.values(c.activities)) {
       if (activity.resolveActivityPlace(w, sim, pc, def.id) === null) continue;
+      const isCamp = def.tags.includes('camp') || def.tags.includes('campfire');
+      if (isCamp && !camp.afield) continue;
+      if (def.asleep && def.at === 'home' && camp.bedding && campId !== null) {
+        add(`activity:${def.id}`, `Make camp and sleep here`, {
+          kind: 'core.urge',
+          actorId: pc,
+          data: { urge: { kind: 'activity', activityId: campId, placeId: a.placeId } },
+        });
+        continue;
+      }
+      if (def.id === 'idle_at_home' && a.placeId !== home) {
+        add(`activity:${def.id}`, 'Rest here awhile', {
+          kind: 'core.urge',
+          actorId: pc,
+          data: { urge: { kind: 'activity', activityId: def.id, placeId: a.placeId } },
+        });
+        continue;
+      }
       add(`activity:${def.id}`, def.name, {
         kind: 'core.urge',
         actorId: pc,

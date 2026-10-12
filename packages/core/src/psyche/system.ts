@@ -27,6 +27,7 @@ import { formProjection, suspicionOf } from '../belief/api.ts';
 import type { ContentBundle, DefenseId } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import { type ActorId, idsOf } from '../ids.ts';
+import { campContext, campSleepActivity } from '../items/api.ts';
 import { needValue } from '../needs/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -197,8 +198,23 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
       out.mode = 'standing';
       out.satisfaction.clear();
       out.urge = allowed?.urge ?? { kind: 'activity', activityId: 'idle_at_home', placeId: m.actor.placeId };
-      if (out.urge.kind === 'activity' && !standingOrders(world, actorId).lodging)
-        out.urge = { ...out.urge, placeId: m.actor.placeId };
+      if (out.urge.kind === 'activity') {
+        // The lodging order is for a town with a lodging house near. Out on open ground nothing
+        // walks her home: a standing sleep beds down where she stands (if she carries bedding), a
+        // standing meal is eaten from her pack on the spot, and the chores that belong to the
+        // house (water, the fire) wait until she is back at one.
+        const camp = campContext(world, content, actorId);
+        const campId = campSleepActivity(content);
+        const def = content.activities[out.urge.activityId];
+        const here = m.actor.placeId;
+        if (camp.afield && def?.asleep && campId !== null && out.urge.activityId !== campId)
+          out.urge = camp.bedding
+            ? { kind: 'activity', activityId: campId, placeId: here }
+            : { kind: 'activity', activityId: 'idle_at_home', placeId: here };
+        else if (camp.afield && def?.at === 'home' && !def.tags.includes('meal'))
+          out.urge = { kind: 'activity', activityId: 'idle_at_home', placeId: here };
+        else if (camp.afield || !standingOrders(world, actorId).lodging) out.urge = { ...out.urge, placeId: here };
+      }
       out.explain = arbitrationExplain(
         actorId,
         'Held for your order; routine standing orders only',

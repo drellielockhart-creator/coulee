@@ -2,7 +2,7 @@
  * Activity cross-module API. OWNER: module:needs-activities.
  */
 import { grudgeTargetsOf } from '../belief/grudges.ts';
-import type { ScheduleBlock } from '../content.ts';
+import type { ContentBundle, ScheduleBlock } from '../content.ts';
 import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
 import { mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -32,6 +32,28 @@ export function venues(world: World): Array<{ placeId: PlaceId; actorIds: ActorI
     if (ids && ids.length > 0) out.push({ placeId: k as PlaceId, actorIds: ids });
   }
   return out;
+}
+
+/** Walking pace on level ground: 3 mph, which is 264 feet a game-minute (05 §1.3). */
+export const WALK_FT_PER_MINUTE = 264;
+/** A trip between sites has no grid to measure; it is an hour on the road. */
+const BETWEEN_SITES_MINUTES = 60;
+
+/**
+ * Minutes an unburdened walker needs from one place to another: the Manhattan distance between
+ * the places' centres on the site grid, in feet, at walking pace (at least a minute). Encumbrance
+ * slows it (`movementDelay`). Integers only.
+ */
+export function walkMinutes(world: World, content: Pick<ContentBundle, 'sites'>, from: PlaceId, to: PlaceId): number {
+  const a = world.places[from];
+  const b = world.places[to];
+  if (!a || !b || from === to) return 0;
+  if (a.siteId !== b.siteId) return BETWEEN_SITES_MINUTES;
+  const tileFt = content.sites?.[a.siteId]?.tile_ft ?? 10;
+  // Centres in half tiles, so odd footprints keep exact integers.
+  const halfTiles = Math.abs(2 * a.x + a.w - (2 * b.x + b.w)) + Math.abs(2 * a.y + a.h - (2 * b.y + b.h));
+  const feet = Math.ceil((halfTiles * tileFt) / 2);
+  return Math.max(1, Math.ceil(feet / WALK_FT_PER_MINUTE));
 }
 
 /** Labor level of the actor's current activity ('light' when none). */

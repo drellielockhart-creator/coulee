@@ -2,7 +2,15 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { loadContentOrThrow } from '@coulee/content';
-import { HELP, PlaySession, parseText, type ReplayLog, renderDetail, renderObservation } from '@coulee/play';
+import {
+  HELP,
+  PlaySession,
+  parseText,
+  type ReplayLog,
+  renderDetail,
+  renderInterrupts,
+  renderObservation,
+} from '@coulee/play';
 import { sessionCLI } from './play-session.ts';
 export interface PlayOptions {
   compact?: boolean;
@@ -121,6 +129,8 @@ export async function playCLI(o: PlayOptions, command?: string): Promise<void> {
               ok: result.ok,
               reason: result.reason,
               warning: result.warning,
+              notice: result.notice,
+              stopped: result.stopped,
               elapsedMinutes: result.elapsedMinutes,
               interrupts: result.interrupts,
               detail: result.detail,
@@ -130,7 +140,8 @@ export async function playCLI(o: PlayOptions, command?: string): Promise<void> {
       else {
         if (result.reason) print(result.reason);
         if (result.warning) print(result.warning);
-        if (result.interrupts.length) print(`Stopped: ${result.interrupts.map((i) => i.reason).join('; ')}`);
+        if (result.notice) print(result.notice);
+        for (const line of renderInterrupts(result)) print(line);
         if (result.detail !== undefined) print(renderDetail(result.detail));
         print(renderObservation(result.observation));
       }

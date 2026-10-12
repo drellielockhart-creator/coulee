@@ -136,10 +136,21 @@ export function loadFatigue(
   };
 }
 
-/** Activity asks for the load's extra transit time (null means movement is impossible). */
-export function movementDelay(_world: World, ctx: SimContext, actorId: ActorId, load: LoadReport): number | null {
+/**
+ * Activity asks for the load's extra transit time (null means movement is impossible). `baseMinutes`
+ * is the unburdened walking time of the trip (an hour when unknown): a load at 80% speed adds a
+ * quarter of it.
+ */
+export function movementDelay(
+  _world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+  load: LoadReport,
+  baseMinutes = 60,
+): number | null {
   if (load.band.speedPct >= 100) return 0;
-  const minutes = load.band.speedPct > 0 ? Math.ceil((60 * (100 - load.band.speedPct)) / load.band.speedPct) : 0;
+  const minutes =
+    load.band.speedPct > 0 ? Math.ceil((baseMinutes * (100 - load.band.speedPct)) / load.band.speedPct) : 0;
   ctx.emit({
     kind: 'provisions.load_movement',
     data: { actorId, loadPct: load.loadPct, speedPct: load.band.speedPct, minutes, blocked: load.band.speedPct === 0 },

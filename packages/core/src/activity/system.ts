@@ -7,7 +7,7 @@ import type { SimContext } from '../sim/context.ts';
 import { interactionAvailability } from '../social/api.ts';
 import { addHours } from '../time.ts';
 import type { World } from '../world.ts';
-import { noteCall, resolveActivityPlace } from './api.ts';
+import { noteCall, resolveActivityPlace, walkMinutes } from './api.ts';
 import { blockActive, observanceActive, routineFor } from './calendar.ts';
 import { requiredRow } from './definitions.ts';
 import { activityExplain } from './explain.ts';
@@ -36,12 +36,13 @@ export function activitySystem(world: World, ctx: SimContext): void {
     if (state.travel) {
       if (ctx.now < state.travel.arrive) continue;
       const from = actor.placeId;
+      const minutes = Math.max(0, state.travel.arrive - state.since);
       actor.placeId = state.travel.to;
       state.placeId = state.travel.to;
       state.travel = null;
       ctx.emit({
         kind: 'activity.moved',
-        data: { actorId: id, from, to: actor.placeId },
+        data: { actorId: id, from, to: actor.placeId, minutes },
         place: actor.placeId,
         roles: [{ actor: id, role: 'agent' }],
         visibility: 'witnessed',
@@ -94,23 +95,32 @@ export function activitySystem(world: World, ctx: SimContext): void {
     const explain = rawExplain ? activityExplain(rawExplain) : undefined;
     const from = actor.placeId;
     const changed = state.activityId !== activityId || state.placeId !== placeId;
-    if (from !== placeId && load.band.speedPct < 100) {
-      const minutes = movementDelay(world, ctx, id, load);
-      if (minutes !== null) {
-        state.travel = { from, to: placeId, arrive: (ctx.now + minutes) as import('../time.ts').GameMinute };
+    // The walk takes real time: distance on the site grid at a walking pace, slowed by the load.
+    // A trip that fits inside the hour is simply done (the hour is the grain of the sim); a
+    // longer one leaves the actor on the road until it ends (the view reports the minutes left).
+    let walked = 0;
+    if (from !== placeId) {
+      walked = walkMinutes(world, ctx.content, from, placeId);
+      if (load.band.speedPct < 100) {
+        const extra = movementDelay(world, ctx, id, load, walked);
+        if (extra === null) continue;
+        walked += extra;
+      }
+      if (walked >= 60) {
+        state.travel = { from, to: placeId, arrive: (ctx.now + walked) as import('../time.ts').GameMinute };
         state.activityId = activityId;
         state.source = source;
         state.since = ctx.now;
         state.lockedUntil = addHours(state.travel.arrive, Math.max(1, def.min_hours));
+        continue;
       }
-      continue;
     }
     actor.placeId = placeId;
     state.placeId = placeId;
     if (from !== placeId)
       ctx.emit({
         kind: 'activity.moved',
-        data: { actorId: id, from, to: placeId },
+        data: { actorId: id, from, to: placeId, minutes: walked },
         place: placeId,
         roles: [{ actor: id, role: 'agent' }],
         visibility: 'witnessed',

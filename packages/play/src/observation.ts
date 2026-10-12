@@ -2,6 +2,7 @@ import {
   type ActorId,
   activity,
   belief,
+  type ContentBundle,
   calendarAt,
   chronicle,
   type Event,
@@ -14,8 +15,11 @@ import {
   social,
   timeView,
   toViewModel,
+  type World,
 } from '@coulee/core';
 import { availableActions } from './actions.ts';
+import { describeEvent, fallbackText } from './describe.ts';
+import { obligationsOf } from './obligations.ts';
 export type ObservationMode = 'fair' | 'god';
 export function knownExplain(e: Explain | undefined, pc: ActorId, mode: ObservationMode): Explain | null {
   if (!e) return null;
@@ -40,20 +44,18 @@ export function knownExplain(e: Explain | undefined, pc: ActorId, mode: Observat
       : {}),
   };
 }
-export function eventView(e: Event, pc: ActorId, mode: ObservationMode) {
+/** The world and content an event's sentence needs for names (places, items, activities). */
+export interface EventViewContext {
+  world: World;
+  content: ContentBundle;
+}
+export function eventView(e: Event, pc: ActorId, mode: ObservationMode, view?: EventViewContext) {
   const explain = knownExplain(e.explain, pc, mode);
-  let summary: string = e.kind;
-  if (e.kind === 'social.interaction') summary = `${e.data.label}: ${e.data.success ? 'success' : 'failure'}`;
-  if (e.kind === 'belief.formed') summary = `Heard: ${e.data.text}`;
-  if (e.kind === 'provisions.cash_transfer') summary = `${e.data.reason}: $${(e.data.cents / 100).toFixed(2)}`;
-  if (e.kind === 'provisions.meal') summary = `Meal: ${e.data.kcal} kcal (${e.data.hot ? 'hot' : 'cold'})`;
-  if (e.kind === 'provisions.purchase')
-    summary = `Bought ${e.data.qty} ${e.data.defId} for $${(e.data.priceCents / 100).toFixed(2)}`;
-  if (e.kind === 'provisions.sale')
-    summary = `Sold ${e.data.qty} ${e.data.defId} for $${(e.data.priceCents / 100).toFixed(2)}`;
-  if (e.kind === 'provisions.command_rejected') summary = e.data.reason;
-  if (e.kind === 'activity.moved') summary = `Travel arrival at place #${e.data.to}`;
-  if (e.kind === 'belief.transmitted' && e.data.text) summary = `Told: ${e.data.text}`;
+  // Every event is told in plain words (describe.ts): never an event kind, whatever its source.
+  const described = view
+    ? describeEvent(view.world, view.content, pc, e)
+    : { text: e.kind === 'social.interaction' ? e.data.label : fallbackText(e.kind), routine: true };
+  const summary: string = described.text;
   // What was said (social talk lines): the act on social.interaction, the news itself on the
   // private belief.transmitted (only its teller and hearer perceive it).
   const words =
@@ -63,12 +65,31 @@ export function eventView(e: Event, pc: ActorId, mode: ObservationMode) {
           lines: e.data.lines.map((l) => ({ speaker: l.speaker, speakerId: l.speakerId, text: l.text })),
         }
       : {};
-  return { id: e.id, t: e.t, kind: e.kind, summary, explain, ...words } as {
+  // Who spoke first: a command's own words are the player's exchange, printed before the rest.
+  const by =
+    e.kind === 'social.interaction'
+      ? { speakerId: e.data.initiatorId, hearerId: e.data.targetId }
+      : e.kind === 'belief.transmitted'
+        ? { speakerId: e.data.speakerId, hearerId: e.data.listenerId }
+        : {};
+  return {
+    id: e.id,
+    t: e.t,
+    kind: e.kind,
+    summary,
+    explain,
+    ...(described.routine ? { routine: true } : {}),
+    ...by,
+    ...words,
+  } as {
     id: number;
     t: number;
     kind: Event['kind'];
     summary: string;
     explain: Explain | null;
+    routine?: boolean;
+    speakerId?: number;
+    hearerId?: number;
     line?: string;
     lines?: Array<{ speaker: string; speakerId: number; text: string }>;
   };
@@ -141,6 +162,8 @@ export function observation(
       activity: activity.viewActivityActor(w, c, pc, opts),
       mind: {
         ...mind,
+        // The id of the arbitration she can `explain` (why she chose what she did this hour).
+        verdictEventId: knowledge.findLast((e) => e.kind === 'psyche.arbitrated' && e.explain !== null)?.id,
         thoughts: mind.thoughts.map((t) => ({ ...t, voice: voice(t.voice) })),
         chosen: mind.chosen
           ? {
@@ -156,6 +179,14 @@ export function observation(
       provisions: { ...ownProvisions, householdCents: w.provisions.households[a.householdId]?.cashCents ?? 0 },
       agencyMode: psyche.agencyMode(w, pc),
       standingOrders: psyche.standingOrders(w, pc),
+      // Where her bed is, and whether she stands on open ground with something to sleep in.
+      lodging: (() => {
+        const home = w.households[a.householdId]?.homePlaceId;
+        const place = home === undefined ? undefined : w.places[home];
+        return place ? { placeId: place.id, name: place.name } : null;
+      })(),
+      camp: items.campContext(w, c, pc),
+      obligations: obligationsOf(w, c, pc),
     },
     present: Object.values(w.actors)
       .filter((other) => other.id !== pc && other.placeId === a.placeId)
@@ -172,14 +203,29 @@ export function observation(
     interactionVerbs: Object.values(c.interactions).map((d) => ({ id: d.id, name: d.name })),
     changes: { elapsed: 0, money: [] as MoneyChange[], needs: [] as string[], events: [] as string[], skipped: 0 },
     store: provisions.viewProvisionsPlace(w, c, a.placeId, opts),
-    events: mode === 'god' ? w.log.events.slice(-8).map((e) => eventView(e, pc, mode)) : knowledge.slice(-8),
+    events:
+      mode === 'god'
+        ? w.log.events.slice(-8).map((e) => eventView(e, pc, mode, { world: w, content: c }))
+        : knowledge.filter((e) => !e.routine).slice(-8),
     rumors: knowledge.filter((e) => e.kind === 'belief.transmitted' && e.summary.startsWith('Heard:')),
     // What the PC heard said in the last hour, in the speakers' words: their own exchanges first
     // (a command's words, what was said to them, news they were told), then talk overheard.
     said: (() => {
-      const recent = knowledge.filter((e) => e.t >= w.time - 60 && e.lines && e.lines.length > 0);
-      const mine = recent.filter((e) => e.lines?.some((l) => l.speakerId === pc));
-      return [...mine, ...recent.filter((e) => !mine.includes(e))].slice(0, 4);
+      // Their own exchange first: what she said and was answered, then what was said to her,
+      // then news she was told, then talk overheard. A command's act with no composed words is
+      // still listed (the renderer says so) rather than dropped.
+      const recent = knowledge.filter(
+        (e) =>
+          e.t >= w.time - 60 &&
+          ((e.lines && e.lines.length > 0) || (e.kind === 'social.interaction' && e.speakerId === pc)),
+      );
+      const rank = (e: KnownEvent) =>
+        e.speakerId === pc ? 0 : e.hearerId === pc ? 1 : e.lines?.some((l) => l.speakerId === pc) ? 2 : 3;
+      return recent
+        .map((e, i) => ({ e, i }))
+        .sort((x, y) => rank(x.e) - rank(y.e) || x.i - y.i)
+        .map((x) => x.e)
+        .slice(0, 4);
     })(),
     journal,
     actions: availableActions(sim, pc),

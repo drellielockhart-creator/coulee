@@ -1,6 +1,7 @@
 /** Shared worker/headless policy, 11 §1.6. Input must already be perspective-filtered.
  * Host wall-clock coalescing belongs outside this deterministic policy. */
 import { type ActorId, type ContentBundle, type Event, type PlaceId, social, type World } from '@coulee/core';
+import { describeEvent } from './describe.ts';
 
 export interface AlertEvent {
   id: number;
@@ -16,7 +17,10 @@ export interface AlertEvent {
 }
 export interface Interrupt {
   category: string;
+  /** Why the game stopped, in plain words ("You are getting hungry"). */
   reason: string;
+  /** The machine key of the event behind it ('needs.band_changed'), for logs and tests. */
+  kind?: string;
   score: number;
   eventId?: number;
   pause: boolean;
@@ -38,7 +42,14 @@ export function alertFor(event: AlertEvent): Interrupt {
       (event.notablePerson ? 150 : 0) +
       (event.firstLearned ? 100 : 0),
   );
-  return { category, reason: event.kind, score, eventId: event.id, pause: category !== 'notable' || score >= 700 };
+  return {
+    category,
+    reason: event.kind,
+    kind: event.kind,
+    score,
+    eventId: event.id,
+    pause: category !== 'notable' || score >= 700,
+  };
 }
 export function provisionsAlert(
   beforeFood: number,
@@ -87,6 +98,10 @@ export function perceivedEvents(events: readonly Event[], pc: ActorId, priorPlac
 
 /** Classify one perceived event for the alert policy (danger, summons, vitals, arrival). */
 export function alertForEvent(world: World, content: ContentBundle, pc: ActorId, e: Event): Interrupt {
+  // The policy decides on the event; the player is told in words, never in an event kind.
+  return { ...classify(world, content, pc, e), reason: describeEvent(world, content, pc, e).text };
+}
+function classify(world: World, content: ContentBundle, pc: ActorId, e: Event): Interrupt {
   const participant =
     e.roles.some((r) => r.actor === pc && r.role !== 'witness') ||
     (e.kind === 'social.interaction' && (e.data.initiatorId === pc || e.data.targetId === pc));
@@ -96,7 +111,7 @@ export function alertForEvent(world: World, content: ContentBundle, pc: ActorId,
   const hostile =
     e.kind === 'social.interaction' && !!content.interactions[e.data.interactionId]?.tags.includes('hostile');
   if (e.kind === 'social.interaction' && !participant && !strongTie && !hostile)
-    return { category: 'background', reason: e.kind, eventId: e.id, score: 0, pause: false };
+    return { category: 'background', reason: e.kind, kind: e.kind, eventId: e.id, score: 0, pause: false };
   return alertFor({
     id: e.id,
     notablePerson: strongTie,

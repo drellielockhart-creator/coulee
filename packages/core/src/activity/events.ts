@@ -8,8 +8,8 @@ import type { ActivitySource } from './state.ts';
 export type ActivityEvent =
   /** An actor began a new activity block. Routine: give it no importance. */
   | EventOf<'activity.started', { actorId: ActorId; activityId: string; placeId: PlaceId; source: ActivitySource }>
-  /** An actor moved between places. */
-  | EventOf<'activity.moved', { actorId: ActorId; from: PlaceId; to: PlaceId }>
+  /** An actor moved between places; `minutes` is how long the walk took (additive). */
+  | EventOf<'activity.moved', { actorId: ActorId; from: PlaceId; to: PlaceId; minutes?: number }>
   | EventOf<
       'activity.attendance',
       { actorId: ActorId; observanceId: string; block: number; chance: number; roll: number; attends: boolean }
