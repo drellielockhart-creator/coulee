@@ -157,7 +157,7 @@ export const FALLBACK_POLICY: RationPolicyDef = {
   id: DEFAULT_POLICY_ID,
   name: 'Spoils first',
   description: '',
-  weights: { spoils_first: 20, morale: 10, variety: 10, lightness: 0, thrift: 10, fresh_need: 10 },
+  weights: { preparation_time: 2, spoils_first: 20, morale: 10, variety: 10, lightness: 0, thrift: 10, fresh_need: 10 },
   reserve_tags: [],
 };
 

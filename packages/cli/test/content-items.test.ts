@@ -90,6 +90,32 @@ const CATALOG_ROWS: Record<string, string[]> = {
     'beans_dry',
     'cheese',
     'whiskey_quart',
+    'reflector_oven',
+    'parched_corn',
+    'bread_fresh',
+    'flatbrod',
+    'hearth_loaf',
+    'dried_beef',
+    'klippfisk',
+    'sauerkraut_lb',
+    'butter',
+    'lard',
+    'potatoes',
+    'eggs',
+    'milk_quart',
+    'oysters_tinned',
+    'maple_sugar',
+    'tobacco_plug',
+    'tin_canister_10lb',
+    'oilcloth_bag',
+    'rubber_provision_bag',
+    'tarred_sack',
+    'stoneware_crock_2gal',
+    'bladder_wax_seal',
+    'brine_keg_10gal',
+    'flour_barrel',
+    'crib_tin',
+    'willow_creel',
   ],
   '6.5 tools': [
     'felling_axe_hollister',
@@ -151,7 +177,7 @@ const CATALOG_ROWS: Record<string, string[]> = {
     'revolver_carrow_36',
     'hunting_bow_hickory',
     'arrows_iron_dozen',
-    'arrows_flint_dozen',
+    'arrows_horn_dozen',
     'crossbow_old_country',
     'black_powder_canister',
     'powder_horn',
@@ -228,7 +254,7 @@ const CATALOG_ROWS: Record<string, string[]> = {
     'hex_sign_barnboard',
     'holy_water_vial',
     'hag_stone',
-    'knapped_flint_blade',
+    'english_flint_scraper',
   ],
   '6.13 books': [
     'kittredge_almanack',
@@ -260,6 +286,7 @@ const CATALOG_ROWS: Record<string, string[]> = {
     'handcart',
     'skiff_flat_14',
     'bark_canoe_16',
+    'hay_bale',
   ],
 };
 
@@ -346,8 +373,8 @@ const KITS: Record<string, string[]> = {
     'flannel_shirt_checked',
     'hunting_bow_hickory',
     'arrows_iron_dozen',
-    'arrows_flint_dozen',
-    'knapped_flint_blade',
+    'arrows_horn_dozen',
+    'english_flint_scraper',
     'snare_wire_brass',
     'canteen_gourd',
     'burning_glass',
@@ -559,5 +586,49 @@ describe('content-items: supplies and consumption', () => {
       expect.arrayContaining(['powder_gr', 'percussion_cap', 'ball_54']),
     );
     expect(rifle.consumes.every((c) => c.per === 'use')).toBe(true);
+  });
+});
+
+describe('current P8 catalog fields', () => {
+  const catalog = baseContent().items;
+  it('covers found foods and all three Dutch oven preparations', () => {
+    for (const id of ['trout_fresh', 'venison_fresh', 'ramps_fresh', 'morels_fresh', 'cave_mushrooms', 'berries_fresh'])
+      expect(catalog[id]?.food).toBeDefined();
+    expect(catalog.dutch_oven_10qt?.affordances).toMatchObject({ bake: 1, cook: 1, boil: 1 });
+    expect(catalog.reflector_oven?.affordances.bake).toBe(0.8);
+  });
+  it('uses catalog packaging prices and honest rigid volumes', () => {
+    for (const [id, cents] of [
+      ['tin_canister_10lb', 30],
+      ['oilcloth_bag', 15],
+      ['rubber_provision_bag', 75],
+      ['stoneware_crock_2gal', 40],
+      ['brine_keg_10gal', 75],
+      ['flour_barrel', 50],
+      ['crib_tin', 20],
+      ['willow_creel', 35],
+    ] as const)
+      expect(catalog[id]?.value_cents).toBe(cents);
+    for (const item of Object.values(catalog))
+      if (item.container && !item.shape.includes('soft'))
+        expect(item.bulk).toBeGreaterThanOrEqual(item.container.capacity_bulk);
+  });
+  it('transcribes food energy, nutrients and shelf life rather than just checking ids', () => {
+    const rows = [
+      ['cornmeal', 1680, 36, 17, 0, 120],
+      ['parched_corn', 1800, 40, 20, 0, 365],
+      ['pemmican', 2900, 110, 270, 5, 730],
+      ['bread_fresh', 1200, 40, 10, 5, 5],
+      ['dried_beef', 1500, 300, 30, 0, 180],
+      ['lard', 4100, 0, 454, 0, 180],
+      ['maple_sugar', 1600, 0, 0, 0, 730],
+      ['beans_dry', 1550, 100, 6, 0, 730],
+      ['oysters_tinned', 300, 40, 10, 10, 1095],
+      ['oysters_opened', 300, 40, 10, 10, 1],
+      ['berries_fresh', 150, 2, 1, 90, 1],
+    ] as const;
+    for (const [id, kcal, protein_g, fat_g, fresh, shelf_life_days] of rows)
+      expect(catalog[id]?.food).toMatchObject({ kcal, protein_g, fat_g, fresh, shelf_life_days });
+    for (const id of ['potatoes', 'eggs']) expect(catalog[id]?.food?.spoilage.frozen_ruins).toBe(true);
   });
 });

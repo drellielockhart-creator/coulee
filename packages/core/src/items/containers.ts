@@ -127,27 +127,80 @@ export function childrenOf(world: World, containerId: ItemId): ItemStack[] {
   return out;
 }
 
-/** Total weight in grams and bulk in tenths of what sits inside a container (deep for weight). */
+interface ContainerLoad {
+  weightG: number;
+  bulkTenths: number;
+  external: number;
+}
+/** Local to one fit/view query. Postorder evaluation handles arbitrarily deep nesting without
+ * recursion, and enclosing containers reuse their already evaluated descendants. */
+export interface ContainerLoadMemo {
+  children: Record<number, ItemStack[]>;
+  loads: Map<ItemId, ContainerLoad>;
+}
+export function containerLoadMemo(world: World): ContainerLoadMemo {
+  const children: Record<number, ItemStack[]> = {};
+  for (const stack of rowsOf(world.items.stacks))
+    if (stack.location.kind === 'container') {
+      children[stack.location.itemId] ??= [];
+      children[stack.location.itemId]?.push(stack);
+    }
+  return { children, loads: new Map() };
+}
+/** Rigid vessels occupy their full capacity; a soft pack expands by its contents plus shell. */
+export function externalBulkTenths(
+  world: World,
+  content: ContentBundle,
+  stack: ItemStack,
+  memo = containerLoadMemo(world),
+): number {
+  return loadOf(content, stack, memo).external;
+}
+function loadOf(content: ContentBundle, root: ItemStack, memo: ContainerLoadMemo): ContainerLoad {
+  const pending = [{ stack: root, expanded: false }],
+    seen = new Set<ItemId>();
+  while (pending.length) {
+    const entry = pending.pop();
+    if (!entry || memo.loads.has(entry.stack.id)) continue;
+    const stack = entry.stack,
+      children = memo.children[stack.id] ?? [];
+    if (!entry.expanded) {
+      if (seen.has(stack.id)) continue;
+      seen.add(stack.id);
+      pending.push({ stack, expanded: true });
+      for (let i = children.length - 1; i >= 0; i--) {
+        const child = children[i];
+        if (child) pending.push({ stack: child, expanded: false });
+      }
+      continue;
+    }
+    const def = content.items[stack.defId];
+    let weightG = 0,
+      bulkTenths = Math.ceil(((stack.waterMl ?? 0) * 10) / 946);
+    for (const child of children) {
+      const load = memo.loads.get(child.id);
+      if (!load) continue;
+      weightG += (content.items[child.defId]?.weight_g ?? 0) * child.qty + (child.waterMl ?? 0) + load.weightG;
+      bulkTenths += load.external;
+    }
+    const shell = Math.round((def?.bulk ?? 0) * 10) * stack.qty;
+    const external =
+      def?.container && !def.shape.includes('soft')
+        ? Math.max(shell, Math.round(def.container.capacity_bulk * 10) * stack.qty)
+        : shell + bulkTenths;
+    memo.loads.set(stack.id, { weightG, bulkTenths, external });
+  }
+  return memo.loads.get(root.id) ?? { weightG: 0, bulkTenths: 0, external: 0 };
+}
+/** Contents occupy their external volume, recursively (weight includes all descendants). */
 export function contentsLoad(
   world: World,
   content: ContentBundle,
   containerId: ItemId,
+  memo = containerLoadMemo(world),
 ): { weightG: number; bulkTenths: number } {
-  let weightG = 0;
-  let bulkTenths = 0;
-  const seen = new Set<ItemId>([containerId]);
-  const pending = childrenOf(world, containerId).map((stack) => ({ stack, top: true }));
-  while (pending.length > 0) {
-    const entry = pending.pop();
-    if (!entry || seen.has(entry.stack.id)) continue;
-    const c = entry.stack;
-    seen.add(c.id);
-    const def = content.items[c.defId];
-    weightG += (def?.weight_g ?? 0) * c.qty + (c.waterMl ?? 0);
-    if (entry.top) bulkTenths += Math.round((def?.bulk ?? 0) * 10) * c.qty;
-    for (const stack of childrenOf(world, c.id)) pending.push({ stack, top: false });
-  }
-  return { weightG, bulkTenths };
+  const stack = world.items.stacks[containerId];
+  return stack ? loadOf(content, stack, memo) : { weightG: 0, bulkTenths: 0 };
 }
 
 export interface FitResult {
@@ -173,32 +226,31 @@ export function fitsInContainer(
   for (const up of containerChain(world, container)) {
     if (up.id === stack.id) return { ok: false, reason: 'cannot put a container inside its own contents' };
   }
-  const def = content.items[stack.defId];
-  const unitWeight = def?.weight_g ?? 0;
-  const unitBulk = Math.round((def?.bulk ?? 0) * 10);
-  // A moved container carries its own contents with it.
-  const moving = stack.qty > 0 ? contentsLoad(world, content, stack.id) : { weightG: 0, bulkTenths: 0 };
-  const addWeight =
-    unitWeight * qty + (qty === stack.qty ? moving.weightG : 0) + (qty === stack.qty ? (stack.waterMl ?? 0) : 0);
-  const addBulk = unitBulk * qty;
-  const sourceChain = containerChain(world, stack);
+  // Check a projected relocation, including every enclosing soft pack's expansion. No caller
+  // state is changed even when a distant ancestor is the first capacity that fails.
+  const projected: World = { ...world, items: { ...world.items, stacks: { ...world.items.stacks } } };
+  if (qty === stack.qty)
+    projected.items.stacks[stack.id] = { ...stack, location: { kind: 'container', itemId: container.id } };
+  else {
+    projected.items.stacks[stack.id] = { ...stack, qty: stack.qty - qty };
+    const id = (world.items.counters.item + 1) as ItemId;
+    projected.items.stacks[id] = {
+      ...stack,
+      id,
+      qty,
+      waterMl: 0,
+      location: { kind: 'container', itemId: container.id },
+    };
+  }
+  const memo = containerLoadMemo(projected);
   for (const target of [container, ...containerChain(world, container)]) {
     const capacity = content.items[target.defId]?.container;
     if (!capacity) return { ok: false, reason: 'invalid enclosing container' };
-    const load = contentsLoad(world, content, target.id);
-    const weightDelta = sourceChain.some((c) => c.id === target.id) ? 0 : addWeight;
-    if (load.weightG + weightDelta > capacity.capacity_g) {
+    const load = contentsLoad(projected, content, target.id, memo);
+    if (load.weightG + (target.waterMl ?? 0) > capacity.capacity_g)
       return { ok: false, reason: `${content.items[target.defId]?.name ?? target.defId} is full by weight` };
-    }
-    const bulkDelta =
-      target.id === container.id
-        ? stack.location.kind === 'container' && stack.location.itemId === target.id
-          ? 0
-          : addBulk
-        : 0;
-    if (load.bulkTenths + bulkDelta > Math.round(capacity.capacity_bulk * 10)) {
+    if (load.bulkTenths > Math.round(capacity.capacity_bulk * 10))
       return { ok: false, reason: `${content.items[target.defId]?.name ?? target.defId} is full by bulk` };
-    }
   }
   return { ok: true };
 }

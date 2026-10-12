@@ -10,7 +10,16 @@ import type { ActorId, EventId, MemoryId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { insertMemory, ownerMemories } from './memory.ts';
-import { addReason, compatibility, computeBase, opinionRecord, owedCents, owedFavors } from './opinion.ts';
+import {
+  addReason,
+  adjustLedger,
+  compatibility,
+  computeBase,
+  opinionRecord,
+  owedCents,
+  owedFavors,
+  refreshBase,
+} from './opinion.ts';
 import type { Memory, MemoryInput, OpinionReason, Relationship } from './state.ts';
 import { tuningOf } from './tuning.ts';
 import { areKinBy } from './volition.ts';
@@ -133,4 +142,28 @@ export function acquaintancesOf(world: World, actorId: ActorId): ActorId[] {
 /** Base opinion recomputed now (for tests and the dossier). */
 export function baseOpinion(world: World, content: ContentBundle, from: ActorId, to: ActorId) {
   return computeBase(world, content, from, to);
+}
+
+/** Store purchases extend the ordinary mirrored money obligation; repayment and forgiveness
+ * therefore use exactly the same ledger as loans. No money moves when goods extend credit. */
+export function extendCredit(world: World, ctx: SimContext, creditor: ActorId, debtor: ActorId, cents: number): void {
+  if (!Number.isSafeInteger(cents) || cents <= 0 || creditor === debtor) return;
+  adjustLedger(world, ctx.content, creditor, debtor, { favors: 0, cents });
+  let structural = false;
+  for (const [from, to] of [
+    [creditor, debtor],
+    [debtor, creditor],
+  ] as const) {
+    const owed = owedCents(world, from, to);
+    const edge = world.social.relationships.find((r) => r.kind === 'creditor' && r.a === from && r.b === to);
+    if (owed > 0 && edge) edge.amountCents = owed;
+    else if (owed > 0) {
+      world.social.relationships.push({ a: from, b: to, kind: 'creditor', since: ctx.now, amountCents: owed });
+      structural = true;
+    } else if (edge) {
+      world.social.relationships = world.social.relationships.filter((r) => r !== edge);
+      structural = true;
+    }
+  }
+  if (structural) refreshBase(world, ctx.content, creditor, debtor);
 }

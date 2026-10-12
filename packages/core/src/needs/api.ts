@@ -1,12 +1,17 @@
 /** Needs mutations are shared by meals, social encounters and the hourly ledger. */
+
 import { requiredRow } from '../activity/definitions.ts';
 import type { NeedId } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
 import type { ActorId, EventId } from '../ids.ts';
+import { rowsOf } from '../ids.ts';
+import { foodSeekingUrge } from '../provisions/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { updateBands } from './bands.ts';
+import { hourlyLedger } from './system.ts';
+import { ambientTemperatureF, heatPlaces } from './thermal.ts';
 
 export const NEED_MIN = 0;
 export const NEED_MAX = 1000;
@@ -148,8 +153,15 @@ export function proposeNeedUrges(world: World, ctx: SimContext, actorId: ActorId
         Math.round(((urge.below - value) * urge.ceiling) / urge.below) +
           Math.floor((world.needs.byActor[actorId]?.debt?.[key] ?? 0) / 8),
       );
+      const foodUrge =
+        def.intake?.unit === 'kcal' &&
+        ctx.content.activities[urge.activity]?.tags.includes('meal') &&
+        world.items?.stacks
+          ? foodSeekingUrge(world, ctx, actorId)
+          : undefined;
+      if (foodUrge === null) continue;
       out.push({
-        urge: { kind: 'activity', activityId: urge.activity },
+        urge: foodUrge ?? { kind: 'activity', activityId: urge.activity },
         voice: 'id',
         intensity,
         label: urge.label,
@@ -160,4 +172,30 @@ export function proposeNeedUrges(world: World, ctx: SimContext, actorId: ActorId
     }
   }
   return out;
+}
+
+/** Shared hearth state: cooking may use the fire whose heating fuel was paid this hour. */
+export function litHearthAt(world: World, placeId: import('../ids.ts').PlaceId): boolean {
+  return (world.needs.hearthLit?.[placeId] ?? 0) > 0;
+}
+
+/** Readiness advances the same hourly physiology and heating rules in its private world. */
+export function projectWaterHour(world: World, ctx: SimContext): void {
+  const temperatures = heatPlaces(world, ctx),
+    air = ambientTemperatureF(ctx.cal);
+  if (!ctx.content.needs.thirst) return;
+  for (const actor of rowsOf(world.actors)) {
+    const n = world.needs.byActor[actor.id];
+    if (!actor.alive || !n) continue;
+    const ledger = hourlyLedger(
+      world,
+      ctx.content,
+      actor.id,
+      'thirst',
+      air,
+      temperatures[actor.placeId] ?? air,
+      n.values,
+    );
+    satisfyNeed(world, ctx, actor.id, 'thirst', ledger.delta, { label: 'Hourly water expenditure', quiet: true });
+  }
 }

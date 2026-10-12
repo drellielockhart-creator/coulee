@@ -15,6 +15,9 @@ function doText(s: PlaySession, text: string) {
   expect(typeof c, `Parse ${text}: ${String(c)}`).toBe('object');
   const r = s.act(c as Command);
   expect(r.ok, `${text}: ${r.reason}`).toBe(true);
+  // Loads take real transit time; the next transaction starts after arrival.
+  if (text.startsWith('go '))
+    while ((JSON.parse(s.save()).world as World).activity.byActor[s.playerId]?.travel) s.advance(60);
   return r;
 }
 const worldOf = (s: PlaySession) => JSON.parse(s.save()).world as World;

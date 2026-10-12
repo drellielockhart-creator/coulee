@@ -49,6 +49,9 @@ export interface ItemStack {
   foodPartialPm?: number;
   /** Stored potable water in liquid containers, ml. */
   waterMl: number;
+  /** Opening state and frozen storage state; optional for older saves. */
+  opened?: boolean;
+  frozen?: boolean;
   /** Fractional hourly draws for devices with per-day supplies (numerator over 24). */
   supplyCarry?: Record<string, number>;
   /** Devices that burn supplies: how the player or the household has set them. */
@@ -129,6 +132,16 @@ export function initItemsState(world: World, ctx: InitContext): void {
     const hid = world.index.householdByKey[h.key];
     if (hid === undefined) continue;
     seedList(h.pantry, () => ({ kind: 'household', householdId: hid }));
+    // A settled kitchen has its authored domestic ignition kit. Personal trail kits receive
+    // only their scenario inventory; neither branch depends on player control.
+    if (
+      h.pantry.some((s) =>
+        Object.keys(ctx.content.items[s.item]?.affordances ?? {}).some((key) => ['cook', 'boil', 'bake'].includes(key)),
+      )
+    )
+      for (const gear of ctx.content.domesticRules?.daily?.equipment ?? [])
+        if (!h.pantry.some((s) => s.item === gear.item))
+          newStack(world, gear.item, gear.qty, { kind: 'household', householdId: hid }, ctx.now);
   }
   for (const a of ctx.scenario.actors) {
     const aid = world.index.actorByKey[a.key];

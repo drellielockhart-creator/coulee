@@ -18,6 +18,7 @@ import {
 import { PlaySession, parseText } from '@coulee/play';
 import { expect, it } from 'vitest';
 import { processTells } from '../../core/src/belief/tells.ts';
+import { preparationHour } from '../../core/src/provisions/meals.ts';
 import { actorByKey, baseContent, simFor } from './helpers.ts';
 
 const content = baseContent();
@@ -183,6 +184,9 @@ it('posted hours govern NPC purchases and sales, and beds/meals transfer real mo
   expect(provisions.boardMeal(w, ctx, buyer)).toBe(true);
   expect(w.provisions.purses[buyer]).toBe(purse - 45);
   expect(total()).toBe(before);
+  // A hot batch is paid for when ordered and eaten when preparation completes.
+  w.time = asGameMinute(w.time + 360);
+  preparationHour(w, makeContext(w, content, []));
   expect(w.log.events.some((e) => e.kind === 'provisions.meal' && e.data.actorId === buyer)).toBe(true);
 });
 
@@ -276,21 +280,40 @@ it('play resolves the social catalog and retains PC knowledge across weeks, trim
 }, 120000);
 
 it('does not report a spontaneous conversation as the requested interaction when the target leaves', () => {
-  const s = PlaySession.create(content, { source: 'iron_ford', seed: 42 });
-  text(s, 'go Pratt');
-  text(s, 'sleep');
-  while (s.observe().time.t < 420) s.advance(60);
-  for (const command of [
-    'chat Nora',
-    'ask about Nora',
-    'gossip Michael',
-    'meal',
-    'go Pratt',
-    'buy hardtack 3',
-    'chat Lydia',
-  ])
-    text(s, command);
-  const r = text(s, 'insult Lydia');
+  const original = PlaySession.create(content, { source: 'iron_ford', seed: 42 });
+  const saved = JSON.parse(original.save());
+  const world = saved.world as World;
+  const place = world.index.placeByDef.pratt_daughter_outfitters;
+  const away = world.index.placeByDef.dunleavys_tavern;
+  const lydia = world.index.actorByKey.lydia_pratt;
+  const amos = world.index.actorByKey.amos_whitcomb;
+  if (place === undefined || away === undefined || lydia === undefined || amos === undefined)
+    throw new Error('fixture');
+  world.time = asGameMinute(14 * 60);
+  // Control the departure itself, rather than relying on the entire town's meal timetable.
+  for (const id of [original.playerId, lydia, amos]) {
+    const actor = world.actors[id],
+      state = world.activity.byActor[id];
+    if (!actor || !state) throw new Error('actor');
+    actor.placeId = place;
+    state.placeId = place;
+    state.activityId = 'idle_at_home';
+    state.lockedUntil = asGameMinute(world.time + 60);
+    state.travel = null;
+  }
+  const pcActivity = world.activity.byActor[original.playerId],
+    targetActivity = world.activity.byActor[lydia];
+  if (!pcActivity || !targetActivity) throw new Error('activity');
+  pcActivity.lockedUntil = null;
+  targetActivity.travel = { from: place, to: away, arrive: world.time };
+  delete saved.finalHash;
+  const s = PlaySession.load(content, JSON.stringify(saved));
+  const r = s.act({
+    kind: 'core.urge',
+    actorId: s.playerId,
+    data: { urge: { kind: 'interaction', interactionId: 'insult', targetId: lydia } },
+  });
+  expect(r.ok).toBe(true);
   expect(r.warning).toContain('requested conversation did not take place');
   expect(r.detail).toBeUndefined();
   const w = JSON.parse(s.save()).world as World;
@@ -346,16 +369,16 @@ it('preserves the append-only log and replay across a save/load after every comm
   const continuous = PlaySession.create(content, { source: 'iron_ford', seed: 42 });
   let restored = continuous.fork();
   const commands = [
-    'go Pratt',
-    'sleep',
     'wait until 07:00',
-    'chat Nora',
-    'ask about Nora',
-    'gossip Michael',
-    'meal',
     'go Pratt',
+    'wait 1h',
     'buy hardtack 3',
-    'chat Lydia',
+    'eat hardtack',
+    'rations 75',
+    'wait 2h',
+    'plan',
+    'journal',
+    'sleep',
   ];
   for (const line of commands) {
     const before = (JSON.parse(continuous.save()).world as World).log.events;

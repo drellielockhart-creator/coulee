@@ -1,5 +1,6 @@
 /** Execute the chosen activity, falling back to the content calendar. */
 import { type ActorId, idsOf } from '../ids.ts';
+import { inventoryIndex, loadReport, movementDelay } from '../items/api.ts';
 import { admitSleep } from '../provisions/api.ts';
 import { chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -12,10 +13,13 @@ import { activityExplain } from './explain.ts';
 import { type ActivitySource, recomputeOccupancy } from './state.ts';
 
 export function activitySystem(world: World, ctx: SimContext): void {
+  const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   for (const id of idsOf<ActorId>(world.actors)) {
     const actor = requiredRow(world.actors, id);
     const state = world.activity.byActor[id];
     if (!actor.alive || !state) continue;
+    const load = loadReport(world, ctx.content, id, inventory);
+    if (state.travel && load.band.speedPct === 0) continue;
     if (state.travel) {
       if (ctx.now < state.travel.arrive) continue;
       const from = actor.placeId;
@@ -77,6 +81,17 @@ export function activitySystem(world: World, ctx: SimContext): void {
     const explain = rawExplain ? activityExplain(rawExplain) : undefined;
     const from = actor.placeId;
     const changed = state.activityId !== activityId || state.placeId !== placeId;
+    if (from !== placeId && load.band.speedPct < 100) {
+      const minutes = movementDelay(world, ctx, id, load);
+      if (minutes !== null) {
+        state.travel = { from, to: placeId, arrive: (ctx.now + minutes) as import('../time.ts').GameMinute };
+        state.activityId = activityId;
+        state.source = source;
+        state.since = ctx.now;
+        state.lockedUntil = addHours(state.travel.arrive, Math.max(1, def.min_hours));
+      }
+      continue;
+    }
     actor.placeId = placeId;
     state.placeId = placeId;
     if (from !== placeId)

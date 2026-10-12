@@ -179,7 +179,8 @@ describe('review fixes: Drink is a taste, Standing a place, a call is paid to a 
     expect(drink('anders_tveit')).toBeGreaterThanOrEqual(content.needs.drink?.initial ?? 800);
     expect(drink('brigid_dunleavy')).toBeGreaterThanOrEqual(content.needs.drink?.initial ?? 800);
     const ledger = needs.hourlyLedger(sim.world, content, id('elias_hurd'), 'drink', 50, 50, {});
-    expect(ledger.terms[0]?.value ?? 0).toBeLessThan(0);
+    // The ledger reads the actor's current activity (he may be asleep, when Drink rests), so check the taste itself.
+    expect(ledger.calculations[0]?.terms.some((t) => t.label.startsWith('tippler'))).toBe(true);
     const none = needs.hourlyLedger(sim.world, content, id('anders_tveit'), 'drink', 50, 50, {});
     expect(none.calculations[0]?.terms.some((t) => t.label === 'Not a want of theirs')).toBe(true);
   });

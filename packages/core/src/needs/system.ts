@@ -4,6 +4,8 @@ import { requiredRow } from '../activity/definitions.ts';
 import type { ContentBundle } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
 import { type ActorId, idsOf } from '../ids.ts';
+import { type InventoryIndex, inventoryIndex, loadFatigue } from '../items/api.ts';
+import { energyAgePct, nutritionRestLoss } from '../provisions/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
@@ -30,6 +32,7 @@ export function hourlyLedger(
   air: number,
   placeTempF: number,
   before: Readonly<Record<string, number>>,
+  inventory?: InventoryIndex,
 ): HourlyLedger {
   const actor = requiredRow(world.actors, id);
   const def = requiredRow(content.needs, key);
@@ -65,7 +68,9 @@ export function hourlyLedger(
   }
   if (def.intake?.unit === 'kcal') {
     const kcalPct = content.peoples?.[actor.ancestryId]?.kcal_pct ?? 100;
-    decay *= kcalPct / 100;
+    const age = energyAgePct(world, id);
+    decay *= (kcalPct * age) / 10000;
+    factors.push({ source: 'base', label: 'Age energy percent', value: age });
     factors.push({ source: 'base', label: 'Physiological energy percent', value: kcalPct });
   }
   let weatherPct = 100;
@@ -93,6 +98,26 @@ export function hourlyLedger(
     value: decay === 0 ? 0 : -decay,
   });
   let delta = decay === 0 ? 0 : -decay;
+  if (key === 'rest' && !asleep) {
+    const deficiency = nutritionRestLoss(world, content, id);
+    delta -= deficiency;
+    if (deficiency) terms.push({ source: 'nutrition', label: 'Malnourishment stamina loss', value: -deficiency });
+  }
+  if (key === 'rest' && !asleep && labor !== 'rest') {
+    const load = loadFatigue(world, content, id, decay, inventory);
+    delta -= load.extra;
+    if (load.extra) terms.push({ source: 'load', label: 'Additional fatigue from carried load', value: -load.extra });
+    if (load.terms.length)
+      calculations.push({
+        kind: 'formula',
+        label: 'Carried load fatigue',
+        subjects: [id],
+        knowledge: 'self',
+        terms: load.terms,
+        total: load.extra,
+        outcome: 'expended',
+      });
+  }
   if (def.exposure) {
     const e = def.exposure;
     const effective = placeTempF + e.base_insulation_f + e.activity_f[labor] + (asleep ? e.asleep_f : 0);
@@ -107,7 +132,7 @@ export function hourlyLedger(
       value: change,
     });
   }
-  let recovery = activity?.needs[key] ?? 0;
+  let recovery = def.intake?.unit === 'ml' ? 0 : (activity?.needs[key] ?? 0);
   if (asleep && recovery > 0) {
     let quality = 100;
     for (const clause of def.sleep_quality) if ((before[clause.need] ?? 1000) < clause.below) quality += clause.pct;
@@ -133,15 +158,6 @@ export function hourlyLedger(
       delta += move;
       terms.push({ source: 'need', label: `Drift toward ${target} (who they are here)`, value: move });
     }
-  }
-  if (
-    !asleep &&
-    def.access &&
-    (before[key] ?? def.initial) + delta < def.access.below &&
-    def.access.place_tags.some((t) => world.places[actor.placeId]?.tags.includes(t))
-  ) {
-    delta += def.access.per_hour;
-    terms.push({ source: 'place', label: 'Water access', value: def.access.per_hour });
   }
   return { delta, terms, calculations };
 }
@@ -170,6 +186,7 @@ export function needsSystem(world: World, ctx: SimContext): void {
   const temperatures = heatPlaces(world, ctx);
   const air = ambientTemperatureF(ctx.cal);
   const keys = Object.keys(ctx.content.needs).sort();
+  const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   for (const id of idsOf<ActorId>(world.actors)) {
     const actor = requiredRow(world.actors, id);
     const n = world.needs.byActor[id];
@@ -179,7 +196,16 @@ export function needsSystem(world: World, ctx: SimContext): void {
     const hourly: Record<string, number> = {};
     for (const key of keys) {
       const def = requiredRow(ctx.content.needs, key);
-      const ledger = hourlyLedger(world, ctx.content, id, key, air, temperatures[actor.placeId] ?? air, before);
+      const ledger = hourlyLedger(
+        world,
+        ctx.content,
+        id,
+        key,
+        air,
+        temperatures[actor.placeId] ?? air,
+        before,
+        inventory,
+      );
       // The hourly balance is routine: it updates the meter (and emits band changes) without an
       // event per actor-need-hour. The dossier re-derives the math on demand (hourlyNeedExplain).
       const after = satisfyNeed(world, ctx, id, key, ledger.delta, {

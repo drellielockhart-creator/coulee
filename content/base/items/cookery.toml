@@ -51,7 +51,7 @@ bulk = 6
 value_cents = 175
 tags = ["heavy"]
 materials = [{ material = "iron", pct = 100 }]
-affordances = { bake = 1 }
+affordances = { bake = 1, cook = 1, boil = 1 }
 stackable = false
 
 [[item]]
@@ -119,6 +119,7 @@ value_cents = 10
 materials = [{ material = "cotton", pct = 100 }]
 stackable = false
 container = { capacity_g = 11340, capacity_bulk = 14, carry = "pack" }
+shape = ["soft"]
 
 [[item]]
 id = "tin_canister_10lb"
@@ -126,25 +127,25 @@ name = "Tin canister, airtight, 10 lb"
 section = "cookery"
 copy = "Solder-sealed. Opened with a knife, and never without one."
 weight_g = 680
-bulk = 3
-value_cents = 120
+bulk = 4
+value_cents = 30
 tags = ["tinned"]
 materials = [{ material = "tinplate", pct = 100 }]
 stackable = false
-container = { capacity_g = 4536, capacity_bulk = 6, protects = ["airtight", "vermin_proof"], carry = "pack" }
+container = { capacity_g = 4536, capacity_bulk = 4, protects = ["airtight", "vermin_proof", "crushproof"], carry = "pack" }
 
 [[item]]
 id = "stoneware_crock_2gal"
 name = "Stoneware crock, 2-gallon, lidded"
 section = "cookery"
 copy = "Kraut, lard, or eggs in waterglass. Keep the lid on and the mice off."
-weight_g = 3629
+weight_g = 4082
 bulk = 8
-value_cents = 90
+value_cents = 40
 shape = ["fragile"]
 materials = [{ material = "ceramic", pct = 100 }]
 stackable = false
-container = { capacity_g = 7600, capacity_bulk = 8, protects = ["airtight"], carry = "fixed" }
+container = { capacity_g = 7600, capacity_bulk = 8, protects = ["vermin_proof", "brine"], carry = "fixed" }
 
 [[item]]
 id = "brine_keg_10gal"
@@ -153,23 +154,24 @@ section = "cookery"
 copy = "Salt pork lives here. Salt water goes in; the pork stays under it."
 weight_g = 9072
 bulk = 40
-value_cents = 200
+value_cents = 75
 materials = [{ material = "wood", pct = 100 }]
 stackable = false
-container = { capacity_g = 37000, capacity_bulk = 40, protects = ["brine", "waterproof"], carry = "fixed" }
+container = { capacity_g = 22680, capacity_bulk = 40, protects = ["brine", "waterproof", "vermin_proof"], carry = "fixed" }
 
 [[item]]
 id = "oilcloth_bag"
 name = "Oilcloth bag, tied"
 section = "cookery"
 copy = "The bread-bag of every river trip. Tie it twice and it will still leak at the seam."
-weight_g = 227
+weight_g = 136
 bulk = 1
-value_cents = 60
+value_cents = 15
 tags = ["waterproof"]
 materials = [{ material = "oilcloth", pct = 100 }]
 stackable = false
-container = { capacity_g = 4500, capacity_bulk = 4, protects = ["waterproof", "splashproof"], carry = "pack" }
+container = { capacity_g = 4500, capacity_bulk = 3, protects = ["waterproof", "splashproof"], carry = "pack" }
+shape = ["soft"]
 
 [[item]]
 id = "provisions_box_vermin"
@@ -177,8 +179,95 @@ name = "Provisions box, pine, vermin-proof"
 section = "cookery"
 copy = "Lid lined with tin, corners dovetailed. Mice have been known to give up."
 weight_g = 4536
-bulk = 20
+bulk = 40
 value_cents = 350
 materials = [{ material = "wood", pct = 90 }, { material = "tinplate", pct = 10 }]
 stackable = false
 container = { capacity_g = 45000, capacity_bulk = 40, protects = ["vermin_proof", "airtight"], carry = "fixed" }
+
+[[item]]
+id = "reflector_oven"
+name = "Reflector oven, folding tin"
+copy = "Set it before an open fire, and keep turning the bread as it bakes."
+section = "cookery"
+value_cents = 75
+weight_g = 1361
+bulk = 4
+stackable = false
+materials = [{ material = "tinplate", pct = 100 }]
+affordances = { bake = 0.8 }
+
+[[item]]
+id = "rubber_provision_bag"
+name = "India-rubber provision bag"
+copy = "Roll the mouth tight before the ford. Hard frost will crack the rubber."
+section = "cookery"
+value_cents = 75
+weight_g = 340
+bulk = 0.5
+shape = ["soft"]
+stackable = false
+tags = ["waterproof", "cracks_below_0f"]
+materials = [{ material = "gum", pct = 100 }]
+container = { capacity_g = 6000, capacity_bulk = 4, protects = ["waterproof", "airtight"], carry = "pack" }
+
+[[item]]
+id = "tarred_sack"
+name = "Tarred sack, 50 lb"
+copy = "A rain shower runs off it. Mice do not."
+section = "cookery"
+value_cents = 10
+weight_g = 227
+bulk = 0.5
+shape = ["soft"]
+stackable = false
+container = { capacity_g = 22680, capacity_bulk = 28, protects = ["splashproof"], carry = "pack" }
+
+[[item]]
+id = "bladder_wax_seal"
+name = "Bladder and wax crock seal"
+copy = "Tie it over the crock wet; the bladder dries tight under the wax."
+section = "cookery"
+value_cents = 3
+weight_g = 23
+bulk = 0.1
+shape = ["soft"]
+stackable = false
+container = { capacity_g = 12000, capacity_bulk = 10, protects = ["airtight"], carry = "fixed" }
+
+[[item]]
+id = "flour_barrel"
+name = "Flour barrel, 196 lb"
+copy = "A whole winter of flour fits here, with a lid between it and the mice."
+section = "cookery"
+value_cents = 50
+weight_g = 8165
+bulk = 120
+shape = ["rigid"]
+stackable = false
+container = { capacity_g = 88906, capacity_bulk = 120, protects = ["vermin_proof"], carry = "fixed" }
+
+[[item]]
+id = "crib_tin"
+name = "Crib tin, empty dinner pail"
+copy = "A tray for tea and a lid to keep the pasty whole on the way to the mine."
+section = "cookery"
+value_cents = 20
+weight_g = 454
+bulk = 2.2
+shape = ["rigid"]
+stackable = false
+materials = [{ material = "tinplate", pct = 100 }]
+container = { capacity_g = 1900, capacity_bulk = 2, protects = ["crushproof", "vermin_proof", "insulated"], carry = "pack" }
+
+[[item]]
+id = "willow_creel"
+name = "Willow creel"
+copy = "An airy basket for the catch. Line it with wet moss before a long walk."
+section = "cookery"
+value_cents = 35
+weight_g = 454
+bulk = 6.2
+shape = ["rigid"]
+stackable = false
+container = { capacity_g = 6000, capacity_bulk = 6, carry = "sling" }

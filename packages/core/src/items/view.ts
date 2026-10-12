@@ -7,6 +7,7 @@ import type { ActorId } from '../ids.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
 import type { World } from '../world.ts';
 import { bulkTenths, carriedBy, stackSupplyUnits, stacksDeep, weightG } from './api.ts';
+import { containerLoadMemo, externalBulkTenths } from './containers.ts';
 import { loadReport } from './encumbrance.ts';
 import type { ItemLocation } from './state.ts';
 
@@ -46,6 +47,7 @@ export interface ItemsActorView {
 }
 
 export function viewStacks(world: World, content: ContentBundle, loc: ItemLocation): ItemStackView[] {
+  const memo = containerLoadMemo(world);
   return stacksDeep(world, loc).map(({ stack: s, depth }) => {
     const def = content.items[s.defId];
     return {
@@ -55,7 +57,7 @@ export function viewStacks(world: World, content: ContentBundle, loc: ItemLocati
       qty: s.qty,
       unit: def?.unit ?? 'each',
       weightG: (def?.weight_g ?? 0) * s.qty + (s.waterMl ?? 0),
-      bulkTenths: Math.round((def?.bulk ?? 0) * 10) * s.qty,
+      bulkTenths: externalBulkTenths(world, content, s, memo),
       condition: s.condition,
       wetness: s.wetness,
       spoilage: def?.food ? s.spoilage : null,

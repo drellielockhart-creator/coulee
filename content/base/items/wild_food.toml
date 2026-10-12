@@ -25,8 +25,8 @@ morale = 3
 shelf_life_days = 2
 spoilage = { temperature_pct = { frozen = 2, cold = 30, cool = 100, warm = 250, hot = 500 }, wet_pct = 100 }
 prep = [
-  { method = "fry", minutes = 15, fire_minutes = 15, cookware = ["cook"], morale = 2 },
-  { method = "roast", minutes = 25, fire_minutes = 25, batch_servings = 4, morale = 1 },
+  { method = "fry", minutes = 15, active_minutes = 10, fire_minutes = 15, cookware = ["cook"], morale = 2 },
+  { method = "roast", minutes = 25, active_minutes = 10, fire_minutes = 25, batch_servings = 4, morale = 1 },
 ]
 
 [[item]]
@@ -37,7 +37,7 @@ copy = "Found under the elms in April, if the elms were not cut. Cook them. Neve
 unit = "lb"
 weight_g = 454
 bulk = 0.5
-value_cents = 40
+value_cents = 10
 tags = ["perishable", "forage"]
 materials = [{ material = "food", pct = 100 }]
 
@@ -49,10 +49,10 @@ fresh = 60
 group = "fungus"
 servings = 4
 morale = 3
-shelf_life_days = 4
+shelf_life_days = 3
 spoilage = { temperature_pct = { frozen = 20, cold = 40, cool = 100, warm = 250, hot = 500 }, wet_pct = 200 }
 prep = [
-  { method = "fry", minutes = 10, fire_minutes = 10, cookware = ["cook"], morale = 3 },
+  { method = "fry", minutes = 10, active_minutes = 10, fire_minutes = 10, cookware = ["cook"], morale = 3 },
 ]
 
 [[item]]
@@ -63,23 +63,23 @@ copy = "The first green in the spring woods, and the whole valley smells of them
 unit = "lb"
 weight_g = 454
 bulk = 0.5
-value_cents = 4
+value_cents = 0
 tags = ["perishable", "forage"]
 materials = [{ material = "food", pct = 100 }]
 
 [item.food]
-kcal = 115
-protein_g = 6
+kcal = 140
+protein_g = 7
 fat_g = 1
 fresh = 90
 group = "vegetable"
 servings = 4
 morale = 2
-shelf_life_days = 7
+shelf_life_days = 5
 spoilage = { temperature_pct = { frozen = 20, cold = 40, cool = 100, warm = 200, hot = 300 }, wet_pct = 200 }
 prep = [
   { method = "raw", minutes = 0, morale = 3 },
-  { method = "fry", minutes = 6, fire_minutes = 6, cookware = ["cook"], morale = 2 },
+  { method = "fry", minutes = 6, active_minutes = 6, fire_minutes = 6, cookware = ["cook"], morale = 2 },
 ]
 
 [[item]]
@@ -106,7 +106,7 @@ shelf_life_days = 5
 spoilage = { temperature_pct = { frozen = 20, cold = 40, cool = 100, warm = 220, hot = 350 }, wet_pct = 150 }
 prep = [
   { method = "raw", minutes = 0, morale = 0 },
-  { method = "boil", minutes = 15, fire_minutes = 15, batch_servings = 8, cookware = ["boil"], water_ml = 100, morale = 1 },
+  { method = "boil", minutes = 15, active_minutes = 5, fire_minutes = 15, batch_servings = 8, cookware = ["boil"], water_ml = 100, morale = 1 },
 ]
 
 [[item]]
@@ -117,13 +117,13 @@ copy = "Hung two days in the cold, then cut. Lean as a fence rail, and the fat i
 unit = "lb"
 weight_g = 454
 bulk = 1
-value_cents = 8
+value_cents = 5
 tags = ["perishable", "game"]
 materials = [{ material = "food", pct = 100 }]
 
 [item.food]
-kcal = 650
-protein_g = 120
+kcal = 550
+protein_g = 100
 fat_g = 15
 fresh = 40
 group = "meat"
@@ -133,8 +133,8 @@ shelf_life_days = 3
 spoilage = { temperature_pct = { frozen = 3, cold = 30, cool = 100, warm = 250, hot = 500 }, wet_pct = 150, packaging_pct = { cool_storage = 80, brine = 40 } }
 prep = [
   { method = "raw", minutes = 0, morale = -3 },
-  { method = "fry", minutes = 15, fire_minutes = 15, cookware = ["cook"], morale = 2 },
-  { method = "roast", minutes = 60, fire_minutes = 60, batch_servings = 8, morale = 2 },
+  { method = "fry", minutes = 15, active_minutes = 10, fire_minutes = 15, cookware = ["cook"], morale = 2 },
+  { method = "roast", minutes = 60, active_minutes = 10, fire_minutes = 60, batch_servings = 8, morale = 2 },
 ]
 
 [[item]]
@@ -150,16 +150,37 @@ tags = ["perishable", "forage", "cave"]
 materials = [{ material = "food", pct = 100 }]
 
 [item.food]
-kcal = 110
-protein_g = 9
-fat_g = 1
+kcal = 140
+protein_g = 14
+fat_g = 2
 fresh = 50
 group = "fungus"
 servings = 4
 morale = 0
-shelf_life_days = 2
+shelf_life_days = 4
 spoilage = { temperature_pct = { frozen = 20, cold = 50, cool = 100, warm = 250, hot = 500 }, wet_pct = 200 }
 prep = [
-  { method = "fry", minutes = 12, fire_minutes = 12, cookware = ["cook"], morale = 1 },
-  { method = "boil", minutes = 20, fire_minutes = 20, batch_servings = 6, cookware = ["boil"], water_ml = 200, morale = 0, check = { skill = "lore_nature", dc = 12 } },
+  { method = "fry", minutes = 12, active_minutes = 10, fire_minutes = 12, cookware = ["cook"], morale = 1 },
+  { method = "boil", minutes = 20, active_minutes = 5, fire_minutes = 20, batch_servings = 6, cookware = ["boil"], water_ml = 200, morale = 0, check = { skill = "lore_nature", dc = 12 } },
 ]
+
+[[item]]
+id = "berries_fresh"
+name = "Berries, fresh quart"
+copy = "Picked from the sunny edges. Eat them before tomorrow."
+section = "wild_food"
+value_cents = 5
+weight_g = 454
+bulk = 1
+unit = "quart"
+tags = ["perishable"]
+[item.food]
+kcal = 150
+protein_g = 2
+fat_g = 1
+fresh = 90
+group = "fruit"
+servings = 4
+shelf_life_days = 1
+spoilage = { wet_pct = 200, temperature_pct = { frozen = 5, cold = 50, cool = 100, warm = 200, hot = 300 } }
+prep = [{ method = "raw", minutes = 0, morale = 3 }]

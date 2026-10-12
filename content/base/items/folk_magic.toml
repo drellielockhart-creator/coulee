@@ -215,14 +215,27 @@ stackable = false
 
 [[item]]
 id = "knapped_flint_blade"
-name = "Knapped flint blade"
+name = "English gunflint scraper"
 section = "folk_magic"
-copy = "Turned up by the plow. Sharp as anything, and no iron in it."
-weight_g = 91
-bulk = 0.2
-value_cents = 25
+copy = "Imported Brandon gunflint, struck to a scraping edge. Kept under the earlier id for saved inventories."
+weight_g = 45
+bulk = 0.1
+value_cents = 20
 shape = ["fragile"]
 tags = ["no_iron"]
 materials = [{ material = "stone", pct = 100 }]
 affordances = { cut = 1 }
 stackable = false
+
+[[item]]
+id = "english_flint_scraper"
+name = "English flint scraper"
+copy = "Imported Brandon gunflint, struck to a scraping edge. Sharp, brittle, and free of iron."
+section = "folk_magic"
+value_cents = 20
+weight_g = 45
+bulk = 0.1
+shape = ["fragile"]
+materials = [{ material = "stone", pct = 100 }]
+affordances = { cut = 1 }
+tags = ["no_iron"]

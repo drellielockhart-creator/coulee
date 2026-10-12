@@ -57,6 +57,7 @@ describe('stateless play CLI (a new process per call)', () => {
     for (const line of [
       ...Array.from({ length: 6 }, () => 'wait 1h'),
       'go Pratt',
+      'wait 1h', // Carrying the newcomer kit slows this trip.
       'buy hardtack 3',
       'eat hardtack',
       'wait 2h',

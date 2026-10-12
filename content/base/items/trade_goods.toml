@@ -14,3 +14,15 @@ value_cents = 3
 tags = ["ward_line"]
 materials = [{ material = "salt", pct = 100 }]
 affordances = { preserve = 1, ward_fae = 1 }
+
+[[item]]
+id = "tobacco_plug"
+name = "Tobacco, navy plug"
+copy = "Navy plug, pressed hard. A pipe or a chew uses an ounce a day."
+section = "trade_goods"
+value_cents = 25
+weight_g = 454
+bulk = 0.5
+unit = "lb"
+supply = { kind = "tobacco", units = 16 }
+tags = ["wet_ruin"]

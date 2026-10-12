@@ -10,8 +10,8 @@ every_days = 7
 wholesale_pct = 70
 river_closed_months = [12, 1, 2, 3]
 # Freeze-up does not stop trade, it slows it: sleighs on the river ice and wagons on the
-# Prairie du Chien road bring perhaps half a summer week's freight.
-river_closed_pct = 50
+# Prairie du Chien road bring about a third of a summer week's freight.
+river_closed_pct = 35
 # A river-town store feeds a town that buys its staples: Iron Ford's ~40 souls eat ~100,000
 # kcal a day, so a week's freight is several hundred pounds of meal and flour plus pork and beans,
 # and the shelves fill through the fall against freeze-up.
@@ -23,7 +23,9 @@ lines = [
   { item = "salt_pork", target_qty = 400, max_delivery = 120 },
   { item = "beans_dry", target_qty = 300, max_delivery = 80 },
   { item = "coffee_green", target_qty = 60 },
-  { item = "dried_apples", target_qty = 120, max_delivery = 40 },
+  { item = "dried_apples", target_qty = 240, max_delivery = 80 },
   { item = "lucifers_box", target_qty = 50 },
+  { item = "flint_steel_char_tin", target_qty = 16 },
+  { item = "tinder_pouch", target_qty = 24 },
   { item = "lard_oil_quart", target_qty = 20 },
 ]

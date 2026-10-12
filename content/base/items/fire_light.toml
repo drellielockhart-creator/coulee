@@ -35,7 +35,7 @@ name = "Match safe, tinned brass, screw lid"
 section = "fire_light"
 copy = "A small thing to carry. The difference between a fire and a funeral."
 weight_g = 91
-bulk = 0.1
+bulk = 0.5
 value_cents = 25
 materials = [{ material = "brass", pct = 100 }]
 stackable = false
@@ -52,6 +52,7 @@ value_cents = 25
 tags = ["wet_ok"]
 materials = [{ material = "steel", pct = 80 }, { material = "tinplate", pct = 20 }]
 affordances = { ignite = 1, tinder = 1 }
+supply = { kind = "flint_strike", units = 400 }
 
 [[item]]
 id = "burning_glass"
@@ -78,6 +79,7 @@ value_cents = 5
 tags = ["flammable"]
 materials = [{ material = "wood", pct = 70 }, { material = "bark", pct = 30 }]
 affordances = { tinder = 2 }
+supply = { kind = "tinder", units = 20 }
 
 [[item]]
 id = "candles_tallow_lb"

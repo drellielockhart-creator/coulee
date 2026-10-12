@@ -10,7 +10,15 @@ import type { ContentBundle, ItemDef } from '../content.ts';
 import { type ActorId, type HouseholdId, type ItemId, type PlaceId, rowsOf } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
-import { containerChain, fitsInContainer, rootLocation, sameLoc } from './containers.ts';
+import {
+  containerChain,
+  containerLoadMemo,
+  externalBulkTenths,
+  fitsInContainer,
+  locKey,
+  rootLocation,
+  sameLoc,
+} from './containers.ts';
 import { type ItemLocation, type ItemStack, newStack, recordProvenance } from './state.ts';
 
 export { sameLoc } from './containers.ts';
@@ -27,31 +35,39 @@ export function stacksAt(world: World, loc: ItemLocation): ItemStack[] {
   return out;
 }
 
-/** All stacks at a location including nested container contents, depth-first, with depth. */
-export function stacksDeep(world: World, loc: ItemLocation): Array<{ stack: ItemStack; depth: number }> {
-  // One pass groups children by parent; the walk then never rescans the table.
-  const kids: Record<number, ItemStack[]> = {};
-  const top: ItemStack[] = [];
-  for (const s of rowsOf(world.items.stacks)) {
-    if (s.location.kind === 'container') {
-      const list = kids[s.location.itemId] ?? [];
-      list.push(s);
-      kids[s.location.itemId] = list;
-    } else if (sameLoc(s.location, loc)) top.push(s);
+/** A pass-local location index. Rebuild after creating, moving or hoisting stacks; quantity draws
+ * and deletion are read live, so consuming supplies needs no whole-inventory rebuild. */
+export interface InventoryIndex {
+  at: Record<string, ItemStack[]>;
+}
+export function inventoryIndex(world: World): InventoryIndex {
+  const at: Record<string, ItemStack[]> = {};
+  for (const stack of rowsOf(world.items.stacks)) {
+    const key = locKey(stack.location);
+    at[key] ??= [];
+    at[key].push(stack);
   }
-  if (loc.kind === 'container') top.push(...(kids[loc.itemId] ?? []));
+  return { at };
+}
+
+/** All stacks at a location including nested container contents, depth-first, with depth. */
+export function stacksDeep(
+  world: World,
+  loc: ItemLocation,
+  index: InventoryIndex = inventoryIndex(world),
+): Array<{ stack: ItemStack; depth: number }> {
   const out: Array<{ stack: ItemStack; depth: number }> = [];
-  const pending = top.map((stack) => ({ stack, depth: 0 })).reverse();
+  const pending = (index.at[locKey(loc)] ?? []).map((stack) => ({ stack, depth: 0 })).reverse();
   const seen = new Set<ItemId>();
   while (pending.length > 0) {
     const entry = pending.pop();
-    if (!entry || seen.has(entry.stack.id)) continue;
+    if (!entry || seen.has(entry.stack.id) || world.items.stacks[entry.stack.id] !== entry.stack) continue;
     seen.add(entry.stack.id);
     out.push(entry);
-    const children = kids[entry.stack.id] ?? [];
+    const children = index.at[`c${entry.stack.id}`] ?? [];
     for (let i = children.length - 1; i >= 0; i--) {
-      const child = children[i];
-      if (child) pending.push({ stack: child, depth: entry.depth + 1 });
+      const stack = children[i];
+      if (stack) pending.push({ stack, depth: entry.depth + 1 });
     }
   }
   return out;
@@ -62,9 +78,9 @@ export const pantryOf = (householdId: HouseholdId): ItemLocation => ({ kind: 'ho
 export const atPlace = (placeId: PlaceId): ItemLocation => ({ kind: 'place', placeId });
 
 /** Total weight in grams of everything at a location (deep). */
-export function weightG(world: World, content: ContentBundle, loc: ItemLocation): number {
+export function weightG(world: World, content: ContentBundle, loc: ItemLocation, index?: InventoryIndex): number {
   let g = 0;
-  for (const { stack } of stacksDeep(world, loc))
+  for (const { stack } of stacksDeep(world, loc, index))
     g += (content.items[stack.defId]?.weight_g ?? 0) * stack.qty + (stack.waterMl ?? 0);
   return g;
 }
@@ -72,7 +88,8 @@ export function weightG(world: World, content: ContentBundle, loc: ItemLocation)
 /** Total bulk in tenths of a Bulk unit at a location (top level only: nested bulk is inside its container). */
 export function bulkTenths(world: World, content: ContentBundle, loc: ItemLocation): number {
   let b = 0;
-  for (const s of stacksAt(world, loc)) b += Math.round((content.items[s.defId]?.bulk ?? 0) * 10) * s.qty;
+  const memo = containerLoadMemo(world);
+  for (const s of stacksAt(world, loc)) b += externalBulkTenths(world, content, s, memo);
   return b;
 }
 
@@ -119,6 +136,8 @@ export function mergeCompatible(a: ItemStack, b: ItemStack, def: ItemDef | undef
     sameLoc(a.location, b.location) &&
     Object.keys(a.supplyCarry ?? {}).length === 0 &&
     Object.keys(b.supplyCarry ?? {}).length === 0 &&
+    (a.opened ?? false) === (b.opened ?? false) &&
+    (a.frozen ?? false) === (b.frozen ?? false) &&
     a.condition === b.condition &&
     a.wetness === b.wetness &&
     a.spoilage === b.spoilage &&
@@ -278,10 +297,37 @@ export function stackSupplyUnits(content: ContentBundle, stack: ItemStack, kind:
 }
 
 /** Total units of a supply kind at a location (deep). */
-export function supplyUnits(world: World, content: ContentBundle, loc: ItemLocation, kind: string): number {
+export function supplyUnits(
+  world: World,
+  content: ContentBundle,
+  loc: ItemLocation,
+  kind: string,
+  index?: InventoryIndex,
+): number {
   let t = 0;
-  for (const { stack } of stacksDeep(world, loc)) t += stackSupplyUnits(content, stack, kind);
+  for (const { stack } of stacksDeep(world, loc, index)) t += stackSupplyUnits(content, stack, kind);
   return t;
+}
+
+/** Draw from the specified physical stack, for choices such as a dry ignition kit. */
+export function consumeStackSupply(
+  world: World,
+  content: ContentBundle,
+  stack: ItemStack,
+  kind: string,
+  units: number,
+): number {
+  if (world.items.stacks[stack.id] !== stack) return 0;
+  const sup = content.items[stack.defId]?.supply;
+  if (!sup || sup.kind !== kind || stack.condition <= 0) return 0;
+  const take = Math.min(stackSupplyUnits(content, stack, kind), Math.max(0, Math.round(units)));
+  if (!take) return 0;
+  const efficiency = kind === 'fire' && stack.wetness > 20 ? 50 : 100;
+  const used = stack.partial + Math.ceil((take * 100) / efficiency);
+  stack.qty -= Math.floor(used / sup.units);
+  stack.partial = used % sup.units;
+  if (stack.qty <= 0) removeStack(world, stack);
+  return take;
 }
 
 /**
@@ -294,23 +340,15 @@ export function consumeSupply(
   loc: ItemLocation,
   kind: string,
   units: number,
+  index?: InventoryIndex,
 ): number {
   let need = Math.max(0, Math.round(units));
   let drawn = 0;
-  for (const { stack } of stacksDeep(world, loc)) {
+  for (const { stack } of stacksDeep(world, loc, index)) {
     if (need <= 0) break;
-    const sup = content.items[stack.defId]?.supply;
-    if (!sup || sup.kind !== kind || stack.condition <= 0) continue;
-    const efficiency = kind === 'fire' && stack.wetness > 20 ? 50 : 100;
-    const have = Math.floor(((stack.qty * sup.units - stack.partial) * efficiency) / 100);
-    if (have <= 0) continue;
-    const take = Math.min(have, need);
-    const used = stack.partial + Math.ceil((take * 100) / efficiency);
-    stack.qty -= Math.floor(used / sup.units);
-    stack.partial = used % sup.units;
+    const take = consumeStackSupply(world, content, stack, kind, need);
     drawn += take;
     need -= take;
-    if (stack.qty <= 0) removeStack(world, stack);
   }
   return drawn;
 }
@@ -319,3 +357,5 @@ export function consumeSupply(
 export function rootOf(world: World, stack: ItemStack): ItemLocation {
   return rootLocation(world, stack);
 }
+
+export { loadCheckTerms, loadFatigue, loadReport, movementDelay } from './encumbrance.ts';

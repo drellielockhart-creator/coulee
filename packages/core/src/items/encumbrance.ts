@@ -4,9 +4,11 @@
  * Kit Sheet shows (the UI formats, never computes).
  */
 import type { ContentBundle } from '../content.ts';
+import { type ExplainTerm, term } from '../explain.ts';
 import type { ActorId } from '../ids.ts';
+import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
-import { carriedBy, weightG } from './api.ts';
+import { carriedBy, type InventoryIndex, weightG } from './api.ts';
 
 /** Capacity in pounds at a few anchor Strength scores; linear in between, steeper above 20. */
 const CAPACITY_LB: ReadonlyArray<readonly [number, number]> = [
@@ -82,13 +84,17 @@ export interface LoadReport {
 }
 
 /** Everything the Kit Sheet's consequence lines say about the actor's current load (03 §2.3). */
-export function loadReport(world: World, content: ContentBundle, actorId: ActorId): LoadReport {
+export function loadReport(world: World, content: ContentBundle, actorId: ActorId, index?: InventoryIndex): LoadReport {
   const actor = world.actors[actorId];
   const str = actor?.sheet.abilities.str ?? 10;
-  const cap = capacityLb(str) * GRAMS_PER_LB;
-  const w = weightG(world, content, carriedBy(actorId));
+  const size = content.peoples?.[actor?.ancestryId ?? '']?.size ?? 'medium';
+  const cap = Math.floor(
+    (capacityLb(str) * GRAMS_PER_LB * (size === 'small' ? 75 : size === 'large' ? 200 : 100)) / 100,
+  );
+  const w = world.items?.stacks ? weightG(world, content, carriedBy(actorId), index) : 0;
   const pct = cap > 0 ? Math.floor((w * 100) / cap) : 0;
-  const band = bandForPct(pct);
+  const baseBand = bandForPct(pct);
+  const band = w * 100 > cap * 150 ? { ...baseBand, speedPct: 0 } : baseBand;
   const lines: string[] = [
     `${band.label}: ${pct}% of the ${Math.round(cap / GRAMS_PER_LB)} lb Strength ${str} can manage.`,
   ];
@@ -97,6 +103,61 @@ export function loadReport(world: World, content: ContentBundle, actorId: ActorI
     lines.push(`Tires ${Math.floor(band.fatigueTenths / 10)}.${band.fatigueTenths % 10} times as fast.`);
   if (band.stealth < 0) lines.push(`Stealth ${band.stealth}.`);
   if (band.climb < 0) lines.push(`Climbing and swimming ${band.climb}.`);
-  if (band.id === 'staggering') lines.push('Short hauls only.');
+  if (band.speedPct === 0) lines.push('Cannot move until the load is reduced below 150% capacity.');
+  else if (band.id === 'staggering') lines.push('Short hauls only.');
   return { weightG: w, capacityG: cap, loadPct: pct, band, lines };
+}
+
+/** Shared modifiers for any simulated skill check involving this physical load. */
+export function loadCheckTerms(world: World, content: ContentBundle, actorId: ActorId, skill: string): ExplainTerm[] {
+  if (!['stealth', 'climb', 'swim'].includes(skill)) return [];
+  const band = loadReport(world, content, actorId).band;
+  const penalty = skill === 'stealth' ? band.stealth : skill === 'climb' || skill === 'swim' ? band.climb : 0;
+  return penalty ? [term('load', `${band.label} load: ${skill}`, penalty)] : [];
+}
+/** Extra rest loss while awake and doing physical work; sleep and seated rest do not bear the pack. */
+export function loadFatigue(
+  world: World,
+  content: ContentBundle,
+  actorId: ActorId,
+  decay: number,
+  index?: InventoryIndex,
+): { extra: number; terms: ExplainTerm[] } {
+  const report = loadReport(world, content, actorId, index);
+  const extra = Math.max(0, Math.round((decay * (report.band.fatigueTenths - 10)) / 10));
+  return {
+    extra,
+    terms: extra
+      ? [
+          term('load', `${report.band.label} load fatigue tenths`, report.band.fatigueTenths),
+          term('load', 'Load percent of capacity', report.loadPct),
+        ]
+      : [],
+  };
+}
+
+/** Activity asks for the load's extra transit time (null means movement is impossible). */
+export function movementDelay(_world: World, ctx: SimContext, actorId: ActorId, load: LoadReport): number | null {
+  if (load.band.speedPct >= 100) return 0;
+  const minutes = load.band.speedPct > 0 ? Math.ceil((60 * (100 - load.band.speedPct)) / load.band.speedPct) : 0;
+  ctx.emit({
+    kind: 'provisions.load_movement',
+    data: { actorId, loadPct: load.loadPct, speedPct: load.band.speedPct, minutes, blocked: load.band.speedPct === 0 },
+    roles: [{ actor: actorId, role: 'agent' }],
+    visibility: 'private',
+    explain: {
+      kind: 'formula',
+      label: 'Movement with carried load',
+      subjects: [actorId],
+      knowledge: 'self',
+      terms: [
+        term('load', 'Load percent of capacity', load.loadPct),
+        term('load', 'Movement speed percent', load.band.speedPct),
+        term('load', 'Movement limit percent', 150),
+      ],
+      total: minutes,
+      outcome: load.band.speedPct === 0 ? 'blocked' : 'traveling',
+    },
+  });
+  return load.band.speedPct === 0 ? null : minutes;
 }
