@@ -12,6 +12,7 @@ import type { ContentBundle } from '../content.ts';
 import { appendEvent, type Event, type EventInput, trimLog } from '../events/index.ts';
 import { hashValue } from '../hash.ts';
 import { rng, type Stream } from '../rng.ts';
+import { type PackedJson, unpackJson } from '../serialization.ts';
 import { asGameMinute, calendarAt, MINUTES_PER_DAY, minuteOfDay } from '../time.ts';
 import type { World } from '../world.ts';
 import type { SimContext } from './context.ts';
@@ -35,7 +36,12 @@ export function createSim(content: ContentBundle, opts: CreateWorldOptions): Sim
 }
 
 /** Wrap an existing (deserialized) world. Throws if the content differs from the world's. */
-export function restoreSim(content: ContentBundle, world: World, opts: { allowContentMismatch?: boolean } = {}): Sim {
+export function restoreSim(
+  content: ContentBundle,
+  saved: World | PackedJson,
+  opts: { allowContentMismatch?: boolean } = {},
+): Sim {
+  const world = unpackJson<World>(saved);
   if (!opts.allowContentMismatch && world.meta.contentHash !== content.meta.hash) {
     throw new Error(
       `content hash mismatch: world ${world.meta.contentHash.slice(0, 12)} vs bundle ${content.meta.hash.slice(0, 12)}`,

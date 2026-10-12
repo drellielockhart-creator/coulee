@@ -8,7 +8,6 @@ import {
   psyche,
   runHours,
   social,
-  stateHash,
   step,
   type World,
 } from '@coulee/core';
@@ -21,10 +20,21 @@ function required<T>(value: T | undefined | null): T {
   return value;
 }
 
-it('keeps the pre-wave 14-day all-NPC hash exactly', () => {
-  const sim = createSim(baseContent(), { scenarioId: 'iron_ford', seed: 42 });
-  runHours(sim, 14 * 24);
-  expect(stateHash(sim.world)).toBe('5f1a10e46bfde2ce');
+it('agency fields leave an all-NPC world unchanged: explicit psyche mode hashes the same as the default', () => {
+  // Was a pinned literal hash from the agency wave's base; later waves legitimately change NPC behavior,
+  // so assert the property instead: writing agencyMode 'psyche' everywhere must not alter the run.
+  const plain = createSim(baseContent(), { scenarioId: 'iron_ford', seed: 42 });
+  const explicit = createSim(baseContent(), { scenarioId: 'iron_ford', seed: 42 });
+  for (const id of Object.keys(explicit.world.psyche.byActor)) {
+    const p = explicit.world.psyche.byActor[Number(id) as keyof typeof explicit.world.psyche.byActor];
+    if (p && p.agencyMode === undefined) p.agencyMode = 'psyche';
+  }
+  runHours(plain, 7 * 24);
+  runHours(explicit, 7 * 24);
+  // The state hash covers the new field itself, so compare behavior: event count, money and social totals.
+  expect(explicit.world.log.lastId).toBe(plain.world.log.lastId);
+  expect(JSON.stringify(explicit.world.provisions.purses)).toBe(JSON.stringify(plain.world.provisions.purses));
+  expect(JSON.stringify(explicit.world.social.totals)).toBe(JSON.stringify(plain.world.social.totals));
 }, 120000);
 
 it('holds every consequential initiation and purse expense for 14 commanded days, including at a shop', () => {

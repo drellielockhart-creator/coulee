@@ -4,7 +4,7 @@ import { requiredRow } from '../activity/definitions.ts';
 import type { ContentBundle } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
 import { type ActorId, idsOf } from '../ids.ts';
-import { type InventoryIndex, inventoryIndex, loadFatigue } from '../items/api.ts';
+import { campThermal, type InventoryIndex, inventoryIndex, loadFatigue } from '../items/api.ts';
 import { energyAgePct, nutritionRestLoss } from '../provisions/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { yearsBetween } from '../time.ts';
@@ -120,7 +120,18 @@ export function hourlyLedger(
   }
   if (def.exposure) {
     const e = def.exposure;
-    const effective = placeTempF + e.base_insulation_f + e.activity_f[labor] + (asleep ? e.asleep_f : 0);
+    const camp = campThermal(world, content, id, asleep || labor === 'rest', inventory);
+    const effective = placeTempF + e.base_insulation_f + e.activity_f[labor] + (asleep ? e.asleep_f : 0) + camp.bonusF;
+    if (camp.terms.length)
+      calculations.push({
+        kind: 'formula',
+        label: 'Camp exposure adjustment',
+        subjects: [id],
+        knowledge: 'self',
+        terms: camp.terms,
+        total: camp.bonusF,
+        outcome: 'applied',
+      });
     const change =
       effective < e.comfort_f
         ? -Math.min(e.max_loss_per_hour, (e.comfort_f - effective) * e.loss_per_degree)

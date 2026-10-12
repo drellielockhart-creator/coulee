@@ -1,14 +1,17 @@
+import { productionHour } from '../activity/production.ts';
 /** Meals, household economy, nutrition, storage and scheduled supplies; sixth in the hourly schedule. */
 import { commandsFor } from '../command.ts';
 import { type ActorId, rowsOf } from '../ids.ts';
-import { carriedBy, inventoryIndex, moveStack } from '../items/api.ts';
+import { carriedBy, inventoryIndex, moveStack, withInventoryPass } from '../items/api.ts';
 import { rootLocation } from '../items/containers.ts';
 import { needValue } from '../needs/api.ts';
 import { autonomous, chosenUrge, standingOrders } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
+import { autonomousProvisioning } from './agency.ts';
 import { boardMeal, drinkWater, refillWater, sell, storeOpen, waterHour } from './api.ts';
 import { householdDay, purchase, shoppingHour } from './economy.ts';
+import { employmentHour } from './employment.ts';
 import { devicesHour, storageHour } from './environment.ts';
 import {
   accessibleStack,
@@ -16,6 +19,7 @@ import {
   dueMeal,
   type Holder,
   holderOfActor,
+  lightCampfire,
   mealExplain,
   preparationHour,
   serveMeal,
@@ -23,6 +27,22 @@ import {
 import { nutritionHour } from './nutrition.ts';
 
 export function provisionsSystem(world: World, ctx: SimContext): void {
+  withInventoryPass(world, () => provisionsHour(world, ctx));
+}
+function provisionsHour(world: World, ctx: SimContext): void {
+  employmentHour(world, ctx);
+  productionHour(world, ctx);
+  for (const actor of rowsOf(world.actors)) {
+    const activity = world.activity.byActor[actor.id];
+    if (
+      actor.alive &&
+      !activity?.travel &&
+      activity?.activityId &&
+      ctx.content.activities[activity.activityId]?.tags.includes('campfire') &&
+      activity.since === ctx.now
+    )
+      lightCampfire(world, ctx, actor.id);
+  }
   nutritionHour(world, ctx);
   if (ctx.isNewDay) householdDay(world, ctx);
   storageHour(world, ctx);
@@ -164,7 +184,7 @@ export function provisionsSystem(world: World, ctx: SimContext): void {
     if (!meal && !eating) continue;
     // A chosen meal between scheduled meals is a snack; avoid a second full meal within three hours.
     if (!meal && ctx.now - (world.provisions.nutrition[actor.id]?.lastMealAt ?? -10000) < 180) continue;
-    if (eating && boardMeal(world, ctx, actor.id)) continue;
+    if (eating && autonomousProvisioning(world, actor.id) && boardMeal(world, ctx, actor.id)) continue;
     const group = groups.find(
       (g) => 'householdId' in holder && 'householdId' in g.holder && holder.householdId === g.holder.householdId,
     );

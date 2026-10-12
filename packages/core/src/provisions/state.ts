@@ -176,6 +176,14 @@ export interface ProvisionsState {
   /** Paid bed access, actor -> expiry game minute. Optional for old saves. */
   beds?: Record<number, { placeId: PlaceId; until: number }>;
   pendingMeals?: PendingMeal[];
+  /** Signed cumulative money crossing the county boundary; freight currently pays outward. */
+  externalCashCents?: number;
+  employment?: Record<
+    number,
+    { payerId: HouseholdId; earnedCents: number; carry: number; day: number; minutes: number }
+  >;
+  /** Fractional output, hundred-thousandths of an item, per actor/activity/item. */
+  productionCarry?: Record<string, number>;
 }
 
 export function createProvisionsState(): ProvisionsState {

@@ -201,7 +201,16 @@ export function saleQuote(world: World, content: ContentBundle, placeId: PlaceId
   )
     return null;
   const retail = priceAt(world, content, placeId, stack.defId);
-  return retail === null ? null : Math.min(retail, content.items[stack.defId]?.value_cents ?? 0);
+  if (retail === null) return null;
+  const lowestRetail = Math.min(
+    ...rowsOf(world.provisions.stores).map((store) => priceAt(world, content, store.placeId, stack.defId) ?? retail),
+  );
+  if (lowestRetail <= 0) return null;
+  const pct = content.domesticRules?.daily?.buyback_pct ?? 65;
+  return Math.max(
+    0,
+    Math.min(retail - 1, lowestRetail - 1, Math.floor(((content.items[stack.defId]?.value_cents ?? 0) * pct) / 100)),
+  );
 }
 export function sell(
   world: World,
@@ -246,7 +255,10 @@ export function sell(
       label: 'Store buys intact goods',
       subjects: [actorId],
       knowledge: 'participants',
-      terms: [term('price', 'Unit cents (base value capped at retail)', price), term('item', 'Quantity', qty)],
+      terms: [
+        term('price', 'Unit cents (used-goods spread, below county retail)', price),
+        term('item', 'Quantity', qty),
+      ],
       total: cost,
       outcome: 'sold',
     },
@@ -263,7 +275,10 @@ function homeWaterHolder(world: World, actorId: ActorId): { householdId: Househo
 }
 export function drinkingWater(world: World, content: ContentBundle, actorId: ActorId, index?: InventoryIndex): number {
   const home = homeWaterHolder(world, actorId);
-  return waterAvailable(world, content, { actorId }, index) + (home ? waterAvailable(world, content, home, index) : 0);
+  return (
+    waterAvailable(world, content, { actorId }, index) +
+    (home ? (world.provisions.households[home.householdId]?.waterMl ?? 0) : 0)
+  );
 }
 export function drinkWater(
   world: World,
@@ -462,3 +477,5 @@ export function heatingFuel(
   world.provisions.fires[placeId] = { placeId, lit: true, until, fuelMinutes: until - ctx.now };
   return paid;
 }
+
+export { countyCash } from './employment.ts';

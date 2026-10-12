@@ -309,13 +309,16 @@ export function populate(
   for (const key of ['store', 'mill']) {
     scenario.stocks.push({
       place: (homes[key] as PlaceDef).id,
-      markup_pct: key === 'store' ? 105 : 90,
+      markup_pct: key === 'store' ? 100 : 90,
+      restock: key === 'store' ? 'pratt_wholesale' : 'haugen_mill_delivery',
       credit_limit_cents: 2400,
-      items: ['flour', 'cornmeal', 'salt_pork', 'beans_dry', 'dried_apples', 'potatoes', 'cheese'].map((item) => ({
-        item,
-        qty: item === 'flour' || item === 'cornmeal' ? 500 : 160,
-        worn: false,
-      })),
+      items: (content.restocks[key === 'store' ? 'pratt_wholesale' : 'haugen_mill_delivery']?.lines ?? []).map(
+        (line) => ({
+          item: line.item,
+          qty: Math.min(line.target_qty, line.max_delivery ?? line.target_qty),
+          worn: false,
+        }),
+      ),
     });
   }
   for (const h of scenario.households) {

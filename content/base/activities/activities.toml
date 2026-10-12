@@ -326,15 +326,17 @@ id = "chop_wood"
 name = "Chop wood"
 verb = "splitting firewood"
 description = "The woodpile is the winter. Without an axe it is a long, poor job."
-at = "home"
+at = "anywhere"
+venue_tags = ["woods", "wild", "farm", "farmstead", "woodpile"]
 labor = "heavy"
 needs = { standing = 2 }
 sociability = 10
 skill = "athletics"
-months = [9, 4]
-tags = ["labor", "chore"]
+months = [1, 12]
+tags = ["labor", "chore", "wild_production"]
 tool = { affordance = "chop", full_tenths = 20, bare_pct = 25 }
-yields = [{ item = "firewood_armload", tenths_per_hour = 12 }]
+check = { skill = "athletics", dc = 8 }
+yields = [{ item = "firewood_armload", tenths_per_hour = 10, to = "actor" }]
 chore = { supply = "fuel", below_days = 10, intensity = 750, label = "The woodpile is low" }
 
 [[activity]]
@@ -348,13 +350,14 @@ labor = "light"
 needs = { standing = 1 }
 sociability = 15
 skill = "herbalism"
-months = [4, 6]
-tags = ["labor", "chore"]
+months = [4, 10]
+tags = ["labor", "chore", "wild_production"]
 check = { skill = "herbalism", dc = 12 }
 yields = [
-  { item = "ramps", tenths_per_hour = 30, optional = true },
-  { item = "morels", tenths_per_hour = 15, months = [4, 5], optional = true },
-  { item = "wild_greens", tenths_per_hour = 30, optional = true },
+  { item = "ramps_fresh", tenths_per_hour = 5, months = [4, 5], to = "actor" },
+  { item = "morels_fresh", tenths_per_hour = 3, months = [4, 5], to = "actor" },
+  { item = "wild_greens", tenths_per_hour = 8, months = [4, 10], to = "actor" },
+  { item = "berries_fresh", tenths_per_hour = 8, months = [6, 8], to = "actor" },
 ]
 chore = { supply = "food", below_days = 5, intensity = 650, min_age = 10, label = "The larder is bare: go and forage" }
 
@@ -369,10 +372,10 @@ needs = { company = 10 }
 sociability = 30
 skill = "fishing"
 months = [4, 10]
-tags = ["labor", "chore"]
+tags = ["labor", "chore", "wild_production"]
 tool = { affordance = "fish", full_tenths = 10, bare_pct = 20 }
 check = { skill = "fishing", dc = 12 }
-yields = [{ item = "fresh_trout", tenths_per_hour = 25, optional = true }]
+yields = [{ item = "trout_fresh", tenths_per_hour = 10, to = "actor" }]
 chore = { supply = "food", below_days = 4, intensity = 600, label = "Nothing in the larder: fish for supper" }
 
 # ---- Church, community, calendar ----------------------------------------------------------
@@ -503,3 +506,60 @@ at = "anywhere"
 labor = "heavy"
 sociability = 10
 tags = ["travel"]
+
+# Garden/harvest production remains a future 05 crop-state slice.
+[[activity]]
+id = "snare_game"
+name = "Snare small game"
+verb = "setting and checking snares"
+at = "venue"
+venue_tags = ["woods", "wild", "meadow"]
+labor = "light"
+months = [1, 12]
+min_hours = 4
+tags = ["labor", "chore", "wild_production"]
+tool = { affordance = "snare", full_tenths = 10, bare_pct = 0 }
+check = { skill = "trapping", dc = 14 }
+yields = [{ item = "rabbit_fresh", tenths_per_hour = 3, to = "actor" }]
+
+[[activity]]
+id = "gather_wood"
+name = "Gather fallen wood"
+verb = "gathering fallen wood"
+at = "venue"
+venue_tags = ["woods", "wild"]
+labor = "light"
+months = [1, 12]
+tags = ["labor", "chore", "wild_production"]
+check = { skill = "woodcraft", dc = 8 }
+yields = [{ item = "firewood_armload", tenths_per_hour = 5, to = "actor" }]
+
+[[activity]]
+id = "make_campfire"
+name = "Light a campfire"
+verb = "tending a campfire"
+at = "anywhere"
+labor = "light"
+min_hours = 1
+tags = ["campfire", "chore"]
+
+[[activity]]
+id = "sleep_rough"
+name = "Sleep at this camp"
+verb = "sleeping at camp"
+at = "anywhere"
+labor = "rest"
+asleep = true
+min_hours = 8
+needs = { rest = 140 }
+tags = ["camp"]
+
+[[activity]]
+id = "rest_at_camp"
+name = "Remain at this camp for a day"
+verb = "resting at camp"
+at = "anywhere"
+labor = "rest"
+min_hours = 24
+needs = { rest = 40 }
+tags = ["camp"]

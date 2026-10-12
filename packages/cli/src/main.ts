@@ -12,6 +12,7 @@ import { CONTENT_ROOT, formatIssues, loadContent, loadContentOrThrow, REPO_ROOT 
 import { formatStamp, toViewModel } from '@coulee/core';
 import { GEN_VERSION } from '@coulee/worldgen';
 import { cac } from 'cac';
+import { packJson } from '../../core/src/serialization.ts';
 import { findActor, renderDossier } from './dossier.ts';
 import { generateTimedTown, writeGeneratedTown } from './generation.ts';
 import { jsonlFileSink, type RunSpec, runScenario, type WorldSource, writeRunOutputs } from './harness.ts';
@@ -81,7 +82,7 @@ cli
       });
       const ms = performance.now() - t0;
       const streamed = stream?.close() ?? 0;
-      const saveJson = JSON.stringify(res.sim.world);
+      const saveJson = JSON.stringify(packJson(res.sim.world));
       const saveBytes = Buffer.byteLength(saveJson);
       if (o.save) writeFileSync(join(out, 'save.json'), saveJson);
       const w = res.sim.world as unknown as Record<string, unknown>;

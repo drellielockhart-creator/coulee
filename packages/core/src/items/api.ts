@@ -39,15 +39,38 @@ export function stacksAt(world: World, loc: ItemLocation): ItemStack[] {
  * and deletion are read live, so consuming supplies needs no whole-inventory rebuild. */
 export interface InventoryIndex {
   at: Record<string, ItemStack[]>;
+  deep?: Map<string, Array<{ stack: ItemStack; depth: number }>>;
+}
+// Only synchronous provision passes opt in. Counter changes invalidate creation;
+// deleted stacks are checked live by stacksDeep, and relocation invalidates below.
+const inventoryPasses = new Map<World, { counter: number; index?: InventoryIndex }>();
+export function withInventoryPass<T>(world: World, run: () => T): T {
+  inventoryPasses.set(world, { counter: -1 });
+  try {
+    return run();
+  } finally {
+    inventoryPasses.delete(world);
+  }
+}
+function invalidateInventory(world: World): void {
+  const pass = inventoryPasses.get(world);
+  if (pass) pass.index = undefined;
 }
 export function inventoryIndex(world: World): InventoryIndex {
+  const pass = inventoryPasses.get(world);
+  if (pass?.index && pass.counter === world.items.counters.item) return pass.index;
   const at: Record<string, ItemStack[]> = {};
   for (const stack of rowsOf(world.items.stacks)) {
     const key = locKey(stack.location);
     at[key] ??= [];
     at[key].push(stack);
   }
-  return { at };
+  const index: InventoryIndex = { at, deep: new Map() };
+  if (pass) {
+    pass.counter = world.items.counters.item;
+    pass.index = index;
+  }
+  return index;
 }
 
 /** All stacks at a location including nested container contents, depth-first, with depth. */
@@ -56,6 +79,9 @@ export function stacksDeep(
   loc: ItemLocation,
   index: InventoryIndex = inventoryIndex(world),
 ): Array<{ stack: ItemStack; depth: number }> {
+  const key = locKey(loc);
+  const cached = index.deep?.get(key);
+  if (cached) return cached.filter((entry) => world.items.stacks[entry.stack.id] === entry.stack);
   const out: Array<{ stack: ItemStack; depth: number }> = [];
   const pending = (index.at[locKey(loc)] ?? []).map((stack) => ({ stack, depth: 0 })).reverse();
   const seen = new Set<ItemId>();
@@ -70,6 +96,7 @@ export function stacksDeep(
       if (stack) pending.push({ stack, depth: entry.depth + 1 });
     }
   }
+  index.deep?.set(key, out);
   return out;
 }
 
@@ -169,6 +196,7 @@ export function tryMerge(world: World, content: ContentBundle, stack: ItemStack)
 
 /** Remove a stack, hoisting any contents to the container's own location so nothing is orphaned. */
 function removeStack(world: World, stack: ItemStack): void {
+  invalidateInventory(world);
   for (const s of rowsOf(world.items.stacks)) {
     if (s.location.kind === 'container' && s.location.itemId === stack.id) s.location = stack.location;
   }
@@ -227,6 +255,7 @@ export function moveStack(world: World, ctx: SimContext, itemId: ItemId, qty: nu
   const from = s.location;
   let movedId: ItemId = s.id;
   if (n >= s.qty) {
+    invalidateInventory(world);
     s.location = to;
   } else {
     const rest = newStack(world, s.defId, n, to, s.createdAt);
@@ -358,4 +387,5 @@ export function rootOf(world: World, stack: ItemStack): ItemLocation {
   return rootLocation(world, stack);
 }
 
+export { campThermal } from './camping.ts';
 export { loadCheckTerms, loadFatigue, loadReport, movementDelay } from './encumbrance.ts';

@@ -426,6 +426,7 @@ export const VenueServiceSchema = z.strictObject({
 });
 export const DomesticRuleSchema = z.strictObject({
   id: id(),
+  buyback_pct: pct().default(65),
   business_owner_roles: z.array(id()).default([]),
   equipment: z.array(z.strictObject({ item: ref(), qty: posInt() })).default([]),
   wood_base_per_day: nonNegInt().default(10),
