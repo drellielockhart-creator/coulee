@@ -210,6 +210,9 @@ Every doc uses these terms with these meanings.
   - **Queued features** (after the current backlog clears; see `docs/impl/BACKLOG.md`):
     - **Parties.** The player recruits companions, and NPCs form parties emergently, including hunts for the witch, for other witches, or for fae.
     - **Elevation.** Underground and building floors, with the RimWorld-style top-down view kept most of the time. Things flying overhead (birds, someday airships), a camera that can tilt up to the sky, and a simulated night sky with fictional constellations and astrological meaning.
+  - **Fae slice 1b design calls:**
+    - **Butter on credit:** yes. The poorest households can buy the sack's feeding makings on ordinary store credit.
+    - **Loan due dates missed because the lender's household is at church or out:** accepted as texture (13 §8.2 criterion 5's residual breaches stand).
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.
