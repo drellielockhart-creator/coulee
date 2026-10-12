@@ -7,12 +7,15 @@ import { findNonIntegers, hashValue } from '../../core/src/hash.ts';
 import { asActorId, asHouseholdId, asPlaceId, mustGet } from '../../core/src/ids.ts';
 import {
   affordanceAt,
+  allStacks,
   carriedBy,
   consumeStack,
   consumeSupply,
+  deleteStack,
   moveStack,
   stacksDeep,
   supplyUnits,
+  withInventoryPass,
 } from '../../core/src/items/api.ts';
 import { protectionsOf, rootLocation } from '../../core/src/items/containers.ts';
 import { loadCheckTerms, loadReport } from '../../core/src/items/encumbrance.ts';
@@ -41,6 +44,38 @@ import type { World } from '../../core/src/world.ts';
 const content = loadContentOrThrow();
 
 describe('provisions acceptance', () => {
+  it('inventory pass enumeration stays ordered and live through splits, deletion, and separate worlds', () => {
+    const world = fixture(content);
+    const other = fixture(content);
+    const first = add(world, 'flour', 4);
+    const second = add(world, 'salt_pork', 2);
+    const elsewhere = add(other, 'dried_apples', 3);
+    const ctx = context(world, content);
+    let split = first;
+    withInventoryPass(world, () => {
+      expect(allStacks(world).map((s) => s.id)).toEqual([first, second]);
+      split = moveStack(world, ctx, first, 1, carriedBy(A));
+      expect(allStacks(world).map((s) => s.id)).toEqual([first, second, split]);
+      deleteStack(world, second);
+      expect(allStacks(world).map((s) => s.id)).toEqual([first, split]);
+      withInventoryPass(other, () => {
+        expect(allStacks(other).map((s) => s.id)).toEqual([elsewhere]);
+        expect(allStacks(world).map((s) => s.id)).toEqual([first, split]);
+      });
+      // A returned array belongs to the caller, not the pass.
+      allStacks(world).length = 0;
+      expect(allStacks(world).map((s) => s.id)).toEqual([first, split]);
+    });
+    expect(() =>
+      withInventoryPass(world, () => {
+        allStacks(world);
+        throw new Error('end pass');
+      }),
+    ).toThrow('end pass');
+    const fresh = add(world, 'salt_pork', 1);
+    expect(allStacks(world).map((s) => s.id)).toEqual([first, split, fresh]);
+  });
+
   it('1: equal energy with fresh sides prevents scurvy while a salt-pork/flour diet crosses the threshold', () => {
     const lean = fixture(content),
       varied = fixture(content);

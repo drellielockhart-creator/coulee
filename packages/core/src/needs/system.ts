@@ -34,11 +34,13 @@ export function hourlyLedger(
   placeTempF: number,
   before: Readonly<Record<string, number>>,
   inventory?: InventoryIndex,
+  /** Routine ticks only need the delta; views retain the full explanation by default. */
+  trace = true,
 ): HourlyLedger {
   if (needsFrozen(world, content, id))
     return {
       delta: 0,
-      terms: [{ source: 'place', label: 'Time runs otherwise under the hill', value: 0 }],
+      terms: trace ? [{ source: 'place', label: 'Time runs otherwise under the hill', value: 0 }] : [],
       calculations: [],
     };
   const actor = requiredRow(world.actors, id);
@@ -48,37 +50,39 @@ export function hourlyLedger(
   const asleep = isAsleep(world, ctx, id);
   const activityId = world.activity.byActor[id]?.activityId;
   const activity = activityId ? content.activities[activityId] : undefined;
-  const terms: ExplainTerm[] = [];
-  const calculations: Explain[] = [];
-  const factors: ExplainTerm[] = [
-    { source: 'base', label: 'Points per hour', value: def.decay_per_hour },
-    { source: 'base', label: `${labor} labor percent`, value: def.labor_pct[labor] },
-    { source: 'base', label: 'Sleep percent', value: asleep ? def.asleep_pct : 100 },
-  ];
+  const terms: ExplainTerm[] | undefined = trace ? [] : undefined;
+  const calculations: Explain[] | undefined = trace ? [] : undefined;
+  const factors: ExplainTerm[] | undefined = trace
+    ? [
+        { source: 'base', label: 'Points per hour', value: def.decay_per_hour },
+        { source: 'base', label: `${labor} labor percent`, value: def.labor_pct[labor] },
+        { source: 'base', label: 'Sleep percent', value: asleep ? def.asleep_pct : 100 },
+      ]
+    : undefined;
   // A vice need runs down only for those who hold it (Drink: a drinker's trait), never for the young.
   const notTheirs =
     (def.only_traits.length > 0 && !def.only_traits.some((t) => actor.traits.includes(t))) ||
     (def.decay_min_age > 0 && yearsBetween(actor.born, world.time) < def.decay_min_age);
-  if (notTheirs) factors.push({ source: 'trait', label: 'Not a want of theirs', value: 0 });
+  if (notTheirs) factors?.push({ source: 'trait', label: 'Not a want of theirs', value: 0 });
   let decay = notTheirs ? 0 : ((def.decay_per_hour * def.labor_pct[labor]) / 100) * (asleep ? def.asleep_pct / 100 : 1);
   let valuePct = 100;
   for (const clause of def.value_pct) {
     const modifier = clause.per_step_pct * actor.values[clause.value];
     valuePct += modifier;
-    factors.push({ source: 'value', label: `${clause.value}: percent adjustment`, value: modifier || 0 });
+    factors?.push({ source: 'value', label: `${clause.value}: percent adjustment`, value: modifier || 0 });
   }
   decay *= Math.max(0, valuePct) / 100;
   for (const trait of actor.traits) {
     const pct = def.trait_pct[trait] ?? 100;
     decay *= pct / 100;
-    if (pct !== 100) factors.push({ source: 'trait', label: `${trait}: percent multiplier`, value: pct });
+    if (pct !== 100) factors?.push({ source: 'trait', label: `${trait}: percent multiplier`, value: pct });
   }
   if (def.intake?.unit === 'kcal') {
     const kcalPct = content.peoples?.[actor.ancestryId]?.kcal_pct ?? 100;
     const age = energyAgePct(world, id);
     decay *= (kcalPct * age) / 10000;
-    factors.push({ source: 'base', label: 'Age energy percent', value: age });
-    factors.push({ source: 'base', label: 'Physiological energy percent', value: kcalPct });
+    factors?.push({ source: 'base', label: 'Age energy percent', value: age });
+    factors?.push({ source: 'base', label: 'Physiological energy percent', value: kcalPct });
   }
   let weatherPct = 100;
   for (const clause of def.temperature_pct)
@@ -88,18 +92,18 @@ export function hourlyLedger(
     )
       weatherPct += clause.pct - 100;
   decay = Math.round((decay * Math.max(0, weatherPct)) / 100);
-  factors.push({ source: 'weather', label: `Ambient ${air} F: percent multiplier`, value: Math.max(0, weatherPct) });
-  calculations.push({
+  factors?.push({ source: 'weather', label: `Ambient ${air} F: percent multiplier`, value: Math.max(0, weatherPct) });
+  calculations?.push({
     kind: 'formula',
     label: 'Hourly expenditure',
     subjects: [id],
     knowledge: 'self',
-    terms: factors,
+    terms: factors ?? [],
     total: decay,
     outcome: 'expended',
     note: 'Base times labor, sleep, nonnegative values, traits, physiology and weather percentages; rounded once.',
   });
-  terms.push({
+  terms?.push({
     source: 'need',
     label: `Hourly decay (${labor}${asleep ? ', asleep' : ''}; values, traits, weather)`,
     value: decay === 0 ? 0 : -decay,
@@ -108,14 +112,14 @@ export function hourlyLedger(
   if (key === 'rest' && !asleep) {
     const deficiency = nutritionRestLoss(world, content, id);
     delta -= deficiency;
-    if (deficiency) terms.push({ source: 'nutrition', label: 'Malnourishment stamina loss', value: -deficiency });
+    if (deficiency) terms?.push({ source: 'nutrition', label: 'Malnourishment stamina loss', value: -deficiency });
   }
   if (key === 'rest' && !asleep && labor !== 'rest') {
     const load = loadFatigue(world, content, id, decay, inventory);
     delta -= load.extra;
-    if (load.extra) terms.push({ source: 'load', label: 'Additional fatigue from carried load', value: -load.extra });
+    if (load.extra) terms?.push({ source: 'load', label: 'Additional fatigue from carried load', value: -load.extra });
     if (load.terms.length)
-      calculations.push({
+      calculations?.push({
         kind: 'formula',
         label: 'Carried load fatigue',
         subjects: [id],
@@ -129,11 +133,11 @@ export function hourlyLedger(
     const e = def.exposure;
     const camp = campThermal(world, content, id, asleep || labor === 'rest', inventory);
     const clothing = clothingWarmth(world, content, id, inventory);
-    terms.push({ source: 'gear', label: 'Worn clothing after wetness and wear (F)', value: clothing });
+    terms?.push({ source: 'gear', label: 'Worn clothing after wetness and wear (F)', value: clothing });
     const effective =
       placeTempF + e.base_insulation_f + clothing + e.activity_f[labor] + (asleep ? e.asleep_f : 0) + camp.bonusF;
     if (camp.terms.length)
-      calculations.push({
+      calculations?.push({
         kind: 'formula',
         label: 'Camp exposure adjustment',
         subjects: [id],
@@ -147,7 +151,7 @@ export function hourlyLedger(
         ? -Math.min(e.max_loss_per_hour, (e.comfort_f - effective) * e.loss_per_degree)
         : e.regain_per_hour;
     delta += change;
-    terms.push({
+    terms?.push({
       source: 'weather',
       label: `Exposure: effective ${effective} F, comfort ${e.comfort_f} F`,
       value: change,
@@ -160,14 +164,14 @@ export function hourlyLedger(
     recovery = Math.round((recovery * Math.max(0, quality)) / 100);
   }
   delta += recovery;
-  terms.push({ source: 'base', label: activity?.name ?? 'No activity', value: recovery });
+  terms?.push({ source: 'base', label: activity?.name ?? 'No activity', value: recovery });
   if (def.recovery && (before[key] ?? def.initial) < def.recovery.toward) {
     const regain = Math.min(
       def.recovery.per_hour,
       Math.max(0, def.recovery.toward - (before[key] ?? def.initial) - delta),
     );
     delta += regain;
-    terms.push({ source: 'need', label: 'Recovery toward baseline', value: regain });
+    terms?.push({ source: 'need', label: 'Recovery toward baseline', value: regain });
   }
   if (def.baseline) {
     const target = baselineOf(world, content, id, key);
@@ -177,10 +181,10 @@ export function hourlyLedger(
       const step = Math.max(1, Math.floor((Math.abs(gap) * def.baseline.per_hour_permille) / 1000));
       const move = gap > 0 ? Math.min(gap, step) : -Math.min(-gap, step);
       delta += move;
-      terms.push({ source: 'need', label: `Drift toward ${target} (who they are here)`, value: move });
+      terms?.push({ source: 'need', label: `Drift toward ${target} (who they are here)`, value: move });
     }
   }
-  return { delta, terms, calculations };
+  return { delta, terms: terms ?? [], calculations: calculations ?? [] };
 }
 
 /**
@@ -226,6 +230,7 @@ export function needsSystem(world: World, ctx: SimContext): void {
         temperatures[actor.placeId] ?? air,
         before,
         inventory,
+        false,
       );
       // The hourly balance is routine: it updates the meter (and emits band changes) without an
       // event per actor-need-hour. The dossier re-derives the math on demand (hourlyNeedExplain).

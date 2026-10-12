@@ -25,6 +25,10 @@ export { sameLoc } from './containers.ts';
 
 /** Every stack, ascending id. */
 export function allStacks(world: World): ItemStack[] {
+  if (inventoryPasses.has(world)) {
+    const all = inventoryIndex(world).all;
+    if (all) return all.filter((stack) => world.items.stacks[stack.id] === stack);
+  }
   return rowsOf(world.items.stacks);
 }
 
@@ -39,6 +43,8 @@ export function stacksAt(world: World, loc: ItemLocation): ItemStack[] {
  * and deletion are read live, so consuming supplies needs no whole-inventory rebuild. */
 export interface InventoryIndex {
   at: Record<string, ItemStack[]>;
+  /** Ascending snapshot; consumers must check deletions against the live table. */
+  all?: ItemStack[];
   deep?: Map<string, Array<{ stack: ItemStack; depth: number }>>;
 }
 // Only synchronous provision passes opt in. Counter changes invalidate creation;
@@ -60,12 +66,13 @@ export function inventoryIndex(world: World): InventoryIndex {
   const pass = inventoryPasses.get(world);
   if (pass?.index && pass.counter === world.items.counters.item) return pass.index;
   const at: Record<string, ItemStack[]> = {};
-  for (const stack of rowsOf(world.items.stacks)) {
+  const all = rowsOf(world.items.stacks);
+  for (const stack of all) {
     const key = locKey(stack.location);
     at[key] ??= [];
     at[key].push(stack);
   }
-  const index: InventoryIndex = { at, deep: new Map() };
+  const index: InventoryIndex = { at, all, deep: new Map() };
   if (pass) {
     pass.counter = world.items.counters.item;
     pass.index = index;

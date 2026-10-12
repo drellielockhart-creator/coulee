@@ -186,6 +186,17 @@ export function ruleCandidates(m: Mind, external: readonly UrgeProposal[]): Cand
   for (const id of Object.keys(m.content.thoughts ?? {}).sort()) {
     const rule = m.content.thoughts[id];
     if (!rule) continue;
+    // Drive/norm coverage does not depend on the candidate. Avoid target scans and
+    // prose for a fallback that will be discarded (ruleCandidate draws no RNG).
+    if (
+      rule.fallback &&
+      external.some(
+        (e) =>
+          (rule.voice === 'id' && rule.drive !== undefined && e.drive === rule.drive) ||
+          (rule.voice === 'superego' && rule.norm !== undefined && e.norm === rule.norm),
+      )
+    )
+      continue;
     const c = ruleCandidate(m, rule, opinions);
     if (!c) continue;
     if (rule.fallback) {

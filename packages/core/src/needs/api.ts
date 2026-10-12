@@ -201,6 +201,8 @@ export function projectWaterHour(world: World, ctx: SimContext): void {
       air,
       temperatures[actor.placeId] ?? air,
       n.values,
+      undefined,
+      false,
     );
     satisfyNeed(world, ctx, actor.id, 'thirst', ledger.delta, { label: 'Hourly water expenditure', quiet: true });
   }
