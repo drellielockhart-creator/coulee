@@ -42,7 +42,7 @@ _Updated 2026-10-11, night. The repo is https://github.com/drellielockhart-creat
   - **Year deaths:** Iron Ford 0, gen 73 0 (was 5), gen 7 1. The open defect: a zero-food household gets no neighbor relief.
 - **Perf:** hash-identical, Iron Ford 39.8 → 17.1 ms/h (`docs/impl/perf/2026-10-11-wave4.md`). Readiness projections are now the top cost.
 - **Web:** the app plays through `PlaySession` (a web command log replays headlessly to the same hash), with the Outfitter storefront and buy preview, Kit Sheet Explains, and the pocket flow. M4 UI acceptance #5 and #6 are met.
-- **Codex quota ran out** at 2026-10-11 ~22:36 PT and resets 2026-10-18 (Ellie has banked resets she can apply). Until then the Claude pool does everything.
+- **Codex quota ran out** at 2026-10-11 ~22:36 PT. Ellie applied one of her banked resets on 2026-10-12, so Codex is available again.
 
 ## Wave 5 (in flight)
 r2 playtests are done (7 Claude personas, all sessions verify). Triage: `docs/impl/PLAYTEST-TRIAGE-2026-10-11-r2.md`. New decisions D1–D3 for Ellie were added to 08 "Start here" (items 11–13).
@@ -52,11 +52,12 @@ r2 playtests are done (7 Claude personas, all sessions verify). Triage: `docs/im
 | Fae slice 1b + sign fixes | Claude Opus: doc 13 §8.2, plus r2 Tier 1 #6 (investigate oracle) and #7 (sign windows, retries, dead ends) | `../coulee-w5-fae1b`, branch `wave5/fae1b` |
 | A: provisions | Claude Opus: water in the wild, food readout, standing sleep/eat, survival ETAs, containers/load, stock, balance | `../coulee-w5-provisions`, branch `wave5/provisions` |
 | B: social + play | Claude Opus: availability, waits, requests, fair-leak epilogue/explain, refusal wording, phone-size output, journal/screen, exploits | `../coulee-w5-social`, branch `wave5/social` |
-| D: text | Claude Sonnet: distinct generated place names and descriptions, placeholder text, dialogue pools | `../coulee-w5-text`, branch `wave5/text` |
+| D: text | DONE and merged (`cc3307c`): distinct generated place names and descriptions, Iron Ford text fixes, talk pools 294 → 1,233 with teller-owned yarns | merged |
+| County worldgen | Codex astra: M5a county stage (terrain, hydrology, ecology, fae field, siting, routes, QA 1–64, `coulee gen county` with SVG map, county → town context) | `../coulee-w5-county`, branch `wave5/county` |
 
 ## Next, in order
 1. **Merge wave 5** one branch at a time (`just check` each). Refresh the golden once.
-2. **Adversarial review** of fae 1b (Codex astra if a reset is applied; else a Claude reviewer), then r3 playtests on the fixes.
+2. **Codex astra adversarial review** of all of wave 5 (cross-model: Claude built it), then r3 playtests on the fixes.
 3. **Ellie's decisions** D1–D3 (08 items 11–13) and the original "Start here" list.
 4. **Perf wave 2:** readiness projections, then psyche arbitration, all hash-identical.
 5. **Neighbor relief for zero-food households** (M4 acceptance 3), if group A didn't cover it.
