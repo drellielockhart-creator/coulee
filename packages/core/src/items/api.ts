@@ -395,5 +395,5 @@ export function rootOf(world: World, stack: ItemStack): ItemLocation {
 }
 
 export { campContext, campSleepActivity, campThermal } from './camping.ts';
-export { loadCheckTerms, loadFatigue, loadReport, movementDelay } from './encumbrance.ts';
+export { loadCheckTerms, loadFatigue, loadReport, movableRoomG, movementDelay } from './encumbrance.ts';
 export { type BinIron, binIron, ferrousG, isHearthGear } from './iron.ts';

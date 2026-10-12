@@ -206,7 +206,7 @@ function PlayKit() {
 
 /** The carried stack an offered action is about (`eat:12:raw`, `pack:12:9`, `sell:12`...). */
 function actionItem(a: AvailableAction): number | null {
-  const m = /^(?:eat|pack|unpack|refill|sell):(\d+)/.exec(a.id);
+  const m = /^(?:eat|pack|unpack|refill|empty|sell):(\d+)/.exec(a.id);
   return m ? Number(m[1]) : null;
 }
 

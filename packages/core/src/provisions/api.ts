@@ -22,6 +22,7 @@ import {
   supplyUnits,
 } from '../items/api.ts';
 import { fitsInContainer } from '../items/containers.ts';
+import { loadReport, MOVE_LIMIT_PCT, movableRoomG } from '../items/encumbrance.ts';
 import { canAct, drink, needValue, rousedBy } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { inheritMoneyLedger } from '../social/api.ts';
@@ -382,18 +383,25 @@ export function refillQuote(
   actorId: ActorId,
   itemId: ItemId,
   ml?: number,
+  index?: InventoryIndex,
 ): number | null {
-  const check = refillCheck(world, content, actorId, itemId, ml);
+  const check = refillCheck(world, content, actorId, itemId, ml, index);
   return 'ml' in check ? check.ml : null;
 }
-/** Filling a vessel: the millilitres it would take, or the plain reason it cannot be filled here. */
+/**
+ * Filling a vessel: the millilitres it would take, or the plain reason it cannot be filled here.
+ * Water weighs 1 g/ml, so a vessel in the pack is filled only as far as the carrier can still
+ * move (the 150% load limit): a fill to the brim is trimmed to that room (`shortMl` says how much
+ * was left out) and a fill with nothing to spare, or an explicit `ml` past it, is refused.
+ */
 export function refillCheck(
   world: World,
   content: ContentBundle,
   actorId: ActorId,
   itemId: ItemId,
   ml?: number,
-): { ml: number } | { reason: string } {
+  index?: InventoryIndex,
+): { ml: number; shortMl?: number } | { reason: string } {
   const actor = world.actors[actorId],
     stack = world.items.stacks[itemId];
   if (!actor?.alive || !stack || !accessibleStack(world, actorId, stack))
@@ -418,9 +426,23 @@ export function refillCheck(
       reason: `No water to draw here${home ? ' (the household water is used up)' : ''}: fill at a spring, creek or ford${near ? `; the nearest is ${world.places[near.placeId]?.name}, ${near.minutes} min on foot` : ''}, or at your lodgings`,
     };
   }
+  // Water in the pack is weight on the carrier's back: never fill past the point of being able to walk.
+  let fill = wanted;
+  const root = rootOf(world, stack);
+  if (root.kind === 'actor' && root.actorId === actorId) {
+    const room = movableRoomG(world, content, actorId, index);
+    if (ml !== undefined ? wanted > room : room <= 0) {
+      const load = loadReport(world, content, actorId, index);
+      const after = Math.floor(((load.weightG + wanted) * 100) / Math.max(1, load.capacityG));
+      return {
+        reason: `Too heavy: ${wanted} ml of water would put your load at ${after}% of what you can carry (now ${load.loadPct}%, ${load.band.label}); over ${MOVE_LIMIT_PCT}% you cannot walk. ${room > 0 ? `You can take on ${room} ml more` : 'Drink some, empty a vessel or lighten your pack first'}`,
+      };
+    }
+    fill = Math.min(wanted, room);
+  }
   const parent = stack.location.kind === 'container' ? world.items.stacks[stack.location.itemId] : undefined;
   if (parent) {
-    const filled = { ...stack, waterMl: stack.waterMl + wanted };
+    const filled = { ...stack, waterMl: stack.waterMl + fill };
     const projected: World = {
       ...world,
       items: { ...world.items, stacks: { ...world.items.stacks, [itemId]: filled } },
@@ -428,29 +450,68 @@ export function refillCheck(
     const fit = fitsInContainer(projected, content, filled, filled.qty, parent);
     if (!fit.ok) return { reason: `Filled, it would not fit: ${fit.reason ?? 'no room'}` };
   }
-  return { ml: wanted };
+  return fill < wanted ? { ml: fill, shortMl: wanted - fill } : { ml: fill };
 }
-export function refillWater(world: World, ctx: SimContext, actorId: ActorId, itemId: ItemId, ml?: number): boolean {
-  const wanted = refillQuote(world, ctx.content, actorId, itemId, ml),
+export function refillWater(
+  world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+  itemId: ItemId,
+  ml?: number,
+  index?: InventoryIndex,
+): boolean {
+  const check = refillCheck(world, ctx.content, actorId, itemId, ml, index),
     actor = world.actors[actorId],
     stack = world.items.stacks[itemId];
-  if (wanted === null || !actor || !stack) return false;
+  if (!('ml' in check) || !actor || !stack) return false;
+  const filled = check.ml;
   const home = homeWaterHolder(world, actorId),
     source = isWaterSource(world, ctx.content, actor.placeId);
   const capacity = ctx.content.items[stack.defId]?.container?.liquid_ml ?? 0;
   const before = stack.waterMl;
-  stack.waterMl += wanted;
-  if (!source && home) drawWater(world, ctx.content, home, wanted);
+  stack.waterMl += filled;
+  if (!source && home) drawWater(world, ctx.content, home, filled);
   ctx.emit({
     kind: 'provisions.refilled',
-    data: { actorId, itemId, ml: wanted },
+    data: { actorId, itemId, ml: filled, ...(check.shortMl ? { shortMl: check.shortMl } : {}) },
     roles: [{ actor: actorId, role: 'agent' }],
     visibility: 'private',
     explain: mealExplain('Refill water vessel', [actorId], stack.waterMl, [
       term('water', 'Previous stored ml', before),
-      term('water', 'Water drawn ml', wanted),
+      term('water', 'Water drawn ml', filled),
       term('item', 'Vessel capacity ml', capacity),
+      ...(check.shortMl ? [term('load', 'Left out at the load limit ml', check.shortMl)] : []),
     ]),
+  });
+  return true;
+}
+/** Pouring a vessel out: the millilitres it holds, or the plain reason there is nothing to pour. */
+export function emptyCheck(
+  world: World,
+  content: ContentBundle,
+  actorId: ActorId,
+  itemId: ItemId,
+): { ml: number } | { reason: string } {
+  const actor = world.actors[actorId],
+    stack = world.items.stacks[itemId];
+  if (!actor?.alive || !stack || !accessibleStack(world, actorId, stack))
+    return { reason: 'That vessel is not in your pack or pantry here' };
+  const name = content.items[stack.defId]?.name ?? stack.defId;
+  if ((content.items[stack.defId]?.container?.liquid_ml ?? 0) <= 0) return { reason: `${name} does not hold water` };
+  return (stack.waterMl ?? 0) > 0 ? { ml: stack.waterMl } : { reason: `${name} is already empty` };
+}
+/** Pour a vessel's water out on the ground (an explicit way to lighten a pack that automatic filling loaded). */
+export function emptyVessel(world: World, ctx: SimContext, actorId: ActorId, itemId: ItemId): boolean {
+  const check = emptyCheck(world, ctx.content, actorId, itemId),
+    stack = world.items.stacks[itemId];
+  if (!('ml' in check) || !stack || !canAct(world, actorId)) return false;
+  stack.waterMl = 0;
+  ctx.emit({
+    kind: 'provisions.emptied',
+    data: { actorId, itemId, ml: check.ml },
+    roles: [{ actor: actorId, role: 'agent' }],
+    visibility: 'private',
+    explain: mealExplain('Pour out water vessel', [actorId], 0, [term('water', 'Poured out ml', check.ml)]),
   });
   return true;
 }
@@ -518,7 +579,7 @@ export function waterHour(world: World, ctx: SimContext): void {
     if (isWaterSource(world, ctx.content, actor.placeId))
       for (const { stack } of stacksDeep(world, carriedBy(actor.id), index))
         if ((ctx.content.items[stack.defId]?.container?.liquid_ml ?? 0) > stack.waterMl)
-          refillWater(world, ctx, actor.id, stack.id);
+          refillWater(world, ctx, actor.id, stack.id, undefined, index);
   }
 }
 

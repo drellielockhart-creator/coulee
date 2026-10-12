@@ -167,12 +167,21 @@ export function survivalWarnings(world: World, content: ContentBundle, actorId: 
     );
     if (value > 300 || (ledger.delta >= 0 && value > 0)) continue;
     const forecast = collapseForecast(world, content, actorId, rule, value, ledger.delta);
+    // At this rate the need never reaches the rule's threshold (or never long enough for a save).
+    if (!forecast.reachable) continue;
     const need = content.needs[rule.need]?.name.toLowerCase() ?? rule.need;
     const stages = [
       ...(forecast.toZero > 0
         ? [`${need} runs out in about ${span(forecast.toZero)} at the current rate (${ledger.delta}/h)`]
         : [`${need} is spent`]),
-      ...(forecast.graceLeft > 0 ? [`then ${span(forecast.graceLeft)} before the first Fortitude save`] : []),
+      ...(forecast.carried > 0
+        ? [`${span(forecast.carried)} of earlier ${rule.name} still count${forecast.carried === 1 ? 's' : ''}`]
+        : []),
+      forecast.graceLeft > 0
+        ? `then ${span(forecast.graceLeft)} before the first Fortitude save`
+        : forecast.firstSaveHours < forecast.toZero
+          ? `the first Fortitude save comes in about ${span(forecast.firstSaveHours)}`
+          : 'the first Fortitude save is rolled in that same hour',
       `a save (DC ${rule.dc}, +1 each time) every ${rule.check_hours} hours; each failure costs ${rule.damage} of your ${forecast.vigor} Vigor`,
     ];
     warnings.push(
@@ -187,11 +196,50 @@ function span(hours: number): string {
   return hours < 48 ? `${hours} hour${hours === 1 ? '' : 's'}` : `${Math.round((hours * 10) / 24) / 10} days`;
 }
 
+/** The hour (counted from now) of the first Fortitude save, and the counter state around it. */
+interface SavePlan {
+  /** Steps from now: the save is rolled by the step that brings the clock to now + step hours. */
+  step: number;
+  /** The deprivation counter when that save is rolled. */
+  hours: number;
+  /** The counter as the deprivation resumes (earlier exposure that recovery has not yet removed). */
+  carried: number;
+}
+
 /**
- * When deprivation would drop Vigor to zero, from the live rate, the rule's grace and cadence, and
- * the real odds of each Fortitude save (d20 + Con against a DC that rises by one per check; a
- * natural 1 fails and a 20 succeeds). Median: the hour by which collapse is more likely than not.
- * Vigor spent by other deprivations is included; recovery while relieved is not.
+ * Replays the sim's own hourly deprivation counter (needs/survival.ts survivalHour) at a constant
+ * need rate: the counter climbs an hour at a time while the rule is active, is kept (not reset)
+ * while the need sits between empty and the recovery threshold, and shrinks by `recover_hours`
+ * an hour once the need is back above that threshold. Null when no save is ever rolled.
+ */
+function planFirstSave(
+  rule: NonNullable<ContentBundle['survival_rules'][string]>,
+  value: number,
+  delta: number,
+  hours0: number,
+  heat: boolean,
+): SavePlan | null {
+  let hours = hours0;
+  let carried = -1;
+  for (let step = 1; step <= 5000; step++) {
+    const v = Math.max(0, Math.min(1000, value + step * delta));
+    const active = heat && (rule.heat_above_f === undefined ? v === 0 : v < rule.recovery_above);
+    const safe = !heat || v >= rule.recovery_above;
+    if (active && carried < 0) carried = hours;
+    hours = active ? hours + 1 : safe ? Math.max(0, hours - rule.recover_hours) : hours;
+    if (active && hours >= rule.grace_hours && (hours - rule.grace_hours) % rule.check_hours === 0)
+      return { step, hours, carried };
+  }
+  return null;
+}
+
+/**
+ * When deprivation would drop Vigor to zero, from the live rate, the deprivation already
+ * accumulated (kept until the need climbs back over the rule's recovery threshold), the rule's
+ * grace and cadence, and the real odds of each Fortitude save (d20 + Con against a DC that rises
+ * by one per check; a natural 1 fails and a 20 succeeds). Median: the hour by which collapse is
+ * more likely than not. Vigor spent by other deprivations is included; recovery while relieved
+ * is not. `reachable` is false when, at this rate, no save is ever rolled.
  */
 export function collapseForecast(
   world: World,
@@ -200,21 +248,42 @@ export function collapseForecast(
   rule: NonNullable<ContentBundle['survival_rules'][string]>,
   value: number,
   delta: number,
-): { toZero: number; graceLeft: number; vigor: number; medianHours: number; soonestHours: number } {
+): {
+  toZero: number;
+  graceLeft: number;
+  vigor: number;
+  medianHours: number;
+  soonestHours: number;
+  reachable: boolean;
+  /** Hours from now to the first save. */
+  firstSaveHours: number;
+  /** Earlier deprivation (hours) still on the counter when the deprivation resumes. */
+  carried: number;
+} {
   const actor = world.actors[actorId];
   const s = world.needs.byActor[actorId]?.survival;
   const toZero = value === 0 ? 0 : Math.ceil(value / Math.max(1, -delta));
-  const accrued = value === 0 ? (s?.hours[rule.id] ?? 0) : 0;
   const vigor = s?.vigor ?? maxVigor(world, content, actorId);
   const mod = abilityMod(actor?.sheet.abilities.con ?? 10);
-  const graceLeft = Math.max(0, rule.grace_hours - accrued);
-  // Hours from now to check k (k counts checks already made at this deprivation).
-  const made = accrued >= rule.grace_hours ? Math.floor((accrued - rule.grace_hours) / rule.check_hours) + 1 : 0;
-  const firstAt =
-    toZero +
-    (accrued < rule.grace_hours
-      ? rule.grace_hours - accrued
-      : rule.check_hours - ((accrued - rule.grace_hours) % rule.check_hours));
+  const air = ambientTemperatureF(calendarAt(world.time));
+  const heat =
+    rule.heat_above_f === undefined ||
+    ((actor ? world.needs.placeTempF?.[actor.placeId] : undefined) ?? air) >= rule.heat_above_f;
+  const plan = planFirstSave(rule, value, delta, s?.hours[rule.id] ?? 0, heat);
+  if (!plan)
+    return {
+      toZero,
+      graceLeft: 0,
+      vigor,
+      medianHours: 0,
+      soonestHours: 0,
+      reachable: false,
+      firstSaveHours: 0,
+      carried: 0,
+    };
+  const firstAt = plan.step;
+  // k counts the checks already made at this deprivation (the DC rises by one per check).
+  const made = Math.floor((plan.hours - rule.grace_hours) / rule.check_hours);
   const failures = Math.max(1, Math.ceil(vigor / Math.max(1, rule.damage)));
   // dist[f] = probability (per 1e6) of f failures so far; integer arithmetic keeps it exact enough.
   let dist = [1_000_000];
@@ -236,9 +305,12 @@ export function collapseForecast(
   }
   return {
     toZero,
-    graceLeft,
+    graceLeft: Math.max(0, firstAt - toZero),
     vigor,
     medianHours: firstAt + Math.max(0, median) * rule.check_hours,
     soonestHours: firstAt + (failures - 1) * rule.check_hours,
+    reachable: true,
+    firstSaveHours: firstAt,
+    carried: Math.max(0, plan.carried),
   };
 }

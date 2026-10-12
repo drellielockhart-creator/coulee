@@ -145,7 +145,8 @@ it('survival forecasts give the stages from the live rate and the real save odds
   const rule = required(sim.content.survival_rules.starvation);
   const f = needs.collapseForecast(sim.world, sim.content, s.playerId, rule, 271, -30);
   expect(f.toZero).toBe(10);
-  expect(f.soonestHours).toBe(10 + 120 + (f.vigor - 1) * 24);
+  // Hunger is spent in the 10th hour and counts that hour: the 120th hour at zero rolls the first save.
+  expect(f.soonestHours).toBe(10 + 119 + (f.vigor - 1) * 24);
   expect(f.medianHours).toBeGreaterThanOrEqual(f.soonestHours);
   expect(f.medianHours).toBeLessThan(f.soonestHours + 6 * 24);
 });

@@ -212,13 +212,15 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
           });
         }
   }
-  if (provisions.drinkingWater(w, c, pc) >= 500)
+  // A drink is up to 500 ml of whatever water is to hand: the last 200 ml in a canteen is still a drink.
+  const drinkMl = Math.min(500, provisions.drinkingWater(w, c, pc));
+  if (drinkMl > 0)
     add(
       'drink',
       provisions.isWaterSource(w, c, a.placeId)
-        ? `Drink from ${w.places[a.placeId]?.name ?? 'the water'} (raw water, 500 ml)`
-        : 'Drink water (500 ml)',
-      { kind: 'provisions.drink', actorId: pc, data: { ml: 500 } },
+        ? `Drink from ${w.places[a.placeId]?.name ?? 'the water'} (raw water, ${drinkMl} ml)`
+        : `Drink water (${drinkMl} ml${drinkMl < 500 ? ', all that is left' : ''})`,
+      { kind: 'provisions.drink', actorId: pc, data: { ml: drinkMl } },
     );
   const service = provisions.serviceAt(w, c, a.placeId);
   if (
@@ -247,10 +249,17 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     }
   const accessible = Object.values(w.items.stacks).filter((s) => provisions.accessibleStack(w, pc, s));
   for (const s of accessible) {
-    const fill = provisions.refillQuote(w, c, pc, s.id);
-    if (fill !== null)
-      add(`refill:${s.id}`, `Fill ${c.items[s.defId]?.name} (${fill} ml)`, {
-        kind: 'provisions.refill',
+    const fill = provisions.refillCheck(w, c, pc, s.id);
+    if ('ml' in fill)
+      add(
+        `refill:${s.id}`,
+        `Fill ${c.items[s.defId]?.name} (${fill.ml} ml${fill.shortMl ? `; ${fill.shortMl} ml more would be too heavy to walk with` : ''})`,
+        { kind: 'provisions.refill', actorId: pc, data: { itemId: s.id } },
+      );
+    const pour = provisions.emptyCheck(w, c, pc, s.id);
+    if ('ml' in pour)
+      add(`empty:${s.id}`, `Empty ${c.items[s.defId]?.name} (pour out ${pour.ml} ml)`, {
+        kind: 'provisions.empty',
         actorId: pc,
         data: { itemId: s.id },
       });
@@ -320,7 +329,7 @@ function loadRefusal(w: Sim['world'], c: Sim['content'], pc: ActorId, command: C
     command.data.urge.placeId !== actor.placeId &&
     load.band.speedPct === 0
   )
-    return `You cannot move: your load is ${load.loadPct}% of what you can carry (over ${items.MOVE_LIMIT_PCT}%). Drop, sell or unpack something first`;
+    return `You cannot move: your load is ${load.loadPct}% of what you can carry (over ${items.MOVE_LIMIT_PCT}%). Drop, sell or unpack something first${Object.values(w.items.stacks).some((s) => (s.waterMl ?? 0) > 0 && provisions.accessibleStack(w, pc, s)) ? ', or empty a vessel' : ''}`;
   if (command.kind !== 'provisions.buy') return null;
   // Carried goods must leave her able to walk (core caps the purchase the same way): say so.
   const d = command.data;
@@ -407,6 +416,10 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   }
   if (command.kind === 'provisions.refill') {
     const check = provisions.refillCheck(w, c, pc, command.data.itemId, command.data.ml);
+    return 'ml' in check ? null : check.reason;
+  }
+  if (command.kind === 'provisions.empty') {
+    const check = provisions.emptyCheck(w, c, pc, command.data.itemId);
     return 'ml' in check ? null : check.reason;
   }
   if (command.kind === 'provisions.drink')

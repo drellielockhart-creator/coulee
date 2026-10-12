@@ -312,6 +312,8 @@ describe('play panels (ADR 0002 parity: the session’s own actions and words)',
     expect(groupOf({ id: 'activity:sleep', label: '', command: {} as never }, catalog)).toBe('rest');
     expect(groupOf({ id: 'buy:flour', label: '', command: {} as never }, catalog)).toBe('trade');
     expect(groupOf({ id: 'eat:3:raw', label: '', command: {} as never }, catalog)).toBe('eat');
+    expect(groupOf({ id: 'refill:3', label: '', command: {} as never }, catalog)).toBe('eat');
+    expect(groupOf({ id: 'empty:3', label: '', command: {} as never }, catalog)).toBe('eat');
     expect(groupOf({ id: 'investigate:4:0:dawn', label: '', command: {} as never }, catalog)).toBe('signs');
     expect(groupOf({ id: 'retire', label: '', command: {} as never }, catalog)).toBe('life');
   });

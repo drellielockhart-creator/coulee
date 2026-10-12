@@ -10,7 +10,17 @@ import { authorizeAct, chosenUrge, standingOrders } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { autonomousProvisioning } from './agency.ts';
-import { boardMeal, drinkWater, refillCheck, refillWater, sell, storeOpen, waterHour } from './api.ts';
+import {
+  boardMeal,
+  drinkWater,
+  emptyCheck,
+  emptyVessel,
+  refillCheck,
+  refillWater,
+  sell,
+  storeOpen,
+  waterHour,
+} from './api.ts';
 import { householdDay, purchase, shoppingHour } from './economy.ts';
 import { employmentHour } from './employment.ts';
 import { devicesHour, storageHour } from './environment.ts';
@@ -81,6 +91,12 @@ function provisionsHour(world: World, ctx: SimContext): void {
         if (!refillWater(world, ctx, actor.id, cmd.data.itemId, cmd.data.ml)) {
           const check = refillCheck(world, ctx.content, actor.id, cmd.data.itemId, cmd.data.ml);
           reject('reason' in check ? check.reason : 'Cannot fill that vessel here');
+        }
+        break;
+      case 'provisions.empty':
+        if (!emptyVessel(world, ctx, actor.id, cmd.data.itemId)) {
+          const check = emptyCheck(world, ctx.content, actor.id, cmd.data.itemId);
+          reject('reason' in check ? check.reason : 'Cannot pour that out');
         }
         break;
       case 'provisions.drink':
