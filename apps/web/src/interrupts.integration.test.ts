@@ -1,10 +1,11 @@
 /**
  * ADR 0002 §3 parity, with real content: the web worker's auto-pause and a headless `wait`
- * stop on the same events. Both run the same seed-42 Iron Ford session; the worker steps hour by
- * hour, headless waits an hour at a time, and the pausing alerts must match one for one.
+ * stop on the same events. Both run the same seed-42 Iron Ford session; the worker lets the
+ * clock run hour by hour, headless waits an hour at a time, and the pausing alerts must match
+ * one for one.
  */
 import { loadContentOrThrow } from '@coulee/content';
-import { PlaySession, type SessionSpec, sessionContent } from '@coulee/play';
+import { PlaySession, type SessionSpec } from '@coulee/play';
 import { afterEach, expect, it, vi } from 'vitest';
 import type { FromWorker, ToWorker } from './protocol.ts';
 
@@ -23,8 +24,7 @@ it('pocket auto-pause and headless wait stop on the same perceived events', asyn
     for (const i of r.interrupts) headless.push(`${r.observation.time.t} ${i.category} ${i.reason} ${i.eventId ?? ''}`);
   }
 
-  // Worker: the real module and real core, fed the same session content.
-  const { content, scenarioId } = sessionContent(base, spec);
+  // Worker: the real module, real core and its own PlaySession, fed the same base content.
   const messages: FromWorker[] = [];
   const self = {
     onmessage: null as ((e: { data: ToWorker }) => Promise<void>) | null,
@@ -33,12 +33,12 @@ it('pocket auto-pause and headless wait stop on the same perceived events', asyn
   vi.stubGlobal('self', self);
   vi.stubGlobal(
     'fetch',
-    vi.fn(async () => ({ ok: true, json: async () => content })),
+    vi.fn(async () => ({ ok: true, json: async () => base })),
   );
   vi.resetModules();
   await import('./sim.worker.ts');
   const send = async (data: ToWorker) => self.onmessage?.({ data });
-  await send({ type: 'init', scenarioId, seed: spec.seed, withPlayer: true });
+  await send({ type: 'init', scenarioId: 'iron_ford', seed: spec.seed, withPlayer: true });
   const pocket: string[] = [];
   for (let h = 0; h < HOURS; h++) {
     const before = messages.length;

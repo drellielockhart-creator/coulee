@@ -49,7 +49,7 @@ describe('ADR 0002 command parity', () => {
       data: { householdId: null, rationPct: 75 },
     });
   });
-  it('only the worker imports simulation runtime code', () => {
+  it('only the worker imports simulation runtime code (core, content or the play session)', () => {
     const root = new URL('.', import.meta.url).pathname;
     const files = (dir: string): string[] =>
       readdirSync(dir, { withFileTypes: true }).flatMap((f) =>
@@ -62,7 +62,7 @@ describe('ADR 0002 command parity', () => {
     for (const file of files(root)) {
       const source = readFileSync(file, 'utf8');
       const imports = source.matchAll(
-        /import\s+(type\s+)?(?:\{[\s\S]*?\}|[\w*][^;\n]*)\s+from\s+['"]@coulee\/(?:core|content)[^'"]*['"]/g,
+        /import\s+(type\s+)?(?:\{[\s\S]*?\}|[\w*][^;\n]*)\s+from\s+['"]@coulee\/(?:core|content|play)[^'"]*['"]/g,
       );
       for (const imported of imports) expect(imported[1], `runtime rules import in ${file}`).toBe('type ');
       expect(source, `dynamic rules import in ${file}`).not.toMatch(/(?:import|require)\s*\(\s*['"]@coulee\//);

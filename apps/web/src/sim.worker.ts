@@ -1,49 +1,75 @@
 /// <reference lib="webworker" />
 /**
- * Sim worker: loads the content bundle + scenario, steps the sim, posts view-model
- * snapshots, and answers pure queries from core APIs (11 §1.7). OWNER: module:web.
+ * Sim worker: runs a headless `PlaySession` (ADR 0002) for the web player. OWNER: module:web.
  *
- * This is the ONLY web file that imports core at runtime. The UI thread imports types only,
- * so it cannot recompute a rule even by accident (parity.test.ts checks this).
+ * This is the ONLY web file that imports core or @coulee/play at runtime. The UI thread imports
+ * types only, so it cannot recompute a rule even by accident (parity.test.ts checks this).
  *
- * Auto-pause uses the shared interrupt policy from @coulee/play (ADR 0002 §3): the same
- * perception filter and alert classification that stop a headless `wait`, so the pocket UI and
- * headless play stop on the same events.
+ * UI parity (ADR 0002 §1): every player order arrives as a Command (or a headless wait phrase
+ * parsed by @coulee/play's own parser) and goes through `PlaySession.act`, which validates it
+ * against the session's available actions. The running clock is `advance(60)` per game-hour.
+ * So the session's replay log is the web game, and `coulee play --replay` reproduces it hash for
+ * hash. Auto-pause is the session's own interrupt policy (ADR 0002 §3), the same one that stops a
+ * headless `wait`.
  */
 
 import bundleUrl from '@coulee/content/bundle.json?url';
 import type { ContentBundle } from '@coulee/content/schema';
 import {
   type Command,
-  createSim,
   DEFAULT_VIEW_OPTIONS,
-  type Event,
-  eventsSince,
   provisions,
-  type Sim,
-  step,
+  timeView,
   toViewModel,
   type ViewModel,
   type ViewOptions,
 } from '@coulee/core';
-import { alertForEvent, type Interrupt, perceivedEvents, provisionsAlert } from '@coulee/play';
-import { type Alert, type FromWorker, SPEEDS, type Speed, type ToWorker, type VmPatch } from './protocol.ts';
+import {
+  type ActResult,
+  foodLedger,
+  type ObservationMode,
+  PlaySession,
+  parseText,
+  renderDetail,
+  renderInterrupts,
+  sessionSimOf,
+  storefront,
+  tradePreview,
+} from '@coulee/play';
+import {
+  type ActOutcome,
+  type Alert,
+  type Digest,
+  type FromWorker,
+  type PlayObservation,
+  type QueryResult,
+  SPEEDS,
+  type Speed,
+  type ToWorker,
+  type VmPatch,
+} from './protocol.ts';
 
 declare const self: DedicatedWorkerGlobalScope;
 
 let content: ContentBundle | null = null;
-let sim: Sim | null = null;
+let session: PlaySession | null = null;
 let speed: Speed = 'paused';
-let pending: Command[] = [];
 /** Explains are on: the Mind tab shows the ego's arbitration (gated by perspective in core). */
 let viewOptions: ViewOptions = { ...DEFAULT_VIEW_OPTIONS, includeExplain: true };
+/** Fair play by default; God view (Settings) switches the observation too (ADR 0002 §2). */
+let mode: ObservationMode = 'fair';
 let timer: ReturnType<typeof setInterval> | null = null;
 /** Fraction of the current game-hour already elapsed at the chosen speed (display + pacing). */
 let accumulator = 0;
 let last = 0;
 let lastProgress = 0;
-/** The PC's own readiness after the last step: the provisions alert compares across a step. */
-let lastReadiness: provisions.Readiness | null = null;
+let digest: Digest = emptyDigest(0);
+let lastOutcome: ActOutcome | null = null;
+let observation: PlayObservation | null = null;
+/** Accepted entries in the session's replay log (counted here: `commandLog` clones the whole log). */
+let steps = 0;
+/** Money lines seen this sitting (the Ledger's money page). */
+let money: Digest['money'] = [];
 
 /** Never block the worker for more than this many game-hours per tick (Ultra on a slow phone). */
 const MAX_HOURS_PER_TICK = 6;
@@ -122,104 +148,192 @@ export function snapshotPayload(vm: ViewModel): { vm: ViewModel } | { patch: VmP
 }
 
 function snapshot(stepMs: number, stepped: number, alerts: Alert[] = []): void {
-  if (!sim || !content) return;
+  if (!session) return;
+  const sim = sessionSimOf(session);
   post({
     type: 'snapshot',
-    ...snapshotPayload(toViewModel(sim.world, content, viewOptions)),
+    ...snapshotPayload(toViewModel(sim.world, sim.content, viewOptions)),
     hash: null,
     stepMs,
-    pending: pending.length,
+    pending: 0,
     stepped,
     ...(alerts.length ? { alerts } : {}),
   });
 }
 
 // ---------------------------------------------------------------------------------------
-// Stepping + the shared auto-pause policy
+// The play session: observation, "since last look", outcomes
 // ---------------------------------------------------------------------------------------
 
-function nameOf(id: number): string {
-  const a = sim?.world.actors[id as never];
-  return a ? `${a.name.given} ${a.name.family}`.trim() : 'Someone';
+function emptyDigest(t: number): Digest {
+  return { from: t, to: t, elapsed: 0, money: [], needs: [], events: [], said: [], skipped: 0, stops: [] };
 }
 
-/** Display copy for an alert (words only; the policy decided already). */
-function alertText(it: Interrupt, e: Event | null): string {
-  if (!e || !sim || !content) return it.reason;
-  const pc = sim.world.meta.playerId;
-  switch (e.kind) {
-    case 'social.interaction':
-      return e.data.targetId === pc
-        ? `${nameOf(e.data.initiatorId)} turns to you: ${e.data.label}`
-        : `${nameOf(e.data.initiatorId)}: ${e.data.label}`;
-    case 'needs.band_changed':
-      return `${content.needs[e.data.needId]?.name ?? e.data.needId}: now ${e.data.to}`;
-    case 'activity.moved':
-      return e.data.actorId === pc
-        ? `You arrive at ${sim.world.places[e.data.to]?.name ?? 'your destination'}`
-        : `${nameOf(e.data.actorId)} arrives at ${sim.world.places[e.data.to]?.name ?? 'the place'}`;
-    default:
-      // The shared policy already put it in words (packages/play describe.ts).
-      return it.reason;
-  }
+function strip(o: ActResult['observation']): PlayObservation {
+  const {
+    truth: _truth,
+    beliefGraph: _graph,
+    ...fair
+  } = o as ActResult['observation'] & {
+    truth?: unknown;
+    beliefGraph?: unknown;
+  };
+  return fair;
 }
 
-/** Alerts the PC perceives in the step just taken (fair play: never off-screen truth). */
-function stepAlerts(lastId: number, priorPlace: number | undefined): Alert[] {
-  if (!sim || !content) return [];
-  const w = sim.world;
-  const pc = w.meta.playerId;
-  if (pc === null) return [];
-  const out: Alert[] = [];
-  for (const e of perceivedEvents(eventsSince(w.log, lastId), pc, priorPlace as never)) {
-    const it = alertForEvent(w, content, pc, e);
-    if (it.pause) out.push({ ...it, text: alertText(it, e), t: w.time });
+/** Fold one time-advancing result into the digest (what the PC perceived, nothing more: P1). */
+function absorb(r: ActResult, at: number): void {
+  const o = r.observation;
+  digest.to = o.time.t;
+  digest.elapsed += r.elapsedMinutes;
+  digest.money.push(...o.changes.money);
+  money = [...money, ...o.changes.money].slice(-80);
+  digest.skipped += o.changes.skipped;
+  for (const line of o.changes.needs) {
+    const name = line.split(':')[0] ?? line;
+    const prior = digest.needs.findIndex((n) => n.startsWith(`${name}:`));
+    if (prior < 0) digest.needs.push(line);
+    else {
+      // Keep where it started and where it ended: "Hunger: steady → hungry".
+      const from = (digest.needs[prior] ?? '').split('→')[0]?.trim() ?? `${name}:`;
+      const to = line.split('→')[1]?.trim() ?? '';
+      digest.needs[prior] = `${from} → ${to}`;
+    }
   }
-  const after = provisions.readinessOf(w, content, { actorId: pc }, w.time);
-  if (lastReadiness) {
-    const food = provisionsAlert(
-      lastReadiness.daysOfFoodTenths,
-      after.daysOfFoodTenths,
-      lastReadiness.daysOfFuelTenths,
-      after.daysOfFuelTenths,
-    );
-    if (food) out.push({ ...food, text: food.reason, t: w.time });
+  const seen = new Set(digest.events.map((e) => e.id));
+  for (const e of o.events)
+    if (!e.routine && e.t >= at && !seen.has(e.id))
+      digest.events.push({ id: e.id, t: e.t, summary: e.summary, explain: e.explain });
+  const said = new Set(digest.said.map((e) => e.id));
+  for (const e of o.said ?? []) if (!said.has(e.id)) digest.said.push(e);
+  digest.stops.push(...renderInterrupts(r));
+  if (digest.events.length > 40) digest.events = digest.events.slice(-40);
+  if (digest.said.length > 12) digest.said = digest.said.slice(-12);
+}
+
+function outcomeOf(r: ActResult, label: string): ActOutcome {
+  return {
+    ok: r.ok,
+    ...(r.reason ? { reason: r.reason } : {}),
+    ...(r.warning ? { warning: r.warning } : {}),
+    ...(r.notice ? { notice: r.notice } : {}),
+    ...(r.stopped ? { stopped: r.stopped } : {}),
+    elapsedMinutes: r.elapsedMinutes,
+    interrupts: r.interrupts,
+    ...(r.detail === undefined ? {} : { detail: r.detail, text: renderDetail(r.detail) }),
+    label,
+    t: r.observation.time.t,
+  };
+}
+
+function postPlay(): void {
+  if (!session || !observation) return;
+  post({
+    type: 'play',
+    play: {
+      observation,
+      digest,
+      last: lastOutcome,
+      mode,
+      money,
+      steps,
+    },
+  });
+}
+
+/** Alerts for the dispatch strip: the session's interrupts, in its own words. */
+function alertsOf(r: ActResult): Alert[] {
+  const t = r.observation.time.t;
+  const out: Alert[] = r.interrupts.map((i) => ({
+    category: i.category,
+    reason: i.reason,
+    text: i.reason,
+    score: i.score,
+    ...(i.eventId === undefined ? {} : { eventId: i.eventId }),
+    t,
+  }));
+  if (r.stopped) {
+    const line = renderInterrupts(r)[0];
+    if (line) out.unshift({ category: 'stopped', reason: 'wait stopped', text: line, score: 700, t });
   }
-  lastReadiness = after;
   return out;
 }
 
+/** Stop the clock and say so: the UI's chosen speed must follow the worker's (11 §1.6 `❚❚!`). */
+function pauseSelf(): void {
+  speed = 'paused';
+  accumulator = 0;
+  post({ type: 'paused' });
+}
+
+/** The PC's life ended: only reading remains, and the clock stops for good. */
+function ended(): boolean {
+  return observation?.ending !== null && observation?.ending !== undefined;
+}
+
 /**
- * Step up to `n` hours. When `stopOnAlert`, the first hour that raises a pausing alert ends the
- * run and the worker pauses itself, so Ultra never overshoots what the PC would want to see.
+ * A player order through the session. Time-taking orders start a fresh digest ("since your
+ * last order"); queries take no time and leave it alone.
  */
-function stepHours(n: number, stopOnAlert: boolean): void {
-  if (!sim) return;
+function order(command: Command | string, label: string, id?: number): void {
+  if (!session) return;
+  const at = sessionSimOf(session).world.time;
+  const r = session.act(command, mode);
+  observation = strip(r.observation);
+  if (r.ok) steps++;
+  if (r.ok && r.elapsedMinutes > 0) {
+    digest = emptyDigest(at);
+    absorb(r, at);
+  }
+  const outcome = outcomeOf(r, label);
+  // A quiet read (journal, look) leaves the last order's outcome on show; refusals always show.
+  const quiet = r.ok && r.elapsedMinutes === 0 && (r.detail === undefined || Array.isArray(r.detail));
+  if (!quiet) lastOutcome = outcome;
+  // Her own order's arrival is already its outcome; a wait's stop, danger or a summons still
+  // needs a dispatch. Any interrupt pauses the clock either way (the shared policy, 11 §1.6).
+  const isWait = typeof command !== 'string' && command.kind === 'activity.wait';
+  const alerts = r.ok ? alertsOf(r).filter((a) => isWait || a.category !== 'arrival') : [];
+  if (r.interrupts.length || ended()) pauseSelf();
+  // An order that took its hour starts the next hour's countdown afresh; a read leaves it be.
+  else if (r.elapsedMinutes > 0) accumulator = 0;
+  if (id !== undefined) post({ type: 'acted', id, outcome });
+  // Reads and refusals leave the world as it was: no new view model to send.
+  if (r.elapsedMinutes > 0) snapshot(0, Math.ceil(r.elapsedMinutes / 60), alerts);
+  postPlay();
+}
+
+/**
+ * Let the clock run up to `n` hours, each an `advance(60)` (a logged one-hour wait). When
+ * `stopOnAlert`, the first hour that raises a pausing interrupt ends the run and the worker
+ * pauses itself, so Ultra never overshoots what the PC would want to see.
+ */
+function runHours(n: number, stopOnAlert: boolean): void {
+  if (!session || ended()) return;
   const t0 = performance.now();
   const alerts: Alert[] = [];
   let stepped = 0;
   for (let i = 0; i < n; i++) {
-    const pc = sim.world.meta.playerId;
-    const prior = pc === null ? undefined : sim.world.actors[pc]?.placeId;
-    const lastId = sim.world.log.lastId;
-    step(sim, pending);
-    pending = [];
+    const at = sessionSimOf(session).world.time;
+    const r = session.advance(60, mode);
+    observation = strip(r.observation);
+    if (r.ok) steps++;
+    absorb(r, at);
     stepped++;
-    alerts.push(...stepAlerts(lastId, prior));
-    if (stopOnAlert && alerts.length > 0) {
-      speed = 'paused';
-      accumulator = 0;
+    alerts.push(...alertsOf(r));
+    if (ended() || (stopOnAlert && alerts.length > 0)) {
+      pauseSelf();
       break;
     }
   }
   snapshot(performance.now() - t0, stepped, alerts);
+  postPlay();
 }
 
 function tick(): void {
   const now = performance.now();
   const dt = (now - last) / 1000;
   last = now;
-  // Paused keeps the partial hour: resuming continues the countdown to the next order.
+  // Paused keeps the partial hour: resuming continues the countdown to the next hour.
   if (speed === 'paused') return;
   accumulator += dt * SPEEDS[speed];
   const whole = Math.floor(accumulator);
@@ -227,12 +341,66 @@ function tick(): void {
     // The governor (11 §5.1): a slow device runs the same sim slower, never a different sim.
     const n = Math.min(whole, MAX_HOURS_PER_TICK);
     accumulator -= whole;
-    stepHours(n, true);
+    runHours(n, true);
   }
-  // stepHours may have auto-paused (TS narrowed `speed` above).
-  if (sim && (speed as Speed) !== 'paused' && now - lastProgress >= PROGRESS_MS) {
+  // runHours may have auto-paused (TS narrowed `speed` above).
+  if (session && (speed as Speed) !== 'paused' && now - lastProgress >= PROGRESS_MS) {
     lastProgress = now;
-    post({ type: 'progress', t: sim.world.time, frac: Math.min(0.999, accumulator) });
+    post({ type: 'progress', t: sessionSimOf(session).world.time, frac: Math.min(0.999, accumulator) });
+  }
+}
+
+function answer(query: Extract<ToWorker, { type: 'query' }>['query']): QueryResult | null {
+  if (!session) return null;
+  const sim = sessionSimOf(session);
+  const pc = session.playerId;
+  switch (query.kind) {
+    case 'readiness': {
+      // Another household's larder is not hers to know in fair play (P1); God view sees all.
+      const h = query.holder;
+      const mine = 'actorId' in h ? h.actorId === pc : sim.world.actors[pc]?.householdId === h.householdId;
+      return {
+        kind: 'readiness',
+        readiness:
+          mine || mode === 'god'
+            ? provisions.readinessOf(sim.world, sim.content, h, sim.world.time)
+            : {
+                kcalOnHand: 0,
+                kcalPerDay: 0,
+                daysOfFoodTenths: 0,
+                daysOfFuelTenths: null,
+                spoilsFirst: null,
+                unpreparable: [],
+                warnings: ['These provisions are not known to your character.'],
+              },
+      };
+    }
+    case 'storefront':
+      return { kind: 'storefront', storefront: storefront(sim, pc) };
+    case 'trade_preview':
+      return { kind: 'trade_preview', preview: tradePreview(sim, pc, query.order) };
+    case 'ledger': {
+      // Her own kit and household are hers to know; anyone else's only in God view (P1).
+      const holder = query.holder ?? { actorId: pc };
+      const mine =
+        'actorId' in holder ? holder.actorId === pc : sim.world.actors[pc]?.householdId === holder.householdId;
+      return {
+        kind: 'ledger',
+        ledger: mine || mode === 'god' ? foodLedger(sim.world, sim.content, pc, holder) : null,
+      };
+    }
+    case 'save': {
+      const o = observation ?? strip(session.observe(mode));
+      return {
+        kind: 'save',
+        json: session.save(),
+        stamp: timeView(sim.world.time).stamp,
+        place: o.place.name,
+        t: sim.world.time,
+      };
+    }
+    case 'log':
+      return { kind: 'log', log: session.commandLog, hash: session.hash };
   }
 }
 
@@ -242,42 +410,67 @@ self.onmessage = async (ev: MessageEvent<ToWorker>) => {
     switch (msg.type) {
       case 'init': {
         const c = await loadContent();
-        sim = createSim(c, { scenarioId: msg.scenarioId, seed: msg.seed, withPlayer: msg.withPlayer });
-        pending = [];
-        accumulator = 0;
-        fullNext = true;
-        const pc = sim.world.meta.playerId;
-        if (pc !== null) {
-          viewOptions = { ...viewOptions, perspective: pc };
-          lastReadiness = provisions.readinessOf(sim.world, c, { actorId: pc }, sim.world.time);
+        let next: PlaySession;
+        try {
+          next = msg.save
+            ? PlaySession.load(c, msg.save)
+            : PlaySession.create(c, { source: msg.scenarioId, seed: msg.seed });
+        } catch (e) {
+          // A save from another build or content: say so, and keep playing what is running.
+          const message = e instanceof Error ? e.message : String(e);
+          if (session && msg.save) {
+            post({ type: 'load_failed', message });
+            break;
+          }
+          if (!msg.save) throw e;
+          post({ type: 'load_failed', message });
+          next = PlaySession.create(c, { source: msg.scenarioId, seed: msg.seed });
         }
+        session = next;
+        pauseSelf();
+        fullNext = true;
+        const sim = sessionSimOf(session);
+        viewOptions = {
+          ...viewOptions,
+          perspective: mode === 'god' ? null : session.playerId,
+          omniscient: mode === 'god',
+        };
+        observation = strip(session.observe(mode));
+        digest = emptyDigest(sim.world.time);
+        lastOutcome = null;
+        money = [];
+        steps = session.commandLog.length - 1;
         post({
           type: 'ready',
           scenarios: Object.values(c.scenarios).map((s) => ({ id: s.id, name: s.name })),
           contentHash: c.meta.hash,
-          items: c.items,
+          items: sim.content.items,
           actions: {
-            activities: Object.values(c.activities).map((a) => ({
+            activities: Object.values(sim.content.activities).map((a) => ({
               id: a.id,
               name: a.name,
               verb: a.verb,
               at: a.at,
               venue_tags: [...a.venue_tags],
               asleep: a.asleep === true,
+              tags: [...a.tags],
+              labor: a.labor,
             })),
-            interactions: Object.values(c.interactions).map((i) => ({
+            interactions: Object.values(sim.content.interactions).map((i) => ({
               id: i.id,
               name: i.name,
               label: i.label,
               description: i.description,
+              tags: [...i.tags],
             })),
           },
         });
         snapshot(0, 0);
+        postPlay();
         break;
       }
       case 'set_speed':
-        speed = msg.speed;
+        speed = ended() ? 'paused' : msg.speed;
         if (timer === null) {
           last = performance.now();
           timer = setInterval(tick, 50);
@@ -286,28 +479,53 @@ self.onmessage = async (ev: MessageEvent<ToWorker>) => {
       case 'step':
         // A manual hour starts the next hour's countdown afresh.
         accumulator = 0;
-        stepHours(Math.max(0, Math.min(24 * 7, Math.floor(msg.hours))), false);
-        if (sim) post({ type: 'progress', t: sim.world.time, frac: 0 });
+        runHours(Math.max(0, Math.min(24 * 7, Math.floor(msg.hours))), false);
+        if (session) post({ type: 'progress', t: sessionSimOf(session).world.time, frac: 0 });
         break;
       case 'command':
-        pending.push(msg.command);
-        snapshot(0, 0);
+        order(msg.command, msg.label ?? msg.command.kind, msg.id);
         break;
-      case 'query': {
-        if (!sim || !content) break;
-        const q = msg.query;
-        if (q.kind === 'readiness') {
-          const readiness = provisions.readinessOf(sim.world, content, q.holder, sim.world.time);
-          post({ type: 'query_result', id: msg.id, result: { kind: 'readiness', readiness } });
-        }
+      case 'wait': {
+        if (!session) break;
+        // The REPL's own parser turns the phrase into the Command (ADR 0002: one grammar).
+        const parsed = parseText(msg.text, session.observe(mode));
+        if (typeof parsed === 'string') {
+          lastOutcome = {
+            ok: false,
+            reason: parsed,
+            elapsedMinutes: 0,
+            interrupts: [],
+            label: msg.label ?? msg.text,
+            t: sessionSimOf(session).world.time,
+          };
+          if (msg.id !== undefined) post({ type: 'acted', id: msg.id, outcome: lastOutcome });
+          postPlay();
+        } else order(parsed, msg.label ?? msg.text, msg.id);
         break;
       }
-      case 'set_view':
+      case 'seen':
+        if (session) digest = emptyDigest(sessionSimOf(session).world.time);
+        postPlay();
+        break;
+      case 'query': {
+        const result = answer(msg.query);
+        if (result) post({ type: 'query_result', id: msg.id, result });
+        break;
+      }
+      case 'set_view': {
         viewOptions = { ...viewOptions, ...msg.options };
+        const god = viewOptions.omniscient === true || viewOptions.perspective === null;
+        const next: ObservationMode = god ? 'god' : 'fair';
+        if (session && next !== mode) {
+          mode = next;
+          observation = strip(session.observe(mode));
+        }
         // Perspective changes who is in view: send the whole model once.
         fullNext = true;
         snapshot(0, 0);
+        postPlay();
         break;
+      }
     }
   } catch (e) {
     post({ type: 'error', message: e instanceof Error ? e.message : String(e) });

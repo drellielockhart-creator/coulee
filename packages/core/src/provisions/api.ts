@@ -48,6 +48,8 @@ import {
 import { planReadiness } from './planner.ts';
 import { agePct, SHOPPING, shoppingDays } from './rules.ts';
 
+/** The spoilage kernel the planner uses, for hosts that explain "spoils first" (P1/P8). Read-only. */
+export { minutesUntil, type SpoilFactors, shelfMinutes, spoilageFactors } from './spoilage.ts';
 /** Outdoor air temperature, °F (the weather hook; needs reads exposure from here). */
 export { airTempF, isRaining, storageTempF, tempBand } from './temperature.ts';
 

@@ -1,5 +1,5 @@
 /** Small shared components: bars, tabs, ledger rows, empty states. OWNER: module:web. */
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 
 /**
  * A band bar. Fill is redundant with the text next to it (11 §1.4: never color alone).
@@ -47,8 +47,17 @@ export function Tabs<T extends string>(props: {
   onChange: (t: T) => void;
   label: string;
 }) {
+  const strip = useRef<HTMLDivElement>(null);
+  // A strip that scrolls sideways (the Book's sections) keeps the chosen tab in sight.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when the chosen tab changes
+  useEffect(() => {
+    const el = strip.current?.querySelector<HTMLElement>('[aria-selected="true"]');
+    const box = strip.current;
+    if (el && box && box.scrollWidth > box.clientWidth)
+      box.scrollLeft = Math.max(0, el.offsetLeft - (box.clientWidth - el.offsetWidth) / 2);
+  }, [props.value]);
   return (
-    <div className="tabs" role="tablist" aria-label={props.label}>
+    <div className="tabs" role="tablist" aria-label={props.label} ref={strip}>
       {props.tabs.map((t) => (
         <button
           key={t.id}

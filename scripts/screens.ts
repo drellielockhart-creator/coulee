@@ -42,7 +42,7 @@ async function audit(page: Page, errors: string[]): Promise<void> {
     const overflows = [
       document.documentElement,
       document.body,
-      ...document.querySelectorAll<HTMLElement>('.paper, .sheet-body, .dossier .tabs, .bottom-bar'),
+      ...document.querySelectorAll<HTMLElement>('.paper, .sheet-body, .dossier .tabs, .bottom-bar, .play, .storefront'),
     ]
       .filter((el) => el.scrollWidth > el.clientWidth + 1)
       .map((el) => `${el.tagName}.${el.className}: ${el.scrollWidth}/${el.clientWidth}`);
@@ -86,11 +86,160 @@ async function closeSheet(page: Page): Promise<void> {
   if (await close.count()) await close.first().click();
 }
 
+/** Clear the map's dispatches without acting on them: OK an auto-pause, mark a digest read. */
+async function clearDispatches(page: Page): Promise<void> {
+  for (let i = 0; i < 8; i++) {
+    const done = await page.evaluate(() => {
+      const button =
+        [...document.querySelectorAll<HTMLButtonElement>('.dispatch.alert button')].find(
+          (b) => b.textContent?.trim() === 'OK',
+        ) ??
+        document.querySelector<HTMLButtonElement>('button[aria-label="Mark as read"]') ??
+        document.querySelector<HTMLButtonElement>('button[aria-label="Dismiss the kept journey"]');
+      button?.click();
+      return !button;
+    });
+    if (done) return;
+    await page.waitForTimeout(150);
+  }
+}
+
+/** Open a rail panel (Act, Go, Trade, Pack, Ledger), never toggling it shut. */
+async function rail(page: Page, label: string): Promise<void> {
+  const button = page.locator('.rail').getByRole('button', { name: label, exact: true });
+  if ((await button.getAttribute('aria-current')) === 'true') return;
+  await button.click();
+}
+
+/** Wait for the session's verdict on the last order: the outcome banner names it. */
+async function outcomeFor(page: Page, label: string | RegExp): Promise<string> {
+  const outcome = page.getByTestId('outcome');
+  try {
+    await outcome.filter({ hasText: label }).first().waitFor({ timeout: 30_000 });
+  } catch (e) {
+    await page.screenshot({ path: join(OUT, 'outcome-FAILED.png') });
+    console.error(`outcome wanted ${label}; saw: ${await outcome.allTextContents()}`);
+    throw e;
+  }
+  return (await outcome.first().textContent()) ?? '';
+}
+
+/** Walk the PC somewhere through the Go menu (an offered `go:` action), and wait for the hour. */
+async function goTo(page: Page, place: string): Promise<void> {
+  await rail(page, 'Go');
+  await page.getByTestId('act-body').waitFor();
+  await page.getByRole('searchbox', { name: 'Find a place' }).fill(place);
+  await page
+    .getByTestId('act-body')
+    .getByRole('button', { name: new RegExp(place) })
+    .first()
+    .click();
+  await outcomeFor(page, new RegExp(place));
+  await clearDispatches(page);
+}
+
+/** Open an Act group (drill-in), from wherever the Act panel is. */
+async function actGroup(page: Page, label: RegExp): Promise<void> {
+  await rail(page, 'Act');
+  const back = page.getByRole('button', { name: '◂ All kinds', exact: true });
+  if (await back.count()) await back.click();
+  await page.locator('.act-groups').getByRole('button', { name: label }).click();
+  await page.getByTestId('act-body').waitFor();
+}
+
+/**
+ * The play loop (ADR 0002 parity): every button here sends one of the session's own offered
+ * actions; the shots show what a player sees at each step.
+ */
+async function playLoop(page: Page, vp: Viewport, errors: string[]): Promise<void> {
+  // The Act menu: situation and the kinds of action on offer.
+  await rail(page, 'Act');
+  await page.getByTestId('play').waitFor();
+  await capture(page, `${vp.name}-act-menu`, errors);
+
+  // A wait that the shared interrupt policy cuts short (ADR 0002 §3): try longer waits until one stops.
+  let stopped = false;
+  for (const label of ['Till dusk', 'Till nightfall', 'Till dawn', 'Till noon', 'Till dusk', 'Till morning']) {
+    await actGroup(page, /Rest & wait/);
+    await page.getByTestId('waits').getByRole('button', { name: label, exact: true }).click();
+    const text = await outcomeFor(page, label);
+    if (/Wait stopped/.test(text)) {
+      stopped = true;
+      break;
+    }
+  }
+  assert(stopped, 'a long wait stops on an interrupt');
+  if (vp.layout === 'pocket') await page.getByTestId('alert').waitFor();
+  await capture(page, `${vp.name}-wait-paused`, errors);
+  await clearDispatches(page);
+
+  // Walk to the outfitter through the Go menu; wait for the counter to open if need be.
+  await goTo(page, 'Pratt & Daughter');
+  await rail(page, 'Trade');
+  await page.getByTestId('storefront').waitFor();
+  for (let i = 0; i < 6 && (await page.locator('.closed-note').count()); i++) {
+    await page.locator('.closed-note').getByRole('button').click();
+    await page.waitForTimeout(400);
+    await clearDispatches(page);
+    if ((await page.getByTestId('storefront').count()) === 0) await rail(page, 'Trade');
+  }
+  assert.equal(await page.locator('.closed-note').count(), 0, 'the counter opens');
+  // The Provisions page: compare two foods, then open an order with a preview.
+  await page.getByRole('tab', { name: 'Provisions', exact: true }).click();
+  const foods = page.locator('.stock-line').filter({ has: page.locator('.food-facts') });
+  assert((await foods.count()) >= 2, 'at least two foods for sale');
+  await foods.nth(0).getByRole('button', { name: 'Compare', exact: true }).click();
+  await foods.nth(1).getByRole('button', { name: 'Compare', exact: true }).click();
+  await page.getByRole('button', { name: 'Compare ▸', exact: true }).click();
+  await page.getByTestId('compare').waitFor();
+  await page.getByTestId('compare').locator('.cell-btn').first().click();
+  await capture(page, `${vp.name}-compare`, errors);
+  await page.getByRole('button', { name: '◂ Back to the Book', exact: true }).click();
+  await page.getByRole('button', { name: 'Clear the comparison', exact: true }).click();
+  await foods.nth(0).getByRole('button', { name: 'Buy…', exact: true }).click();
+  await page.getByRole('button', { name: 'One more', exact: true }).click();
+  await page.getByRole('button', { name: 'One more', exact: true }).click();
+  await page.getByTestId('preview').waitFor();
+  await page.waitForFunction(() => /→/.test(document.querySelector('[data-testid="preview"]')?.textContent ?? ''));
+  // The order whole, under its stock line: quantity, preview, confirm.
+  await page.getByTestId('order').evaluate((el) => el.scrollIntoView({ block: 'end' }));
+  await capture(page, `${vp.name}-store-preview`, errors);
+  // The preview's days of food climbs to its Explain (M4 #5).
+  await page.getByTestId('preview-days').getByRole('button').click();
+  await page.getByTestId('preview-days').locator('.explain-pop').waitFor();
+  await capture(page, `${vp.name}-store-explain`, errors);
+  await page
+    .getByTestId('order')
+    .getByRole('button', { name: /^Buy 3 for/ })
+    .click();
+  await outcomeFor(page, /^Buy 3/);
+  await clearDispatches(page);
+
+  // The Kit Sheet with a food number's Explain open (M4 #5).
+  await rail(page, 'Pack');
+  const kit = page.getByTestId('kit-sheet').first();
+  await kit.getByTestId('days-of-food').getByRole('button').click();
+  await kit.locator('.explain-pop').first().waitFor();
+  await capture(page, `${vp.name}-kit-explain`, errors);
+
+  // The journal, with what was owed and heard.
+  await rail(page, 'Ledger');
+  await page.getByRole('tab', { name: 'Journal', exact: true }).click();
+  await page.getByTestId('journal').locator('.journal-list, .empty').first().waitFor();
+  await page.waitForFunction(
+    () => !/Turning the pages/.test(document.querySelector('[data-testid="journal"]')?.textContent ?? ''),
+  );
+  await capture(page, `${vp.name}-journal`, errors);
+  await closeSheet(page);
+}
+
 /**
  * Tap the PC's figure on the map with a real touch sequence (CDP), then check the sheet the tap
  * opened is still there 600 ms later: the browser's compatibility click must not land on it.
  */
 async function tapPlayer(page: Page, context: BrowserContext, vp: Viewport, errors: string[]): Promise<void> {
+  // The newcomer goes only where she is told: out onto the street, where her figure stands.
+  await goTo(page, 'Main Street');
   await closeSheet(page);
   // Daytime, so the PC stands outside rather than being a pip on her roof; and let walks finish:
   // the label must hold still before we aim at the figure under it.
@@ -108,7 +257,7 @@ async function tapPlayer(page: Page, context: BrowserContext, vp: Viewport, erro
     await stepHour(page);
   }
   // Dispatches sit over the top of the map: read them, then clear them out of the way.
-  while ((await page.locator('.dispatch button').count()) > 0) await page.locator('.dispatch button').first().click();
+  await clearDispatches(page);
   lb = await label.boundingBox();
   assert(lb, 'PC label on the map');
   const x = lb.x + lb.width / 2;
@@ -229,12 +378,17 @@ async function main(): Promise<void> {
         });
         const page = await context.newPage();
         const errors: string[] = [];
-        page.on('pageerror', (e) => errors.push(e.message));
+        page.on('pageerror', (e) => {
+          errors.push(e.message);
+          console.error(`screens: page error in ${vp.name}: ${e.stack ?? e.message}`);
+        });
         await page.goto(url);
         await page.getByTestId('settlement').waitFor({ timeout: 20_000 });
         await page.locator('.site-canvas').waitFor();
         await page.waitForLoadState('networkidle');
         assert.equal(await page.getByTestId('settlement').getAttribute('data-layout'), vp.layout, 'layout');
+        await page.getByTestId('vitals').waitFor();
+        await capture(page, `${vp.name}-start`, errors);
         await stepHour(page);
         const paused = await clock(page);
         await page.waitForTimeout(650);
@@ -257,17 +411,14 @@ async function main(): Promise<void> {
         const stopped = await clock(page);
         await page.waitForTimeout(650);
         assert.equal(await clock(page), stopped, 'pause after Ultra');
+        await clearDispatches(page);
         await capture(page, `${vp.name}-map`, errors);
-        // The Book is its own panel, opened from the store's place card (the PC is home there at night).
-        await page.getByRole('button', { name: 'Places', exact: true }).click();
-        await page.locator('.place-row', { hasText: '· store' }).first().click();
-        await page.getByTestId('place-card').waitFor();
-        await page.getByTestId('place-card').getByRole('button', { name: /Book/ }).click();
-        await page.getByTestId('book').waitFor();
-        await capture(page, `${vp.name}-book`, errors);
+        await playLoop(page, vp, errors);
         await tapPlayer(page, context, vp, errors);
         await closeSheet(page);
-        await page.getByRole('button', { name: 'People', exact: true }).click();
+        // Folk known, through the Ledger: the PC's own dossier and its tabs.
+        await rail(page, 'Ledger');
+        await page.getByRole('tab', { name: 'Folk', exact: true }).click();
         await page.locator('button[data-player="true"]').click();
         await page.getByTestId('dossier').first().waitFor();
         await page.getByRole('tab', { name: 'Mind', exact: true }).first().click();
@@ -291,18 +442,25 @@ async function main(): Promise<void> {
           await capture(page, `${vp.name}-pack-full`, errors);
           await page.getByRole('button', { name: '▾ Half', exact: true }).click();
         }
-        await page.getByRole('button', { name: 'Chronicle', exact: true }).click();
+        await rail(page, 'Ledger');
+        await page.getByRole('tab', { name: 'Chronicle', exact: true }).click();
         await capture(page, `${vp.name}-chronicle`, errors);
         // God view: Settings only, behind a confirm, and it tags the Chronicle (11 §2.14).
-        await page.getByRole('button', { name: 'Settings', exact: true }).click();
+        await page.getByRole('button', { name: 'Settings', exact: true }).first().click();
         await page.getByRole('button', { name: 'God view…', exact: true }).click();
         await capture(page, `${vp.name}-settings`, errors);
         await page.getByRole('button', { name: 'Switch God view on', exact: true }).click();
-        await page.getByRole('button', { name: 'Chronicle', exact: true }).click();
+        await rail(page, 'Ledger');
+        await page.getByRole('tab', { name: 'Chronicle', exact: true }).click();
         await page.getByText('God view was used this session').first().waitFor();
-        await page.getByRole('button', { name: 'Settings', exact: true }).click();
+        await page.getByRole('button', { name: 'Settings', exact: true }).first().click();
         await page.getByRole('button', { name: 'Turn God view off', exact: true }).click();
-        // Verify the deployed service worker actually owns this page, then cold-start offline.
+        // Save in the browser, then verify the service worker owns this page and cold-start offline.
+        await rail(page, 'Ledger');
+        await page.getByRole('tab', { name: 'Journey', exact: true }).click();
+        await page.getByRole('button', { name: 'Save the journey', exact: true }).click();
+        await page.getByText(/^Saved at /).waitFor();
+        await capture(page, `${vp.name}-journey`, errors);
         await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 20_000 });
         const manifest = await page.evaluate(async () => {
           const href = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')?.href;
@@ -315,9 +473,19 @@ async function main(): Promise<void> {
         await page.reload();
         await page.getByTestId('settlement').waitFor({ timeout: 20_000 });
         await page.locator('.site-canvas').waitFor();
+        // A fresh arrival offline; the kept journey resumes from browser storage.
+        await clearDispatches(page);
         await stepHour(page);
+        await rail(page, 'Ledger');
+        await page.getByRole('tab', { name: 'Journey', exact: true }).click();
+        await page.getByRole('button', { name: /^Resume the kept journey/ }).click();
+        await page.getByText(/^Resumed from /).waitFor();
+        await page.waitForFunction(
+          (t) => Number(document.querySelector('[data-testid="clock"]')?.getAttribute('data-time')) > t,
+          60,
+        );
         await audit(page, errors);
-        console.log(`screens: ${vp.name} controls, time, tap, panels and offline worker passed`);
+        console.log(`screens: ${vp.name} controls, time, play loop, tap, panels, saves and offline worker passed`);
         await context.close();
       }
     } finally {
