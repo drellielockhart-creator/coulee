@@ -201,6 +201,15 @@ Every doc uses these terms with these meanings.
     - heavy strings behind World toggles;
     - one secondhand charm at a time under the store counter.
   - **Forfeit Rule and charms (13 §1.1):** whether a charm's harm to third parties is the human keeper's act or fae harm is **per-charm data** (`harm_basis = instrument | fae`).
+- **2026-10-12 (Ellie):**
+  - **Art direction: a somewhat crude but attractive watercolor painting.** It applies to the "second pass" visual work: whenever placeholder assets are replaced or new ones made, and whenever graphics effects or styling are optimized or added.
+    - Visible brush texture, soft bleeding edges, paper grain, and a limited, slightly washed palette.
+    - Hand-made rather than photoreal or clean vector.
+    - It must stay legible from above and in a pocket (P6).
+    - Until that pass, placeholder Blender art and the current UI styling stand.
+  - **Queued features** (after the current backlog clears; see `docs/impl/BACKLOG.md`):
+    - **Parties.** The player recruits companions, and NPCs form parties emergently, including hunts for the witch, for other witches, or for fae.
+    - **Elevation.** Underground and building floors, with the RimWorld-style top-down view kept most of the time. Things flying overhead (birds, someday airships), a camera that can tilt up to the sky, and a simulated night sky with fictional constellations and astrological meaning.
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.
