@@ -57,6 +57,8 @@ export type FactClass =
   | 'gathering'
   | 'observance'
   | 'rupture'
+  /** A fae charm's story (13 §6.7): arrival, uses, draws, loans, discoveries, resolutions. */
+  | 'charm'
   | 'reconciled';
 
 export interface Fact {
@@ -314,9 +316,42 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
               householdOf(world, d.initiatorId as number) > 0 &&
               householdOf(world, d.initiatorId as number) === householdOf(world, d.targetId as number),
             family: familyOfActor(world, d.initiatorId as number),
+            item_id: (d.itemId as number | undefined) ?? 0,
           },
         },
         [d.initiatorId, d.targetId],
+      );
+    }
+    case 'fae.charm_arrived':
+    case 'fae.charm_used':
+    case 'fae.charm_drew':
+    case 'fae.charm_revealed':
+    case 'fae.charm_disposed':
+    case 'fae.shortfall':
+    case 'social.loan_opened':
+    case 'social.loan_closed':
+    case 'social.loan_breached': {
+      const d = ev.data as Record<string, unknown>;
+      const num = (k: string) => (typeof d[k] === 'number' ? (d[k] as number) : 0);
+      const agent = num('finderId') || num('actorId') || num('keeperId') || num('lenderId') || num('borrowerId');
+      const target = num('borrowerId') && num('lenderId') ? num('borrowerId') : 0;
+      return base(
+        {
+          cls: 'charm',
+          sub: ev.kind.slice(ev.kind.indexOf('.') + 1),
+          agent,
+          target,
+          weight: num('qty') || num('units'),
+          valence: ev.kind === 'social.loan_breached' || ev.kind === 'fae.shortfall' ? -30 : 0,
+          base: ev.importance ?? 20,
+          bind: {
+            item_id: num('itemId'),
+            household_id: num('householdId'),
+            status: typeof d.status === 'string' ? (d.status as string) : '',
+            disposal: typeof d.kind === 'string' && ev.kind === 'fae.charm_disposed' ? (d.kind as string) : '',
+          },
+        },
+        [agent, target].filter((x) => x > 0),
       );
     }
     case 'social.rupture': {

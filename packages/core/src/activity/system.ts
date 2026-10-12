@@ -28,6 +28,9 @@ export function activitySystem(world: World, ctx: SimContext): void {
     )
       invited.add(u.targetId);
   }
+  // A fae Command (investigate a sign, tie or study a charm) is done where the actor stands this
+  // hour: a standing order must not walk them off before fae resolves it (r2 playtest #7).
+  for (const cmd of ctx.commands) if (cmd.kind.startsWith('fae.') && cmd.kind !== 'fae.signs') invited.add(cmd.actorId);
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   for (const id of idsOf<ActorId>(world.actors)) {
     const actor = requiredRow(world.actors, id);

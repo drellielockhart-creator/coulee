@@ -3,9 +3,11 @@
  * plus psyche's `urge_tags` rows), drive relief, and norm prohibitions (10 §5.2).
  * OWNER: module:psyche. Pure helpers; the index is rebuilt per call site (cheap: ~100 rows).
  */
+
 import type { DriveDef, NormDef } from '@coulee/content/schema';
 import type { ContentBundle } from '../content.ts';
 import type { Urge } from '../urge.ts';
+import { termsLabel } from '../urge.ts';
 
 export interface TagIndex {
   activity: Map<string, string[]>;
@@ -70,9 +72,9 @@ export function forbiddingRules(norm: NormDef, tags: readonly string[]): NormDef
 export function urgeKey(u: Urge): string {
   switch (u.kind) {
     case 'activity':
-      return `a:${u.activityId}${u.placeId !== undefined ? `@${u.placeId}` : ''}`;
+      return `a:${u.activityId}${u.placeId !== undefined ? `@${u.placeId}` : ''}${u.itemId !== undefined ? `$${u.itemId}` : ''}`;
     case 'interaction':
-      return `i:${u.interactionId}${u.targetId !== undefined ? `>${u.targetId}` : ''}${u.topic !== undefined ? `#${u.topic}` : ''}`;
+      return `i:${u.interactionId}${u.targetId !== undefined ? `>${u.targetId}` : ''}${u.topic !== undefined ? `#${u.topic}` : ''}${u.itemId !== undefined ? `$${u.itemId}` : ''}${u.terms !== undefined ? `/${termsLabel(u.terms)}` : ''}`;
     case 'defense':
       return `d:${u.defense}${u.targetId !== undefined ? `>${u.targetId}` : ''}`;
   }

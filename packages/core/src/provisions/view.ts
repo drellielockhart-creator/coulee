@@ -175,9 +175,20 @@ export function provisionsDailyStats(world: World, _content: ContentBundle): Rec
     provisions_kcal: nutrition.reduce((n, s) => n + s.today.kcal, 0),
     provisions_scurvy: nutrition.filter((s) => s.scurvy >= 500).length,
     provisions_cash_cents: rowsOf(world.provisions.households).reduce((n, h) => n + h.cashCents, 0),
-    provisions_tabs_cents: rowsOf(world.provisions.stores).reduce(
-      (n, s) => n + rowsOf(s.tabs).reduce((v, c) => v + c, 0),
-      0,
-    ),
+    provisions_tabs_cents: tabsOnce(world),
   };
+}
+
+/** Store tabs mirror the keeper's ledger in every store it keeps: count each keeper's ledger once. */
+function tabsOnce(world: World): number {
+  const seen = new Set<number>();
+  let n = 0;
+  for (const s of rowsOf(world.provisions.stores)) {
+    if (s.ownerHouseholdId !== null) {
+      if (seen.has(s.ownerHouseholdId)) continue;
+      seen.add(s.ownerHouseholdId);
+    }
+    n += rowsOf(s.tabs).reduce((v, c) => v + c, 0);
+  }
+  return n;
 }

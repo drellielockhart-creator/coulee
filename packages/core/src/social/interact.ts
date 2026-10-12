@@ -17,18 +17,21 @@ import {
 import { opposedCheck, resolveCheck, type SaveId, saveTerms, skillCheck, skillTerms } from '../checks.ts';
 import type { DefenseId, InteractionDef } from '../content.ts';
 import { type Explain, type ExplainTerm, signed, term } from '../explain.ts';
-import type { ActorId, EventId, MemoryId, PlaceId, PropId } from '../ids.ts';
+import { noteItemInteraction } from '../fae/api.ts';
+import type { ActorId, EventId, ItemId, MemoryId, PlaceId, PropId } from '../ids.ts';
 import { carriedBy, loadCheckTerms, moveStack } from '../items/api.ts';
 import { satisfyNeed } from '../needs/api.ts';
 import { synchronizeStoreTabs, transferCash } from '../provisions/api.ts';
 import { addAnxiety, addThought, authorizationExplain, authorizeAct, commandBasis } from '../psyche/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
+import type { Terms } from '../urge.ts';
 import type { World } from '../world.ts';
 import { keepsFromWork, workStatus } from './availability.ts';
 import { giftStack } from './gifts.ts';
 import { encodeSalience, insertMemory, isNegativeKind, softenMemories } from './memory.ts';
 import { clampInt, floorDiv, formatCents, isZeroDims, scaleDimsPct } from './model.ts';
+import { applyItemAct, holderDecision, itemPreflight } from './objects.ts';
 import {
   addReason,
   addVolatile,
@@ -72,6 +75,9 @@ export interface InteractionRequest {
   causes?: EventId[];
   /** Escalation depth guard. */
   depth?: number;
+  /** An item-specific interaction's item and terms (13 §6.1; from the urge). */
+  itemId?: ItemId;
+  terms?: Terms;
 }
 
 export interface InteractionOutcome {
@@ -245,6 +251,26 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     });
     return { eventId, success: false, told: null, escalatedEventId: null };
   }
+  // An item act is validated before any time is spent, with the reason named (13 §6.2).
+  const itemReason = def.item ? itemPreflight(world, def, i, tg, req.itemId, req.terms, ctx.now) : null;
+  if (itemReason !== null) {
+    const eventId = ctx.emit({
+      kind: 'social.item_refused',
+      data: { actorId: i, itemId: (req.itemId ?? 0) as ItemId, interactionId: def.id, reason: itemReason },
+      roles: [{ actor: i, role: 'agent' }],
+      visibility: 'private',
+      explain: {
+        kind: 'choice',
+        label: `${def.name}: not possible`,
+        subjects: [i],
+        knowledge: 'self',
+        terms: [],
+        total: 0,
+        outcome: itemReason,
+      },
+    });
+    return { eventId, success: false, told: null, escalatedEventId: null };
+  }
   const init = world.actors[i];
   const tgt = world.actors[tg];
   const iName = init ? shortName(init) : `#${i}`;
@@ -253,31 +279,40 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
 
   // A response that undertakes an obligation, relationship or disclosure is an act too.
   const effects = [def.success, def.failure];
-  const response = effects.some((e) => e.ledger.cents < 0)
-    ? 'lend'
-    : effects.some((e) => e.ledger.cents > 0)
-      ? 'borrow'
-      : effects.some(
-            (e) =>
-              e.add_relationship === 'courting' ||
-              e.add_relationship === 'spouse' ||
-              e.add_relationship === 'betrothed',
-          )
-        ? 'proposal'
-        : effects.some((e) => e.ledger.favors !== 0)
-          ? 'accept_favor'
-          : def.transmits_rumor && def.rumor_speaker === 'target'
-            ? 'disclose'
-            : null;
+  const response = def.item?.response
+    ? def.item.response
+    : effects.some((e) => e.ledger.cents < 0)
+      ? 'lend'
+      : effects.some((e) => e.ledger.cents > 0)
+        ? 'borrow'
+        : effects.some(
+              (e) =>
+                e.add_relationship === 'courting' ||
+                e.add_relationship === 'spouse' ||
+                e.add_relationship === 'betrothed',
+            )
+          ? 'proposal'
+          : effects.some((e) => e.ledger.favors !== 0)
+            ? 'accept_favor'
+            : def.transmits_rumor && def.rumor_speaker === 'target'
+              ? 'disclose'
+              : null;
   const targetBasis = accepted ? commandBasis(ctx, tg, ['social.answer_request']) : { kind: 'own' as const };
-  if (response && !authorizeAct(world, tg, { kind: response, targetId: i }, targetBasis).ok) {
+  const responseAct = {
+    kind: response ?? '',
+    targetId: i,
+    ...(req.itemId !== undefined ? { itemId: req.itemId } : {}),
+  };
+  if (response && !authorizeAct(world, tg, responseAct, targetBasis).ok) {
     const id = `${i}:${tg}:${ctx.now}:${def.id}`;
     world.social.pendingRequests ??= [];
     const pending = world.social.pendingRequests.find(
       (r) => r.from === i && r.to === tg && r.interactionId === def.id && r.status === 'pending',
     );
     // Say what is asked and what a yes undertakes (playtest r2), and do not ask again soon.
-    const terms = requestTerms(world, content, def, i, response, ctx.now);
+    const terms = requestTerms(world, content, def, i, response, ctx.now, {
+      ...(req.terms ? { terms: req.terms } : {}),
+    });
     if (!pending)
       world.social.pendingRequests.push({
         id,
@@ -287,6 +322,8 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
         response,
         basis,
         ...(req.topic !== undefined ? { topic: req.topic } : {}),
+        ...(req.itemId !== undefined ? { itemId: req.itemId } : {}),
+        ...(req.terms !== undefined ? { terms: req.terms } : {}),
         placeId: req.placeId,
         until: ctx.now + 60,
         status: 'pending',
@@ -330,6 +367,13 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   }
   const check = runCheck(world, ctx, req);
   let success = check.success;
+  // The holder's own decision after persuasion (13 §6.1 step 4), unless they answered by Command.
+  if (success && def.item?.decision && req.itemId !== undefined && !accepted) {
+    const holder = def.item.holder === 'target' ? tg : i;
+    const decision = holderDecision(world, ctx, def, holder, holder === tg ? i : tg, req.itemId);
+    success = decision.yes;
+    check.explain = { ...check.explain, children: [...(check.explain.children ?? []), decision.explain] };
+  }
   // A gift is a thing handed over: nothing fit to give, and the gesture comes to nothing.
   const giving = success && def.success.give_item ? giftStack(world, content, i) : null;
   if (success && def.success.give_item && giving === null) {
@@ -453,6 +497,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       ...(req.viaDefense !== undefined ? { viaDefense: req.viaDefense } : {}),
       ...(exchange ? { line: exchange.line, lines: exchange.lines } : {}),
       ...(def.transmits_rumor && success ? { told: plan !== null } : {}),
+      ...(req.itemId !== undefined ? { itemId: req.itemId } : {}),
       ...(atWork ? { atWork: true } : {}),
       ...(cents > 0 ? { cents } : {}),
       ...(giving ? { itemDefId: giving.defId } : {}),
@@ -790,6 +835,11 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   refreshLabel(world, ctx, tg, i);
   refreshLabel(world, ctx, i, tg);
   for (const a of audience) if (a !== i && a !== tg) refreshLabel(world, ctx, a, i);
+  if (req.itemId !== undefined)
+    noteItemInteraction(world, ctx, def.item?.act ?? (def.transmits_rumor ? 'tell' : null), i, tg, req.itemId);
+  // The validated item act itself (13 §6.1 steps 5-6): the thing moves, the promise opens.
+  if (success && def.item && req.itemId !== undefined)
+    applyItemAct(world, ctx, def, i, tg, req.itemId, req.terms, eventId, witnesses, req.placeId);
 
   return { eventId, success, told, escalatedEventId };
 }

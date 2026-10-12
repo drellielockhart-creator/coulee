@@ -3,6 +3,7 @@
 import { isAsleep } from '../activity/api.ts';
 import type { ProtectionId } from '../content.ts';
 import { term } from '../explain.ts';
+import { type HemSet, hemmed, openHemHour, spillHems } from '../fae/hem.ts';
 import { type ItemId, rowsOf } from '../ids.ts';
 import {
   allStacks,
@@ -33,7 +34,12 @@ export type PlacementMemo = Record<
   { exposed: boolean; protections: ProtectionId[]; storage: StorageClass } | undefined
 >;
 
-export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo): void {
+/**
+ * One hour of storage: rain, drying, spoilage, vermin. `hems` (13 §5.8 Rain-Hem) covers hemmed
+ * containers and spills their turned rain; the live sim passes the fae hem set and commits it
+ * afterwards, the planner passes its own projected copy.
+ */
+export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo, hems?: HemSet): void {
   const raining = isRaining(ctx.seed, ctx.cal);
   const campShelter = new Map<number, boolean>();
   if (raining) {
@@ -44,6 +50,29 @@ export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo)
         campShelter.set(actor.id, campThermal(world, ctx.content, actor.id, true, index).shelter >= 20);
     }
   }
+  const rootPlace = (stackId: ItemId): { exposed: boolean; underFly: boolean } => {
+    const st = world.items.stacks[stackId];
+    if (!st) return { exposed: false, underFly: false };
+    const root = rootLocation(world, st);
+    const place =
+      root.kind === 'actor'
+        ? world.actors[root.actorId]?.placeId
+        : root.kind === 'household'
+          ? world.households[root.householdId]?.homePlaceId
+          : root.placeId;
+    return {
+      exposed: place !== undefined && isOutdoorsPlace(world.places[place]?.kind ?? 'wild'),
+      underFly: root.kind === 'actor' && campShelter.get(root.actorId) === true,
+    };
+  };
+  const hemsOn = raining && hems !== undefined && Object.keys(hems.byContainer).length > 0;
+  // Every hour, rain or not: a dry hour ends a hem's block (13 §5.8), so a later shower pays anew.
+  if (hems && Object.keys(hems.byContainer).length > 0)
+    openHemHour(world, ctx.content, hems, (id) => {
+      if (!raining) return false;
+      const r = rootPlace(id);
+      return r.exposed && !r.underFly;
+    });
   for (const stack of allStacks(world)) {
     const def = ctx.content.items[stack.defId];
     if (!def) continue;
@@ -68,7 +97,9 @@ export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo)
     const root = raining ? rootLocation(world, stack) : null;
     const underFly = root?.kind === 'actor' && campShelter.get(root.actorId);
     if (raining && !underFly && exposed && !protections.includes('waterproof') && !protections.includes('airtight')) {
-      stack.wetness = Math.min(100, stack.wetness + (protections.includes('splashproof') ? 3 : 20));
+      // A hemmed container turns the rain; what is already wet inside stays wet (13 §5.8).
+      if (!(hemsOn && hemmed(world, hems, stack.id)))
+        stack.wetness = Math.min(100, stack.wetness + (protections.includes('splashproof') ? 3 : 20));
     } else if (!protections.includes('airtight')) stack.wetness = Math.max(0, stack.wetness - 4);
     if (!def.food) continue;
     const factors = spoilageFactors(world, ctx.content, stack, ctx.cal, placed);
@@ -131,6 +162,27 @@ export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo)
       }
     }
   }
+  if (hemsOn && hems)
+    spillHems(
+      world,
+      ctx.content,
+      hems,
+      (id) => {
+        const st = world.items.stacks[id];
+        if (!st) return false;
+        const r = rootPlace(id);
+        const prot = protectionsOf(world, ctx.content, st);
+        const own = ctx.content.items[st.defId]?.container?.protects ?? [];
+        return r.exposed && !r.underFly && ![...prot, ...own].some((p) => p === 'waterproof' || p === 'airtight');
+      },
+      (id) => {
+        const st = world.items.stacks[id];
+        if (!st) return;
+        const prot = protectionsOf(world, ctx.content, st);
+        if (prot.includes('waterproof') || prot.includes('airtight')) return;
+        st.wetness = Math.min(100, st.wetness + (prot.includes('splashproof') ? 3 : 20));
+      },
+    );
 }
 
 /** Atomic supply draw: devices do not grant light when they cannot sustain this hour. */

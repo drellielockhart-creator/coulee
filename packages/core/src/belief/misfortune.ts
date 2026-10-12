@@ -1,4 +1,4 @@
-import type { ActorId, HouseholdId, PlaceId } from '../ids.ts';
+import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 import { nextId, rowsOf } from '../ids.ts';
 import { satisfyNeed } from '../needs/api.ts';
 import { addAnxiety, psycheOf } from '../psyche/api.ts';
@@ -18,6 +18,8 @@ export interface MisfortuneRequest {
   placeId?: PlaceId | null;
   culpritId?: ActorId | null;
   daysAgo?: number;
+  /** The object behind it, for the epilogue only (13 §5.2); attribution never reads it. */
+  causeItemId?: ItemId | null;
 }
 
 export function registerMisfortune(
@@ -44,6 +46,7 @@ export function registerMisfortune(
     propId,
     eventId: null,
     attributions: [],
+    ...(req.causeItemId !== undefined && req.causeItemId !== null ? { causeItemId: req.causeItemId } : {}),
   };
   world.belief.misfortunes[id] = m;
   world.belief.misfortune = clamp(world.belief.misfortune + def.severity, 0, 1000);

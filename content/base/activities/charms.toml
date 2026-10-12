@@ -1,0 +1,73 @@
+# Activities around fae charms and stores (13 §5.2, §6.1, §6.6). Their urges carry the item
+# (`itemId`); module:fae acts on them after the activity pass. Ordinary hours of work: tying a
+# sack and setting out porridge is an evening chore; counting the stock is a weekly one.
+
+[[activity]]
+id = "tend_charm"
+name = "See to the charm"
+verb = "seeing to a charm"
+description = "Tie the sack shut for the night by the hearth; set out porridge and butter for the Good Neighbors."
+at = "anywhere"
+labor = "light"
+needs = { standing = 1 }
+tags = ["chore", "charm"]
+
+[[activity]]
+id = "stocktake"
+name = "Count the stock"
+verb = "counting the stock"
+description = "Weigh out the bins and the barrels against the book. The week's count for a store or a mill; for a household, after a loss."
+at = "anywhere"
+labor = "light"
+needs = { standing = 2 }
+skill = "trade_milling"
+tags = ["chore", "stocktake", "commerce"]
+
+[[activity]]
+id = "study_charm"
+name = "Study the charm"
+verb = "studying a charm"
+description = "Look it over properly: the stitching, the weight, what it does when no one is watching it."
+at = "anywhere"
+labor = "rest"
+skill = "spellcraft"
+tags = ["charm"]
+
+[[activity]]
+id = "bury_charm"
+name = "Bury the charm"
+verb = "burying something"
+description = "Under a threshold or at a crossroads, with iron on it."
+at = "anywhere"
+labor = "heavy"
+tags = ["charm", "labor"]
+
+[[activity]]
+id = "destroy_charm"
+name = "Burn it at the forge"
+verb = "burning a charm at the forge"
+description = "Cold iron and fire: hammer it on the anvil and put it in the coals."
+at = "venue"
+venue_tags = ["smithy"]
+labor = "heavy"
+skill = "trade_smithing"
+tags = ["charm", "labor"]
+
+[[activity]]
+id = "return_charm"
+name = "Give it back to the Good Neighbors"
+verb = "leaving something for the Good Neighbors"
+description = "Overnight, with porridge and butter, where tribute has been kept."
+at = "venue"
+venue_tags = ["hearth_tribute"]
+labor = "light"
+tags = ["charm"]
+
+[[activity]]
+id = "fetch_charm"
+name = "Fetch it from the house"
+verb = "fetching something from the house"
+description = "Take the thing out of the household stores to carry it somewhere."
+at = "anywhere"
+labor = "light"
+tags = ["chore", "charm"]

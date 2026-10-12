@@ -1,0 +1,1279 @@
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to The Iron Ford [go:19]
+11. Go to Iron Ford Lutheran Church [go:26]
+12. Go to Pratt & Daughter, Outfitters [go:33]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Chat: Michael Dunleavy [talk:chat:28]
+15. Introduce oneself: Michael Dunleavy [talk:introduce:28]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 175; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> go:25
+Since last look: 1h passed.
+You arrive at Lower Lantern Coulee (2 min on foot)
+1855-04-01 01:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 32°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 758; Rest 723; Thirst 770; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Here: no one else.
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Resolved: Walk — explain 320
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 167; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> activity:idle_at_home
+Since last look: 1h passed.
+1855-04-01 02:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 32°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 716; Rest 646; Thirst 690; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Here: no one else.
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Resolved: At home — explain 415
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 167; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> activity:idle_at_home
+Since last look: 1h passed.
+1855-04-01 03:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 31°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 687; Rest 607; Thirst 634; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [found] Lying here where you found it; take it or leave it.
+Here: no one else.
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Resolved: At home — explain 419
+[420] Something lies in the grass at Lower Lantern Coulee: rain-hem, stitched band, clean and dry as if just set down. A saying comes with it: "Stitch inside the flap. Let the weather attend to the outside."
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 169; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> activity:idle_at_home
+Since last look: 1h passed.
+1855-04-01 04:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 31°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 658; Rest 568; Thirst 900; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [found] Lying here where you found it; take it or leave it.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: fetch water)
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Resolved: At home — explain 424
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 169; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> fae.take:845
+Since last look: 1h passed.
+1855-04-01 05:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 30°F, dry.
+Food 6.0 days; Medium, 32.8 kg.
+Vitals: Hunger 629; Rest 529; Thirst 844; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 2 virtue.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: fetch water)
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Resolved: At home — explain 430
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 176; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> pack Rain-hem into Knapsack
+Moved 1 of your Rain-hem, stitched band into the Knapsack, painted canvas, army pattern.
+Since last look: 1h passed.
+1855-04-01 06:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 31°F, dry.
+Food 6.0 days; Medium, 32.8 kg.
+Vitals: Hunger 600; Rest 490; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 2 virtue.
+Here: no one else.
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Resolved: At home — explain 437
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 176; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> pack Hardtack into Knapsack
+Moved 1 of your Hardtack (ship's biscuit) into the Knapsack, painted canvas, army pattern.
+Since last look: 1h passed.
+1855-04-01 07:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.8 kg.
+Vitals: Hunger 785; Rest 451; Thirst 732; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 2 virtue.
+Here: no one else.
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Resolved: At home — explain 446
+[442] You are getting peckish — explain 442
+[649] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 649
+[650] You are no longer peckish — explain 650
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 181; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> pack Pemmican into Knapsack
+Moved 1 of your Pemmican into the Knapsack, painted canvas, army pattern.
+Since last look: 1h passed.
+1855-04-01 08:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 36°F, dry.
+Food 6.0 days; Medium, 32.8 kg.
+Vitals: Hunger 756; Rest 412; Thirst 676; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 2 virtue.
+Here: no one else.
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Resolved: At home — explain 673
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 185; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> pack Dried apples into Knapsack
+Moved 1 of your Dried apples into the Knapsack, painted canvas, army pattern.
+Since last look: 1h passed.
+1855-04-01 09:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 39°F, dry.
+Food 6.0 days; Medium, 32.8 kg.
+Vitals: Hunger 727; Rest 373; Thirst 620; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 2 virtue.
+Here: no one else.
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Resolved: At home — explain 943
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 189; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> plan
+Food 6.0 days; 16856 usable kcal / 2142 kcal per day.
+Fuel: no cooking fuel required by projected meals.
+Spoils first: Dried apples in 539.7 days.
+Load: 32843 g; bulk 64.6; Medium.
+Charm (claims not included): Rain-hem, stitched band: what is said of it is not counted until you have seen it work or studied it.
+1 × Knapsack, painted canvas, army pattern (#340)
+1 × Rain-hem, stitched band (#845) in #340
+1 × Hardtack (ship's biscuit) (#863) in #340
+1 × Pemmican (#864) in #340
+1 × Dried apples (#865) in #340
+1 × Blanket, wool, 3-point (#341)
+1 × Camp kettle, nesting pair (#342)
+1 × Canteen, tin, wool-covered, 2 qt (#343)
+2 × Armload of firewood (#344)
+3 × Hardtack (ship's biscuit) (#345)
+2 × Pemmican (#346)
+1 × Dried apples (#347)
+Since last look: no time passed.
+1855-04-01 09:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 39°F, dry.
+Food 6.0 days; Medium, 32.8 kg.
+Vitals: Hunger 727; Rest 373; Thirst 620; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 2 virtue.
+Here: no one else.
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Resolved: At home — explain 943
+Heard: Ellis Wayfarer has the rain-hem
+Heard: the rain-hem is rightly Ellis Wayfarer's
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 189; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until tomorrow
+Wait stopped at 11:00 (you meant to wait until 00:00).
+Since last look: 2h passed; Rest: steady → Tired.
+You are getting tired
+1855-04-01 11:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 45°F, dry.
+Food 6.0 days; Medium, 32.2 kg.
+Vitals: Hunger 669; Rest 295 (Tired); Thirst 844; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+You may collapse from exhaustion in about 92 hours if this continues (Fortitude saves vary).
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 2 virtue.
+Here: no one else.
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The Sabbath must be kept (held for your order; you may: attend church)
+Self-Command: Held for your order; routine standing orders only — explain 1154
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 190; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until tomorrow
+Wait stopped at 16:00 (you meant to wait until 00:00).
+Since last look: 5h passed; Rest: Tired → Exhausted.
+You are exhausted now
+1855-04-01 16:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 31.5 kg.
+Vitals: Hunger 738; Rest 100 (Exhausted); Thirst 900; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+You may collapse from exhaustion in about 87 hours if this continues (Fortitude saves vary).
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. These lights hold their distance like guests waiting to be invited. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 2 virtue.
+Here: no one else.
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 1861
+[1734] You are no longer peckish — explain 1734
+[1887] Lights in the bottoms, low, keeping pace with nothing. — explain 1887
+[1890] These lights hold their distance like guests waiting to be invited. — explain 1890
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 197; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until tomorrow
+Since last look: 8h passed; Rest: Exhausted → Tired.
+1855-04-02 00:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — sleeping at camp. Purse $50.00; household $0.00. 33°F, dry.
+Food 5.0 days; Medium, 31.5 kg.
+Vitals: Hunger 748; Rest 146 (Tired); Thirst 508; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. These lights hold their distance like guests waiting to be invited. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: no one else.
+Self-Command: Held for your order; routine standing orders only — explain 2735
+[2668] You lie down to sleep — explain 2668
+[2730] You are easing from exhausted to tired — explain 2730
+[2739] The rain beads and runs off the hemmed flap; what is inside stays dry.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Drink water (500 ml) [drink]
+6. Wait 1 hour [wait]
+7. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+8. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 106; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> plan
+Food 5.0 days; 15570 usable kcal / 2889 kcal per day.
+Fuel: no cooking fuel required by projected meals.
+Spoils first: Dried apples in 538.8 days.
+Load: 31499 g; bulk 64.6; Medium.
+Charm (counted): Rain-hem, stitched band: 1 soaking of virtue; keeps its bag dry for 3 of 5 rainy hours in this plan, then an ordinary flap. Dew at dawn wakes it (bag hung empty, no rain).
+1 × Knapsack, painted canvas, army pattern (#340)
+1 × Rain-hem, stitched band (#845) in #340
+1 × Hardtack (ship's biscuit) (#863) in #340
+1 × Pemmican (#864) in #340
+1 × Dried apples (#865) in #340
+1 × Blanket, wool, 3-point (#341)
+1 × Camp kettle, nesting pair (#342)
+1 × Canteen, tin, wool-covered, 2 qt (#343)
+2 × Armload of firewood (#344)
+3 × Hardtack (ship's biscuit) (#345)
+2 × Pemmican (#346)
+1 × Dried apples (#347)
+Since last look: no time passed.
+1855-04-02 00:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — sleeping at camp. Purse $50.00; household $0.00. 33°F, dry.
+Food 5.0 days; Medium, 31.5 kg.
+Vitals: Hunger 748; Rest 146 (Tired); Thirst 508; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. These lights hold their distance like guests waiting to be invited. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: no one else.
+Self-Command: Held for your order; routine standing orders only — explain 2735
+Heard: the rain-hem is rightly Ellis Wayfarer's
+Heard: the Good Neighbors are abroad at Lower Lantern Coulee
+[2730] You are easing from exhausted to tired — explain 2730
+[2739] The rain beads and runs off the hemmed flap; what is inside stays dry.
+Kit: Less than a day of stored drinking water; preparation also draws from it.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Drink water (500 ml) [drink]
+6. Wait 1 hour [wait]
+7. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+8. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 106; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> go:33
+Nothing here matches “go:33”; try look, prices, places or actions. No game time spent.
+Since last look: no time passed.
+1855-04-02 00:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — sleeping at camp. Purse $50.00; household $0.00. 33°F, dry.
+Food 5.0 days; Medium, 31.5 kg.
+Vitals: Hunger 748; Rest 146 (Tired); Thirst 508; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. These lights hold their distance like guests waiting to be invited. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: no one else.
+Self-Command: Held for your order; routine standing orders only — explain 2735
+Heard: the rain-hem is rightly Ellis Wayfarer's
+Heard: the Good Neighbors are abroad at Lower Lantern Coulee
+Kit: Less than a day of stored drinking water; preparation also draws from it.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Drink water (500 ml) [drink]
+6. Wait 1 hour [wait]
+7. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+8. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 106; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 08:00
+Since last look: 8h passed; Rest: Tired → steady.
+1855-04-02 08:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 36°F, dry.
+Food 6.0 days; Medium, 30.4 kg.
+Vitals: Hunger 600; Rest 908; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. These lights hold their distance like guests waiting to be invited. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: fetch water)
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 3435
+[2778] You are getting thirsty — explain 2778
+[3065] You are no longer tired — explain 3065
+[3210] You are no longer thirsty — explain 3210
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 196; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> prices
+No goods for sale here.
+Since last look: no time passed.
+1855-04-02 08:00 | FAIR | Lower Lantern Coulee
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 36°F, dry.
+Food 6.0 days; Medium, 30.4 kg.
+Vitals: Hunger 600; Rest 908; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Failing farms, hazel brush and a wagon track down to the village. Spring at Lower Lantern Coulee. Wheel ruts and footprints cross the softer ground. The paths about Lower Lantern Coulee are quiet. As always here: a pale glimmer rests where the bank hides the sky. These lights hold their distance like guests waiting to be invited. Do not follow a light across running water.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: fetch water)
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 3435
+Heard: the rain-hem is rightly Ellis Wayfarer's
+Heard: the Good Neighbors are abroad at Lower Lantern Coulee
+Kit: Less than a day of stored drinking water; preparation also draws from it.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Pratt & Daughter, Outfitters [go:33]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 196; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> go:33
+Since last look: 1h passed; Hunger: steady → Peckish.
+You arrive at Pratt & Daughter, Outfitters (2 min on foot)
+Johann Brenner: Slight ▸ Hester Fenn (it went well)
+1855-04-02 09:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 39°F, dry.
+Food 6.0 days; Medium, 30.4 kg.
+Vitals: Hunger 571 (Peckish); Rest 869; Thirst 732; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Amos Whitcomb, Hester Fenn, Augusta Pratt are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Amos Whitcomb (#1), Hester Fenn (#16), Augusta Pratt (#21), Lydia Pratt (#22), Johann Brenner (#23), Clara Stoughton (#35).
+Appetite: Best not to think of it. (held for your order; you may: )
+Conscience: Daily round: Work (held for your order; you may: work)
+Self-Command: Resolved: Walk — explain 3639
+[3632] You are getting peckish — explain 3632
+[3714] Hester Fenn: Chat ▸ Lydia Pratt (it went well)
+[3716] Clara Stoughton: Talk long ▸ Lydia Pratt (it went well)
+  Hester Fenn: “Can't stop long; there's work wanting.”
+  Lydia Pratt: “There always is. Go on, then.”
+  Johann Brenner: “Wait your turn.”
+  Hester Fenn: “I've been waiting it this half hour.”
+  Clara Stoughton: “Do you ever think about going back to York State, Miss Pratt?”
+  Lydia Pratt: “Every winter. Never in spring. You?”
+  Clara Stoughton: “Every night, and every morning I get up and feed the stock.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 404; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> prices
+Hardtack (ship's biscuit): $0.08 each; 120 in stock
+Flour, fine milled: $0.05 each; 300 in stock
+Flour sack, cotton, 25 lb: $0.10 each; 10 in stock
+Cornmeal: $0.03 each; 21 in stock
+Bacon / side pork, salt-cured: $0.12 each; 71 in stock
+Parched corn: $0.06 each; 20 in stock
+Coffee, green beans: $0.14 each; 40 in stock
+Tea, black: $0.60 each; 15 in stock
+Sugar, brown: $0.08 each; 60 in stock
+Beans, dry: $0.04 each; 16 in stock
+Whiskey: $0.25 each; 24 in stock
+Molasses: $0.15 each; 10 in stock
+Vinegar, cider: $0.10 each; 8 in stock
+Oysters, tinned (1 lb tin): $0.40 each; 20 in stock
+Lucifers (friction matches), box of 100: $0.05 each; 50 in stock
+Match safe, tinned brass, screw lid: $0.25 each; 6 in stock
+Flint, steel & char tin: $0.25 each; 6 in stock
+Tinder pouch: birch bark & fatwood: $0.05 each; 10 in stock
+Tallow candles, lb (6): $0.15 each; 20 in stock
+Spermaceti candles, lb: $0.40 each; 6 in stock
+Lard oil: $0.30 each; 19 in stock
+Camphene burning fluid, pint: $0.25 each; 6 in stock
+Glass lantern, lard-oil (Fenwick): $1.50 each; 2 in stock
+Tin lantern, pierced: $0.50 each; 4 in stock
+Camp kettle, nesting pair: $0.75 each; 4 in stock
+Canteen, tin, wool-covered, 2 qt: $0.75 each; 6 in stock
+Canteen, gourd: $0.30 each; 4 in stock
+Frying pan, sheet iron: $0.50 each; 6 in stock
+Dutch oven, cast iron, 10 qt: $1.75 each; 1 in stock
+Tin cup: $0.10 each; 20 in stock
+Tin plate: $0.08 each; 20 in stock
+Coffee mill, hand: $0.60 each; 3 in stock
+Stoneware crock, 2-gallon, lidded: $0.40 each; 4 in stock
+Brine keg, oak, 10 gal: $0.75 each; 2 in stock
+Tin canister, airtight, 10 lb: $0.30 each; 6 in stock
+Oilcloth bag, tied: $0.15 each; 12 in stock
+Provisions box, pine, vermin-proof: $3.50 each; 2 in stock
+Haversack, tarred canvas: $0.75 each; 4 in stock
+Knapsack, painted canvas, army pattern: $1.50 each; 3 in stock
+Pack board & tumpline: $2.50 each; 2 in stock
+Ash-splint pack basket: $1.25 each; 4 in stock
+Blanket, wool, 3-point: $3.00 each; 6 in stock
+Blanket, wool, 4-point heavy (Haugen): $4.50 each; 4 in stock
+Gum blanket (india-rubber): $2.25 each; 4 in stock
+Oiled-canvas fly, 8×10: $3.00 each; 3 in stock
+Wall tent, 9×9, with fly: $12.00 each; 1 in stock
+Oilcloth ground sheet: $1.00 each; 4 in stock
+Canvas bucket: $0.35 each; 4 in stock
+Felling axe (Hollister & Sons): $1.50 each; 3 in stock
+Hatchet / belt axe: $0.65 each; 5 in stock
+Butcher knife, sheath: $0.50 each; 4 in stock
+Clasp knife (jackknife): $0.35 each; 6 in stock
+Bucksaw: $1.25 each; 2 in stock
+Spade: $0.90 each; 3 in stock
+Pick, miner's (Penhallow & Trist): $1.25 each; 4 in stock
+Claw hammer: $0.40 each; 4 in stock
+Cut nails, lb: $0.06 each; 40 in stock
+Whetstone: $0.15 each; 6 in stock
+Sewing kit ("housewife"): $0.25 each; 8 in stock
+Pocket compass: $1.00 each; 2 in stock
+Spyglass, brass, 3-draw: $6.00 each; 1 in stock
+Slate & pencil: $0.10 each; 6 in stock
+Arrows, dozen, iron-headed: $0.75 each; 6 in stock
+Arrows, dozen, horn-tipped: $0.60 each; 6 in stock
+Black powder, rifle grade, lb (canister): $0.40 each; 6 in stock
+Powder horn: $0.50 each; 3 in stock
+Powder flask, copper (Carrow & Tuck): $1.00 each; 3 in stock
+Lead, bar, 5 lb: $0.35 each; 3 in stock
+Bullet mould (specify caliber): $0.40 each; 3 in stock
+Patches & patch box: $0.15 each; 6 in stock
+Percussion caps, tin of 100: $0.30 each; 6 in stock
+Gun flints, dozen: $0.10 each; 6 in stock
+Shot, No. 4 birdshot, 5 lb: $0.40 each; 6 in stock
+Paper cartridges, .69, ten: $0.25 each; 6 in stock
+Silver ball, cast, each: $0.75 each; 6 in stock
+Cast balls, .36, bag of 50: $0.40 each; 6 in stock
+Cast balls, .45, bag of 50: $0.50 each; 6 in stock
+Cast balls, .54, bag of 50: $0.60 each; 6 in stock
+Cast balls, .69, bag of 50: $0.80 each; 6 in stock
+Arrows, horn-tipped, dozen: $0.60 each; 6 in stock
+Quilted jack, cotton-wadded: $3.00 each; 3 in stock
+Smoked-hide jerkin, moose: $5.00 each; 2 in stock
+Buff coat, thick oil-tanned leather: $8.00 each; 2 in stock
+Plate-insert vest: $10.00 each; 2 in stock
+Cuirass, heirloom (old-country cuirassier): $20.00 each; 1 in stock
+Mail shirt, old-country: $30.00 each; 1 in stock
+Bowie knife: $2.00 each; 3 in stock
+Cavalry saber, surplus: $4.00 each; 3 in stock
+Sword-cane: $6.00 each; 2 in stock
+Smoothbore musket, surplus flintlock, .69: $6.00 each; 2 in stock
+Percussion musket (converted): $9.00 each; 2 in stock
+Squirrel rifle, .36: $12.00 each; 2 in stock
+Kentucky long rifle, flint, .45 (old): $14.00 each; 2 in stock
+Plains rifle, half-stock .54 (Ostrander): $25.00 each; 1 in stock
+Fowling piece, single, 12 ga.: $7.00 each; 2 in stock
+Double-barrel shotgun, 12 ga.: $18.00 each; 1 in stock
+Single-shot percussion pistol: $5.00 each; 2 in stock
+Pepperbox pistol, 4-barrel: $8.00 each; 2 in stock
+Revolver, .36 six-shot (Carrow & Tuck): $24.00 each; 1 in stock
+Hunting bow, hickory: $3.00 each; 3 in stock
+Crossbow, old-country: $10.00 each; 2 in stock
+Gun case, oiled leather: $0.75 each; 3 in stock
+Kittredge's Almanack for the Year: $0.06 each; 3 in stock
+Pocket Bible: $0.50 each; 3 in stock
+Rusk's Domestic Medicine: $3.00 each; 3 in stock
+Emigrant's Guide to the Upper Mississippi: $0.75 each; 3 in stock
+County map, lithographed: $0.50 each; 3 in stock
+Bank Note Detector (monthly): $0.25 each; 3 in stock
+Herbal & botany manual: $1.50 each; 3 in stock
+Blank journal & pencils: $0.30 each; 3 in stock
+The Long-Hidden Friend (charm book): $0.35 each; 3 in stock
+Spellbook, blank, vellum, 100 pp: $8.00 each; 2 in stock
+Grimoire, used (contents unknown): $15.00 each; 1 in stock
+Scribing ink & quills, set: $2.00 each; 3 in stock
+Red flannel drawers & undershirt: $1.25 each; 3 in stock
+Wool socks, pair (Haugen): $0.20 each; 3 in stock
+Cotton shirt: $0.50 each; 3 in stock
+Wool flannel shirt, checked: $1.25 each; 3 in stock
+Trousers, jean cloth: $1.50 each; 3 in stock
+Trousers, heavy wool: $2.50 each; 3 in stock
+Brogans: $1.25 each; 3 in stock
+Boots, tall cowhide: $3.50 each; 3 in stock
+Moccasins, smoked hide: $0.50 each; 3 in stock
+Moccasin liners, blanket wool: $0.25 each; 3 in stock
+Gaiters / leggings, wool: $0.50 each; 3 in stock
+Mackinaw coat (Haugen): $5.00 each; 2 in stock
+Capote, hooded blanket coat: $4.00 each; 3 in stock
+Buffalo coat: $12.00 each; 2 in stock
+Oilskin slicker: $2.00 each; 3 in stock
+Felt hat, wide brim: $1.50 each; 3 in stock
+Straw hat: $0.25 each; 3 in stock
+Fur cap with earflaps: $1.50 each; 3 in stock
+Mittens, wool, with leather overmitts: $0.60 each; 3 in stock
+Muffler, wool: $0.40 each; 3 in stock
+Reflector oven, folding tin: $0.75 each; 3 in stock
+India-rubber provision bag: $0.75 each; 3 in stock
+Tarred sack, 50 lb: $0.10 each; 3 in stock
+Bladder and wax crock seal: $0.03 each; 3 in stock
+Flour barrel, 196 lb: $0.50 each; 3 in stock
+Crib tin, empty dinner pail: $0.20 each; 3 in stock
+Willow creel: $0.35 each; 3 in stock
+Armload of firewood: $0.02 each; 6 in stock
+Burning glass: $0.40 each; 3 in stock
+Miner's candlestick (sticking tommy): $0.20 each; 3 in stock
+Pitch torch, set of 3: $0.10 each; 6 in stock
+Fishing line, braided silk, 30 yd: $0.40 each; 3 in stock
+Hooks, assorted, dozen: $0.10 each; 3 in stock
+Jointed rod, ash & lancewood: $2.00 each; 3 in stock
+Fly book & a dozen flies: $1.50 each; 3 in stock
+Trot line with 20 hooks: $0.50 each; 3 in stock
+Fish gig, three-tine: $0.50 each; 3 in stock
+Steel trap No. 1 (Haverill): $0.60 each; 3 in stock
+Steel trap No. 3 (Haverill): $1.25 each; 3 in stock
+Wolf trap No. 4 (Haverill): $2.50 each; 3 in stock
+Snare wire, brass, coil: $0.15 each; 3 in stock
+Fleshing knife & stretching boards: $0.40 each; 3 in stock
+Castor bait, vial: $0.20 each; 3 in stock
+Linen bandages, roll: $0.15 each; 3 in stock
+Lint & sticking plaster: $0.10 each; 3 in stock
+Laudanum, 2 oz: $0.25 each; 6 in stock
+Quinine sulfate, 1 oz: $3.00 each; 6 in stock
+Calomel, packet: $0.15 each; 3 in stock
+Dr. Pelham's Universal Restorative: $0.75 each; 3 in stock
+Horse & Human Liniment: $0.35 each; 3 in stock
+Mustard plaster: $0.10 each; 3 in stock
+Snakeroot, dried: $0.10 each; 3 in stock
+Willow bark, dried: $0.05 each; 3 in stock
+Surgeon's pocket case: $6.00 each; 2 in stock
+Saddlebags, leather, pair: $3.50 each; 3 in stock
+Buffalo robe: $5.00 each; 2 in stock
+Bed tick, ticking cloth: $0.40 each; 3 in stock
+Blanket straps & pins: $0.15 each; 3 in stock
+Hemp rope, ½-in., 50 ft: $1.00 each; 3 in stock
+Manila rope, ½-in., 50 ft: $1.50 each; 3 in stock
+Rawhide line, 30 ft: $0.60 each; 3 in stock
+Cord / twine, ball: $0.10 each; 3 in stock
+Grappling iron, 4-tine: $1.25 each; 3 in stock
+Iron spikes, dozen: $0.40 each; 3 in stock
+Rope ladder, 20 ft: $2.00 each; 3 in stock
+Block & tackle, single: $3.00 each; 3 in stock
+Tent poles & pegs, set: $0.75 each; 3 in stock
+Mosquito bar (netting): $0.50 each; 3 in stock
+Snowshoes, ash & rawhide, pair: $2.50 each; 3 in stock
+Clasp knife, Brauer two-blade: $0.90 each; 3 in stock
+Crowbar, 3 ft: $0.75 each; 3 in stock
+Auger, 1-inch: $0.60 each; 3 in stock
+Gun oil / neatsfoot oil, small tin: $0.15 each; 6 in stock
+Awl & waxed thread: $0.20 each; 3 in stock
+Pocket watch, silver case: $7.00 each; 2 in stock
+Salt, lb: $0.03 each; 3 in stock
+Tobacco, navy plug: $0.25 each; 6 in stock
+Since last look: no time passed.
+1855-04-02 09:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 39°F, dry.
+Food 6.0 days; Medium, 30.4 kg.
+Vitals: Hunger 571 (Peckish); Rest 869; Thirst 732; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Amos Whitcomb, Hester Fenn, Augusta Pratt are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Amos Whitcomb (#1), Hester Fenn (#16), Augusta Pratt (#21), Lydia Pratt (#22), Johann Brenner (#23), Clara Stoughton (#35).
+Appetite: Best not to think of it. (held for your order; you may: )
+Conscience: Daily round: Work (held for your order; you may: work)
+Self-Command: Resolved: Walk — explain 3639
+Heard: the rain-hem is rightly Ellis Wayfarer's
+Heard: the Good Neighbors are abroad at Lower Lantern Coulee
+[3714] Hester Fenn: Chat ▸ Lydia Pratt (it went well)
+[3715] Johann Brenner: Slight ▸ Hester Fenn (it went well)
+[3716] Clara Stoughton: Talk long ▸ Lydia Pratt (it went well)
+  Hester Fenn: “Can't stop long; there's work wanting.”
+  Lydia Pratt: “There always is. Go on, then.”
+  Johann Brenner: “Wait your turn.”
+  Hester Fenn: “I've been waiting it this half hour.”
+  Clara Stoughton: “Do you ever think about going back to York State, Miss Pratt?”
+  Lydia Pratt: “Every winter. Never in spring. You?”
+  Clara Stoughton: “Every night, and every morning I get up and feed the stock.”
+Kit: Less than a day of stored drinking water; preparation also draws from it.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 404; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> buy Oilcloth bag 1
+Since last look: 1h passed.
+Money: purse −$0.15, household +$0.00 — Bought 1 Oilcloth bag, tied for $0.15
+Augusta Pratt: Dun ▸ $10.35 (it went well)
+1855-04-02 10:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.85; household $0.00. 42°F, dry.
+Food 6.0 days; Medium, 30.5 kg.
+Vitals: Hunger 529 (Peckish); Rest 792; Thirst 652; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Amos Whitcomb, Hester Fenn, Augusta Pratt are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Amos Whitcomb (#1), Hester Fenn (#16), Augusta Pratt (#21), Lydia Pratt (#22), Clara Stoughton (#35), Lemuel Hatch (#39).
+Appetite: Best not to think of it. (held for your order; you may: )
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 3785
+[3810] Lydia Pratt: Good day ▸ Lemuel Hatch (it went well)
+[3811] Lemuel Hatch: Chat ▸ Lydia Pratt (it went well)
+[3814] You bought 1 Oilcloth bag, tied for $0.15 — explain 3814
+  Amos Whitcomb: “Mud to the axles on Main Street.”
+  Hester Fenn: “Spring in this country: half water, half promises.”
+  Hester Fenn: “Your people always look so well turned out, Miss Pratt.”
+  Lydia Pratt: “Soap and threats. Kind of you to notice.”
+  Gussie Pratt: “$10.35, Miss Fenn. I'll have it now, or I'll have it on the slate in front of everyone.”
+  Hester Fenn: “Keep your voice down. You'll have it.”
+  Lydia Pratt: “Lydia Pratt. I'll be in here often, I expect, if the prices hold.”
+  Lemuel Hatch: “Lemuel Hatch. Then we'll see a good deal of each other.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 414; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> buy Cut nails 2
+Since last look: 1h passed.
+Money: purse −$0.12, household +$0.00 — Bought 2 Cut nails, lb for $0.12
+1855-04-02 11:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.73; household $0.00. 45°F, dry.
+Food 6.0 days; Medium, 30.8 kg.
+Vitals: Hunger 500 (Peckish); Rest 753; Thirst 900; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Augusta Pratt, Lydia Pratt are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Augusta Pratt (#21), Lydia Pratt (#22).
+Appetite: Drink accessible water (held for your order; you may: fetch water)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 3863
+[3893] Lydia Pratt: Lend a hand ▸ Gussie Pratt (it went well)
+[3898] You bought 2 Cut nails, lb for $0.12 — explain 3898
+  Lydia Pratt: “I'll mind the counter a minute, Gussie, if you want your dinner.”
+  Gussie Pratt: “Would you? Don't give the store away.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 411; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> pack Cut nails into Knapsack
+Moved 1 of your Cut nails, lb into the Knapsack, painted canvas, army pattern.
+Since last look: 1h passed.
+1855-04-02 12:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.73; household $0.00. 47°F, dry.
+Food 6.0 days; Medium, 30.8 kg.
+Vitals: Hunger 471 (Peckish); Rest 714; Thirst 844; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Augusta Pratt, Lydia Pratt, Horace Bell are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Augusta Pratt (#21), Lydia Pratt (#22), Horace Bell (#31).
+Appetite: My belly's an empty kettle. (held for your order; you may: take a meal)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 3957
+[3987] Horace Bell: Repay ▸ $3.80 (it went well)
+  Horace Bell: “There: $3.80. We're square, Mrs. Pratt.”
+  Gussie Pratt: “Square it is. Much obliged.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Chat: Augusta Pratt [talk:chat:21]
+15. Introduce oneself: Augusta Pratt [talk:introduce:21]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 447; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> pack Cut nails into Knapsack
+Which one? Pack Cut nails, lb into Knapsack, painted canvas, army pattern [pack:896:340]; Pack Cut nails, lb into Knapsack, painted canvas, army pattern [pack:897:340]. No game time spent.
+Since last look: no time passed.
+1855-04-02 12:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.73; household $0.00. 47°F, dry.
+Food 6.0 days; Medium, 30.8 kg.
+Vitals: Hunger 471 (Peckish); Rest 714; Thirst 844; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Augusta Pratt, Lydia Pratt, Horace Bell are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Augusta Pratt (#21), Lydia Pratt (#22), Horace Bell (#31).
+Appetite: My belly's an empty kettle. (held for your order; you may: take a meal)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 3957
+Heard: the rain-hem is rightly Ellis Wayfarer's
+Heard: the Good Neighbors are abroad at Lower Lantern Coulee
+Kit: Less than a day of stored drinking water; preparation also draws from it.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Chat: Augusta Pratt [talk:chat:21]
+15. Introduce oneself: Augusta Pratt [talk:introduce:21]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 447; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> plan
+Food 6.0 days; 15570 usable kcal / 2889 kcal per day.
+Fuel: no cooking fuel required by projected meals.
+Spoils first: Dried apples in 269.2 days.
+Load: 30815 g; bulk 66.6; Medium.
+Charm (counted): Rain-hem, stitched band: 1 soaking of virtue; keeps its bag dry for 0 of 0 rainy hours in this plan. Dew at dawn wakes it (bag hung empty, no rain). 1.0 lb of iron in contact; it works below 2 lb.
+1 × Knapsack, painted canvas, army pattern (#340)
+1 × Rain-hem, stitched band (#845) in #340
+1 × Hardtack (ship's biscuit) (#863) in #340
+1 × Pemmican (#864) in #340
+1 × Dried apples (#865) in #340
+1 × Cut nails, lb (#897) in #340
+1 × Blanket, wool, 3-point (#341)
+1 × Camp kettle, nesting pair (#342)
+1 × Canteen, tin, wool-covered, 2 qt (#343)
+2 × Armload of firewood (#344)
+3 × Hardtack (ship's biscuit) (#345)
+2 × Pemmican (#346)
+1 × Dried apples (#347)
+1 × Oilcloth bag, tied (#469)
+1 × Cut nails, lb (#896)
+Since last look: no time passed.
+1855-04-02 12:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.73; household $0.00. 47°F, dry.
+Food 6.0 days; Medium, 30.8 kg.
+Vitals: Hunger 471 (Peckish); Rest 714; Thirst 844; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Augusta Pratt, Lydia Pratt, Horace Bell are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Augusta Pratt (#21), Lydia Pratt (#22), Horace Bell (#31).
+Appetite: My belly's an empty kettle. (held for your order; you may: take a meal)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 3957
+Heard: the rain-hem is rightly Ellis Wayfarer's
+Heard: the Good Neighbors are abroad at Lower Lantern Coulee
+[3987] Horace Bell: Repay ▸ $3.80 (it went well)
+  Horace Bell: “There: $3.80. We're square, Mrs. Pratt.”
+  Gussie Pratt: “Square it is. Much obliged.”
+Kit: Less than a day of stored drinking water; preparation also draws from it.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Chat: Augusta Pratt [talk:chat:21]
+15. Introduce oneself: Augusta Pratt [talk:introduce:21]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 447; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> pack:897:340
+Moved 1 of your Cut nails, lb into the Knapsack, painted canvas, army pattern.
+Since last look: 1h passed; Hunger: Peckish → steady.
+1855-04-02 13:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.73; household $0.00. 49°F, dry.
+Food 5.0 days; Medium, 30.8 kg.
+Vitals: Hunger 635; Rest 675; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Augusta Pratt, Lydia Pratt, Horace Bell are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Augusta Pratt (#21), Lydia Pratt (#22), Horace Bell (#31).
+Appetite: Something's wrong. I can feel it in my teeth. (held for your order; you may: keep house)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 4033
+[4088] Lydia Pratt: Borrow ▸ $1.50 (it went well)
+[4266] You ate Dried apples, Hardtack (ship's biscuit), Hardtack (ship's biscuit): 578 kcal, cold — explain 4266
+[4267] You are no longer peckish — explain 4267
+  Lydia Pratt: “I hate to ask, Gussie, but could you see your way to $1.50?”
+  Gussie Pratt: “I can. Till the end of the month, mind.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 418; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> plan
+Food 5.0 days; 14991 usable kcal / 2889 kcal per day.
+Fuel: no cooking fuel required by projected meals.
+Spoils first: Dried apples in 269.1 days.
+Load: 30815 g; bulk 66.6; Medium.
+Charm (counted): Rain-hem, stitched band: 1 soaking of virtue; keeps its bag dry for 0 of 0 rainy hours in this plan. Dew at dawn wakes it (bag hung empty, no rain). 1.0 lb of iron in contact; it works below 2 lb.
+1 × Knapsack, painted canvas, army pattern (#340)
+1 × Rain-hem, stitched band (#845) in #340
+1 × Hardtack (ship's biscuit) (#863) in #340
+1 × Pemmican (#864) in #340
+1 × Dried apples (#865) in #340
+1 × Cut nails, lb (#897) in #340
+1 × Blanket, wool, 3-point (#341)
+1 × Camp kettle, nesting pair (#342)
+1 × Canteen, tin, wool-covered, 2 qt (#343)
+2 × Armload of firewood (#344)
+3 × Hardtack (ship's biscuit) (#345)
+2 × Pemmican (#346)
+1 × Dried apples (#347)
+1 × Oilcloth bag, tied (#469)
+1 × Cut nails, lb (#896)
+Since last look: no time passed.
+1855-04-02 13:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.73; household $0.00. 49°F, dry.
+Food 5.0 days; Medium, 30.8 kg.
+Vitals: Hunger 635; Rest 675; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Augusta Pratt, Lydia Pratt, Horace Bell are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Augusta Pratt (#21), Lydia Pratt (#22), Horace Bell (#31).
+Appetite: Something's wrong. I can feel it in my teeth. (held for your order; you may: keep house)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 4033
+Heard: the rain-hem is rightly Ellis Wayfarer's
+Heard: the Good Neighbors are abroad at Lower Lantern Coulee
+[4088] Lydia Pratt: Borrow ▸ $1.50 (it went well)
+[4266] You ate Dried apples, Hardtack (ship's biscuit), Hardtack (ship's biscuit): 578 kcal, cold — explain 4266
+[4267] You are no longer peckish — explain 4267
+  Lydia Pratt: “I hate to ask, Gussie, but could you see your way to $1.50?”
+  Gussie Pratt: “I can. Till the end of the month, mind.”
+Kit: Less than a day of stored drinking water; preparation also draws from it.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 418; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> plan
+Food 5.0 days; 14991 usable kcal / 2889 kcal per day.
+Fuel: no cooking fuel required by projected meals.
+Spoils first: Dried apples in 269.1 days.
+Load: 30815 g; bulk 66.6; Medium.
+Charm (counted): Rain-hem, stitched band: 1 soaking of virtue; keeps its bag dry for 0 of 0 rainy hours in this plan. Dew at dawn wakes it (bag hung empty, no rain). 1.0 lb of iron in contact; it works below 2 lb.
+1 × Knapsack, painted canvas, army pattern (#340)
+1 × Rain-hem, stitched band (#845) in #340
+1 × Hardtack (ship's biscuit) (#863) in #340
+1 × Pemmican (#864) in #340
+1 × Dried apples (#865) in #340
+1 × Cut nails, lb (#897) in #340
+1 × Blanket, wool, 3-point (#341)
+1 × Camp kettle, nesting pair (#342)
+1 × Canteen, tin, wool-covered, 2 qt (#343)
+2 × Armload of firewood (#344)
+3 × Hardtack (ship's biscuit) (#345)
+2 × Pemmican (#346)
+1 × Dried apples (#347)
+1 × Oilcloth bag, tied (#469)
+1 × Cut nails, lb (#896)
+Since last look: no time passed.
+1855-04-02 13:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.73; household $0.00. 49°F, dry.
+Food 5.0 days; Medium, 30.8 kg.
+Vitals: Hunger 635; Rest 675; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Augusta Pratt, Lydia Pratt, Horace Bell are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Augusta Pratt (#21), Lydia Pratt (#22), Horace Bell (#31).
+Appetite: Something's wrong. I can feel it in my teeth. (held for your order; you may: keep house)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 4033
+Heard: the rain-hem is rightly Ellis Wayfarer's
+Heard: the Good Neighbors are abroad at Lower Lantern Coulee
+[4088] Lydia Pratt: Borrow ▸ $1.50 (it went well)
+[4266] You ate Dried apples, Hardtack (ship's biscuit), Hardtack (ship's biscuit): 578 kcal, cold — explain 4266
+[4267] You are no longer peckish — explain 4267
+  Lydia Pratt: “I hate to ask, Gussie, but could you see your way to $1.50?”
+  Gussie Pratt: “I can. Till the end of the month, mind.”
+Kit: Less than a day of stored drinking water; preparation also draws from it.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 418; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> pack:896:340
+Moved 1 of your Cut nails, lb into the Knapsack, painted canvas, army pattern.
+Since last look: 1h passed.
+1855-04-02 14:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.73; household $0.00. 50°F, dry.
+Food 5.0 days; Medium, 30.8 kg.
+Vitals: Hunger 606; Rest 636; Thirst 732; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Augusta Pratt, Lydia Pratt are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Augusta Pratt (#21), Lydia Pratt (#22).
+Appetite: Something's wrong. I can feel it in my teeth. (held for your order; you may: keep house)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 4285
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 417; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> plan
+Food 5.0 days; 14991 usable kcal / 2889 kcal per day.
+Fuel: no cooking fuel required by projected meals.
+Spoils first: Dried apples in 269.1 days.
+Load: 30815 g; bulk 66.6; Medium.
+Charm (counted): Rain-hem, stitched band: 1 soaking of virtue; keeps its bag dry for 0 of 0 rainy hours in this plan. Dew at dawn wakes it (bag hung empty, no rain). Suppressed: 2.0 lb of iron in contact (Cut nails, lb).
+1 × Knapsack, painted canvas, army pattern (#340)
+1 × Rain-hem, stitched band (#845) in #340
+1 × Hardtack (ship's biscuit) (#863) in #340
+1 × Pemmican (#864) in #340
+1 × Dried apples (#865) in #340
+1 × Cut nails, lb (#896) in #340
+1 × Cut nails, lb (#897) in #340
+1 × Blanket, wool, 3-point (#341)
+1 × Camp kettle, nesting pair (#342)
+1 × Canteen, tin, wool-covered, 2 qt (#343)
+2 × Armload of firewood (#344)
+3 × Hardtack (ship's biscuit) (#345)
+2 × Pemmican (#346)
+1 × Dried apples (#347)
+1 × Oilcloth bag, tied (#469)
+Since last look: no time passed.
+1855-04-02 14:00 | FAIR | Pratt & Daughter, Outfitters
+Ellis Wayfarer — at leisure. Purse $49.73; household $0.00. 50°F, dry.
+Food 5.0 days; Medium, 30.8 kg.
+Vitals: Hunger 606; Rest 636; Thirst 732; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00.
+The Outfitter: general store, post-office counter, and the town's ledger of debts. The root cellar is the coolest storage in the village. A ginseng and fur buyer's trade is a placeholder awaiting consultation. Spring at Pratt & Daughter, Outfitters. The wind carries the smell of wet earth. Augusta Pratt, Lydia Pratt are here.
+Charm: Rain-hem, stitched band (#845) [held] 1 virtue.
+Here: Augusta Pratt (#21), Lydia Pratt (#22).
+Appetite: Something's wrong. I can feel it in my teeth. (held for your order; you may: keep house)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: call for the mail)
+Self-Command: Resolved: At home — explain 4285
+Heard: the rain-hem is rightly Ellis Wayfarer's
+Heard: the Good Neighbors are abroad at Lower Lantern Coulee
+Kit: Less than a day of stored drinking water; preparation also draws from it.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern [go:4]
+11. Go to The Iron Ford [go:19]
+12. Go to Iron Ford Lutheran Church [go:26]
+13. Go to Iron Ford Sentinel Print Shop [go:38]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 417; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.

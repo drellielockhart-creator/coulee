@@ -1,0 +1,29 @@
+# Fixture `charm_at_iron_ford` (13 §6.9): Iron Ford with one Never-Empty Sack lying on
+# Huldra's Shelf from day 3, where the Fenns sugar off in April. Nothing after the find is
+# scripted: who keeps it, whose bin it draws from, who counts, covets, lends or burns it all
+# follow from the ordinary systems. (13 §6.9 places it in Lower Lantern Coulee, a path nobody
+# works; the Shelf is the nearest ground the Fenns actually work.)
+extends = "iron_ford"
+id = "charm_at_iron_ford"
+name = "The Charm at Iron Ford (fixture)"
+description = "Iron Ford, spring 1855, with a fae flour sack lying on Huldra's Shelf from the third day."
+
+[[fae_reservoir]]
+item = "never_empty_sack"
+place = "huldras_shelf"
+from_day = 2
+find_permille = 1000
+notice_dc = 10
+virtue = 7
+
+# A Rain-Hem lying where the bank hides the sky in Lower Lantern Coulee, for whoever stops
+# there (a resting or passing hour): the honest charm, to weigh against oilcloth and iron.
+[[fae_reservoir]]
+item = "rain_hem"
+place = "lower_coulee"
+from_day = 0
+find_permille = 400
+notice_dc = 10
+gathering = false
+activity_tags = ["leisure", "travel", "wild_production"]
+virtue = 2

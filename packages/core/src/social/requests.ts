@@ -13,9 +13,21 @@ export interface PendingRequest {
   from: ActorId;
   to: ActorId;
   interactionId: string;
-  response?: 'lend' | 'borrow' | 'proposal' | 'accept_favor' | 'disclose';
+  response?:
+    | 'lend'
+    | 'borrow'
+    | 'proposal'
+    | 'accept_favor'
+    | 'disclose'
+    | 'show_item'
+    | 'lend_item'
+    | 'return_item'
+    | 'accept_item';
   basis?: Basis;
   topic?: import('../ids.ts').PropId;
+  /** An item-specific request's item and terms (13 §2.2 rule 5: answered by Command or it lapses). */
+  itemId?: import('../ids.ts').ItemId;
+  terms?: import('../urge.ts').Terms;
   placeId: PlaceId | null;
   until: number;
   status: 'pending' | 'accepted' | 'refused' | 'no answer';
@@ -45,6 +57,8 @@ export function requestTerms(
   initiatorId: ActorId,
   response: NonNullable<PendingRequest['response']>,
   now: number,
+  /** An item request's terms (13 §6.1: a loan's day of return), when the act is about a thing. */
+  item?: { terms?: import('../urge.ts').Terms },
 ): RequestTerms {
   const a = world.actors[initiatorId];
   const name = a ? `${a.name.given} ${a.name.family}`.trim() : 'Someone';
@@ -73,6 +87,19 @@ export function requestTerms(
       break;
     case 'disclose':
       ask = `${name} asks you for the news. Say yes and you tell ${him} the freshest thing you have heard.`;
+      break;
+    // Item requests (13 §6.1): about a thing the asked one keeps, was lent, or is offered.
+    case 'show_item':
+      ask = `${name} asks to see what you keep. Say yes and ${he} may look it over for a while.`;
+      break;
+    case 'lend_item':
+      ask = `${name} begs the loan of what you keep${item?.terms?.kind === 'loan' ? `, to bring it back by ${dayText(item.terms.dueAt)}` : ''}. Say yes and it goes home with ${him}.`;
+      break;
+    case 'return_item':
+      ask = `${name} asks for back what you were lent. Say yes and you hand it over now.`;
+      break;
+    case 'accept_item':
+      ask = `${name} offers you the loan of what ${he} keeps${item?.terms?.kind === 'loan' ? `, to bring back by ${dayText(item.terms.dueAt)}` : ''}. Say yes and you take it home on those terms.`;
       break;
     default:
       ask = def.success.give_item
@@ -115,24 +142,22 @@ export function requestsHour(world: World, ctx: SimContext): void {
       (c) => c.kind === 'social.answer_request' && c.actorId === r.to && c.data.requestId === r.id,
     );
     if (answer?.kind === 'social.answer_request' && ctx.now <= r.until) {
-      const auth = authorizeAct(
-        world,
-        r.to,
-        { kind: r.response ?? 'lend', targetId: r.from },
-        { kind: 'command', issuer: answer.issuer ?? { kind: 'player' } },
-      );
+      const act = {
+        kind: r.response ?? 'lend',
+        targetId: r.from,
+        ...(r.itemId !== undefined ? { itemId: r.itemId } : {}),
+      };
+      const auth = authorizeAct(world, r.to, act, { kind: 'command', issuer: answer.issuer ?? { kind: 'player' } });
       if (!auth.ok) {
         ctx.emit({
           kind: 'social.act_refused',
           data: { actorId: r.to, reason: auth.reason },
           roles: [{ actor: r.to, role: 'agent' }],
           visibility: 'private',
-          explain: authorizationExplain(
-            world,
-            r.to,
-            { kind: r.response ?? 'lend', targetId: r.from },
-            { kind: 'command', issuer: answer.issuer ?? { kind: 'player' } },
-          ),
+          explain: authorizationExplain(world, r.to, act, {
+            kind: 'command',
+            issuer: answer.issuer ?? { kind: 'player' },
+          }),
         });
         continue;
       }
@@ -149,6 +174,8 @@ export function requestsHour(world: World, ctx: SimContext): void {
           via: 'urge',
           acceptedRequestId: r.id,
           ...(r.topic !== undefined ? { topic: r.topic } : {}),
+          ...(r.itemId !== undefined ? { itemId: r.itemId } : {}),
+          ...(r.terms !== undefined ? { terms: r.terms } : {}),
         });
     } else if (ctx.now > r.until) r.status = 'no answer';
     else continue;

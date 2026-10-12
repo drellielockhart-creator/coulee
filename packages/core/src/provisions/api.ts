@@ -77,6 +77,8 @@ export interface Readiness {
   unpreparable: Array<{ defId: string; name: string; missing: string[] }>;
   /** Plain-language warnings: "No fresh food: scurvy in ~5 weeks". */
   warnings: string[];
+  /** Fae charms in the kit (13 §5.7): exact rows counted, conditional rows shown only, claims not included. */
+  charms?: import('../fae/forecast.ts').CharmForecastRow[];
   /** One eater: today's scheduled daily need, by labor hours (P1). */
   needExplain?: import('../explain.ts').Explain;
   /** One eater: the lowest and highest daily need over the coming week, kcal at current rations. */

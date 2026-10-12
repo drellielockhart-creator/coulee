@@ -173,6 +173,11 @@ export interface ChronicleState {
   /** Omen caps use day/week indices, independent of timestamp-based repeat cleanup. */
   omenPeriods?: Record<string, number>;
   omenCounts?: Record<string, number>;
+  /**
+   * Per-charm story memory (fae 1b), kept past `closedThreads` eviction: the pounds the last
+   * Truth named, and who kept the charm when its last story closed. Created on first use.
+   */
+  charmMemo?: Record<number, { truthLb?: number; keeperId?: number }>;
   /** Template id -> variant index last used (variety). */
   variants: Record<string, number>;
   /** Entries written this week, for the fatigue term. */

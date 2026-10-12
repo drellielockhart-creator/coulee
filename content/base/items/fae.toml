@@ -1,0 +1,45 @@
+# Fae charms (13 §5.1, §5.8): ordinary items in the `fae` section; their fae behavior lives in
+# content/base/fae/charms.toml (module:fae), keyed by item id. Never stocked by type (03 Q11).
+
+[[item]]
+id = "never_empty_sack"
+name = "Flour sack, moonsilk ticking"
+section = "fae"
+copy = "Tie it shut at night and don't look in till the cock crows."
+truth = "Tops itself up with flour at dawn from the nearest unwarded flour store within three miles."
+weight_g = 227
+bulk = 1
+value_cents = 4000
+materials = [{ material = "moonsilk", pct = 100 }]
+tags = ["fae_charm"]
+stackable = false
+shape = ["soft"]
+container = { capacity_g = 11350, capacity_bulk = 15.0, carry = "pack" }
+
+[[item]]
+id = "rain_hem"
+name = "Rain-hem, stitched band"
+section = "fae"
+copy = "Stitch inside the flap. Let the weather attend to the outside."
+truth = "Keeps the container it is stitched into dry; the rain it turns lands on the nearest other uncovered container."
+weight_g = 113
+bulk = 0.1
+value_cents = 300
+materials = [{ material = "moonsilk", pct = 100 }]
+tags = ["fae_charm"]
+stackable = false
+shape = ["soft"]
+
+# A Hall reader's answer to a charm (13 §5.4, §6.5): iron storage suppresses the object, not
+# the bargain. Ordinary hardware, not a charm: it is here because nothing else is iron-lined.
+[[item]]
+id = "iron_bound_casket"
+name = "Casket, iron-bound and iron-lined"
+section = "folk_magic"
+copy = "Oak, banded and lined with sheet iron. What goes in does not come out by itself."
+weight_g = 3175
+bulk = 5
+value_cents = 250
+materials = [{ material = "iron", pct = 60 }, { material = "wood", pct = 40 }]
+stackable = false
+container = { capacity_g = 4500, capacity_bulk = 4, protects = ["iron_lined", "concealed", "splashproof"], carry = "fixed" }

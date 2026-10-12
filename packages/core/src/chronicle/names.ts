@@ -170,6 +170,7 @@ export function argForm(
     if (form === 'is') return f.plural ? 'are' : 'is';
     return f.family;
   }
+  if (a.kind === 'item' && a.id !== undefined) return itemSubjectName(world, content, a.id);
   if (a.kind === 'number' && form === 'money') return moneyWords(Number(a.value ?? 0));
   if (a.kind === 'text' && form === 'trait') {
     const t = content.traits?.[String(a.value)];
@@ -178,6 +179,18 @@ export function argForm(
     return /^(Of|A|An|Given|Fond|Close|Pious|Pledged|Open)\b/.test(label) ? label.toLowerCase() : t.name.toLowerCase();
   }
   return null;
+}
+
+/**
+ * An item as talk names it: a charm by its common name ("the moonsilk flour sack"), else the
+ * catalog name, lower-cased. Reads the stack, or the fae record of a charm that is gone.
+ */
+export function itemSubjectName(world: World, content: ContentBundle, id: number): string {
+  const defId =
+    (world.items?.stacks?.[id as never] as { defId: string } | undefined)?.defId ??
+    (world.fae?.charms?.[id as never] as { defId: string } | undefined)?.defId;
+  if (!defId) return 'a certain object';
+  return content.charms?.[defId]?.called ?? `a ${itemName(content, defId)}`;
 }
 
 /** "$310.00" (money in a rumor reads as money, not as a count of cents). */
@@ -314,6 +327,8 @@ export function rumorText(world: World, content: ContentBundle, propId: number):
         return String(a.value);
       case 'misfortune':
         return misfortuneText(world, content, a.id as number) ?? 'some misfortune';
+      case 'item':
+        return itemSubjectName(world, content, a.id as number);
       default:
         return 'some misfortune';
     }

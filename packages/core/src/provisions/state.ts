@@ -282,6 +282,8 @@ export function initProvisionsState(world: World, ctx: InitContext): void {
     for (const hid of idsOf<HouseholdId>(world.households)) {
       if (owner === null && world.households[hid]?.homePlaceId === pid) owner = hid;
     }
+    // A store nobody lives at or works in may be kept by a named household (its accounts, its credit).
+    if (owner === null && s.keeper !== undefined) owner = world.index.householdByKey[s.keeper] ?? null;
     if (owner === null) {
       const roles = ctx.content.domesticRules?.daily?.business_owner_roles ?? [];
       const keeper = rowsOf(world.actors).find(

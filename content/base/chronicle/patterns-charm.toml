@@ -1,0 +1,150 @@
+# "The Charm at ‹town›" (13 §6.7). Fair prose uses only what its audience knows: the paper
+# prints what the town says, the journal what the diarist saw, the epilogue the truth.
+
+# ---- the paper ------------------------------------------------------------------------
+[[template]]
+id = "charm_paper_1"
+on = "charm"
+voice = "paper"
+when = { level = 1 }
+headline = "A Curiosity at {town}"
+text = [
+  "We are told that {keeper} has come into possession of a flour sack of uncommon habits. Our informant says it {claim}. We print it as given.",
+  "A correspondent writes that a household out past the ford keeps a sack that {claim}. We would be glad of a sight of it.",
+]
+
+[[template]]
+id = "charm_paper_2"
+on = "charm"
+voice = "paper"
+when = { level = 2 }
+headline = "The Sack Question"
+text = [
+  "Half {town} has found a reason to call on {keeper} this fortnight, and not all of them were asked in. The sack, they say, {claim}. Its keepers are not taking visitors.",
+  "There is a flour sack in {town} that more people want than ever owned a cow. It {claim}, or so the asking goes.",
+]
+
+[[template]]
+id = "charm_paper_3"
+on = "charm"
+voice = "paper"
+when = { level = 3 }
+headline = "The Sack Question"
+text = [
+  "Nothing has divided {town} like {charm} since the bell was hung. One party calls it Providence and the other theft, and both buy their flour cheaper.",
+  "The sack has changed hands more than once this month, not always on the day agreed. Words have been said at the store that we will not print.",
+]
+
+[[template]]
+id = "charm_paper_closed"
+on = "charm.closed"
+voice = "paper"
+text = [
+  "The matter of {charm} is quiet at last: it has been {resolution}. The store reports flour moving at the usual pace.",
+]
+
+[[template]]
+id = "charm_ballad"
+on = "charm"
+voice = "ballad"
+text = [
+  "It fed the ridge and starved the mill, / and no one asked whose bread.",
+]
+
+# ---- the journal ----------------------------------------------------------------------
+[[template]]
+id = "charm_journal_1"
+on = "charm"
+voice = "journal"
+when = { level = 1 }
+text = [
+  "I saw it with my own eyes: {charm}, and they say it {claim}. I do not know what to make of a thing like that in a poor house.",
+]
+
+[[template]]
+id = "charm_journal_2"
+on = "charm"
+voice = "journal"
+when = { level = 2 }
+text = [
+  "Everybody wants a turn of that sack. I have heard three households ask for it, and none of them asked kindly.",
+]
+
+[[template]]
+id = "charm_journal_3"
+on = "charm"
+voice = "journal"
+when = { level = 3 }
+text = [
+  "The sack has gone from house to house and come back late, and now there are hard words over it. I wonder where the flour is coming from.",
+]
+
+[[template]]
+id = "charm_journal_closed"
+on = "charm.closed"
+voice = "journal"
+text = [
+  "So that is the end of the sack, or the end of the talk of it: {resolution}.",
+]
+
+# ---- the epilogue ---------------------------------------------------------------------
+[[template]]
+id = "charm_epilogue_1"
+on = "charm"
+voice = "epilogue"
+when = { level = 1, stage = "arrived" }
+text = [
+  "{^charm} came to {keeper} out of the grass, and the first morning it stood full, nobody in the house asked where the flour had come from.",
+]
+
+[[template]]
+id = "charm_epilogue_1_still"
+on = "charm"
+voice = "epilogue"
+when = { level = 1, stage = "still" }
+text = [
+  "{^charm} went on working in {keeper}'s house, a pound of somebody's flour at a time.",
+]
+
+[[template]]
+id = "charm_epilogue_1_again"
+on = "charm"
+voice = "epilogue"
+when = { level = 1, stage = "again" }
+text = [
+  "{^charm} was working again, in {keeper}'s keeping now, and nobody in that house asked where the flour had come from either.",
+]
+
+[[template]]
+id = "charm_epilogue_2"
+on = "charm"
+voice = "epilogue"
+when = { level = 2 }
+text = [
+  "By now {charm} had taken {lb} lb of other people's flour, and the neighbors who wanted it believed it {claim}.",
+]
+
+[[template]]
+id = "charm_epilogue_3"
+on = "charm"
+voice = "epilogue"
+when = { level = 3 }
+text = [
+  "The quarrel over {charm} was a quarrel over {source}, though only the sack knew it.",
+]
+
+[[template]]
+id = "charm_epilogue_closed"
+on = "charm.closed"
+voice = "epilogue"
+text = [
+  "In the end {charm} was {resolution}.",
+]
+
+[[template]]
+id = "charm_truth"
+on = "charm.truth"
+voice = "epilogue"
+text = [
+  "The truth of it: {charm} never made a pound of flour. It took {source}.{blame}",
+]

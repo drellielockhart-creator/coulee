@@ -1,0 +1,7 @@
+# Charm quirks (13 §5.5). Slice 1b ships `unthanked`; the rest are slice 2.
+
+[[quirk]]
+id = "unthanked"
+name = "Unthanked"
+text = "Thanks spoken aloud to it block its recharge for a moon."
+block_minutes = 42524

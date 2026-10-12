@@ -1,0 +1,5 @@
+{"type":"session","format":1,"spec":{"source":{"kind":"generated","recipe":{"genVersion":2,"seed":1}},"seed":1,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"2e27c868c6843bcb9d250b1398d27f94eadeb4f69555501c73b6d57f31ae0c34"}
+{"type":"command","command":{"kind":"activity.wait","actorId":26,"data":{"minutes":1440,"untilTime":420},"issuer":{"kind":"player"}},"before":"3d036425e50e578b","after":"dce55da0d65c1b56","at":0,"end":420}
+{"type":"command","command":{"kind":"fae.signs","actorId":26,"data":{},"issuer":{"kind":"player"}},"before":"dce55da0d65c1b56","after":"dce55da0d65c1b56","at":420,"end":420}
+{"type":"command","command":{"kind":"activity.wait","actorId":26,"data":{"minutes":1440,"untilTime":1140},"issuer":{"kind":"player"}},"before":"dce55da0d65c1b56","after":"eca98cf565b4b0d8","at":420,"end":660}
+{"type":"command","command":{"kind":"fae.signs","actorId":26,"data":{},"issuer":{"kind":"player"}},"before":"eca98cf565b4b0d8","after":"eca98cf565b4b0d8","at":660,"end":660}

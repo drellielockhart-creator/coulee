@@ -199,6 +199,37 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'fae.read':
     case 'fae.investigated':
       return out(e.data.text);
+    case 'fae.charm_arrived':
+      return out(
+        e.data.finderId === pc ? e.data.text : `${actorName(e.data.finderId)} picks something up out of the grass`,
+      );
+    case 'fae.charm_used':
+      return out(e.data.text);
+    case 'fae.charm_tended':
+      return out(
+        e.data.actorId === pc ? e.data.text : `${actorName(e.data.actorId)} sees to the flour sack`,
+        e.data.actorId !== pc,
+      );
+    case 'fae.charm_recharged':
+      return out(e.data.text);
+    case 'fae.charm_revealed':
+      return out(e.data.text);
+    case 'fae.charm_disposed':
+      return out(e.data.text);
+    case 'fae.charm_refused':
+      return out(e.data.reason);
+    case 'fae.shortfall':
+      return out(e.data.text);
+    case 'fae.stock_counted':
+      return out(e.data.text, e.data.actorId !== pc);
+    case 'fae.charm_drew':
+      return out('Something happens at dawn that nobody sees', true);
+    case 'social.loan_opened':
+    case 'social.loan_closed':
+    case 'social.loan_breached':
+      return out(e.data.text);
+    case 'social.item_refused':
+      return out(e.data.reason, e.data.actorId !== pc);
     case 'social.requested':
       return out(e.data.text.replace(/\.$/, ''));
     case 'social.request_answered': {

@@ -1,0 +1,173 @@
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | the Copper Stag Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Copper Stag stands at (30, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Copper Stag Tavern. Wheel ruts and footprints cross the softer ground. Thomas Dunleavy, Mary Dunleavy, Honora Dunleavy are here.
+Here: Thomas Dunleavy (#3), Mary Dunleavy (#4), Honora Dunleavy (#5), Thomas Costello (#25).
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Linden Ford [go:13]
+11. Go to Moe Ford Smithy [go:20]
+12. Go to Ziegler Store and Outfitter [go:22]
+13. Chat: Thomas Dunleavy [talk:chat:3]
+14. Introduce oneself: Thomas Dunleavy [talk:introduce:3]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:146:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:146:soak]
+Actions 137; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 07:00
+Since last look: 7h passed.
+Mary Dunleavy: Good day ▸ Ellis Wayfarer (it went well)
+Thomas Costello: Good day ▸ Ellis Wayfarer (it went well)
+1855-04-01 07:00 | FAIR | the Copper Stag Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Copper Stag stands at (30, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Copper Stag Tavern. Wheel ruts and footprints cross the softer ground. Thomas Dunleavy, Mary Dunleavy, Honora Dunleavy are here.
+Here: Thomas Dunleavy (#3, asleep), Mary Dunleavy (#4), Honora Dunleavy (#5, asleep), Thomas Costello (#25).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 241
+[240] You are getting peckish — explain 240
+[344] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 344
+[345] You are no longer peckish — explain 345
+  Mary Dunleavy: “Good day to you! The name's Mary Dunleavy.”
+  Ellis Wayfarer: “Ellis Wayfarer. And where do you hail from?”
+  Mary Dunleavy: “From the old country, first, and a good many places since.”
+  Thomas Costello: “I don't think I know your face. Thomas Costello.”
+  Ellis Wayfarer: “Ellis Wayfarer. Nor I yours, but that's mended now.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Linden Ford [go:13]
+11. Go to Moe Ford Smithy [go:20]
+12. Go to Ziegler Store and Outfitter [go:22]
+13. Chat: Mary Dunleavy [talk:chat:4]
+14. Chat: Thomas Costello [talk:chat:25]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:146:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:146:soak]
+Actions 187; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+No signs or wonders yet. Strange things you notice, or hear of, are listed here until you settle them or they fade.
+Since last look: no time passed.
+1855-04-01 07:00 | FAIR | the Copper Stag Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Copper Stag stands at (30, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Copper Stag Tavern. Wheel ruts and footprints cross the softer ground. Thomas Dunleavy, Mary Dunleavy, Honora Dunleavy are here.
+Here: Thomas Dunleavy (#3, asleep), Mary Dunleavy (#4), Honora Dunleavy (#5, asleep), Thomas Costello (#25).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 241
+[281] Thomas Costello: Good day ▸ Ellis Wayfarer (it went well)
+[344] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 344
+[345] You are no longer peckish — explain 345
+  Mary Dunleavy: “Good day to you! The name's Mary Dunleavy.”
+  Ellis Wayfarer: “Ellis Wayfarer. And where do you hail from?”
+  Mary Dunleavy: “From the old country, first, and a good many places since.”
+  Thomas Costello: “I don't think I know your face. Thomas Costello.”
+  Ellis Wayfarer: “Ellis Wayfarer. Nor I yours, but that's mended now.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Linden Ford [go:13]
+11. Go to Moe Ford Smithy [go:20]
+12. Go to Ziegler Store and Outfitter [go:22]
+13. Chat: Mary Dunleavy [talk:chat:4]
+14. Chat: Thomas Costello [talk:chat:25]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:146:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:146:soak]
+Actions 187; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 19:00
+Wait stopped at 12:00 (you meant to wait until 19:00).
+Since last look: 5h passed; Rest: steady → Tired.
+Skipped 6 minor conversations nearby.
+You are getting tired
+1855-04-01 12:00 | FAIR | the Copper Stag Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 47°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 640; Rest 256 (Tired); Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+You may collapse from exhaustion in about 91 hours if this continues (Fortitude saves vary).
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Copper Stag stands at (30, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Copper Stag Tavern. Wheel ruts and footprints cross the softer ground. Honora Dunleavy is here.
+Here: Honora Dunleavy (#5).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: Daily round: Keep the Sabbath (held for your order; you may: keep the Sabbath)
+Self-Command: Held for your order; routine standing orders only — explain 684
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Linden Ford [go:13]
+11. Go to Moe Ford Smithy [go:20]
+12. Go to Ziegler Store and Outfitter [go:22]
+13. Chat: Honora Dunleavy [talk:chat:5]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:146:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:146:soak]
+Actions 157; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+No signs or wonders yet. Strange things you notice, or hear of, are listed here until you settle them or they fade.
+Since last look: no time passed.
+1855-04-01 12:00 | FAIR | the Copper Stag Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 47°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 640; Rest 256 (Tired); Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+You may collapse from exhaustion in about 91 hours if this continues (Fortitude saves vary).
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Copper Stag stands at (30, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Copper Stag Tavern. Wheel ruts and footprints cross the softer ground. Honora Dunleavy is here.
+Here: Honora Dunleavy (#5).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: Daily round: Keep the Sabbath (held for your order; you may: keep the Sabbath)
+Self-Command: Held for your order; routine standing orders only — explain 684
+[682] You are getting tired — explain 682
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Linden Ford [go:13]
+11. Go to Moe Ford Smithy [go:20]
+12. Go to Ziegler Store and Outfitter [go:22]
+13. Chat: Honora Dunleavy [talk:chat:5]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:146:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:146:soak]
+Actions 157; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.

@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { beliefScenarioFields } from './belief.ts';
 import type { ContentBundle } from './bundle.ts';
 import { abilities, checkRefs, defineDomain, type Issue, id, int, ref, valuesBlock } from './common.ts';
+import { faeScenarioFields } from './fae.ts';
 import { provisionsActorFields, provisionsHouseholdFields, provisionsScenarioFields } from './items.ts';
 import { needsActivitiesActorFields } from './needs-activities.ts';
 import { psycheActorFields } from './psyche.ts';
@@ -96,6 +97,7 @@ export const ScenarioSchema = z.strictObject({
   ...socialScenarioFields,
   ...beliefScenarioFields,
   ...provisionsScenarioFields,
+  ...faeScenarioFields,
 });
 export type ScenarioDef = z.output<typeof ScenarioSchema>;
 

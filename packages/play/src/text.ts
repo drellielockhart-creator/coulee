@@ -177,8 +177,12 @@ ${o.epilogue ?? ''}`;
       const how = o.requests.length > 1 ? `yes ${who} or no ${who}` : 'yes or no';
       return `Asked of you: ${r.text ? askOf(r.text) : `a request from ${who}.`} Answer now (${how}); silence lets it lapse this hour.`;
     }),
+    ...o.charms.map(
+      (k) =>
+        `Charm: ${k.name} (#${k.itemId}) ${k.relation === 'known' ? '' : `[${k.relation}] `}${k.status}${k.heard.length ? ` Said: it ${k.heard[k.heard.length - 1]?.replace(/^it /, '')}.` : ''}`,
+    ),
     ...o.signs
-      .filter((q) => q.closedAt === null)
+      .filter((q) => q.closedAt === null && q.available)
       .slice(-2)
       .map((q) => `Open sign: ${q.text} (investigate ${q.signId})`),
     `Here: ${
@@ -677,6 +681,7 @@ function renderPrices(stock: Observation['store']['stock'], page?: number, filte
   ].join('\n');
 }
 export function renderDetail(detail: unknown): string {
+  if (typeof detail === 'string') return detail;
   if (detail && typeof detail === 'object' && 'prices' in detail) {
     const d = detail as {
       prices: Observation['store']['stock'];
@@ -798,7 +803,7 @@ export function renderDetail(detail: unknown): string {
     return detail
       .map(
         (e) =>
-          `[${e.signId}] ${e.closedAt === null ? 'Open question' : 'Read sign'}: ${e.text}\n${e.evidence ?? ''}${e.available ? ` — investigate ${e.signId}` : ' — trace faded'}`,
+          `[${e.signId}] ${e.closedAt !== null ? 'Settled' : e.available ? 'Open question' : 'Faded'}: ${e.text}${e.evidence ? `\n${e.evidence}` : ''}${e.closedAt === null ? (e.available ? ` (investigate ${e.signId})` : ' (the trace has faded)') : ''}`,
       )
       .join('\n');
   if (Array.isArray(detail))
@@ -836,6 +841,10 @@ export function renderDetail(detail: unknown): string {
       `Spoils first: ${r.spoilsFirst ? `${r.spoilsFirst.name} in ${(r.spoilsFirst.inDaysTenths / 10).toFixed(1)} days` : 'none'}.`,
       `Load: ${r.totalWeightG} g; bulk ${(r.totalBulkTenths / 10).toFixed(1)}; ${r.loadBand}.`,
       ...r.warnings,
+      ...(r.charms ?? []).map(
+        (k) =>
+          `${k.kind === 'exact' ? 'Charm (counted)' : k.kind === 'conditional' ? 'Charm (shown, not counted)' : 'Charm (claims not included)'}: ${k.text}`,
+      ),
       ...r.carried.map((i) => `${i.qty} × ${i.name} (#${i.id})${i.containerId ? ' in #' + i.containerId : ''}`),
     ].join('\n');
   }

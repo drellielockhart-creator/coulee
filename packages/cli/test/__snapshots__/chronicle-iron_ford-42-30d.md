@@ -34,13 +34,13 @@ Correspondents mention Brenner House. Three tools lie with their handles pointin
 
 ## Week 2: April 8 to 14, 1855
 
-*Sunday, the 8th of April, 1855. The Sabbath; a last quarter, and the ford quiet. Rain in the morning.*
+*Sunday, the 8th of April, 1855, the Lord's day. The last quarter. Rain in the morning.*
 
 > *The Almanac.* Among this week's observations, at Iron Ford Sentinel Print Shop: The broom leans bristles upward against the shut door.
 
 *Monday, the 9th of April, 1855. The last quarter.*
 
-*Tuesday, the 10th of April, 1855; the last quarter.*
+*Tuesday, the 10th of April, 1855, under the last quarter.*
 
 **Through the Worst** The thin spring of Amos Whitcomb's household is over; they held. The first greens came, and nobody was buried who might not have been.
 
@@ -50,11 +50,13 @@ Correspondents mention Brenner House. Three tools lie with their handles pointin
 
 Several persons at Fenn Farm report the following: A neat plait has appeared in the loose straw by the door.
 
-*Friday, the 13th of April, 1855. The waning crescent.*
+*Friday, the 13th of April, 1855, under the waning crescent.*
+
+**A Good Neighbor** Mrs. D. Pascoe has been busy with kindnesses this month; four are known to the village. The county could stand a dozen like.
 
 *Saturday, the 14th of April, 1855; the waning crescent.*
 
-> *The Almanac.* Two matters of note this week. Posted at the store: cornmeal at 3¢ the lb, potatoes at 1¢ the lb and dry beans at 4¢ the lb. Divine service drew twenty-one to Iron Ford Lutheran Church, nine to Trevenna House and seven to Kvale Ridge Church. Market drew eight to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on one day, the glass near 55 at noon.
+> *The Almanac.* Three matters of note this week. Posted at the store: cornmeal at 3¢ the lb, potatoes at 1¢ the lb and salt-cured bacon / side pork at 12¢ the lb. Divine service drew twenty-one to Iron Ford Lutheran Church, nine to Trevenna House and seven to Kvale Ridge Church. Market drew seven to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on one day, the glass near 55 at noon.
 
 ## Week 3: April 15 to 21, 1855
 
@@ -62,47 +64,53 @@ Several persons at Fenn Farm report the following: A neat plait has appeared in 
 
 > *The Almanac.* The weather book has this beside Haugen House: Flour on the sill bears five narrow marks, all pointing inward.
 
-*Monday, the 16th of April, 1855. New moon. The coulee is black after sundown.*
+A curious report reaches us from Glover Farm: The kindling is laid crosswise, smallest stick uppermost.
 
-A curious report reaches us from Dunleavy's Tavern: The cream saucer stands beneath the bench, quite dry.
+*Monday, the 16th of April, 1855. The new moon: dark nights, and the old folks bar the door a little earlier.*
 
-*Tuesday, the 17th of April, 1855. The new moon: dark nights, and the old folks bar the door a little earlier.*
+*Tuesday, the 17th of April, 1855. New moon. The coulee is black after sundown.*
 
-**Peace Made** A quarrel of some standing between Mr. A. Whitcomb and Mrs. N. Dunleavy was ended on Tuesday in the afternoon. The village is divided between relief and disappointment.
-
-*Wednesday, the 18th of April, 1855. New moon. The coulee is black after sundown.*
+*Wednesday, the 18th of April, 1855. The new moon: dark nights, and the old folks bar the door a little earlier.*
 
 **Ill Luck** We regret to state that Captain Hurd's root cellar went to rot. The older folk are not surprised, and say why, and are not asked to.
 
-*Thursday, the 19th of April, 1855. The waxing crescent. Rain in the afternoon.*
+*Thursday, the 19th of April, 1855, under the waxing crescent. Rain in the afternoon.*
 
-*Friday, the 20th of April, 1855, under the waxing crescent.*
+Mr. B. Pascoe and Mr. Josiah Trevenna made their peace at Penhallow Diggings on Thursday in the afternoon.
 
-**A Good Neighbor** Mrs. D. Pascoe has been busy with kindnesses this month; four are known to the village. The county could stand a dozen like.
+*Friday, the 20th of April, 1855; the waxing crescent.*
 
-Mr. E. Hurd threatened Mr. M. Dunleavy at Dunleavy's Tavern on Friday late at night, and the village is not slow to remark it.
+*Saturday, the 21st of April, 1855, under the waxing crescent.*
 
-*Saturday, the 21st of April, 1855; the waxing crescent.*
+**Ill Luck** It is reported that the Tveits' best cow sickened and died. The superstitious have not been slow to remark that it is not the first such thing this season.
 
-**A Heavy Loss** A heavy loss is reported: the Tveits' best cow sickened and died. Neighbors are asked to remember it when the subscription paper comes round.
-
-> *The Almanac.* Six matters worth the printing. Prices stood at the counter: potatoes at 1¢ the lb, cornmeal at 3¢ the lb and dry beans at 4¢ the lb. Divine service drew fifteen to Iron Ford Lutheran Church, eight to Trevenna House and six to Kvale Ridge Church. Market drew five to Pratt & Daughter, Outfitters and two to Main Street. Market day was kept. Weather: rain on two days, the glass near 58 at noon.
+> *The Almanac.* Four matters worth the printing. Prices stood at the counter: potatoes at 1¢ the lb, cornmeal at 3¢ the lb and swiss cheese at 12¢ the lb. Divine service drew sixteen to Iron Ford Lutheran Church, eight to Trevenna House and seven to Kvale Ridge Church. Market drew six to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on two days, the glass near 58 at noon.
 
 ## Week 4: April 22 to 28, 1855
 
-*Sunday, the 22nd of April, 1855, the Lord's day. The waxing crescent.*
+*Sunday, the 22nd of April, 1855. The Sabbath; a waxing crescent, and the ford quiet.*
 
-*Monday, the 23rd of April, 1855, under the first quarter. Rain from the morning on.*
+**A Good Neighbor** Mrs. M. Brenner has been busy with kindnesses this month; four are known to the village. The county could stand a dozen like.
 
-> *The Almanac.* A traveler notes Pratt & Daughter, Outfitters. The kindling is laid crosswise, smallest stick uppermost.
+**Accounts Settled** We are happy to record that Mr. Josiah Trevenna has paid Mrs. A. Pratt what was owing, to the last cent. The affair, which threatened to turn into something worse, has gone back to being a ledger.
 
-*Tuesday, the 24th of April, 1855; the first quarter.*
+**Talk** Whispers have begun to go about concerning Mr. J. Brenner. We do not repeat them. We observe only that they are going.
+
+**Accounts Settled** Mr. E. Fenn has settled with Mrs. A. Pratt, and the book is closed. A debt repaid is a quiet event and a good one.
+
+*Monday, the 23rd of April, 1855; the first quarter. Rain from the morning on.*
+
+> *The Almanac.* A traveler notes Glover Farm. The cream saucer stands beneath the bench, quite dry.
+
+*Tuesday, the 24th of April, 1855. The first quarter.*
+
+**Accounts Settled** It gives us pleasure to note that Mr. Josiah Trevenna has paid Mr. L. Vance what was owing, to the last cent. The affair, which threatened to turn into something worse, has gone back to being a ledger.
 
 *Wednesday, the 25th of April, 1855, under the first quarter.*
 
-Our readers may judge the account from Penhallow Diggings. A second footfall sounds from inside the ledge.
+**In Want** The Dunleavys are in want. It pains us to record it, and leave the rest to Christian charity.
 
-**A Fight at Dunleavy's Tavern** Blows were exchanged at Dunleavy's Tavern on Wednesday of an evening: Mr. A. Whitcomb against Mr. J. Brenner. Two chairs and a good deal of patience were lost.
+Our readers may judge the account from Penhallow Diggings. A second footfall sounds from inside the ledge.
 
 *Thursday, the 26th of April, 1855. The waxing gibbous.*
 
@@ -114,15 +122,13 @@ Our readers may judge the account from Penhallow Diggings. A second footfall sou
 
 *Saturday, the 28th of April, 1855; the waxing gibbous.*
 
-> *The Almanac.* Four matters of note this week. Posted at the store: potatoes at 1¢ the lb, cornmeal at 3¢ the lb and eggs at 1¢ the piece. Divine service drew sixteen to Iron Ford Lutheran Church, seven to Kvale Ridge Church and five to Trevenna House. Market drew seven to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on one day, the glass near 60 at noon.
+> *The Almanac.* Nine matters of note this week. Posted at the store: potatoes at 1¢ the lb, cornmeal at 3¢ the lb and dry beans at 4¢ the lb. Divine service drew eighteen to Iron Ford Lutheran Church, seven to Kvale Ridge Church and seven to Trevenna House. Market drew six to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on one day, the glass near 60 at noon.
+
+**Accounts Settled** Mrs. M. Fenn has settled with Mrs. A. Pratt, and the book is closed. A debt repaid is a quiet event and a good one.
 
 ## Week 5: April 29 to May 5, 1855
 
-*Sunday, the 29th of April, 1855. The Sabbath; a waxing gibbous, and the ford quiet.*
-
-**Unpaid** The debt of Mrs. A. Pratt to Mr. L. Vance, $215.00, stands unpaid twenty-eight days on. The book at the store has a long memory and a good hand.
-
-**Accounts Settled** It gives us pleasure to note that Mrs. A. Pratt has paid Mr. L. Vance what was owing, to the last cent. The affair, which threatened to turn into something worse, has gone back to being a ledger.
+*Sunday, the 29th of April, 1855. The Sabbath, and the waxing gibbous.*
 
 *Monday, the 30th of April, 1855. The full moon, which the Norwegians watch and the Cornish do not discuss.*
 
@@ -152,7 +158,7 @@ Our readers may judge the account from Penhallow Diggings. A second footfall sou
 
 **April 2.** Hester Fenn could not bear a thing in her own heart and found it, quite sincerely, in Demelza Pascoe. She would have been astonished to hear it called a defense.
 
-**April 7.** Behind the doors this week: 791 meals eaten, 105 cold, about 2410 calories to the head. The town lived mostly on fine milled flour, cornmeal and potatoes. Spoiled and wasted: whole milk and packed dinner miner's crib.
+**April 7.** Behind the doors this week: 790 meals eaten, 105 cold, about 2406 calories to the head. The town lived mostly on fine milled flour, cornmeal and potatoes. Spoiled and wasted: whole milk and packed dinner miner's crib.
 
 ### Week 2
 
@@ -164,62 +170,58 @@ Our readers may judge the account from Penhallow Diggings. A second footfall sou
 
 **April 8.** Demelza Pascoe had a name for it, kept to Demelza Pascoe: not charity, but a debt to someone long dead.
 
-**April 9.** Edwin Fenn had stopped trusting his own reasons, and went on giving them. Nine defenses in eight days, and the village was told it was nerves.
-
-**April 9.** It was Lydia Pratt who was said to be at fault. It was Edwin Fenn who needed it to be so: laying it at another's door, in the language of a later day, projection.
+**April 9.** A mind at its seams: displacement again and again, and between them nothing to put in its place. Minnie Fenn was not well, and said otherwise.
 
 **April 9.** Nora Dunleavy was coming apart at a seam nobody could see. Three defenses in eight days, and the relief wearing thin. The village took it for ill temper.
 
-**April 9.** Minnie Fenn had stopped trusting her own reasons, and went on giving them. Eleven defenses in eight days, and the village was told it was nerves.
+**April 9.** Edwin Fenn had stopped trusting his own reasons, and went on giving them. Nine defenses in eight days, and the village was told it was nerves.
 
-**April 14.** Week 2, as the larders knew it: 774 meals (80 cold); stores ran short once; the cellars lost clabber and whole milk.
+**April 10.** It was Lydia Pratt who was said to be at fault. It was Edwin Fenn who needed it to be so: laying it at another's door, in the language of a later day, projection.
+
+**April 14.** Week 2, as the larders knew it: 777 meals (85 cold); stores ran short once; the cellars lost clabber and whole milk.
 
 ### Week 3
 
-**April 15.** Bartholomew Pascoe was coming apart at a seam nobody could see. Three defenses in a day, and the relief wearing thin. The village took it for ill temper.
+**April 15.** Jory Trevenna never told anyone what the kindness cost in time and trouble.
 
-**April 16.** Captain Trevenna never told anyone what the kindness cost in time and trouble.
+**April 15.** A mind at its seams: rationalization again and again, and between them nothing to put in its place. Loveday Trevenna was not well, and said otherwise.
 
-**April 16.** It was Lydia Pratt who was said to be at fault. It was Nora Dunleavy who needed it to be so: laying it at another's door, in the language of a later day, projection.
+**April 17.** Isaiah Glover was coming apart at a seam nobody could see. Four defenses in twelve days, and the relief wearing thin. The village took it for ill temper.
 
-**April 16.** The louder Captain Trevenna spoke against it, the more it was plain to anyone who listened closely what he was afraid of.
+**April 17.** It cost Captain Trevenna more to pay than the sum was worth, and Bartholomew Pascoe knew it, and took the money anyway out of respect.
 
-**April 17.** The debt was repaid on a Tuesday, without ceremony. It had been, for Bartholomew Pascoe, a question of whether Captain Trevenna could be trusted; it was now a question of whether the answer mattered.
+**April 17.** It was Lydia Pratt who was said to be at fault. It was Nora Dunleavy who needed it to be so: laying it at another's door, in the language of a later day, projection.
 
-**April 17.** Denial, and the others in turn: the mind has a drawer of such things, and Isaiah Glover had been through them all in twelve days.
+**April 18.** Repression, and the others in turn: the mind has a drawer of such things, and Tollef Haugen had been through them all in two weeks.
 
-**April 17.** The louder Hester Fenn spoke against it, the more it was plain to anyone who listened closely what she was afraid of.
+**April 19.** Hester Fenn could not bear a thing in her own heart and found it, quite sincerely, in Demelza Pascoe. She would have been astonished to hear it called a defense.
 
-**April 19.** A mind at its seams: denial again and again, and between them nothing to put in its place. Joel Pike was not well, and said otherwise.
+**April 19.** Pastor Tveit had stopped trusting his own reasons, and went on giving them. Fifteen defenses in three weeks, and the village was told it was nerves.
 
-**April 21.** Behind the doors this week: 792 meals eaten, 82 cold, about 2409 calories to the head. The town lived mostly on cornmeal, potatoes and fine milled flour. Spoiled and wasted: clabber and whole milk.
-
-**April 21.** Pastor Tveit had stopped trusting his own reasons, and went on giving them. Sixteen defenses in three weeks, and the village was told it was nerves.
+**April 21.** Behind the doors this week: 790 meals eaten, 75 cold, about 2407 calories to the head. The town lived mostly on cornmeal, potatoes and fine milled flour. Spoiled and wasted: clabber and whole milk.
 
 ### Week 4
 
-**April 22.** Loveday Trevenna was coming apart at a seam nobody could see. Seven defenses in two weeks, and the relief wearing thin. The village took it for ill temper.
+**April 22.** Behind the door of the Brenner house, Karl Brenner came to blows with Johann Brenner on Sunday in the forenoon. The household heard it; the street did not.
 
-**April 22.** Behind the door of the Brenner house, Karl Brenner tried it on with Johann Brenner: fight. It came to nothing, and the house went on with supper.
+**April 22.** The louder Hester Fenn spoke against it, the more it was plain to anyone who listened closely what she was afraid of.
 
-**April 22.** Hester Fenn could not bear a thing in her own heart and found it, quite sincerely, in Demelza Pascoe. She would have been astonished to hear it called a defense.
+**April 22.** Captain Trevenna had a name for it, kept to Captain Trevenna: not charity, but a debt to someone long dead.
 
-**April 24.** A mind at its seams: repression again and again, and between them nothing to put in its place. Karl Brenner was not well, and said otherwise.
+**April 23.** The louder Captain Trevenna spoke against it, the more it was plain to anyone who listened closely what he was afraid of.
 
-**April 24.** It was Lydia Pratt who was said to be at fault. It was Johanne Moe who needed it to be so: laying it at another's door, in the language of a later day, projection.
+**April 23.** Karl Brenner had stopped trusting his own reasons, and went on giving them. Five defenses in two weeks, and the village was told it was nerves.
 
-**April 25.** Abigail Hatch had stopped trusting her own reasons, and went on giving them. Five defenses in three weeks, and the village was told it was nerves.
+**April 23.** It was Johann Brenner who was said to be at fault. It was Pastor Tveit who needed it to be so: laying it at another's door, in the language of a later day, projection.
+
+**April 24.** Hester Fenn could not bear a thing in her own heart and found it, quite sincerely, in Captain Hurd. She would have been astonished to hear it called a defense.
 
 **April 26.** Michael Dunleavy formed a grudge against an unknown hand, and set its aim at their hurt. It was not mentioned. It was merely the way Michael Dunleavy walked past the gate afterward.
 
-**April 26.** Nora Dunleavy formed a grudge against an unknown hand, and set its aim at their hurt. It was not mentioned. It was merely the way Nora Dunleavy walked past the gate afterward.
-
-**April 28.** Week 4, as the larders knew it: 770 meals (66 cold); stores ran short twice; the cellars lost clabber and whole milk.
+**April 28.** Week 4, as the larders knew it: 795 meals (50 cold); stores ran short three times; the cellars lost clabber and whole milk.
 
 ### Week 5
 
-**April 29.** Magdalena Brenner had stopped trusting her own reasons, and went on giving them. Six defenses in five days, and the village was told it was nerves.
+**April 29.** Konrad Strauss never told anyone what the kindness cost in time and trouble.
 
-**April 29.** Edwin Fenn could not bear a thing in his own heart and found it, quite sincerely, in Lydia Pratt. He would have been astonished to hear it called a defense.
-
-**April 30.** The louder Minnie Fenn spoke against it, the more it was plain to anyone who listened closely what she was afraid of.
+**April 30.** The louder Pastor Tveit spoke against it, the more it was plain to anyone who listened closely what he was afraid of.

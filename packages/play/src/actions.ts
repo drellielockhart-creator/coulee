@@ -33,6 +33,15 @@ export function requestLabel(w: Sim['world'], r: social.PendingRequest): string 
       return `${name}'s proposal`;
     case 'disclose':
       return `${name}'s question (tell ${him} your news)`;
+    // Item requests (13 §6.1): about a thing kept, lent or offered; no money and no favor owed.
+    case 'show_item':
+      return `${name}'s request to see what you keep`;
+    case 'lend_item':
+      return `${name}'s request to borrow what you keep`;
+    case 'return_item':
+      return `${name}'s request for back what you were lent`;
+    case 'accept_item':
+      return `${name}'s offer of the loan of what ${him === 'them' ? 'they keep' : him === 'him' ? 'he keeps' : 'she keeps'}`;
     default:
       return `${name}'s offer (you would owe ${him} ${r.favors && r.favors > 1 ? `${r.favors} favors` : 'a favor'})`;
   }
@@ -66,6 +75,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
         { kind: 'social.answer_request', actorId: pc, data: { requestId: r.id, accept } },
       );
   add('signs', 'Signs & Wonders', { kind: 'fae.signs', actorId: pc, data: {} });
+  charmActions(sim, pc, add);
   for (const q of fae.signs(w, pc))
     if (!fae.investigationEligibility(w, pc, q.signId))
       add(`investigate:${q.signId}`, `Investigate: ${q.text}`, {
@@ -138,6 +148,8 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     const campId = items.campSleepActivity(c);
     const home = w.households[a.householdId]?.homePlaceId;
     for (const def of Object.values(c.activities)) {
+      // Charm chores carry their item: they are offered as charm actions, never bare.
+      if (def.tags.includes('charm')) continue;
       if (activity.resolveActivityPlace(w, sim, pc, def.id) === null) continue;
       const isCamp = def.tags.includes('camp') || def.tags.includes('campfire');
       if (isCamp && !camp.afield) continue;
@@ -190,6 +202,8 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     for (const other of Object.values(w.actors))
       if (other.id !== pc && other.alive && other.placeId === a.placeId)
         for (const def of Object.values(c.interactions)) {
+          // Item interactions name their item: offered as charm actions (charmActions).
+          if (def.item || def.tags.includes('charm')) continue;
           if (!social.interactionAvailability(w, c, pc, other.id, def.id).ok) continue;
           add(`talk:${def.id}:${other.id}`, `${def.name}: ${other.name.given} ${other.name.family}`.trim(), {
             kind: 'core.urge',
@@ -536,4 +550,104 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
       return null;
   }
   return 'Action is unavailable here, locked, or has invalid quantities/resources; use look for current actions';
+}
+
+/**
+ * Charm actions (13 §7.2 Commands), built from what the player character may know
+ * (`fae.charmView`): their own charm's tending, study and disposal; a found charm to take; a
+ * loan to offer or to ask for, with the usual terms (back by Sunday noon, household use, recharge
+ * duty); bringing back what was lent. Each runs the same executor an NPC's choice would.
+ */
+function charmActions(sim: Sim, pc: ActorId, add: (id: string, label: string, command: Command) => void): void {
+  const { world: w, content: c } = sim;
+  const a = w.actors[pc];
+  if (!a || !w.fae.charms) return;
+  const here = Object.values(w.actors).filter((o) => o.id !== pc && o.alive && o.placeId === a.placeId);
+  const urge = (interactionId: string, targetId: ActorId, itemId: number, terms?: unknown): Command => ({
+    kind: 'core.urge',
+    actorId: pc,
+    data: {
+      urge: {
+        kind: 'interaction',
+        interactionId,
+        targetId,
+        itemId: asItemId(itemId),
+        ...(terms ? { terms: terms as never } : {}),
+      },
+    },
+  });
+  const item = (kind: string, itemId: number): Command =>
+    ({ kind, actorId: pc, data: { itemId: asItemId(itemId) } }) as Command;
+  const terms = fae.loanTerms(w.time);
+  for (const card of fae.charmView(w, c, pc)) {
+    const id = card.itemId;
+    const name = card.name;
+    if (card.relation === 'found') {
+      add(`fae.take:${id}`, `Take ${name} (lying here)`, item('fae.take', id));
+      add(`fae.inspect:${id}`, `Look over ${name}`, item('fae.inspect', id));
+      continue;
+    }
+    if (card.relation === 'held' || card.relation === 'stores' || card.relation === 'borrowed') {
+      const def = c.charms?.[w.items.stacks[id as never]?.defId ?? ''];
+      if (def?.effects.some((e) => e.kind === 'draw')) {
+        add(`fae.use:${id}`, `Tie ${name} shut for the night`, item('fae.use', id));
+        add(`fae.recharge:${id}`, `Set out porridge and butter for ${name}`, item('fae.recharge', id));
+      }
+      add(`fae.inspect:${id}`, `Look over ${name}`, item('fae.inspect', id));
+      add(`fae.study:${id}`, `Study ${name} (an hour)`, item('fae.study', id));
+      add(`fae.thank:${id}`, `Thank ${name} aloud`, item('fae.thank', id));
+      if (card.relation === 'stores') add(`fae.fetch:${id}`, `Take ${name} out of the stores`, item('fae.fetch', id));
+      else add(`fae.stow:${id}`, `Put ${name} away with the household stores`, item('fae.stow', id));
+      add(`fae.bury:${id}`, `Bury ${name} with iron`, item('fae.bury', id));
+      add(`fae.destroy:${id}`, `Burn ${name} at the forge`, item('fae.destroy', id));
+      add(`fae.return:${id}`, `Give ${name} back to the Good Neighbors`, item('fae.return', id));
+      // What the player knows: the sources they traced or studied; whom it was borrowed from.
+      const sources = w.fae.known?.[pc]?.[id]?.sources ?? [];
+      const loan = social.openLoanOf(w, asItemId(id));
+      for (const o of here) {
+        const who = `${o.name.given} ${o.name.family}`.trim();
+        if (card.relation !== 'borrowed')
+          add(
+            `talk:share_out:${id}:${o.id}`,
+            `Lend ${name} to ${who} until Sunday`,
+            urge('share_out', o.id, id, terms),
+          );
+        if (sources.includes(o.householdId))
+          add(
+            `talk:make_restitution:${id}:${o.id}`,
+            `Make it right with ${who} for what ${name} took`,
+            urge('make_restitution', o.id, id),
+          );
+        if (card.relation === 'borrowed' && loan && loan.lenderHouseholdId === o.householdId)
+          add(`talk:return_item:${id}:${o.id}`, `Give ${name} back to ${who}`, urge('return_item', o.id, id));
+      }
+      continue;
+    }
+    const lentLoan = card.relation === 'lent' ? social.openLoanOf(w, asItemId(id)) : undefined;
+    if (lentLoan)
+      for (const o of here.filter((x) => x.householdId === lentLoan.borrowerHouseholdId))
+        add(
+          `talk:demand_return:${id}:${o.id}`,
+          `Ask ${o.name.given} for ${name} back`,
+          urge('demand_return', o.id, id),
+        );
+    if (card.relation === 'known' && card.keeperId !== null)
+      for (const o of here) {
+        if (o.id !== card.keeperId) continue;
+        add(`talk:ask_to_see:${id}:${o.id}`, `Ask ${o.name.given} to see ${name}`, urge('ask_to_see', o.id, id));
+        add(
+          `talk:beg_loan:${id}:${o.id}`,
+          `Beg the loan of ${name} from ${o.name.given} until Sunday`,
+          urge('beg_loan', o.id, id, terms),
+        );
+        add(
+          `talk:take:${id}:${o.id}`,
+          `Take ${name} from ${o.name.given} when nobody is looking`,
+          urge('take', o.id, id),
+        );
+      }
+  }
+  const home = w.households[a.householdId]?.homePlaceId;
+  if (a.placeId === home || w.provisions.stores[a.placeId])
+    add('fae.count', 'Count the stock here against the book', { kind: 'fae.count', actorId: pc, data: {} });
 }

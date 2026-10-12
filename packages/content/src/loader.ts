@@ -10,7 +10,14 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { parse as parseToml } from 'smol-toml';
 import type { z } from 'zod';
-import { type ContentBundle, type ContentTables, crossCheck, DOMAINS, type DomainName } from './schema/bundle.ts';
+import {
+  type ContentBundle,
+  type ContentTables,
+  crossCheck,
+  DERIVATIONS,
+  DOMAINS,
+  type DomainName,
+} from './schema/bundle.ts';
 import type { DomainSpec, Issue } from './schema/common.ts';
 
 export interface LoadResult {
@@ -151,6 +158,7 @@ export function loadContent(contentRoot: string, mods: readonly string[] = ['bas
     }
   }
 
+  if (issues.length === 0) for (const derive of DERIVATIONS) derive(tables, issues);
   const tablesTyped = tables as unknown as ContentTables;
   const hash = createHash('sha256').update(canonicalJson(tablesTyped)).digest('hex');
   const bundle: ContentBundle = { ...tablesTyped, meta: { format: 1, mods: [...mods], hash } };
@@ -172,6 +180,7 @@ function loadDocuments(
   } catch {
     return;
   }
+  const raw: Array<{ where: string; doc: Record<string, unknown> }> = [];
   for (const e of entries) {
     const p = join(base, e);
     let doc: Record<string, unknown> | undefined;
@@ -188,6 +197,32 @@ function loadDocuments(
       files.push(where);
       doc = readToml(p, root, issues);
     }
+    if (doc) raw.push({ where, doc });
+  }
+  // `extends = "<id>"`: a fixture document starts from another document of the same directory.
+  // Arrays concatenate, tables merge, scalars of the child win; chains resolve, cycles are errors.
+  const byId = new Map(raw.map((r) => [typeof r.doc.id === 'string' ? r.doc.id : r.where, r.doc]));
+  const resolve = (
+    doc: Record<string, unknown>,
+    where: string,
+    seen: string[],
+  ): Record<string, unknown> | undefined => {
+    const parent = doc.extends;
+    if (parent === undefined) return doc;
+    if (typeof parent !== 'string' || !byId.has(parent) || seen.includes(parent)) {
+      issues.push({ where, path: 'extends', message: `cannot extend '${String(parent)}'` });
+      return undefined;
+    }
+    const baseDoc = resolve(byId.get(parent) as Record<string, unknown>, where, [...seen, parent]);
+    if (!baseDoc) return undefined;
+    const out = structuredClone(baseDoc);
+    delete out.extends;
+    overlayDoc(out, doc);
+    delete out.extends;
+    return out;
+  };
+  for (const { where, doc: unresolved } of raw) {
+    const doc = resolve(unresolved, where, [typeof unresolved.id === 'string' ? unresolved.id : where]);
     if (!doc) continue;
     const res = spec.schema.safeParse(doc);
     if (!res.success) {
@@ -198,6 +233,16 @@ function loadDocuments(
     const table = tables[domain] as Record<string, unknown>;
     delete table[rec.id];
     table[rec.id] = rec;
+  }
+}
+
+/** Child over base for `extends`: arrays concatenate, tables merge, scalars of the child win. */
+function overlayDoc(into: Record<string, unknown>, from: Record<string, unknown>): void {
+  for (const [k, v] of Object.entries(from)) {
+    const cur = into[k];
+    if (Array.isArray(cur) && Array.isArray(v)) into[k] = [...cur, ...structuredClone(v)];
+    else if (isPlainObject(cur) && isPlainObject(v)) overlayDoc(cur, v);
+    else into[k] = structuredClone(v);
   }
 }
 

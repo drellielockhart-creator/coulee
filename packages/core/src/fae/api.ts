@@ -32,5 +32,16 @@ export function episodesAt(world: World, placeId: PlaceId) {
       return e && e.snapshot.placeId === placeId && e.traceEnd >= world.time ? [e] : [];
     });
 }
+export {
+  charmKeepWeight,
+  charmTransferred,
+  grantLook,
+  noteItemInteraction,
+  restitutionMade,
+  restitutionOwed,
+} from './arc.ts';
+export type { CharmForecastRow } from './forecast.ts';
 export { investigate, investigationEligibility } from './investigate.ts';
-export { describe, signs } from './view.ts';
+export { tieWindow } from './tend.ts';
+export { loanTerms, nextSundayNoon } from './urges.ts';
+export { type CharmCard, charmView, describe, signs } from './view.ts';

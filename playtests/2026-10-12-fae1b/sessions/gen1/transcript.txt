@@ -1,0 +1,168 @@
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | the Red Oak Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Oak stands at (27, 37) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Oak Tavern. Last year’s leaves lie against the shaded edges. Cornelius Moran, Ellen Moran, Brigid Moran are here.
+Here: Cornelius Moran (#3), Ellen Moran (#4), Brigid Moran (#5), Cornelius Keane (#25).
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Badger Ford [go:15]
+11. Go to Brenner Ford Smithy [go:22]
+12. Go to Strauss Store and Outfitter [go:24]
+13. Chat: Cornelius Moran [talk:chat:3]
+14. Introduce oneself: Cornelius Moran [talk:introduce:3]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:162:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:162:soak]
+Actions 141; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 07:00
+Since last look: 7h passed.
+Skipped 1 minor conversation nearby.
+1855-04-01 07:00 | FAIR | the Red Oak Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Oak stands at (27, 37) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Oak Tavern. Last year’s leaves lie against the shaded edges. Cornelius Moran, Ellen Moran, Brigid Moran are here.
+Here: Cornelius Moran (#3, asleep), Ellen Moran (#4), Brigid Moran (#5, asleep), Cornelius Keane (#25).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 252
+[249] You are getting peckish — explain 249
+[355] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 355
+[356] You are no longer peckish — explain 356
+  Ellen Moran: “Give it here. That's what family's for.”
+  Cornelius Keane: “God bless you for it. Don't tell the others I let you.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Badger Ford [go:15]
+11. Go to Brenner Ford Smithy [go:22]
+12. Go to Strauss Store and Outfitter [go:24]
+13. Chat: Ellen Moran [talk:chat:4]
+14. Chat: Cornelius Keane [talk:chat:25]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:162:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:162:soak]
+Actions 171; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+No signs or wonders yet. Strange things you notice, or hear of, are listed here until you settle them or they fade.
+Since last look: no time passed.
+1855-04-01 07:00 | FAIR | the Red Oak Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Oak stands at (27, 37) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Oak Tavern. Last year’s leaves lie against the shaded edges. Cornelius Moran, Ellen Moran, Brigid Moran are here.
+Here: Cornelius Moran (#3, asleep), Ellen Moran (#4), Brigid Moran (#5, asleep), Cornelius Keane (#25).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 252
+[289] Ellen Moran: Lend a hand ▸ Cornelius Keane (it went well)
+[355] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 355
+[356] You are no longer peckish — explain 356
+  Ellen Moran: “Give it here. That's what family's for.”
+  Cornelius Keane: “God bless you for it. Don't tell the others I let you.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Badger Ford [go:15]
+11. Go to Brenner Ford Smithy [go:22]
+12. Go to Strauss Store and Outfitter [go:24]
+13. Chat: Ellen Moran [talk:chat:4]
+14. Chat: Cornelius Keane [talk:chat:25]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:162:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:162:soak]
+Actions 171; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 19:00
+Wait stopped at 11:00 (you meant to wait until 19:00).
+Since last look: 4h passed.
+Skipped 9 minor conversations nearby.
+Cornelius Keane: Good day ▸ Ellis Wayfarer (it went well)
+1855-04-01 11:00 | FAIR | the Red Oak Tavern
+Ellis Wayfarer — fetching water. Purse $50.00; household $0.00. 45°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 682; Rest 333; Thirst 900; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Oak stands at (27, 37) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Oak Tavern. Last year’s leaves lie against the shaded edges. Cornelius Moran, Cornelius Keane are here.
+Here: Cornelius Moran (#3), Cornelius Keane (#25).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The Sabbath must be kept (held for your order; you may: attend church)
+Self-Command: Held for your order; routine standing orders only — explain 666
+  Cornelius Keane: “Cornelius Keane. I've been meaning to make your acquaintance.”
+  Ellis Wayfarer: “And now you have. Ellis Wayfarer.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Badger Ford [go:15]
+11. Go to Brenner Ford Smithy [go:22]
+12. Go to Strauss Store and Outfitter [go:24]
+13. Chat: Cornelius Keane [talk:chat:25]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:162:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:162:soak]
+Actions 167; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+No signs or wonders yet. Strange things you notice, or hear of, are listed here until you settle them or they fade.
+Since last look: no time passed.
+1855-04-01 11:00 | FAIR | the Red Oak Tavern
+Ellis Wayfarer — fetching water. Purse $50.00; household $0.00. 45°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 682; Rest 333; Thirst 900; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Oak stands at (27, 37) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Oak Tavern. Last year’s leaves lie against the shaded edges. Cornelius Moran, Cornelius Keane are here.
+Here: Cornelius Moran (#3), Cornelius Keane (#25).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The Sabbath must be kept (held for your order; you may: attend church)
+Self-Command: Held for your order; routine standing orders only — explain 666
+[689] Cornelius Keane: Good day ▸ Ellis Wayfarer (it went well)
+  Cornelius Keane: “Cornelius Keane. I've been meaning to make your acquaintance.”
+  Ellis Wayfarer: “And now you have. Ellis Wayfarer.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Badger Ford [go:15]
+11. Go to Brenner Ford Smithy [go:22]
+12. Go to Strauss Store and Outfitter [go:24]
+13. Chat: Cornelius Keane [talk:chat:25]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:162:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:162:soak]
+Actions 167; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.

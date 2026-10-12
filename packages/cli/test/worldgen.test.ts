@@ -42,10 +42,10 @@ describe('procedural ford towns', () => {
     'seed %i: schemas, structural QA and 30 days without collapse',
     (seed) => {
       const t = town(seed);
-      // Pre-county cc3307c layouts: optional region context must not move existing towns.
-      expect(sha256(JSON.stringify({ scenario: t.scenario, site: t.site, places: t.places }))).toBe(
-        layoutHashes[seed - 1],
-      );
+      // Pre-county cc3307c layouts: optional region context must not move existing towns. The fae
+      // reservoir (slice 1b, its own random stream) is not layout: it is left out of the pin.
+      const { fae_reservoir: _reservoir, ...layout } = t.scenario;
+      expect(sha256(JSON.stringify({ scenario: layout, site: t.site, places: t.places }))).toBe(layoutHashes[seed - 1]);
       expect(ScenarioSchema.parse(t.scenario)).toEqual(t.scenario);
       expect(SiteSchema.parse(t.site)).toEqual(t.site);
       for (const p of t.places) expect(PlaceSchema.parse(p)).toEqual(p);

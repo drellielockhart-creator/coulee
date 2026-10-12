@@ -490,6 +490,12 @@ export const provisionsScenarioFields = {
         credit_limit_cents: nonNegInt().default(3000),
         /** Restock table id (a restock record) for this store; omit if the shelves are never refilled. */
         restock: ref().optional(),
+        /**
+         * Household key that keeps this store's accounts when nobody lives or works there (a town
+         * springhouse kept by the storekeeper). It owns the stock and gives credit by the ordinary
+         * store rules: the keeper's ledger, its regard for the buyer, `credit_limit_cents`.
+         */
+        keeper: ref().optional(),
       }),
     )
     .default([]),
@@ -579,8 +585,10 @@ export function itemsRefs(b: ContentBundle): Issue[] {
     }
     for (const h of s.households) seedRefs(`scenarios:${s.id}/households:${h.key}`, h.pantry);
     for (const a of s.actors) seedRefs(`scenarios:${s.id}/actors:${a.key}`, a.inventory);
+    const householdKeys = Object.fromEntries(s.households.map((h) => [h.key, true]));
     for (const st of s.stocks) {
       checkRefs(issues, `scenarios:${s.id}/stocks`, 'place', [st.place], b.places, 'place');
+      checkRefs(issues, `scenarios:${s.id}/stocks:${st.place}`, 'keeper', [st.keeper], householdKeys, 'household key');
       seedRefs(`scenarios:${s.id}/stocks:${st.place}`, st.items);
     }
   }

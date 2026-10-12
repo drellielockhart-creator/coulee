@@ -197,6 +197,11 @@ export class PlaySession {
       return this.settle(command, mode);
     const socialSave =
       command.kind === 'core.urge' && command.data.urge.kind === 'interaction' ? this.save() : undefined;
+    // A charm Command refused by its executor costs nothing (13 §7.2): roll the hour back.
+    const charmSave =
+      command.kind.startsWith('fae.') && command.kind !== 'fae.signs' && command.kind !== 'fae.investigate'
+        ? this.save()
+        : undefined;
     const previous = this.observe(mode);
     this.addressed = [];
     const moneyStart = this.money.length,
@@ -209,7 +214,10 @@ export class PlaySession {
     let notice: string | undefined;
     let stopped: WaitStopped | undefined;
     if (command.kind === 'fae.signs') {
-      detail = fae.signs(this.sim.world, this.playerId);
+      const list = fae.signs(this.sim.world, this.playerId);
+      detail = list.length
+        ? list
+        : 'No signs or wonders yet. Strange things you notice, or hear of, are listed here until you settle them or they fade.';
     } else if (command.kind === 'activity.observe') {
       const o = this.observe(mode),
         d = command.data;
@@ -254,7 +262,7 @@ export class PlaySession {
         // Open debts close the journal as obligations with their due dates.
         const owed = obligationsOf(this.sim.world, this.sim.content, this.playerId);
         // ...and what others owe her (playtest r2: favors and loans never showed in the list).
-        const claims = claimsOf(this.sim.world, this.playerId);
+        const claims = claimsOf(this.sim.world, this.playerId, this.sim.content);
         detail = [
           ...entries,
           ...owed.map((o, i) => ({
@@ -306,7 +314,7 @@ export class PlaySession {
               householdCents: me.provisions.householdCents,
               load: `${me.inventory.loadBand}, ${(me.inventory.totalWeightG / 1000).toFixed(1)} kg`,
               obligations: me.obligations.map((x) => obligationText(x)),
-              claims: claimsOf(this.sim.world, this.playerId).map((x) => claimText(x)),
+              claims: claimsOf(this.sim.world, this.playerId, this.sim.content).map((x) => claimText(x)),
               ties: me.social.relationships.map((r) => r.label),
               known: social.acquaintancesOf(this.sim.world, this.playerId).length,
             },
@@ -324,7 +332,7 @@ export class PlaySession {
                   ...social.reasonContribution(this.sim.world, this.playerId, target, r),
                 }));
           const owe = o.self.obligations.filter((x) => x.creditorId === target).map((x) => obligationText(x));
-          const owed = claimsOf(this.sim.world, this.playerId)
+          const owed = claimsOf(this.sim.world, this.playerId, this.sim.content)
             .filter((x) => x.debtorId === target)
             .map((x) => claimText(x));
           detail = {
@@ -393,6 +401,33 @@ export class PlaySession {
         const d = command.data;
         notice = `Moved ${d.qty} of your ${name(d.itemId)} ${d.intoItemId === null ? 'out of its container' : `into the ${name(d.intoItemId)}`}.`;
       }
+      const charmRefusal = recent.find((e) => e.kind === 'fae.charm_refused' && e.data.actorId === this.playerId);
+      if (charmSave && charmRefusal?.kind === 'fae.charm_refused') {
+        const restored = PlaySession.load(this.base, charmSave);
+        this.sim = restored.sim;
+        this.known = restored.known;
+        this.knowledge = restored.knowledge;
+        this.metrics = restored.metrics;
+        this.money = restored.money;
+        this.changes = restored.changes;
+        return this.fail(charmRefusal.data.reason, mode);
+      }
+      // A fae Command's own result is what the player asked for: show it (r2 playtest #7: an
+      // investigation "printed nothing").
+      if (command.kind.startsWith('fae.')) {
+        const own = recent.find(
+          (e) =>
+            (e.kind === 'fae.investigated' && e.data.actorId === this.playerId) ||
+            (e.kind === 'fae.refused' && e.data.actorId === this.playerId) ||
+            (e.kind === 'fae.charm_tended' && e.data.actorId === this.playerId) ||
+            (e.kind === 'fae.charm_revealed' && e.data.actorId === this.playerId) ||
+            (e.kind === 'fae.charm_disposed' && e.data.actorId === this.playerId) ||
+            (e.kind === 'fae.charm_arrived' && e.data.finderId === this.playerId) ||
+            (e.kind === 'fae.stock_counted' && e.data.actorId === this.playerId) ||
+            (e.kind === 'fae.shortfall' && e.data.actorId === this.playerId),
+        );
+        if (own) detail = eventView(own, this.playerId, mode, { world: this.sim.world, content: this.sim.content });
+      }
       if (command.kind === 'core.urge' && command.data.urge.kind === 'interaction') {
         const urge = command.data.urge;
         const interaction = recent.find(
@@ -409,16 +444,19 @@ export class PlaySession {
           needs.canAct(this.sim.world, this.playerId) &&
           !recent.some((e) => e.kind === 'social.requested' && e.data.from === this.playerId)
         ) {
+          const itemRefusal = recent.find((e) => e.kind === 'social.item_refused' && e.data.actorId === this.playerId);
           const reason =
-            urge.targetId === undefined
-              ? 'No target'
-              : social.interactionAvailability(
-                  this.sim.world,
-                  this.sim.content,
-                  this.playerId,
-                  urge.targetId,
-                  urge.interactionId,
-                ).reason;
+            itemRefusal?.kind === 'social.item_refused'
+              ? itemRefusal.data.reason
+              : urge.targetId === undefined
+                ? 'No target'
+                : social.interactionAvailability(
+                    this.sim.world,
+                    this.sim.content,
+                    this.playerId,
+                    urge.targetId,
+                    urge.interactionId,
+                  ).reason;
           const restored = PlaySession.load(this.base, socialSave);
           this.sim = restored.sim;
           this.known = restored.known;

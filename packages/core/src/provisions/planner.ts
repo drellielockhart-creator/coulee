@@ -3,6 +3,7 @@ import { provisionCalendar as calendarAt } from './calendar.ts';
 
 import { scheduledBlock } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
+import { forecastCharms, forecastHems } from '../fae/forecast.ts';
 import { rowsOf } from '../ids.ts';
 import { withInventoryPass } from '../items/api.ts';
 import { projectWaterHour } from '../needs/api.ts';
@@ -58,7 +59,21 @@ export function planReadiness(
     unpreparable: [],
     warnings: [],
   };
-  if (!members.length || result.kcalPerDay === 0) return result;
+  // Charm rows show whatever the plan (13 §5.7): with no projection they cover no hours.
+  const charmRows = (hems: import('../fae/hem.ts').HemSet | undefined): Readiness =>
+    world.fae?.charms
+      ? (() => {
+          const rows = forecastCharms(
+            world,
+            content,
+            members,
+            stacks,
+            hems ?? forecastHems(world, content, members, stacks),
+          );
+          return rows.length ? { ...result, charms: rows } : result;
+        })()
+      : result;
+  if (!members.length || result.kcalPerDay === 0) return charmRows(undefined);
   const storedWater = waterAvailable(world, content, holder);
   const thirst = content.needs.thirst;
   // A day's drinking: 16 waking hours and 8 asleep at the thirst need's rates (light labor).
@@ -108,7 +123,7 @@ export function planReadiness(
     0,
   );
   result.kcalOnHand += pendingKcal;
-  if (!result.kcalOnHand) return result;
+  if (!result.kcalOnHand) return charmRows(undefined);
   // Only owned slices are cloned; neither social nor belief state is touched by this kernel.
   const projection: World = {
     ...world,
@@ -195,6 +210,8 @@ export function planReadiness(
   // Orders change who eats, not what exists: the readout projects the kit as if it is eaten.
   const pass = { energy: new Map<string, number>(), explain: false, hypothetical: true };
   const rationPct = rationOf(world, holder);
+  // The projection's own hem state: verified charms only, never written back (13 §5.7).
+  const hems = world.fae?.charms ? forecastHems(world, content, members, stacks) : undefined;
   withInventoryPass(projection, () => {
     for (let hour = 0; hour < 24 * horizon; hour++) {
       const t = asGameMinute(Math.floor(now / 60) * 60 + hour * 60),
@@ -225,7 +242,7 @@ export function planReadiness(
       const fuelBefore = hour < 24 ? holderSupply(projection, content, holder, 'fire') : 0;
       projectWaterHour(projection, ctx);
       nutritionHour(projection, ctx);
-      storageHour(projection, ctx, placement);
+      storageHour(projection, ctx, placement, hems);
       preparationHour(projection, ctx);
       waterHour(projection, ctx);
       if (hasDevices) devicesHour(projection, ctx);
@@ -271,6 +288,10 @@ export function planReadiness(
     );
   needLegibility(world, content, members, now, rationPct, result);
   result.daysOfFoodTenths = Math.round((foodHours * 10) / 24);
+  if (world.fae?.charms && hems) {
+    const rows = forecastCharms(world, content, members, stacks, hems);
+    if (rows.length) result.charms = rows;
+  }
   result.daysOfFuelTenths = fuelDay > 0 ? Math.floor((fuelStart * 10) / fuelDay) : null;
   if (foodHours >= 24 * horizon) result.warnings.push(`Food horizon capped at ${horizon} days.`);
   // The most urgent line first: hosts show only the first few.

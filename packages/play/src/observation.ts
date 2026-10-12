@@ -179,6 +179,8 @@ export function observation(
     time: timeView(w.time),
     scenario: w.meta.scenarioId,
     signs: fae.signs(w, pc),
+    /** Fae charms as the character knows them (fair: own charms, found ones, believed keepers). */
+    charms: fae.charmView(w, c, pc),
     requests: social.pendingRequests(w, pc),
     weather: {
       temperatureF: provisions.airTempF(calendarAt(w.time)),
@@ -235,7 +237,7 @@ export function observation(
       camp: items.campContext(w, c, pc),
       obligations: obligationsOf(w, c, pc),
       /** What others owe her: money she lent, favors she did (playtest r2). */
-      claims: claimsOf(w, pc),
+      claims: claimsOf(w, pc, c),
       // Household errands buy into the household pantry at her lodgings, not into her pack: say so.
       pantry: (() => {
         const home = w.households[a.householdId]?.homePlaceId;

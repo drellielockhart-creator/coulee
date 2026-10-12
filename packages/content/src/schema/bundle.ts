@@ -8,7 +8,7 @@ import type { z } from 'zod';
 import { beliefDomains, beliefRefs } from './belief.ts';
 import { chronicleDomains, chronicleRefs } from './chronicle.ts';
 import type { DomainSpec, Issue } from './common.ts';
-import { faeDomains } from './fae.ts';
+import { deriveCharmClaims, faeDomains, faeRefs } from './fae.ts';
 import { itemsDomains, itemsRefs } from './items.ts';
 import { needsActivitiesDomains, needsActivitiesRefs } from './needs-activities.ts';
 import { psycheDomains, psycheRefs } from './psyche.ts';
@@ -60,6 +60,15 @@ export const REF_CHECKS: ReadonlyArray<(b: ContentBundle) => Issue[]> = [
   itemsRefs,
   chronicleRefs,
   scenarioRefs,
+  faeRefs,
+];
+
+/**
+ * Bundle-time derivations, run on the merged tables before hashing and cross-checks (so the
+ * checks validate what they derive). Order is fixed.
+ */
+export const DERIVATIONS: ReadonlyArray<(tables: Record<string, Record<string, unknown>>, issues: Issue[]) => void> = [
+  deriveCharmClaims,
 ];
 
 export function crossCheck(b: ContentBundle): Issue[] {

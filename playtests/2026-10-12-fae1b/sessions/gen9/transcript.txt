@@ -1,0 +1,215 @@
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | the Red Bell Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Bell stands at (26, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Bell Tavern. Wheel ruts and footprints cross the softer ground. Wilhelm Strauss, Dorothea Strauss, Matthias Strauss are here.
+Here: Wilhelm Strauss (#3), Dorothea Strauss (#4), Matthias Strauss (#5), Georg Hartmann (#23).
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Bell Ford [go:13]
+11. Go to Cole Bell Ford Gazette [go:19]
+12. Go to Rud Ford Smithy [go:20]
+13. Go to Freeman Store and Outfitter [go:22]
+14. Chat: Wilhelm Strauss [talk:chat:3]
+15. Introduce oneself: Wilhelm Strauss [talk:introduce:3]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:149:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:149:soak]
+Actions 137; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 07:00
+Since last look: 7h passed.
+Skipped 1 minor conversation nearby.
+1855-04-01 07:00 | FAIR | the Red Bell Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Bell stands at (26, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Bell Tavern. Wheel ruts and footprints cross the softer ground. Wilhelm Strauss, Dorothea Strauss, Matthias Strauss are here. The broom leans bristles upward against the shut door.
+Open sign: The broom leans bristles upward against the shut door. (investigate 25:0:dawn)
+Here: Wilhelm Strauss (#3, asleep), Dorothea Strauss (#4), Matthias Strauss (#5, asleep), Georg Hartmann (#23).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 225
+[224] You are getting peckish — explain 224
+[317] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 317
+[318] You are no longer peckish — explain 318
+  Georg Hartmann: “Bless the seed in the ground, Lord, and the hands that put it there.”
+  Dorothea Strauss: “Amen, and keep the crows off it.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Bell Ford [go:13]
+11. Go to Cole Bell Ford Gazette [go:19]
+12. Go to Rud Ford Smithy [go:20]
+13. Go to Freeman Store and Outfitter [go:22]
+14. Chat: Dorothea Strauss [talk:chat:4]
+15. Introduce oneself: Dorothea Strauss [talk:introduce:4]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:149:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:149:soak]
+Actions 149; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+[25:0:dawn] Open question: The broom leans bristles upward against the shut door. (investigate 25:0:dawn)
+Since last look: no time passed.
+1855-04-01 07:00 | FAIR | the Red Bell Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Bell stands at (26, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Bell Tavern. Wheel ruts and footprints cross the softer ground. Wilhelm Strauss, Dorothea Strauss, Matthias Strauss are here. The broom leans bristles upward against the shut door.
+Open sign: The broom leans bristles upward against the shut door. (investigate 25:0:dawn)
+Here: Wilhelm Strauss (#3, asleep), Dorothea Strauss (#4), Matthias Strauss (#5, asleep), Georg Hartmann (#23).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 225
+[258] Georg Hartmann: Pray ▸ Dorothea Strauss (it went well)
+[317] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 317
+[318] You are no longer peckish — explain 318
+  Georg Hartmann: “Bless the seed in the ground, Lord, and the hands that put it there.”
+  Dorothea Strauss: “Amen, and keep the crows off it.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Bell Ford [go:13]
+11. Go to Cole Bell Ford Gazette [go:19]
+12. Go to Rud Ford Smithy [go:20]
+13. Go to Freeman Store and Outfitter [go:22]
+14. Chat: Dorothea Strauss [talk:chat:4]
+15. Introduce oneself: Dorothea Strauss [talk:introduce:4]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:149:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:149:soak]
+Actions 149; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> investigate 25:0:dawn
+[361] You find where the trace ends. It points nowhere further.
+Investigate: 19 (d20 18, Intelligence +1) vs DC 10 -> success
+Since last look: 1h passed.
+1855-04-01 08:00 | FAIR | the Red Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 36°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 769; Rest 450; Thirst 732; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Bell stands at (26, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Bell Tavern. Wheel ruts and footprints cross the softer ground. Wilhelm Strauss, Dorothea Strauss, Matthias Strauss are here. The broom leans bristles upward against the shut door.
+Here: Wilhelm Strauss (#3, asleep), Dorothea Strauss (#4), Matthias Strauss (#5), Georg Hartmann (#23).
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Resolved: At home — explain 339
+[361] You find where the trace ends. It points nowhere further. — explain 361
+[372] Matthias Strauss: Talk long ▸ Dorothea Strauss (it went well)
+[373] Georg Hartmann: Pray ▸ Matthias Strauss (it went well)
+  Matthias Strauss: “What do you want out of all this, Dorothea? Truly?”
+  Dorothea Strauss: “A roof that doesn't leak and a little put by. And you?”
+  Matthias Strauss: “Much the same, I suppose. And not to be forgotten.”
+  Georg Hartmann: “Now I lay me down to sleep, Matthias. Say it with me.”
+  Matthias Strauss: “I pray the Lord my soul to keep.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Bell Ford [go:13]
+11. Go to Cole Bell Ford Gazette [go:19]
+12. Go to Rud Ford Smithy [go:20]
+13. Go to Freeman Store and Outfitter [go:22]
+14. Chat: Dorothea Strauss [talk:chat:4]
+15. Introduce oneself: Dorothea Strauss [talk:introduce:4]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:149:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:149:soak]
+Actions 151; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 19:00
+Wait stopped at 10:00 (you meant to wait until 19:00).
+Since last look: 2h passed.
+Skipped 3 minor conversations nearby.
+Wilhelm Strauss: Good day ▸ Ellis Wayfarer (it went well)
+1855-04-01 10:00 | FAIR | the Red Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 42°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 711; Rest 372; Thirst 620; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Bell stands at (26, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Bell Tavern. Wheel ruts and footprints cross the softer ground. Wilhelm Strauss is here. The broom leans bristles upward against the shut door.
+Here: Wilhelm Strauss (#3).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The Sabbath must be kept (held for your order; you may: attend church)
+Self-Command: Held for your order; routine standing orders only — explain 545
+  Wilhelm Strauss: “Wilhelm Strauss. I've been meaning to make your acquaintance.”
+  Ellis Wayfarer: “And now you have. Ellis Wayfarer.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Bell Ford [go:13]
+11. Go to Cole Bell Ford Gazette [go:19]
+12. Go to Rud Ford Smithy [go:20]
+13. Go to Freeman Store and Outfitter [go:22]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:149:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:149:soak]
+Actions 136; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+[25:0:dawn] Settled: The broom leans bristles upward against the shut door.
+You find where the trace ends. It points nowhere further.
+Since last look: no time passed.
+1855-04-01 10:00 | FAIR | the Red Bell Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 42°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 711; Rest 372; Thirst 620; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Red Bell stands at (26, 8) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at the Red Bell Tavern. Wheel ruts and footprints cross the softer ground. Wilhelm Strauss is here. The broom leans bristles upward against the shut door.
+Here: Wilhelm Strauss (#3).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The Sabbath must be kept (held for your order; you may: attend church)
+Self-Command: Held for your order; routine standing orders only — explain 545
+[599] Wilhelm Strauss: Good day ▸ Ellis Wayfarer (it went well)
+  Wilhelm Strauss: “Wilhelm Strauss. I've been meaning to make your acquaintance.”
+  Ellis Wayfarer: “And now you have. Ellis Wayfarer.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Bell Ford [go:13]
+11. Go to Cole Bell Ford Gazette [go:19]
+12. Go to Rud Ford Smithy [go:20]
+13. Go to Freeman Store and Outfitter [go:22]
+14. Eat Hardtack (ship's biscuit) (raw) [eat:149:raw]
+15. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:149:soak]
+Actions 136; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.

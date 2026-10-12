@@ -219,8 +219,10 @@ items = [
   { item = "flour_sack_25lb", qty = 6 },
 ]
 
+# The town springhouse's dairy is sold through the Pratts' ledger: credit by the same rules as the store.
 [[stocks]]
 place = "town_springhouse"
+keeper = "pratt"
 markup_pct = 100
 items = [
   { item = "milk_quart", qty = 14 },
