@@ -90,3 +90,4 @@ value_cents = 35
 materials = [{ material = "canvas", pct = 100 }]
 stackable = false
 container = { capacity_g = 7500, capacity_bulk = 8, liquid_ml = 7500, protects = ["splashproof"], carry = "pack" }
+shape = ["soft"]

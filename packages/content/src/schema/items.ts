@@ -151,6 +151,8 @@ export const PrepSchema = z.strictObject({
   method: z.enum(PREP_METHODS),
   /** Elapsed minutes per batch (hands-on + waiting: soaking, simmering). */
   minutes: nonNegInt(),
+  /** Hands-on minutes; omitted means all elapsed time is active. */
+  active_minutes: nonNegInt().optional(),
   /** Minutes of active fire per batch (fuel: items with `supply.kind = 'fire'`). 0 = no fire. */
   fire_minutes: nonNegInt().default(0),
   /** Max servings one batch makes with one set of cookware. */
@@ -221,6 +223,10 @@ export const FoodSchema = z.strictObject({
       turning_pm: 750,
       frozen_ruins: false,
     }),
+  /** Opening one sealed unit requires a tool, then it becomes this short-lived food. */
+  opening: z
+    .strictObject({ yields: ref(), minutes: nonNegInt(), cut: nonNegInt().default(0), pry: nonNegInt().default(0) })
+    .optional(),
   /** Ways to make it edible. Must include at least one; 'raw' means edible as-is. */
   prep: z.array(PrepSchema).min(1),
   /** Liquid food/drink: ml per unit (counts toward thirst if `hydrates`). */
@@ -332,6 +338,8 @@ export const RationPolicySchema = z.strictObject({
   description: z.string().default(''),
   weights: z
     .strictObject({
+      /** Prefer food that can reach the table sooner. */
+      preparation_time: nonNegInt().max(100).default(2),
       /** Use up what turns soonest. */
       spoils_first: nonNegInt().max(100).default(10),
       /** Prefer foods and preparations that lift spirits. */
@@ -345,7 +353,15 @@ export const RationPolicySchema = z.strictObject({
       /** Reach for fresh food when scurvy is gathering. */
       fresh_need: nonNegInt().max(100).default(10),
     })
-    .default({ spoils_first: 10, morale: 10, variety: 10, lightness: 0, thrift: 10, fresh_need: 10 }),
+    .default({
+      preparation_time: 2,
+      spoils_first: 10,
+      morale: 10,
+      variety: 10,
+      lightness: 0,
+      thrift: 10,
+      fresh_need: 10,
+    }),
   /** Item tags held back unless nothing else will do ("save the pemmican"). */
   reserve_tags: z.array(id()).default([]),
 });
@@ -408,7 +424,28 @@ export const VenueServiceSchema = z.strictObject({
   meal_cents: nonNegInt().optional(),
   meal_share_pct: int().min(1).max(100).optional(),
 });
+export const DomesticRuleSchema = z.strictObject({
+  id: id(),
+  business_owner_roles: z.array(id()).default([]),
+  equipment: z.array(z.strictObject({ item: ref(), qty: posInt() })).default([]),
+  wood_base_per_day: nonNegInt().default(10),
+  wood_per_member_per_day: nonNegInt().default(2),
+});
+export const NutritionRuleSchema = z.strictObject({
+  id: id(),
+  deficiency_rest_loss_per_hour: nonNegInt().default(6),
+  protein_g_per_1000_kcal: posInt().default(20),
+  protein_on_pct: pct().default(70),
+  protein_off_pct: pct().default(85),
+  min_days: posInt().default(7),
+  fat_floor_pct: pct().default(10),
+  fat_recovery_pct: pct().default(12),
+  fresh_target: posInt().default(10),
+  fresh_reference_servings: posInt().default(5),
+});
 export const itemsDomains = {
+  domesticRules: defineDomain({ dir: 'provisions', key: 'domestic_rule', schema: DomesticRuleSchema }),
+  nutritionRules: defineDomain({ dir: 'provisions', key: 'nutrition_rule', schema: NutritionRuleSchema }),
   venueServices: defineDomain({ dir: 'provisions', key: 'venue_service', schema: VenueServiceSchema }),
   playStarts: defineDomain({ dir: 'play', key: 'start', schema: PlayStartSchema }),
   items: defineDomain({ dir: 'items', key: 'item', schema: ItemSchema }),
@@ -465,7 +502,10 @@ export function itemsRefs(b: ContentBundle): Issue[] {
         issues.push({ where, path: 'consumes', message: `no item supplies '${c.kind}'` });
       }
     }
+    if (it.container && !it.shape.includes('soft') && it.bulk < it.container.capacity_bulk)
+      issues.push({ where, path: 'bulk', message: 'rigid container external bulk is smaller than its capacity' });
     if (it.food) {
+      checkRefs(issues, where, 'food.opening.yields', [it.food.opening?.yields], b.items, 'item');
       checkRefs(issues, where, 'food.spoilage.spoils_to', [it.food.spoilage.spoils_to], b.items, 'item');
       for (const p of it.food.prep) {
         checkRefs(issues, where, 'food.prep.yields', [p.yields], b.items, 'item');
@@ -476,6 +516,15 @@ export function itemsRefs(b: ContentBundle): Issue[] {
       }
     }
   }
+  for (const rule of Object.values(b.domesticRules))
+    checkRefs(
+      issues,
+      `domesticRules:${rule.id}`,
+      'equipment.item',
+      rule.equipment.map((e) => e.item),
+      b.items,
+      'item',
+    );
   const seedRefs = (where: string, stacks: readonly StackSeed[]) => {
     checkRefs(
       issues,

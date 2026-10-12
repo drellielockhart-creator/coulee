@@ -150,7 +150,7 @@ name = "Handcart"
 section = "animals_tack_boats"
 copy = "As pulled across the plains by the faithful."
 weight_g = 27216
-bulk = 30
+bulk = 40
 value_cents = 600
 tags = ["roads_only"]
 materials = [{ material = "wood", pct = 90 }, { material = "iron", pct = 10 }]
@@ -184,3 +184,15 @@ shape = ["long"]
 materials = [{ material = "bark", pct = 100 }]
 affordances = { float = 2 }
 stackable = false
+
+[[item]]
+id = "hay_bale"
+name = "Hay"
+copy = "Sixty pounds of slough hay: four working days for a horse, and a wagon load of bulk."
+section = "animals_tack_boats"
+value_cents = 15
+weight_g = 27216
+bulk = 40
+unit = "bale (60 lb)"
+supply = { kind = "fodder", units = 4 }
+tags = ["flammable"]

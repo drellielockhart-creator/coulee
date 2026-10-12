@@ -1,25 +1,51 @@
 /**
  * Provisions cross-module API. OWNER: module:provisions.
  */
+
+import { isAsleep } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { term } from '../explain.ts';
 import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 import { rowsOf } from '../ids.ts';
-import { atPlace, moveStack, rootOf, stacksAt, stacksDeep } from '../items/api.ts';
-import { drink } from '../needs/api.ts';
+import {
+  atPlace,
+  carriedBy,
+  consumeSupply,
+  type InventoryIndex,
+  inventoryIndex,
+  moveStack,
+  rootOf,
+  stacksAt,
+  stacksDeep,
+  supplyUnits,
+} from '../items/api.ts';
+import { fitsInContainer } from '../items/containers.ts';
+import { drink, needValue } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
-import type { UrgeProposal } from '../urge.ts';
+import type { Urge, UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { larderKcal } from './economy.ts';
+import { accessibleStack, mealExplain } from './meals.ts';
 import { storeOpen } from './services.ts';
 
 /** Money outside the store (loans, repayments): see economy.ts. */
-export { cashOf, purchase, transferCash } from './economy.ts';
+export { cashOf, purchase, synchronizeStoreTabs, transferCash } from './economy.ts';
 
 import { yearsBetween } from '../time.ts';
-import { dailyKcal, drawWater, holderOfActor, hungry, membersOf, waterAvailable } from './meals.ts';
+import {
+  dailyKcal,
+  drawWater,
+  dueMeal,
+  foodServings,
+  hungry,
+  type Kitchen,
+  kitchenOf,
+  membersOf,
+  recipesFor,
+  waterAvailable,
+} from './meals.ts';
 import { planReadiness } from './planner.ts';
-import { SHOPPING, shoppingDays } from './rules.ts';
+import { agePct, SHOPPING, shoppingDays } from './rules.ts';
 
 /** Outdoor air temperature, °F (the weather hook; needs reads exposure from here). */
 export { airTempF, isRaining, storageTempF, tempBand } from './temperature.ts';
@@ -37,6 +63,8 @@ export interface Readiness {
   daysOfFoodTenths: number;
   /** Days of fuel for cooking, tenths (null if none needed/known). */
   daysOfFuelTenths: number | null;
+  /** Stored water horizon including drinking and preparation (null for a replenished source). */
+  daysOfWaterTenths?: number | null;
   /** The stack that will spoil soonest and when (days, tenths). */
   spoilsFirst: { defId: string; name: string; inDaysTenths: number } | null;
   /** Foods you have but cannot prepare with what's here ("beans: no kettle"). */
@@ -71,16 +99,34 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
   const actor = world.actors[actorId];
   if (!actor?.alive) return [];
   const out: UrgeProposal[] = [];
+  const thirst = needValue(world, actorId, 'thirst');
+  if (thirst < 600 && drinkingWater(world, ctx.content, actorId) > 0 && ctx.content.activities.fetch_water) {
+    const intensity = Math.min(1000, 400 + (600 - thirst) * 2);
+    out.push({
+      urge: { kind: 'activity', activityId: 'fetch_water', placeId: actor.placeId },
+      voice: 'id',
+      intensity,
+      label: 'Drink accessible water',
+      source: 'provisions',
+      drive: 'hunger',
+      reasons: [term('need', 'Thirst deficit', intensity)],
+    });
+  }
+  const foodUrge = hungry(world, actorId) ? foodSeekingUrge(world, ctx, actorId) : null;
   if (
+    foodUrge &&
     hungry(world, actorId) &&
     ctx.content.activities.take_meal &&
     world.provisions.nutrition[actorId]?.lastMealAt !== ctx.now
   ) {
     out.push({
-      urge: { kind: 'activity', activityId: 'take_meal' },
+      urge: foodUrge,
       voice: 'id',
       intensity: 650,
-      label: 'Hungry: eat from the larder or pack',
+      label:
+        foodUrge.kind === 'activity' && ctx.content.activities[foodUrge.activityId]?.tags.includes('commerce')
+          ? 'Hungry: buy food for the empty pantry'
+          : 'Hungry: eat from the larder or pack',
       source: 'provisions',
       drive: 'hunger',
       reasons: [term('need', 'Hunger', 650)],
@@ -207,21 +253,206 @@ export function sell(
   return true;
 }
 
-/** Drink uses the same accessible water and depletion kernel as meal preparation. */
-export function drinkingWater(world: World, content: ContentBundle, actorId: ActorId): number {
-  return waterAvailable(world, content, holderOfActor(world, actorId));
+/** Water sources and carried vessels share the physical preparation ledger. */
+function homeWaterHolder(world: World, actorId: ActorId): { householdId: HouseholdId } | null {
+  const actor = world.actors[actorId];
+  return actor && world.households[actor.householdId]?.homePlaceId === actor.placeId
+    ? { householdId: actor.householdId }
+    : null;
 }
-export function drinkWater(world: World, ctx: SimContext, actorId: ActorId, ml: number): boolean {
+export function drinkingWater(world: World, content: ContentBundle, actorId: ActorId, index?: InventoryIndex): number {
+  const home = homeWaterHolder(world, actorId);
+  return waterAvailable(world, content, { actorId }, index) + (home ? waterAvailable(world, content, home, index) : 0);
+}
+export function drinkWater(
+  world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+  ml: number,
+  index?: InventoryIndex,
+): boolean {
   if (
     !world.actors[actorId]?.alive ||
     !Number.isSafeInteger(ml) ||
     ml <= 0 ||
-    ml > drinkingWater(world, ctx.content, actorId)
+    ml > drinkingWater(world, ctx.content, actorId, index)
   )
     return false;
-  drawWater(world, ctx.content, holderOfActor(world, actorId), ml);
-  drink(world, ctx, actorId, ml, { label: 'Drink available water' });
+  const carried = Math.min(ml, waterAvailable(world, ctx.content, { actorId }, index));
+  drawWater(world, ctx.content, { actorId }, carried, index);
+  const home = homeWaterHolder(world, actorId);
+  if (home && carried < ml) drawWater(world, ctx.content, home, ml - carried, index);
+  drink(world, ctx, actorId, ml, { label: 'Drink accessible water' });
   return true;
 }
+export function refillQuote(
+  world: World,
+  content: ContentBundle,
+  actorId: ActorId,
+  itemId: ItemId,
+  ml?: number,
+): number | null {
+  const actor = world.actors[actorId],
+    stack = world.items.stacks[itemId];
+  if (!actor?.alive || !stack || !accessibleStack(world, actorId, stack)) return null;
+  const capacity = content.items[stack.defId]?.container?.liquid_ml ?? 0;
+  const wanted = ml ?? capacity - (stack.waterMl ?? 0);
+  const home = homeWaterHolder(world, actorId),
+    source = world.places[actor.placeId]?.tags.includes('water');
+  if (
+    !Number.isSafeInteger(wanted) ||
+    wanted <= 0 ||
+    wanted + stack.waterMl > capacity ||
+    (!source && (!home || waterAvailable(world, content, home) < wanted))
+  )
+    return null;
+  const parent = stack.location.kind === 'container' ? world.items.stacks[stack.location.itemId] : undefined;
+  if (parent) {
+    const filled = { ...stack, waterMl: stack.waterMl + wanted };
+    const projected: World = {
+      ...world,
+      items: { ...world.items, stacks: { ...world.items.stacks, [itemId]: filled } },
+    };
+    if (!fitsInContainer(projected, content, filled, filled.qty, parent).ok) return null;
+  }
+  return wanted;
+}
+export function refillWater(world: World, ctx: SimContext, actorId: ActorId, itemId: ItemId, ml?: number): boolean {
+  const wanted = refillQuote(world, ctx.content, actorId, itemId, ml),
+    actor = world.actors[actorId],
+    stack = world.items.stacks[itemId];
+  if (wanted === null || !actor || !stack) return false;
+  const home = homeWaterHolder(world, actorId),
+    source = world.places[actor.placeId]?.tags.includes('water');
+  const capacity = ctx.content.items[stack.defId]?.container?.liquid_ml ?? 0;
+  const before = stack.waterMl;
+  stack.waterMl += wanted;
+  if (!source && home) drawWater(world, ctx.content, home, wanted);
+  ctx.emit({
+    kind: 'provisions.refilled',
+    data: { actorId, itemId, ml: wanted },
+    roles: [{ actor: actorId, role: 'agent' }],
+    visibility: 'private',
+    explain: mealExplain('Refill water vessel', [actorId], stack.waterMl, [
+      term('water', 'Previous stored ml', before),
+      term('water', 'Water drawn ml', wanted),
+      term('item', 'Vessel capacity ml', capacity),
+    ]),
+  });
+  return true;
+}
+/** Ordinary sipping and filling at an accessible source, also used in readiness projections. */
+export function waterHour(world: World, ctx: SimContext): void {
+  const index = inventoryIndex(world);
+  for (const actor of rowsOf(world.actors)) {
+    if (!actor.alive || isAsleep(world, ctx, actor.id)) continue;
+    const value = needValue(world, actor.id, 'thirst');
+    if (value < 600) {
+      const def = ctx.content.needs.thirst;
+      const ml = Math.min(
+        drinkingWater(world, ctx.content, actor.id, index),
+        Math.max(0, Math.ceil((900 - value) * (def?.intake?.per_point ?? 2))),
+      );
+      if (ml > 0) drinkWater(world, ctx, actor.id, ml, index);
+    }
+    if (world.places[actor.placeId]?.tags.includes('water'))
+      for (const { stack } of stacksDeep(world, carriedBy(actor.id), index))
+        if ((ctx.content.items[stack.defId]?.container?.liquid_ml ?? 0) > stack.waterMl)
+          refillWater(world, ctx, actor.id, stack.id);
+  }
+}
 
+export { nutritionRestLoss } from './nutrition.ts';
 export { admitSleep, boardMeal, serviceAt, storeOpen } from './services.ts';
+
+/** Decision-time inventory/kitchens, scoped to this immutable proposal pass. The next hourly
+ * context gets a new index; no memo enters a save or survives inventory mutations into a pass. */
+type DecisionContext = SimContext & {
+  provisionsDecisionPass?: { index: InventoryIndex; kitchens: Map<string, Kitchen> };
+};
+function decisionKitchen(world: World, ctx: SimContext, holder: ReadinessHolder): Kitchen {
+  const context = ctx as DecisionContext;
+  let pass = context.provisionsDecisionPass;
+  if (!pass) {
+    pass = { index: inventoryIndex(world), kitchens: new Map() };
+    context.provisionsDecisionPass = pass;
+  }
+  const key = 'householdId' in holder ? `h${holder.householdId}` : `a${holder.actorId}`;
+  let kitchen = pass.kitchens.get(key);
+  if (!kitchen) {
+    kitchen = kitchenOf(world, ctx.content, holder, ctx.now, pass.index);
+    pass.kitchens.set(key, kitchen);
+  }
+  return kitchen;
+}
+/** Hunger seeks available food. An empty pantry cannot trap a funded actor in an endless
+ * meal urge: buying staples is the actionable way to eat, under the same market rules. */
+export function foodSeekingUrge(world: World, ctx: SimContext, actorId: ActorId): Urge | null {
+  const actor = world.actors[actorId];
+  if (!actor?.alive) return null;
+  const pending = (world.provisions.pendingMeals ?? []).find((m) => m.plates.some((p) => p.id === actorId));
+  if (pending)
+    return pending.completesAt > ctx.now
+      ? null
+      : { kind: 'activity', activityId: 'take_meal', placeId: pending.placeId };
+  const last = world.provisions.nutrition[actorId]?.lastMealAt;
+  let waitForMeal = last !== null && last !== undefined && ctx.now - last < 180;
+  const holder = { householdId: actor.householdId };
+  if (!dueMeal(world, ctx.content, holder, ctx.cal.hour))
+    for (let offset = 1; offset <= 3; offset++)
+      if (dueMeal(world, ctx.content, holder, (ctx.cal.hour + offset) % 24)) waitForMeal = true;
+  const holders: ReadinessHolder[] = [{ actorId }, { householdId: actor.householdId }];
+  for (const holder of holders) {
+    const kitchen = decisionKitchen(world, ctx, holder);
+    if (
+      kitchen.stacks.some(
+        (stack) =>
+          foodServings(ctx.content, stack) > 0 &&
+          (ctx.content.items[stack.defId]?.food?.kcal ?? 0) > 0 &&
+          recipesFor(world, ctx.content, holder, stack, 1, false, undefined, undefined, kitchen).some(
+            (r) => r.kcal > 0 && r.missing.length === 0,
+          ),
+      )
+    ) {
+      if (waitForMeal) return null;
+      const placeId = 'householdId' in holder ? world.households[holder.householdId]?.homePlaceId : actor.placeId;
+      return { kind: 'activity', activityId: 'take_meal', ...(placeId === undefined ? {} : { placeId }) };
+    }
+  }
+  if (yearsBetween(actor.born, ctx.now) < SHOPPING.minAge) return null;
+  const activity = Object.values(ctx.content.activities).find((a) => a.tags.includes('commerce'));
+  const store = bestStore(world, ctx);
+  if (!activity || !store || !storeOpen(world, ctx.content, store.placeId, ctx.now)) return null;
+  return { kind: 'activity', activityId: activity.id, placeId: store.placeId };
+}
+
+/** Needs and the planner use the same age factor; a child's ration matches their physiology. */
+export function energyAgePct(world: World, actorId: ActorId): number {
+  const actor = world.actors[actorId];
+  return actor ? agePct(yearsBetween(actor.born, world.time)) : 100;
+}
+
+/** Heating and cooking burn the same fire. A paid cooking interval supplies heat before
+ * the hearth draws more wood; partially covered hours pay only the uncovered share. */
+export function heatingFuel(
+  world: World,
+  ctx: SimContext,
+  placeId: PlaceId,
+  loc: import('../items/state.ts').ItemLocation,
+  kind: string,
+  wanted: number,
+  index?: InventoryIndex,
+): number | null {
+  if (!world.provisions?.fires)
+    return supplyUnits(world, ctx.content, loc, kind, index) >= wanted
+      ? consumeSupply(world, ctx.content, loc, kind, wanted, index)
+      : null;
+  const fire = world.provisions.fires[placeId];
+  const credit = fire?.lit ? Math.max(0, (fire.until ?? ctx.now + fire.fuelMinutes) - ctx.now) : 0;
+  const needed = Math.ceil((wanted * Math.max(0, 60 - credit)) / 60);
+  if (supplyUnits(world, ctx.content, loc, kind, index) < needed) return null;
+  const paid = consumeSupply(world, ctx.content, loc, kind, needed, index);
+  const until = Math.max(fire?.until ?? 0, ctx.now + 60);
+  world.provisions.fires[placeId] = { placeId, lit: true, until, fuelMinutes: until - ctx.now };
+  return paid;
+}

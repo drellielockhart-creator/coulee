@@ -16,6 +16,7 @@ value_cents = 75
 materials = [{ material = "canvas", pct = 100 }]
 stackable = false
 container = { capacity_g = 6000, capacity_bulk = 8, protects = ["splashproof"], carry = "sling" }
+shape = ["soft"]
 
 [[item]]
 id = "knapsack_army"
@@ -28,6 +29,7 @@ value_cents = 150
 materials = [{ material = "canvas", pct = 90 }, { material = "leather", pct = 10 }]
 stackable = false
 container = { capacity_g = 13600, capacity_bulk = 20, protects = ["splashproof"], carry = "pack" }
+shape = ["soft"]
 
 [[item]]
 id = "pack_board_tumpline"
@@ -35,7 +37,7 @@ name = "Pack board & tumpline"
 section = "packs_bedding"
 copy = "The portager's friend. Load it high, put the strap across your brow, and keep your eyes on your feet."
 weight_g = 2268
-bulk = 5
+bulk = 45
 value_cents = 250
 shape = ["rigid"]
 materials = [{ material = "wood", pct = 80 }, { material = "rawhide", pct = 20 }]
@@ -48,7 +50,7 @@ name = "Ash-splint pack basket"
 section = "packs_bedding"
 copy = "Woven of pounded black ash. Will not crush your eggs nor your lantern glass."
 weight_g = 1361
-bulk = 2
+bulk = 30
 value_cents = 125
 materials = [{ material = "wood", pct = 100 }]
 stackable = false
@@ -66,6 +68,7 @@ value_cents = 350
 materials = [{ material = "leather", pct = 100 }]
 stackable = false
 container = { capacity_g = 18000, capacity_bulk = 28, carry = "animal" }
+shape = ["soft"]
 
 [[item]]
 id = "blanket_wool_3pt"

@@ -5,6 +5,17 @@ import type { EventOf } from '../events/base.ts';
 import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 
 export type ProvisionsEvent =
+  | EventOf<
+      'provisions.load_movement',
+      { actorId: ActorId; loadPct: number; speedPct: number; minutes: number; blocked: boolean }
+    >
+  | EventOf<'provisions.fire', { placeId: PlaceId; lit: boolean; fuelMinutes: number; ignition: string }>
+  | EventOf<'provisions.refilled', { actorId: ActorId; itemId: ItemId; ml: number }>
+  | EventOf<'provisions.prep_started', { cookId: ActorId; completesAt: number; activeMinutes: number; minutes: number }>
+  | EventOf<
+      'provisions.shopping_plan',
+      { householdId: HouseholdId; energyKcal: number; fatG: number; proteinG: number; freshPoints: number }
+    >
   | EventOf<'provisions.sale', { sellerId: ActorId; placeId: PlaceId; defId: string; qty: number; priceCents: number }>
   | EventOf<
       'provisions.intake',

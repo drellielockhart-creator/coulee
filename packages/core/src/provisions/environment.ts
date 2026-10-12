@@ -4,7 +4,7 @@ import { isAsleep } from '../activity/api.ts';
 import type { ProtectionId } from '../content.ts';
 import { term } from '../explain.ts';
 import { type ItemId, rowsOf } from '../ids.ts';
-import { consumeStack, consumeSupply, createStack, deleteStack, supplyUnits } from '../items/api.ts';
+import { consumeStack, consumeSupply, createStack, deleteStack, inventoryIndex, supplyUnits } from '../items/api.ts';
 import { protectionsOf, rootLocation } from '../items/containers.ts';
 import { recordProvenance } from '../items/state.ts';
 import { mixKey } from '../rng.ts';
@@ -53,6 +53,7 @@ export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo)
     if (!def.food) continue;
     const factors = spoilageFactors(world, ctx.content, stack, ctx.cal, placed);
     if (!factors) continue;
+    stack.frozen = factors.band === 'frozen';
     advanceSpoilage(stack, def.food, factors, 60);
     if (def.food.spoilage.frozen_ruins && factors.band === 'frozen') stack.spoilage = 1000;
     if (stack.spoilage >= 1000) {
@@ -114,6 +115,7 @@ export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo)
 
 /** Atomic supply draw: devices do not grant light when they cannot sustain this hour. */
 export function devicesHour(world: World, ctx: SimContext): void {
+  const inventory = inventoryIndex(world);
   for (const stack of rowsOf(world.items.stacks)) {
     const def = ctx.content.items[stack.defId];
     const consumes = def?.consumes.filter((c) => c.per === 'hour' || c.per === 'day') ?? [];
@@ -145,13 +147,13 @@ export function devicesHour(world: World, ctx: SimContext): void {
       requirements[c.kind] = (requirements[c.kind] ?? 0) + units;
     }
     const supplied = Object.entries(requirements).every(
-      ([kind, units]) => supplyUnits(world, ctx.content, loc, kind) >= Math.max(1, units),
+      ([kind, units]) => supplyUnits(world, ctx.content, loc, kind, inventory) >= Math.max(1, units),
     );
     let lit = wanted && supplied && stack.condition > 0;
     if (wanted && !supplied) {
       // Burn the last partial oil/candle; the device is dark for the remainder of the hour.
       for (const [kind, units] of Object.entries(requirements)) {
-        const used = consumeSupply(world, ctx.content, loc, kind, units);
+        const used = consumeSupply(world, ctx.content, loc, kind, units, inventory);
         if (used)
           ctx.emit({
             kind: 'provisions.supply_used',
@@ -164,8 +166,10 @@ export function devicesHour(world: World, ctx: SimContext): void {
     // Routine burning (oil by the hour while lit) is silent; the stack's lit flag and supply show it,
     // and running out is logged below.
     if (lit)
-      for (const [kind, units] of Object.entries(requirements)) consumeSupply(world, ctx.content, loc, kind, units);
-    const exhausted = lit && Object.keys(requirements).some((kind) => supplyUnits(world, ctx.content, loc, kind) === 0);
+      for (const [kind, units] of Object.entries(requirements))
+        consumeSupply(world, ctx.content, loc, kind, units, inventory);
+    const exhausted =
+      lit && Object.keys(requirements).some((kind) => supplyUnits(world, ctx.content, loc, kind, inventory) === 0);
     if (exhausted) lit = false;
     if (exhausted || (wanted && !supplied && stack.lit))
       ctx.emit({
@@ -173,7 +177,8 @@ export function devicesHour(world: World, ctx: SimContext): void {
         data: {
           itemId: stack.id,
           defId: stack.defId,
-          kind: consumes.find((c) => supplyUnits(world, ctx.content, loc, c.kind) < c.units)?.kind ?? 'supply',
+          kind:
+            consumes.find((c) => supplyUnits(world, ctx.content, loc, c.kind, inventory) < c.units)?.kind ?? 'supply',
           wasLit: true,
         },
         explain: mealExplain('Device supply depleted', [], 0, [], 'depleted'),

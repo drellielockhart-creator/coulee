@@ -165,3 +165,33 @@ export function resolveActivityPlace(
 export function scheduledRoutine(world: World, ctx: SimContext, actorId: ActorId): Routine | null {
   return routineFor(world, ctx, actorId);
 }
+
+/** Provisions reserves only hands-on cooking time; unattended soaking and simmering are
+ * pending output in provisions, and do not prevent other activities. */
+export function reservePreparation(world: World, ctx: SimContext, actorId: ActorId, minutes: number): void {
+  const state = world.activity.byActor[actorId];
+  if (!state || minutes <= 0) return;
+  state.lockedUntil = Math.max(state.lockedUntil ?? ctx.now, ctx.now + minutes) as import('../time.ts').GameMinute;
+  const cooking = Object.values(ctx.content.activities).find((a) => a.tags.includes('cook'));
+  if (cooking && state.activityId !== cooking.id) {
+    state.activityId = cooking.id;
+    state.since = ctx.now;
+    state.source = 'urge';
+    ctx.emit({
+      kind: 'activity.started',
+      data: { actorId, activityId: cooking.id, placeId: state.placeId, source: 'urge' },
+      roles: [{ actor: actorId, role: 'agent' }],
+      place: state.placeId,
+      visibility: 'witnessed',
+      explain: {
+        kind: 'formula',
+        label: 'Hands-on meal preparation',
+        subjects: [actorId],
+        knowledge: 'participants',
+        terms: [{ source: 'time', label: 'Active cooking minutes', value: minutes }],
+        total: state.lockedUntil,
+        outcome: 'working',
+      },
+    });
+  }
+}

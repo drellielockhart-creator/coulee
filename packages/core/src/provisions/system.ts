@@ -1,21 +1,31 @@
 /** Meals, household economy, nutrition, storage and scheduled supplies; sixth in the hourly schedule. */
 import { commandsFor } from '../command.ts';
 import { type ActorId, rowsOf } from '../ids.ts';
-import { carriedBy, moveStack } from '../items/api.ts';
+import { carriedBy, inventoryIndex, moveStack } from '../items/api.ts';
 import { rootLocation } from '../items/containers.ts';
 import { chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
-import { boardMeal, drinkWater, sell, storeOpen } from './api.ts';
+import { boardMeal, drinkWater, refillWater, sell, storeOpen, waterHour } from './api.ts';
 import { householdDay, purchase, shoppingHour } from './economy.ts';
 import { devicesHour, storageHour } from './environment.ts';
-import { accessibleStack, dueMeal, type Holder, holderOfActor, mealExplain, serveMeal } from './meals.ts';
+import {
+  accessibleStack,
+  awaitingMeal,
+  dueMeal,
+  type Holder,
+  holderOfActor,
+  mealExplain,
+  preparationHour,
+  serveMeal,
+} from './meals.ts';
 import { nutritionHour } from './nutrition.ts';
 
 export function provisionsSystem(world: World, ctx: SimContext): void {
   nutritionHour(world, ctx);
   if (ctx.isNewDay) householdDay(world, ctx);
   storageHour(world, ctx);
+  preparationHour(world, ctx);
   const ate = new Set<ActorId>();
   for (const cmd of commandsFor(ctx.commands, 'provisions.')) {
     const actor = world.actors[cmd.actorId];
@@ -35,6 +45,10 @@ export function provisionsSystem(world: World, ctx: SimContext): void {
       case 'provisions.board_meal':
         if (boardMeal(world, ctx, actor.id)) ate.add(actor.id);
         else reject('No meal available: closed, insufficient cash, or kitchen supplies exhausted');
+        break;
+      case 'provisions.refill':
+        if (!refillWater(world, ctx, actor.id, cmd.data.itemId, cmd.data.ml))
+          reject('Cannot refill: no accessible source or vessel capacity');
         break;
       case 'provisions.drink':
         if (!drinkWater(world, ctx, actor.id, cmd.data.ml)) reject('Not enough accessible water');
@@ -58,7 +72,8 @@ export function provisionsSystem(world: World, ctx: SimContext): void {
           !accessibleStack(world, actor.id, stack) ||
           !Number.isInteger(cmd.data.servings) ||
           cmd.data.servings <= 0 ||
-          ate.has(actor.id)
+          ate.has(actor.id) ||
+          awaitingMeal(world, actor.id)
         ) {
           reject('Food is inaccessible or servings are invalid');
           break;
@@ -125,10 +140,17 @@ export function provisionsSystem(world: World, ctx: SimContext): void {
       }
     }
   }
+  waterHour(world, ctx);
   shoppingHour(world, ctx);
   const groups: Array<{ holder: Holder; actors: ActorId[]; share: number; cold: boolean }> = [];
   for (const actor of rowsOf(world.actors)) {
-    if (!actor.alive || ate.has(actor.id) || world.provisions.nutrition[actor.id]?.lastMealAt === ctx.now) continue;
+    if (
+      !actor.alive ||
+      awaitingMeal(world, actor.id) ||
+      ate.has(actor.id) ||
+      world.provisions.nutrition[actor.id]?.lastMealAt === ctx.now
+    )
+      continue;
     const holder = holderOfActor(world, actor.id),
       meal = dueMeal(world, ctx.content, holder, ctx.cal.hour);
     const urge = chosenUrge(world, actor.id);
@@ -141,8 +163,10 @@ export function provisionsSystem(world: World, ctx: SimContext): void {
       (g) => 'householdId' in holder && 'householdId' in g.holder && holder.householdId === g.holder.householdId,
     );
     if (group) group.actors.push(actor.id);
-    else groups.push({ holder, actors: [actor.id], share: meal?.share_pct ?? 10, cold: meal?.cold ?? false });
+    else groups.push({ holder, actors: [actor.id], share: meal?.share_pct ?? 30, cold: meal?.cold ?? false });
   }
-  for (const group of groups) serveMeal(world, ctx, group.holder, group.actors, group.share, group.cold);
+  const pass = { inventory: inventoryIndex(world), energy: new Map<string, number>() };
+  for (const group of groups)
+    serveMeal(world, ctx, group.holder, group.actors, group.share, group.cold, undefined, pass);
   devicesHour(world, ctx);
 }

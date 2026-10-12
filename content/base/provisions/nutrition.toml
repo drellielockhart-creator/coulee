@@ -1,0 +1,13 @@
+# Tunable physiology and balanced shopping targets. Protein is proportional to full energy
+# need, so children and peoples with smaller energy needs do not inherit an adult threshold.
+[[nutrition_rule]]
+id = "daily"
+deficiency_rest_loss_per_hour = 6
+protein_g_per_1000_kcal = 20
+protein_on_pct = 70
+protein_off_pct = 85
+min_days = 7
+fat_floor_pct = 10
+fat_recovery_pct = 12
+fresh_target = 10
+fresh_reference_servings = 5

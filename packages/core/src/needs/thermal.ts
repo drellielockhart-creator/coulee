@@ -1,8 +1,8 @@
 /** Exposure and actual hearth fuel. Weather hook until provisions exposes its temperature API. */
 import { requiredRow } from '../activity/definitions.ts';
 import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
-import { consumeSupply, pantryOf, supplyUnits } from '../items/api.ts';
-import { airTempF } from '../provisions/api.ts';
+import { inventoryIndex, pantryOf } from '../items/api.ts';
+import { airTempF, heatingFuel } from '../provisions/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { CalendarInfo } from '../time.ts';
 import type { World } from '../world.ts';
@@ -16,6 +16,7 @@ export function ambientTemperatureF(cal: CalendarInfo): number {
 export function heatPlaces(world: World, ctx: SimContext): Record<number, number> {
   const air = ambientTemperatureF(ctx.cal);
   const temperatures: Record<number, number> = {};
+  const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   const homes: Record<number, number> = {};
   for (const hid of idsOf(world.households)) {
     const h = requiredRow(world.households, hid);
@@ -44,8 +45,9 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
       if (hid === undefined) lit = false;
       else {
         const loc = pantryOf(hid as import('../ids.ts').HouseholdId);
-        lit = supplyUnits(world, ctx.content, loc, hearth.fuel_kind) >= wanted;
-        if (lit) fuel = consumeSupply(world, ctx.content, loc, hearth.fuel_kind, wanted);
+        const paid = heatingFuel(world, ctx, pid, loc, hearth.fuel_kind, wanted, inventory);
+        lit = paid !== null;
+        fuel = paid ?? 0;
       }
     }
     const temperatureF = lit ? Math.min(hearth.cap_f, air + hearth.gain_f) : air + hearth.unlit_gain_f;

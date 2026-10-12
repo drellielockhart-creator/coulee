@@ -1,0 +1,8 @@
+# Settled kitchens own reusable fire-starting gear and a stock of dry tinder. This does
+# not equip a traveler: departure still requires packing the actual household items.
+[[domestic_rule]]
+id = "daily"
+business_owner_roles = ["merchant", "miller", "tavern_keeper"]
+equipment = [{ item = "flint_steel_char_tin", qty = 2 }, { item = "tinder_pouch", qty = 4 }]
+wood_base_per_day = 10
+wood_per_member_per_day = 2

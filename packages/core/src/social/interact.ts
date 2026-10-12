@@ -10,8 +10,9 @@ import { opposedCheck, resolveCheck, type SaveId, saveTerms, skillCheck, skillTe
 import type { DefenseId, InteractionDef } from '../content.ts';
 import { type Explain, type ExplainTerm, signed, term } from '../explain.ts';
 import type { ActorId, EventId, MemoryId, PlaceId, PropId } from '../ids.ts';
+import { loadCheckTerms } from '../items/api.ts';
 import { satisfyNeed } from '../needs/api.ts';
-import { transferCash } from '../provisions/api.ts';
+import { synchronizeStoreTabs, transferCash } from '../provisions/api.ts';
 import { addAnxiety, addThought } from '../psyche/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -125,7 +126,18 @@ function runCheck(world: World, ctx: SimContext, req: InteractionRequest): Check
           term('opinion', `Their regard (Affection ${signed(op.affection)}, Trust ${signed(op.trust)})`, adj),
         );
     }
-    const res = skillCheck(content, init, { label, skill: def.check.skill, dc: def.check.dc, dcTerms }, r);
+    const res = skillCheck(
+      content,
+      init,
+      {
+        label,
+        skill: def.check.skill,
+        dc: def.check.dc,
+        dcTerms,
+        modifiers: loadCheckTerms(world, content, init.id, def.check.skill),
+      },
+      r,
+    );
     const explain: Explain = { ...res.explain, subjects: [req.initiatorId, req.targetId], children };
     return { success: res.success, explain, checked: true };
   }
@@ -135,12 +147,17 @@ function runCheck(world: World, ctx: SimContext, req: InteractionRequest): Check
     label,
     {
       label: `${shortName(init)} ${def.check.skill}`,
-      terms: skillTerms(content, init, def.check.skill),
+      terms: [
+        ...skillTerms(content, init, def.check.skill),
+        ...loadCheckTerms(world, content, init.id, def.check.skill),
+      ],
       subject: init.id,
     },
     {
       label: `${shortName(tgt)} ${vs}`,
-      terms: isSave ? saveTerms(tgt, vs as SaveId) : skillTerms(content, tgt, vs),
+      terms: isSave
+        ? saveTerms(tgt, vs as SaveId)
+        : [...skillTerms(content, tgt, vs), ...loadCheckTerms(world, content, tgt.id, vs)],
       subject: tgt.id,
     },
     r,
@@ -400,6 +417,8 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     }
   }
   if (eff.settle === 'target_debt') settleDebt(world, content, tg, i, def.requires.debt);
+
+  synchronizeStoreTabs(world);
 
   // ---- structural edges (courting, betrothed)
   if (eff.remove_relationship) {

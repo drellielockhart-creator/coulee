@@ -19,7 +19,7 @@ supply = { kind = "arrow", units = 12 }
 
 [[item]]
 id = "arrows_flint_dozen"
-name = "Arrows, dozen, flint/bone-headed"
+name = "Arrows, dozen, horn-tipped"
 section = "ammunition"
 unit = "dozen"
 copy = "No iron in them, for hunting where iron isn't welcome."
@@ -27,7 +27,7 @@ weight_g = 454
 bulk = 2
 value_cents = 60
 tags = ["ammo", "no_iron"]
-materials = [{ material = "wood", pct = 70 }, { material = "stone", pct = 30 }]
+materials = [{ material = "wood", pct = 70 }, { material = "horn", pct = 30 }]
 supply = { kind = "arrow", units = 12 }
 
 [[item]]
@@ -54,6 +54,7 @@ value_cents = 50
 materials = [{ material = "horn", pct = 100 }]
 stackable = false
 container = { capacity_g = 454, capacity_bulk = 1, protects = ["splashproof"], carry = "belt" }
+shape = ["soft"]
 
 [[item]]
 id = "powder_flask_copper"
@@ -217,3 +218,15 @@ bulk = 0.5
 value_cents = 80
 materials = [{ material = "lead", pct = 100 }]
 supply = { kind = "ball_69", units = 50 }
+
+[[item]]
+id = "arrows_horn_dozen"
+name = "Arrows, horn-tipped, dozen"
+copy = "Horn points from the comb works. No iron in them."
+section = "ammunition"
+value_cents = 60
+weight_g = 454
+bulk = 2
+unit = "dozen"
+materials = [{ material = "wood", pct = 80 }, { material = "horn", pct = 20 }]
+supply = { kind = "arrow", units = 12 }

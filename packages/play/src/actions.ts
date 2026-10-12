@@ -98,6 +98,12 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     }
   const accessible = Object.values(w.items.stacks).filter((s) => provisions.accessibleStack(w, pc, s));
   for (const s of accessible) {
+    if (provisions.refillQuote(w, c, pc, s.id) !== null)
+      add(`refill:${s.id}`, `Refill ${c.items[s.defId]?.name}`, {
+        kind: 'provisions.refill',
+        actorId: pc,
+        data: { itemId: s.id },
+      });
     const food = c.items[s.defId]?.food;
     const root = items.rootOf(w, s);
     const holder = root.kind === 'actor' ? { actorId: pc } : provisions.holderOfActor(w, pc);
@@ -181,6 +187,10 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
       ? null
       : 'Wait uses whole hours, at most 30 days';
   }
+  if (command.kind === 'provisions.refill')
+    return provisions.refillQuote(w, c, pc, command.data.itemId, command.data.ml) !== null
+      ? null
+      : 'No accessible refill source or vessel capacity';
   if (command.kind === 'provisions.drink')
     return Number.isSafeInteger(command.data.ml) &&
       command.data.ml > 0 &&

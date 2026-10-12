@@ -5,7 +5,19 @@
  * Item instances themselves live in world.items (items/state.ts, also provisions-owned).
  * Everything here is integers and plain data.
  */
-import { type ActorId, type HouseholdId, idsOf, mustGet, type PlaceId, type Table } from '../ids.ts';
+
+import { currentActivity } from '../activity/api.ts';
+import type { Explain } from '../explain.ts';
+import {
+  type ActorId,
+  type HouseholdId,
+  type ItemId,
+  idsOf,
+  mustGet,
+  type PlaceId,
+  rowsOf,
+  type Table,
+} from '../ids.ts';
 import type { InitContext } from '../sim/context.ts';
 import type { GameMinute } from '../time.ts';
 import type { World } from '../world.ts';
@@ -98,6 +110,47 @@ export interface Fire {
   lit: boolean;
   /** Remaining minutes of fuel on the fire. */
   fuelMinutes: number;
+  /** Fuel already paid for through this minute; optional for earlier saves. */
+  until?: number;
+}
+
+export interface PendingPlate {
+  id: ActorId;
+  target: number;
+  kcal: number;
+  proteinG: number;
+  fatG: number;
+  freshPoints: number;
+  waterMl: number;
+  ethanolPoints: number;
+  servings: number;
+  groups: string[];
+  foods: string[];
+  items: Array<{ defId: string; qty: number; method: string; servingsPm?: number }>;
+  hot: boolean;
+  morale: number;
+  children: Explain[];
+}
+export interface PendingMeal {
+  placeId: PlaceId;
+  householdId: HouseholdId | null;
+  cookId: ActorId;
+  startedAt: number;
+  completesAt: number;
+  activeUntil: number;
+  rationPct: number;
+  plates: PendingPlate[];
+  batches: Array<{
+    itemId: ItemId;
+    from: string;
+    into: string;
+    servings: number;
+    servingsPm: number;
+    methods: string[];
+    fireMinutes: number;
+    waterMl: number;
+    minutes: number;
+  }>;
 }
 
 /** Switches a harness or test can flip. They change what happens in the world, never the rules by who is playing. */
@@ -122,6 +175,7 @@ export interface ProvisionsState {
   settings: ProvisionsSettings;
   /** Paid bed access, actor -> expiry game minute. Optional for old saves. */
   beds?: Record<number, { placeId: PlaceId; until: number }>;
+  pendingMeals?: PendingMeal[];
 }
 
 export function createProvisionsState(): ProvisionsState {
@@ -200,6 +254,16 @@ export function initProvisionsState(world: World, ctx: InitContext): void {
     for (const hid of idsOf<HouseholdId>(world.households)) {
       if (owner === null && world.households[hid]?.homePlaceId === pid) owner = hid;
     }
+    if (owner === null) {
+      const roles = ctx.content.domesticRules?.daily?.business_owner_roles ?? [];
+      const keeper = rowsOf(world.actors).find(
+        (a) =>
+          world.households[a.householdId]?.headId === a.id &&
+          currentActivity(world, a.id)?.workplaceId === pid &&
+          ctx.content.occupations[a.occupationId]?.roles.some((role) => roles.includes(role)),
+      );
+      if (keeper) owner = keeper.householdId;
+    }
     // A restock table that names this place applies even if the scenario did not link it.
     const linked = s.restock ?? Object.values(ctx.content.restocks ?? {}).find((r) => r.place === s.place)?.id ?? null;
     const targets: Record<string, number> = {};
@@ -219,7 +283,7 @@ export function initProvisionsState(world: World, ctx: InitContext): void {
       placeId: pid,
       ownerHouseholdId: owner,
       markupPct: s.markup_pct,
-      creditLimitCents: s.credit_limit_cents,
+      creditLimitCents: owner === null ? 0 : s.credit_limit_cents,
       restockId: linked,
       tabs,
       tillCents: 0,

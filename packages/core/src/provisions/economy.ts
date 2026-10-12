@@ -8,9 +8,11 @@ import { rowsOf } from '../ids.ts';
 import { atPlace, carriedBy, createStack, moveStack, pantryOf, stacksDeep, supplyUnits } from '../items/api.ts';
 import type { ItemLocation } from '../items/state.ts';
 import type { SimContext } from '../sim/context.ts';
+import { debtOf, extendCredit } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { priceAt, readinessOf } from './api.ts';
-import { dailyKcal, foodServings, mealExplain, membersOf } from './meals.ts';
+import { dailyKcal, foodServings, kitchenOf, mealExplain, membersOf, prepBudget, recipesFor } from './meals.ts';
+import { nutritionTargets } from './nutrition.ts';
 import { RATION_RESTORE_DAYS, RATION_STEPS, SHUNNED, shoppingDays, WOODPILE } from './rules.ts';
 import { storeOpen } from './services.ts';
 
@@ -24,6 +26,7 @@ export function purchase(
   onCredit: boolean,
   to: ItemLocation = carriedBy(actorId),
 ): number {
+  synchronizeStoreTabs(world);
   const actor = world.actors[actorId],
     store = world.provisions.stores[placeId];
   const unitPrice = priceAt(world, ctx.content, placeId, defId);
@@ -48,7 +51,8 @@ export function purchase(
   const price = shunned ? Math.round((listPrice * SHUNNED.markupPct) / 100) : listPrice;
   const purse = world.provisions.purses[actorId] ?? 0;
   const cash = purse + (buyer?.cashCents ?? 0);
-  const credit = onCredit && !shunned ? Math.max(0, store.creditLimitCents - (store.tabs[actorId] ?? 0)) : 0;
+  const credit =
+    onCredit && !shunned && keeper !== undefined ? Math.max(0, store.creditLimitCents - (store.tabs[actorId] ?? 0)) : 0;
   let remaining = price > 0 ? Math.min(wanted, Math.floor((cash + credit) / price)) : wanted;
   let bought = 0;
   for (const { stack } of stacksDeep(world, atPlace(placeId))) {
@@ -77,7 +81,12 @@ export function purchase(
     debt = cost - cashPaid;
   if (owner) owner.cashCents += cashPaid;
   else store.tillCents += cashPaid;
-  if (debt) store.tabs[actorId] = (store.tabs[actorId] ?? 0) + debt;
+  if (debt) {
+    if (keeper !== undefined) {
+      extendCredit(world, ctx, keeper, actorId, debt);
+      store.tabs[actorId] = debtOf(world, keeper, actorId).cents;
+    }
+  }
   ctx.emit({
     kind: 'provisions.purchase',
     data: { buyerId: actorId, placeId, defId, qty: bought, priceCents: cost, onCredit: debt > 0 },
@@ -93,7 +102,8 @@ export function purchase(
         : []),
       term('item', 'Quantity', bought),
       term('money', 'Cash transferred cents', cashPaid),
-      term('credit', 'Tab increased cents', debt),
+      term('credit', 'Goods charged to money ledger cents', debt),
+      term('credit', 'Outstanding store account cents', store.tabs[actorId] ?? 0),
     ]),
   });
   return bought;
@@ -203,7 +213,8 @@ export function replenishDomestic(world: World, ctx: SimContext, householdId: Ho
     const cap = (WOODPILE.capBase + WOODPILE.capPerMember * members.length) * fireDef.supply.units;
     const gap = cap - supplyUnits(world, ctx.content, pantryOf(household.id), 'fire');
     const qty = Math.min(
-      WOODPILE.baseDay + WOODPILE.perMemberDay * members.length,
+      (ctx.content.domesticRules?.daily?.wood_base_per_day ?? WOODPILE.baseDay) +
+        (ctx.content.domesticRules?.daily?.wood_per_member_per_day ?? WOODPILE.perMemberDay) * members.length,
       Math.max(0, Math.floor(gap / fireDef.supply.units)),
     );
     if (qty) createStack(world, ctx, fireDef.id, qty, pantryOf(household.id));
@@ -326,37 +337,153 @@ export function shoppingHour(world: World, ctx: SimContext): void {
     const buyerId = atStore(household.headId) ? household.headId : household.memberIds.find(atStore);
     const buyer = buyerId === undefined ? undefined : world.actors[buyerId];
     if (!h || !buyer) continue;
-    const need = membersOf(world, { householdId: household.id }).reduce(
-      (n, id) => n + dailyKcal(world, ctx.content, id, ctx.now),
-      0,
-    );
-    const horizon = shoppingDays(ctx.cal.month);
-    let missing = horizon.target * need - larderKcal(world, ctx, household.id);
-    if (missing < (horizon.target - horizon.trigger) * need) continue;
+    const members = membersOf(world, { householdId: household.id });
+    const need = members.reduce((n, id) => n + dailyKcal(world, ctx.content, id, ctx.now), 0);
+    const horizon = shoppingDays(ctx.cal.month),
+      holder = { householdId: household.id };
+    let kitchen = kitchenOf(world, ctx.content, holder, ctx.now);
+    // Buying food which cannot be cooked is not a useful errand. Replace exhausted
+    // ignition gear from the authored domestic kit before calculating the food order.
+    if (kitchen.ignition.length) {
+      for (const gear of ctx.content.domesticRules?.daily?.equipment ?? []) {
+        const def = ctx.content.items[gear.item];
+        if (
+          !def ||
+          !kitchen.ignition.some((missing) =>
+            missing === 'ignition gear' ? (def.affordances.ignite ?? 0) > 0 : (def.affordances.tinder ?? 0) > 0,
+          )
+        )
+          continue;
+        purchase(world, ctx, buyer.id, buyer.placeId, gear.item, 1, true, pantryOf(household.id));
+        kitchen = kitchenOf(world, ctx.content, holder, ctx.now);
+        if (!kitchen.ignition.length) break;
+      }
+    }
+    const targets = nutritionTargets(ctx.content);
+    type Diet = { kcal: number; fatG: number; proteinG: number; freshPoints: number };
+    const daily: Diet = {
+      kcal: need,
+      fatG: Math.ceil((need * targets.fat_recovery_pct) / 900),
+      proteinG: Math.ceil((need * targets.protein_g_per_1000_kcal) / 1000),
+      freshPoints: members.length * targets.fresh_target * targets.fresh_reference_servings,
+    };
+    const stored: Diet = { kcal: 0, fatG: 0, proteinG: 0, freshPoints: 0 };
+    const usable = (s: import('../items/state.ts').ItemStack) =>
+      recipesFor(world, ctx.content, holder, s, 1, false, undefined, prepBudget(holder), kitchen)
+        .filter((r) => r.missing.length === 0 && r.food.alcohol_pct === 0 && r.kcal > 0)
+        .sort(
+          (a, b) => a.minutes - b.minutes || a.fire - b.fire || (a.defId < b.defId ? -1 : a.defId > b.defId ? 1 : 0),
+        )[0];
+    const dietOf = (s: import('../items/state.ts').ItemStack): Diet | null => {
+      const r = usable(s),
+        food = ctx.content.items[s.defId]?.food;
+      return !r || !food
+        ? null
+        : {
+            kcal: r.kcal * food.servings,
+            fatG: r.food.fat_g * r.units,
+            proteinG: r.food.protein_g * r.units,
+            freshPoints: r.food.fresh * r.food.servings * r.units,
+          };
+    };
+    for (const stack of kitchen.stacks) {
+      const food = ctx.content.items[stack.defId]?.food,
+        diet = dietOf(stack);
+      if (!diet || !food) continue;
+      const units = foodServings(ctx.content, stack) / food.servings;
+      for (const key of ['kcal', 'fatG', 'proteinG', 'freshPoints'] as const)
+        stored[key] += Math.floor(diet[key] * units);
+    }
+    const history = members.flatMap((id) => world.provisions.nutrition[id]?.history.slice(-7) ?? []);
+    const historyEnergy = history.reduce((n, d) => n + d.kcal, 0),
+      historyFat = history.reduce((n, d) => n + d.fatG, 0);
+    const lowFat = history.length > 0 && historyFat * 900 < historyEnergy * targets.fat_recovery_pct;
+    const lowFresh = members.some((id) => (world.provisions.nutrition[id]?.lowFreshDays ?? 0) > 0);
+    const missing: Diet = {
+      kcal: Math.max(0, daily.kcal * horizon.target - stored.kcal),
+      fatG: Math.max(0, daily.fatG * horizon.target - stored.fatG),
+      proteinG: Math.max(0, daily.proteinG * horizon.target - stored.proteinG),
+      freshPoints: Math.max(0, daily.freshPoints * horizon.target - stored.freshPoints),
+    };
+    if (
+      stored.kcal >= daily.kcal * horizon.trigger &&
+      !lowFat &&
+      !lowFresh &&
+      stored.fatG >= daily.fatG * horizon.trigger &&
+      stored.freshPoints >= daily.freshPoints * horizon.trigger
+    )
+      continue;
+    if (Object.values(missing).every((n) => n === 0)) continue;
     const stock = stacksDeep(world, atPlace(buyer.placeId))
       .map((s) => s.stack)
-      .filter((s) => (ctx.content.items[s.defId]?.food?.kcal ?? 0) > 0);
-    stock.sort((a, b) => {
-      const af = ctx.content.items[a.defId],
-        bf = ctx.content.items[b.defId];
-      const ap = priceAt(world, ctx.content, buyer.placeId, a.defId) ?? 0,
-        bp = priceAt(world, ctx.content, buyer.placeId, b.defId) ?? 0;
-      return ap * (bf?.food?.kcal ?? 1) - bp * (af?.food?.kcal ?? 1) || a.id - b.id;
+      .filter((s) => s.condition > 0 && s.spoilage < 1000 && !s.partial && !s.foodPartialPm)
+      .map((stack) => ({
+        stack,
+        diet: dietOf(stack),
+        price: priceAt(world, ctx.content, buyer.placeId, stack.defId) ?? 0,
+      }))
+      .filter((entry): entry is typeof entry & { diet: Diet } => entry.diet !== null);
+    ctx.emit({
+      kind: 'provisions.shopping_plan',
+      data: {
+        householdId: household.id,
+        energyKcal: missing.kcal,
+        fatG: missing.fatG,
+        proteinG: missing.proteinG,
+        freshPoints: missing.freshPoints,
+      },
+      roles: [{ actor: buyer.id, role: 'agent' }],
+      visibility: 'private',
+      explain: mealExplain('Balanced provision order', members, missing.kcal, [
+        term('time', 'Target days', horizon.target),
+        term('need', 'Daily full energy kcal', need),
+        term('nutrition', 'Fat target percent', targets.fat_recovery_pct),
+        term('nutrition', 'Protein grams per thousand kcal', targets.protein_g_per_1000_kcal),
+        term(
+          'nutrition',
+          'Fresh target points per member-day',
+          targets.fresh_target * targets.fresh_reference_servings,
+        ),
+        term('history', 'Rolling fat deficit', lowFat ? 1 : 0),
+        term('history', 'Fresh-food deficit', lowFresh ? 1 : 0),
+        term('target', 'Missing fat grams', missing.fatG),
+        term('target', 'Missing protein grams', missing.proteinG),
+        term('target', 'Missing fresh points', missing.freshPoints),
+      ]),
     });
-    for (const s of stock) {
-      if (missing <= 0) break;
-      const kcal = ctx.content.items[s.defId]?.food?.kcal ?? 0;
-      const bought = purchase(
-        world,
-        ctx,
-        buyer.id,
-        buyer.placeId,
-        s.defId,
-        Math.ceil(missing / Math.max(1, kcal)),
-        true,
-        pantryOf(household.id),
-      );
-      missing -= bought * kcal;
+    // Cover nutrients before filling the remaining energy cheaply. Cross-products compare
+    // cents per nutrient without rounding ties; preparations and opening tools are shared.
+    for (const key of ['fatG', 'freshPoints', 'proteinG', 'kcal'] as const) {
+      stock.sort((a, b) => a.price * b.diet[key] - b.price * a.diet[key] || a.stack.id - b.stack.id);
+      for (const entry of stock) {
+        if (missing[key] <= 0) break;
+        if (entry.diet[key] <= 0 || !world.items.stacks[entry.stack.id]) continue;
+        const bought = purchase(
+          world,
+          ctx,
+          buyer.id,
+          buyer.placeId,
+          entry.stack.defId,
+          Math.ceil(missing[key] / entry.diet[key]),
+          true,
+          pantryOf(household.id),
+        );
+        for (const field of ['kcal', 'fatG', 'proteinG', 'freshPoints'] as const)
+          missing[field] = Math.max(0, missing[field] - bought * entry.diet[field]);
+      }
+    }
+  }
+}
+
+/** Store tabs are the shop view of the keeper's social money ledger. Unowned shops retain
+ * their own till account; a shop with a keeper never keeps an independent monetary debt. */
+export function synchronizeStoreTabs(world: World): void {
+  for (const store of rowsOf(world.provisions.stores)) {
+    const keeper = store.ownerHouseholdId === null ? undefined : world.households[store.ownerHouseholdId]?.headId;
+    if (keeper === undefined) continue;
+    for (const actor of rowsOf(world.actors)) {
+      const cents = debtOf(world, keeper, actor.id).cents;
+      if (cents || store.tabs[actor.id] !== undefined) store.tabs[actor.id] = cents;
     }
   }
 }

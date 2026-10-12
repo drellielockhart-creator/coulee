@@ -150,10 +150,21 @@ describe('psyche: hunger against duty (10 §4.2, §5.2)', () => {
     const id = actorByKey(sim, key);
     const needs = sim.world.needs.byActor[id];
     if (needs) needs.values.hunger = 250;
+    // An actionable hunger episode, rather than a request for another snack just
+    // after a meal or while its replacement is still being prepared.
+    const nutrition = sim.world.provisions.nutrition[id];
+    if (nutrition) nutrition.lastMealAt = null;
+    sim.world.provisions.pendingMeals = (sim.world.provisions.pendingMeals ?? []).filter(
+      (meal) => !meal.plates.some((plate) => plate.id === id),
+    );
     const p = sim.world.psyche.byActor[id] as psyche.ActorPsyche;
     tweak?.(p);
     p.thoughts = [];
-    psyche.psycheHour(sim.world, makeContext(sim.world, content, []), id);
+    // A late dinner leaves this arbitration outside the pre-meal snack window.
+    const hungerContent = structuredClone(content);
+    for (const plan of Object.values(hungerContent.mealPlans))
+      for (const meal of plan.meals) if (meal.hour === 12) meal.hour = 13;
+    psyche.psycheHour(sim.world, makeContext(sim.world, hungerContent, []), id);
     const eat = p.thoughts
       .filter((t) => t.voice === 'id' && (t.stance ?? 'for') === 'for' && eatTags(sim.world, t.urge).includes('eat'))
       .sort((a, b) => b.intensity - a.intensity)[0];
