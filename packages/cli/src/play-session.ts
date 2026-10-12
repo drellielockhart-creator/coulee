@@ -125,6 +125,9 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
         session.markBranched();
         save(dir, session, menu);
       }
+      // The disk log is replay's authority too, including for an already-branched parent.
+      writeFileSync(join(dir, 'commands.jsonl.tmp'), jsonl(session.commandLog));
+      renameSync(join(dir, 'commands.jsonl.tmp'), join(dir, 'commands.jsonl'));
       for (const file of files) copyFileSync(join(dir, file), join(target, file));
       console.log(`Forked to ${target}.\n${renderObservation(observation, menu.page)}`);
       return 0;
@@ -137,6 +140,8 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
       const replayed = PlaySession.replay(content, log, mode);
       if (replayed.hash !== session.hash || savedHash !== session.hash)
         throw new Error('Verification failed: replay/save hash mismatch');
+      if (replayed.isBranched !== session.isBranched)
+        throw new Error('Verification failed: replay/save branch metadata mismatch');
       console.log(`Verified ${log.length - 1} commands; final hash ${session.hash}.`);
       return 0;
     }

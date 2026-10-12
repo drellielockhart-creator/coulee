@@ -124,7 +124,14 @@ describe('social: Iron Ford, 60 days, seed 42', () => {
       if (!def || def.check.kind === 'none') continue;
       checked++;
       expect(['check', 'opposed']).toContain(e.explain?.kind);
-      expect(e.explain?.dc).toBeDefined();
+      if (def.check.kind === 'dc' && def.check.attitude) {
+        expect(e.explain?.dc).toBeUndefined();
+        const privateCheck = e.explain?.children?.find(
+          (child) => child.kind === 'check' && child.knowledge === 'self' && child.subjects[0] === e.data.targetId,
+        );
+        expect(privateCheck?.dc).toBeDefined();
+        expect(privateCheck?.roll).toEqual(e.explain?.roll);
+      } else expect(e.explain?.dc).toBeDefined();
       expect(['success', 'failure', 'tie_defender']).toContain(e.explain?.outcome);
       expect(e.data.success).toBe(e.explain?.outcome === 'success');
     }

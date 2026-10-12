@@ -254,8 +254,8 @@ on = ["compliment"]
 outcome = "success"
 weight = 12
 lines = [
-  { by = "initiator", text = "That's a handsome coat, {you}." },
-  { by = "target", text = "It was my father's. It's got his temper still." },
+  { by = "initiator", text = "You've a fine way about you, {you}." },
+  { by = "target", text = "Thank you. I try to be civil." },
 ]
 
 [[talk]]
@@ -484,8 +484,8 @@ id = "intro_cabin"
 on = ["introduce"]
 weight = 12
 lines = [
-  { by = "initiator", text = "{initiator}, lately of #homeland#. I've taken the cabin by the creek." },
-  { by = "target", text = "{target}. You'll want the miller about grinding, and the storekeeper about credit, in that order." },
+  { by = "initiator", text = "{initiator}. I hope we'll have occasion to talk." },
+  { by = "target", text = "{target}. A good word costs nothing." },
 ]
 
 [[talk]]
@@ -494,8 +494,8 @@ on = ["introduce"]
 weight = 8
 when = { initiator = { culture = "norwegian" } }
 lines = [
-  { by = "initiator", text = "Goddag. {initiator}. I'm learning English the hard way, with a plow." },
-  { by = "target", text = "{target}. We all are." },
+  { by = "initiator", text = "Goddag. {initiator}. Pleased to make your acquaintance." },
+  { by = "target", text = "{target}. Pleased to make yours." },
 ]
 
 [[talk]]
@@ -504,8 +504,8 @@ on = ["introduce"]
 weight = 8
 when = { initiator = { culture = "german" } }
 lines = [
-  { by = "initiator", text = "{initiator}. From Baden, by way of Milwaukee, and I regret nothing." },
-  { by = "target", text = "{target}. A good start. Most folk regret something by Milwaukee." },
+  { by = "initiator", text = "{initiator}. A good day for a proper introduction." },
+  { by = "target", text = "{target}. Better than leaving it till tomorrow." },
 ]
 
 [[talk]]
@@ -524,8 +524,8 @@ on = ["introduce"]
 weight = 8
 when = { initiator = { culture = "cornish" } }
 lines = [
-  { by = "initiator", text = "{initiator}. Out of Cornwall, by way of the lead. Do you know the mines?" },
-  { by = "target", text = "{target}. Only by reputation, and the hats." },
+  { by = "initiator", text = "{initiator}. Do you know much about the lead country?" },
+  { by = "target", text = "{target}. Enough to know there's always more to learn." },
 ]
 
 [[talk]]
@@ -534,8 +534,8 @@ on = ["introduce"]
 weight = 8
 when = { initiator = { culture = "yankee" } }
 lines = [
-  { by = "initiator", text = "{initiator}, from New England. I've come to see the country." },
-  { by = "target", text = "{target}. You'll see it. It's mostly mud, in spring." },
+  { by = "initiator", text = "{initiator}. A pleasure to meet you." },
+  { by = "target", text = "{target}. And you. Mind the mud if you stay to talk." },
 ]
 
 [[talk]]
@@ -564,8 +564,8 @@ on = ["introduce"]
 weight = 4
 when = { venue = "school" }
 lines = [
-  { by = "initiator", text = "{initiator}. I've come to see about a place for my boy." },
-  { by = "target", text = "{target}. We've room, if he doesn't mind the stove." },
+  { by = "initiator", text = "{initiator}. What do you make of this school?" },
+  { by = "target", text = "{target}. A place worth taking an interest in." },
 ]
 
 [[talk]]
@@ -574,8 +574,8 @@ on = ["introduce"]
 weight = 4
 when = { venue = "mill" }
 lines = [
-  { by = "initiator", text = "{initiator}. I've a sack to grind and no notion of the toll." },
-  { by = "target", text = "{target}. We'll settle it fair. Fair is the only way to stay in business." },
+  { by = "initiator", text = "{initiator}. A mill is a fine place to meet the neighbors." },
+  { by = "target", text = "{target}. If you can hear them over the wheel." },
 ]
 
 [[talk]]
@@ -584,8 +584,8 @@ on = ["introduce"]
 weight = 4
 when = { venue = "smithy" }
 lines = [
-  { by = "initiator", text = "{initiator}. I've a cracked axle and a worse temper." },
-  { by = "target", text = "{target}. Bring both. I can mend the first." },
+  { by = "initiator", text = "{initiator}. I thought I'd say good day." },
+  { by = "target", text = "{target}. And a good day to you, above the ringing." },
 ]
 
 [[talk]]
@@ -614,8 +614,8 @@ on = ["introduce"]
 weight = 4
 when = { venue = "print" }
 lines = [
-  { by = "initiator", text = "{initiator}. I thought I might put a notice in your paper." },
-  { by = "target", text = "{target}. Welcome. It's two bits a line, and I'll spell your name right if I can." },
+  { by = "initiator", text = "{initiator}. A printing office gives people plenty to talk about." },
+  { by = "target", text = "{target}. Sometimes more than they wanted." },
 ]
 
 [[talk]]
@@ -624,9 +624,9 @@ on = ["introduce"]
 weight = 4
 when = { venue = "mine" }
 lines = [
-  { by = "initiator", text = "{initiator}. I'm looking for work underground." },
-  { by = "target", text = "{target}. Can you stand the dark and the damp?" },
-  { by = "initiator", text = "I've tried the alternatives." },
+  { by = "initiator", text = "{initiator}. What do you make of the mines?" },
+  { by = "target", text = "{target}. Dark and damp, by all accounts." },
+  { by = "initiator", text = "That much seems certain." },
 ]
 
 [[talk]]
@@ -645,8 +645,8 @@ on = ["introduce"]
 weight = 7
 when = { child = false, target_child = true }
 lines = [
-  { by = "initiator", text = "And what's your name, young {target_given}?" },
-  { by = "target", text = "{target}. I'm seven and three-quarters." },
+  { by = "initiator", text = "And what's your name?" },
+  { by = "target", text = "{target}. What's yours?" },
 ]
 
 [[talk]]
@@ -656,7 +656,7 @@ weight = 8
 when = { initiator = { age = "elder" } }
 lines = [
   { by = "initiator", text = "{initiator}. Old enough to say what I like, I find." },
-  { by = "target", text = "{target}. Then we'll get along. I'm the same." },
+  { by = "target", text = "{target}. Then we ought to have a lively talk." },
 ]
 
 [[talk]]
@@ -665,8 +665,8 @@ on = ["introduce"]
 weight = 4
 when = { part = "evening" }
 lines = [
-  { by = "initiator", text = "Forgive me, it's late. {initiator}. I've just come off the road." },
-  { by = "target", text = "{target}. Take a chair. The supper's not past helping." },
+  { by = "initiator", text = "Forgive me, it's late. {initiator}." },
+  { by = "target", text = "{target}. Never too late for a civil word." },
 ]
 
 [[talk]]
@@ -1090,38 +1090,42 @@ lines = [
 [[talk]]
 id = "repay_early"
 on = ["repay"]
+outcome = "success"
 weight = 12
 lines = [
-  { by = "initiator", text = "Here's what I owe you, {you}, and a bit extra for the waiting." },
-  { by = "target", text = "There's no need. But I'll take it. Thank you." },
+  { by = "initiator", text = "Here's {cents} toward what I owe you, {you}." },
+  { by = "target", text = "{settlement} Thank you." },
 ]
 
 [[talk]]
 id = "repay_counted"
 on = ["repay"]
+outcome = "success"
 weight = 12
 lines = [
   { by = "initiator", text = "{^cents}. Count it." },
-  { by = "target", text = "I trust you. ...I'll count it anyway." },
+  { by = "target", text = "{settlement} I'll count it once more." },
 ]
 
 [[talk]]
 id = "repay_clean"
 on = ["repay"]
+outcome = "success"
 weight = 12
 lines = [
-  { by = "initiator", text = "I don't like owing, {you}. It sits in me like a stone." },
-  { by = "target", text = "Then it's gone. Be easy." },
+  { by = "initiator", text = "{^cents} toward the debt. I don't like owing, {you}." },
+  { by = "target", text = "{settlement} I'll mark it down." },
 ]
 
 [[talk]]
 id = "repay_friend"
 on = ["repay"]
+outcome = "success"
 weight = 8
 when = { label = "friend" }
 lines = [
-  { by = "initiator", text = "Here's what I owe you. Don't make a ceremony." },
-  { by = "target", text = "A ceremony? I'm putting it in my pocket." },
+  { by = "initiator", text = "Here's {cents} toward what I owe you. Don't make a ceremony." },
+  { by = "target", text = "{settlement} Into my pocket it goes." },
 ]
 
 [[talk]]
@@ -1289,7 +1293,7 @@ weight = 4
 when = { sabbath = true }
 lines = [
   { by = "initiator", text = "Might I walk you home after meeting?" },
-  { by = "target", text = "You might. And my mother might watch from the window." },
+  { by = "target", text = "You might. The neighbors will have something to talk about." },
 ]
 
 [[talk]]

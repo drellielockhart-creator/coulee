@@ -68,8 +68,6 @@ const SALT_TALK = 0x7a1c;
 /** Under this age a speaker talks as a child (talk lines' `child`). */
 const CHILD_AGE = 13;
 const WEEK = 7 * 1440;
-/** Lines remembered per pair (the week's no-repeat window rarely needs more). */
-const MAX_REMEMBERED = 24;
 
 // ---- content index (cached per bundle) ----
 
@@ -532,8 +530,9 @@ function remember(world: World, key: string, ids: readonly string[], now: number
     delete rec[id];
     rec[id] = now;
   }
-  const keys = Object.keys(rec);
-  for (let n = 0; n < keys.length - MAX_REMEMBERED; n++) delete rec[keys[n] as string];
+  // Bound history by its live window, never by a count that evicts active cooldowns.
+  const keep = key.startsWith('p') ? ROOM : key.startsWith('s') ? SPEAKER : WEEK;
+  for (const id of Object.keys(rec)) if (now - (rec[id] ?? 0) >= keep) delete rec[id];
   world.social.talk[key] = rec;
 }
 
