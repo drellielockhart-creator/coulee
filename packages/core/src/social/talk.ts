@@ -30,6 +30,7 @@ import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
 import { formatCents } from './model.ts';
 import { opinionRecord, owedCents } from './opinion.ts';
+import { whenSpecificity, whoMatches } from './talk-who.ts';
 import { areKinBy } from './volition.ts';
 
 type TalkLine = ContentBundle['talk_lines'][string];
@@ -238,6 +239,8 @@ class Scene {
   readonly t: ActorId;
   readonly placeId: PlaceId | null;
   readonly facts: TalkFacts;
+  /** Culture each scenario actor was raised in, by actor key (for `initiator`/`target` conditions). */
+  cultureByKey: ReadonlyMap<string, string> = new Map();
   constructor(world: World, ctx: SimContext, i: ActorId, t: ActorId, placeId: PlaceId | null, facts: TalkFacts) {
     this.world = world;
     this.ctx = ctx;
@@ -357,7 +360,14 @@ class Scene {
     if (w.about !== undefined && this.facts.about !== w.about) return false;
     if (w.child !== undefined && this.child(this.i) !== w.child) return false;
     if (w.target_child !== undefined && this.child(this.t) !== w.target_child) return false;
+    if (w.initiator !== undefined && !this.isWho(this.i, w.initiator)) return false;
+    if (w.target !== undefined && !this.isWho(this.t, w.target)) return false;
     return true;
+  }
+  /** Does this speaker fit a line's `initiator` / `target` block (a teller, a kind of person)? */
+  private isWho(id: ActorId, who: NonNullable<When['initiator']>): boolean {
+    const a = this.world.actors[id];
+    return a !== undefined && whoMatches(who, a, this.cultureByKey.get(a.key) ?? null, this.ctx.now);
   }
   /** Slots every line may use. Per-turn slots ({you}) are added when the turn is filled. */
   slots(line: TalkLine): Record<string, string> {
@@ -553,6 +563,7 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   const i = req.initiatorId;
   const t = req.targetId;
   const scene = new Scene(world, ctx, i, t, req.placeId, req.facts ?? {});
+  scene.cultureByKey = idx.cultureByKey;
   const outcome = req.success ? 'success' : 'failure';
   let fits = pool.filter((l) => (l.outcome === 'any' || l.outcome === outcome) && scene.matches(l.when));
   // A child at either end: their own lines first, grown-up talk only if there is nothing else.
@@ -575,7 +586,7 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   let line: TalkLine | undefined;
   if (fresh.length > 0) {
     // Specific lines (more conditions met) weigh more: they say something about this moment.
-    line = r.weighted(fresh, (l) => l.weight * (1 + 2 * Object.keys(l.when).length));
+    line = r.weighted(fresh, (l) => l.weight * (1 + 2 * whenSpecificity(l.when)));
   } else {
     // Everything that fits was said lately: the one longest unheard (by this pair, and in this
     // room) comes round again.

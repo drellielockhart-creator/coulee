@@ -7,6 +7,18 @@ export const LAYERS = { terrain: 0x74657272, layout: 0x706c6174, population: 0x7
 export const randomFor = (r: TownRecipe, layer: keyof typeof LAYERS, key = '') =>
   rng(r.seed, 'worldgen', r.genVersion, mixKey(LAYERS[layer], hashString32(key)));
 
+/**
+ * Tavern signs, as a 5x5 table indexed by the same two draws the old word lists used, so the rest
+ * of a seed's layout does not move: every cell reads like a real sign of the 1850s.
+ */
+const TAVERN_SIGNS = [
+  ['Red Lion', 'White Horse', 'Black Bear', 'Golden Eagle', 'Green Tree'],
+  ['Plow and Harrow', "Drovers' Rest", 'Wagon Wheel', 'Spread Eagle', 'Red Oak'],
+  ['White Swan', 'Black Horse', 'Blue Anchor', 'Golden Ball', 'Silver Stag'],
+  ['Wheat Sheaf', "Travelers' Rest", 'Rising Sun', 'Star and Garter', 'Half Moon'],
+  ['Cross Keys', 'Three Crows', 'Old Oak', "Hunter's Horn", 'Black Swan'],
+] as const;
+
 export function terrain(recipe: TownRecipe) {
   const r = randomFor(recipe, 'terrain');
   const names = randomFor(recipe, 'terrain', 'names');
@@ -66,7 +78,7 @@ export function terrain(recipe: TownRecipe) {
       w,
       h,
       tags,
-      description: describePlace(name, kind, x, y, description),
+      description: describePlace(name, kind, description),
       model,
       fae_intensity: fi,
     });
@@ -176,11 +188,11 @@ export function settlement(recipe: TownRecipe, t: TerrainDraft) {
   const street = t.creek - 7;
   const add = t.add;
   // Split intersections into adjacent rectangles: even road and water footprints never overlap.
-  add('street_n', t.site.landmarks?.main_street ?? 'Upper valley road', 'road', street, 0, 2, t.ford, ['road']);
-  add('street_s', t.site.landmarks?.main_street ?? 'Lower valley road', 'road', street, t.ford + 2, 2, 62 - t.ford, [
-    'road',
-  ]);
-  add('road_w', 'Coulee road', 'road', 0, t.ford, t.creek - 2, 2, ['road']);
+  // The two reaches of the street carry distinct names (the Go menu lists both).
+  const mainStreet = t.site.landmarks?.main_street ?? 'Valley Road';
+  add('street_n', `${mainStreet}, north of the ford`, 'road', street, 0, 2, t.ford, ['road']);
+  add('street_s', `${mainStreet}, south of the ford`, 'road', street, t.ford + 2, 2, 62 - t.ford, ['road']);
+  add('road_w', 'Coulee Road', 'road', 0, t.ford, t.creek - 2, 2, ['road']);
   add('road_e', t.site.landmarks?.back_road ?? 'Ridge road', 'road', t.creek + 4, t.ford, 76 - t.creek, 2, ['road']);
   const homes: Record<string, PlaceDef> = {};
   const building = (key: string, name: string, tag: string, x: number, y: number, model: string, w = 5, h = 4) => {
@@ -193,7 +205,7 @@ export function settlement(recipe: TownRecipe, t: TerrainDraft) {
       role,
       {
         store: r.pick(['General Store', 'Mercantile', 'Store and Outfitter']),
-        tavern: `the ${r.pick(['Copper', 'Red', 'Wagon', 'Silver', 'Spotted'])} ${r.pick(['Bell', 'Fox', 'Oak', 'Stag', 'Lantern'])}`,
+        tavern: `the ${TAVERN_SIGNS[r.int(0, 4)]?.[r.int(0, 4)]}`,
         school: r.pick(['District School', 'Subscription School']),
       }[role] ?? role,
       role,
@@ -254,9 +266,12 @@ export function settlement(recipe: TownRecipe, t: TerrainDraft) {
   );
   for (let i = 0; i < farmCount; i++) {
     const [x, y] = farmPlots[i] as readonly [number, number];
+    // Placeholder names by where the plot lies (distinct, no coordinates); text.ts renames them
+    // for their families once the households exist.
+    const where = `${y < t.ford - 14 ? 'Head' : y < t.ford + 8 ? 'Upper' : 'Lower'} ${x < t.creek ? 'West' : 'East'}`;
     homes[`farm${i}`] = add(
       `farm${i}`,
-      ['Upper Coulee Farm', 'Ridge Farm', 'Lower Slope Farm', 'Orchard Farm', 'West Cove Farm'][i] as string,
+      `${where} Farm`,
       'farmstead',
       x,
       y,
@@ -271,7 +286,7 @@ export function settlement(recipe: TownRecipe, t: TerrainDraft) {
     );
     add(
       `field${i}`,
-      `Kitchen garden and stubble (${x + 6}, ${y})`,
+      `${where} Fields`,
       'field',
       x + 6,
       y,
@@ -299,7 +314,7 @@ export function settlement(recipe: TownRecipe, t: TerrainDraft) {
 }
 
 /** Stable local texture; no random draw that could disturb population or layout. */
-export function describePlace(name: string, kind: string, x: number, y: number, authored = ''): string {
-  if (authored) return authored;
-  return `${name} stands at (${x}, ${y}) on the village map. ${kind === 'home' ? 'A worn doorstep faces the lane; split wood is stacked under the eaves.' : 'Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs.'}`;
+export function describePlace(name: string, kind: string, authored = ''): string {
+  // A stand-in until text.ts writes the real description (it knows the owners); never a coordinate.
+  return authored || `${name}: a ${kind} in the valley.`;
 }

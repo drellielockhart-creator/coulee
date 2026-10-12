@@ -1,0 +1,1203 @@
+# Prayer, help and deep talk, wave 5 (group D). OWNER: module:social. Read by packages/core/src/social/talk.ts,
+# same rules as talk.toml. The wave-4 pools for these three were 12, 17 and 10 lines; two weeks of play
+# said them hundreds of times. Conditions here: the hour, season and calendar, the venue, the speakers'
+# culture and trade and age, their mood, and the relationship.
+
+# =============================================================================================
+# Prayer: pray_with (349 exchanges in 14 days came from 12 lines)
+# =============================================================================================
+
+# Table graces, psalms and hymns in the speakers' own tradition (KJV, Luther's table prayers, Wesley's
+# hymns: all public domain), tied to the hour, the season, the calendar, the mood and the company.
+# Kept plain and respectful: these are people at prayer, not a joke.
+
+[[talk]]
+id = "pray_morning"
+on = ["pray_with"]
+weight = 4
+when = { part = "morning" }
+lines = [
+  { by = "initiator", text = "This is the day which the Lord hath made." },
+  { by = "target", text = "We will rejoice and be glad in it." },
+]
+
+[[talk]]
+id = "pray_night"
+on = ["pray_with"]
+weight = 4
+when = { part = "night" }
+lines = [
+  { by = "initiator", text = "I will both lay me down in peace, and sleep." },
+  { by = "target", text = "For thou, Lord, only makest me dwell in safety. Amen." },
+]
+
+[[talk]]
+id = "pray_spring_season"
+on = ["pray_with"]
+weight = 4
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "To every thing there is a season, and a time to every purpose under the heaven." },
+  { by = "target", text = "A time to plant, {you}. Amen." },
+]
+
+[[talk]]
+id = "pray_summer_hay"
+on = ["pray_with"]
+weight = 4
+when = { season = "summer" }
+lines = [
+  { by = "initiator", text = "Lord, hold back the rain till the hay is in." },
+  { by = "target", text = "And send it after, for the corn. Amen." },
+]
+
+[[talk]]
+id = "pray_autumn"
+on = ["pray_with"]
+weight = 4
+when = { season = "autumn" }
+lines = [
+  { by = "initiator", text = "Thou crownest the year with thy goodness, and thy paths drop fatness." },
+  { by = "target", text = "Amen. And fill the cellar." },
+]
+
+[[talk]]
+id = "pray_winter"
+on = ["pray_with"]
+weight = 4
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "Weeping may endure for a night, but joy cometh in the morning." },
+  { by = "target", text = "Amen. And the thaw." },
+]
+
+[[talk]]
+id = "pray_fear"
+on = ["pray_with"]
+weight = 8
+when = { mood = "fear" }
+lines = [
+  { by = "initiator", text = "God is our refuge and strength, a very present help in trouble." },
+  { by = "target", text = "Therefore will we not fear. Amen." },
+]
+
+[[talk]]
+id = "pray_anxious"
+on = ["pray_with"]
+weight = 8
+when = { mood = "anxious" }
+lines = [
+  { by = "initiator", text = "Cast all your care upon him, for he careth for you." },
+  { by = "target", text = "I'm trying, {you}. Say it again." },
+]
+
+[[talk]]
+id = "pray_shame"
+on = ["pray_with"]
+weight = 8
+when = { mood = "shame" }
+lines = [
+  { by = "initiator", text = "If we confess our sins, he is faithful and just to forgive us." },
+  { by = "target", text = "Then I'll confess, {you}, and be done carrying it. Amen." },
+]
+
+[[talk]]
+id = "pray_misfortune_2"
+on = ["pray_with"]
+weight = 8
+when = { misfortune = true }
+lines = [
+  { by = "initiator", text = "Weep with them that weep. We'll carry something round tomorrow: {misfortune}." },
+  { by = "target", text = "And pray tonight. Amen." },
+]
+
+[[talk]]
+id = "pray_thanks_rain"
+on = ["pray_with"]
+weight = 4
+when = { weather = "rain" }
+lines = [
+  { by = "initiator", text = "Thank the Lord for the rain, though the roads curse it." },
+  { by = "target", text = "He knows best. Amen." },
+]
+
+[[talk]]
+id = "pray_snow"
+on = ["pray_with"]
+weight = 4
+when = { weather = "snow" }
+lines = [
+  { by = "initiator", text = "Lord, keep the poor and the travelers from the snow tonight." },
+  { by = "target", text = "And the stock in the barns. Amen." },
+]
+
+[[talk]]
+id = "pray_norwegian_table"
+on = ["pray_with"]
+weight = 7
+when = { initiator = { culture = "norwegian" }, household = true }
+lines = [
+  { by = "initiator", text = "I Jesu navn går vi til bords." },
+  { by = "target", text = "Å spise, drikke på ditt ord. Amen." },
+]
+
+[[talk]]
+id = "pray_norwegian_shepherd"
+on = ["pray_with"]
+weight = 8
+when = { initiator = { culture = "norwegian" } }
+lines = [
+  { by = "initiator", text = "Herren er min hyrde." },
+  { by = "target", text = "Meg mangler intet. Amen." },
+]
+
+[[talk]]
+id = "pray_german_table"
+on = ["pray_with"]
+weight = 7
+when = { initiator = { culture = "german" }, household = true }
+lines = [
+  { by = "initiator", text = "Komm, Herr Jesu, sei unser Gast." },
+  { by = "target", text = "Und segne, was du uns bescheret hast. Amen." },
+]
+
+[[talk]]
+id = "pray_irish_hail"
+on = ["pray_with"]
+weight = 8
+when = { initiator = { culture = "irish" } }
+lines = [
+  { by = "initiator", text = "Hail Mary, full of grace, the Lord is with thee." },
+  { by = "target", text = "Holy Mary, Mother of God, pray for us sinners, now and at the hour of our death. Amen." },
+]
+
+[[talk]]
+id = "pray_irish_company"
+on = ["pray_with"]
+weight = 5
+when = { initiator = { culture = "irish" }, part = "evening" }
+lines = [
+  { by = "initiator", text = "God and Mary be with you." },
+  { by = "target", text = "And Patrick, and the whole company. Amen." },
+]
+
+[[talk]]
+id = "pray_cornish_tongues"
+on = ["pray_with"]
+weight = 8
+when = { initiator = { culture = "cornish" } }
+lines = [
+  { by = "initiator", text = "O for a thousand tongues to sing my great Redeemer's praise." },
+  { by = "target", text = "The glories of my God and King, the triumphs of his grace." },
+]
+
+[[talk]]
+id = "pray_cornish_love"
+on = ["pray_with"]
+weight = 8
+when = { initiator = { culture = "cornish" } }
+lines = [
+  { by = "initiator", text = "And can it be that I should gain an interest in the Savior's blood?" },
+  { by = "target", text = "Amazing love! How can it be, that thou, my God, shouldst die for me?" },
+]
+
+[[talk]]
+id = "pray_amazing_grace"
+on = ["pray_with"]
+weight = 8
+when = { initiator = { culture = ["black_ohio", "yankee"] } }
+lines = [
+  { by = "initiator", text = "Amazing grace, how sweet the sound." },
+  { by = "target", text = "That saved a wretch like me." },
+]
+
+[[talk]]
+id = "pray_yankee_help"
+on = ["pray_with"]
+weight = 8
+when = { initiator = { culture = "yankee" } }
+lines = [
+  { by = "initiator", text = "Our help in ages past, Lord, and our hope for years to come." },
+  { by = "target", text = "Our shelter from the stormy blast, and our eternal home. Amen." },
+]
+
+[[talk]]
+id = "pray_elf_hall"
+on = ["pray_with"]
+weight = 8
+when = { initiator = { culture = "elf_hall" } }
+lines = [
+  { by = "initiator", text = "Salt on the sill, and a bell at the door." },
+  { by = "target", text = "And the Word in the house. Amen." },
+]
+
+[[talk]]
+id = "pray_goblin_pare"
+on = ["pray_with"]
+weight = 8
+when = { initiator = { culture = "goblin_pare" } }
+lines = [
+  { by = "initiator", text = "Keep the roof, Lord, and the men beneath it." },
+  { by = "target", text = "And bring each of them home to the table. Amen." },
+]
+
+[[talk]]
+id = "pray_church_still"
+on = ["pray_with"]
+weight = 4
+when = { venue = "church" }
+lines = [
+  { by = "initiator", text = "Let us be still a moment before the Lord." },
+  { by = "target", text = "Amen." },
+]
+
+[[talk]]
+id = "pray_sabbath_evening"
+on = ["pray_with"]
+weight = 2
+when = { sabbath = true, part = "evening" }
+lines = [
+  { by = "initiator", text = "Another Sabbath, and another week to be forgiven for." },
+  { by = "target", text = "Amen. Begin with me." },
+]
+
+[[talk]]
+id = "pray_courting"
+on = ["pray_with"]
+weight = 8
+when = { courting = true }
+lines = [
+  { by = "initiator", text = "Bless us both, Lord, and keep us from foolishness." },
+  { by = "target", text = "Particularly the second part. Amen." },
+]
+
+[[talk]]
+id = "pray_friend"
+on = ["pray_with"]
+weight = 8
+when = { label = "friend" }
+lines = [
+  { by = "initiator", text = "Lord, thank you for friends like this one." },
+  { by = "target", text = "Amen. You've been a good one to me." },
+]
+
+[[talk]]
+id = "pray_people"
+on = ["pray_with"]
+weight = 8
+when = { kin = true }
+lines = [
+  { by = "initiator", text = "Lord, watch over our people, near and far." },
+  { by = "target", text = "Particularly the far ones, who can't watch themselves. Amen." },
+]
+
+[[talk]]
+id = "pray_harvest"
+on = ["pray_with"]
+weight = 4
+when = { observance = "haying_and_harvest" }
+lines = [
+  { by = "initiator", text = "Lord of the harvest, bless the hands that bring it in." },
+  { by = "target", text = "And the backs that carry it. Amen." },
+]
+
+[[talk]]
+id = "pray_planting"
+on = ["pray_with"]
+weight = 4
+when = { observance = "planting" }
+lines = [
+  { by = "initiator", text = "Bless the corn in the hill, Lord, and keep the crows honest." },
+  { by = "target", text = "And the cutworms. Amen." },
+]
+
+[[talk]]
+id = "pray_christmas"
+on = ["pray_with"]
+weight = 4
+when = { observance = "christmas" }
+lines = [
+  { by = "initiator", text = "Glory to God in the highest, and on earth peace." },
+  { by = "target", text = "Good will toward men. Amen." },
+]
+
+[[talk]]
+id = "pray_easter"
+on = ["pray_with"]
+weight = 4
+when = { observance = "easter_sunday" }
+lines = [
+  { by = "initiator", text = "He is risen." },
+  { by = "target", text = "He is risen indeed." },
+]
+
+[[talk]]
+id = "pray_good_friday"
+on = ["pray_with"]
+weight = 4
+when = { observance = "good_friday" }
+lines = [
+  { by = "initiator", text = "It is finished." },
+  { by = "target", text = "Lord, have mercy. Amen." },
+]
+
+[[talk]]
+id = "pray_thanksgiving"
+on = ["pray_with"]
+weight = 4
+when = { observance = "thanksgiving" }
+lines = [
+  { by = "initiator", text = "O give thanks unto the Lord, for he is good." },
+  { by = "target", text = "For his mercy endureth for ever. Amen." },
+]
+
+[[talk]]
+id = "pray_hungry"
+on = ["pray_with"]
+weight = 8
+when = { mood = "hungry" }
+lines = [
+  { by = "initiator", text = "Give us this day our daily bread." },
+  { by = "target", text = "And a little butter, Lord, if it isn't too much. Amen." },
+]
+
+[[talk]]
+id = "pray_weary"
+on = ["pray_with"]
+weight = 8
+when = { mood = "weary" }
+lines = [
+  { by = "initiator", text = "Come unto me, all ye that labour and are heavy laden." },
+  { by = "target", text = "And I will give you rest. Amen. Soon." },
+]
+
+[[talk]]
+id = "pray_temperance"
+on = ["pray_with"]
+weight = 8
+when = { mood = "temperance" }
+lines = [
+  { by = "initiator", text = "Lead us not into temptation." },
+  { by = "target", text = "Or into the tavern after meeting. Amen." },
+]
+
+[[talk]]
+id = "pray_pastor_asked"
+on = ["pray_with"]
+weight = 8
+when = { target = { occupation = ["pastor", "lay_preacher"] } }
+lines = [
+  { by = "initiator", text = "Would you offer a prayer for us, {you}?" },
+  { by = "target", text = "I would. Almighty God, from whom no secrets are hid, accept our thanks and our trouble. Amen." },
+]
+
+[[talk]]
+id = "pray_pastor_offers"
+on = ["pray_with"]
+weight = 8
+when = { initiator = { occupation = ["pastor", "lay_preacher"] } }
+lines = [
+  { by = "initiator", text = "Let us pray. Lord, we are few and the work is long." },
+  { by = "target", text = "Give us strength for the day and patience for each other. Amen." },
+]
+
+[[talk]]
+id = "pray_kid_table"
+on = ["pray_with"]
+weight = 7
+when = { target_child = true, household = true }
+lines = [
+  { by = "initiator", text = "God is great, God is good, and we thank him for our food." },
+  { by = "target", text = "Amen!" },
+]
+
+[[talk]]
+id = "pray_kid_bless"
+on = ["pray_with"]
+weight = 8
+when = { child = true }
+lines = [
+  { by = "initiator", text = "God bless Mama and Papa and the cow." },
+  { by = "target", text = "And the horse, and the hens. Amen." },
+]
+
+[[talk]]
+id = "pray_kid_sleep"
+on = ["pray_with"]
+weight = 5
+when = { target_child = true, part = "night" }
+lines = [
+  { by = "initiator", text = "Matthew, Mark, Luke and John, bless the bed that I lie on." },
+  { by = "target", text = "Now sleep, and the angels will mind the rest." },
+]
+
+# =============================================================================================
+# Help: the work that gets done between neighbors (533 exchanges in 14 days came from 17 lines)
+# =============================================================================================
+
+[[talk]]
+id = "help_planting"
+on = ["help"]
+weight = 4
+when = { observance = "planting" }
+lines = [
+  { by = "initiator", text = "I'll drop seed behind your plow." },
+  { by = "target", text = "Mind the rows. And don't step on the good ground." },
+]
+
+[[talk]]
+id = "help_harvest_bind"
+on = ["help"]
+weight = 4
+when = { observance = "haying_and_harvest" }
+lines = [
+  { by = "initiator", text = "Let me bind those sheaves while you cut." },
+  { by = "target", text = "Tie them tight. The wind has a mind of its own." },
+]
+
+[[talk]]
+id = "help_haying"
+on = ["help"]
+weight = 4
+when = { observance = "haying_and_harvest" }
+lines = [
+  { by = "initiator", text = "I'll pitch, {you}, if you'll load." },
+  { by = "target", text = "Done. Don't pitch it all at once." },
+]
+
+[[talk]]
+id = "help_threshing"
+on = ["help"]
+weight = 4
+when = { observance = "threshing" }
+lines = [
+  { by = "initiator", text = "I'll take a turn at the flail." },
+  { by = "target", text = "Gladly. My arms have turned to rope." },
+]
+
+[[talk]]
+id = "help_hog_killing"
+on = ["help"]
+weight = 4
+when = { observance = "hog_killing" }
+lines = [
+  { by = "initiator", text = "I'll stir the scalding barrel." },
+  { by = "target", text = "Then you're the best-loved person in the yard." },
+]
+
+[[talk]]
+id = "help_sugar_sap"
+on = ["help"]
+weight = 4
+when = { observance = "sugaring" }
+lines = [
+  { by = "initiator", text = "I'll carry sap from the lower trees." },
+  { by = "target", text = "Bless you. My shoulders say thank you in advance." },
+]
+
+[[talk]]
+id = "help_ice"
+on = ["help"]
+weight = 4
+when = { observance = "ice_harvest" }
+lines = [
+  { by = "initiator", text = "I'll haul ice blocks with you this morning." },
+  { by = "target", text = "Take the tongs. Don't let go of the block." },
+]
+
+[[talk]]
+id = "help_rain_cover"
+on = ["help"]
+weight = 4
+when = { weather = "rain" }
+lines = [
+  { by = "initiator", text = "Hold the canvas and I'll drive the stakes." },
+  { by = "target", text = "Hurry, the sack's getting wet." },
+]
+
+[[talk]]
+id = "help_snow_path"
+on = ["help"]
+weight = 4
+when = { weather = "snow" }
+lines = [
+  { by = "initiator", text = "I'll shovel the path to the barn." },
+  { by = "target", text = "Do the privy too and I'll never forget it." },
+]
+
+[[talk]]
+id = "help_winter_kindling"
+on = ["help"]
+weight = 4
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "I'll split the kindling." },
+  { by = "target", text = "Take the small axe. The big one has a mind of its own." },
+]
+
+[[talk]]
+id = "help_fence_post"
+on = ["help"]
+weight = 4
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "Hold the post, I'll tamp it in." },
+  { by = "target", text = "Straight, now. Crooked fences breed crooked cattle." },
+]
+
+[[talk]]
+id = "help_well"
+on = ["help"]
+weight = 4
+when = { venue = "farm" }
+lines = [
+  { by = "initiator", text = "Let me draw the bucket for you." },
+  { by = "target", text = "It's heavy as sin. Bless you." },
+]
+
+[[talk]]
+id = "help_barn_fork"
+on = ["help"]
+weight = 4
+when = { venue = "farm" }
+lines = [
+  { by = "initiator", text = "Pass me the pitchfork. I'll finish the stalls." },
+  { by = "target", text = "The left one has a loose tine. Mind it." },
+]
+
+[[talk]]
+id = "help_milk"
+on = ["help"]
+weight = 2
+when = { venue = "farm", part = "morning" }
+lines = [
+  { by = "initiator", text = "I'll milk, if you start the fire." },
+  { by = "target", text = "Done. She kicks to the left, mind." },
+]
+
+[[talk]]
+id = "help_mending"
+on = ["help"]
+weight = 8
+when = { household = true }
+lines = [
+  { by = "initiator", text = "Hand me the needle. I'll mend that tear." },
+  { by = "target", text = "You'll want the good thread. It's in the blue tin." },
+]
+
+[[talk]]
+id = "help_mill_sack"
+on = ["help"]
+weight = 4
+when = { venue = "mill" }
+lines = [
+  { by = "initiator", text = "Let me hold the sack while you pour." },
+  { by = "target", text = "Hold it tight, or we'll both be white." },
+]
+
+[[talk]]
+id = "help_smithy_bellows"
+on = ["help"]
+weight = 4
+when = { venue = "smithy" }
+lines = [
+  { by = "initiator", text = "I'll work the bellows, if you'll tell me when." },
+  { by = "target", text = "Steady, steady. Not so hard you roast us both." },
+]
+
+[[talk]]
+id = "help_school_wood"
+on = ["help"]
+weight = 4
+when = { venue = "school" }
+lines = [
+  { by = "initiator", text = "I'll bring in the wood for the stove." },
+  { by = "target", text = "The scholars will adore you. They hate this job." },
+]
+
+[[talk]]
+id = "help_church_sweep"
+on = ["help"]
+weight = 4
+when = { venue = "church" }
+lines = [
+  { by = "initiator", text = "I'll sweep the aisle before the Sabbath." },
+  { by = "target", text = "Mind the corner by the pulpit. The mice have views." },
+]
+
+[[talk]]
+id = "help_landing_line"
+on = ["help"]
+weight = 4
+when = { venue = "landing" }
+lines = [
+  { by = "initiator", text = "I'll hold the line while you make fast." },
+  { by = "target", text = "Pull steady. The river doesn't care for hurry." },
+]
+
+[[talk]]
+id = "help_store_barrel"
+on = ["help"]
+weight = 4
+when = { venue = "store" }
+lines = [
+  { by = "initiator", text = "Let me stack those barrels for you." },
+  { by = "target", text = "Mind the nails. The last one came through the bottom." },
+]
+
+[[talk]]
+id = "help_store_carry"
+on = ["help"]
+weight = 4
+when = { venue = "store" }
+lines = [
+  { by = "initiator", text = "I'll carry that out to your wagon." },
+  { by = "target", text = "Kind of you. It's heavier than it looks." },
+]
+
+[[talk]]
+id = "help_tavern_bar"
+on = ["help"]
+weight = 4
+when = { venue = "tavern" }
+lines = [
+  { by = "initiator", text = "Let me mind the bar a minute while you eat." },
+  { by = "target", text = "Don't give it away. The whiskey's counted." },
+]
+
+[[talk]]
+id = "help_print_type"
+on = ["help"]
+weight = 4
+when = { venue = "print" }
+lines = [
+  { by = "initiator", text = "Let me help you sort that type." },
+  { by = "target", text = "Mind the e's. There are never enough of them." },
+]
+
+[[talk]]
+id = "help_mine_pump"
+on = ["help"]
+weight = 4
+when = { venue = "mine" }
+lines = [
+  { by = "initiator", text = "I'll spell you at the pump." },
+  { by = "target", text = "Thank you. My arms have stopped asking permission." },
+]
+
+[[talk]]
+id = "help_hungry_target"
+on = ["help"]
+weight = 8
+when = { target_mood = "hungry" }
+lines = [
+  { by = "initiator", text = "You haven't eaten. Go and sit; I'll finish this." },
+  { by = "target", text = "I'd argue, but I'm too hungry." },
+]
+
+[[talk]]
+id = "help_anxious_target"
+on = ["help"]
+weight = 8
+when = { target_mood = "anxious" }
+lines = [
+  { by = "initiator", text = "You look worried. Let me take that off your hands." },
+  { by = "target", text = "It isn't the work. But thank you for taking it anyway." },
+]
+
+[[talk]]
+id = "help_enemy"
+on = ["help"]
+weight = 8
+when = { label = "enemy" }
+lines = [
+  { by = "initiator", text = "Take it. There are no strings." },
+  { by = "target", text = "There are always strings." },
+  { by = "initiator", text = "Then pull them yourself." },
+]
+
+[[talk]]
+id = "help_stranger"
+on = ["help"]
+weight = 8
+when = { label = "stranger" }
+lines = [
+  { by = "initiator", text = "Pardon me, {you}, but you look as if you could use a hand." },
+  { by = "target", text = "I could. I'd not have asked. Thank you." },
+]
+
+[[talk]]
+id = "help_friend_easy"
+on = ["help"]
+weight = 8
+when = { label = "friend" }
+lines = [
+  { by = "initiator", text = "Give me the heavy end, {you}." },
+  { by = "target", text = "Gladly. You always take the heavy end and then complain about it." },
+]
+
+[[talk]]
+id = "help_courting_lift"
+on = ["help"]
+weight = 8
+when = { courting = true }
+lines = [
+  { by = "initiator", text = "Let me carry that for you." },
+  { by = "target", text = "It weighs nothing. But I'll let you." },
+]
+
+[[talk]]
+id = "help_elder"
+on = ["help"]
+weight = 8
+when = { target = { age = "elder" } }
+lines = [
+  { by = "initiator", text = "Sit down, {you}. I'll do the lifting." },
+  { by = "target", text = "I've been lifting since before you were born. But thank you." },
+]
+
+[[talk]]
+id = "help_young_taught"
+on = ["help"]
+weight = 8
+when = { target = { age = "young" } }
+lines = [
+  { by = "initiator", text = "Here, {you}, let me show you how." },
+  { by = "target", text = "I think I've got it. Is that right?" },
+]
+
+[[talk]]
+id = "help_wash_day"
+on = ["help"]
+weight = 5
+when = { household = true, weather = "dry" }
+lines = [
+  { by = "initiator", text = "I'll carry the water to the copper." },
+  { by = "target", text = "And I'll find you something dry to wear after." },
+]
+
+[[talk]]
+id = "help_kid_water"
+on = ["help"]
+weight = 8
+when = { child = true }
+lines = [
+  { by = "initiator", text = "I can carry the bucket, {you}!" },
+  { by = "target", text = "Both hands. And don't run." },
+]
+
+[[talk]]
+id = "help_kid_lantern"
+on = ["help"]
+weight = 5
+when = { child = true, part = "evening" }
+lines = [
+  { by = "initiator", text = "I'll hold the lantern for you." },
+  { by = "target", text = "Hold it steady. And don't swing it." },
+]
+
+[[talk]]
+id = "help_kid_kindling"
+on = ["help"]
+weight = 8
+when = { child = true }
+lines = [
+  { by = "initiator", text = "Do you want kindling, {you}?" },
+  { by = "target", text = "Please. Three armloads, and don't drop them on the cat." },
+]
+
+[[talk]]
+id = "help_neighbor_note"
+on = ["help"]
+weight = 8
+when = { mood = "neighborliness" }
+lines = [
+  { by = "initiator", text = "It's no trouble. We'll put it down as a neighbor's turn." },
+  { by = "target", text = "And the next turn is mine." },
+]
+
+# =============================================================================================
+# Deep talk: what people tell each other when there is time
+# =============================================================================================
+
+[[talk]]
+id = "deep_mother"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What was your mother like, {you}?" },
+  { by = "target", text = "Stubborn, kind, and impossible to argue with. I'm told I take after her." },
+]
+
+[[talk]]
+id = "deep_stranger_here"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you ever feel a stranger here?" },
+  { by = "target", text = "Every day. Then I look at the others and see that they do too." },
+]
+
+[[talk]]
+id = "deep_fear"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What do you fear most?" },
+  { by = "target", text = "Hunger. Not mine: the children's. I wake up with the arithmetic of the flour barrel." },
+]
+
+[[talk]]
+id = "deep_hundred"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What would you do with a hundred dollars?" },
+  { by = "target", text = "Clear the note, buy a plow, and then be afraid of the quiet." },
+]
+
+[[talk]]
+id = "deep_afterlife"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you believe in an afterlife?" },
+  { by = "target", text = "I believe in dinner. The rest I'm still working on." },
+]
+
+[[talk]]
+id = "deep_regret"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Is there anything you'd undo?" },
+  { by = "target", text = "A word. An afternoon. A letter I never wrote." },
+]
+
+[[talk]]
+id = "deep_left_behind"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What did you leave behind?" },
+  { by = "target", text = "A kitchen, a hill, a mother's grave. I think of the grave most." },
+]
+
+[[talk]]
+id = "deep_change"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you think this place will change?" },
+  { by = "target", text = "It already has. Last year there wasn't a church." },
+]
+
+[[talk]]
+id = "deep_happy"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Are you happy, {you}?" },
+  { by = "target", text = "Not unhappy. It's a quieter thing than I expected." },
+]
+
+[[talk]]
+id = "deep_doubt"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you ever doubt, {you}?" },
+  { by = "target", text = "Every Tuesday. Then Sunday comes and I'm too busy." },
+]
+
+[[talk]]
+id = "deep_children"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What do you want for your children?" },
+  { by = "target", text = "Boots that fit. The rest follows." },
+]
+
+[[talk]]
+id = "deep_dying"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you think about dying?" },
+  { by = "target", text = "Only when I'm tired, which is always." },
+]
+
+[[talk]]
+id = "deep_lonely"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you ever get lonely out here?" },
+  { by = "target", text = "Mostly in the evenings. The morning has work to distract me." },
+]
+
+[[talk]]
+id = "deep_worth"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Was it worth coming?" },
+  { by = "target", text = "Ask me in twenty years. I'll have a better view of it." },
+]
+
+[[talk]]
+id = "deep_land"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Do you love the land, {you}?" },
+  { by = "target", text = "I love what it gives. The land and I have a working arrangement." },
+]
+
+[[talk]]
+id = "deep_name"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "Were you named for someone?" },
+  { by = "target", text = "For an uncle I never met. By all accounts, I'm a poor copy." },
+]
+
+[[talk]]
+id = "deep_first_memory"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What's your first memory?" },
+  { by = "target", text = "A kitchen floor, a warm stove, and a cat with a grudge." },
+]
+
+[[talk]]
+id = "deep_best_day"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What was the best day of your life?" },
+  { by = "target", text = "The day the first crop came in. I stood in the field and couldn't believe it was mine." },
+]
+
+[[talk]]
+id = "deep_hardest"
+on = ["deep_talk"]
+weight = 12
+lines = [
+  { by = "initiator", text = "What's been the hardest thing?" },
+  { by = "target", text = "Burying someone in ground I'd only just learned to call home." },
+]
+
+[[talk]]
+id = "deep_winter_night"
+on = ["deep_talk"]
+weight = 2
+when = { season = "winter", part = "night" }
+lines = [
+  { by = "initiator", text = "Winter nights are long, {you}. What do you think about?" },
+  { by = "target", text = "Spring. And whether I'll see it." },
+]
+
+[[talk]]
+id = "deep_rain_evening"
+on = ["deep_talk"]
+weight = 2
+when = { weather = "rain", part = "evening" }
+lines = [
+  { by = "initiator", text = "There's nothing like rain on the roof for making a person honest." },
+  { by = "target", text = "Then I'll admit I'm afraid of how little I've done." },
+]
+
+[[talk]]
+id = "deep_summer_porch"
+on = ["deep_talk"]
+weight = 2
+when = { season = "summer", part = "evening" }
+lines = [
+  { by = "initiator", text = "This is the kind of evening I'd put in a jar." },
+  { by = "target", text = "Put me in with it. I'd stay." },
+]
+
+[[talk]]
+id = "deep_longing_home"
+on = ["deep_talk"]
+weight = 8
+when = { mood = "longing" }
+lines = [
+  { by = "initiator", text = "I miss the sound of the church bells at home." },
+  { by = "target", text = "I miss the sound of my own name said right." },
+]
+
+[[talk]]
+id = "deep_shame_old"
+on = ["deep_talk"]
+weight = 8
+when = { mood = "shame" }
+lines = [
+  { by = "initiator", text = "There's a thing I did years ago. I've never told anyone." },
+  { by = "target", text = "You needn't now. But if you do, it stays here." },
+]
+
+[[talk]]
+id = "deep_anxious_2"
+on = ["deep_talk"]
+weight = 8
+when = { mood = "anxious" }
+lines = [
+  { by = "initiator", text = "I lie awake and count everything that might go wrong." },
+  { by = "target", text = "How high do you get?" },
+  { by = "initiator", text = "I run out of numbers." },
+]
+
+[[talk]]
+id = "deep_friend_2"
+on = ["deep_talk"]
+weight = 8
+when = { label = "friend" }
+lines = [
+  { by = "initiator", text = "I don't say this often, {you}. You've made this place bearable." },
+  { by = "target", text = "You've done the same for me, and I've never said so either." },
+]
+
+[[talk]]
+id = "deep_kin"
+on = ["deep_talk"]
+weight = 8
+when = { kin = true }
+lines = [
+  { by = "initiator", text = "Do you remember the old house, {you}?" },
+  { by = "target", text = "Every stair. Every complaint." },
+]
+
+[[talk]]
+id = "deep_courting_2"
+on = ["deep_talk"]
+weight = 8
+when = { courting = true }
+lines = [
+  { by = "initiator", text = "What do you want your life to look like?" },
+  { by = "target", text = "A table, a window, a long list of things to do together." },
+]
+
+[[talk]]
+id = "deep_elder_to_young"
+on = ["deep_talk"]
+weight = 8
+when = { target = { age = "elder" } }
+lines = [
+  { by = "initiator", text = "What would you tell someone starting out?" },
+  { by = "target", text = "Don't buy on credit, and never turn down a drink of water." },
+]
+
+[[talk]]
+id = "deep_young_to_elder"
+on = ["deep_talk"]
+weight = 8
+when = { target = { age = "young" } }
+lines = [
+  { by = "initiator", text = "What do you wish someone had told you at my age?" },
+  { by = "target", text = "To say what I meant. Most of what I said, I only meant half of." },
+]
+
+[[talk]]
+id = "deep_norwegian"
+on = ["deep_talk"]
+weight = 8
+when = { initiator = { culture = "norwegian" } }
+lines = [
+  { by = "initiator", text = "Do you miss the fjord?" },
+  { by = "target", text = "Every spring when the snow goes. Here it's mud instead of waterfalls." },
+]
+
+[[talk]]
+id = "deep_german"
+on = ["deep_talk"]
+weight = 8
+when = { initiator = { culture = "german" } }
+lines = [
+  { by = "initiator", text = "Do you miss the Rhine?" },
+  { by = "target", text = "I miss the air. Here it has no history in it." },
+]
+
+[[talk]]
+id = "deep_irish"
+on = ["deep_talk"]
+weight = 8
+when = { initiator = { culture = "irish" } }
+lines = [
+  { by = "initiator", text = "Do you think of Ireland?" },
+  { by = "target", text = "Every day. But I think of my children's bread more." },
+]
+
+[[talk]]
+id = "deep_cornish"
+on = ["deep_talk"]
+weight = 8
+when = { initiator = { culture = "cornish" } }
+lines = [
+  { by = "initiator", text = "Do you miss the sea, {you}?" },
+  { by = "target", text = "I miss the sound of it. Here there's only wind, and it has less to say." },
+]
+
+[[talk]]
+id = "deep_black_ohio"
+on = ["deep_talk"]
+weight = 8
+when = { initiator = { culture = "black_ohio" } }
+lines = [
+  { by = "initiator", text = "Do you think we'll be left in peace here?" },
+  { by = "target", text = "We've the deed and the school. The rest is up to the neighbors and the Lord." },
+]
+
+[[talk]]
+id = "deep_yankee"
+on = ["deep_talk"]
+weight = 8
+when = { initiator = { culture = "yankee" } }
+lines = [
+  { by = "initiator", text = "Do you miss Vermont?" },
+  { by = "target", text = "I miss the hills. I don't miss the winters, but then these aren't any better." },
+]
+
+[[talk]]
+id = "deep_elf_hall"
+on = ["deep_talk"]
+weight = 8
+when = { initiator = { culture = "elf_hall" } }
+lines = [
+  { by = "initiator", text = "Does it ever weigh on you, being careful all the time?" },
+  { by = "target", text = "It weighs. But so does a roof, and I'd not give that up." },
+]
+
+[[talk]]
+id = "deep_pastor"
+on = ["deep_talk"]
+weight = 8
+when = { target = { occupation = ["pastor", "lay_preacher"] } }
+lines = [
+  { by = "initiator", text = "Do you ever have days when you don't believe your own sermon?" },
+  { by = "target", text = "Most Saturdays. By Sunday I've talked myself back." },
+]
+
+[[talk]]
+id = "deep_teacher"
+on = ["deep_talk"]
+weight = 8
+when = { target = { occupation = "schoolteacher" } }
+lines = [
+  { by = "initiator", text = "Do you think they learn anything?" },
+  { by = "target", text = "One in ten learns everything. The other nine learn what they need." },
+]
+
+[[talk]]
+id = "deep_farmer"
+on = ["deep_talk"]
+weight = 8
+when = { target = { occupation = "farmer" } }
+lines = [
+  { by = "initiator", text = "Do you ever want to give it up?" },
+  { by = "target", text = "Every February. Then the thaw comes and I'm a fool again." },
+]
