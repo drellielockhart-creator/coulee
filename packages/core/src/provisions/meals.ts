@@ -1,3 +1,4 @@
+import { provisionCalendar as calendarAt } from './calendar.ts';
 /** Shared meal kernel: runtime and readiness both consume this exact inventory/preparation model. */
 
 import type { PrepDef } from '@coulee/content/schema';
@@ -24,7 +25,7 @@ import { type ItemLocation, type ItemStack, newStack, recordProvenance } from '.
 import { drink, feed, litHearthAt, needValue } from '../needs/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
-import { asGameMinute, calendarAt, yearsBetween } from '../time.ts';
+import { asGameMinute, yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
 import { nutritionTargets } from './nutrition.ts';
 import {
@@ -44,6 +45,30 @@ import { airTempF } from './temperature.ts';
 export type Holder = { actorId: ActorId } | { householdId: HouseholdId };
 export const locationOf = (h: Holder): ItemLocation =>
   'actorId' in h ? carriedBy(h.actorId) : pantryOf(h.householdId);
+
+/** A lone householder's carried kit is part of the larder while they are home. */
+export function holderLocations(world: World, holder: Holder): ItemLocation[] {
+  const locations = [locationOf(holder)];
+  if ('householdId' in holder) {
+    const members = membersOf(world, holder);
+    const id = members.length === 1 ? members[0] : undefined;
+    if (id !== undefined && world.actors[id]?.placeId === world.households[holder.householdId]?.homePlaceId)
+      locations.push(carriedBy(id));
+  }
+  return locations;
+}
+export function holderStacks(world: World, holder: Holder, index = inventoryIndex(world)): ItemStack[] {
+  return holderLocations(world, holder).flatMap((loc) => stacksDeep(world, loc, index).map((s) => s.stack));
+}
+export function holderSupply(
+  world: World,
+  content: ContentBundle,
+  holder: Holder,
+  kind: string,
+  index = inventoryIndex(world),
+): number {
+  return holderStacks(world, holder, index).reduce((n, stack) => n + stackSupplyUnits(content, stack, kind), 0);
+}
 
 /** The schedule's full day burn, avoiding the noon-labor/overnight-labor estimate discontinuity. */
 export function dailyKcal(world: World, content: ContentBundle, id: ActorId, now: number): number {
@@ -127,7 +152,13 @@ export interface Recipe {
 
 /** Household water is hauled daily; travelers need stored water or a water source at their place. */
 export function waterAvailable(world: World, content: ContentBundle, holder: Holder, index?: InventoryIndex): number {
-  if ('householdId' in holder) return world.provisions.households[holder.householdId]?.waterMl ?? 0;
+  if ('householdId' in holder) {
+    const carried = holderLocations(world, holder).find((loc) => loc.kind === 'actor');
+    return (
+      (world.provisions.households[holder.householdId]?.waterMl ?? 0) +
+      (carried?.kind === 'actor' ? waterAvailable(world, content, { actorId: carried.actorId }, index) : 0)
+    );
+  }
   const actor = world.actors[holder.actorId];
   if (actor && world.places[actor.placeId]?.tags.includes('water')) return 100_000;
   return (
@@ -144,7 +175,11 @@ export function drawWater(
 ): void {
   if ('householdId' in holder) {
     const h = world.provisions.households[holder.householdId];
-    if (h) h.waterMl = Math.max(0, (h.waterMl ?? 0) - ml);
+    const fromHome = Math.min(h?.waterMl ?? 0, ml);
+    if (h) h.waterMl -= fromHome;
+    const carried = holderLocations(world, holder).find((loc) => loc.kind === 'actor');
+    if (ml > fromHome && carried?.kind === 'actor')
+      drawWater(world, content, { actorId: carried.actorId }, ml - fromHome, index);
     return;
   }
   const actor = world.actors[holder.actorId];
@@ -166,6 +201,7 @@ export function drawWater(
 export interface Kitchen {
   fuel: number;
   water: number;
+  frozen: (stack: ItemStack) => boolean;
   stacks: ItemStack[];
   index: InventoryIndex;
   placeId: import('../ids.ts').PlaceId | undefined;
@@ -186,9 +222,8 @@ export function kitchenOf(
   now = world.time,
   passIndex?: InventoryIndex,
 ): Kitchen {
-  const loc = locationOf(holder),
-    index = passIndex ?? inventoryIndex(world);
-  const stacks = stacksDeep(world, loc, index).map((s) => s.stack);
+  const index = passIndex ?? inventoryIndex(world);
+  const stacks = holderStacks(world, holder, index);
   const placeId =
     'householdId' in holder ? world.households[holder.householdId]?.homePlaceId : world.actors[holder.actorId]?.placeId;
   const hearth = Object.keys(content.hearths ?? {})
@@ -199,7 +234,18 @@ export function kitchenOf(
   for (const stack of stacks)
     for (const key of Object.keys(content.items[stack.defId]?.affordances ?? {}))
       memo[key] = Math.max(memo[key] ?? 0, stackAffordance(content, stack, key));
+  const calendar = calendarAt(asGameMinute(world.time));
+  const frozen = new Map<ItemId, boolean>();
+  const fireCosts = new Map<string, number>();
   const k: Kitchen = {
+    frozen: (stack) => {
+      let value = frozen.get(stack.id);
+      if (value === undefined) {
+        value = stack.frozen || spoilageFactors(world, content, stack, calendar)?.band === 'frozen';
+        frozen.set(stack.id, value);
+      }
+      return value;
+    },
     fuel: 0,
     water: 0,
     stacks,
@@ -214,6 +260,9 @@ export function kitchenOf(
       if (start >= end) return 0;
       if (hearth?.fuel_kind !== 'fire') return end - start;
       if (hearth.fuel_from === 'free') return 0;
+      const key = `${start}:${end}`;
+      const cached = fireCosts.get(key);
+      if (cached !== undefined) return cached;
       let fuel = 0;
       for (let offset = start; offset < end; ) {
         const t = now + offset,
@@ -223,6 +272,7 @@ export function kitchenOf(
         fuel += Math.ceil((hourly * length) / 60);
         offset += length;
       }
+      fireCosts.set(key, fuel);
       return fuel;
     },
     ignition: [],
@@ -287,7 +337,9 @@ function cookingFire(world: World, ctx: SimContext, holder: Holder, kitchen: Kit
     }
     kindling = 10;
   }
-  const used = consumeSupply(world, ctx.content, locationOf(holder), 'fire', needed + kindling, kitchen.index);
+  let used = 0;
+  for (const loc of holderLocations(world, holder))
+    used += consumeSupply(world, ctx.content, loc, 'fire', needed + kindling - used, kitchen.index);
   const fire = world.provisions.fires[kitchen.placeId] ?? { placeId: kitchen.placeId, lit: false, fuelMinutes: 0 };
   fire.lit = true;
   fire.until = ctx.now + Math.max(kitchen.fireCredit, kitchen.phaseStart + minutes);
@@ -360,11 +412,7 @@ export function recipesFor(
           stageId = p.yields;
         }
       }
-      if (
-        (stack.frozen ||
-          spoilageFactors(world, content, stack, calendarAt(asGameMinute(world.time)))?.band === 'frozen') &&
-        fire > 0
-      ) {
+      if (fire > 0 && kitchen.frozen(stack)) {
         fire = Math.ceil((fire * 150) / 100);
         minutes = Math.ceil((minutes * 150) / 100);
       }
@@ -427,6 +475,8 @@ export function mealExplain(
 type Plate = PendingPlate;
 /** Inventory and energy estimates live only for a provisions/projection pass. */
 export interface MealPass {
+  /** Private projections discard explanations; live meals always retain them. */
+  explain?: boolean;
   inventory?: InventoryIndex;
   energy: Map<string, number>;
 }
@@ -460,6 +510,7 @@ export function serveMeal(
   passMemo?: MealPass,
 ): MealResult {
   const content = ctx.content;
+  const trace = passMemo?.explain !== false;
   const cookIds =
     !explicit && 'householdId' in holder
       ? membersOf(world, holder).filter(
@@ -515,6 +566,14 @@ export function serveMeal(
   });
   const scores = new Map<ItemId, number>();
   const scoreTerms = new Map<ItemId, Explain['terms']>();
+  const mayBeSide = new Set<ItemId>();
+  const history = plates.flatMap((p) => world.provisions.nutrition[p.id]?.history.slice(-7) ?? []);
+  const intake = history.reduce((n, d) => n + d.kcal, 0);
+  const fatEnergy = history.reduce((n, d) => n + d.fatG * 9, 0);
+  const protein = history.reduce((n, d) => n + d.proteinG, 0);
+  const need = history.reduce((n, d) => n + d.needKcal, 0);
+  const fatNeed = !history.length || fatEnergy * 100 < intake * targets.fat_recovery_pct;
+  const proteinNeed = !history.length || protein * 1000 < need * targets.protein_g_per_1000_kcal;
   for (const stack of candidates) {
     const food = content.items[stack.defId]?.food;
     const def = content.items[stack.defId];
@@ -522,16 +581,9 @@ export function serveMeal(
     const variety = plates.some((p) => !world.provisions.nutrition[p.id]?.today.foods.includes(stack.defId)) ? 40 : 0;
     const urgency = Math.floor(500 / Math.max(1, food.shelf_life_days)) + Math.floor(stack.spoilage / 10);
     const reserved = def.tags.some((t) => policy.reserve_tags.includes(t)) ? -10_000 : 0;
-    const history = plates.flatMap((p) => world.provisions.nutrition[p.id]?.history.slice(-7) ?? []);
-    const intake = history.reduce((n, d) => n + d.kcal, 0);
-    const fatEnergy = history.reduce((n, d) => n + d.fatG * 9, 0);
-    const protein = history.reduce((n, d) => n + d.proteinG, 0);
-    const need = history.reduce((n, d) => n + d.needKcal, 0);
-    const fatNeed = !history.length || fatEnergy * 100 < intake * targets.fat_recovery_pct;
-    const proteinNeed = !history.length || protein * 1000 < need * targets.protein_g_per_1000_kcal;
-    const paths = recipesFor(world, content, holder, stack, 1, cold, explicit?.method, timeLeft, kitchen).filter(
-      (r) => !r.missing.length,
-    );
+    const trials = recipesFor(world, content, holder, stack, 1, cold, explicit?.method, timeLeft, kitchen);
+    if (trials.some((r) => r.kcal <= SIDE_KCAL_MAX)) mayBeSide.add(stack.id);
+    const paths = trials.filter((r) => !r.missing.length);
     const prepMinutes = paths.length ? Math.min(...paths.map((r) => r.minutes)) : timeLeft + 1;
     const terms = [
       term('time', 'Preparation time preference', -prepMinutes * (policy.weights.preparation_time ?? 2)),
@@ -570,7 +622,7 @@ export function serveMeal(
       stack.id,
       terms.reduce((n, t) => n + t.value, 0),
     );
-    scoreTerms.set(stack.id, terms);
+    if (trace) scoreTerms.set(stack.id, terms);
   }
   candidates.sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0) || a.id - b.id);
   const sides = new Set<ItemId>();
@@ -578,6 +630,7 @@ export function serveMeal(
   const failures: Array<{ itemId: ItemId; missing: string[] }> = [];
   for (let pass = 0; pass < (explicit ? 1 : 3); pass++) {
     for (const stack of candidates) {
+      if (!explicit && !mayBeSide.has(stack.id) && plates.every((p) => p.kcal >= p.target)) continue;
       kitchen.phaseStart = totalActiveMinutes;
       if (!world.items.stacks[stack.id]) continue;
       const have = foodServings(content, stack);
@@ -727,33 +780,37 @@ export function serveMeal(
         minutes: batch.minutes,
       };
       batches.push(batchData);
-      const prepExplain = {
-        ...mealExplain('Preparation batch', diners, servingsPm, [
-          term('item', 'Serving portions per mille', servingsPm),
-          term('fuel', 'Fire minutes required', batch.fire),
-          term('fuel', 'Fuel debited (shared hearth credit)', fuelUsed),
-          term('water', 'Water ml', batch.water),
-          term('time', 'Elapsed preparation minutes', batch.minutes),
-          term('time', 'Active work minutes', batch.activeMinutes),
-          ...(food.opening
-            ? [
-                term('tool', 'Opening cut magnitude (tenths)', kitchen.afford('cut')),
-                term('tool', 'Opening pry magnitude (tenths)', kitchen.afford('pry')),
-              ]
-            : []),
-          ...(stack.frozen ? [term('weather', 'Frozen food thawing fire percent', 150)] : []),
-        ]),
-        children: checks,
-      };
-      const consumedEventId = ctx.emit({
-        kind: 'items.consumed',
-        data: { itemId: stack.id, defId: sourceDefId, qty: unitsUsed, reason: `${servings} servings prepared` },
-        visibility: 'private',
-        explain: mealExplain('Food consumed', diners, servingsPm, [
-          term('food', 'Serving portions per mille', servingsPm),
-        ]),
-      });
-      recordProvenance(stack, consumedEventId);
+      const prepExplain = trace
+        ? {
+            ...mealExplain('Preparation batch', diners, servingsPm, [
+              term('item', 'Serving portions per mille', servingsPm),
+              term('fuel', 'Fire minutes required', batch.fire),
+              term('fuel', 'Fuel debited (shared hearth credit)', fuelUsed),
+              term('water', 'Water ml', batch.water),
+              term('time', 'Elapsed preparation minutes', batch.minutes),
+              term('time', 'Active work minutes', batch.activeMinutes),
+              ...(food.opening
+                ? [
+                    term('tool', 'Opening cut magnitude (tenths)', kitchen.afford('cut')),
+                    term('tool', 'Opening pry magnitude (tenths)', kitchen.afford('pry')),
+                  ]
+                : []),
+              ...(stack.frozen ? [term('weather', 'Frozen food thawing fire percent', 150)] : []),
+            ]),
+            children: checks,
+          }
+        : undefined;
+      if (trace) {
+        const consumedEventId = ctx.emit({
+          kind: 'items.consumed',
+          data: { itemId: stack.id, defId: sourceDefId, qty: unitsUsed, reason: `${servings} servings prepared` },
+          visibility: 'private',
+          explain: mealExplain('Food consumed', diners, servingsPm, [
+            term('food', 'Serving portions per mille', servingsPm),
+          ]),
+        });
+        recordProvenance(stack, consumedEventId);
+      }
       if (stack.qty <= 0) deleteStack(world, stack.id);
       if (side) sides.add(stack.id);
       for (let i = 0; i < plates.length; i++) {
@@ -774,10 +831,12 @@ export function serveMeal(
           servingsPm: portionPm,
           method: batch.steps.map((p) => p.method).join('/'),
         });
-        plate.children.push(
-          mealExplain('Food policy score', [plate.id], scores.get(stack.id) ?? 0, scoreTerms.get(stack.id) ?? []),
-        );
-        plate.children.push(prepExplain);
+        if (trace && prepExplain) {
+          plate.children.push(
+            mealExplain('Food policy score', [plate.id], scores.get(stack.id) ?? 0, scoreTerms.get(stack.id) ?? []),
+          );
+          plate.children.push(prepExplain);
+        }
         plate.proteinG += Math.round((batch.food.protein_g * batch.units * n) / food.servings);
         plate.fatG += Math.round((batch.food.fat_g * batch.units * n) / food.servings);
         plate.freshPoints += Math.round((batch.food.fresh * n * batch.units * batch.food.servings) / food.servings);
@@ -949,4 +1008,34 @@ export function preparationHour(world: World, ctx: SimContext): void {
 }
 export function awaitingMeal(world: World, id: ActorId): boolean {
   return (world.provisions.pendingMeals ?? []).some((m) => m.plates.some((p) => p.id === id));
+}
+
+/** One command-voiced activity can buy four hours of shared heat with real kit/fuel. */
+export function lightCampfire(world: World, ctx: SimContext, actorId: ActorId): boolean {
+  const holder = holderOfActor(world, actorId);
+  const kitchen = kitchenOf(world, ctx.content, holder, ctx.now);
+  const minutes = 240;
+  const needed = kitchen.fireCost(minutes) + (kitchen.fireCredit > 0 ? 0 : 10);
+  if (kitchen.ignition.length || kitchen.fuel < needed) {
+    ctx.emit({
+      kind: 'provisions.command_rejected',
+      data: {
+        actorId,
+        command: 'campfire',
+        reason: kitchen.ignition.length ? kitchen.ignition.join(', ') : 'Not enough fuel for four hours',
+      },
+      roles: [{ actor: actorId, role: 'agent' }],
+      visibility: 'private',
+      explain: mealExplain(
+        'Cannot light campfire',
+        [actorId],
+        0,
+        [term('fuel', 'Required fire minutes', needed), term('fuel', 'Available fire minutes', kitchen.fuel)],
+        'rejected',
+      ),
+    });
+    return false;
+  }
+  cookingFire(world, ctx, holder, kitchen, minutes);
+  return true;
 }

@@ -1,13 +1,14 @@
+import { provisionCalendar as calendarAt } from './calendar.ts';
 /** A private forward inventory simulation. No mutation of the caller, and no separate meal math. */
 
 import { scheduledBlock } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { rowsOf } from '../ids.ts';
-import { stacksDeep, supplyUnits } from '../items/api.ts';
+import { withInventoryPass } from '../items/api.ts';
 import { projectWaterHour } from '../needs/api.ts';
 import { rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
-import { asGameMinute, calendarAt } from '../time.ts';
+import { asGameMinute } from '../time.ts';
 import type { World } from '../world.ts';
 import type { Readiness } from './api.ts';
 import { waterHour } from './api.ts';
@@ -19,8 +20,9 @@ import {
   dueMeal,
   foodServings,
   type Holder,
+  holderStacks,
+  holderSupply,
   kitchenOf,
-  locationOf,
   mealEnergy,
   membersOf,
   preparationHour,
@@ -41,9 +43,8 @@ export function planReadiness(
   now: number,
   horizonDays = 366,
 ): Readiness {
-  const loc = locationOf(holder),
-    members = membersOf(world, holder);
-  const stacks = stacksDeep(world, loc).map((s) => s.stack);
+  const members = membersOf(world, holder);
+  const stacks = holderStacks(world, holder);
   const result: Readiness = {
     kcalOnHand: 0,
     kcalPerDay: Math.round(
@@ -103,11 +104,11 @@ export function planReadiness(
   // Only owned slices are cloned; neither social nor belief state is touched by this kernel.
   const projection: World = {
     ...world,
-    items: { counters: { ...world.items.counters }, stacks: {} },
+    items: { counters: { ...world.items.counters }, stacks: Object.create(null) },
     // Only the eaters exist in the projection: every hourly kernel iterates actors.
-    actors: {},
-    households: {},
-    places: {},
+    actors: Object.create(null),
+    households: Object.create(null),
+    places: Object.create(null),
     needs: {
       ...world.needs,
       byActor: {},
@@ -118,7 +119,7 @@ export function planReadiness(
     provisions: {
       ...world.provisions,
       nutrition: {},
-      households: {},
+      households: Object.create(null),
       fires: JSON.parse(JSON.stringify(world.provisions.fires)),
       pendingMeals: JSON.parse(
         JSON.stringify(
@@ -171,7 +172,7 @@ export function planReadiness(
     const h = world.provisions.households[holder.householdId];
     if (h) projection.provisions.households[holder.householdId] = { ...h };
   }
-  const fuelStart = supplyUnits(world, content, loc, 'fire');
+  const fuelStart = holderSupply(world, content, holder, 'fire');
   let fuelDay = 0,
     foodHours = 0,
     windowKcal = 0;
@@ -183,54 +184,57 @@ export function planReadiness(
   const hasDevices = rowsOf(projection.items.stacks).some((s) =>
     (content.items[s.defId]?.consumes ?? []).some((c) => c.per === 'hour' || c.per === 'day'),
   );
-  const pass = { energy: new Map<string, number>() };
-  for (let hour = 0; hour < 24 * horizon; hour++) {
-    const t = asGameMinute(Math.floor(now / 60) * 60 + hour * 60),
-      cal = calendarAt(t);
-    const ctx: SimContext = {
-      content,
-      now: t,
-      seed: world.meta.seed,
-      cal,
-      isNewDay: cal.hour === 0,
-      commands: [],
-      rng: (stream, key) => rng(world.meta.seed, stream, t, key),
-      emit: (event) => {
-        if (event.kind === 'provisions.meal') windowKcal += event.data.kcal;
-        return 0 as never;
-      },
-    };
-    if (ctx.isNewDay && 'householdId' in holder) replenishDomestic(projection, ctx, holder.householdId);
-    projection.time = t;
-    for (const id of members) {
-      const state = projection.activity.byActor[id];
-      if (state && (state.lockedUntil ?? 0) <= t)
-        state.activityId = scheduledBlock(projection, ctx, id, cal)?.activity ?? null;
+  const pass = { energy: new Map<string, number>(), explain: false };
+  withInventoryPass(projection, () => {
+    for (let hour = 0; hour < 24 * horizon; hour++) {
+      const t = asGameMinute(Math.floor(now / 60) * 60 + hour * 60),
+        cal = calendarAt(t);
+      const ctx: SimContext = {
+        content,
+        now: t,
+        seed: world.meta.seed,
+        cal,
+        isNewDay: cal.hour === 0,
+        commands: [],
+        rng: (stream, key) => rng(world.meta.seed, stream, t, key),
+        emit: (event) => {
+          if (event.kind === 'provisions.meal') windowKcal += event.data.kcal;
+          return 0 as never;
+        },
+      };
+      if (ctx.isNewDay && 'householdId' in holder) replenishDomestic(projection, ctx, holder.householdId);
+      projection.time = t;
+      for (const id of members) {
+        const state = projection.activity.byActor[id];
+        if (state && (state.lockedUntil ?? 0) <= t)
+          state.activityId = scheduledBlock(projection, ctx, id, cal)?.activity ?? null;
+      }
+      const fuelBefore = hour < 24 ? holderSupply(projection, content, holder, 'fire') : 0;
+      projectWaterHour(projection, ctx);
+      nutritionHour(projection, ctx);
+      storageHour(projection, ctx, placement);
+      preparationHour(projection, ctx);
+      waterHour(projection, ctx);
+      if (hasDevices) devicesHour(projection, ctx);
+      const meal = dueMeal(projection, content, holder, cal.hour);
+      if (meal && !members.some((id) => awaitingMeal(projection, id))) {
+        serveMeal(projection, ctx, holder, members, meal.share_pct, meal.cold, undefined, pass);
+      }
+      if (hour < 24) fuelDay += Math.max(0, fuelBefore - holderSupply(projection, content, holder, 'fire'));
+      // A cold noon piece may fail while the two hot meals still cover 80% of the ration.
+      // Judge a complete 24-hour window, including preparation completions, against the
+      // documented daily 50% threshold. A partial day is never mistaken for exhaustion.
+      if (hour % 24 === 23) {
+        const dailyTarget = Math.round(
+          (members.reduce((n, id) => n + mealEnergy(projection, ctx, id, pass), 0) * rationOf(projection, holder)) /
+            100,
+        );
+        if (windowKcal * 2 < dailyTarget) break;
+        foodHours = hour + 1;
+        windowKcal = 0;
+      }
     }
-    const fuelBefore = hour < 24 ? supplyUnits(projection, content, loc, 'fire') : 0;
-    projectWaterHour(projection, ctx);
-    nutritionHour(projection, ctx);
-    storageHour(projection, ctx, placement);
-    preparationHour(projection, ctx);
-    waterHour(projection, ctx);
-    if (hasDevices) devicesHour(projection, ctx);
-    const meal = dueMeal(projection, content, holder, cal.hour);
-    if (meal && !members.some((id) => awaitingMeal(projection, id))) {
-      serveMeal(projection, ctx, holder, members, meal.share_pct, meal.cold, undefined, pass);
-    }
-    if (hour < 24) fuelDay += Math.max(0, fuelBefore - supplyUnits(projection, content, loc, 'fire'));
-    // A cold noon piece may fail while the two hot meals still cover 80% of the ration.
-    // Judge a complete 24-hour window, including preparation completions, against the
-    // documented daily 50% threshold. A partial day is never mistaken for exhaustion.
-    if (hour % 24 === 23) {
-      const dailyTarget = Math.round(
-        (members.reduce((n, id) => n + mealEnergy(projection, ctx, id, pass), 0) * rationOf(projection, holder)) / 100,
-      );
-      if (windowKcal * 2 < dailyTarget) break;
-      foodHours = hour + 1;
-      windowKcal = 0;
-    }
-  }
+  });
   result.daysOfFoodTenths = Math.round((foodHours * 10) / 24);
   result.daysOfFuelTenths = fuelDay > 0 ? Math.floor((fuelStart * 10) / fuelDay) : null;
   if (foodHours >= 24 * horizon) result.warnings.push(`Food horizon capped at ${horizon} days.`);

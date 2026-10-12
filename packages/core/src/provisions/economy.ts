@@ -1,3 +1,4 @@
+import { autonomousProvisioning } from './agency.ts';
 /** Cash, credit and physical goods share one transaction path for commands and errands. */
 
 import { isShunning } from '../belief/api.ts';
@@ -11,7 +12,16 @@ import type { SimContext } from '../sim/context.ts';
 import { debtOf, extendCredit } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { priceAt, readinessOf } from './api.ts';
-import { dailyKcal, foodServings, kitchenOf, mealExplain, membersOf, prepBudget, recipesFor } from './meals.ts';
+import {
+  dailyKcal,
+  foodServings,
+  holderStacks,
+  kitchenOf,
+  mealExplain,
+  membersOf,
+  prepBudget,
+  recipesFor,
+} from './meals.ts';
 import { nutritionTargets } from './nutrition.ts';
 import { RATION_RESTORE_DAYS, RATION_STEPS, SHUNNED, shoppingDays, WOODPILE } from './rules.ts';
 import { storeOpen } from './services.ts';
@@ -167,8 +177,8 @@ export function transferCash(
 export function larderKcal(world: World, ctx: Pick<SimContext, 'content'>, householdId: number): number {
   const h = world.households[householdId];
   if (!h) return 0;
-  return stacksDeep(world, pantryOf(h.id)).reduce(
-    (n, { stack }) =>
+  return holderStacks(world, { householdId: h.id }).reduce(
+    (n, stack) =>
       n +
       Math.round(
         (foodServings(ctx.content, stack) * (ctx.content.items[stack.defId]?.food?.kcal ?? 0)) /
@@ -227,22 +237,8 @@ export function householdDay(world: World, ctx: SimContext): void {
     if (!h) continue;
     const members = membersOf(world, { householdId: household.id });
     replenishDomestic(world, ctx, household.id);
-    if (world.provisions.settings.wages && ctx.cal.weekday === 'sat') {
-      const cents = members.reduce(
-        (n, id) => n + (ctx.content.occupations[world.actors[id]?.occupationId ?? '']?.wage_cents_per_day ?? 0) * 6,
-        0,
-      );
-      h.cashCents += cents;
-      if (cents)
-        ctx.emit({
-          kind: 'provisions.wages',
-          data: { householdId: household.id, cents },
-          roles: members.map((actor) => ({ actor, role: 'beneficiary' })),
-          visibility: 'private',
-          explain: mealExplain('Six paid workdays', members, cents, [term('economy', 'Weekly wages cents', cents)]),
-        });
-    }
-    if (!world.provisions.settings.autoRations || !members.length) continue;
+    if (!world.provisions.settings.autoRations || !members.length || !autonomousProvisioning(world, household.headId))
+      continue;
     // The ration decision only compares against its thresholds, so project only as far as can matter:
     // at full rations the question is "below the first cut?"; on short rations, "back above restore?".
     const firstCut = Math.max(...RATION_STEPS.map((s) => s.belowDays));
@@ -311,10 +307,18 @@ export function householdDay(world: World, ctx: SimContext): void {
       if (owner) owner.cashCents -= pay;
       else store.tillCents -= pay;
       store.wholesaleDebtCents += cost - pay;
+      world.provisions.externalCashCents = (world.provisions.externalCashCents ?? 0) - pay;
       createStack(world, ctx, line.item, qty, atPlace(store.placeId));
       ctx.emit({
         kind: 'provisions.restock',
-        data: { placeId: store.placeId, defId: line.item, qty, costCents: cost },
+        data: {
+          placeId: store.placeId,
+          defId: line.item,
+          qty,
+          costCents: cost,
+          cashPaidCents: pay,
+          boundary: 'freight',
+        },
         explain: mealExplain('Wholesale delivery', [], cost, [
           term('money', 'Cash paid cents', pay),
           term('credit', 'Wholesale debt cents', cost - pay),
@@ -332,7 +336,7 @@ export function shoppingHour(world: World, ctx: SimContext): void {
     // Whoever of the household is at a store this hour buys (the head first, then by id).
     const atStore = (id: ActorId) => {
       const a = world.actors[id];
-      return a?.alive === true && world.provisions.stores[a.placeId] !== undefined;
+      return a?.alive === true && autonomousProvisioning(world, id) && world.provisions.stores[a.placeId] !== undefined;
     };
     const buyerId = atStore(household.headId) ? household.headId : household.memberIds.find(atStore);
     const buyer = buyerId === undefined ? undefined : world.actors[buyerId];

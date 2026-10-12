@@ -4,7 +4,15 @@ import { isAsleep } from '../activity/api.ts';
 import type { ProtectionId } from '../content.ts';
 import { term } from '../explain.ts';
 import { type ItemId, rowsOf } from '../ids.ts';
-import { consumeStack, consumeSupply, createStack, deleteStack, inventoryIndex, supplyUnits } from '../items/api.ts';
+import {
+  campThermal,
+  consumeStack,
+  consumeSupply,
+  createStack,
+  deleteStack,
+  inventoryIndex,
+  supplyUnits,
+} from '../items/api.ts';
 import { protectionsOf, rootLocation } from '../items/containers.ts';
 import { recordProvenance } from '../items/state.ts';
 import { mixKey } from '../rng.ts';
@@ -26,6 +34,15 @@ export type PlacementMemo = Record<
 
 export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo): void {
   const raining = isRaining(ctx.seed, ctx.cal);
+  const campShelter = new Map<number, boolean>();
+  if (raining) {
+    const index = inventoryIndex(world);
+    for (const actor of rowsOf(world.actors)) {
+      const activity = ctx.content.activities[world.activity.byActor[actor.id]?.activityId ?? ''];
+      if (actor.alive && !world.activity.byActor[actor.id]?.travel && (activity?.asleep || activity?.labor === 'rest'))
+        campShelter.set(actor.id, campThermal(world, ctx.content, actor.id, true, index).shelter >= 20);
+    }
+  }
   for (const stack of rowsOf(world.items.stacks)) {
     const def = ctx.content.items[stack.defId];
     if (!def) continue;
@@ -47,7 +64,9 @@ export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo)
     }
     const exposed = placed.exposed;
     const protections = placed.protections;
-    if (raining && exposed && !protections.includes('waterproof') && !protections.includes('airtight')) {
+    const root = raining ? rootLocation(world, stack) : null;
+    const underFly = root?.kind === 'actor' && campShelter.get(root.actorId);
+    if (raining && !underFly && exposed && !protections.includes('waterproof') && !protections.includes('airtight')) {
       stack.wetness = Math.min(100, stack.wetness + (protections.includes('splashproof') ? 3 : 20));
     } else if (!protections.includes('airtight')) stack.wetness = Math.max(0, stack.wetness - 4);
     if (!def.food) continue;

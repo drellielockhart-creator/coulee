@@ -184,3 +184,30 @@ servings = 4
 shelf_life_days = 1
 spoilage = { wet_pct = 200, temperature_pct = { frozen = 5, cold = 50, cool = 100, warm = 200, hot = 300 } }
 prep = [{ method = "raw", minutes = 0, morale = 3 }]
+
+[[item]]
+id = "rabbit_fresh"
+name = "Rabbit, dressed"
+section = "wild_food"
+copy = "Small game dressed for the pot. Lean meat needs fuel to cook and fat beside it."
+unit = "lb"
+weight_g = 454
+bulk = 1
+value_cents = 5
+tags = ["perishable", "game"]
+materials = [{ material = "food", pct = 100 }]
+
+[item.food]
+kcal = 620
+protein_g = 100
+fat_g = 15
+fresh = 40
+group = "meat"
+servings = 2
+morale = 0
+shelf_life_days = 3
+spoilage = { temperature_pct = { frozen = 3, cold = 30, cool = 100, warm = 250, hot = 500 }, wet_pct = 150, packaging_pct = { cool_storage = 80, brine = 40 } }
+prep = [
+  { method = "fry", minutes = 15, active_minutes = 10, fire_minutes = 15, cookware = ["cook"], morale = 2 },
+  { method = "roast", minutes = 60, active_minutes = 10, fire_minutes = 60, batch_servings = 8, morale = 2 },
+]

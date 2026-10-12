@@ -20,6 +20,7 @@ export * as needs from './needs/index.ts';
 export * as provisions from './provisions/index.ts';
 export * as psyche from './psyche/index.ts';
 export * from './rng.ts';
+export { type PackedJson, packJson, unpackJson } from './serialization.ts';
 export type { InitContext, SimContext } from './sim/context.ts';
 export { type CreateWorldOptions, createWorld } from './sim/init.ts';
 export { HOURLY_SYSTEMS, type SystemFn } from './sim/schedule.ts';

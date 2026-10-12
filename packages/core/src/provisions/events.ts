@@ -6,6 +6,10 @@ import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 
 export type ProvisionsEvent =
   | EventOf<
+      'provisions.production',
+      { actorId: ActorId; activityId: string; yields: Array<{ defId: string; qty: number }> }
+    >
+  | EventOf<
       'provisions.load_movement',
       { actorId: ActorId; loadPct: number; speedPct: number; minutes: number; blocked: boolean }
     >
@@ -49,9 +53,21 @@ export type ProvisionsEvent =
   | EventOf<'provisions.vermin', { itemId: ItemId; defId: string; qty: number }>
   | EventOf<'provisions.light', { itemId: ItemId; lit: boolean; reason: string }>
   | EventOf<'provisions.supply_used', { itemId: ItemId; kind: string; units: number }>
-  | EventOf<'provisions.wages', { householdId: HouseholdId; cents: number }>
+  | EventOf<
+      'provisions.wages',
+      {
+        householdId: HouseholdId;
+        cents: number;
+        actorId?: ActorId;
+        payerHouseholdId?: HouseholdId;
+        arrearsCents?: number;
+      }
+    >
   | EventOf<'provisions.water', { householdId: HouseholdId; ml: number }>
-  | EventOf<'provisions.restock', { placeId: PlaceId; defId: string; qty: number; costCents: number }>
+  | EventOf<
+      'provisions.restock',
+      { placeId: PlaceId; defId: string; qty: number; costCents: number; cashPaidCents?: number; boundary?: 'freight' }
+    >
   | EventOf<'provisions.command_rejected', { actorId: ActorId; command: string; reason: string }>
   | EventOf<'provisions.rations', { actorId: ActorId; householdId: HouseholdId | null; rationPct: number }>
 
