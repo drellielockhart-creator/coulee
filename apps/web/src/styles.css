@@ -128,6 +128,10 @@ p {
  * Shell: masthead / workspace / bottom bar as grid rows, so the map can never overlap the time
  * controls whatever the viewport height (11 §4.2: every screen playable without rotating).
  * ---------------------------------------------------------------------------------------- */
+/* The settlement is an app shell: only its panels scroll, never the document. */
+body:has(.settlement) {
+  overflow: hidden;
+}
 .settlement {
   height: 100dvh;
   display: grid;
@@ -175,7 +179,7 @@ small {
 .workspace {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 350px 300px;
+  grid-template-columns: minmax(0, 1fr) 400px 330px;
   position: relative;
 }
 .map-column {
@@ -281,8 +285,10 @@ small {
   overflow-wrap: anywhere;
 }
 .inspector,
-.kit-dock {
+.kit-dock,
+.chronicle-dock {
   overflow-y: auto;
+  position: relative;
 }
 .chronicle-dock {
   height: 25%;
@@ -636,6 +642,7 @@ input {
   margin-top: 8px;
 }
 .stock-line {
+  scroll-margin-top: 64px;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -650,6 +657,11 @@ input {
 }
 .stock-line .price {
   float: right;
+  white-space: nowrap;
+}
+.sub-v {
+  display: block;
+  font-size: 15px;
 }
 .consequential {
   border: 2px solid var(--rubric);
@@ -703,6 +715,10 @@ fieldset {
   gap: 12px;
   padding: 4px 0;
 }
+.xval,
+.explain-kind {
+  white-space: nowrap;
+}
 .xsrc,
 .xknow {
   color: var(--ink-2);
@@ -713,11 +729,360 @@ fieldset {
 }
 @media (max-width: 1100px) {
   .workspace {
-    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-columns: minmax(0, 1fr) 380px;
   }
   .kit-dock {
     display: none;
   }
+}
+
+/* ------------------------------------------------------------------------------------------
+ * Play (ADR 0002 parity): the Act menu, the digest, the Outfitter, the Ledger
+ * ---------------------------------------------------------------------------------------- */
+.masthead {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+.vitals {
+  flex-basis: 100%;
+  order: 9;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+.pip.bad {
+  color: var(--rubric);
+  font-weight: 600;
+}
+.play > * + * {
+  margin-top: 10px;
+}
+.outcome {
+  border-left: 3px solid var(--ink);
+  padding: 2px 0 2px 10px;
+}
+.outcome p {
+  margin: 4px 0;
+}
+.outcome.refused {
+  border-left-color: var(--rubric);
+  color: var(--rubric);
+  margin: 0;
+}
+.reading {
+  font:
+    14px / 1.45 "IBM Plex Mono",
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 4px 0;
+  max-height: 16em;
+  overflow-y: auto;
+}
+.situation p {
+  margin: 2px 0;
+}
+.situation .where {
+  font-size: 17px;
+}
+.situation .doing {
+  color: var(--ink-2);
+  font-size: 16px;
+}
+.act-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 4px;
+}
+.act-groups button {
+  padding: 4px 6px;
+  font-size: 16px;
+  line-height: 1.15;
+}
+.act-groups .glyph {
+  font-size: 15px;
+}
+.act-crumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 4px;
+}
+.act-crumb h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.act-body {
+  padding-top: 2px;
+}
+.act-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+.act-btn {
+  width: 100%;
+  text-align: left;
+}
+.primary {
+  border: 2px solid var(--ink);
+  font-weight: 600;
+}
+.act-btn.primary {
+  margin-bottom: 6px;
+}
+.person-talk {
+  border-bottom: 1px solid var(--rule);
+  padding: 6px 0 8px;
+}
+.person-talk .who {
+  margin: 0 0 6px;
+}
+.verbs,
+.wait-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 4px;
+}
+.verbs button,
+.wait-grid button {
+  padding: 4px 6px;
+  font-size: 16px;
+}
+.sign {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 6px;
+}
+.digest-card {
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0 10px 8px;
+  background: #fbf6ec;
+}
+.digest-card .section-head {
+  margin-top: 8px;
+}
+.digest-card p {
+  margin: 4px 0;
+}
+.money-line,
+.need-line {
+  font-size: 16px;
+}
+.said {
+  margin: 6px 0;
+  padding: 4px 0 4px 12px;
+  border-left: 2px solid var(--rule);
+  font-style: italic;
+}
+.said .own {
+  font-style: normal;
+}
+.events {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0;
+}
+.ev {
+  padding: 3px 0;
+  border-bottom: 1px dotted var(--rule);
+}
+.event-btn {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 4px 0;
+}
+.why {
+  color: var(--superego-ink);
+  margin-left: 4px;
+}
+.noted {
+  margin-top: 6px;
+  width: 100%;
+}
+.voice p {
+  margin: 4px 0;
+}
+.ending-head {
+  margin: 4px 0;
+}
+.epilogue {
+  border-top: 1px solid var(--rule);
+  margin-top: 10px;
+}
+.row-btn {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  /* One text line centred in the 44 px target (11 §1.2), the leader still on the baseline. */
+  padding: 10px 0 9px;
+  margin: 0;
+  text-align: left;
+  font: inherit;
+}
+.xrow-wrap.open .row-btn {
+  border-bottom-color: var(--rule);
+}
+.explain-pop {
+  border-left: 3px solid var(--superego-ink);
+  padding: 4px 0 6px 10px;
+  margin-bottom: 6px;
+  background: #fbf6ec;
+}
+.xnote {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 15px;
+}
+.store-head {
+  margin: 0 0 4px;
+}
+.receipt {
+  margin: 4px 0 8px;
+  font-size: 16px;
+}
+.receipt p {
+  margin: 2px 0;
+}
+.closed-note {
+  border: 1px solid var(--rubric);
+  padding: 4px 10px 8px;
+  margin: 8px 0;
+}
+.closed-note p {
+  margin: 4px 0;
+}
+.board {
+  margin: 6px 0;
+}
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 8px 0 4px;
+}
+.food-facts {
+  width: 100%;
+  font-size: 16px;
+}
+.prep {
+  margin: 2px 0;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+.order {
+  width: 100%;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin-top: 6px;
+  background: #fbf6ec;
+}
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.qty output {
+  min-width: 64px;
+  text-align: center;
+  font-weight: 600;
+}
+.preview {
+  margin: 6px 0;
+}
+.preview .row {
+  margin: 2px 0;
+}
+.compare-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--paper-2);
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  padding: 2px 2px 2px 10px;
+  margin-top: 8px;
+  font-size: 15px;
+}
+.compare-names {
+  flex: 1;
+  min-width: 0;
+}
+.compare table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 15px;
+}
+.compare th,
+.compare td {
+  border-bottom: 1px solid var(--rule);
+  padding: 2px 4px;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.compare thead th {
+  font-family: "IM Fell English", Georgia, serif;
+  font-weight: 400;
+}
+.compare tbody th {
+  width: 30%;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+.cell-btn {
+  width: 100%;
+  padding: 2px 4px;
+  text-align: left;
+  border-color: var(--rule);
+}
+.back {
+  margin-top: 8px;
+}
+.load-line {
+  margin: 2px 0;
+  font-size: 16px;
+}
+.rations {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+.tabs.wrap {
+  flex-wrap: wrap;
+  overflow-x: visible;
+  position: static;
+}
+.journal-list li small,
+.journal-list li .headline {
+  display: block;
+}
+.paper-voice .entry-text {
+  font-style: italic;
+}
+.journey code {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.move .search {
+  margin: 4px 0;
 }
 
 /* ------------------------------------------------------------------------------------------
@@ -805,7 +1170,15 @@ fieldset {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* No sticky strips in a sheet over the map: Chromium composites a sticky element inside the
+   sheet's scroller at a stale offset and culls the WebGL map beneath it (a blank band). */
+.sheet .tabs {
+  position: static;
+}
 .sheet-body {
+  /* Positioned, so absolutely placed descendants (visually-hidden labels) scroll inside it
+     instead of escaping and stretching the document. */
+  position: relative;
   flex: 1;
   overflow-y: auto;
   min-height: 0;
@@ -855,6 +1228,20 @@ fieldset {
 .pocket .status {
   display: none;
 }
+/* 11 §2.1: the pocket strip is date and vitals; the site's name is on the Act sheet's title. */
+.pocket .masthead .title {
+  display: none;
+}
+.pocket .vitals {
+  order: -1;
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 15px;
+  gap: 0 10px;
+}
+.pocket .date {
+  flex: 0 0 auto;
+}
 .pocket .workspace {
   display: block;
 }
@@ -900,6 +1287,21 @@ fieldset {
 .folio .masthead .sub,
 .folio .status {
   display: none;
+}
+/* A phone on its side has height to spare for nothing: the vitals ride in the masthead row. */
+.folio .vitals {
+  flex: 0 1 auto;
+  order: 1;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+.folio .date {
+  order: 2;
+}
+.folio .settings-btn {
+  order: 3;
 }
 .folio .date {
   flex-direction: row;

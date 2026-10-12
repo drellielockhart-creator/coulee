@@ -1,5 +1,6 @@
 export * from './actions.ts';
 export * from './describe.ts';
+export * from './host.ts';
 export * from './interrupts.ts';
 export * from './knowledge.ts';
 export * from './obligations.ts';

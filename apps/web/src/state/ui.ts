@@ -18,8 +18,25 @@ export type Panel =
   | 'place'
   | 'act'
   | 'settings'
-  | 'stack';
+  | 'stack'
+  | 'trade'
+  | 'ledger';
 export type DossierTab = 'mind' | 'needs' | 'opinions' | 'known' | 'pack';
+/** Groups of the Act menu (11 §2.1), built from the session's offered actions. */
+export type ActGroup =
+  | 'move'
+  | 'talk'
+  | 'trade'
+  | 'eat'
+  | 'rest'
+  | 'work'
+  | 'errands'
+  | 'pack'
+  | 'signs'
+  | 'aid'
+  | 'read'
+  | 'life';
+export type LedgerTab = 'journal' | 'money' | 'signs' | 'folk' | 'places' | 'chronicle' | 'journey';
 
 export interface OrderLine {
   defId: string;
@@ -50,6 +67,11 @@ export interface UiState {
   /** Store place whose Book is open. */
   bookPlace: number | null;
   speedsOpen: boolean;
+  /** The open group of the Act menu (null: the group chooser). */
+  actGroup: ActGroup | null;
+  /** Talk filtered to one person (from a map peek's Talk). */
+  actTarget: number | null;
+  ledgerTab: LedgerTab;
 
   /** `fromMap`: a tap on the map opens the peek card first (11 §2.3), unless a sheet is already up. */
   selectActor: (id: number | null, opts?: { tab?: DossierTab; sheet?: SheetState; fromMap?: boolean }) => void;
@@ -70,6 +92,11 @@ export interface UiState {
   setBookSection: (s: string | null) => void;
   openBook: (placeId: number | null) => void;
   setSpeedsOpen: (o: boolean) => void;
+  /** Open the Act menu at a group (Go opens it at Move). */
+  openAct: (group: ActGroup | null, target?: number | null) => void;
+  setActGroup: (group: ActGroup | null) => void;
+  openLedger: (tab?: LedgerTab) => void;
+  setLedgerTab: (tab: LedgerTab) => void;
 }
 
 function readLabelSet(): LabelSet {
@@ -97,6 +124,9 @@ export const useUi = create<UiState>((set, get) => ({
   stack: [],
   bookPlace: null,
   speedsOpen: false,
+  actGroup: null,
+  actTarget: null,
+  ledgerTab: 'journal',
 
   selectActor: (id, opts) =>
     set((s) => ({
@@ -184,4 +214,19 @@ export const useUi = create<UiState>((set, get) => ({
       sheet: s.sheet === 'closed' || s.sheet === 'peek' ? 'full' : s.sheet,
     })),
   setSpeedsOpen: (speedsOpen) => set({ speedsOpen }),
+  openAct: (actGroup, actTarget = null) =>
+    set((s) => ({
+      panel: 'act',
+      actGroup,
+      actTarget,
+      sheet: s.sheet === 'closed' || s.sheet === 'peek' ? 'half' : s.sheet,
+    })),
+  setActGroup: (actGroup) => set({ actGroup, actTarget: null }),
+  openLedger: (tab) =>
+    set((s) => ({
+      panel: 'ledger',
+      ledgerTab: tab ?? s.ledgerTab,
+      sheet: s.sheet === 'closed' || s.sheet === 'peek' ? 'half' : s.sheet,
+    })),
+  setLedgerTab: (ledgerTab) => set({ ledgerTab }),
 }));
