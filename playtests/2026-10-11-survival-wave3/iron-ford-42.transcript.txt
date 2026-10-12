@@ -1,0 +1,593 @@
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12. 
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:19]
+10. Go to Iron Ford Lutheran Church [go:26]
+11. Go to Pratt & Daughter, Outfitters [go:33]
+12. Go to Iron Ford Sentinel Print Shop [go:38]
+13. Chat: Michael Dunleavy [talk:chat:28]
+14. Introduce oneself: Michael Dunleavy [talk:introduce:28]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 175; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> standing drink off
+Since last look: 1h passed.
+1855-04-01 01:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 32°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 758; Rest 723; Thirst 770; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. 
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Resolved: At home
+[321] psyche.arbitrated — explain 321
+[364] activity.started — explain 364
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:19]
+10. Go to Iron Ford Lutheran Church [go:26]
+11. Go to Pratt & Daughter, Outfitters [go:33]
+12. Go to Iron Ford Sentinel Print Shop [go:38]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 173; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> standing lodging off
+Since last look: 1h passed.
+1855-04-01 02:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 32°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 729; Rest 684; Thirst 714; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. 
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Resolved: At home
+[411] needs.hearth — explain 411
+[416] psyche.arbitrated — explain 416
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to The Iron Ford [go:19]
+10. Go to Iron Ford Lutheran Church [go:26]
+11. Go to Pratt & Daughter, Outfitters [go:33]
+12. Go to Iron Ford Sentinel Print Shop [go:38]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 175; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> go Upper Lantern Coulee
+Since last look: 1h passed.
+1855-04-01 03:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — walking about. Purse $50.00; household $0.00. 31°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 700; Rest 645; Thirst 658; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. 
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Resolved: Walk
+[419] psyche.arbitrated — explain 419
+[420] provisions.load_movement — explain 420
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 86; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: activity.moved
+Since last look: 1h passed.
+Travel arrival at place #23
+1855-04-01 04:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — walking about. Purse $50.00; household $0.00. 31°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 658; Rest 568; Thirst 578; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. 
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: activity:fetch_water)
+Self-Command: Held for your order; routine standing orders only
+[422] psyche.arbitrated — explain 422
+[423] Travel arrival at place #23 — explain 423
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to Dunleavy's Tavern [go:4]
+10. Go to The Iron Ford [go:19]
+11. Go to Iron Ford Lutheran Church [go:26]
+12. Go to Pratt & Daughter, Outfitters [go:33]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 165; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.band_changed
+Since last look: 1h passed; Thirst: steady → Thirsty.
+needs.band_changed
+1855-04-01 05:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — sleeping. Purse $50.00; household $0.00. 30°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 616; Rest 491; Thirst 498 (Thirsty); Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. thirsty
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: activity:fetch_water)
+Self-Command: Held for your order; routine standing orders only
+[426] psyche.arbitrated — explain 426
+[427] activity.started — explain 427
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 76; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.band_changed
+Since last look: 2h passed.
+needs.band_changed
+1855-04-01 07:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — sleeping. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 800; Rest 771; Thirst 442 (Thirsty); Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. thirsty
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: activity:fetch_water)
+Conscience: The fire wants minding (held for your order; you may: activity:cook_meal)
+Self-Command: Held for your order; routine standing orders only
+[612] needs.band_changed — explain 612
+[613] needs.fed — explain 613
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 76; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.band_changed
+Since last look: 6h passed; Thirst: Thirsty → Parched.
+needs.band_changed
+1855-04-01 13:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 654; Rest 844; Thirst 162 (Parched); Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. parched
+You may collapse from thirst in about 27 hours if this continues (Fortitude saves vary).
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: activity:fetch_water)
+Conscience: The table is laid (held for your order; you may: activity:take_meal)
+Self-Command: Held for your order; routine standing orders only
+[1217] needs.band_changed — explain 1217
+[1226] psyche.arbitrated — explain 1226
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to Dunleavy's Tavern [go:4]
+10. Go to The Iron Ford [go:19]
+11. Go to Iron Ford Lutheran Church [go:26]
+12. Go to Pratt & Daughter, Outfitters [go:33]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 165; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.band_changed
+Since last look: 2h passed.
+needs.band_changed
+1855-04-01 15:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 50°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 810; Rest 766; Thirst 50 (Parched); Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. parched
+You may collapse from thirst in about 25 hours if this continues (Fortitude saves vary).
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: activity:fetch_water)
+Self-Command: Held for your order; routine standing orders only
+[1788] needs.band_changed — explain 1788
+[1789] needs.fed — explain 1789
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to Dunleavy's Tavern [go:4]
+10. Go to The Iron Ford [go:19]
+11. Go to Iron Ford Lutheran Church [go:26]
+12. Go to Pratt & Daughter, Outfitters [go:33]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 165; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.band_changed
+Since last look: 8h passed; Hunger: steady → Peckish.
+needs.band_changed
+1855-04-01 23:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — sleeping. Purse $50.00; household $0.00. 34°F, rain.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 592 (Peckish); Rest 619; Thirst 0 (Parched); Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. parched
+You may collapse from thirst in about 16 hours if this continues (Fortitude saves vary).
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: activity:fetch_water)
+Self-Command: Held for your order; routine standing orders only
+[2603] needs.band_changed — explain 2603
+[2613] psyche.arbitrated — explain 2613
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Drink water (500 ml) [drink]
+5. Wait 1 hour [wait]
+6. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+7. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 76; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.survival_check
+Since last look: 4h passed; Hunger: Peckish → steady.
+Fortitude against thirst: 3 harm; Vigor 4, Wounds 0.
+1855-04-02 03:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 31°F, dry.
+Food 5.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 807; Rest 958; Thirst 0 (Parched); Warmth 994
+Health: Vigor 4/7; Wounds 0/12. parched, dehydrated
+You may collapse from thirst in about 12 hours if this continues (Fortitude saves vary).
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: activity:fetch_water)
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only
+[3007] Fortitude against thirst: 3 harm; Vigor 4, Wounds 0. — explain 3007
+[3013] psyche.arbitrated — explain 3013
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to Dunleavy's Tavern [go:4]
+10. Go to The Iron Ford [go:19]
+11. Go to Iron Ford Lutheran Church [go:26]
+12. Go to Pratt & Daughter, Outfitters [go:33]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 165; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.band_changed
+Since last look: 2h passed.
+needs.band_changed
+1855-04-02 05:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 30°F, dry.
+Food 5.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 749; Rest 880; Thirst 0 (Parched); Warmth 994
+Health: Vigor 4/7; Wounds 0/12. parched, dehydrated
+You may collapse from thirst in about 10 hours if this continues (Fortitude saves vary).
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water (held for your order; you may: activity:fetch_water)
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only
+[3054] needs.band_changed — explain 3054
+[3058] psyche.arbitrated — explain 3058
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to Dunleavy's Tavern [go:4]
+10. Go to The Iron Ford [go:19]
+11. Go to Iron Ford Lutheran Church [go:26]
+12. Go to Pratt & Daughter, Outfitters [go:33]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 165; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.band_changed; needs.survival_check
+Since last look: 6h passed; Hunger: steady → Peckish.
+needs.band_changed
+Fortitude against thirst: 3 harm; Vigor 1, Wounds 0.
+1855-04-02 11:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 45°F, dry.
+Food 5.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 575 (Peckish); Rest 646; Thirst 0 (Parched); Warmth 1000
+Health: Vigor 1/7; Wounds 0/12. parched, dehydrated
+You may collapse from thirst in about 4 hours if this continues (Fortitude saves vary).
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Parched: a drink of water (held for your order; you may: activity:fetch_water)
+Conscience: The pantry is nearly bare: go to the store (held for your order; you may: activity:fetch_mail)
+Self-Command: Held for your order; routine standing orders only
+[3741] Fortitude against thirst: 3 harm; Vigor 1, Wounds 0. — explain 3741
+[3747] psyche.arbitrated — explain 3747
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Sleep [activity:sleep]
+5. Drink water (500 ml) [drink]
+6. At home [activity:idle_at_home]
+7. Work [activity:work]
+8. Wait 1 hour [wait]
+9. Go to Dunleavy's Tavern [go:4]
+10. Go to The Iron Ford [go:19]
+11. Go to Iron Ford Lutheran Church [go:26]
+12. Go to Pratt & Daughter, Outfitters [go:33]
+13. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+14. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 165; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.survival_check; needs.collapsed
+Since last look: 4h passed; Hunger: Peckish → steady.
+Fortitude against thirst: 3 harm; Vigor 0, Wounds 2.
+Collapsed from thirst; needs help.
+1855-04-02 15:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — lying helpless. Purse $50.00; household $0.00. 50°F, dry.
+Food 5.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 652; Rest 490; Thirst 0 (Parched); Warmth 1000
+Health: Vigor 0/7; Wounds 2/12. parched, dehydrated, incapacitated
+You have collapsed. You cannot act; someone must bring water, food and shelter.
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water
+Conscience: The pantry is nearly bare: go to the store
+Self-Command: Held for your order; routine standing orders only
+[4387] Collapsed from thirst; needs help. — explain 4387
+[4396] psyche.arbitrated — explain 4396
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Wait 1 hour [wait]
+Actions 57; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.band_changed; needs.survival_check
+Since last look: 4h passed; Hunger: steady → Peckish.
+needs.band_changed
+Fortitude against thirst: 3 harm; Vigor 0, Wounds 5.
+1855-04-02 19:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — lying helpless. Purse $50.00; household $0.00. 42°F, dry.
+Food 5.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 592 (Peckish); Rest 850; Thirst 0 (Parched); Warmth 1000
+Health: Vigor 0/7; Wounds 5/12. parched, dehydrated, incapacitated
+You have collapsed. You cannot act; someone must bring water, food and shelter.
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water
+Conscience: The pantry is nearly bare: go to the store
+Self-Command: Held for your order; routine standing orders only
+[4760] Fortitude against thirst: 3 harm; Vigor 0, Wounds 5. — explain 4760
+[4783] psyche.arbitrated — explain 4783
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Wait 1 hour [wait]
+Actions 57; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.survival_check
+Since last look: 4h passed.
+Fortitude against thirst: 3 harm; Vigor 0, Wounds 8.
+1855-04-02 23:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — lying helpless. Purse $50.00; household $0.00. 34°F, dry.
+Food 5.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 532 (Peckish); Rest 1000; Thirst 0 (Parched); Warmth 1000
+Health: Vigor 0/7; Wounds 8/12. parched, dehydrated, incapacitated
+You have collapsed. You cannot act; someone must bring water, food and shelter.
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water
+Conscience: It is late; the day starts early
+Self-Command: Held for your order; routine standing orders only
+[5308] Fortitude against thirst: 3 harm; Vigor 0, Wounds 8. — explain 5308
+[5313] psyche.arbitrated — explain 5313
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Wait 1 hour [wait]
+Actions 57; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.survival_check
+Since last look: 4h passed.
+Fortitude against thirst: 3 harm; Vigor 0, Wounds 11.
+1855-04-03 03:00 | FAIR | Upper Lantern Coulee
+Ellis Wayfarer — lying helpless. Purse $50.00; household $0.00. 32°F, dry.
+Food 5.0 days; Medium, 33.4 kg.
+Vitals: Drink 800; Hunger 472 (Peckish); Rest 1000; Thirst 0 (Parched); Warmth 1000
+Health: Vigor 0/7; Wounds 11/12. parched, dehydrated, incapacitated
+You have collapsed. You cannot act; someone must bring water, food and shelter.
+Narrow wooded coulee above Huldra's Shelf.
+Here: no one else.
+Appetite: Drink accessible water
+Conscience: It is late; the day starts early
+Self-Command: Held for your order; routine standing orders only
+[5697] Fortitude against thirst: 3 harm; Vigor 0, Wounds 11. — explain 5697
+[5707] psyche.arbitrated — explain 5707
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. Wait 1 hour [wait]
+Actions 57; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 2d
+Stopped: needs.survival_check; needs.died; Less than one day of food or cooking fuel remains
+This life has ended: death — thirst.
+Only reading remains.
+
+# Ellis Wayfarer : death
+
+## Week 1: April 1 to 7, 1855
+
+*Sunday, the 1st of April, 1855. The Sabbath under a full moon; the evening service will want no lantern. Rain in the evening.*
+
+**A Timely Kindness** We are happy to record that Mr. M. Dunleavy was seen carrying relief to the door of Mr. A. Whitcomb, whose table has been poor of late. These things are noticed, and recorded here for the credit of the place.
+
+**A Timely Kindness** Mrs. M. Bell, whose pantry has been bare, did not go hungry this week; Mrs. M. Brenner saw to that, and mentioned it to nobody. We mention it for her.
+
+**A Debt Pressed** A correspondent informs us that Mr. L. Vance has begun to dun Mrs. A. Pratt for $215.00. Such matters are best settled before the neighbors discover them, which in this case they have.
+
+> I went to bed parched. A person can learn a good deal about the world from the floor of an empty belly.  
+> — *Ellis Wayfarer, in a journal*
+
+> It was the sensible thing; anyone would agree. I have asked myself and I agree.  
+> — *Ellis Wayfarer, in a journal*
+
+*Monday, the 2nd of April, 1855. The full moon, which the Norwegians watch and the Cornish do not discuss.*
+
+> I shut a door in myself today. I cannot say which, only that the house is quieter.  
+> — *Ellis Wayfarer, in a journal*
+
+> I notice I am saying the same thing to myself over and over, in the same words. A person ought to be able to say a thing once and be done.  
+> — *Ellis Wayfarer, in a journal*
+
+> I have a great many reasons this week, and I do not trust any of them. I would rather have one true thing.  
+> — *Ellis Wayfarer, in a journal*
+
+> There is nothing in it. I looked at it from three sides and there is nothing in it. I shall not think of it again.  
+> — *Ellis Wayfarer, in a journal*
+
+*Tuesday, the 3rd of April, 1855. Full moon, and bright enough to read a letter by.*
+
+> Ellis Wayfarer's account ends here. Death came by thirst; the coulee kept its own time.  
+> — *Ellis Wayfarer, in a journal*
+
+---
+
+## Epilogue: what the county never knew
+
+*Set down after the fact, from the record of what was truly done, said, and felt. Nobody in the story had this.*
+
+### Week 1
+
+**April 1.** Johanne Moe could not bear a thing in her own heart and found it, quite sincerely, in Lydia Pratt. She would have been astonished to hear it called a defense.
+
+**April 1.** A mind at its seams: displacement again and again, and between them nothing to put in its place. Ezra Sloat was not well, and said otherwise.
+
+**April 1.** Denial, and the others in turn: the mind has a drawer of such things, and Captain Hurd had been through them all in a day.
+
+**April 1.** Captain Trevenna had stopped trusting his own reasons, and went on giving them. Three defenses in a day, and the village was told it was nerves.
+
+**April 2.** A mind at its seams: denial again and again, and between them nothing to put in its place. Gussie Pratt was not well, and said otherwise.
+
+**April 2.** It was Johann Brenner who was said to be at fault. It was Hester Fenn who needed it to be so: laying it at another's door, in the language of a later day, projection.
+
+**April 2.** Edwin Fenn had stopped trusting his own reasons, and went on giving them. Three defenses in a day, and the village was told it was nerves.
+
+**April 2.** Johann Brenner was coming apart at a seam nobody could see. Three defenses in a day, and the relief wearing thin. The village took it for ill temper.
+
+> wait 1h
+This life has ended; only reading remains. No game time spent.
+This life has ended: death — thirst.
+Only reading remains.
+
+# Ellis Wayfarer : death
+
+## Week 1: April 1 to 7, 1855
+
+*Sunday, the 1st of April, 1855. The Sabbath under a full moon; the evening service will want no lantern. Rain in the evening.*
+
+**A Timely Kindness** We are happy to record that Mr. M. Dunleavy was seen carrying relief to the door of Mr. A. Whitcomb, whose table has been poor of late. These things are noticed, and recorded here for the credit of the place.
+
+**A Timely Kindness** Mrs. M. Bell, whose pantry has been bare, did not go hungry this week; Mrs. M. Brenner saw to that, and mentioned it to nobody. We mention it for her.
+
+**A Debt Pressed** A correspondent informs us that Mr. L. Vance has begun to dun Mrs. A. Pratt for $215.00. Such matters are best settled before the neighbors discover them, which in this case they have.
+
+> I went to bed parched. A person can learn a good deal about the world from the floor of an empty belly.  
+> — *Ellis Wayfarer, in a journal*
+
+> It was the sensible thing; anyone would agree. I have asked myself and I agree.  
+> — *Ellis Wayfarer, in a journal*
+
+*Monday, the 2nd of April, 1855. The full moon, which the Norwegians watch and the Cornish do not discuss.*
+
+> I shut a door in myself today. I cannot say which, only that the house is quieter.  
+> — *Ellis Wayfarer, in a journal*
+
+> I notice I am saying the same thing to myself over and over, in the same words. A person ought to be able to say a thing once and be done.  
+> — *Ellis Wayfarer, in a journal*
+
+> I have a great many reasons this week, and I do not trust any of them. I would rather have one true thing.  
+> — *Ellis Wayfarer, in a journal*
+
+> There is nothing in it. I looked at it from three sides and there is nothing in it. I shall not think of it again.  
+> — *Ellis Wayfarer, in a journal*
+
+*Tuesday, the 3rd of April, 1855. Full moon, and bright enough to read a letter by.*
+
+> Ellis Wayfarer's account ends here. Death came by thirst; the coulee kept its own time.  
+> — *Ellis Wayfarer, in a journal*
+
+---
+
+## Epilogue: what the county never knew
+
+*Set down after the fact, from the record of what was truly done, said, and felt. Nobody in the story had this.*
+
+### Week 1
+
+**April 1.** Johanne Moe could not bear a thing in her own heart and found it, quite sincerely, in Lydia Pratt. She would have been astonished to hear it called a defense.
+
+**April 1.** A mind at its seams: displacement again and again, and between them nothing to put in its place. Ezra Sloat was not well, and said otherwise.
+
+**April 1.** Denial, and the others in turn: the mind has a drawer of such things, and Captain Hurd had been through them all in a day.
+
+**April 1.** Captain Trevenna had stopped trusting his own reasons, and went on giving them. Three defenses in a day, and the village was told it was nerves.
+
+**April 2.** A mind at its seams: denial again and again, and between them nothing to put in its place. Gussie Pratt was not well, and said otherwise.
+
+**April 2.** It was Johann Brenner who was said to be at fault. It was Hester Fenn who needed it to be so: laying it at another's door, in the language of a later day, projection.
+
+**April 2.** Edwin Fenn had stopped trusting his own reasons, and went on giving them. Three defenses in a day, and the village was told it was nerves.
+
+**April 2.** Johann Brenner was coming apart at a seam nobody could see. Three defenses in a day, and the relief wearing thin. The village took it for ill temper.
+

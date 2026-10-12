@@ -170,3 +170,15 @@ export function extendCredit(world: World, ctx: SimContext, creditor: ActorId, d
 }
 
 export { interactionAvailability } from './availability.ts';
+
+/** Keep historical marriage edges; record widowhood without inventing a new spouse. */
+export function markBereaved(world: World, ctx: SimContext, deceased: ActorId): void {
+  for (const r of relationshipsOf(world, deceased)) {
+    if (r.kind !== 'spouse') continue;
+    const survivor = r.a === deceased ? r.b : r.a;
+    if (world.actors[survivor]?.alive) {
+      r.endedAt = ctx.now;
+      r.endedByDeath = deceased;
+    }
+  }
+}

@@ -5,6 +5,7 @@ import {
   type Command,
   hashValue,
   items,
+  needs,
   provisions,
   psyche,
   type Sim,
@@ -44,8 +45,22 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     actorId: pc,
     data: { query: 'look', target: 'prices' },
   });
-  if (!a.alive) return out;
+  if (!a.alive || w.needs.byActor[pc]?.survival?.ending) return out;
   add('wait', 'Wait 1 hour', { kind: 'activity.wait', actorId: pc, data: { minutes: 60 } });
+  if (!needs.canAct(w, pc)) return out;
+  for (const type of ['retire', 'depart'] as const)
+    add(type, type === 'retire' ? 'Retire from this life' : 'Depart from the coulee', {
+      kind: type === 'retire' ? 'needs.retire' : 'needs.depart',
+      actorId: pc,
+      data: {},
+    });
+  for (const other of Object.values(w.actors))
+    if (other.alive && other.placeId === a.placeId && needs.needsHelp(w, other.id))
+      add(`aid:${other.id}`, `Aid ${other.name.given} ${other.name.family}`, {
+        kind: 'needs.aid',
+        actorId: pc,
+        data: { targetId: other.id },
+      });
   const state = activity.currentActivity(w, pc);
   const unlocked = state?.lockedUntil === null || state?.lockedUntil === undefined || state.lockedUntil <= w.time;
   if (unlocked) {
@@ -177,7 +192,8 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     /^\d+$/.test(command.data.target ?? '')
   )
     return null;
-  if (!actor.alive) return 'Your character is no longer alive';
+  if (w.needs.byActor[pc]?.survival?.ending || !actor.alive) return 'This life has ended; only reading remains';
+  if (!needs.canAct(w, pc) && command.kind !== 'activity.wait') return 'You have collapsed and need help';
   if (command.kind === 'activity.wait') {
     const d = command.data;
     return Number.isSafeInteger(d.minutes) &&

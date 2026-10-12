@@ -1,0 +1,56 @@
+# Hourly T1 survival. Damage first spends Vigor; continued deprivation injures the body.
+[[survival_tuning]]
+id = "survival"
+aid_interval_hours = 1
+aid_water_ml = 1000
+
+[[survival_rule]]
+id = "starvation"
+name = "starvation"
+need = "hunger"
+condition = "starvation_harm"
+grace_hours = 120
+check_hours = 24
+damage = 1
+dc = 15
+
+[[survival_rule]]
+id = "dehydration"
+name = "thirst"
+need = "thirst"
+condition = "dehydrated"
+grace_hours = 12
+check_hours = 4
+damage = 3
+dc = 15
+
+[[survival_rule]]
+id = "hypothermia"
+name = "cold"
+need = "warmth"
+condition = "hypothermia_harm"
+grace_hours = 4
+check_hours = 2
+damage = 2
+dc = 15
+
+[[survival_rule]]
+id = "exhaustion"
+name = "exhaustion"
+need = "rest"
+condition = "exhausted"
+grace_hours = 24
+check_hours = 6
+damage = 1
+dc = 15
+
+[[survival_rule]]
+id = "heatstroke"
+name = "heat"
+need = "thirst"
+condition = "heat_sick"
+heat_above_f = 95
+grace_hours = 4
+check_hours = 2
+damage = 2
+dc = 15

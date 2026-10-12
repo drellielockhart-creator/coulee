@@ -594,6 +594,35 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
       if (d.householdId) f.households = [d.householdId as number];
       return f;
     }
+    case 'needs.died':
+    case 'needs.death_discovered': {
+      return base(
+        {
+          cls: 'other',
+          sub: 'death',
+          agent: ev.data.actorId,
+          base: 100,
+          valence: -100,
+          bind: { cause: ev.data.cause, deceased: ev.data.name },
+        },
+        [ev.data.actorId],
+      );
+    }
+    case 'needs.funeral': {
+      return base(
+        {
+          cls: 'gathering',
+          sub: 'funeral',
+          agent: ev.data.actorId,
+          base: 85,
+          bind: {
+            deceased: ev.data.name,
+            attendance: ev.data.attendees.length === 1 ? 'One of the' : ev.data.attendees.length,
+          },
+        },
+        [ev.data.actorId, ...ev.data.attendees],
+      );
+    }
     case 'needs.band_changed': {
       const d = ev.data;
       const { depth, of } = needDepth(content, d.needId, d.to);

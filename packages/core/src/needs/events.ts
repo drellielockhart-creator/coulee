@@ -5,6 +5,18 @@ import type { EventOf } from '../events/base.ts';
 import type { ActorId } from '../ids.ts';
 
 export type NeedsEvent =
+  | EventOf<'needs.survival_check', { actorId: ActorId; cause: string; damage: number; vigor: number; wounds: number }>
+  | EventOf<'needs.collapsed', { actorId: ActorId; cause: string }>
+  | EventOf<'needs.recovered', { actorId: ActorId }>
+  | EventOf<'needs.stasis', { actorId: ActorId; frozen: boolean }>
+  | EventOf<'needs.died', { actorId: ActorId; cause: string; name: string }>
+  | EventOf<'needs.death_discovered', { actorId: ActorId; cause: string; name: string }>
+  | EventOf<'needs.funeral', { actorId: ActorId; name: string; attendees: ActorId[] }>
+  | EventOf<'needs.aid', { actorId: ActorId; targetId: ActorId; success: boolean; waterMl: number; carried: boolean }>
+  | EventOf<'needs.estate', { actorId: ActorId; heirId: ActorId; adopted: ActorId[] }>
+  | EventOf<'needs.ending', { actorId: ActorId; type: 'retire' | 'depart' }>
+  | EventOf<'needs.command_rejected', { actorId: ActorId; reason: string }>
+
   /** A need crossed into a different legible band (e.g. Peckish -> Hungry). */
   | EventOf<
       'needs.band_changed',

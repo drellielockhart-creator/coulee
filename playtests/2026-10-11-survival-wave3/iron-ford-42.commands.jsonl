@@ -1,0 +1,18 @@
+{"type":"session","format":1,"spec":{"source":"iron_ford","seed":42,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"50cc94f3809517049c780b7319d6a2f02ff3001e8c1aef77a6ff7f2951dd631f"}
+{"type":"command","command":{"kind":"core.standing_orders","actorId":41,"data":{"orders":{"sleep":true,"eat":true,"drink":false,"warmth":true,"lodging":true,"activities":[]}}},"before":"60eb238e058492e2","after":"e98c4a0d61e39dd7","at":0,"end":60}
+{"type":"command","command":{"kind":"core.standing_orders","actorId":41,"data":{"orders":{"sleep":true,"eat":true,"drink":false,"warmth":true,"lodging":false,"activities":[]}}},"before":"e98c4a0d61e39dd7","after":"3ae4df6e69a19d39","at":60,"end":120}
+{"type":"command","command":{"kind":"core.urge","actorId":41,"data":{"urge":{"kind":"activity","activityId":"walk","placeId":23}}},"before":"3ae4df6e69a19d39","after":"515de214fd1076f9","at":120,"end":180}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"515de214fd1076f9","after":"738c670c58ef5e97","at":180,"end":240}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"738c670c58ef5e97","after":"a6a0a3cc7dc6ca49","at":240,"end":300}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"a6a0a3cc7dc6ca49","after":"ef69d5959fe74f65","at":300,"end":420}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"ef69d5959fe74f65","after":"99a9a43c24767a84","at":420,"end":780}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"99a9a43c24767a84","after":"31e49987510ed98b","at":780,"end":900}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"31e49987510ed98b","after":"64fe29b06d4dfc5f","at":900,"end":1380}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"64fe29b06d4dfc5f","after":"567ab427bc0db4f4","at":1380,"end":1620}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"567ab427bc0db4f4","after":"fe862a6bb1c5a046","at":1620,"end":1740}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"fe862a6bb1c5a046","after":"3aa7d1981b60b96c","at":1740,"end":2100}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"3aa7d1981b60b96c","after":"1908e918a51e8098","at":2100,"end":2340}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"1908e918a51e8098","after":"976217cc0544afbf","at":2340,"end":2580}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"976217cc0544afbf","after":"37e54d89eae9606e","at":2580,"end":2820}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"37e54d89eae9606e","after":"aa1ee640e0d65dae","at":2820,"end":3060}
+{"type":"command","command":{"kind":"activity.wait","actorId":41,"data":{"minutes":2880}},"before":"aa1ee640e0d65dae","after":"0414e721eeb5ce53","at":3060,"end":3300}

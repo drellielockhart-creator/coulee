@@ -1,0 +1,17 @@
+[[activity]]
+id = "incapacitated"
+name = "Collapsed"
+verb = "lying helpless"
+at = "anywhere"
+labor = "rest"
+asleep = true
+needs = { rest = 100 }
+sociability = 0
+
+[[activity]]
+id = "seek_care"
+name = "Ask a neighbor for care"
+verb = "asking a neighbor for help"
+at = "anywhere"
+labor = "rest"
+sociability = 30

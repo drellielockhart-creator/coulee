@@ -8,7 +8,7 @@ buy <item> [qty] | sell <item> | eat <item> [servings] [method] | cook <item> [s
 drink | meal | sleep | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
 prices | places [page] | standing <sleep|eat|drink|warmth|lodging> <on|off> | agency <commanded|psyche>
 inspect <actor/item/place> | pack <item> into <container> | unpack <item>
-rations <10..150> | plan | journal | explain <event id>
+aid <person> | retire | depart | rations <10..150> | plan | journal | explain <event id>
 Enter a menu number or stable action id. save <file> | load <file> | fork | help | quit`;
 export const SESSION_HELP = HELP.replace('save <file> | load <file> | fork | help | quit', 'help');
 export function menuActions(o: Observation, page = 0): AvailableAction[] {
@@ -34,6 +34,11 @@ export function menuActions(o: Observation, page = 0): AvailableAction[] {
   ];
 }
 export function renderObservation(o: Observation, page = 0, previous?: Observation): string {
+  if (o.ending)
+    return `This life has ended: ${o.ending.type} — ${o.ending.cause}.
+Only reading remains.
+
+${o.epilogue ?? ''}`;
   const r = o.self.provisions.readiness;
   const cash = (n: number) => `${n < 0 ? '−' : '+'}$${(Math.abs(n) / 100).toFixed(2)}`;
   const changes = o.changes;
@@ -49,6 +54,12 @@ export function renderObservation(o: Observation, page = 0, previous?: Observati
       .filter((n) => n.kind === 'physical')
       .map((n) => `${n.name} ${n.value}${n.band ? ` (${n.band})` : ''}`)
       .join('; ')}`,
+    ...(o.self.needs.survival
+      ? [
+          `Health: Vigor ${o.self.needs.survival.vigor}/${o.self.needs.survival.maxVigor}; Wounds ${o.self.needs.survival.wounds}/${o.self.needs.survival.woundLimit}. ${o.self.needs.survival.conditions.join(', ')}`,
+        ]
+      : []),
+    ...(o.self.needs.warnings ?? []),
     ...(o.store.hours
       ? [`Counter ${o.store.open ? 'open' : 'closed'}; hours ${o.store.hours.opens}:00–${o.store.hours.closes}:00.`]
       : []),
@@ -58,6 +69,7 @@ export function renderObservation(o: Observation, page = 0, previous?: Observati
         ]
       : []),
     o.place.description,
+    ...o.remains.map((r) => `${r.buried ? 'Grave' : 'Body'}: ${r.name}.`),
     `Here: ${
       o.present
         .slice(0, 6)
@@ -76,7 +88,9 @@ export function renderObservation(o: Observation, page = 0, previous?: Observati
       return t
         ? [
             `${voice}: ${t.line ?? t.label}${
-              o.self.agencyMode === 'commanded' && t.urge !== o.self.mind.chosen?.urge
+              !o.self.needs.survival?.collapsed &&
+              o.self.agencyMode === 'commanded' &&
+              t.urge !== o.self.mind.chosen?.urge
                 ? ` (held for your order; you may: ${t.urge
                     .replace(/^activity:sleep$/, 'sleep')
                     .replace(/^interaction:/, '')
@@ -140,6 +154,9 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
   if (action) return action.command;
   if (/^[+-]?\d+$/.test(text)) return menuActions(o, page)[Number(text) - 1]?.command ?? 'No such menu number';
   if (verb === 'help') return HELP;
+  const reading = ['look', 'plan', 'journal', 'explain', 'inspect', 'prices'].includes(verb);
+  if (o.ending && !reading) return 'This life has ended; only reading remains';
+  if (o.self.needs.survival?.collapsed && !reading && verb !== 'wait') return 'You have collapsed and need help';
   if (verb === 'agency' || verb === 'standing') {
     const orders = { ...o.self.standingOrders, activities: [...o.self.standingOrders.activities] };
     if (verb === 'agency')
@@ -162,6 +179,11 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
   if (verb === 'inspect')
     return find(
       o.actions.filter((a) => a.id.startsWith('inspect:')),
+      tail,
+    );
+  if (verb === 'aid')
+    return find(
+      o.actions.filter((a) => a.id.startsWith('aid:')),
       tail,
     );
   if (verb === 'go' && /^\d+$/.test(tail))

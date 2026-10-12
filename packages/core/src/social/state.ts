@@ -122,6 +122,8 @@ export type MemoryInput = Omit<Memory, 'id' | 'aboutId' | 'did' | 'count' | 'sin
   Partial<Pick<Memory, 'aboutId' | 'did' | 'count' | 'since'>>;
 
 export interface Relationship {
+  endedAt?: GameMinute;
+  endedByDeath?: ActorId;
   a: ActorId;
   b: ActorId;
   /** Directed kinds read "a is <kind> of b" (parent, employer, creditor, patron, lodger). */

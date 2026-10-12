@@ -1,9 +1,11 @@
 /**
  * Activity cross-module API. OWNER: module:needs-activities.
  */
+
 import { grudgeTargetsOf } from '../belief/grudges.ts';
 import type { ScheduleBlock } from '../content.ts';
 import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
+import { canAct } from '../needs/api.ts';
 import { mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { areKin, familiarityOf, isEstranged, opinionLabel, opinionOf } from '../social/api.ts';
@@ -36,6 +38,7 @@ export function venues(world: World): Array<{ placeId: PlaceId; actorIds: ActorI
 
 /** Labor level of the actor's current activity ('light' when none). */
 export function laborOf(world: World, ctx: Pick<SimContext, 'content'>, actorId: ActorId): 'rest' | 'light' | 'heavy' {
+  if (!canAct(world, actorId)) return 'rest';
   const id = world.activity.byActor[actorId]?.activityId;
   return (id ? ctx.content.activities[id]?.labor : undefined) ?? 'light';
 }
@@ -275,4 +278,40 @@ export function reservePreparation(world: World, ctx: SimContext, actorId: Actor
       },
     });
   }
+}
+
+/** A helper carries a patient, or neighbors gather for a funeral; reserves this hour. */
+export function relocateForCare(
+  world: World,
+  ctx: SimContext,
+  id: ActorId,
+  place: PlaceId,
+  activityId = 'idle_at_home',
+): void {
+  const actor = world.actors[id],
+    state = world.activity.byActor[id];
+  if (!actor || !state || !world.places[place]) return;
+  const from = actor.placeId;
+  actor.placeId = place;
+  state.placeId = place;
+  state.travel = null;
+  state.activityId = activityId;
+  state.lockedUntil = (ctx.now + 60) as import('../time.ts').GameMinute;
+  if (from !== place)
+    ctx.emit({
+      kind: 'activity.moved',
+      data: { actorId: id, from, to: place },
+      place,
+      roles: [{ actor: id, role: 'subject' }],
+      visibility: 'witnessed',
+      explain: {
+        kind: 'formula',
+        label: 'Care and community gathering',
+        subjects: [id],
+        knowledge: 'public',
+        terms: [],
+        total: place,
+        outcome: 'moved',
+      },
+    });
 }

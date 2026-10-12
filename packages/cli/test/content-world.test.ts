@@ -421,11 +421,11 @@ describe('larders (P8): April 1855 is the lean season, and larders differ', () =
 });
 
 describe('the run', () => {
-  it('Iron Ford runs for 30 days and the survey party keeps its missing chainmen at the court and the Cold Stair', () => {
+  it('Iron Ford runs for 30 days and the survey party keeps both missing chainmen in fae time at the court', () => {
     const sim = createSim(content, { scenarioId: 'iron_ford', seed: 42 });
     runHours(sim, 24 * 30);
     const placeOf = (k: string) => sim.world.places[sim.world.actors[actorByKey(sim, k)]?.placeId ?? -1]?.defId;
     expect(placeOf('tobias_vik')).toBe('lantern_spring');
-    expect(placeOf('ezra_sloat')).toBe('cold_stair');
+    expect(placeOf('ezra_sloat')).toBe('lantern_spring');
   });
 });

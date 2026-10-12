@@ -103,6 +103,7 @@ function edge(world: World, a: ActorId, b: ActorId, kind: string) {
 
 function boundElsewhere(world: World, x: ActorId, other: ActorId): boolean {
   for (const r of world.social.relationships) {
+    if (r.endedAt !== undefined || !world.actors[r.a]?.alive || !world.actors[r.b]?.alive) continue;
     if (r.kind !== 'spouse' && r.kind !== 'betrothed') continue;
     if (r.a === x && r.b !== other) return true;
     if (r.b === x && r.a !== other) return true;

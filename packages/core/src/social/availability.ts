@@ -1,7 +1,9 @@
 /** Read-only command/menu preflight; shares structural eligibility with social resolution. */
+
 import { currentActivity, isAsleep, scheduledBlock } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import type { ActorId } from '../ids.ts';
+import { canAct } from '../needs/api.ts';
 import { makeContext } from '../sim/sim.ts';
 import { calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
@@ -18,6 +20,7 @@ export function interactionAvailability(
     def = content.interactions[interactionId];
   const no = (reason: string) => ({ ok: false, reason });
   if (!actor || !target || !def) return no('Unknown person or interaction');
+  if (!canAct(world, actorId) || !canAct(world, targetId)) return no('An incapacitated person cannot converse');
   const name = `${target.name.given} ${target.name.family}`.trim();
   if (!target.alive || target.placeId !== actor.placeId) return no(`${name} is not here`);
   const ctx = makeContext(world, content, []);
