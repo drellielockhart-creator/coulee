@@ -213,6 +213,10 @@ Every doc uses these terms with these meanings.
   - **Fae slice 1b design calls:**
     - **Butter on credit:** yes. The poorest households can buy the sack's feeding makings on ordinary store credit.
     - **Loan due dates missed because the lender's household is at church or out:** accepted as texture (13 §8.2 criterion 5's residual breaches stand).
+    - **Keeper at the attachment cap (Ellie delegated: "the option that leads to the most interesting gameplay outcomes"):** a keeper may refuse, but refusal has costs on both sides.
+      - **The keeper:** an honest keeper accrues duty-guilt with each refusal (scaled by honesty) until they lend, so they end up running a rota. A dishonest keeper feels little and hoards.
+      - **Refused neighbors:** opinion falls and covetousness rises, gossip spreads ("sits on plenty while others go short"), and desperation acts follow, so a hoarder ends in a feud or a theft.
+      - Refusal becomes a story, not a stall.
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.
