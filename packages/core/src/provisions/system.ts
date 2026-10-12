@@ -1,6 +1,7 @@
 import { productionHour } from '../activity/production.ts';
 /** Meals, household economy, nutrition, storage and scheduled supplies; sixth in the hourly schedule. */
 import { commandsFor } from '../command.ts';
+import { commitHems, hemSet } from '../fae/hem.ts';
 import { type ActorId, rowsOf } from '../ids.ts';
 import { carriedBy, inventoryIndex, moveStack, withInventoryPass } from '../items/api.ts';
 import { rootLocation } from '../items/containers.ts';
@@ -45,7 +46,9 @@ function provisionsHour(world: World, ctx: SimContext): void {
   }
   nutritionHour(world, ctx);
   if (ctx.isNewDay) householdDay(world, ctx);
-  storageHour(world, ctx);
+  const hems = world.fae?.charms ? hemSet(world, ctx.content) : undefined;
+  storageHour(world, ctx, undefined, hems);
+  if (hems) commitHems(world, ctx, hems);
   preparationHour(world, ctx);
   const ate = new Set<ActorId>();
   for (const cmd of commandsFor(ctx.commands, 'provisions.')) {

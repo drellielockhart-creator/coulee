@@ -1,0 +1,128 @@
+# Talk lines for the charm interactions (content/base/interactions/fae.toml; 13 §6.1-§6.2).
+# Plain period speech; no dialect spelling. {you} is the hearer as the speaker addresses them.
+
+[[talk]]
+id = "ask_to_see_yes"
+on = ["ask_to_see"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Is it true what they say, {you}? Might I look at it?" },
+  { by = "target", text = "Look, then. Don't open it, and don't thank it." },
+]
+
+[[talk]]
+id = "ask_to_see_no"
+on = ["ask_to_see"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "They say you've a sack that does a strange thing. May I see it?" },
+  { by = "target", text = "They say a great deal. It's a flour sack." },
+]
+
+[[talk]]
+id = "beg_loan_yes"
+on = ["beg_loan"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Only till Sunday, {you}. Only for the children." },
+  { by = "target", text = "Sunday, then. Tie it at night, and bring it back full or empty." },
+]
+
+[[talk]]
+id = "beg_loan_yes_spring"
+on = ["beg_loan"]
+outcome = "success"
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "There's nothing in our bin till the ramps come up. A week of it would carry us." },
+  { by = "target", text = "A week. And mind you bring it back on the day." },
+]
+
+[[talk]]
+id = "beg_loan_no"
+on = ["beg_loan"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Could you spare the use of it a week, {you}?" },
+  { by = "target", text = "I can't. It doesn't leave the house." },
+]
+
+[[talk]]
+id = "beg_loan_no_hard"
+on = ["beg_loan"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "You've bread every morning and we've none. A week, {you}." },
+  { by = "target", text = "Then ask the mill. This is ours." },
+]
+
+[[talk]]
+id = "return_item_day"
+on = ["return_item"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Here it is, {you}, on the day, like we said." },
+  { by = "target", text = "Good. I'd not have asked twice." },
+]
+
+[[talk]]
+id = "demand_return_given"
+on = ["demand_return"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "You had it till Sunday, {you}. It's Tuesday." },
+  { by = "target", text = "I know it. Here. I'm sorry for it." },
+]
+
+[[talk]]
+id = "demand_return_kept"
+on = ["demand_return"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "I've come for it, {you}. It was to be back on Sunday." },
+  { by = "target", text = "Another week. You'd do the same with children at home." },
+]
+
+[[talk]]
+id = "take_unseen"
+on = ["take"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Don't trouble yourself, {you}. I'll see myself out." },
+]
+
+[[talk]]
+id = "take_caught"
+on = ["take"]
+outcome = "failure"
+lines = [
+  { by = "target", text = "Put that down. That's not yours to carry off." },
+  { by = "initiator", text = "I only wanted a look at it." },
+]
+
+[[talk]]
+id = "share_out_offer"
+on = ["share_out"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Take it till Sunday, {you}. Your little ones have had nothing warm." },
+  { by = "target", text = "I'll not forget it. Sunday, without fail." },
+]
+
+[[talk]]
+id = "make_restitution_paid"
+on = ["make_restitution"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "That sack of ours has been taking from your bin, {you}. Here's what it took, as near as I can make it." },
+  { by = "target", text = "Well. I'd blamed the wrong man for it. Thank you for coming yourself." },
+]
+
+[[talk]]
+id = "tell_what_found_news"
+on = ["tell_what_found"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "I looked at that sack properly, {you}. It doesn't make flour. It takes it." },
+  { by = "target", text = "Takes it from where?" },
+]

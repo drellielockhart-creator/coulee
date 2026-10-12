@@ -162,6 +162,16 @@ export const TEMPLATE_SLOTS = [
   'fights',
   // playtest 2026-10-11: the diarist's own side of a feud
   'other_families',
+  // fae slice 1b (13 §6.7): The Charm at ‹town›
+  'charm',
+  'claim',
+  'keeper',
+  'keeper_short',
+  'source',
+  'lb',
+  'resolution',
+  'lent_to',
+  'blame',
 ] as const;
 export type TemplateSlot = (typeof TEMPLATE_SLOTS)[number];
 

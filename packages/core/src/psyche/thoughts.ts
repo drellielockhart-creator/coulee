@@ -6,12 +6,14 @@
  * Every weighting step is a named integer Explain term, so a thought's `reasons` always sum
  * to its intensity (P1: the UI can show why a voice is as loud as it is).
  */
+
 import type { ThoughtRuleDef } from '@coulee/content/schema';
 import { proposeActivityUrges } from '../activity/api.ts';
 import { proposeBeliefUrges } from '../belief/api.ts';
 import type { Command } from '../command.ts';
 import type { ExplainTerm } from '../explain.ts';
 import { sumTerms } from '../explain.ts';
+import { proposeFaeUrges } from '../fae/urges.ts';
 import { type ActorId, asThoughtId, type ThoughtId } from '../ids.ts';
 import { proposeNeedUrges } from '../needs/api.ts';
 import { proposeProvisionUrges } from '../provisions/api.ts';
@@ -138,6 +140,7 @@ export function externalProposals(m: Mind): UrgeProposal[] {
     ...proposeSocialUrges(world, ctx, actorId),
     ...proposeBeliefUrges(world, ctx, actorId),
     ...proposeProvisionUrges(world, ctx, actorId),
+    ...proposeFaeUrges(world, ctx, actorId),
   ].filter((pr) => pr.voice !== 'command');
 }
 

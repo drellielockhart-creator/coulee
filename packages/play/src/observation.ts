@@ -155,6 +155,8 @@ export function observation(
     time: timeView(w.time),
     scenario: w.meta.scenarioId,
     signs: fae.signs(w, pc),
+    /** Fae charms as the character knows them (fair: own charms, found ones, believed keepers). */
+    charms: fae.charmView(w, c, pc),
     requests: social.pendingRequests(w, pc),
     weather: {
       temperatureF: provisions.airTempF(calendarAt(w.time)),

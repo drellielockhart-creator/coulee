@@ -1,0 +1,60 @@
+# Fae charms (13 §5): the TRUE function of a charm item. The BELIEVED function lives only in
+# beliefs: each claim compiles at bundle time to the predicate `claim.<item>.<claim>(item)`, and
+# each from/route edge to the parent's rumor mutation link (13 §5.3). Slice 1b ships two.
+
+[[charm]]
+id = "never_empty_sack"
+item = "never_empty_sack"
+called = "the moonsilk flour sack"
+saying = "Tie it shut at night and don't look in till the cock crows."
+court = "hearth"
+tier = 2
+minimum_fi = 0
+harm_basis = "instrument"
+virtue = { max = 7, start = 4 }
+activation = { kind = "tied_overnight", dark = true }
+recharge = [
+  { kind = "offering", items = [{ def = "cornmeal", qty = 1 }, { def = "butter", qty = 1 }], where = "keeper_hearth", amount = 7, cooldown_minutes = 10080 },
+]
+effects = [
+  { kind = "draw", defs = ["flour"], qty = 10, at = "dawn", virtue = 1, radius_mi = 3, from = ["store", "mill", "club_pantry", "household"], ward_g = 908, trace = "a dusting of flour on the sill, and the bin lower than it was" },
+]
+iron = { contact = "suppress", nearby_g = 908, sour_per_day = 2, recharge_floor = 25 }
+quirks = ["unthanked"]
+allure = 70
+failure = "No source in reach, no room in the sack or no virtue left: nothing moves and no virtue is spent."
+value_cents = 4000
+claims = [
+  { id = "feeds", group = "output", text = "{0} keeps a family in bread", weight = 40, juiciness = 55, valence = 20 },
+  { id = "never_empty", group = "output", text = "{0} never comes up empty", weight = 60, from = "feeds", route = "exaggerates", juiciness = 55, valence = 20 },
+  { id = "from_nothing", group = "output", text = "{0} makes flour out of nothing", weight = 80, from = "never_empty", route = "exaggerates", juiciness = 65, valence = 15 },
+  { id = "gold", group = "output", text = "{0} fills with gold for the right hand", weight = 95, from = "from_nothing", route = "exaggerates", juiciness = 75, valence = 10 },
+  { id = "devils", group = "danger", text = "{0} is the Devil's own sack", weight = 50, from = "from_nothing", route = "supernaturalizes", juiciness = 70, valence = -40 },
+  { id = "steals", group = "danger", text = "{0} steals flour from other people's bins", weight = 30, route = "truth", juiciness = 70, valence = -50 },
+]
+
+[[charm]]
+id = "rain_hem"
+item = "rain_hem"
+called = "the rain-hem"
+saying = "Stitch inside the flap. Let the weather attend to the outside."
+court = "hearth"
+tier = 1
+minimum_fi = 0
+harm_basis = "instrument"
+virtue = { max = 2, start = 2 }
+activation = { kind = "automatic" }
+recharge = [{ kind = "dew", amount = 1, min_temp_f = 33 }]
+effects = [
+  { kind = "container_dry", virtue = 1, block_minutes = 360, max_contents_g = 10000, spill = "nearest_uncovered" },
+]
+iron = { contact = "suppress", nearby_g = 908, sour_per_day = 0, recharge_floor = 25 }
+quirks = []
+allure = 25
+failure = "At no virtue it is an ordinary flap; wet contents stay wet."
+value_cents = 300
+claims = [
+  { id = "dry", group = "output", text = "{0} keeps a pack dry in any weather", weight = 30, juiciness = 25, valence = 10 },
+  { id = "never_wet", group = "output", text = "{0} has never let a biscuit get wet", weight = 40, from = "dry", route = "exaggerates", juiciness = 30, valence = 10 },
+  { id = "sends_rain", group = "danger", text = "{0} sends the rain onto the next man's pack", weight = 20, route = "truth", juiciness = 40, valence = -20 },
+]

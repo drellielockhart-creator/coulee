@@ -7,6 +7,7 @@ export * from './belief.ts';
 export * from './bundle.ts';
 export * from './chronicle.ts';
 export * from './common.ts';
+export * from './fae.ts';
 export * from './items.ts';
 export * from './needs-activities.ts';
 export * from './psyche.ts';

@@ -103,7 +103,7 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     const mode = manifest.mode;
     const observation = session.observe(mode);
     const invalid = (reason: string): 2 => {
-      const text = `${reason}. No game time spent.\n${renderObservation(
+      const text = `${reason.replace(/[.\s]+$/, '')}. No game time spent.\n${renderObservation(
         { ...observation, changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 }, events: [], said: [] },
         menu.page,
       )}`;

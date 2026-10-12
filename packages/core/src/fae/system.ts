@@ -1,14 +1,23 @@
 import { rowsOf } from '../ids.ts';
 import { hashString32 } from '../rng.ts';
 import type { InitContext, SimContext } from '../sim/context.ts';
+import { loansDaily, loansHourly } from '../social/api.ts';
 import type { World } from '../world.ts';
+import { actionsHour, charmCommand, offeringErrands, standingTies } from './actions.ts';
 import { effectiveFi } from './api.ts';
 import { ironByPlace, recordSnow } from './conditions.ts';
+import { culpabilityDaily } from './culpability.ts';
+import { discoveryHour } from './discovery.ts';
+import { dawnHour, isDawnHour } from './draws.ts';
 import { eligibleFamilies, resolveEpisode, snapshotWindow, windows } from './episodes.ts';
+import { findHour, seedReservoir } from './found.ts';
 import { investigate } from './investigate.ts';
 import { noticeEpisode } from './omens.ts';
 import { isProtectedSite } from './sites.ts';
+import { dawnRecharge } from './tend.ts';
+import { charmDaily, witnessHour } from './witness.ts';
 export function initFaeState(world: World, ctx: InitContext): void {
+  seedReservoir(world, ctx);
   for (const p of rowsOf(world.places)) {
     if (isProtectedSite(p) || effectiveFi(world, p) < 2) continue;
     const options = eligibleFamilies(ctx.content, p, effectiveFi(world, p));
@@ -55,4 +64,27 @@ export function faeSystem(world: World, ctx: SimContext): void {
   for (const c of ctx.commands)
     if (c.kind === 'fae.investigate')
       investigate(world, ctx, c.actorId, c.data.signId, { kind: 'command', issuer: c.issuer ?? { kind: 'player' } });
+  charmHour(world, ctx);
+}
+
+/** Charms (slice 1b, 13 §5-§6): cheap when there are none. */
+function charmHour(world: World, ctx: SimContext): void {
+  if (!world.fae.charms) return;
+  if (ctx.isNewDay) {
+    charmDaily(world, ctx);
+    culpabilityDaily(world, ctx);
+    loansDaily(world, ctx);
+  }
+  findHour(world, ctx);
+  if (isDawnHour(ctx)) {
+    dawnHour(world, ctx);
+    dawnRecharge(world, ctx);
+  }
+  for (const c of ctx.commands) charmCommand(world, ctx, c);
+  actionsHour(world, ctx);
+  loansHourly(world, ctx);
+  offeringErrands(world, ctx);
+  standingTies(world, ctx);
+  witnessHour(world, ctx);
+  discoveryHour(world, ctx);
 }

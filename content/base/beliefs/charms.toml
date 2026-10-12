@@ -1,0 +1,98 @@
+# Items as belief subjects (13 §5.3, §6.2; module:fae, consumed through module:belief).
+# Item predicates never open a persecution process (none is a `charge`); culpability is
+# inferred from evidence about actors (`benefited_from`, `kept_drawing`), never implied.
+
+[[predicate]]
+id = "has"
+args = ["actor", "item"]
+text = "{0} has {1}"
+text_self = "I have {1}"
+text_you = "you have {1}"
+description = "Possession as someone believes it: who holds the thing now."
+juiciness = 30
+prior = 5
+
+[[predicate]]
+id = "owns"
+args = ["actor", "item"]
+text = "{1} is rightly {0.poss}"
+text_self = "{1} is rightly mine"
+text_you = "{1} is rightly yours"
+description = "A rightful claim: finder, landholder, a name on it (13 §6.4)."
+juiciness = 25
+prior = 10
+
+[[predicate]]
+id = "lent"
+args = ["actor", "actor", "item"]
+text = "{0} lent {2} to {1}"
+text_self = "I lent {2} to {1}"
+text_you = "you lent {2} to {1}"
+juiciness = 30
+valence = 10
+prior = 5
+
+[[predicate]]
+id = "draws_from"
+args = ["item", "household"]
+text = "{0} draws its flour out of {1.poss} bins"
+description = "The true function, as found: the charm takes from a named household's stores (13 §5.2)."
+juiciness = 70
+valence = -40
+supernatural = true
+prior = 5
+
+[[predicate]]
+id = "boon"
+args = ["item"]
+text = "{0} is a blessing"
+description = "A Providence or simple-good reading of the charm."
+juiciness = 35
+valence = 30
+prior = 10
+
+[[predicate]]
+id = "bane"
+args = ["item"]
+text = "{0} is a curse on whoever keeps it"
+description = "The thing is bad: Devil's work, theft, a curse."
+juiciness = 55
+valence = -45
+supernatural = true
+prior = 10
+
+[[predicate]]
+id = "benefited_from"
+args = ["actor", "household"]
+text = "{0} ate bread out of {1.poss} bins"
+text_self = "I ate bread out of {1.poss} bins"
+text_you = "you ate bread out of {1.poss} bins"
+description = "Held when someone believes a charm drew from a household while this actor had it (13 §5.3)."
+juiciness = 50
+valence = -25
+prior = 5
+
+[[predicate]]
+id = "kept_drawing"
+args = ["actor", "household"]
+text = "{0} kept drawing on {1} after being told"
+text_self = "I kept drawing on {1} after I was told"
+text_you = "you kept drawing on {1} after you were told"
+description = "As benefited_from, plus the actor was told or shown before a later draw (13 §5.3)."
+juiciness = 65
+valence = -55
+prior = 3
+
+[[misfortune]]
+id = "stock_short"
+name = "The flour came up short"
+text = "{0.poss} flour came up short at the count"
+severity = 20
+base_permille_per_household_day = 0
+juiciness = 35
+anxiety = 40
+security_delta = -60
+memory_intensity = 40
+motive_traits = ["greed"]
+aim = "restitution"
+description = "A discovered discrepancy in stores (13 §5.2): milder than a theft; reported once per draw case."

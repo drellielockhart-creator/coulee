@@ -438,6 +438,21 @@ export const InteractionSchema = z.strictObject({
       spoken_by_target: z.boolean().default(false),
     })
     .optional(),
+  /**
+   * An item-specific interaction (13 §6.1, §6.2): the urge carries `itemId` (and `terms`), and
+   * social validates possession, room and terms before any time is spent, then moves the item.
+   */
+  item: z
+    .strictObject({
+      act: z.enum(['show', 'loan', 'return', 'demand', 'take', 'share', 'restitution']),
+      /** Who must hold the item for the act to be valid. */
+      holder: z.enum(['initiator', 'target']),
+      /** What the target undertakes by agreeing; a commanded target answers it as a pending request. */
+      response: z.enum(['show_item', 'lend_item', 'return_item', 'accept_item']).optional(),
+      /** After the check, the holder decides by their own arbitration (keep vs. lend). */
+      decision: z.boolean().default(false),
+    })
+    .optional(),
 });
 export type InteractionDef = z.output<typeof InteractionSchema>;
 

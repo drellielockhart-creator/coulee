@@ -1,0 +1,161 @@
+# Item-specific interactions for fae charms (13 §6.1-§6.2; module:fae content, executed by
+# module:social). Each carries the urge's `itemId` (and loan `terms`) and is validated before any
+# time is spent, with the reason named. All are urge-only: nobody lends a charm by accident.
+
+[[interaction]]
+id = "ask_to_see"
+name = "Ask to see it"
+label = "Ask to see"
+description = "\"Is it true what they say about it? May I look?\""
+requires = { min_age = 12 }
+threshold = 0
+urge_only = true
+check = { kind = "none" }
+memory = { kind = "other", emotion = "none", intensity = 20 }
+tags = ["talk", "charm"]
+item = { act = "show", holder = "target", response = "show_item", decision = true }
+success.initiator_memory = "{target} let me look at the thing they keep"
+success.target_memory = "Showed {initiator} what we keep"
+failure.memory_kind = "rejection"
+failure.intensity_pct = 50
+failure.initiator_memory = "{target} would not let me see it"
+failure.target_memory = "{initiator} wanted to see what we keep; I said no"
+failure.initiator_reason = "Closemouthed about what they keep"
+failure.initiator_opinion = { trust = -2 }
+
+[[interaction]]
+id = "beg_loan"
+name = "Beg the loan of it"
+label = "Beg the loan"
+description = "\"Only till Sunday. Only for the children.\" Persuasion, then the keeper's own decision."
+requires = { acquainted = true, min_age = 14, target_min_age = 14 }
+threshold = 0
+urge_only = true
+cooldown_hours = 72
+check = { kind = "dc", skill = "persuade", dc = 12, attitude = true }
+memory = { kind = "loan", emotion = "gratitude", intensity = 40 }
+tags = ["charm", "obligation"]
+item = { act = "loan", holder = "target", response = "lend_item", decision = true }
+success.initiator_memory = "{target} lent me the thing they keep"
+success.target_memory = "Lent it to {initiator}, to come back by the day agreed"
+success.initiator_reason = "Lent it to us when we were short"
+success.initiator_opinion = { affection = 5, trust = 3 }
+success.witness_memory = "Saw {target} lend that flour sack to {initiator}"
+failure.memory_kind = "rejection"
+failure.intensity_pct = 70
+failure.initiator_memory = "{target} would not lend it, and us with nothing in the bin"
+failure.target_memory = "{initiator} begged the loan of it; I said no"
+failure.initiator_reason = "Kept it close when we were hungry"
+failure.initiator_opinion = { affection = -4 }
+
+[[interaction]]
+id = "return_item"
+name = "Bring it back"
+label = "Return it"
+description = "A loan kept: the thing brought back on the day."
+requires = { min_age = 10 }
+threshold = 0
+urge_only = true
+check = { kind = "none" }
+memory = { kind = "repayment", emotion = "gratitude", intensity = 35 }
+tags = ["charm", "obligation", "friendly"]
+item = { act = "return", holder = "initiator" }
+success.target_memory = "{initiator} brought it back on the day"
+success.initiator_memory = "Brought it back to {target}"
+success.target_reason = "Brought back what was lent, on the day"
+success.target_opinion = { trust = 5, affection = 2 }
+success.witness_memory = "Saw {initiator} bring the flour sack back to {target}"
+
+[[interaction]]
+id = "demand_return"
+name = "Ask for it back"
+label = "Ask for it back"
+description = "\"You had it till Sunday.\" The borrower decides; a refusal is a remembered breach, not a theft verdict."
+requires = { min_age = 14 }
+threshold = 0
+urge_only = true
+check = { kind = "none" }
+memory = { kind = "dunning", emotion = "anger", intensity = 40 }
+tags = ["charm", "obligation"]
+item = { act = "demand", holder = "target", response = "return_item", decision = true }
+success.initiator_memory = "Got it back from {target}, late"
+success.target_memory = "{initiator} came for it and I gave it back"
+failure.memory_kind = "dunning"
+failure.intensity_pct = 120
+failure.initiator_memory = "{target} would not give it back"
+failure.target_memory = "{initiator} came for it; I kept it"
+failure.initiator_reason = "Kept what was lent past the day"
+failure.initiator_opinion = { trust = -15, affection = -5 }
+failure.witness_memory = "Heard {initiator} ask {target} for the sack back, and {target} keep it"
+
+[[interaction]]
+id = "take"
+name = "Take it"
+label = "Take it"
+description = "Lift it while nobody is looking. Sleight of Hand against the keeper's notice; a witnessed taking is theft."
+requires = { min_age = 12 }
+threshold = 0
+urge_only = true
+check = { kind = "opposed", skill = "sleight_of_hand", vs = "perception" }
+memory = { kind = "theft", emotion = "anger", intensity = 70 }
+tags = ["charm", "hostile"]
+visibility = "witnessed"
+item = { act = "take", holder = "target" }
+success.initiator_memory = "Took it from {target}'s"
+failure.initiator_memory = "{target} caught me reaching for it"
+failure.target_memory = "Caught {initiator} trying to take it"
+failure.target_reason = "Tried to steal from us"
+failure.target_opinion = { trust = -25, affection = -10 }
+
+[[interaction]]
+id = "share_out"
+name = "Lend it unasked"
+label = "Offer the loan"
+description = "\"Take it till Sunday; your children have had nothing warm.\" Neighborliness against keeping."
+requires = { acquainted = true, min_age = 14, target_min_age = 14 }
+threshold = 0
+urge_only = true
+check = { kind = "none" }
+memory = { kind = "kindness", emotion = "gratitude", intensity = 40 }
+tags = ["charm", "friendly", "obligation"]
+item = { act = "share", holder = "initiator", response = "accept_item" }
+success.target_memory = "{initiator} lent it to us without our asking"
+success.initiator_memory = "Lent it to {target} for the week"
+success.target_reason = "Shared what they had when we were short"
+success.target_opinion = { affection = 6, trust = 4 }
+success.witness_memory = "Saw {initiator} lend that flour sack to {target}"
+
+[[interaction]]
+id = "make_restitution"
+name = "Make it right"
+label = "Make restitution"
+description = "Pay back what the charm took, in flour or in cash, and say what it is."
+requires = { min_age = 14 }
+threshold = 0
+urge_only = true
+check = { kind = "none" }
+memory = { kind = "repayment", emotion = "gratitude", intensity = 45 }
+tags = ["charm", "amends", "friendly"]
+item = { act = "restitution", holder = "initiator" }
+success.target_memory = "{initiator} came and made good what their sack took from us"
+success.initiator_memory = "Made it right with {target}"
+success.target_reason = "Owned up and paid back what was taken"
+success.target_opinion = { trust = 8, affection = 3 }
+
+[[interaction]]
+id = "tell_what_found"
+name = "Tell what you found"
+label = "Tell what you found"
+description = "\"I studied that sack. It does not make flour. It takes it, and I know from whom.\""
+requires = { min_age = 14 }
+threshold = 0
+urge_only = true
+check = { kind = "none" }
+transmits_rumor = true
+rumor_mode = "news"
+memory = { kind = "warning", emotion = "fear", intensity = 35 }
+tags = ["talk", "charm"]
+success.target_memory = "{initiator} told me what the sack really does"
+success.initiator_memory = "Told {target} what I found"
+success.target_reason = "Told me straight what they found"
+success.target_opinion = { trust = 3 }

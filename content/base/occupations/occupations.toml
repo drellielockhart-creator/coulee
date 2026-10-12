@@ -13,6 +13,7 @@ skills = ["bargain", "read_people"]
 roles = ["storekeeper"]
 schedule = [
   { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { days = ["sat"], from = 17, to = 18, activity = "stocktake", duty = 550 },
   { from = 21, to = 5, activity = "sleep", duty = 300 },
   { from = 6, to = 7, activity = "take_meal", duty = 300 },
   { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 7, to = 12, activity = "work", duty = 550 },
@@ -89,6 +90,7 @@ skills = ["trade_milling"]
 roles = ["miller"]
 schedule = [
   { days = ["sun"], from = 9, to = 12, activity = "attend_church", duty = 450 },
+  { days = ["sat"], from = 17, to = 18, activity = "stocktake", duty = 550 },
   { from = 21, to = 5, activity = "sleep", duty = 300 },
   { from = 6, to = 7, activity = "take_meal", duty = 300 },
   { days = ["mon", "tue", "wed", "thu", "fri", "sat"], from = 6, to = 12, activity = "work", duty = 550 },

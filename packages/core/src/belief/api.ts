@@ -7,7 +7,7 @@ import { occupants } from '../activity/api.ts';
 import { abilityMod } from '../actor.ts';
 // The forms of address are a leaf (no chronicle runtime): importing chronicle/api here would
 // close an import cycle through the sifting code.
-import { argForm, householdForms } from '../chronicle/names.ts';
+import { argForm, householdForms, itemSubjectName } from '../chronicle/names.ts';
 import type { ContentBundle, PredicateId } from '../content.ts';
 import {
   type ActorId,
@@ -51,6 +51,8 @@ function argKey(a: PropArg): string {
       return `n:${a.value}`;
     case 'misfortune':
       return `m:${a.id}`;
+    case 'item':
+      return `i:${a.id}`;
   }
 }
 
@@ -117,6 +119,8 @@ export function propText(world: World, content: ContentBundle, propId: PropId, p
           .replace('{0}', forms.family)
           .replace('{1}', m.victimId === null ? 'a child' : (world.actors[m.victimId]?.name.given ?? '?'));
       }
+      case 'item':
+        return itemSubjectName(world, content, a.id);
     }
   });
 }
@@ -1101,10 +1105,53 @@ function strongestCharge(world: World, holderId: ActorId, charges: readonly Prop
   return best?.id;
 }
 
-export { reportMisfortune } from './misfortune.ts';
+export { registerMisfortune, reportMisfortune } from './misfortune.ts';
 export { noveltyQ8 };
 
 /** Cross-module shunning query: institutions can apply their own service/price effects. */
+/**
+ * Form a grudge from another module's evidence (13 §6.2: a knowingly broken loan gives a
+ * restitution grudge). Emits `belief.grudge_formed` (inner). Returns the grudge id.
+ */
+export function formGrudge(
+  world: World,
+  ctx: SimContext,
+  g: {
+    holderId: ActorId;
+    target: import('./state.ts').GrudgeTarget;
+    aim: import('./state.ts').GrudgeAim;
+    intensity: number;
+    label: string;
+    founding?: import('./state.ts').Grudge['founding'];
+  },
+): number {
+  const row = makeGrudge(world, {
+    holderId: g.holderId,
+    target: g.target,
+    founding: g.founding ?? [{ kind: 'belief', id: null, label: g.label }],
+    intensity: g.intensity,
+    aim: g.aim,
+    public: false,
+    since: ctx.now,
+  });
+  ctx.emit({
+    kind: 'belief.grudge_formed',
+    visibility: 'inner',
+    roles: [
+      { actor: g.holderId, role: 'subject' },
+      ...(g.target.kind === 'actor' ? [{ actor: g.target.id, role: 'target' as const }] : []),
+    ],
+    data: {
+      holderId: g.holderId,
+      target: targetLabel(world, row.target),
+      ...(g.target.kind === 'actor' ? { targetId: g.target.id } : {}),
+      intensity: row.intensity,
+      aim: row.aim,
+    },
+  });
+  return row.id;
+}
+
 export function isShunning(world: World, holderId: ActorId, targetId: ActorId): boolean {
   return world.belief.persecutions.some(
     (p) => p.rung >= 3 && p.target.kind === 'actor' && p.target.id === targetId && p.shunnerIds.includes(holderId),

@@ -321,6 +321,23 @@ export function populate(
       ),
     });
   }
+  // The minimal reservoir (13 §7.4, slice 1b): one Hearth charm lying about a farmstead, found by
+  // the work done there (field labor or gathering) at the doc's hazard. The Director never adds one.
+  const farmKeys = Object.keys(homes)
+    .filter((k) => /^farm\d+$/.test(k))
+    .sort();
+  const charmFarm = randomFor(recipe, 'population', 'charm_reservoir').pick(farmKeys);
+  const farmPlace = charmFarm ? homes[charmFarm] : undefined;
+  if (farmPlace && content.charms?.never_empty_sack)
+    scenario.fae_reservoir.push({
+      item: 'never_empty_sack',
+      place: farmPlace.id,
+      from_day: 0,
+      find_permille: 5,
+      notice_dc: 15,
+      gathering: true,
+      activity_tags: ['wild_production', 'labor'],
+    });
   for (const h of scenario.households) {
     const home = homes[h.key] as PlaceDef;
     home.capacity = Math.max(8, scenario.actors.filter((a) => a.household === h.key).length + 4);

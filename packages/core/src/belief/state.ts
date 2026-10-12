@@ -17,6 +17,7 @@ import {
   type FigureId,
   type GrudgeId,
   type HouseholdId,
+  type ItemId,
   type MemoryId,
   nextId,
   type PlaceId,
@@ -37,7 +38,9 @@ export type PropArg =
   | { kind: 'text'; value: string }
   | { kind: 'number'; value: number }
   /** A runtime misfortune record (`world.belief.misfortunes`). */
-  | { kind: 'misfortune'; id: number };
+  | { kind: 'misfortune'; id: number }
+  /** A runtime item stack (13 §6.2: items as belief subjects; a charm keeps its id while it exists). */
+  | { kind: 'item'; id: ItemId };
 
 export interface Prop {
   id: PropId;
@@ -227,6 +230,8 @@ export interface Misfortune {
   placeId: PlaceId | null;
   /** Ground truth: who really did it (null = natural). Read only by epilogue/god views. */
   culpritId: ActorId | null;
+  /** The object that caused it, for the epilogue only (13 §5.2: "the sack did it"). Attribution never reads it. */
+  causeItemId?: ItemId;
   /** The `befell(household, misfortune)` news prop. */
   propId: PropId;
   eventId: EventId | null;

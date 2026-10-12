@@ -1,0 +1,193 @@
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | Rausch’s Spotted Lantern Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Spotted Lantern stands at (27, 19) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Rausch’s Spotted Lantern Tavern. Last year’s leaves lie against the shaded edges. Karl Rausch, Ottilie Rausch, Margarethe Rausch are here.
+Here: Karl Rausch (#3), Ottilie Rausch (#4), Margarethe Rausch (#5), Matthias Strauss (#28).
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Willow Ford [go:17]
+11. Go to Roth Willow Ford Herald [go:23]
+12. Go to Brenner Ford Smithy [go:24]
+13. Go to Pike Store and Outfitter [go:26]
+14. Chat: Karl Rausch [talk:chat:3]
+15. Introduce oneself: Karl Rausch [talk:introduce:3]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 145; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 07:00
+Since last look: 7h passed.
+Skipped 1 minor conversation nearby.
+Matthias Strauss: Good day ▸ Ellis Wayfarer (it went well)
+1855-04-01 07:00 | FAIR | Rausch’s Spotted Lantern Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Spotted Lantern stands at (27, 19) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Rausch’s Spotted Lantern Tavern. Last year’s leaves lie against the shaded edges. Karl Rausch, Ottilie Rausch, Margarethe Rausch are here.
+Here: Karl Rausch (#3, asleep), Ottilie Rausch (#4), Margarethe Rausch (#5, asleep), Matthias Strauss (#28).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 268
+[267] You are getting peckish — explain 267
+[378] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 378
+[379] You are no longer peckish — explain 379
+  Matthias Strauss: “I don't believe we've met. Matthias Strauss.”
+  Ellis Wayfarer: “Ellis Wayfarer. A warm room and a new face; that's a good day's work.”
+  Ottilie Rausch: “Give it here. That's what family's for.”
+  Matthias Strauss: “I thank you. Don't tell the others I let you.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Willow Ford [go:17]
+11. Go to Roth Willow Ford Herald [go:23]
+12. Go to Brenner Ford Smithy [go:24]
+13. Go to Pike Store and Outfitter [go:26]
+14. Chat: Ottilie Rausch [talk:chat:4]
+15. Chat: Matthias Strauss [talk:chat:28]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 195; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+No signs or wonders yet. Strange things you notice, or hear of, are listed here until you settle them or they fade.
+Since last look: no time passed.
+1855-04-01 07:00 | FAIR | Rausch’s Spotted Lantern Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Spotted Lantern stands at (27, 19) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Rausch’s Spotted Lantern Tavern. Last year’s leaves lie against the shaded edges. Karl Rausch, Ottilie Rausch, Margarethe Rausch are here.
+Here: Karl Rausch (#3, asleep), Ottilie Rausch (#4), Margarethe Rausch (#5, asleep), Matthias Strauss (#28).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 268
+[309] Matthias Strauss: Good day ▸ Ellis Wayfarer (it went well)
+[378] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 378
+[379] You are no longer peckish — explain 379
+  Matthias Strauss: “I don't believe we've met. Matthias Strauss.”
+  Ellis Wayfarer: “Ellis Wayfarer. A warm room and a new face; that's a good day's work.”
+  Ottilie Rausch: “Give it here. That's what family's for.”
+  Matthias Strauss: “I thank you. Don't tell the others I let you.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Willow Ford [go:17]
+11. Go to Roth Willow Ford Herald [go:23]
+12. Go to Brenner Ford Smithy [go:24]
+13. Go to Pike Store and Outfitter [go:26]
+14. Chat: Ottilie Rausch [talk:chat:4]
+15. Chat: Matthias Strauss [talk:chat:28]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 195; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 19:00
+Wait stopped at 08:00 (you meant to wait until 19:00).
+Since last look: 1h passed.
+Skipped 2 minor conversations nearby.
+Ottilie Rausch: Good day ▸ Ellis Wayfarer (it went well)
+Ottilie Rausch: Pray ▸ Ellis Wayfarer (it went well)
+1855-04-01 08:00 | FAIR | Rausch’s Spotted Lantern Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 36°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 769; Rest 450; Thirst 732; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Spotted Lantern stands at (27, 19) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Rausch’s Spotted Lantern Tavern. Last year’s leaves lie against the shaded edges. Karl Rausch, Ottilie Rausch, Margarethe Rausch are here.
+Here: Karl Rausch (#3), Ottilie Rausch (#4), Margarethe Rausch (#5), Matthias Strauss (#28).
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 399
+  Ottilie Rausch: “Ottilie Rausch. I've been meaning to make your acquaintance.”
+  Ellis Wayfarer: “And now you have. Ellis Wayfarer.”
+  Ottilie Rausch: “The Lord is my shepherd; I shall not want.”
+  Ellis Wayfarer: “He maketh me to lie down in green pastures. Amen.”
+  Margarethe Rausch: “Will you say grace with me, Ottilie?”
+  Ottilie Rausch: “Fold your hands, then.”
+  Matthias Strauss: “Give me one of those buckets, Karl.”
+  Karl Rausch: “Danke. The well gets further off every year.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Willow Ford [go:17]
+11. Go to Roth Willow Ford Herald [go:23]
+12. Go to Brenner Ford Smithy [go:24]
+13. Go to Pike Store and Outfitter [go:26]
+14. Chat: Karl Rausch [talk:chat:3]
+15. Introduce oneself: Karl Rausch [talk:introduce:3]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 202; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+No signs or wonders yet. Strange things you notice, or hear of, are listed here until you settle them or they fade.
+Since last look: no time passed.
+1855-04-01 08:00 | FAIR | Rausch’s Spotted Lantern Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 36°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 769; Rest 450; Thirst 732; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Spotted Lantern stands at (27, 19) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Rausch’s Spotted Lantern Tavern. Last year’s leaves lie against the shaded edges. Karl Rausch, Ottilie Rausch, Margarethe Rausch are here.
+Here: Karl Rausch (#3), Ottilie Rausch (#4), Margarethe Rausch (#5), Matthias Strauss (#28).
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 399
+[440] Ottilie Rausch: Pray ▸ Ellis Wayfarer (it went well)
+[441] Margarethe Rausch: Pray ▸ Ottilie Rausch (it went well)
+[442] Matthias Strauss: Lend a hand ▸ Karl Rausch (it went well)
+  Ottilie Rausch: “Ottilie Rausch. I've been meaning to make your acquaintance.”
+  Ellis Wayfarer: “And now you have. Ellis Wayfarer.”
+  Ottilie Rausch: “The Lord is my shepherd; I shall not want.”
+  Ellis Wayfarer: “He maketh me to lie down in green pastures. Amen.”
+  Margarethe Rausch: “Will you say grace with me, Ottilie?”
+  Ottilie Rausch: “Fold your hands, then.”
+  Matthias Strauss: “Give me one of those buckets, Karl.”
+  Karl Rausch: “Danke. The well gets further off every year.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Willow Ford [go:17]
+11. Go to Roth Willow Ford Herald [go:23]
+12. Go to Brenner Ford Smithy [go:24]
+13. Go to Pike Store and Outfitter [go:26]
+14. Chat: Karl Rausch [talk:chat:3]
+15. Introduce oneself: Karl Rausch [talk:introduce:3]
+16. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+17. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 202; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.

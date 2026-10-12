@@ -156,6 +156,8 @@ describe('fae slice 1a', () => {
     const sim = simFor({ seed: 42 });
     const e = episode(sim);
     sim.world.fae.episodes[e.id] = e;
+    // Attempts are made inside the sign's window (r2 playtest #7); this one opens at minute 1000.
+    sim.world.time = asGameMinute(1020);
     const actors = rowsOf(sim.world.actors).slice(0, 3);
     for (const a of actors) {
       a.placeId = e.snapshot.placeId;

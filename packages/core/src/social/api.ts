@@ -231,3 +231,16 @@ export function inheritMoneyLedger(world: World, ctx: SimContext, deceased: Acto
   }
   return history;
 }
+
+export type { ObjectLoan, Rota } from './objects.ts';
+export {
+  borrowedBy,
+  holds,
+  itemPreflight,
+  loansDaily,
+  loansHourly,
+  loansOf,
+  loanUrges,
+  openLoanOf,
+  rotaOf,
+} from './objects.ts';

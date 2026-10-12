@@ -2,7 +2,7 @@
  * Social events. OWNER: module:social.
  */
 import type { EventOf } from '../events/base.ts';
-import type { ActorId, MemoryId, PlaceId } from '../ids.ts';
+import type { ActorId, ItemId, MemoryId, PlaceId } from '../ids.ts';
 
 export type SocialEvent =
   | EventOf<'social.act_refused', { actorId: ActorId; reason: string }>
@@ -28,6 +28,8 @@ export type SocialEvent =
         lines?: Array<{ speaker: string; speakerId: ActorId; text: string }>;
         /** A news-carrying act: whether anything was told (the words are on the belief.transmitted it caused). */
         told?: boolean;
+        /** An item-specific act's item (13 §6.1): the chronicle keys charm stories by it. */
+        itemId?: ItemId;
       }
     >
   /** A memory was encoded (inner; for debugging/inspect — keep rare or omit). */
@@ -42,4 +44,30 @@ export type SocialEvent =
   /** A third party tried to talk an estranged pair round (Explain = the skill check). */
   | EventOf<'social.mediation', { mediatorId: ActorId; aId: ActorId; bId: ActorId; success: boolean }>
   /** An estrangement ended: by mediation (mediatorId) or by time (null). */
-  | EventOf<'social.reconciled', { aId: ActorId; bId: ActorId; mediatorId: ActorId | null }>;
+  | EventOf<'social.reconciled', { aId: ActorId; bId: ActorId; mediatorId: ActorId | null }>
+  // ---- object loans (13 §6.1 steps 5-7) ----
+  /** A thing lent on terms: a promise with a due date. */
+  | EventOf<
+      'social.loan_opened',
+      { loanId: string; itemId: ItemId; lenderId: ActorId; borrowerId: ActorId; dueAt: number; text: string }
+    >
+  /** Returned (on time or late), reclaimed, or lost. */
+  | EventOf<
+      'social.loan_closed',
+      {
+        loanId: string;
+        itemId: ItemId;
+        lenderId: ActorId;
+        borrowerId: ActorId;
+        status: 'returned' | 'reclaimed' | 'lost';
+        late: boolean;
+        text: string;
+      }
+    >
+  /** The due day passed and it was not brought back: a remembered breach, not a theft verdict. */
+  | EventOf<
+      'social.loan_breached',
+      { loanId: string; itemId: ItemId; lenderId: ActorId; borrowerId: ActorId; text: string }
+    >
+  /** An item act refused before any time is spent (validation), with its reason. */
+  | EventOf<'social.item_refused', { actorId: ActorId; itemId: ItemId; interactionId: string; reason: string }>;

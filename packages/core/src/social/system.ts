@@ -288,7 +288,11 @@ function runUrge(
   if (urge.kind === 'interaction') {
     const def = ctx.content.interactions[urge.interactionId];
     if (!def) return;
-    const extra = urge.topic !== undefined ? { topic: urge.topic } : {};
+    const extra = {
+      ...(urge.topic !== undefined ? { topic: urge.topic } : {}),
+      ...(urge.itemId !== undefined ? { itemId: urge.itemId } : {}),
+      ...(urge.terms !== undefined ? { terms: urge.terms } : {}),
+    };
     const target = presentTarget(urge.targetId);
     if (target !== null) {
       go(def, target, 'urge', extra);

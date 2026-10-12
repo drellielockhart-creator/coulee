@@ -41,3 +41,9 @@ default = false
 max_cents = 50
 period_minutes = 10080
 item_tags = ["food"]
+
+# 13 §5.2: a commanded keeper ties the Never-Empty Sack only by Command or by this order.
+[[standing]]
+id = "tie_the_sack_nightly"
+act = "tie_charm"
+default = false

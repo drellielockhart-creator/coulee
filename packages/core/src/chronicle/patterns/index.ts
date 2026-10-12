@@ -4,6 +4,7 @@
  * Order matters only for rendering ties: patterns see every fact, in this order.
  */
 import { betrayal } from './betrayal.ts';
+import { charm } from './charm.ts';
 import { courtship } from './courtship.ts';
 import { debt } from './debt.ts';
 import { defenseFired } from './defense_fired.ts';
@@ -30,4 +31,5 @@ export const PATTERNS: readonly PatternDef[] = [
   faekinSuspicion,
   defenseFired,
   kindness,
+  charm,
 ];

@@ -1,5 +1,6 @@
 import { asActorId, type Command, explainLine, timeView } from '@coulee/core';
 import type { AvailableAction } from './actions.ts';
+import { requestNoun } from './actions.ts';
 import { obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
 export const HELP = `One action = one game-hour; queries take no time. Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on.
@@ -101,10 +102,14 @@ ${o.epilogue ?? ''}`;
     ...o.remains.map((r) => `${r.buried ? 'Grave' : 'Body'}: ${r.name}.`),
     ...o.requests.map(
       (r) =>
-        `Pending ${r.response === 'borrow' ? 'loan offer (you would borrow)' : r.response === 'lend' || !r.response ? 'loan request (you would lend)' : r.response === 'proposal' ? 'proposal' : r.response === 'disclose' ? 'information request' : 'favor with an obligation'}: answer:${r.id}:yes or answer:${r.id}:no (expires within the hour)`,
+        `Pending ${r.response === 'borrow' ? 'loan offer (you would borrow)' : r.response === 'lend' || !r.response ? 'loan request (you would lend)' : requestNoun(r.response)}: answer:${r.id}:yes or answer:${r.id}:no (expires within the hour)`,
+    ),
+    ...o.charms.map(
+      (k) =>
+        `Charm: ${k.name} (#${k.itemId}) ${k.relation === 'known' ? '' : `[${k.relation}] `}${k.status}${k.heard.length ? ` Said: it ${k.heard[k.heard.length - 1]?.replace(/^it /, '')}.` : ''}`,
     ),
     ...o.signs
-      .filter((q) => q.closedAt === null)
+      .filter((q) => q.closedAt === null && q.available)
       .slice(-2)
       .map((q) => `Open sign: ${q.text} (investigate ${q.signId})`),
     `Here: ${
@@ -405,6 +410,7 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
   return find(o.actions, text);
 }
 export function renderDetail(detail: unknown): string {
+  if (typeof detail === 'string') return detail;
   if (detail && typeof detail === 'object' && 'prices' in detail) {
     const stock = (detail as { prices: Observation['store']['stock'] }).prices;
     const groups = new Map<string, { name: string; priceCents: number; qty: number }>();
@@ -482,7 +488,7 @@ export function renderDetail(detail: unknown): string {
     return detail
       .map(
         (e) =>
-          `[${e.signId}] ${e.closedAt === null ? 'Open question' : 'Read sign'}: ${e.text}\n${e.evidence ?? ''}${e.available ? ` — investigate ${e.signId}` : ' — trace faded'}`,
+          `[${e.signId}] ${e.closedAt !== null ? 'Settled' : e.available ? 'Open question' : 'Faded'}: ${e.text}${e.evidence ? `\n${e.evidence}` : ''}${e.closedAt === null ? (e.available ? ` (investigate ${e.signId})` : ' (the trace has faded)') : ''}`,
       )
       .join('\n');
   if (Array.isArray(detail))
@@ -499,6 +505,10 @@ export function renderDetail(detail: unknown): string {
       `Spoils first: ${r.spoilsFirst ? `${r.spoilsFirst.name} in ${(r.spoilsFirst.inDaysTenths / 10).toFixed(1)} days` : 'none'}.`,
       `Load: ${r.totalWeightG} g; bulk ${(r.totalBulkTenths / 10).toFixed(1)}; ${r.loadBand}.`,
       ...r.warnings,
+      ...(r.charms ?? []).map(
+        (k) =>
+          `${k.kind === 'exact' ? 'Charm (counted)' : k.kind === 'conditional' ? 'Charm (shown, not counted)' : 'Charm (claims not included)'}: ${k.text}`,
+      ),
       ...r.carried.map((i) => `${i.qty} × ${i.name} (#${i.id})${i.containerId ? ' in #' + i.containerId : ''}`),
     ].join('\n');
   }

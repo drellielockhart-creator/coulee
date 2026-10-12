@@ -1,0 +1,193 @@
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | Dunleavy’s Silver Lantern Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, rain.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Silver Lantern stands at (24, 10) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Dunleavy’s Silver Lantern Tavern. Last year’s leaves lie against the shaded edges. Daniel Dunleavy, Bridget Dunleavy, Timothy Dunleavy are here.
+Here: Daniel Dunleavy (#3), Bridget Dunleavy (#4), Timothy Dunleavy (#5), Michael Keane (#30).
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Maple Ford [go:17]
+11. Go to Vik Ford Smithy [go:24]
+12. Go to Rausch General Store [go:26]
+13. Chat: Daniel Dunleavy [talk:chat:3]
+14. Introduce oneself: Daniel Dunleavy [talk:introduce:3]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 145; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 07:00
+Since last look: 7h passed.
+Skipped 1 minor conversation nearby.
+Bridget Dunleavy: Good day ▸ Ellis Wayfarer (it went well)
+1855-04-01 07:00 | FAIR | Dunleavy’s Silver Lantern Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Silver Lantern stands at (24, 10) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Dunleavy’s Silver Lantern Tavern. Last year’s leaves lie against the shaded edges. Daniel Dunleavy, Bridget Dunleavy, Timothy Dunleavy are here.
+Here: Daniel Dunleavy (#3, asleep), Bridget Dunleavy (#4), Timothy Dunleavy (#5, asleep), Michael Keane (#30).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 284
+[281] You are getting peckish — explain 281
+[401] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 401
+[402] You are no longer peckish — explain 402
+  Bridget Dunleavy: “I don't believe we've met. Bridget Dunleavy.”
+  Ellis Wayfarer: “Ellis Wayfarer. A warm room and a new face; that's a good day's work.”
+  Michael Keane: “What do you want out of all this, Bridget? Truly?”
+  Bridget Dunleavy: “A roof that doesn't leak and a little put by. And you?”
+  Michael Keane: “Much the same, I suppose. And not to be forgotten.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Maple Ford [go:17]
+11. Go to Vik Ford Smithy [go:24]
+12. Go to Rausch General Store [go:26]
+13. Chat: Bridget Dunleavy [talk:chat:4]
+14. Chat: Michael Keane [talk:chat:30]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 175; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+No signs or wonders yet. Strange things you notice, or hear of, are listed here until you settle them or they fade.
+Since last look: no time passed.
+1855-04-01 07:00 | FAIR | Dunleavy’s Silver Lantern Tavern
+Ellis Wayfarer — at table. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 798; Rest 489; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Silver Lantern stands at (24, 10) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Dunleavy’s Silver Lantern Tavern. Last year’s leaves lie against the shaded edges. Daniel Dunleavy, Bridget Dunleavy, Timothy Dunleavy are here.
+Here: Daniel Dunleavy (#3, asleep), Bridget Dunleavy (#4), Timothy Dunleavy (#5, asleep), Michael Keane (#30).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 284
+[325] Michael Keane: Talk long ▸ Bridget Dunleavy (it went well)
+[401] You ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 401
+[402] You are no longer peckish — explain 402
+  Bridget Dunleavy: “I don't believe we've met. Bridget Dunleavy.”
+  Ellis Wayfarer: “Ellis Wayfarer. A warm room and a new face; that's a good day's work.”
+  Michael Keane: “What do you want out of all this, Bridget? Truly?”
+  Bridget Dunleavy: “A roof that doesn't leak and a little put by. And you?”
+  Michael Keane: “Much the same, I suppose. And not to be forgotten.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Maple Ford [go:17]
+11. Go to Vik Ford Smithy [go:24]
+12. Go to Rausch General Store [go:26]
+13. Chat: Bridget Dunleavy [talk:chat:4]
+14. Chat: Michael Keane [talk:chat:30]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 175; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 19:00
+Wait stopped at 09:00 (you meant to wait until 19:00).
+Since last look: 2h passed.
+Skipped 6 minor conversations nearby.
+Michael Keane: Good day ▸ Ellis Wayfarer (it went well)
+1855-04-01 09:00 | FAIR | Dunleavy’s Silver Lantern Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 39°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 740; Rest 411; Thirst 676; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Silver Lantern stands at (24, 10) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Dunleavy’s Silver Lantern Tavern. Last year’s leaves lie against the shaded edges. Daniel Dunleavy, Bridget Dunleavy, Timothy Dunleavy are here.
+Here: Daniel Dunleavy (#3), Bridget Dunleavy (#4), Timothy Dunleavy (#5), Michael Keane (#30).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 640
+  Michael Keane: “I don't think I know your face. Michael Keane.”
+  Ellis Wayfarer: “Ellis Wayfarer. Nor I yours, but that's mended now.”
+  Daniel Dunleavy: “I don't know what I'd do without you, Timothy.”
+  Timothy Dunleavy: “Talk to the cow, most likely. She'd be a poorer listener.”
+  Bridget Dunleavy: “Tell me about where you grew up, Daniel.”
+  Daniel Dunleavy: “It's a long story.”
+  Bridget Dunleavy: “I've time.”
+  Timothy Dunleavy: “Will you say grace with me, Bridget?”
+  Bridget Dunleavy: “Fold your hands, then.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Maple Ford [go:17]
+11. Go to Vik Ford Smithy [go:24]
+12. Go to Rausch General Store [go:26]
+13. Chat: Bridget Dunleavy [talk:chat:4]
+14. Chat: Timothy Dunleavy [talk:chat:5]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 198; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> signs
+No signs or wonders yet. Strange things you notice, or hear of, are listed here until you settle them or they fade.
+Since last look: no time passed.
+1855-04-01 09:00 | FAIR | Dunleavy’s Silver Lantern Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 39°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 740; Rest 411; Thirst 676; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+the Silver Lantern stands at (24, 10) on the village map. Spring mud holds wagon ruts, and oak-covered bluffs rise beyond the roofs. Spring at Dunleavy’s Silver Lantern Tavern. Last year’s leaves lie against the shaded edges. Daniel Dunleavy, Bridget Dunleavy, Timothy Dunleavy are here.
+Here: Daniel Dunleavy (#3), Bridget Dunleavy (#4), Timothy Dunleavy (#5), Michael Keane (#30).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 640
+[649] Bridget Dunleavy: Talk long ▸ Daniel Dunleavy (it went well)
+[650] Timothy Dunleavy: Pray ▸ Bridget Dunleavy (it went well)
+[651] Michael Keane: Good day ▸ Ellis Wayfarer (it went well)
+  Michael Keane: “I don't think I know your face. Michael Keane.”
+  Ellis Wayfarer: “Ellis Wayfarer. Nor I yours, but that's mended now.”
+  Daniel Dunleavy: “I don't know what I'd do without you, Timothy.”
+  Timothy Dunleavy: “Talk to the cow, most likely. She'd be a poorer listener.”
+  Bridget Dunleavy: “Tell me about where you grew up, Daniel.”
+  Daniel Dunleavy: “It's a long story.”
+  Bridget Dunleavy: “I've time.”
+  Timothy Dunleavy: “Will you say grace with me, Bridget?”
+  Bridget Dunleavy: “Fold your hands, then.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Maple Ford [go:17]
+11. Go to Vik Ford Smithy [go:24]
+12. Go to Rausch General Store [go:26]
+13. Chat: Bridget Dunleavy [talk:chat:4]
+14. Chat: Timothy Dunleavy [talk:chat:5]
+15. Eat Hardtack (ship's biscuit) (raw) [eat:177:raw]
+16. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:177:soak]
+Actions 198; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
