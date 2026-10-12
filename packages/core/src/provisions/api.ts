@@ -3,7 +3,7 @@ import { authorizeAct, commandBasis, standingOrders } from '../psyche/api.ts';
  * Provisions cross-module API. OWNER: module:provisions.
  */
 
-import { isAsleep } from '../activity/api.ts';
+import { isAsleep, reservePreparation } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { term } from '../explain.ts';
 import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
@@ -23,11 +23,12 @@ import {
 import { fitsInContainer } from '../items/containers.ts';
 import { canAct, drink, needValue } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
+import { inheritMoneyLedger } from '../social/api.ts';
 import type { Urge, UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { larderKcal } from './economy.ts';
-import { accessibleStack, holderOfActor, mealExplain, serveMeal } from './meals.ts';
-import { storeOpen } from './services.ts';
+import { accessibleStack, awaitingMeal, holderOfActor, holderStacks, mealExplain, serveMeal } from './meals.ts';
+import { serviceAt, storeOpen } from './services.ts';
 
 /** Money outside the store (loans, repayments): see economy.ts. */
 export { cashOf, purchase, synchronizeStoreTabs, transferCash } from './economy.ts';
@@ -98,7 +99,7 @@ export function priceAt(world: World, content: ContentBundle, placeId: PlaceId, 
 /** Appetite and a household shopping errand enter ordinary psyche arbitration. */
 export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
   const actor = world.actors[actorId];
-  if (!actor?.alive) return [];
+  if (!actor?.alive || !canAct(world, actorId)) return [];
   const out: UrgeProposal[] = [];
   const thirst = needValue(world, actorId, 'thirst');
   if (thirst < 600 && drinkingWater(world, ctx.content, actorId) > 0 && ctx.content.activities.fetch_water) {
@@ -151,7 +152,10 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
     );
     const larder = larderKcal(world, ctx, household.id);
     const urgent = larder < daily * SHOPPING.urgentDays;
-    if ((household.headId === actorId || urgent) && larder < daily * shoppingDays(ctx.cal.month).trigger) {
+    if (
+      (household.headId === actorId || !canAct(world, household.headId) || urgent) &&
+      larder < daily * shoppingDays(ctx.cal.month).trigger
+    ) {
       const intensity = urgent ? 950 : 800;
       const store = bestStore(world, ctx);
       const activity = Object.values(ctx.content.activities)
@@ -497,24 +501,48 @@ export function assistIntake(
     world.actors[helper]?.placeId !== world.actors[patient]?.placeId
   )
     return 0;
-  const giver = homeWaterHolder(world, patient) ? patient : helper;
-  const ml =
-    needValue(world, patient, 'thirst') < 800 ? Math.min(wantedMl, drinkingWater(world, ctx.content, giver)) : 0;
-  const carried = Math.min(ml, waterAvailable(world, ctx.content, { actorId: giver }));
-  drawWater(world, ctx.content, { actorId: giver }, carried);
-  const home = homeWaterHolder(world, giver);
-  if (home && carried < ml) drawWater(world, ctx.content, home, ml - carried);
+  if (!authorizeAct(world, helper, { kind: 'aid' }, commandBasis(ctx, helper, ['needs.aid'])).ok) return 0;
+  // A shared address does not make the patient's empty pantry the helper's pantry.
+  const sources = patient === helper ? [patient] : [patient, helper];
+  let ml = 0;
+  for (const giver of sources) {
+    const amount =
+      needValue(world, patient, 'thirst') < 800
+        ? Math.min(Math.max(0, wantedMl - ml), drinkingWater(world, ctx.content, giver))
+        : 0;
+    const carried = Math.min(amount, waterAvailable(world, ctx.content, { actorId: giver }));
+    drawWater(world, ctx.content, { actorId: giver }, carried);
+    const home = homeWaterHolder(world, giver);
+    if (home && carried < amount) drawWater(world, ctx.content, home, amount - carried);
+    ml += amount;
+  }
   if (ml) drink(world, ctx, patient, ml, { label: 'Water given by a helper' });
-  if (needValue(world, patient, 'hunger') < 200)
-    serveMeal(world, ctx, holderOfActor(world, giver), [patient], 35, true);
+  for (const meal of world.provisions.pendingMeals ?? []) {
+    if (meal.placeId === world.actors[helper]?.placeId && meal.plates.some((p) => p.id === patient)) {
+      meal.caregiverId = helper;
+      meal.caregiverBasis = commandBasis(ctx, helper, ['needs.aid']);
+      reservePreparation(world, ctx, helper, Math.max(60, meal.completesAt - ctx.now + 60));
+    }
+  }
+  if (needValue(world, patient, 'hunger') < 600 && !awaitingMeal(world, patient)) {
+    for (const giver of sources) {
+      const holder = holderOfActor(world, giver);
+      if (!usableCareFood(world, ctx.content, holder)) continue;
+      if (serveMeal(world, ctx, holder, [patient], 35, false, undefined, undefined, helper).kcal > 0) break;
+    }
+  }
   return ml;
 }
 
 /** A purse and, when a household has no living residents, its cash pass to the heir. */
-export function settleEstate(world: World, _ctx: SimContext, deceased: ActorId, heir: ActorId): void {
+export function settleEstate(world: World, ctx: SimContext, deceased: ActorId, heir: ActorId): void {
   const a = world.actors[deceased],
     b = world.actors[heir];
-  if (!a || !b) return;
+  if (!a || !b?.alive || world.provisions.estates?.some((e) => e.deceasedId === deceased)) return;
+  const rule = ctx.content.survival_tuning?.survival?.estate_money ?? 'inherit';
+  const claims = inheritMoneyLedger(world, ctx, deceased, heir);
+  world.provisions.estates ??= [];
+  world.provisions.estates.push({ deceasedId: deceased, representativeId: heir, at: ctx.now, rule, claims });
   let cents = world.provisions.purses[deceased] ?? 0;
   world.provisions.purses[deceased] = 0;
   const old = world.provisions.households[a.householdId],
@@ -526,9 +554,23 @@ export function settleEstate(world: World, _ctx: SimContext, deceased: ActorId, 
   ) {
     cents += old.cashCents;
     old.cashCents = 0;
+    for (const store of rowsOf(world.provisions.stores))
+      if (store.ownerHouseholdId === a.householdId) store.ownerHouseholdId = b.householdId;
   }
   if (next) next.cashCents += cents;
   else world.provisions.purses[heir] = (world.provisions.purses[heir] ?? 0) + cents;
+}
+
+/** Uses the ordinary recipe kernel, including cookware, water, ignition and fuel. */
+function usableCareFood(world: World, content: ContentBundle, holder: ReadinessHolder): boolean {
+  const kitchen = kitchenOf(world, content, holder, world.time);
+  return holderStacks(world, holder).some(
+    (stack) =>
+      foodServings(content, stack) > 0 &&
+      recipesFor(world, content, holder, stack, 1, false, undefined, undefined, kitchen).some(
+        (r) => r.kcal > 0 && r.missing.length === 0,
+      ),
+  );
 }
 
 /** A place to nurse someone: prefer their own stocked home, then the helper's. */
@@ -546,10 +588,64 @@ export function careHome(world: World, content: ContentBundle, helper: ActorId, 
     if (water) return water.id;
   }
   if (
-    needValue(world, patient, 'hunger') < 200 &&
-    larderKcal(world, { content }, a.householdId) < 600 &&
-    larderKcal(world, { content }, b.householdId) >= 600
+    needValue(world, patient, 'hunger') < 600 &&
+    !usableCareFood(world, content, { householdId: a.householdId }) &&
+    usableCareFood(world, content, { householdId: b.householdId })
   )
     return donor;
   return own;
+}
+
+/** An already paid bed or one's own noncommercial home, available through arrival. */
+export function lodgingPlace(world: World, content: ContentBundle, id: ActorId, arrival: number): PlaceId | null {
+  const bed = world.provisions.beds?.[id];
+  if (bed && bed.until > arrival) return bed.placeId;
+  const actor = world.actors[id];
+  const home = actor && world.households[actor.householdId]?.homePlaceId;
+  if (home === undefined) return null;
+  const service = serviceAt(world, content, home);
+  const owned = rowsOf(world.actors).some(
+    (a) =>
+      a.alive &&
+      a.householdId === actor?.householdId &&
+      content.occupations[a.occupationId]?.roles.includes(service?.keeper_role ?? ''),
+  );
+  return service?.bed_cents === undefined || owned ? home : null;
+}
+
+/** Food that standing orders can serve here, using ordinary preparation requirements. */
+export function foodToHand(world: World, content: ContentBundle, id: ActorId): boolean {
+  const actor = world.actors[id];
+  if (!actor) return false;
+  if (
+    (world.provisions.pendingMeals ?? []).some((m) => m.placeId === actor.placeId && m.plates.some((p) => p.id === id))
+  )
+    return true;
+  return usableCareFood(world, content, holderOfActor(world, id));
+}
+
+/** Do not consume a neighbor's working hour when no intake or shelter can be supplied. */
+export function careSuppliesAvailable(
+  world: World,
+  content: ContentBundle,
+  helper: ActorId,
+  patient: ActorId,
+): boolean {
+  const a = world.actors[patient],
+    b = world.actors[helper];
+  if (!a || !b) return false;
+  if ((world.provisions.pendingMeals ?? []).some((m) => m.plates.some((p) => p.id === patient))) return true;
+  if (
+    needValue(world, patient, 'hunger') < 600 &&
+    [a.householdId, b.householdId].some((householdId) => usableCareFood(world, content, { householdId }))
+  )
+    return true;
+  if (
+    needValue(world, patient, 'thirst') < 800 &&
+    (drinkingWater(world, content, helper) > 0 ||
+      drinkingWater(world, content, patient) > 0 ||
+      [a.householdId, b.householdId].some((id) => (world.provisions.households[id]?.waterMl ?? 0) > 0))
+  )
+    return true;
+  return needValue(world, patient, 'warmth') < 200 && a.placeId !== world.households[a.householdId]?.homePlaceId;
 }

@@ -651,11 +651,11 @@ text = [
 id = "kindness_paper_timely"
 on = "kindness"
 voice = "paper"
-when = { level_word = "timely" }
+when = { level_word = "timely", needy = true }
 headline = "A Timely Kindness"
 text = [
-  "#paper_pleased# that {actor} was seen carrying relief to the door of {target}, whose table has been poor of late. These things are noticed, and recorded here for the credit of the place.",
-  "{^target}, whose pantry has been bare, did not go hungry this week; {actor} saw to that, and mentioned it to nobody. We mention it for {him}.",
+  "#paper_pleased# that {actor} helped {target} take a meal. Such patient care is noticed, and recorded here for the credit of the place.",
+  "{^actor} helped {target} take a meal when help was needed. Such care deserves a place in this record.",
 ]
 
 [[template]]
@@ -701,7 +701,7 @@ on = "kindness"
 voice = "journal"
 when = { target_me = true, interaction_name = "gift", again = true }
 text = [
-  "{^actor} came by again with something for the pot, and would not stay to be thanked. I am learning to let a gift be a gift.",
+  "{^actor} came by again with a gift, and would not stay to be thanked. I am learning to let a gift be a gift.",
 ]
 
 [[template]]
@@ -710,8 +710,8 @@ on = "kindness"
 voice = "journal"
 when = { target_me = true, interaction_name = "gift", again = false }
 text = [
-  "{^actor} came by with something for the pot, and would not stay to be thanked. I am learning to let a gift be a gift.",
-  "{^actor} brought round something for the pot today, and was gone before I could find the words.",
+  "{^actor} came by with a gift, and would not stay to be thanked. I am learning to let a gift be a gift.",
+  "{^actor} brought a gift today, and was gone before I could find the words.",
 ]
 
 [[template]]
@@ -756,7 +756,7 @@ on = "kindness"
 voice = "journal"
 when = { actor_me = true, interaction_name = "gift" }
 text = [
-  "I have been doing what I can for {target}. It comes out of my own stores. I do not mind as much as I feared.",
+  "I have been doing what I can for {target}. It costs time and trouble. I do not mind as much as I feared.",
 ]
 
 [[template]]
@@ -766,7 +766,7 @@ voice = "journal"
 tone = "thrift"
 when = { actor_me = true, interaction_name = "gift" }
 text = [
-  "I have given {target} meal, twice, out of a barrel that was none too full. It is entered in the book as charity, which is a column I rarely write in.",
+  "I have given what I could to {target}. It is entered in the book as charity, which is a column I rarely write in.",
 ]
 
 [[template]]
@@ -784,7 +784,7 @@ on = "kindness"
 voice = "journal"
 when = { actor_me = false, target_me = false, interaction_name = "gift" }
 text = [
-  "{^actor} has been carrying meal to {target}. Nobody asked {him} to. I think the better of the county for having {him} in it.",
+  "{^actor} has been generous to {target}. Nobody asked {him} to. I think the better of the county for having {him} in it.",
 ]
 
 [[template]]
@@ -792,7 +792,7 @@ id = "kindness_epilogue"
 on = "kindness"
 voice = "epilogue"
 text = [
-  "{^actor_short} never told anyone what the kindness cost. It came off {his} own stores, and the table at home was the lighter by it.",
+  "{^actor_short} never told anyone what the kindness cost in time and trouble.",
   "Of the {count_word} good turns {actor_short} did in {span}, not one was mentioned at the store. That was the point of them.",
   "{^actor_short} had a name for it, kept to {actor_short}: not charity, but a debt to someone long dead.",
   "It looked like generosity. In fact {actor_short} could not bear to watch {target_short} go without, and that is a different thing, and a rarer.",
@@ -804,7 +804,7 @@ on = "kindness"
 voice = "epilogue"
 when = { needy = true }
 text = [
-  "{^target_short}'s house was thin that week, and {actor_short} knew it from the look of the washing. The gift came by the back door so no one need be thanked.",
-  "Nobody told {actor_short} that {target_short}'s pantry was bare. {^actor_short} counted the chimney smoke and knew.",
-  "{^actor_short} left a half-sack of meal on {target_short}'s step at dusk and was gone before the door opened. It was never mentioned, which was how both of them preferred it.",
+  "{^actor_short} took time to help {target_short} eat. The record cannot say what passed between them.",
+  "{^target_short} needed help at the table, and {actor_short} gave it.",
+  "There was a meal and someone willing to help {target_short} take it. Sometimes care is that plain.",
 ]

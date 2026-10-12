@@ -52,7 +52,7 @@ export function viewActivityActor(
   return {
     activityId: a?.activityId ?? null,
     name: def?.name ?? 'Idle',
-    verb: def?.verb ?? 'idling',
+    verb: a?.activityId === 'walk' && !a.travel ? 'at leisure' : (def?.verb ?? 'idling'),
     placeId: a?.placeId ?? (world.actors[actorId]?.placeId as PlaceId),
     since: a?.since ?? 0,
     source: own ? (a?.source ?? 'init') : 'observed',

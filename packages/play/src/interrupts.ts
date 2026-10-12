@@ -1,6 +1,16 @@
 /** Shared worker/headless policy, 11 §1.6. Input must already be perspective-filtered.
  * Host wall-clock coalescing belongs outside this deterministic policy. */
-import { type ActorId, type ContentBundle, type Event, type PlaceId, social, type World } from '@coulee/core';
+import {
+  type ActorId,
+  type ContentBundle,
+  type Event,
+  needs,
+  type PlaceId,
+  provisions,
+  psyche,
+  social,
+  type World,
+} from '@coulee/core';
 import { describeEvent } from './describe.ts';
 
 export interface AlertEvent {
@@ -113,6 +123,16 @@ function classify(world: World, content: ContentBundle, pc: ActorId, e: Event): 
     e.kind === 'social.interaction' && !!content.interactions[e.data.interactionId]?.tags.includes('hostile');
   if (e.kind === 'social.interaction' && !participant && !strongTie && !hostile)
     return { category: 'background', reason: e.kind, kind: e.kind, eventId: e.id, score: 0, pause: false };
+  if (e.kind === 'needs.band_changed' && e.data.actorId === pc && e.data.layer !== 'debt') {
+    const band = content.needs[e.data.needId]?.bands.find((b) => b.label === e.data.to);
+    const orders = psyche.standingOrders(world, pc);
+    const handled =
+      needs.canAct(world, pc) &&
+      ((e.data.needId === 'hunger' && orders.eat && provisions.foodToHand(world, content, pc)) ||
+        (e.data.needId === 'thirst' && orders.drink && provisions.drinkingWater(world, content, pc) > 0));
+    if (band && band.below > 300 && handled)
+      return { category: 'background', reason: e.kind, kind: e.kind, eventId: e.id, score: 0, pause: false };
+  }
   return alertFor({
     id: e.id,
     notablePerson: strongTie,

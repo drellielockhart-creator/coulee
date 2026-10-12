@@ -8,6 +8,7 @@ import type { ActorId, EventId, HouseholdId, PlaceId } from '../ids.ts';
 import { rowsOf } from '../ids.ts';
 import { atPlace, carriedBy, createStack, moveStack, pantryOf, stacksDeep, supplyUnits } from '../items/api.ts';
 import type { ItemLocation } from '../items/state.ts';
+import { canAct } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { debtOf, extendCredit } from '../social/api.ts';
 import type { World } from '../world.ts';
@@ -54,7 +55,8 @@ export function purchase(
     store = world.provisions.stores[placeId];
   const unitPrice = priceAt(world, ctx.content, placeId, defId);
   if (
-    !actor?.alive ||
+    !canAct(world, actorId) ||
+    !actor ||
     actor.placeId !== placeId ||
     !store ||
     !storeOpen(world, ctx.content, placeId, ctx.now) ||
@@ -383,6 +385,7 @@ export function shoppingHour(world: World, ctx: SimContext): void {
       const a = world.actors[id];
       return (
         a?.alive === true &&
+        canAct(world, id) &&
         (authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok ||
           authorizeAct(
             world,

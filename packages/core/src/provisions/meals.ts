@@ -22,7 +22,8 @@ import {
 } from '../items/api.ts';
 import { rootLocation, sameLoc } from '../items/containers.ts';
 import { type ItemLocation, type ItemStack, newStack, recordProvenance } from '../items/state.ts';
-import { drink, feed, litHearthAt, needValue } from '../needs/api.ts';
+import { canAct, drink, feed, litHearthAt, needValue } from '../needs/api.ts';
+import { authorizeAct, commandBasis } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute, yearsBetween } from '../time.ts';
@@ -512,6 +513,7 @@ export function serveMeal(
   cold = false,
   explicit?: { itemId: ItemId; method: string; servings: number },
   passMemo?: MealPass,
+  caregiver?: ActorId,
 ): MealResult {
   const content = ctx.content;
   const trace = passMemo?.explain !== false;
@@ -521,15 +523,40 @@ export function serveMeal(
           (id) => world.actors[id]?.placeId === world.households[holder.householdId]?.homePlaceId,
         )
       : diners;
-  const cookId =
-    [...cookIds].sort(
+  const cookId = [...(caregiver === undefined ? cookIds : [caregiver])]
+    .filter(
+      (id) =>
+        canAct(world, id) &&
+        (caregiver !== undefined ||
+          authorizeAct(
+            world,
+            id,
+            { kind: 'prepare_meal' },
+            commandBasis(ctx, id, ['provisions.eat', 'provisions.board_meal']),
+          ).ok ||
+          ((('actorId' in holder && holder.actorId === id) ||
+            ('householdId' in holder && world.actors[id]?.householdId === holder.householdId)) &&
+            authorizeAct(world, id, { kind: 'eat_own_stores' }, { kind: 'standing', capability: 'eat_own_stores' })
+              .ok)),
+    )
+    .sort(
       (a, b) =>
         (world.actors[b]?.sheet.skills.trade_cookery ?? 0) - (world.actors[a]?.sheet.skills.trade_cookery ?? 0) ||
         a - b,
-    )[0] ?? diners[0];
+    )[0];
+  if (
+    cookId === undefined ||
+    (caregiver !== undefined &&
+      !authorizeAct(world, caregiver, { kind: 'aid' }, commandBasis(ctx, caregiver, ['needs.aid'])).ok)
+  )
+    return { target: 0, kcal: 0, fire: 0, minutes: 0 };
+  // Emergency care feeds a full portion even while the household is cutting rations.
+  // Ingredients, fuel, water and elapsed preparation remain fully charged.
+  const rationPct =
+    caregiver === undefined ? rationOf(world, holder) : (content.survival_tuning?.survival?.care_ration_pct ?? 100);
   const plates: Plate[] = diners.map((id) => ({
     id,
-    target: Math.round((mealEnergy(world, ctx, id, passMemo) * rationOf(world, holder) * sharePct) / 10_000),
+    target: Math.round((mealEnergy(world, ctx, id, passMemo) * rationPct * sharePct) / 10_000),
     kcal: 0,
     proteinG: 0,
     fatG: 0,
@@ -881,17 +908,20 @@ export function serveMeal(
       placeId,
       householdId: 'householdId' in holder ? holder.householdId : null,
       cookId,
+      ...(caregiver === undefined
+        ? {}
+        : { caregiverId: caregiver, caregiverBasis: commandBasis(ctx, caregiver, ['needs.aid']) }),
       startedAt: ctx.now,
       completesAt: ctx.now + totalMinutes,
       activeUntil: ctx.now + totalActiveMinutes,
-      rationPct: rationOf(world, holder),
+      rationPct,
       plates: plates.filter((p) => p.items.length),
       batches,
     };
     if (totalMinutes > 0) {
       world.provisions.pendingMeals ??= [];
       world.provisions.pendingMeals.push(pending);
-      reservePreparation(world, ctx, cookId, totalActiveMinutes);
+      reservePreparation(world, ctx, cookId, caregiver === undefined ? totalActiveMinutes : totalMinutes + 60);
       ctx.emit({
         kind: 'provisions.prep_started',
         data: { cookId, completesAt: pending.completesAt, activeMinutes: totalActiveMinutes, minutes: totalMinutes },
@@ -954,7 +984,13 @@ function finishMeal(world: World, ctx: SimContext, meal: PendingMeal): void {
   for (const plate of meal.plates) {
     const actor = world.actors[plate.id];
     if (!actor?.alive) continue;
-    if (actor.placeId !== meal.placeId) {
+    const helper = meal.caregiverId;
+    const assisted =
+      helper !== undefined &&
+      canAct(world, helper) &&
+      world.actors[helper]?.placeId === meal.placeId &&
+      authorizeAct(world, helper, { kind: 'aid' }, meal.caregiverBasis ?? { kind: 'own' }).ok;
+    if (actor.placeId !== meal.placeId || (!canAct(world, plate.id) && !assisted)) {
       if (ctx.now < meal.completesAt + 1440) remaining.push(plate);
       continue;
     }
@@ -980,14 +1016,19 @@ function finishMeal(world: World, ctx: SimContext, meal: PendingMeal): void {
       kind: 'provisions.meal',
       data: {
         actorId: plate.id,
+        ...(assisted && helper !== undefined ? { assistedBy: helper } : {}),
         householdId: meal.householdId,
         items: plate.items,
         kcal: plate.kcal,
         hot: plate.hot,
         morale: plate.morale,
       },
-      roles: [{ actor: plate.id, role: 'agent' }],
-      visibility: 'private',
+      roles: [
+        { actor: plate.id, role: 'agent' },
+        ...(assisted && helper !== undefined ? [{ actor: helper, role: 'agent' as const }] : []),
+      ],
+      visibility: assisted ? 'witnessed' : 'private',
+      place: meal.placeId,
       explain: {
         ...mealExplain('Meal intake', [plate.id], plate.kcal, [
           term('need', 'Target kcal', plate.target),

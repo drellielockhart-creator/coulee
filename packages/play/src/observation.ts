@@ -163,6 +163,7 @@ export function observation(
     },
     place: {
       id: a.placeId,
+      fireLit: !!w.provisions.fires[a.placeId]?.lit && (w.provisions.fires[a.placeId]?.until ?? 0) > w.time,
       name: w.places[a.placeId]?.name ?? 'Unknown',
       kind: w.places[a.placeId]?.kind ?? '',
       description: fae.describe(w, c, a.placeId, pc).join(' '),
@@ -173,7 +174,10 @@ export function observation(
       name: `${a.name.given} ${a.name.family}`.trim(),
       alive: a.alive,
       needs: needs.viewNeedsActor(w, c, pc, opts),
-      activity: activity.viewActivityActor(w, c, pc, opts),
+      activity: {
+        ...activity.viewActivityActor(w, c, pc, opts),
+        asleep: !!c.activities[w.activity.byActor[pc]?.activityId ?? '']?.asleep,
+      },
       mind: {
         ...mind,
         // The id of the arbitration she can `explain` (why she chose what she did this hour).

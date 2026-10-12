@@ -185,7 +185,7 @@ urges = [{ activity = "family_devotions", below = 400, ceiling = 550, drive = "l
 
 [[need]]
 id = "drink"
-name = "Drink"
+name = "Liquor"
 kind = "physical"
 description = "A taste for the bottle, the pipe, the strong cup (10 §3.4 vice need). Not everyone's: it builds only in those with the taste (Fond of a Glass, Given to Drink), never in a child, and a tavern evening satisfies it."
 initial = 800
