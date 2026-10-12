@@ -61,9 +61,21 @@ text = [
 ]
 
 [[template]]
+id = "feud_journal_me"
+on = "feud"
+voice = "journal"
+when = { me = true }
+text = [
+  "More trouble with {other_families}: {count_word} wrongs now in {span}, by my count, and I am in it whether I like it or not.",
+  "{^other_families} and I are at it again. I have tried to keep the peace and I have tried to keep my temper, and I have kept neither.",
+  "I have a quarrel with {other_families} now, a proper one, with turns. I did not choose it. I am not sure I would un-choose it.",
+]
+
+[[template]]
 id = "feud_journal"
 on = "feud"
 voice = "journal"
+when = { me = false }
 text = [
   "More trouble between {families}: {count_word} wrongs now in {span}, by my count. I keep out of it, which in {town} is a labor.",
   "The feud between {families} has a name now, and what has a name can be argued over. Everyone has an opinion. I have one and am saving it.",
@@ -75,6 +87,7 @@ id = "feud_journal_piety"
 on = "feud"
 voice = "journal"
 tone = "piety"
+when = { me = false }
 text = [
   "{^families} are at one another's throats, and I would give a month's eggs to see them in the same pew. Blessed are the peacemakers; I have not found it easy to be blessed.",
 ]
@@ -84,6 +97,7 @@ id = "feud_journal_neighborliness"
 on = "feud"
 voice = "journal"
 tone = "neighborliness"
+when = { me = false }
 text = [
   "Went to both doors, {families}, with a pie for each. A pie will not settle a feud. It was received.",
 ]
@@ -93,6 +107,7 @@ id = "feud_journal_temper"
 on = "feud"
 voice = "journal"
 tone = "temper"
+when = { me = false }
 text = [
   "{^families} and their quarrel again. If I were either of them I would have finished it a month ago, one way or the other.",
 ]
@@ -102,6 +117,7 @@ id = "feud_journal_discretion"
 on = "feud"
 voice = "journal"
 tone = "discretion"
+when = { me = false }
 text = [
   "I know more of the {family} and {family_b} business than I have said to anyone. I intend to go on knowing it quietly.",
 ]
@@ -191,8 +207,8 @@ on = "betrayal"
 voice = "journal"
 when = { target_me = true }
 text = [
-  "{^actor}. After all that I {favor} {actor}, {actor} has {act_pp} me. I will say it plainly here because I cannot say it anywhere else: I did not think it of {actor}.",
-  "I was good to {actor}. I put that on the page so I shall not mistake myself. And {actor} has {act_pp} me{_at}. I am not angry yet. I am doing sums.",
+  "{^actor}. After all that I {favor} {him}, {he} has {act_pp} me. I will say it plainly here because I cannot say it anywhere else: I did not think it of {him}.",
+  "I was good to {actor}. I put that on the page so I shall not mistake myself. And {he} has {act_pp} me{_at}. I am not angry yet. I am doing sums.",
 ]
 
 [[template]]
@@ -202,7 +218,7 @@ voice = "journal"
 tone = "piety"
 when = { target_me = true }
 text = [
-  "{^actor} has {act_pp} me, whom I helped. Judas had his hour too. I try to pray for {actor} and find I am only praying at {actor}.",
+  "{^actor} has {act_pp} me, whom I helped. Judas had his hour too. I try to pray for {him} and find I am only praying at {him}.",
 ]
 
 [[template]]
@@ -212,7 +228,7 @@ voice = "journal"
 tone = "rancor"
 when = { target_me = true }
 text = [
-  "{^actor} {act} me{_at}, after I {favor} {actor_short}. Entered in ink. I shall be a patient creditor.",
+  "{^actor} {act} me{_at}, after I {favor} {him}. Entered in ink. I shall be a patient creditor.",
 ]
 
 [[template]]
@@ -230,7 +246,7 @@ on = "betrayal"
 voice = "journal"
 when = { actor_me = false, target_me = false }
 text = [
-  "Word is that {actor} has turned on {target}, who was good to {actor_short} not {span} since. It is the ones you help who know where you keep your pride.",
+  "Word is that {actor} has turned on {target}, who was good to {him} not {span} since. It is the ones you help who know where you keep your pride.",
 ]
 
 [[template]]
@@ -291,7 +307,7 @@ text = [
 id = "friendship_journal"
 on = "friendship"
 voice = "journal"
-when = { across = true }
+when = { across = true, actor_me = false, target_me = false }
 text = [
   "{^actor} and {target} are friends. Friends! A month ago they would not share a pew. I do not understand people, and I am glad of it.",
   "I would not have wagered a cent on {actor} and {target}. And here they are. I suppose a quarrel is only a kind of acquaintance.",
@@ -301,7 +317,7 @@ text = [
 id = "friendship_journal_plain"
 on = "friendship"
 voice = "journal"
-when = { across = false }
+when = { across = false, actor_me = false, target_me = false }
 text = [
   "{^actor} and {target} have become friends, quietly, the way good things do.",
 ]
@@ -313,6 +329,15 @@ voice = "journal"
 when = { actor_me = true }
 text = [
   "{^target} and I are friends now. I should say so plainly, since I have been slow to. It is a pleasure to find one has been wrong about a person.",
+]
+
+[[template]]
+id = "friendship_journal_me_target"
+on = "friendship"
+voice = "journal"
+when = { target_me = true }
+text = [
+  "{^actor} and I are friends now, quietly, the way good things happen. I did not see it coming and would not send it back.",
 ]
 
 [[template]]
@@ -413,6 +438,7 @@ text = [
 id = "courtship_journal"
 on = "courtship"
 voice = "journal"
+when = { actor_me = false, target_me = false }
 text = [
   "{^actor} and {target} are courting now, and half the village has an opinion about it. Mine is that I wish them joy and a dry roof.",
 ]
@@ -439,7 +465,7 @@ text = [
 id = "courtship_journal_across"
 on = "courtship"
 voice = "journal"
-when = { across = true }
+when = { across = true, actor_me = false, target_me = false }
 text = [
   "{^actor} and {target} are courting, and the {family} and the {family_b} are not speaking. This will end in a wedding or a funeral, and I cannot tell which.",
 ]
@@ -545,7 +571,7 @@ voice = "journal"
 when = { target_me = true, outcome = ["owed", "pressed", "unpaid"] }
 text = [
   "I owe {actor}. I feel it in the back of the neck every time I see the shop. I have it in the book and I have not got it in the box.",
-  "{^actor} has not said a word of the money, which is worse than if {actor_short} had.",
+  "{^actor} has not said a word of the money, which is worse than if {he} had.",
 ]
 
 [[template]]
@@ -571,9 +597,28 @@ text = [
 id = "debt_journal_repaid"
 on = "debt"
 voice = "journal"
-when = { outcome = "repaid" }
+when = { outcome = "repaid", actor_me = false, target_me = false }
 text = [
   "{^target} paid {actor}, in full. I did not think to see it, and I am rather pleased to have been wrong.",
+]
+
+[[template]]
+id = "debt_journal_repaid_me_debtor"
+on = "debt"
+voice = "journal"
+when = { outcome = "repaid", target_me = true }
+text = [
+  "I paid {actor} in full. Every cent, counted out on the table. I did not think to see the day, and I am rather pleased with myself.",
+  "Square with {actor} at last. I walked home lighter by the weight of the debt, which is heavier than the coin.",
+]
+
+[[template]]
+id = "debt_journal_repaid_me_creditor"
+on = "debt"
+voice = "journal"
+when = { outcome = "repaid", actor_me = true }
+text = [
+  "{^target} paid me, in full. I did not think to see it, and I am rather pleased to have been wrong.",
 ]
 
 [[template]]
@@ -647,7 +692,53 @@ on = "kindness"
 voice = "journal"
 when = { target_me = true }
 text = [
+  "{^actor} has been good to me{_at}, and would not stay to be thanked. I am learning to let a kindness be a kindness.",
+]
+
+[[template]]
+id = "kindness_journal_me_target_gift"
+on = "kindness"
+voice = "journal"
+when = { target_me = true, interaction_name = "gift", again = true }
+text = [
   "{^actor} came by again with something for the pot, and would not stay to be thanked. I am learning to let a gift be a gift.",
+]
+
+[[template]]
+id = "kindness_journal_me_target_first"
+on = "kindness"
+voice = "journal"
+when = { target_me = true, interaction_name = "gift", again = false }
+text = [
+  "{^actor} came by with something for the pot, and would not stay to be thanked. I am learning to let a gift be a gift.",
+  "{^actor} brought round something for the pot today, and was gone before I could find the words.",
+]
+
+[[template]]
+id = "kindness_journal_me_target_help"
+on = "kindness"
+voice = "journal"
+when = { target_me = true, interaction_name = "help", again = true }
+text = [
+  "{^actor} has lent me a hand again, and would not hear of thanks. I am learning to let a kindness be a kindness.",
+]
+
+[[template]]
+id = "kindness_journal_me_target_help_first"
+on = "kindness"
+voice = "journal"
+when = { target_me = true, interaction_name = "help", again = false }
+text = [
+  "{^actor} lent me a hand{_at}, unasked, and would not hear of thanks. I am learning to let a kindness be a kindness.",
+]
+
+[[template]]
+id = "kindness_journal_me_target_comfort"
+on = "kindness"
+voice = "journal"
+when = { target_me = true, interaction_name = "comfort" }
+text = [
+  "{^actor} sat with me when I was low, and would not be thanked for it. I shall not forget it.",
 ]
 
 [[template]]
@@ -655,6 +746,15 @@ id = "kindness_journal_me_actor"
 on = "kindness"
 voice = "journal"
 when = { actor_me = true }
+text = [
+  "I have been doing what I can for {target}. It costs me little, and I do not mind as much as I feared.",
+]
+
+[[template]]
+id = "kindness_journal_me_actor_gift"
+on = "kindness"
+voice = "journal"
+when = { actor_me = true, interaction_name = "gift" }
 text = [
   "I have been doing what I can for {target}. It comes out of my own stores. I do not mind as much as I feared.",
 ]
@@ -664,7 +764,7 @@ id = "kindness_journal_me_actor_thrift"
 on = "kindness"
 voice = "journal"
 tone = "thrift"
-when = { actor_me = true }
+when = { actor_me = true, interaction_name = "gift" }
 text = [
   "I have given {target} meal, twice, out of a barrel that was none too full. It is entered in the book as charity, which is a column I rarely write in.",
 ]
@@ -675,7 +775,16 @@ on = "kindness"
 voice = "journal"
 when = { actor_me = false, target_me = false }
 text = [
-  "{^actor} has been carrying meal to {target}. Nobody asked {actor_short} to. I think the better of the county for having {actor_short} in it.",
+  "{^actor} has been good to {target}, one kindness after another. Nobody asked {him} to. I think the better of the county for having {him} in it.",
+]
+
+[[template]]
+id = "kindness_journal_other_gift"
+on = "kindness"
+voice = "journal"
+when = { actor_me = false, target_me = false, interaction_name = "gift" }
+text = [
+  "{^actor} has been carrying meal to {target}. Nobody asked {him} to. I think the better of the county for having {him} in it.",
 ]
 
 [[template]]

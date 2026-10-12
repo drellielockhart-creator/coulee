@@ -89,6 +89,8 @@ export function familyOfHousehold(world: World, hid: HouseholdId | number): stri
   if (!h) return 'a household';
   const head = world.actors[h.headId];
   if (head?.name.family) return head.name.family;
+  // A household of one with no surname is its person ("Ellis Wayfarer"), not "Newcomer lodgings".
+  if (head && h.memberIds.length <= 1) return shortNameOf(world, head.id);
   return h.name.replace(/^The\s+/i, '');
 }
 
@@ -139,6 +141,8 @@ export function familiesOf(world: World, hid: HouseholdId | number): string {
     const sharing = h.memberIds.filter((m) => world.actors[m]?.name.family === head.name.family).length;
     if (sharing < 2) return `${shortNameOf(world, head.id)}'s household`;
   }
+  // No surname to pluralize (a lone newcomer, a company of lodgers): the household's own forms.
+  if (h && head && !head.name.family) return householdForms(world, hid).family;
   return `the ${pluralSurname(f)}`;
 }
 

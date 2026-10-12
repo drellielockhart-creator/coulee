@@ -18,6 +18,13 @@ export type SocialEvent =
         label: string;
         /** The defense this act discharged (10 §7), when it was one (omniscient provenance). */
         viaDefense?: string;
+        // ---- additive (playtest 2026-10-11: social verbs return content) ----
+        /** What was said, as one display string: `Name: “...” Name: “...”`. */
+        line?: string;
+        /** What was said, turn by turn (1–3). Overhearable: never a rumor's content (that rides on belief.transmitted). */
+        lines?: Array<{ speaker: string; speakerId: ActorId; text: string }>;
+        /** A news-carrying act: whether anything was told (the words are on the belief.transmitted it caused). */
+        told?: boolean;
       }
     >
   /** A memory was encoded (inner; for debugging/inspect — keep rare or omit). */

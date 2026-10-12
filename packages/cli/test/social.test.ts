@@ -4,6 +4,7 @@
 import {
   type ActorId,
   asGameMinute,
+  belief,
   createSim,
   type Event,
   findNonIntegers,
@@ -23,17 +24,22 @@ import {
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { baseContent, simFor } from './helpers.ts';
 
-// Spy on belief.transmit (the ONLY gossip path) without changing its behavior, and allow a
-// stub mode that answers told:false like the belief stub did.
-const spy = vi.hoisted(() => ({ calls: [] as Array<number | null>, stub: false }));
+// Spy on belief's news path (the ONLY gossip path) without changing its behavior: social plans
+// one telling per news-carrying act (planTransmit, before the act is voiced) and commits it with
+// the act's event id. A stub mode answers "nothing to tell" like the belief stub did.
+const spy = vi.hoisted(() => ({ plans: 0, calls: [] as Array<number | null>, stub: false }));
 vi.mock('../../core/src/belief/api.ts', async (importOriginal) => {
   const orig = await importOriginal<typeof import('../../core/src/belief/api.ts')>();
   return {
     ...orig,
-    transmit: (...args: Parameters<typeof orig.transmit>) => {
-      spy.calls.push(args[2].interactionEventId as number | null);
-      if (spy.stub) return { told: false, rumorId: null, propId: null, mutation: null, listenerCredence: 0 };
-      return orig.transmit(...args);
+    planTransmit: (...args: Parameters<typeof orig.planTransmit>) => {
+      spy.plans += 1;
+      if (spy.stub) return null;
+      return orig.planTransmit(...args);
+    },
+    commitTransmit: (...args: Parameters<typeof orig.commitTransmit>) => {
+      spy.calls.push(args[3] as number | null);
+      return orig.commitTransmit(...args);
     },
   };
 });
@@ -99,6 +105,7 @@ describe('social: Iron Ford, 60 days, seed 42', () => {
       }
     }
     spy.calls.length = 0;
+    spy.plans = 0;
     runHours(sim, 60 * 24);
     evs = interactions(sim.world);
     actors = rowsOf(sim.world.actors).filter((a) => a.alive).length;
@@ -137,13 +144,18 @@ describe('social: Iron Ford, 60 days, seed 42', () => {
     expect(maxDrift).toBeGreaterThanOrEqual(20);
   });
 
-  it('every gossip act called belief.transmit exactly once, with its event id', () => {
+  it('every news-carrying act asked belief once, and told at most once, under its own event id', () => {
     const gossip = evs.filter((e) => e.data.success && content.interactions[e.data.interactionId]?.transmits_rumor);
+    expect(spy.plans).toBe(gossip.length);
     const counts = new Map<number | null, number>();
     for (const id of spy.calls) counts.set(id, (counts.get(id) ?? 0) + 1);
-    for (const e of gossip) expect(counts.get(e.id as number)).toBe(1);
-    const fromSocial = spy.calls.filter((id) => id !== null && gossip.some((g) => g.id === id)).length;
-    expect(fromSocial).toBe(gossip.length);
+    for (const e of gossip) {
+      expect(counts.get(e.id as number) ?? 0).toBe(e.data.told ? 1 : 0);
+      // The act says whether anything was told; its words never carry the news itself.
+      expect(e.data.lines?.length ?? 0).toBeGreaterThan(0);
+    }
+    expect(spy.calls.every((id) => id !== null && gossip.some((g) => g.id === id))).toBe(true);
+    expect(gossip.some((e) => e.data.told)).toBe(true);
   });
 
   it('keeps the social slice integer, memories capped, reasons capped', () => {
@@ -176,7 +188,7 @@ describe('social: Iron Ford, 60 days, seed 42', () => {
 });
 
 describe('social: gossip goes through belief.transmit', () => {
-  it('a chosen gossip urge calls transmit exactly once, and resolves as told:false under the stub', () => {
+  it('a chosen gossip urge asks belief once, and resolves as told:false under the stub', () => {
     const sim = simFor({ seed: 5 });
     const pair = adultsAtSamePlace(sim);
     if (!pair) throw new Error('need two adults together');
@@ -188,6 +200,7 @@ describe('social: gossip goes through belief.transmit', () => {
     for (const stub of [false, true]) {
       spy.stub = stub;
       spy.calls.length = 0;
+      spy.plans = 0;
       const before = sim.world.social.daily.told;
       const pr = social.makePair(sim.world, ctx, a, b, sim.world.actors[a]?.placeId ?? null, 0);
       if (!pr) throw new Error('pair');
@@ -203,7 +216,8 @@ describe('social: gossip goes through belief.transmit', () => {
         mode: 'urge',
         via: 'urge',
       });
-      expect(spy.calls).toEqual([out.eventId]);
+      expect(spy.plans).toBe(1);
+      expect(spy.calls).toEqual(out.told ? [out.eventId] : []);
       expect(out.success).toBe(true);
       if (stub) {
         expect(out.told).toBe(false);
@@ -540,5 +554,147 @@ describe('social: strife wears out, and a household quarrel ruptures (review: Br
       if (out.escalatedEventId !== null) escalated++;
     }
     expect(escalated).toBe(0);
+  });
+});
+
+describe('social: talk lines (playtest 2026-10-11: verbs return content)', () => {
+  type Interaction = Extract<Event, { kind: 'social.interaction' }>;
+  type Told = Extract<Event, { kind: 'belief.transmitted' }>;
+  let sim: Sim;
+  let acts: Interaction[];
+  let tellings: Told[];
+  beforeAll(() => {
+    sim = simFor({ seed: 42, hours: 24 * 10 });
+    acts = interactions(sim.world);
+    tellings = sim.world.log.events.filter((e): e is Told => e.kind === 'belief.transmitted');
+  }, 600_000);
+
+  it('voices every interaction in 1 to 3 turns, with every slot and word filled', () => {
+    expect(acts.length).toBeGreaterThan(100);
+    for (const e of acts) {
+      const lines = e.data.lines ?? [];
+      expect(lines.length).toBeGreaterThanOrEqual(1);
+      expect(lines.length).toBeLessThanOrEqual(3);
+      for (const l of lines) {
+        expect(l.text).not.toMatch(/[{}#]|undefined|NaN/);
+        expect([e.data.initiatorId, e.data.targetId]).toContain(l.speakerId);
+      }
+      expect(e.data.line).toContain(lines[0]?.text ?? '?');
+    }
+  });
+
+  it('draws on the world: weather, season, prices or the speakers themselves, in varied words', () => {
+    const texts = new Set(acts.flatMap((e) => (e.data.lines ?? []).map((l) => l.text)));
+    expect(texts.size).toBeGreaterThan(80);
+    const chats = acts.filter((e) => e.data.interactionId === 'chat');
+    expect(new Set(chats.map((e) => e.data.line)).size).toBeGreaterThan(chats.length / 4);
+  });
+
+  it('rarely repeats a line between the same pair within a week', () => {
+    const seen = new Map<string, number>();
+    let repeats = 0;
+    for (const e of acts) {
+      const pair = [e.data.initiatorId, e.data.targetId].sort((a, b) => a - b).join('-');
+      const key = `${pair}|${e.data.line}`;
+      const last = seen.get(key);
+      if (last !== undefined && e.t - last < 7 * 1440) repeats++;
+      seen.set(key, e.t);
+    }
+    // Repeats only once every line that fits the pair and the moment was said this week.
+    expect(repeats / acts.length).toBeLessThan(0.15);
+  });
+
+  it('speaks each speaker in their own idiom, and nobody else in it', () => {
+    const scenario = content.scenarios.iron_ford;
+    const culture = new Map((scenario?.actors ?? []).map((a) => [sim.world.index.actorByKey[a.key], a.culture]));
+    const norse = content.talk_words.thanks?.by_culture.norwegian ?? [];
+    let norwegianTakk = 0;
+    for (const e of acts) {
+      for (const l of e.data.lines ?? []) {
+        const said = norse.some((w) => l.text.includes(w));
+        if (said && culture.get(l.speakerId) === 'norwegian') norwegianTakk++;
+        if (/\bTakk\b/.test(l.text)) expect(culture.get(l.speakerId)).toBe('norwegian');
+      }
+    }
+    expect(norwegianTakk).toBeGreaterThan(0);
+  });
+
+  it('puts the news itself only on the private telling, with its text, credence and words', () => {
+    expect(tellings.length).toBeGreaterThan(0);
+    for (const t of tellings) {
+      expect(t.visibility).toBe('private');
+      expect(t.data.text).toBeTruthy();
+      expect(typeof t.data.credence).toBe('number');
+      const said = (t.data.lines ?? []).map((l) => l.text).join(' ');
+      expect(t.data.lines?.length ?? 0).toBeGreaterThan(0);
+      const act = acts.find((a) => t.causes?.includes(a.id));
+      expect(act?.data.told).toBe(true);
+      // The overheard act never carries the claim; the telling does (in some person's mouth).
+      expect(act?.data.line ?? '').not.toContain(t.data.text ?? '?');
+      expect(said.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('asked for the news, a teller with nothing worth the telling says so in voice', () => {
+    const s = simFor({ seed: 7 });
+    const pair = adultsAtSamePlace(s);
+    if (!pair) throw new Error('need two adults together');
+    const [a, b] = pair as [ActorId, ActorId];
+    social.bumpFamiliarity(s.world, content, a, b);
+    // b has nothing to tell: no beliefs at all.
+    s.world.belief.beliefsByHolder[b] = [];
+    const ask = content.interactions.ask_about;
+    if (!ask) throw new Error('ask_about');
+    const out = social.resolveInteraction(s.world, makeContext(s.world, s.content, []), {
+      def: ask,
+      initiatorId: a,
+      targetId: b,
+      placeId: s.world.actors[a]?.placeId ?? null,
+      present: [],
+      mode: 'urge',
+      via: 'urge',
+    });
+    const ev = s.world.log.events.find((e) => e.id === out.eventId) as Interaction | undefined;
+    expect(out.told).toBe(false);
+    expect(ev?.data.told).toBe(false);
+    const reply = ev?.data.lines?.find((l) => l.speakerId === b)?.text ?? '';
+    expect(reply.length).toBeGreaterThan(0);
+    expect(s.world.log.events.some((e) => e.kind === 'belief.transmitted')).toBe(false);
+  });
+
+  it('asked for the news, a teller who has some tells it: the asker hears the claim and holds it', () => {
+    const s = simFor({ seed: 7 });
+    const pair = adultsAtSamePlace(s);
+    if (!pair) throw new Error('need two adults together');
+    const [a, b] = pair as [ActorId, ActorId];
+    social.bumpFamiliarity(s.world, content, a, b);
+    const subject = rowsOf(s.world.actors).find((x) => x.id !== a && x.id !== b);
+    if (!subject) throw new Error('subject');
+    const prop = belief.internProp(s.world, 'drinks', [{ kind: 'actor', id: subject.id }]);
+    const ctx = makeContext(s.world, s.content, []);
+    const held = belief.beliefOf(s.world, b, prop) ?? null;
+    expect(held).toBeNull();
+    belief.observe(s.world, ctx, b, prop, { type: 'observation', dir: 1, sourceId: null, eventId: null });
+    const ask = content.interactions.ask_about;
+    if (!ask) throw new Error('ask_about');
+    const out = social.resolveInteraction(s.world, ctx, {
+      def: ask,
+      initiatorId: a,
+      targetId: b,
+      placeId: s.world.actors[a]?.placeId ?? null,
+      present: [],
+      mode: 'urge',
+      via: 'urge',
+    });
+    expect(out.told).toBe(true);
+    const told = s.world.log.events.find(
+      (e): e is Told => e.kind === 'belief.transmitted' && e.causes?.includes(out.eventId) === true,
+    );
+    expect(told?.data.speakerId).toBe(b);
+    expect(told?.data.listenerId).toBe(a);
+    expect(told?.data.text).toBe(belief.propText(s.world, content, prop));
+    const words = (told?.data.lines ?? []).map((l) => l.text).join(' ');
+    expect(words).toContain(belief.propText(s.world, content, prop));
+    expect(belief.beliefOf(s.world, a, prop)).toBeDefined();
   });
 });

@@ -27,6 +27,18 @@ export type BeliefEvent =
         propId: PropId;
         mutation: string | null;
         accepted: boolean;
+        // ---- additive (playtest 2026-10-11: the hearer learns WHAT was said) ----
+        /** The claim as told, in words ("Mrs. Fenn says..." is in `lines`). */
+        text?: string;
+        /** The hearer's credence after hearing it, 0..100. */
+        credence?: number;
+        /** Whom the teller had it from (null: their own knowledge). */
+        sourceId?: ActorId | null;
+        /** news | warning | confidence (interactions.toml rumor_mode). */
+        mode?: string;
+        /** The words of the telling, as one display string and turn by turn (social talk lines). */
+        line?: string;
+        lines?: Array<{ speaker: string; speakerId: ActorId; text: string }>;
       }
     >
   /** A grudge was formed (04 §6.3). Chronicle-worthy. */

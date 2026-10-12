@@ -24,6 +24,7 @@ export const DEFAULT_TUNING: SocialTuningDef = {
   sociability_per_neighborliness: 15,
   sociability_per_company_deficit: 8,
   sociability_drunk: 40,
+  min_social_age: 3,
   max_initiations_per_hour: 2,
   max_participations_per_hour: 3,
   tie_sample: 4,

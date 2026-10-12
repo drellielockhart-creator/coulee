@@ -419,3 +419,89 @@ describe('belief: misfortunes need what they strike; the hidden folk keep away f
     expect(c.suspicionTells.bell_ache?.wary_days ?? 0).toBeGreaterThan(0);
   });
 });
+
+describe('belief: rumors spread fast, then fade (playtest 2026-10-11: one rumor told 1,555 times a year)', () => {
+  it('a juicy rumor is told mostly in its first fortnight and then drops out of talk', () => {
+    const sim = isolated(11);
+    const adults = rowsOf(sim.world.actors).filter((a) => yearsBetween(a.born, sim.world.time) >= 16);
+    const origin = adults[0];
+    const target = adults.at(-1);
+    if (!origin || !target) throw new Error('adults');
+    const prop = belief.internProp(sim.world, 'violent', [{ kind: 'actor', id: target.id }]);
+    seedClaim(sim, origin.id, prop, 95);
+    const byDay: number[] = [];
+    for (let day = 0; day < 60; day++) {
+      let told = 0;
+      for (let hour = 0; hour < 3; hour++) {
+        sim.world.time = asGameMinute(day * 1440 + hour * 60);
+        const random = rng(11, 'test', sim.world.time, 993);
+        for (const speaker of adults) {
+          const listener = random.pick(adults);
+          if (!listener || listener.id === speaker.id) continue;
+          const out = belief.transmit(sim.world, context(sim), {
+            speakerId: speaker.id,
+            listenerId: listener.id,
+            placeId: speaker.placeId,
+            channel: 'tavern',
+            interactionEventId: null,
+          });
+          if (out.told) told++;
+        }
+      }
+      byDay.push(told);
+    }
+    const first = byDay.slice(0, 14).reduce((a, b) => a + b, 0);
+    const late = byDay.slice(30).reduce((a, b) => a + b, 0);
+    const reached = adults.filter((a) => (belief.beliefOf(sim.world, a.id, prop)?.credence ?? 0) > 0).length;
+    expect(reached / adults.length).toBeGreaterThan(0.5);
+    expect(first).toBeGreaterThan(late * 4);
+    // Saturated: the town has it, and nobody is still repeating it to everyone.
+    expect(byDay.slice(45).reduce((a, b) => a + b, 0)).toBeLessThan(adults.length);
+    expect(findNonIntegers(sim.world)).toEqual([]);
+  });
+
+  it('a teller who has told it all round has nothing fresh to tell; a newcomer still gets the old news', () => {
+    const sim = isolated(12);
+    const adults = rowsOf(sim.world.actors).filter((a) => yearsBetween(a.born, sim.world.time) >= 16);
+    const [teller, friend, stranger, subject] = adults;
+    if (!teller || !friend || !stranger || !subject) throw new Error('adults');
+    const prop = belief.internProp(sim.world, 'drinks', [{ kind: 'actor', id: subject.id }]);
+    const b = seedClaim(sim, teller.id, prop, 90);
+    expect(belief.hasRumorFor(sim.world, teller.id, friend.id, content)).toBe(true);
+    // Forty days on, told to twenty people, heard five times over, and half the town holds it.
+    const id = belief.planTransmit(sim.world, context(sim), {
+      speakerId: teller.id,
+      listenerId: friend.id,
+      placeId: null,
+      channel: 'street',
+      interactionEventId: null,
+      deliberate: true,
+    });
+    expect(id).not.toBeNull();
+    b.toldTo = adults.slice(4, 24).map((a) => a.id);
+    if (b.rumorId !== null) b.echoes[b.rumorId] = 5;
+    sim.world.time = asGameMinute(sim.world.time + 40 * 1440);
+    sim.world.belief.commons[prop] = { prevalence: 700, assumed: true, since: asGameMinute(0) };
+    sim.world.social.opinions[teller.id] ??= {};
+    const table = sim.world.social.opinions[teller.id] ?? {};
+    const rec = table[friend.id];
+    if (rec) rec.familiarity = 600;
+    else {
+      table[friend.id] = {
+        targetId: friend.id,
+        base: { affection: 0, respect: 0, trust: 0, fear: 0 },
+        reasons: [],
+        volatile: { affection: 0, respect: 0, trust: 0, fear: 0 },
+        obligation: { favors: 0, cents: 0 },
+        familiarity: 600,
+        cooldowns: {},
+        label: '',
+      };
+    }
+    const fresh = belief.freshnessOf(sim.world, sim.world.time, b, friend.id);
+    expect(fresh.pm).toBeLessThan(100);
+    expect(belief.hasRumorFor(sim.world, teller.id, friend.id, content)).toBe(false);
+    // The stranger has never met the teller: they cannot be assumed to have heard.
+    expect(belief.freshnessOf(sim.world, sim.world.time, b, stranger.id).common).toBe(1000);
+  });
+});

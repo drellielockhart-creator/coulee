@@ -1,0 +1,2749 @@
+# Talk lines: what is said when people interact (playtest 2026-10-11: social verbs returned no
+# content). OWNER: module:social. Read by packages/core/src/social/talk.ts.
+#
+# Each [[talk]] is a 1–3 turn exchange for the interactions in `on` (or any interaction with a
+# tag in `on_tags`), for an `outcome` (success | failure | any). `when` names conditions read
+# from the live world (schema: packages/content/src/schema/social.ts TalkWhenSchema); among the
+# lines that fit, ones naming more conditions weigh more. The same pair never hears a line twice
+# in a week. `by` is "initiator" (who opened the exchange) or "target".
+#
+# part = "act" (default): goes on the social.interaction event, which witnesses can overhear, so
+# it never carries a rumor's content. part = "said": the news itself, on the private
+# belief.transmitted event (teller and hearer only). For ask_about the TARGET is the teller.
+#
+# Slots: {you} (how the speaker addresses the other: first name among intimates, "Mrs. Fenn"
+# among acquaintances, "sir"/"ma'am" to strangers), {initiator} {target} {initiator_given}
+# {target_given} {place} {town} {creek} {main_street} {weekday} {season}; with `price`:
+# {price_item} {price} {store}; with `misfortune`: {misfortune}; with `owes`: {owed}; with
+# `remembers`: {memory_place}; money acts: {cents}. Said lines: {rumor} (in the teller's
+# mouth: "I owe...", "you have..."), {hedge}, {source}, {subject}. {^slot} capitalizes.
+# {a|b} picks one; #word# is the speaker's idiom (social/talk-words.toml).
+# Period voice, Driftless 1855; no game-rules text.
+
+# =============================================================================================
+# Chat: weather, crops, prices, the glue of a village
+# =============================================================================================
+
+[[talk]]
+id = "chat_keeping"
+on = ["chat"]
+lines = [
+  { by = "initiator", text = "#hello#, {you}. Keeping well?" },
+  { by = "target", text = "Middling, and no use complaining. Yourself?" },
+]
+
+[[talk]]
+id = "chat_complain"
+on = ["chat"]
+lines = [
+  { by = "initiator", text = "How are you keeping, {you}?" },
+  { by = "target", text = "Can't complain, and wouldn't be listened to if I did." },
+]
+
+[[talk]]
+id = "chat_busy"
+on = ["chat"]
+lines = [
+  { by = "initiator", text = "Busy as ever, {you}?" },
+  { by = "target", text = "Busier. There's no end to it this time of year." },
+]
+
+[[talk]]
+id = "chat_letters"
+on = ["chat"]
+lines = [
+  { by = "initiator", text = "Any letters from #homeland# lately, {you}?" },
+  { by = "target", text = "Not since the thaw. The mails are slow as cold molasses." },
+]
+
+[[talk]]
+id = "chat_quiet"
+on = ["chat"]
+lines = [
+  { by = "initiator", text = "Quiet in {town} today." },
+  { by = "target", text = "Quiet suits me {well enough|fine}." },
+]
+
+[[talk]]
+id = "chat_roads"
+on = ["chat"]
+lines = [
+  { by = "initiator", text = "How are the roads out your way, {you}?" },
+  { by = "target", text = "{Ruts you could lose a calf in|Passable, if you don't mind walking beside the wagon}." },
+]
+
+[[talk]]
+id = "chat_family"
+on = ["chat"]
+when = { label = "acquaintance" }
+lines = [
+  { by = "initiator", text = "And how are all at home, {you}?" },
+  { by = "target", text = "All well, #god_willing#. Kind of you to ask." },
+]
+
+[[talk]]
+id = "chat_rain_duck"
+on = ["chat"]
+when = { weather = "rain" }
+lines = [
+  { by = "initiator", text = "Wet enough for you, {you}?" },
+  { by = "target", text = "Wet enough to drown a duck. The roads will be soup by night." },
+]
+
+[[talk]]
+id = "chat_rain_creek"
+on = ["chat"]
+when = { weather = "rain" }
+lines = [
+  { by = "initiator", text = "This rain will bring {creek} up." },
+  { by = "target", text = "#god_willing# it stops short of the bottoms." },
+]
+
+[[talk]]
+id = "chat_rain_hay"
+on = ["chat"]
+when = { weather = "rain", season = "summer" }
+lines = [
+  { by = "initiator", text = "Rain on the hay again." },
+  { by = "target", text = "It'll be black as your hat if it lies another day." },
+]
+
+[[talk]]
+id = "chat_snow"
+on = ["chat"]
+when = { weather = "snow" }
+lines = [
+  { by = "initiator", text = "Snow again, {you}." },
+  { by = "target", text = "I'd hoped we'd seen the last of it. {The woodpile hasn't|My feet haven't}." },
+]
+
+[[talk]]
+id = "chat_bitter"
+on = ["chat"]
+when = { temp = "freezing", weather = "dry" }
+lines = [
+  { by = "initiator", text = "Bitter out, {you}." },
+  { by = "target", text = "Bitter. I broke ice on the bucket this morning." },
+]
+
+[[talk]]
+id = "chat_cold"
+on = ["chat"]
+when = { temp = "cold" }
+lines = [
+  { by = "initiator", text = "There's a nip in the air yet." },
+  { by = "target", text = "Keep the stove going and your feet dry; that's all the doctoring I know." },
+]
+
+[[talk]]
+id = "chat_hot"
+on = ["chat"]
+when = { temp = "hot" }
+lines = [
+  { by = "initiator", text = "Hot as a bake-oven today." },
+  { by = "target", text = "The corn likes it, if nobody else does." },
+]
+
+[[talk]]
+id = "chat_spring_dry"
+on = ["chat"]
+when = { season = "spring", weather = "dry" }
+lines = [
+  { by = "initiator", text = "Ground's drying out at last." },
+  { by = "target", text = "Time to be getting seed in, then, and no more excuses." },
+]
+
+[[talk]]
+id = "chat_spring_garden"
+on = ["chat"]
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "Have you got your garden in yet, {you}?" },
+  { by = "target", text = "Peas and potatoes. The rest when the moon's right." },
+]
+
+[[talk]]
+id = "chat_spring_mud"
+on = ["chat"]
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "Mud to the axles on {main_street}." },
+  { by = "target", text = "Spring in this country: half water, half promises." },
+]
+
+[[talk]]
+id = "chat_summer_hay"
+on = ["chat"]
+when = { season = "summer", weather = "dry" }
+lines = [
+  { by = "initiator", text = "Hay's looking heavy this year." },
+  { by = "target", text = "If the weather holds for cutting. It never does." },
+]
+
+[[talk]]
+id = "chat_autumn"
+on = ["chat"]
+when = { season = "autumn" }
+lines = [
+  { by = "initiator", text = "Leaves are turning on the bluffs." },
+  { by = "target", text = "And my woodpile's not half what it should be." },
+]
+
+[[talk]]
+id = "chat_winter"
+on = ["chat"]
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "A long winter yet, {you}." },
+  { by = "target", text = "They're all long, out here." },
+]
+
+[[talk]]
+id = "chat_morning"
+on = ["chat"]
+when = { part = "morning" }
+lines = [
+  { by = "initiator", text = "Early start, {you}?" },
+  { by = "target", text = "No other kind, this time of year." },
+]
+
+[[talk]]
+id = "chat_evening"
+on = ["chat"]
+when = { part = "evening" }
+lines = [
+  { by = "initiator", text = "#evening#, {you}. Long day?" },
+  { by = "target", text = "Long enough. I'll sleep like a stone." },
+]
+
+[[talk]]
+id = "chat_night"
+on = ["chat"]
+when = { part = "night" }
+lines = [
+  { by = "initiator", text = "You're up late, {you}." },
+  { by = "target", text = "So are you. Neither of us has the sense to be abed." },
+]
+
+[[talk]]
+id = "chat_sermon"
+on = ["chat"]
+when = { sabbath = true, venue = "church" }
+lines = [
+  { by = "initiator", text = "A fine sermon, I thought." },
+  { by = "target", text = "Long, but fine. My knees are still saying amen." },
+]
+
+[[talk]]
+id = "chat_sabbath_cows"
+on = ["chat"]
+when = { sabbath = true }
+lines = [
+  { by = "initiator", text = "Day of rest, {you}." },
+  { by = "target", text = "For some. The cows haven't heard of it." },
+]
+
+[[talk]]
+id = "chat_market"
+on = ["chat"]
+when = { observance = "market_day" }
+lines = [
+  { by = "initiator", text = "Town's full for market day." },
+  { by = "target", text = "Every wagon in the county, and half of them stuck on {main_street}." },
+]
+
+[[talk]]
+id = "chat_market_eggs"
+on = ["chat"]
+when = { observance = "market_day", part = "morning" }
+lines = [
+  { by = "initiator", text = "Did you bring anything in to sell, {you}?" },
+  { by = "target", text = "Eggs and a little butter. It all goes for coffee and thread." },
+]
+
+[[talk]]
+id = "chat_price"
+on = ["chat"]
+when = { price = true }
+lines = [
+  { by = "initiator", text = "I hear {price_item} is {price} at {store}." },
+  { by = "target", text = "{Fair enough, if a body has the cash|Cheap enough. It's the hauling it home that costs}." },
+]
+
+[[talk]]
+id = "chat_price_thrift"
+on = ["chat"]
+when = { price = true, mood = "thrift" }
+lines = [
+  { by = "initiator", text = "{^price_item}, {price} at {store}. I counted twice." },
+  { by = "target", text = "You'd count the stars if they charged for them." },
+]
+
+[[talk]]
+id = "chat_misfortune"
+on = ["chat"]
+when = { misfortune = true }
+lines = [
+  { by = "initiator", text = "Did you hear? {^misfortune}." },
+  { by = "target", text = "#oath#. #bad_business#. I'll go round with something." },
+]
+
+[[talk]]
+id = "chat_misfortune_quiet"
+on = ["chat"]
+when = { misfortune = true }
+lines = [
+  { by = "initiator", text = "{^misfortune}. You'll have heard." },
+  { by = "target", text = "I heard. #bad_business#, and nobody's fault, whatever they'll say." },
+]
+
+# ---- the speaker's mood: Appetite and Conscience show through ----
+
+[[talk]]
+id = "chat_mood_hunger"
+on = ["chat"]
+when = { mood = "hunger" }
+lines = [
+  { by = "initiator", text = "I could eat a horse and chase the rider." },
+  { by = "target", text = "Supper's not far off. Hold on to the horse till then." },
+]
+
+[[talk]]
+id = "chat_mood_hungry"
+on = ["chat"]
+when = { mood = "hungry" }
+lines = [
+  { by = "initiator", text = "I've had nothing since morning but coffee and good intentions." },
+  { by = "target", text = "Then go and eat, {you}, before you fall over." },
+]
+
+[[talk]]
+id = "chat_mood_weary"
+on = ["chat"]
+when = { mood = "weary" }
+lines = [
+  { by = "initiator", text = "I'm dead on my feet, {you}." },
+  { by = "target", text = "Then sit a minute. The work won't run off." },
+]
+
+[[talk]]
+id = "chat_mood_drunk"
+on = ["chat"]
+when = { mood = "drunk" }
+lines = [
+  { by = "initiator", text = "#friend#! Have #drink# with me. Have two!" },
+  { by = "target", text = "You've had a few already, by the look of you." },
+]
+
+[[talk]]
+id = "chat_mood_anxious"
+on = ["chat"]
+when = { mood = "anxious" }
+lines = [
+  { by = "initiator", text = "I can't settle today, {you}. I couldn't tell you why." },
+  { by = "target", text = "It'll pass. These things do." },
+]
+
+[[talk]]
+id = "chat_mood_fear"
+on = ["chat"]
+when = { mood = "fear" }
+lines = [
+  { by = "initiator", text = "I don't like the lights on the bluff of a night." },
+  { by = "target", text = "Then don't look at them, and keep to the road." },
+]
+
+[[talk]]
+id = "chat_mood_longing"
+on = ["chat"]
+when = { mood = "longing" }
+lines = [
+  { by = "initiator", text = "Some days I'd give a good deal to see #homeland# again." },
+  { by = "target", text = "You'd miss {town} inside a week." },
+]
+
+[[talk]]
+id = "chat_mood_envy"
+on = ["chat"]
+when = { mood = "envy" }
+lines = [
+  { by = "initiator", text = "Some folk have all the luck, {you}." },
+  { by = "target", text = "And some make it, and the rest talk about them." },
+]
+
+[[talk]]
+id = "chat_mood_greed"
+on = ["chat"]
+when = { mood = "greed" }
+lines = [
+  { by = "initiator", text = "There's money to be made here, for them as look for it." },
+  { by = "target", text = "And lost, for them as don't watch it." },
+]
+
+[[talk]]
+id = "chat_mood_sloth"
+on = ["chat"]
+when = { mood = "sloth" }
+lines = [
+  { by = "initiator", text = "I've a mind to sit and do nothing the whole afternoon." },
+  { by = "target", text = "Sounds like heaven. Don't let your conscience catch you at it." },
+]
+
+[[talk]]
+id = "chat_mood_rage"
+on = ["chat"]
+when = { mood = "rage" }
+lines = [
+  { by = "initiator", text = "Don't mind me, {you}. I'm out of sorts." },
+  { by = "target", text = "So I see. I'll stand clear." },
+]
+
+[[talk]]
+id = "chat_mood_lust"
+on = ["chat"]
+when = { mood = "lust" }
+lines = [
+  { by = "initiator", text = "You're looking well today, {you}. Very well." },
+  { by = "target", text = "Am I, now." },
+]
+
+[[talk]]
+id = "chat_mood_duty"
+on = ["chat"]
+when = { mood = "duty" }
+lines = [
+  { by = "initiator", text = "Can't stop long; there's work wanting." },
+  { by = "target", text = "There always is. Go on, then." },
+]
+
+[[talk]]
+id = "chat_mood_piety"
+on = ["chat"]
+when = { mood = "piety" }
+lines = [
+  { by = "initiator", text = "Will we see you at meeting this Sabbath, {you}?" },
+  { by = "target", text = "#god_willing#." },
+]
+
+[[talk]]
+id = "chat_mood_sabbath"
+on = ["chat"]
+when = { mood = "sabbath", sabbath = true }
+lines = [
+  { by = "initiator", text = "Mind it's the Lord's day, {you}." },
+  { by = "target", text = "I mind it. I'm only talking." },
+]
+
+[[talk]]
+id = "chat_mood_temperance"
+on = ["chat"]
+when = { mood = "temperance" }
+lines = [
+  { by = "initiator", text = "I'll not stop for #drink#, thank you all the same." },
+  { by = "target", text = "Nobody asked you to, but it's to your credit." },
+]
+
+[[talk]]
+id = "chat_mood_thrift"
+on = ["chat"]
+when = { mood = "thrift" }
+lines = [
+  { by = "initiator", text = "Everything costs so. A body can't turn round without spending." },
+  { by = "target", text = "Then stand still and save." },
+]
+
+[[talk]]
+id = "chat_mood_neighborly"
+on = ["chat"]
+when = { mood = "neighborliness" }
+lines = [
+  { by = "initiator", text = "If you need a hand with anything, {you}, you've only to say." },
+  { by = "target", text = "#thanks#. I'll hold you to that." },
+]
+
+[[talk]]
+id = "chat_mood_shame"
+on = ["chat"]
+when = { mood = "shame" }
+lines = [
+  { by = "initiator", text = "I've not been myself lately, {you}." },
+  { by = "target", text = "We none of us are, some weeks." },
+]
+
+[[talk]]
+id = "chat_mood_propriety"
+on = ["chat"]
+when = { mood = "propriety" }
+lines = [
+  { by = "initiator", text = "People will talk, {you}, if we stand here gossiping all day." },
+  { by = "target", text = "People will talk whatever we do." },
+]
+
+[[talk]]
+id = "chat_mood_easy"
+on = ["chat"]
+when = { mood = "easy", weather = "dry" }
+lines = [
+  { by = "initiator", text = "A good day, {you}." },
+  { by = "target", text = "It is that. Let's not spoil it with news." },
+]
+
+# ---- how they stand with each other ----
+
+[[talk]]
+id = "chat_friend_hoping"
+on = ["chat"]
+when = { label = "friend" }
+lines = [
+  { by = "initiator", text = "There you are, {you}. I was hoping I'd see you." },
+  { by = "target", text = "And here I am. Sit down." },
+]
+
+[[talk]]
+id = "chat_friend_family"
+on = ["chat"]
+when = { label = "friend" }
+lines = [
+  { by = "initiator", text = "{you}! How are all your people?" },
+  { by = "target", text = "All well, #god_willing#. And yours?" },
+  { by = "initiator", text = "Ornery and healthy, the both." },
+]
+
+[[talk]]
+id = "chat_enemy"
+on = ["chat"]
+when = { label = "enemy" }
+lines = [
+  { by = "initiator", text = "{you}." },
+  { by = "target", text = "{you}. Weather's turning, they say." },
+  { by = "initiator", text = "So they say." },
+]
+
+[[talk]]
+id = "chat_rival"
+on = ["chat"]
+when = { label = "rival" }
+lines = [
+  { by = "initiator", text = "Doing well for yourself, I see." },
+  { by = "target", text = "Well enough. Better than some." },
+]
+
+[[talk]]
+id = "chat_admirer"
+on = ["chat"]
+when = { label = "admirer" }
+lines = [
+  { by = "initiator", text = "I wanted to ask your advice on something, {you}, if you've a minute." },
+  { by = "target", text = "I've a minute. Ask away." },
+]
+
+[[talk]]
+id = "chat_stranger"
+on = ["chat"]
+when = { label = "stranger" }
+lines = [
+  { by = "initiator", text = "#hello#, {you}. Fine day, if it holds." },
+  { by = "target", text = "If it holds. They seldom do." },
+]
+
+[[talk]]
+id = "chat_kin_supper"
+on = ["chat"]
+when = { kin = true, household = false }
+lines = [
+  { by = "initiator", text = "You'll come to supper Sunday, {you}?" },
+  { by = "target", text = "If I'm asked nicely, and there's pie." },
+]
+
+[[talk]]
+id = "chat_household_fire"
+on = ["chat"]
+when = { household = true }
+lines = [
+  { by = "initiator", text = "Did you bank the fire?" },
+  { by = "target", text = "I did, and fetched the water too, before you ask." },
+]
+
+[[talk]]
+id = "chat_household_supper"
+on = ["chat"]
+when = { household = true, part = "evening" }
+lines = [
+  { by = "initiator", text = "What's for supper?" },
+  { by = "target", text = "What's always for supper. Be glad of it." },
+]
+
+[[talk]]
+id = "chat_courting"
+on = ["chat"]
+when = { courting = true }
+lines = [
+  { by = "initiator", text = "I was hoping you'd be here, {you}." },
+  { by = "target", text = "Were you, now." },
+]
+
+[[talk]]
+id = "chat_remember_help"
+on = ["chat"]
+when = { remembers = "help" }
+lines = [
+  { by = "initiator", text = "I've not forgotten the hand you lent me {memory_place}, {you}." },
+  { by = "target", text = "Think nothing of it. You'd do the same." },
+]
+
+[[talk]]
+id = "chat_remember_gift"
+on = ["chat"]
+when = { remembers = "gift" }
+lines = [
+  { by = "initiator", text = "That was a kind thing you brought me, {you}." },
+  { by = "target", text = "It was nothing. Did it keep?" },
+]
+
+[[talk]]
+id = "chat_remember_insult"
+on = ["chat"]
+when = { remembers = "insult" }
+lines = [
+  { by = "initiator", text = "I've not forgotten what you said {memory_place}." },
+  { by = "target", text = "Nor I. Let it lie, {you}." },
+]
+
+[[talk]]
+id = "chat_owe"
+on = ["chat"]
+when = { owes = "initiator" }
+lines = [
+  { by = "initiator", text = "I've not forgotten what I owe you, {you}." },
+  { by = "target", text = "I know you haven't. When you can." },
+]
+
+[[talk]]
+id = "chat_owed"
+on = ["chat"]
+when = { owes = "target" }
+lines = [
+  { by = "initiator", text = "Fine weather for settling accounts, {you}." },
+  { by = "target", text = "Is it, now. I'll bear it in mind." },
+]
+
+[[talk]]
+id = "chat_tavern"
+on = ["chat"]
+when = { venue = "tavern", part = "evening" }
+lines = [
+  { by = "initiator", text = "Busy in here tonight." },
+  { by = "target", text = "Busy enough. You can't hear yourself think." },
+]
+
+[[talk]]
+id = "chat_store"
+on = ["chat"]
+when = { venue = "store" }
+lines = [
+  { by = "initiator", text = "Did the new goods come in?" },
+  { by = "target", text = "Some. The wagon's late as ever." },
+]
+
+[[talk]]
+id = "chat_church"
+on = ["chat"]
+when = { venue = "church" }
+lines = [
+  { by = "initiator", text = "The pews get harder every week." },
+  { by = "target", text = "They're meant to keep you awake." },
+]
+
+[[talk]]
+id = "chat_mill"
+on = ["chat"]
+when = { venue = "mill" }
+lines = [
+  { by = "initiator", text = "Water high enough for grinding?" },
+  { by = "target", text = "Plenty, for once. Bring your sacks while it lasts." },
+]
+
+[[talk]]
+id = "chat_smithy"
+on = ["chat"]
+when = { venue = "smithy" }
+lines = [
+  { by = "initiator", text = "Hot work, {you}." },
+  { by = "target", text = "Hot and loud, and it pays in nails." },
+]
+
+# =============================================================================================
+# Introductions
+# =============================================================================================
+
+[[talk]]
+id = "intro_plain"
+on = ["introduce"]
+lines = [
+  { by = "initiator", text = "#hello#. {initiator}, and pleased to know you." },
+  { by = "target", text = "{target}. Likewise, I'm sure." },
+]
+
+[[talk]]
+id = "intro_face"
+on = ["introduce"]
+lines = [
+  { by = "initiator", text = "I don't think I know your face. {initiator}." },
+  { by = "target", text = "{target}. Nor I yours, but that's mended now." },
+]
+
+[[talk]]
+id = "intro_meaning"
+on = ["introduce"]
+lines = [
+  { by = "initiator", text = "{initiator}. I've been meaning to make your acquaintance." },
+  { by = "target", text = "And now you have. {target}." },
+]
+
+[[talk]]
+id = "intro_where_from"
+on = ["introduce"]
+lines = [
+  { by = "initiator", text = "#hello#! The name's {initiator}." },
+  { by = "target", text = "{target}. And where do you hail from?" },
+  { by = "initiator", text = "From #homeland#, first, and a good many places since." },
+]
+
+[[talk]]
+id = "intro_evening"
+on = ["introduce"]
+when = { part = "evening" }
+lines = [
+  { by = "initiator", text = "#evening#. We've not been introduced: {initiator}." },
+  { by = "target", text = "{target}. A pleasure, on a cold night." },
+]
+
+[[talk]]
+id = "intro_church"
+on = ["introduce"]
+when = { venue = "church" }
+lines = [
+  { by = "initiator", text = "{initiator}. I don't think I've seen you at meeting before." },
+  { by = "target", text = "{target}. You'll find me at the back, where the Lord can't see me yawn." },
+]
+
+[[talk]]
+id = "intro_store"
+on = ["introduce"]
+when = { venue = "store" }
+lines = [
+  { by = "initiator", text = "{initiator}. I'll be in here often, I expect, if the prices hold." },
+  { by = "target", text = "{target}. Then we'll see a good deal of each other." },
+]
+
+[[talk]]
+id = "intro_tavern"
+on = ["introduce"]
+when = { venue = "tavern" }
+lines = [
+  { by = "initiator", text = "I don't believe we've met. {initiator}." },
+  { by = "target", text = "{target}. A warm room and a new face; that's a good day's work." },
+]
+
+# =============================================================================================
+# News: gossip, asking for it, warning, confiding (act lines never say WHAT; said lines do)
+# =============================================================================================
+
+[[talk]]
+id = "gossip_latest"
+on = ["gossip"]
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Have you heard the latest, {you}?" },
+  { by = "target", text = "No. Go on." },
+]
+
+[[talk]]
+id = "gossip_believe"
+on = ["gossip"]
+when = { told = true }
+lines = [
+  { by = "initiator", text = "You'll not believe what I heard." },
+  { by = "target", text = "Try me." },
+]
+
+[[talk]]
+id = "gossip_closer"
+on = ["gossip"]
+when = { told = true, rumor = "scandal" }
+lines = [
+  { by = "initiator", text = "Come closer; this isn't for every ear." },
+  { by = "target", text = "Well?" },
+]
+
+[[talk]]
+id = "gossip_queer"
+on = ["gossip"]
+when = { told = true, rumor = "uncanny" }
+lines = [
+  { by = "initiator", text = "There's something queer going on, {you}. Mark me." },
+  { by = "target", text = "Queer how?" },
+]
+
+[[talk]]
+id = "gossip_nothing"
+on = ["gossip"]
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Quiet times, {you}. I've heard nothing worth repeating." },
+  { by = "target", text = "Quiet's no bad thing." },
+]
+
+[[talk]]
+id = "gossip_nothing_news"
+on = ["gossip"]
+when = { told = false }
+lines = [
+  { by = "initiator", text = "I'd tell you the news if there were any." },
+  { by = "target", text = "No news is good news, they say." },
+]
+
+[[talk]]
+id = "gossip_nothing_stale"
+on = ["gossip"]
+when = { told = false, stale = true }
+lines = [
+  { by = "initiator", text = "Nothing new. Only the same old talk, and I'm tired of the sound of it." },
+  { by = "target", text = "Then spare me it, and we'll talk of the weather." },
+]
+
+[[talk]]
+id = "gossip_said_source_credits"
+on = ["gossip"]
+part = "said"
+when = { secondhand = true, heard = "credits", about = "other" }
+lines = [
+  { by = "initiator", text = "{^source} says {rumor}." },
+  { by = "target", text = "#oath#! Who'd have thought it?" },
+]
+
+[[talk]]
+id = "gossip_said_source_doubts"
+on = ["gossip"]
+part = "said"
+when = { secondhand = true, heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^source} told me {rumor}." },
+  { by = "target", text = "{^source} would say anything. I'll believe it when I see it." },
+]
+
+[[talk]]
+id = "gossip_said_hedge_credits"
+on = ["gossip"]
+part = "said"
+when = { secondhand = false, heard = "credits", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "#oath#. I'd never have thought it." },
+]
+
+[[talk]]
+id = "gossip_said_hedge_doubts"
+on = ["gossip"]
+part = "said"
+when = { secondhand = false, heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "I'd want more than talk before I'd credit that." },
+]
+
+[[talk]]
+id = "gossip_said_already"
+on = ["gossip"]
+part = "said"
+weight = 60
+when = { heard = "already", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "#yes#, I'd heard as much. It's all over {town}." },
+]
+
+[[talk]]
+id = "gossip_said_uncanny"
+on = ["gossip"]
+part = "said"
+when = { rumor = "uncanny", heard = "credits", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}. I've put iron over my door, and I'd advise the same." },
+  { by = "target", text = "#oath#. I will, tonight." },
+]
+
+[[talk]]
+id = "gossip_said_uncanny_doubts"
+on = ["gossip"]
+part = "said"
+when = { rumor = "uncanny", heard = "doubts", about = "other" }
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}." },
+  { by = "target", text = "Iron and old wives' tales. Nobody's seen a thing." },
+]
+
+[[talk]]
+id = "gossip_said_you_source"
+on = ["gossip"]
+part = "said"
+when = { about = "you", secondhand = true }
+lines = [
+  { by = "initiator", text = "You should know what {source} is saying, {you}: that {rumor}." },
+  { by = "target", text = "Is that so. Let {source} say it to my face." },
+]
+
+[[talk]]
+id = "gossip_said_you"
+on = ["gossip"]
+part = "said"
+when = { about = "you", secondhand = false }
+lines = [
+  { by = "initiator", text = "I'll not dress it up, {you}: folk say {rumor}." },
+  { by = "target", text = "Folk say a great deal." },
+]
+
+[[talk]]
+id = "gossip_said_self"
+on = ["gossip"]
+part = "said"
+when = { about = "self" }
+lines = [
+  { by = "initiator", text = "You may as well hear it from me: {rumor}." },
+  { by = "target", text = "#well#, I'm glad you told me straight." },
+]
+
+[[talk]]
+id = "ask_heard"
+on = ["ask_about"]
+when = { told = true }
+lines = [
+  { by = "initiator", text = "What's the news, {you}?" },
+  { by = "target", text = "Oh, there's news." },
+]
+
+[[talk]]
+id = "ask_heard_anything"
+on = ["ask_about"]
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Heard anything, {you}?" },
+  { by = "target", text = "I have, as it happens. Sit down." },
+]
+
+[[talk]]
+id = "ask_heard_scandal"
+on = ["ask_about"]
+when = { told = true, rumor = "scandal" }
+lines = [
+  { by = "initiator", text = "Anything stirring, {you}?" },
+  { by = "target", text = "{Keep your voice down|Not so loud}, and I'll tell you." },
+]
+
+[[talk]]
+id = "ask_nothing_roads"
+on = ["ask_about"]
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Any news, {you}?" },
+  { by = "target", text = "Nothing worth the telling, the roads being what they are." },
+]
+
+[[talk]]
+id = "ask_nothing_quiet"
+on = ["ask_about"]
+when = { told = false }
+lines = [
+  { by = "initiator", text = "What's the news, {you}?" },
+  { by = "target", text = "Not a thing. {town}'s as quiet as a churchyard." },
+]
+
+[[talk]]
+id = "ask_nothing_stale"
+on = ["ask_about"]
+when = { told = false, stale = true }
+lines = [
+  { by = "initiator", text = "Anything new, {you}?" },
+  { by = "target", text = "Only the same old talk, and I'm sick of the sound of it." },
+]
+
+[[talk]]
+id = "ask_nothing_rain"
+on = ["ask_about"]
+when = { told = false, weather = "rain" }
+lines = [
+  { by = "initiator", text = "Any news, {you}?" },
+  { by = "target", text = "Nobody's been in or out since the rain started. Ask me when it stops." },
+]
+
+[[talk]]
+id = "ask_nothing_market"
+on = ["ask_about"]
+when = { told = false, observance = "market_day" }
+lines = [
+  { by = "initiator", text = "Any news, {you}?" },
+  { by = "target", text = "Ask me tomorrow. The whole county's in town; something will come of it." },
+]
+
+[[talk]]
+id = "ask_nothing_discreet"
+on = ["ask_about"]
+weight = 3
+when = { told = false, label = "acquaintance" }
+lines = [
+  { by = "initiator", text = "What are folk saying, {you}?" },
+  { by = "target", text = "What folk say is their business, and I'd as soon it stayed so." },
+]
+
+[[talk]]
+id = "ask_said_source"
+on = ["ask_about"]
+part = "said"
+when = { secondhand = true, about = "other" }
+lines = [
+  { by = "target", text = "{^source} says {rumor}." },
+  { by = "initiator", text = "#oath#. Is that so?" },
+]
+
+[[talk]]
+id = "ask_said_source_doubts"
+on = ["ask_about"]
+part = "said"
+when = { secondhand = true, heard = "doubts", about = "other" }
+lines = [
+  { by = "target", text = "{^source} has it that {rumor}. Make of it what you will." },
+  { by = "initiator", text = "I'll make very little of it." },
+]
+
+[[talk]]
+id = "ask_said_hedge"
+on = ["ask_about"]
+part = "said"
+when = { secondhand = false, about = "other" }
+lines = [
+  { by = "target", text = "{^hedge} {rumor}." },
+  { by = "initiator", text = "{You don't say|Well, I never}." },
+]
+
+[[talk]]
+id = "ask_said_already"
+on = ["ask_about"]
+part = "said"
+weight = 60
+when = { heard = "already", about = "other" }
+lines = [
+  { by = "target", text = "Only what everybody knows: {rumor}." },
+  { by = "initiator", text = "#yes#, I'd heard that." },
+]
+
+[[talk]]
+id = "ask_said_uncanny"
+on = ["ask_about"]
+part = "said"
+when = { rumor = "uncanny", about = "other" }
+lines = [
+  { by = "target", text = "{^hedge} {rumor}. Keep your iron about you." },
+  { by = "initiator", text = "I'll mind it." },
+]
+
+[[talk]]
+id = "ask_said_you"
+on = ["ask_about"]
+part = "said"
+when = { about = "you" }
+lines = [
+  { by = "target", text = "Since you ask: there's talk that {rumor}." },
+  { by = "initiator", text = "Is there, now. Who's talking?" },
+  { by = "target", text = "Folk. I'd not take it to heart." },
+]
+
+[[talk]]
+id = "ask_said_self"
+on = ["ask_about"]
+part = "said"
+when = { about = "self" }
+lines = [
+  { by = "target", text = "You'll hear it soon enough, so hear it from me: {rumor}." },
+  { by = "initiator", text = "#thanks#. Better from you than from the town." },
+]
+
+[[talk]]
+id = "warn_word"
+on = ["warn"]
+when = { told = true }
+lines = [
+  { by = "initiator", text = "A word in your ear, {you}." },
+  { by = "target", text = "What is it?" },
+]
+
+[[talk]]
+id = "warn_friend"
+on = ["warn"]
+when = { told = true }
+lines = [
+  { by = "initiator", text = "You'd best hear this from a friend." },
+  { by = "target", text = "That sounds ominous." },
+]
+
+[[talk]]
+id = "warn_nothing"
+on = ["warn"]
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Mind how you go, {you}. These are uneasy times." },
+  { by = "target", text = "I always do. #thanks#." },
+]
+
+[[talk]]
+id = "warn_nothing_night"
+on = ["warn"]
+when = { told = false, part = "evening" }
+lines = [
+  { by = "initiator", text = "Keep to the road going home, {you}. It's dark early on the bluff." },
+  { by = "target", text = "I will." },
+]
+
+[[talk]]
+id = "warn_said"
+on = ["warn"]
+part = "said"
+when = { about = "other", secondhand = true }
+lines = [
+  { by = "initiator", text = "Mind yourself. {^source} says {rumor}." },
+  { by = "target", text = "#thanks#. I'd sooner know." },
+]
+
+[[talk]]
+id = "warn_said_hedge"
+on = ["warn"]
+part = "said"
+when = { about = "other", secondhand = false }
+lines = [
+  { by = "initiator", text = "Watch yourself. {^hedge} {rumor}." },
+  { by = "target", text = "I'll keep my eyes open." },
+]
+
+[[talk]]
+id = "warn_said_uncanny"
+on = ["warn"]
+part = "said"
+when = { rumor = "uncanny", about = "other" }
+lines = [
+  { by = "initiator", text = "Keep to the road after dark. {^hedge} {rumor}." },
+  { by = "target", text = "I'll mind it. #god_willing# it's only talk." },
+]
+
+[[talk]]
+id = "warn_said_already"
+on = ["warn"]
+part = "said"
+weight = 60
+when = { heard = "already" }
+lines = [
+  { by = "initiator", text = "You'll have heard: {rumor}. Be careful." },
+  { by = "target", text = "I've heard. I'm careful." },
+]
+
+[[talk]]
+id = "warn_said_you"
+on = ["warn"]
+part = "said"
+when = { about = "you" }
+lines = [
+  { by = "initiator", text = "Watch yourself, {you}. Folk are saying {rumor}." },
+  { by = "target", text = "Let them talk. I'm grateful you told me, though." },
+]
+
+[[talk]]
+id = "warn_said_self"
+on = ["warn"]
+part = "said"
+when = { about = "self" }
+lines = [
+  { by = "initiator", text = "Better you hear it from me than from them: {rumor}." },
+  { by = "target", text = "I'm obliged for the honesty." },
+]
+
+[[talk]]
+id = "confide_close"
+on = ["confide"]
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Can I tell you something, {you}, and you'll keep it close?" },
+  { by = "target", text = "You know I will." },
+]
+
+[[talk]]
+id = "confide_door"
+on = ["confide"]
+when = { told = true }
+lines = [
+  { by = "initiator", text = "Shut the door a minute, {you}." },
+  { by = "target", text = "It's shut. What is it?" },
+]
+
+[[talk]]
+id = "confide_weight"
+on = ["confide"]
+when = { told = false }
+lines = [
+  { by = "initiator", text = "I've a weight on me, {you}, and no name for it." },
+  { by = "target", text = "Then sit a while. It'll lighten." },
+]
+
+[[talk]]
+id = "confide_sleep"
+on = ["confide"]
+when = { told = false, mood = "anxious" }
+lines = [
+  { by = "initiator", text = "I can't sleep for worrying, {you}, and I couldn't tell you what about." },
+  { by = "target", text = "That's the worst kind. Talk, and maybe it'll come out." },
+]
+
+[[talk]]
+id = "confide_nothing_home"
+on = ["confide"]
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Do you ever think we were fools to come out here, {you}?" },
+  { by = "target", text = "Every winter. Never in spring." },
+]
+
+[[talk]]
+id = "confide_said_self"
+on = ["confide"]
+part = "said"
+when = { about = "self", heard = "credits" }
+lines = [
+  { by = "initiator", text = "{^rumor}. There. I've said it to nobody else." },
+  { by = "target", text = "It goes no further, {you}." },
+]
+
+[[talk]]
+id = "confide_said_self_doubts"
+on = ["confide"]
+part = "said"
+when = { about = "self", heard = "doubts" }
+lines = [
+  { by = "initiator", text = "{^rumor}. I've told no one." },
+  { by = "target", text = "I'll keep it, though I hardly know what to make of it." },
+]
+
+[[talk]]
+id = "confide_said_self_already"
+on = ["confide"]
+part = "said"
+weight = 60
+when = { about = "self", heard = "already" }
+lines = [
+  { by = "initiator", text = "You may as well know it from me: {rumor}." },
+  { by = "target", text = "I'd guessed as much. It's safe with me." },
+]
+
+[[talk]]
+id = "confide_said_other"
+on = ["confide"]
+part = "said"
+when = { about = "other" }
+lines = [
+  { by = "initiator", text = "I've not said it aloud before: {rumor}. I can't get it out of my head." },
+  { by = "target", text = "I'll keep it close. You did right to tell someone." },
+]
+
+[[talk]]
+id = "confide_said_you"
+on = ["confide"]
+part = "said"
+when = { about = "you" }
+lines = [
+  { by = "initiator", text = "I've held this back too long, {you}: they say {rumor}." },
+  { by = "target", text = "And you? Do you believe it?" },
+  { by = "initiator", text = "I don't know what I believe." },
+]
+
+# =============================================================================================
+# Talk long, compliments, help, gifts, drinks, tales, comfort
+# =============================================================================================
+
+[[talk]]
+id = "deep_go_back"
+on = ["deep_talk"]
+lines = [
+  { by = "initiator", text = "Do you ever think about going back to #homeland#, {you}?" },
+  { by = "target", text = "Every winter. Never in spring. You?" },
+  { by = "initiator", text = "Every night, and every morning I get up and feed the stock." },
+]
+
+[[talk]]
+id = "deep_want"
+on = ["deep_talk"]
+lines = [
+  { by = "initiator", text = "What do you want out of all this, {you}? Truly?" },
+  { by = "target", text = "A roof that doesn't leak and a little put by. And you?" },
+  { by = "initiator", text = "Much the same, I suppose. And not to be forgotten." },
+]
+
+[[talk]]
+id = "deep_young"
+on = ["deep_talk"]
+lines = [
+  { by = "initiator", text = "I worry for the young ones, out here." },
+  { by = "target", text = "They'll be tougher than us, and kinder, #god_willing#." },
+]
+
+[[talk]]
+id = "deep_grew_up"
+on = ["deep_talk"]
+lines = [
+  { by = "initiator", text = "Tell me about where you grew up, {you}." },
+  { by = "target", text = "It's a long story." },
+  { by = "initiator", text = "I've time." },
+]
+
+[[talk]]
+id = "deep_longing"
+on = ["deep_talk"]
+when = { mood = "longing" }
+lines = [
+  { by = "initiator", text = "I dreamt of home again last night." },
+  { by = "target", text = "So do I, some nights. Then I wake and the stove wants feeding." },
+]
+
+[[talk]]
+id = "deep_anxious"
+on = ["deep_talk"]
+when = { mood = "anxious" }
+lines = [
+  { by = "initiator", text = "Something's not right with me lately, {you}." },
+  { by = "target", text = "Talk, then. I've nowhere to be." },
+]
+
+[[talk]]
+id = "deep_friend"
+on = ["deep_talk"]
+when = { label = "friend" }
+lines = [
+  { by = "initiator", text = "I don't know what I'd do without you, {you}." },
+  { by = "target", text = "Talk to the cow, most likely. She'd be a poorer listener." },
+]
+
+[[talk]]
+id = "deep_courting"
+on = ["deep_talk"]
+when = { courting = true }
+lines = [
+  { by = "initiator", text = "I've been thinking about the future, {you}. Ours." },
+  { by = "target", text = "Have you, now. Go on." },
+]
+
+[[talk]]
+id = "deep_winter"
+on = ["deep_talk"]
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "These long nights do get into a person." },
+  { by = "target", text = "They do. Talk is the only cure I know for them." },
+]
+
+[[talk]]
+id = "deep_faith"
+on = ["deep_talk"]
+when = { mood = "piety" }
+lines = [
+  { by = "initiator", text = "Do you think the Lord sees us, {you}, all the way out here?" },
+  { by = "target", text = "If He can see the sparrow, He can see {town}." },
+]
+
+[[talk]]
+id = "compliment_work"
+on = ["compliment"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "That's a fine piece of work, {you}." },
+  { by = "target", text = "#thanks#. It took long enough." },
+]
+
+[[talk]]
+id = "compliment_baking"
+on = ["compliment"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "I've not had better {bread|pie|coffee} in {town}, {you}." },
+  { by = "target", text = "Go on with you. Have another." },
+]
+
+[[talk]]
+id = "compliment_smithy"
+on = ["compliment"]
+outcome = "success"
+when = { venue = "smithy" }
+lines = [
+  { by = "initiator", text = "You've a fine hand with the iron, {you}." },
+  { by = "target", text = "The iron does the work. I only argue with it." },
+]
+
+[[talk]]
+id = "compliment_store"
+on = ["compliment"]
+outcome = "success"
+when = { venue = "store" }
+lines = [
+  { by = "initiator", text = "You keep a tidy store, {you}." },
+  { by = "target", text = "#thanks#. It doesn't keep itself." },
+]
+
+[[talk]]
+id = "compliment_children"
+on = ["compliment"]
+outcome = "success"
+when = { label = "acquaintance" }
+lines = [
+  { by = "initiator", text = "Your people always look so well turned out, {you}." },
+  { by = "target", text = "Soap and threats. Kind of you to notice." },
+]
+
+[[talk]]
+id = "compliment_thick"
+on = ["compliment"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Finest garden in the county, I'd say." },
+  { by = "target", text = "Would you. And what is it you want?" },
+]
+
+[[talk]]
+id = "compliment_hardest"
+on = ["compliment"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Nobody in {town} works harder than you, {you}." },
+  { by = "target", text = "Laying it on a bit thick, aren't you?" },
+]
+
+[[talk]]
+id = "compliment_tired"
+on = ["compliment"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "You look well, {you}." },
+  { by = "target", text = "I look tired, and you know it." },
+]
+
+[[talk]]
+id = "help_end"
+on = ["help"]
+lines = [
+  { by = "initiator", text = "Here, let me take the other end of that." },
+  { by = "target", text = "#thanks#. I'd have been at it all day." },
+]
+
+[[talk]]
+id = "help_hands"
+on = ["help"]
+lines = [
+  { by = "initiator", text = "You're short a pair of hands, {you}. Mine are free." },
+  { by = "target", text = "I'll not say no." },
+]
+
+[[talk]]
+id = "help_harness"
+on = ["help"]
+lines = [
+  { by = "initiator", text = "That harness wants mending. Hand me the awl." },
+  { by = "target", text = "#bless#. I've been meaning to get to it for a week." },
+]
+
+[[talk]]
+id = "help_rain"
+on = ["help"]
+when = { weather = "rain" }
+lines = [
+  { by = "initiator", text = "Let's get that under cover before it soaks." },
+  { by = "target", text = "Quick, then!" },
+]
+
+[[talk]]
+id = "help_wood"
+on = ["help"]
+when = { season = "autumn" }
+lines = [
+  { by = "initiator", text = "I'll help you with the wood, {you}. Winter won't wait." },
+  { by = "target", text = "#bless#. It's a mountain." },
+]
+
+[[talk]]
+id = "help_spring"
+on = ["help"]
+when = { season = "spring", venue = "farm" }
+lines = [
+  { by = "initiator", text = "I'll help you get the seed in while the ground's right." },
+  { by = "target", text = "#thanks#. I'll do the same for you come harvest." },
+]
+
+[[talk]]
+id = "help_neighborly"
+on = ["help"]
+when = { mood = "neighborliness" }
+lines = [
+  { by = "initiator", text = "Many hands, {you}." },
+  { by = "target", text = "#thanks#. I'll owe you one." },
+  { by = "initiator", text = "That's not how I keep accounts." },
+]
+
+[[talk]]
+id = "help_done_in"
+on = ["help"]
+when = { target_mood = "weary" }
+lines = [
+  { by = "initiator", text = "You look done in. Sit; I'll finish this." },
+  { by = "target", text = "I won't argue." },
+]
+
+[[talk]]
+id = "help_kin"
+on = ["help"]
+when = { kin = true }
+lines = [
+  { by = "initiator", text = "Give it here. That's what family's for." },
+  { by = "target", text = "#thanks#. Don't tell the others I let you." },
+]
+
+[[talk]]
+id = "help_gate"
+on = ["help"]
+lines = [
+  { by = "initiator", text = "Your gate's off its hinge again. Hold it while I set the pin." },
+  { by = "target", text = "#thanks#. It's been dragging a week." },
+]
+
+[[talk]]
+id = "help_water"
+on = ["help"]
+lines = [
+  { by = "initiator", text = "Give me one of those buckets, {you}." },
+  { by = "target", text = "#thanks#. The well gets further off every year." },
+]
+
+[[talk]]
+id = "help_errand"
+on = ["help"]
+lines = [
+  { by = "initiator", text = "I'm going by the store. Want anything fetched, {you}?" },
+  { by = "target", text = "A paper of pins, if you would. You're a saint." },
+]
+
+[[talk]]
+id = "help_store"
+on = ["help"]
+when = { venue = "store" }
+lines = [
+  { by = "initiator", text = "I'll mind the counter a minute, {you}, if you want your dinner." },
+  { by = "target", text = "Would you? Don't give the store away." },
+]
+
+[[talk]]
+id = "help_tavern"
+on = ["help"]
+when = { venue = "tavern" }
+lines = [
+  { by = "initiator", text = "Let me carry those plates, {you}." },
+  { by = "target", text = "Mind the hot one. #thanks#." },
+]
+
+[[talk]]
+id = "help_church"
+on = ["help"]
+when = { venue = "church" }
+lines = [
+  { by = "initiator", text = "I'll help you put the hymnals away." },
+  { by = "target", text = "#thanks#. They multiply in the night." },
+]
+
+[[talk]]
+id = "pray_evening"
+on = ["pray_with"]
+when = { part = "evening" }
+lines = [
+  { by = "initiator", text = "Lighten our darkness, we beseech thee, O Lord." },
+  { by = "target", text = "And by thy great mercy defend us from all perils and dangers of this night. Amen." },
+]
+
+[[talk]]
+id = "pray_grace"
+on = ["pray_with"]
+when = { household = true, part = "midday" }
+lines = [
+  { by = "initiator", text = "Come, Lord Jesus, be our guest." },
+  { by = "target", text = "And let these gifts to us be blessed. Amen." },
+]
+
+[[talk]]
+id = "pray_shepherd"
+on = ["pray_with"]
+lines = [
+  { by = "initiator", text = "The Lord is my shepherd; I shall not want." },
+  { by = "target", text = "He maketh me to lie down in green pastures. Amen." },
+]
+
+[[talk]]
+id = "pray_trouble"
+on = ["pray_with"]
+when = { mood = "anxious" }
+lines = [
+  { by = "initiator", text = "Pray with me, {you}. I can't find the words alone today." },
+  { by = "target", text = "Then use mine. Lord, give us peace, and the sense to keep it." },
+]
+
+[[talk]]
+id = "gift_something"
+on = ["gift"]
+lines = [
+  { by = "initiator", text = "I brought you a little something, {you}." },
+  { by = "target", text = "You shouldn't have. #thanks#." },
+]
+
+[[talk]]
+id = "gift_table"
+on = ["gift"]
+lines = [
+  { by = "initiator", text = "{A loaf|Some eggs|A twist of tobacco|A jar of preserves} for your table, {you}." },
+  { by = "target", text = "#oath#, that's kind. I'll not forget it." },
+]
+
+[[talk]]
+id = "gift_amends"
+on = ["gift"]
+when = { target_remembers = "insult" }
+lines = [
+  { by = "initiator", text = "I'd like to make up for what I said. Take this." },
+  { by = "target", text = "#well#. I'll take it, and we'll see." },
+]
+
+[[talk]]
+id = "gift_ribbon"
+on = ["gift"]
+when = { courting = true }
+lines = [
+  { by = "initiator", text = "A ribbon. I thought of you when I saw it." },
+  { by = "target", text = "It's lovely, {you}." },
+]
+
+[[talk]]
+id = "gift_winter"
+on = ["gift"]
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "Something to keep the cold out." },
+  { by = "target", text = "#bless#." },
+]
+
+[[talk]]
+id = "toast_town"
+on = ["toast"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "A round for the house! To {town}, and good neighbors!" },
+  { by = "target", text = "To {town}!" },
+]
+
+[[talk]]
+id = "toast_spring"
+on = ["toast"]
+outcome = "success"
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "Fill them up! To the spring, and a dry seedbed!" },
+  { by = "target", text = "To the spring!" },
+]
+
+[[talk]]
+id = "toast_winter"
+on = ["toast"]
+outcome = "success"
+when = { season = "winter" }
+lines = [
+  { by = "initiator", text = "To the thaw, whenever it comes!" },
+  { by = "target", text = "The thaw! And the sooner the better!" },
+]
+
+[[talk]]
+id = "toast_market"
+on = ["toast"]
+outcome = "success"
+when = { observance = "market_day" }
+lines = [
+  { by = "initiator", text = "To market day, and the money we'll not keep!" },
+  { by = "target", text = "Hear, hear!" },
+]
+
+[[talk]]
+id = "toast_flat"
+on = ["toast"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "A toast! To... to whatever it was." },
+  { by = "target", text = "Sit down before you fall down." },
+]
+
+[[talk]]
+id = "toast_nobody"
+on = ["toast"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Who'll drink with me? Anybody?" },
+  { by = "target", text = "Put your purse away; nobody's drinking to that." },
+]
+
+[[talk]]
+id = "tale_winter42"
+on = ["tell_tale"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Did I ever tell you about the winter of '42, when the snow came up to the eaves?" },
+  { by = "target", text = "Go on, then." },
+]
+
+[[talk]]
+id = "tale_panther"
+on = ["tell_tale"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "There was a panther on the Kickapoo once, big as a yearling calf." },
+  { by = "target", text = "And you with only a stick?" },
+  { by = "initiator", text = "Only a stick, and my two legs, and they did the most of it." },
+]
+
+[[talk]]
+id = "tale_ring"
+on = ["tell_tale"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "My grandmother swore she saw the hidden folk dancing in a ring, the night before the flood." },
+  { by = "target", text = "I've heard worse stories, and believed them." },
+]
+
+[[talk]]
+id = "tale_raft"
+on = ["tell_tale"]
+outcome = "success"
+when = { venue = "tavern" }
+lines = [
+  { by = "initiator", text = "We took a raft of pine down to Galena in '49, and lost the cook at Cassville." },
+  { by = "target", text = "Lost him how?" },
+  { by = "initiator", text = "Married. Worse than drowned, he says." },
+]
+
+[[talk]]
+id = "tale_tall"
+on = ["tell_tale"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "...and the fish was longer than the boat." },
+  { by = "target", text = "And I'm the Queen of England." },
+]
+
+[[talk]]
+id = "tale_different"
+on = ["tell_tale"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "So there I was, alone on the bluff, with the wolves all round..." },
+  { by = "target", text = "You told it different last week. There were fewer wolves." },
+]
+
+[[talk]]
+id = "comfort_right"
+on = ["comfort"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "It'll come right, {you}. These things do." },
+  { by = "target", text = "#thanks#. I needed to hear it." },
+]
+
+[[talk]]
+id = "comfort_coffee"
+on = ["comfort"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Sit down. I'll put the coffee on." },
+  { by = "target", text = "You're a good soul, {you}." },
+]
+
+[[talk]]
+id = "comfort_fear"
+on = ["comfort"]
+outcome = "success"
+when = { target_mood = "fear" }
+lines = [
+  { by = "initiator", text = "Whatever it is, you're not alone with it." },
+  { by = "target", text = "That helps more than you know." },
+]
+
+[[talk]]
+id = "comfort_pray"
+on = ["comfort"]
+outcome = "success"
+when = { mood = "piety" }
+lines = [
+  { by = "initiator", text = "Cast your burden on the Lord, {you}, and some of it on me." },
+  { by = "target", text = "#bless#." },
+]
+
+[[talk]]
+id = "comfort_half"
+on = ["comfort"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Come now, it can't be as bad as all that." },
+  { by = "target", text = "You don't know the half of it." },
+]
+
+[[talk]]
+id = "comfort_alone"
+on = ["comfort"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Is there anything I can do, {you}?" },
+  { by = "target", text = "Leave me be, if it's all the same to you." },
+]
+
+# =============================================================================================
+# Courtship
+# =============================================================================================
+
+[[talk]]
+id = "flirt_eyes"
+on = ["flirt"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "You've a way of looking at a person, {you}." },
+  { by = "target", text = "Have I? Then I'd best look somewhere else. Or not." },
+]
+
+[[talk]]
+id = "flirt_well"
+on = ["flirt"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Save me a place at the singing school, {you}?" },
+  { by = "target", text = "I might. If you can carry a tune." },
+]
+
+[[talk]]
+id = "flirt_dance"
+on = ["flirt"]
+outcome = "success"
+when = { venue = "tavern" }
+lines = [
+  { by = "initiator", text = "If there were a fiddler, I'd ask you to dance." },
+  { by = "target", text = "Then somebody find a fiddler." },
+]
+
+[[talk]]
+id = "flirt_bonnet"
+on = ["flirt"]
+outcome = "success"
+when = { sabbath = true, venue = "church" }
+lines = [
+  { by = "initiator", text = "I didn't hear a word of the sermon, {you}, for looking across the aisle." },
+  { by = "target", text = "Hush! Somebody'll hear you." },
+]
+
+[[talk]]
+id = "flirt_cold"
+on = ["flirt"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "You've a way of looking at a person, {you}." },
+  { by = "target", text = "I've a way of looking at the clock, too." },
+]
+
+[[talk]]
+id = "flirt_busy"
+on = ["flirt"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Walk a little way with me?" },
+  { by = "target", text = "I've work, and so have you. Good day." },
+]
+
+[[talk]]
+id = "flirt_laugh"
+on = ["flirt"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Save me a place at the singing school?" },
+  { by = "target", text = "I'll save you a hymnbook. You'll need one." },
+]
+
+[[talk]]
+id = "court_walk"
+on = ["court"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Would you walk out with me Sunday afternoon, {you}?" },
+  { by = "target", text = "I would. Come by after dinner, and mind your boots are clean." },
+]
+
+[[talk]]
+id = "court_porch"
+on = ["court"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "I'd like to call on you, {you}. Properly." },
+  { by = "target", text = "Then call. The porch light will be lit." },
+]
+
+[[talk]]
+id = "court_no"
+on = ["court"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Would you walk out with me Sunday, {you}?" },
+  { by = "target", text = "I think not. You're kind to ask." },
+]
+
+[[talk]]
+id = "court_no_cold"
+on = ["court"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "I'd like to call on you, {you}." },
+  { by = "target", text = "I'd rather you didn't." },
+]
+
+[[talk]]
+id = "propose_yes"
+on = ["propose"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "{you}, I've not much, but what I have is yours. Will you marry me?" },
+  { by = "target", text = "Yes. Yes, you great fool, of course I will." },
+]
+
+[[talk]]
+id = "propose_yes_spring"
+on = ["propose"]
+outcome = "success"
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "Marry me before the harvest, {you}." },
+  { by = "target", text = "Before the haying, if you can get the parson." },
+]
+
+[[talk]]
+id = "propose_no"
+on = ["propose"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "{you}, will you marry me?" },
+  { by = "target", text = "I can't. Don't ask me why. Not now." },
+]
+
+[[talk]]
+id = "propose_no_wait"
+on = ["propose"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Will you have me, {you}?" },
+  { by = "target", text = "Ask me again in a year, if you still want to." },
+]
+
+# =============================================================================================
+# Faith
+# =============================================================================================
+
+[[talk]]
+id = "preach_sabbath"
+on = ["preach_at"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Remember the Sabbath, {you}, and keep it holy. Not for my sake: for yours." },
+  { by = "target", text = "You're right, and I know it. I'll be there." },
+]
+
+[[talk]]
+id = "preach_drink"
+on = ["preach_at"]
+outcome = "success"
+when = { venue = "tavern" }
+lines = [
+  { by = "initiator", text = "Wine is a mocker, {you}, and strong drink is raging." },
+  { by = "target", text = "#well#. Maybe I'll make this the last one." },
+]
+
+[[talk]]
+id = "preach_soul"
+on = ["preach_at"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "What shall it profit a man, {you}, if he gain the whole world?" },
+  { by = "target", text = "I've been asking myself the same, lately." },
+]
+
+[[talk]]
+id = "preach_back"
+on = ["preach_at"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Remember the Sabbath, {you}, and keep it holy." },
+  { by = "target", text = "And you remember to mind your own fences." },
+]
+
+[[talk]]
+id = "preach_back_tavern"
+on = ["preach_at"]
+outcome = "failure"
+when = { venue = "tavern" }
+lines = [
+  { by = "initiator", text = "Strong drink is raging, {you}." },
+  { by = "target", text = "So am I, now. Leave me to my glass." },
+]
+
+[[talk]]
+id = "pray_together"
+on = ["pray_with"]
+lines = [
+  { by = "initiator", text = "Will you pray with me, {you}?" },
+  { by = "target", text = "Gladly. Our Father, which art in heaven..." },
+]
+
+[[talk]]
+id = "pray_rain"
+on = ["pray_with"]
+when = { weather = "rain", season = "summer" }
+lines = [
+  { by = "initiator", text = "Lord, send us dry weather for the hay, and patience if Thou wilt not." },
+  { by = "target", text = "Amen." },
+]
+
+[[talk]]
+id = "pray_spring"
+on = ["pray_with"]
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "Bless the seed in the ground, Lord, and the hands that put it there." },
+  { by = "target", text = "Amen, and keep the crows off it." },
+]
+
+[[talk]]
+id = "pray_misfortune"
+on = ["pray_with"]
+when = { misfortune = true }
+lines = [
+  { by = "initiator", text = "Let us remember our neighbors in their trouble: {misfortune}." },
+  { by = "target", text = "Lord, have mercy on them. Amen." },
+]
+
+[[talk]]
+id = "pray_household"
+on = ["pray_with"]
+when = { household = true }
+lines = [
+  { by = "initiator", text = "Bless this house, Lord, and all under its roof." },
+  { by = "target", text = "Amen." },
+]
+
+[[talk]]
+id = "pray_sabbath"
+on = ["pray_with"]
+when = { sabbath = true, venue = "church" }
+lines = [
+  { by = "initiator", text = "The Lord be with you, {you}." },
+  { by = "target", text = "And with you. A blessed Sabbath." },
+]
+
+[[talk]]
+id = "confess_burden"
+on = ["confess"]
+lines = [
+  { by = "initiator", text = "I've done a thing I'm ashamed of, {you}." },
+  { by = "target", text = "Tell it, then, and be done carrying it." },
+]
+
+[[talk]]
+id = "confess_listen"
+on = ["confess"]
+lines = [
+  { by = "initiator", text = "I need to say something out loud, or it'll choke me." },
+  { by = "target", text = "Say it. I'll not judge you; that's not my office." },
+]
+
+[[talk]]
+id = "confess_shame"
+on = ["confess"]
+when = { mood = "shame" }
+lines = [
+  { by = "initiator", text = "I can't look myself in the glass, {you}." },
+  { by = "target", text = "Then look at me, and tell me why." },
+]
+
+# =============================================================================================
+# Amends
+# =============================================================================================
+
+[[talk]]
+id = "apologize_sorry"
+on = ["apologize"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "I was wrong, {you}, and I'm sorry for it." },
+  { by = "target", text = "#well#. It takes a big person to say so. Let's say no more." },
+]
+
+[[talk]]
+id = "apologize_hand"
+on = ["apologize"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "I spoke out of turn. Will you shake on it?" },
+  { by = "target", text = "I will. And I was no saint either." },
+]
+
+[[talk]]
+id = "apologize_remember"
+on = ["apologize"]
+outcome = "success"
+when = { target_remembers = "insult" }
+lines = [
+  { by = "initiator", text = "What I said {memory_place}: I've been sorry ever since." },
+  { by = "target", text = "So have I, for letting it fester. Done, then." },
+]
+
+[[talk]]
+id = "apologize_cold"
+on = ["apologize"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "I was wrong, {you}, and I'm sorry for it." },
+  { by = "target", text = "Words come cheap. We'll see." },
+]
+
+[[talk]]
+id = "apologize_turned"
+on = ["apologize"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Can we put it behind us, {you}?" },
+  { by = "target", text = "You can put it where you like. I'll keep mine." },
+]
+
+[[talk]]
+id = "forgive_done"
+on = ["forgive"]
+lines = [
+  { by = "initiator", text = "I've thought on it, {you}. It's forgiven." },
+  { by = "target", text = "#thanks#. I'd not have blamed you for holding out." },
+]
+
+[[talk]]
+id = "forgive_life"
+on = ["forgive"]
+lines = [
+  { by = "initiator", text = "Life's too short, and the winters too long, to keep a grudge, {you}." },
+  { by = "target", text = "Then we're square?" },
+  { by = "initiator", text = "We're square." },
+]
+
+[[talk]]
+id = "forgive_piety"
+on = ["forgive"]
+when = { mood = "piety" }
+lines = [
+  { by = "initiator", text = "Forgive us our trespasses, it says. I'd be a poor Christian not to." },
+  { by = "target", text = "#bless#, {you}." },
+]
+
+# =============================================================================================
+# Money
+# =============================================================================================
+
+[[talk]]
+id = "lend_offer"
+on = ["lend"]
+lines = [
+  { by = "initiator", text = "Here, {you}: {cents}, until things come right." },
+  { by = "target", text = "I'll pay it back, every cent. You have my word." },
+]
+
+[[talk]]
+id = "lend_short"
+on = ["lend"]
+lines = [
+  { by = "initiator", text = "You look a little short. Will {cents} see you through?" },
+  { by = "target", text = "It will. #thanks#. I'll not forget it." },
+]
+
+[[talk]]
+id = "lend_kin"
+on = ["lend"]
+when = { kin = true }
+lines = [
+  { by = "initiator", text = "Take it. {cents}, and don't argue." },
+  { by = "target", text = "I'll pay you back." },
+  { by = "initiator", text = "You'll pay me back by not asking twice." },
+]
+
+[[talk]]
+id = "borrow_ask"
+on = ["borrow"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "I hate to ask, {you}, but could you see your way to {cents}?" },
+  { by = "target", text = "I can. Till the end of the month, mind." },
+]
+
+[[talk]]
+id = "borrow_ask_spring"
+on = ["borrow"]
+outcome = "success"
+when = { season = "spring" }
+lines = [
+  { by = "initiator", text = "It's a hungry spring, {you}. {cents} would carry me to harvest." },
+  { by = "target", text = "Take it. Harvest, then." },
+]
+
+[[talk]]
+id = "borrow_no"
+on = ["borrow"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Could you see your way to a little money, {you}?" },
+  { by = "target", text = "I've none to spare, and I'd not lend it if I had." },
+]
+
+[[talk]]
+id = "borrow_no_soft"
+on = ["borrow"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "I hate to ask, but I'm short this week." },
+  { by = "target", text = "So am I, {you}. So is everybody." },
+]
+
+[[talk]]
+id = "repay_square"
+on = ["repay"]
+lines = [
+  { by = "initiator", text = "There: {cents}. We're square, {you}." },
+  { by = "target", text = "Square it is. #thanks#." },
+]
+
+[[talk]]
+id = "repay_coin"
+on = ["repay"]
+lines = [
+  { by = "initiator", text = "{^cents}, counted out. I said I would." },
+  { by = "target", text = "You did, and you have. I'll not forget it either." },
+]
+
+[[talk]]
+id = "dun_press"
+on = ["dun"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "About the {cents}, {you}. It's past due." },
+  { by = "target", text = "I know it. You'll have it Saturday." },
+]
+
+[[talk]]
+id = "dun_press_public"
+on = ["dun"]
+outcome = "success"
+when = { venue = "store" }
+lines = [
+  { by = "initiator", text = "{^cents}, {you}. I'll have it now, or I'll have it on the slate in front of everyone." },
+  { by = "target", text = "Keep your voice down. You'll have it." },
+]
+
+[[talk]]
+id = "dun_fails"
+on = ["dun"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "About the {cents}, {you}." },
+  { by = "target", text = "You'll have it when I have it, and not before." },
+]
+
+# =============================================================================================
+# Hostile
+# =============================================================================================
+
+[[talk]]
+id = "slight_curt"
+on = ["slight"]
+lines = [
+  { by = "initiator", text = "Hm." },
+  { by = "target", text = "Good day to you too, {you}." },
+]
+
+[[talk]]
+id = "slight_busy"
+on = ["slight"]
+lines = [
+  { by = "initiator", text = "I've no time for you today, {you}." },
+  { by = "target", text = "You never have." },
+]
+
+[[talk]]
+id = "slight_counter"
+on = ["slight"]
+when = { venue = "store" }
+lines = [
+  { by = "initiator", text = "Wait your turn." },
+  { by = "target", text = "I've been waiting it this half hour." },
+]
+
+[[talk]]
+id = "snub_dead"
+on = ["snub"]
+lines = [
+  { by = "target", text = "{you}? {you}, I'm speaking to you." },
+]
+
+[[talk]]
+id = "snub_eyes"
+on = ["snub"]
+lines = [
+  { by = "target", text = "#hello#, {you}." },
+  { by = "initiator", text = "..." },
+]
+
+[[talk]]
+id = "mock_hat"
+on = ["mock"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Look at {target}, dressed up like a parson at a horse race!" },
+  { by = "target", text = "Laugh, then. I'll remember who laughed." },
+]
+
+[[talk]]
+id = "mock_farm"
+on = ["mock"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "{^target} could plow a field crooked with a rope for a guide." },
+  { by = "target", text = "Very funny. Very funny indeed." },
+]
+
+[[talk]]
+id = "mock_drunk"
+on = ["mock"]
+outcome = "success"
+when = { mood = "drunk" }
+lines = [
+  { by = "initiator", text = "Here's {target}, the wisest head in {town}, ask anybody! Ask the mule!" },
+  { by = "target", text = "Go home and sleep it off." },
+]
+
+[[talk]]
+id = "mock_flat"
+on = ["mock"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Look at {target}, dressed up like a parson at a horse race!" },
+  { by = "target", text = "Is that the best you've got? Nobody's laughing." },
+]
+
+[[talk]]
+id = "mock_flat_turn"
+on = ["mock"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "{^target} could plow a field crooked with a rope for a guide." },
+  { by = "target", text = "And you couldn't find the field." },
+]
+
+[[talk]]
+id = "insult_fool"
+on = ["insult"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "You're #fool#, {you}, and everybody knows it but you." },
+  { by = "target", text = "Say that again." },
+]
+
+[[talk]]
+id = "insult_liar"
+on = ["insult"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "You're a liar and a cheat, and your word's not worth the breath." },
+  { by = "target", text = "You'll answer for that." },
+]
+
+[[talk]]
+id = "insult_remember"
+on = ["insult"]
+outcome = "success"
+when = { remembers = "insult" }
+lines = [
+  { by = "initiator", text = "After what you said {memory_place}, you've a nerve showing your face." },
+  { by = "target", text = "I'll show it where I please." },
+]
+
+[[talk]]
+id = "insult_drunk"
+on = ["insult"]
+outcome = "success"
+when = { mood = "drunk" }
+lines = [
+  { by = "initiator", text = "You! You're the worst of the lot, you are!" },
+  { by = "target", text = "You're drunk. I'll mind it when you're sober." },
+]
+
+[[talk]]
+id = "insult_shrug"
+on = ["insult"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "You're #fool#, {you}." },
+  { by = "target", text = "Better a fool than a bully. Go home." },
+]
+
+[[talk]]
+id = "insult_laughed"
+on = ["insult"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Your word's not worth the breath, {you}." },
+  { by = "target", text = "And yet here you are, wasting yours on me." },
+]
+
+[[talk]]
+id = "threaten_pay"
+on = ["threaten"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "You'll pay, {you}. One way or another." },
+  { by = "target", text = "I... I don't want any trouble." },
+]
+
+[[talk]]
+id = "threaten_dark"
+on = ["threaten"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "It's a long walk home in the dark, {you}. Remember that." },
+  { by = "target", text = "Is that a threat?" },
+  { by = "initiator", text = "It's a long walk, is all." },
+]
+
+[[talk]]
+id = "threaten_scorn"
+on = ["threaten"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "You'll pay, {you}. One way or another." },
+  { by = "target", text = "Big talk. Come and collect, then." },
+]
+
+[[talk]]
+id = "fight_won"
+on = ["fight"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Come on, then!" },
+  { by = "target", text = "Enough! Enough, I say!" },
+]
+
+[[talk]]
+id = "fight_won_drunk"
+on = ["fight"]
+outcome = "success"
+when = { mood = "drunk" }
+lines = [
+  { by = "initiator", text = "Outside! Right now!" },
+  { by = "target", text = "Get off me! Somebody pull {initiator_given} off!" },
+]
+
+[[talk]]
+id = "fight_lost"
+on = ["fight"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Come on, then!" },
+  { by = "target", text = "Had enough? Go home and put a steak on that eye." },
+]
+
+[[talk]]
+id = "accuse_know"
+on = ["accuse"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Let everyone hear it: I know what you are, {you}, and what you've done." },
+  { by = "target", text = "That's a lie! Every word of it!" },
+]
+
+[[talk]]
+id = "accuse_shame"
+on = ["accuse"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "You should be ashamed to show your face among decent people." },
+  { by = "target", text = "And you should be ashamed of that tongue." },
+]
+
+[[talk]]
+id = "accuse_nothing"
+on = ["accuse"]
+outcome = "success"
+when = { told = false }
+lines = [
+  { by = "initiator", text = "There's something wrong about you, {you}, and I'll find out what." },
+  { by = "target", text = "Find out, then, and leave me be till you do." },
+]
+
+[[talk]]
+id = "accuse_flat"
+on = ["accuse"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Let everyone hear it: I know what you are!" },
+  { by = "target", text = "Everyone hears you. Everyone knows you, too." },
+]
+
+[[talk]]
+id = "accuse_said"
+on = ["accuse"]
+part = "said"
+when = { about = "you" }
+lines = [
+  { by = "initiator", text = "{^rumor}. Deny it if you can." },
+  { by = "target", text = "I do deny it, and I'll deny it to the end." },
+]
+
+[[talk]]
+id = "accuse_said_third"
+on = ["accuse"]
+part = "said"
+when = { about = "other" }
+lines = [
+  { by = "initiator", text = "They say {rumor}. Deny it if you can." },
+  { by = "target", text = "I deny it. Shame on you for repeating it." },
+]
+
+[[talk]]
+id = "shun_cut"
+on = ["shun_lobby"]
+outcome = "success"
+lines = [
+  { by = "initiator", text = "Have nothing more to do with them, {you}. No credit, no help, not a word." },
+  { by = "target", text = "If you say so. I'll keep my distance." },
+]
+
+[[talk]]
+id = "shun_nothing"
+on = ["shun_lobby"]
+outcome = "success"
+when = { told = false }
+lines = [
+  { by = "initiator", text = "Keep away from bad company, {you}. You know who I mean." },
+  { by = "target", text = "I think I do." },
+]
+
+[[talk]]
+id = "shun_refuse"
+on = ["shun_lobby"]
+outcome = "failure"
+lines = [
+  { by = "initiator", text = "Have nothing more to do with them, {you}." },
+  { by = "target", text = "I'll choose my own neighbors, thank you." },
+]
+
+[[talk]]
+id = "shun_said"
+on = ["shun_lobby"]
+part = "said"
+lines = [
+  { by = "initiator", text = "{^hedge} {rumor}. Decent people will have nothing to do with it." },
+  { by = "target", text = "I'll bear it in mind." },
+]
+
+# =============================================================================================
+# Children: when a child is party to it, their own lines come first
+# =============================================================================================
+
+[[talk]]
+id = "kid_chat_help"
+on = ["chat"]
+when = { child = true, target_child = false }
+lines = [
+  { by = "initiator", text = "Can I help, {you}?" },
+  { by = "target", text = "You can fetch the kindling, and mind your fingers." },
+]
+
+[[talk]]
+id = "kid_chat_why"
+on = ["chat"]
+when = { child = true, target_child = false }
+lines = [
+  { by = "initiator", text = "{you}, why does {creek} run backwards in a flood?" },
+  { by = "target", text = "It doesn't. It only looks it. Ask me another." },
+]
+
+[[talk]]
+id = "kid_chat_snow"
+on = ["chat"]
+when = { child = true, weather = "snow" }
+lines = [
+  { by = "initiator", text = "Snow! Will there be sledding?" },
+  { by = "target", text = "After the chores, and not before." },
+]
+
+[[talk]]
+id = "kid_chat_lights"
+on = ["chat"]
+when = { child = true, target_child = false, part = "evening" }
+lines = [
+  { by = "initiator", text = "Is it true about the lights on the bluff, {you}?" },
+  { by = "target", text = "Never you mind the lights. Bed." },
+]
+
+[[talk]]
+id = "kid_chat_adult"
+on = ["chat"]
+when = { child = false, target_child = true }
+lines = [
+  { by = "initiator", text = "Minding your elders, {you}?" },
+  { by = "target", text = "Mostly." },
+]
+
+[[talk]]
+id = "kid_chat_adult_grown"
+on = ["chat"]
+when = { child = false, target_child = true }
+lines = [
+  { by = "initiator", text = "Look how you've grown, {you}. You'll be taller than me by harvest." },
+  { by = "target", text = "Taller than anybody, I mean to be." },
+]
+
+[[talk]]
+id = "kid_chat_kids"
+on = ["chat"]
+when = { child = true, target_child = true }
+lines = [
+  { by = "initiator", text = "I can hold my breath longer than you." },
+  { by = "target", text = "Can not." },
+  { by = "initiator", text = "Can so." },
+]
+
+[[talk]]
+id = "kid_chat_kids_frog"
+on = ["chat"]
+when = { child = true, target_child = true }
+lines = [
+  { by = "initiator", text = "I found a frog down by {creek}. A big one." },
+  { by = "target", text = "Show me!" },
+]
+
+[[talk]]
+id = "kid_intro"
+on = ["introduce"]
+when = { child = true }
+lines = [
+  { by = "initiator", text = "I'm {initiator_given}. Who are you?" },
+  { by = "target", text = "{target_given}. Pleased to meet you." },
+]
+
+[[talk]]
+id = "kid_intro_adult"
+on = ["introduce"]
+when = { target_child = true, child = false }
+lines = [
+  { by = "initiator", text = "And who might you be?" },
+  { by = "target", text = "{target_given}. I live just there." },
+]
+
+[[talk]]
+id = "kid_help"
+on = ["help"]
+when = { child = true }
+lines = [
+  { by = "initiator", text = "I can carry that, {you}. I'm strong." },
+  { by = "target", text = "So you are. Mind the step." },
+]
+
+[[talk]]
+id = "kid_help_adult"
+on = ["help"]
+when = { child = false, target_child = true }
+lines = [
+  { by = "initiator", text = "Here, {you}, let me show you how." },
+  { by = "target", text = "I nearly had it." },
+]
+
+[[talk]]
+id = "kid_pray"
+on = ["pray_with"]
+when = { target_child = true }
+lines = [
+  { by = "initiator", text = "Now I lay me down to sleep, {you}. Say it with me." },
+  { by = "target", text = "I pray the Lord my soul to keep." },
+]
+
+[[talk]]
+id = "kid_pray_self"
+on = ["pray_with"]
+when = { child = true }
+lines = [
+  { by = "initiator", text = "Will you say grace with me, {you}?" },
+  { by = "target", text = "Fold your hands, then." },
+]
+
+[[talk]]
+id = "kid_comfort"
+on = ["comfort"]
+outcome = "success"
+when = { target_child = true }
+lines = [
+  { by = "initiator", text = "There now, {you}. Dry your eyes. It's mended already." },
+  { by = "target", text = "Is it?" },
+  { by = "initiator", text = "Near enough." },
+]
+
+[[talk]]
+id = "kid_tease"
+on = ["mock", "insult", "slight"]
+when = { child = true, target_child = true }
+lines = [
+  { by = "initiator", text = "{target_given} smells like the pig pen!" },
+  { by = "target", text = "Take it back!" },
+]
+
+[[talk]]
+id = "kid_cheek"
+on = ["mock", "insult", "slight"]
+when = { child = true, target_child = false }
+lines = [
+  { by = "initiator", text = "Shan't, and you can't make me." },
+  { by = "target", text = "We'll see what your people say to that." },
+]
+
+[[talk]]
+id = "kid_scold"
+on = ["insult", "slight", "mock", "threaten"]
+when = { child = false, target_child = true }
+lines = [
+  { by = "initiator", text = "Out from underfoot, {you}, before I tan your hide." },
+  { by = "target", text = "I wasn't doing anything!" },
+]
+
+[[talk]]
+id = "kid_tale"
+on = ["tell_tale"]
+when = { target_child = true }
+lines = [
+  { by = "initiator", text = "Did I ever tell you about the panther on the Kickapoo, {you}?" },
+  { by = "target", text = "Tell it again!" },
+]
+
+[[talk]]
+id = "kid_gift"
+on = ["gift"]
+when = { target_child = true }
+lines = [
+  { by = "initiator", text = "A peppermint for you, {you}. Don't tell."},
+  { by = "target", text = "I won't! Thank you!" },
+]

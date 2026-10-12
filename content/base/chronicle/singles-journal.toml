@@ -34,7 +34,7 @@ voice = "journal"
 tone = "temper"
 when = { cls = "harm", target_me = true }
 text = [
-  "{^actor} {act} me{_at}. I wanted to put a fist through the wall, and then through {actor}. Did neither. Mark that.",
+  "{^actor} {act} me{_at}. I wanted to put a fist through the wall, and then through {him}. Did neither. Mark that.",
   "{^actor} {act} me{_at} {when}, and my hands knew what to do before I did. Walked out. Walked far.",
 ]
 
@@ -151,7 +151,7 @@ voice = "journal"
 when = { cls = "harm", basis = "witnessed", actor_me = false, target_me = false }
 text = [
   "{^actor} {act} {target}{_at} {when}. I was by to see it.",
-  "Saw {actor} {act} {target}{_at}. Everyone pretended to be looking at something else.",
+  "{^actor} {act} {target}{_at}, and I was by to see it. Everyone pretended to be looking at something else.",
   "{^weekday}. {^actor} {act} {target}{_at}. I kept out of it, and am not certain I am proud of that.",
 ]
 
@@ -253,7 +253,7 @@ on = "social.interaction"
 voice = "journal"
 when = { cls = "help", actor_me = false, target_me = false }
 text = [
-  "{^actor} {act} {target}{_at}. I saw it, and thought the better of {actor} for it.",
+  "{^actor} {act} {target}{_at}. I saw it, and thought the better of {him} for it.",
 ]
 
 # ---- courtship -------------------------------------------------------------------------------------------
@@ -262,10 +262,22 @@ text = [
 id = "journal_courtship_me_actor"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "courtship", actor_me = true }
+when = { cls = "courtship", actor_me = true, success = true }
 text = [
   "I {act} {target}{_at} {when}. My heart did a thing it has no business doing in a person of sense.",
+  "I {act} {target}, and {target_he} did not seem to mind. I have thought of little else since, which is foolish and I know it.",
+  "I {act} {target}{_at}. {^target_he} smiled. I am writing it down before I talk myself out of it.",
+]
+
+[[template]]
+id = "journal_courtship_me_actor_rebuffed"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "courtship", actor_me = true, success = false }
+text = [
   "I {act} {target}. Whether it was welcome I cannot tell; the face {target_he} made could be read either way.",
+  "I {act} {target}{_at}, and was answered with a look I shall be some days forgetting.",
+  "I {act} {target}{_at} {when}. {^target_he} found something urgent to do elsewhere. Noted, and not to be repeated soon.",
 ]
 
 [[template]]
@@ -275,7 +287,7 @@ voice = "journal"
 when = { cls = "courtship", target_me = true }
 text = [
   "{^actor} {act} me{_at} {when}. I said something clever and have been trying to remember what.",
-  "{^actor} {act} me. I did not know where to look, so I looked at {actor}, which was the trouble.",
+  "{^actor} {act} me. I did not know where to look, so I looked at {him}, which was the trouble.",
 ]
 
 [[template]]
@@ -301,7 +313,7 @@ text = [
 id = "journal_propose_me_target_yes"
 on = "social.interaction"
 voice = "journal"
-when = { interaction = "propose", target_me = true, success = true }
+when = { cls = "courtship", interaction = "propose", target_me = true, success = true }
 text = [
   "{^actor} asked me to marry, and I said yes. There. It is written, and cannot now be unwritten.",
 ]
@@ -310,7 +322,7 @@ text = [
 id = "journal_propose_me_actor_refused"
 on = "social.interaction"
 voice = "journal"
-when = { interaction = "propose", actor_me = true, success = false }
+when = { cls = "courtship", interaction = "propose", actor_me = true, success = false }
 text = [
   "I asked {target} to marry me and was refused. I walked home by the long road, which is not a figure of speech.",
 ]
@@ -321,7 +333,7 @@ text = [
 id = "journal_amends"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "amends", success = true }
+when = { cls = "amends", success = true, actor_me = false, target_me = false }
 text = [
   "{^actor} and {target} made their peace{_at} {when}. I was glad of it.",
   "A quarrel mended today: {actor} and {target}. It is a small thing and a large one.",
@@ -331,9 +343,40 @@ text = [
 id = "journal_amends_me"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "amends", target_me = true, success = true }
+when = { cls = "amends", interaction = "apologize", target_me = true, success = true }
 text = [
-  "{^actor} {act} me{_at}. I had meant to hold out longer; I did not have the heart to.",
+  "{^actor} {act} me{_at}, and I took it. I had meant to hold out longer; I did not have the heart to.",
+  "{^actor} came to me with an apology{_at}. {^he} and I have made our peace, and I was glad of it.",
+]
+
+[[template]]
+id = "journal_amends_me_forgiven"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "amends", interaction = "forgive", target_me = true, success = true }
+text = [
+  "{^actor} forgave me{_at} {when}. I had not earned it, and I know it.",
+  "{^actor} has forgiven me. It is a strange thing to be given what one did not deserve; I mean to deserve it after.",
+]
+
+[[template]]
+id = "journal_amends_me_apologized"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "amends", interaction = "apologize", actor_me = true, success = true }
+text = [
+  "{^target} and I made our peace{_at} {when}. I said I was sorry, and meant it, and {target_he} took my hand.",
+  "I apologized to {target}{_at}, and it was taken. A weight off, and not a small one.",
+]
+
+[[template]]
+id = "journal_amends_me_forgave"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "amends", interaction = "forgive", actor_me = true, success = true }
+text = [
+  "I forgave {target}{_at} {when}. It cost less than I feared, and I find I am lighter for it.",
+  "{^target} and I have made our peace. I let it go; I am learning to.",
 ]
 
 [[template]]
@@ -387,7 +430,7 @@ text = [
 id = "journal_gossip_heard"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "gossip" }
+when = { cls = "gossip", actor_me = false, target_me = false }
 text = [
   "{^actor} was in close talk with {target}{_at} {when}. I would give a good deal to know the subject.",
 ]
@@ -398,6 +441,35 @@ on = "social.interaction"
 voice = "journal"
 text = [
   "{^actor} {act} {target}{_at} {when}.",
+]
+
+[[template]]
+id = "journal_gossip_me_teller"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "gossip", actor_me = true }
+text = [
+  "{^target} and I had our heads together{_at} {when}. Whatever the town is saying, we said it too, and a little more.",
+  "I {act} {target}{_at}. I came away knowing more than I went in with, which is the point of such talks.",
+]
+
+[[template]]
+id = "journal_gossip_me_told"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "gossip", target_me = true }
+text = [
+  "{^actor} had news for me{_at} {when}, and gave it with relish. Whether I believe it is another matter.",
+  "{^actor} took me aside{_at} with the latest. I listened, which is not the same as agreeing.",
+]
+
+[[template]]
+id = "journal_gossip_me_warned"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "gossip", interaction = "warn", target_me = true }
+text = [
+  "{^actor} warned me{_at} {when}. {^he} meant it kindly. I have been looking over my shoulder since.",
 ]
 
 # ---- label changes -------------------------------------------------------------------------------------------------
@@ -415,7 +487,7 @@ text = [
 id = "journal_label_friend"
 on = "social.label_changed"
 voice = "journal"
-when = { band = "Friend" }
+when = { band = "Friend", actor_me = false, target_me = false }
 text = [
   "{^actor} and {target} are friends, I think, in a way they were not a month back.",
 ]
@@ -433,7 +505,7 @@ text = [
 id = "journal_label_enemy"
 on = "social.label_changed"
 voice = "journal"
-when = { band = "Enemy" }
+when = { band = "Enemy", actor_me = false, target_me = false }
 text = [
   "{^actor} and {target} are enemies now, and the village is the poorer. I would not be a friend to both.",
 ]
@@ -442,17 +514,64 @@ text = [
 id = "journal_label_other"
 on = "social.label_changed"
 voice = "journal"
+when = { actor_me = false, target_me = false }
 text = [
   "Something is altered between {actor} and {target}, and the word for it is {band}.",
+]
+
+[[template]]
+id = "journal_label_friend_me_target"
+on = "social.label_changed"
+voice = "journal"
+when = { band = "Friend", target_me = true }
+text = [
+  "I think {actor} counts me a friend now. I find I am glad of it, and a little surprised.",
+]
+
+[[template]]
+id = "journal_label_enemy_me_target"
+on = "social.label_changed"
+voice = "journal"
+when = { band = "Enemy", target_me = true }
+text = [
+  "{^actor} has no love for me now. I can feel it across a room, like a draught under a door.",
+]
+
+[[template]]
+id = "journal_label_other_me"
+on = "social.label_changed"
+voice = "journal"
+when = { actor_me = true }
+text = [
+  "Something is altered between {target} and me, and the word for it is {band}.",
+]
+
+[[template]]
+id = "journal_label_other_me_target"
+on = "social.label_changed"
+voice = "journal"
+when = { target_me = true }
+text = [
+  "Something is altered in the way {actor} looks at me, and the word for it is {band}.",
 ]
 
 # ---- suspicion, hunger, mind -----------------------------------------------------------------------------------------
 
 [[template]]
+id = "journal_escalation_up_me"
+on = "belief.escalation"
+voice = "journal"
+when = { kind = "up", actor_me = true }
+text = [
+  "The talk against me has grown. I hear it stop when I come into the store, and start again when I leave.",
+  "They are saying things of me now, more each day and nothing proven. I keep my head up. It is heavier than it was.",
+]
+
+[[template]]
 id = "journal_escalation_up"
 on = "belief.escalation"
 voice = "journal"
-when = { kind = "up" }
+when = { kind = "up", actor_me = false }
 text = [
   "The talk against {actor} has grown. I have kept my own counsel, and been ashamed of it for a day.",
   "More said of {actor} today than yesterday, and nothing proven. I do not like the way the room leans.",
@@ -463,7 +582,7 @@ id = "journal_escalation_up_piety"
 on = "belief.escalation"
 voice = "journal"
 tone = "piety"
-when = { kind = "up" }
+when = { kind = "up", actor_me = false }
 text = [
   "They are speaking against {actor} in the open now. Judge not, it says; I have not heard it quoted once.",
 ]
@@ -473,7 +592,7 @@ id = "journal_escalation_up_superstition"
 on = "belief.escalation"
 voice = "journal"
 tone = "superstition"
-when = { kind = "up" }
+when = { kind = "up", actor_me = false }
 text = [
   "The talk of {actor} has hardened. I do not say it is true. I say I have put salt on the sill, and it cost me nothing.",
 ]
@@ -483,16 +602,25 @@ id = "journal_escalation_up_skeptic"
 on = "belief.escalation"
 voice = "journal"
 tone = "skeptic"
-when = { kind = "up" }
+when = { kind = "up", actor_me = false }
 text = [
   "The village is working itself up about {actor}. A cow dies, a child sickens, and somebody must pay. It was ever thus.",
+]
+
+[[template]]
+id = "journal_escalation_down_me"
+on = "belief.escalation"
+voice = "journal"
+when = { kind = "down", actor_me = true }
+text = [
+  "The talk of me is quieter. I do not trust it yet, but I slept last night.",
 ]
 
 [[template]]
 id = "journal_escalation_down"
 on = "belief.escalation"
 voice = "journal"
-when = { kind = "down" }
+when = { kind = "down", actor_me = false }
 text = [
   "The talk of {actor} is quieter. I do not know whether to be glad or to wonder what replaced it.",
 ]
@@ -513,6 +641,16 @@ voice = "journal"
 when = { target_me = true }
 text = [
   "I think {actor} bears me a grudge. I can feel it across a room, like a draught.",
+]
+
+[[template]]
+id = "journal_defense_me_aimed"
+on = "psyche.defense"
+voice = "journal"
+when = { defense = "rationalization", aimed = true, actor_me = true }
+text = [
+  "What I did to {target} was the sensible thing; anyone would agree. I have asked myself and I agree.",
+  "I had every reason for how I treated {target}, and I have written the reasons down so I shall not lose them. They are good ones. They read better each time.",
 ]
 
 [[template]]
@@ -579,10 +717,19 @@ text = [
 ]
 
 [[template]]
+id = "journal_nutrition_on_me"
+on = "provisions.nutrition"
+voice = "journal"
+when = { on = true, actor_me = true }
+text = [
+  "I am down with {condition_name}. Too long on salt meat and meal; the body keeps its own books.",
+]
+
+[[template]]
 id = "journal_nutrition_on"
 on = "provisions.nutrition"
 voice = "journal"
-when = { on = true }
+when = { on = true, actor_me = false }
 text = [
   "{^actor} is down with {condition_name}. Too long on salt meat and meal; the body keeps its own books.",
 ]
@@ -648,7 +795,16 @@ text = [
 id = "journal_amends_failed"
 on = "social.interaction"
 voice = "journal"
-when = { cls = "amends", success = false }
+when = { cls = "amends", success = false, target_me = false }
 text = [
   "{^actor} tried to make peace with {target}{_at}. The words did not mend the quarrel.",
+]
+
+[[template]]
+id = "journal_amends_failed_me"
+on = "social.interaction"
+voice = "journal"
+when = { cls = "amends", success = false, target_me = true }
+text = [
+  "{^actor} tried to make peace with me{_at}. I was not ready to hear it, and said so.",
 ]

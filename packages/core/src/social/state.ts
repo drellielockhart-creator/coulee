@@ -154,6 +154,12 @@ export interface SocialState {
   daily: SocialDaily;
   /** Run totals (interactions resolved, sampler work), for tests and stats. */
   totals: { interactions: number; encounterWork: number };
+  /**
+   * Talk lines said between each pair this week ("a-b" with a < b -> line id -> game minute)
+   * and in each room these few hours ("p<placeId>"), so a pair does not hear the same words twice
+   * in seven days, nor a room the same joke twice in an evening (talk.ts). Absent until the first.
+   */
+  talk?: Record<string, Record<string, number>>;
 }
 
 export function emptyDaily(): SocialDaily {

@@ -5,7 +5,15 @@
  * OWNER: module:social.
  */
 import { shortName } from '../actor.ts';
-import { type Channel, transmit } from '../belief/api.ts';
+import {
+  type Channel,
+  commitTransmit,
+  holdsNews,
+  planTransmit,
+  type TellOutcome,
+  type TellWords,
+  type TransmitPlan,
+} from '../belief/api.ts';
 import { opposedCheck, resolveCheck, type SaveId, saveTerms, skillCheck, skillTerms } from '../checks.ts';
 import type { DefenseId, InteractionDef } from '../content.ts';
 import { type Explain, type ExplainTerm, signed, term } from '../explain.ts';
@@ -32,6 +40,7 @@ import {
 } from './opinion.ts';
 import type { MemorySource, OpinionDims, OpinionReason } from './state.ts';
 import { noteStrife, strifeCount, wearinessPermille } from './strife.ts';
+import { composeExchange, referTo, type TalkFacts } from './talk.ts';
 import { tuningOf, valueView } from './tuning.ts';
 import { areKinBy, makePair, pairTargetOpinion, type RequireMode, requiresFail } from './volition.ts';
 
@@ -248,6 +257,42 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   };
   const bubble = cents > 0 ? `${def.label} ▸ ${formatCents(cents)}` : `${def.label} ▸ ${tName}`;
   const importance = def.importance > 0 ? def.importance : def.notable ? 40 : undefined;
+
+  // ---- news: decide what the teller will say before the act is voiced (belief owns the choice;
+  // the words of it ride on its private event, the act's words on this overhearable one).
+  let plan: TransmitPlan | null = null;
+  if (def.transmits_rumor && success) {
+    const tellerIsTarget = def.rumor_speaker === 'target';
+    plan = planTransmit(world, ctx, {
+      speakerId: tellerIsTarget ? tg : i,
+      listenerId: tellerIsTarget ? i : tg,
+      placeId: req.placeId,
+      channel: channelFor(world, ctx, req.placeId),
+      interactionEventId: null,
+      ...(req.topic !== undefined ? { topic: req.topic } : {}),
+      mode: def.rumor_mode,
+      // Asked for the news, or set out to tell it (an urge, a command, a defense): no roll for
+      // whether the talk turns that way. Spontaneous gossip still drifts where it will.
+      deliberate: tellerIsTarget || req.mode !== 'spontaneous',
+    });
+  }
+  const teller = def.rumor_speaker === 'target' ? tg : i;
+  const actFacts: TalkFacts = {
+    ...(def.transmits_rumor ? { told: plan !== null } : {}),
+    ...(def.transmits_rumor && plan === null ? { stale: holdsNews(world, teller) } : {}),
+    slots: { cents: cents > 0 ? formatCents(cents) : 'a little money' },
+  };
+  if (plan) actFacts.rumor = rumorKind(ctx, world, plan.propId);
+  const exchange = composeExchange(world, ctx, {
+    def,
+    initiatorId: i,
+    targetId: tg,
+    placeId: req.placeId,
+    success,
+    part: 'act',
+    facts: actFacts,
+  });
+
   const eventId = ctx.emit({
     kind: 'social.interaction',
     roles: [
@@ -268,6 +313,8 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       success,
       label: bubble,
       ...(req.viaDefense !== undefined ? { viaDefense: req.viaDefense } : {}),
+      ...(exchange ? { line: exchange.line, lines: exchange.lines } : {}),
+      ...(def.transmits_rumor && success ? { told: plan !== null } : {}),
     },
   });
 
@@ -511,20 +558,16 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       });
   }
 
-  // ---- gossip: belief.transmit is the ONLY gossip path; exactly one call per gossip act
+  // ---- gossip: belief.transmit is the ONLY gossip path; at most one telling per news-carrying act
   let told: boolean | null = null;
   if (def.transmits_rumor && success) {
     daily.gossip += 1;
-    const res = transmit(world, ctx, {
-      speakerId: def.rumor_speaker === 'target' ? tg : i,
-      listenerId: def.rumor_speaker === 'target' ? i : tg,
-      placeId: req.placeId,
-      channel: channelFor(world, ctx, req.placeId),
-      interactionEventId: eventId,
-      ...(req.topic !== undefined ? { topic: req.topic } : {}),
-    });
-    told = res.told === true;
-    if (told) daily.told += 1;
+    told = false;
+    if (plan) {
+      const res = commitTransmit(world, ctx, plan, eventId, (o) => tellWords(world, ctx, def, req, o));
+      told = res.told;
+      if (told) daily.told += 1;
+    }
   }
 
   // ---- escalation (insult -> fight): the target keeps their temper with a Will save. Kin and
@@ -590,4 +633,53 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   for (const a of audience) if (a !== i && a !== tg) refreshLabel(world, ctx, a, i);
 
   return { eventId, success, told, escalatedEventId };
+}
+
+function rumorKind(ctx: SimContext, world: World, propId: TransmitPlan['propId']): TalkFacts['rumor'] {
+  const pred = ctx.content.predicates[world.belief.props[propId]?.pred ?? ''];
+  if (!pred) return 'plain';
+  if (pred.supernatural) return 'uncanny';
+  if (pred.valence <= -20) return 'scandal';
+  return pred.valence > 0 ? 'kind' : 'plain';
+}
+
+/** The words of a telling (talk lines, `part = "said"`), for belief's private event. */
+function tellWords(
+  world: World,
+  ctx: SimContext,
+  def: InteractionDef,
+  req: InteractionRequest,
+  o: TellOutcome,
+): TellWords | null {
+  const hedge =
+    o.person === 'self' || o.mode === 'confidence'
+      ? ''
+      : o.speakerCredence >= 80
+        ? '#hedge_sure#'
+        : o.speakerCredence >= 50
+          ? '#hedge_likely#'
+          : '#hedge_doubt#';
+  const slots: Record<string, string> = {
+    rumor: o.said,
+    hedge,
+    source: o.sourceId !== null && o.sourceId !== o.listenerId ? referTo(world, ctx, o.speakerId, o.sourceId) : '',
+    subject: o.subjectId !== null ? referTo(world, ctx, o.speakerId, o.subjectId) : '',
+  };
+  const ex = composeExchange(world, ctx, {
+    def,
+    initiatorId: req.initiatorId,
+    targetId: req.targetId,
+    placeId: req.placeId,
+    success: true,
+    part: 'said',
+    facts: {
+      told: true,
+      rumor: o.kind,
+      heard: o.heardBefore ? 'already' : o.listenerAfter >= 50 ? 'credits' : 'doubts',
+      secondhand: slots.source !== '',
+      about: o.person,
+      slots,
+    },
+  });
+  return ex ? { line: ex.line, lines: ex.lines } : null;
 }

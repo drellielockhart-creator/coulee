@@ -53,7 +53,25 @@ export function eventView(e: Event, pc: ActorId, mode: ObservationMode) {
     summary = `Sold ${e.data.qty} ${e.data.defId} for $${(e.data.priceCents / 100).toFixed(2)}`;
   if (e.kind === 'provisions.command_rejected') summary = e.data.reason;
   if (e.kind === 'activity.moved') summary = `Travel arrival at place #${e.data.to}`;
-  return { id: e.id, t: e.t, kind: e.kind, summary, explain };
+  if (e.kind === 'belief.transmitted' && e.data.text) summary = `Told: ${e.data.text}`;
+  // What was said (social talk lines): the act on social.interaction, the news itself on the
+  // private belief.transmitted (only its teller and hearer perceive it).
+  const words =
+    (e.kind === 'social.interaction' || e.kind === 'belief.transmitted') && e.data.lines
+      ? {
+          line: e.data.line ?? '',
+          lines: e.data.lines.map((l) => ({ speaker: l.speaker, speakerId: l.speakerId, text: l.text })),
+        }
+      : {};
+  return { id: e.id, t: e.t, kind: e.kind, summary, explain, ...words } as {
+    id: number;
+    t: number;
+    kind: Event['kind'];
+    summary: string;
+    explain: Explain | null;
+    line?: string;
+    lines?: Array<{ speaker: string; speakerId: number; text: string }>;
+  };
 }
 export type KnownEvent = ReturnType<typeof eventView>;
 export function observation(
@@ -139,6 +157,13 @@ export function observation(
     store: provisions.viewProvisionsPlace(w, c, a.placeId, opts),
     events: mode === 'god' ? w.log.events.slice(-8).map((e) => eventView(e, pc, mode)) : knowledge.slice(-8),
     rumors: knowledge.filter((e) => e.kind === 'belief.transmitted' && e.summary.startsWith('Heard:')),
+    // What the PC heard said in the last hour, in the speakers' words: their own exchanges first
+    // (a command's words, what was said to them, news they were told), then talk overheard.
+    said: (() => {
+      const recent = knowledge.filter((e) => e.t >= w.time - 60 && e.lines && e.lines.length > 0);
+      const mine = recent.filter((e) => e.lines?.some((l) => l.speakerId === pc));
+      return [...mine, ...recent.filter((e) => !mine.includes(e))].slice(0, 4);
+    })(),
     journal,
     actions: availableActions(sim, pc),
     ...(mode === 'god' ? { truth: toViewModel(w, c, opts), beliefGraph: w.belief } : {}),

@@ -15,6 +15,7 @@ import {
   type EventInput,
   findNonIntegers,
   makeContext,
+  provisions,
   restoreSim,
   runHours,
   type Sim,
@@ -24,6 +25,7 @@ import {
   toViewModel,
   type World,
 } from '@coulee/core';
+import { sessionSim } from '@coulee/play';
 import { describe, expect, it } from 'vitest';
 import { PATTERNS } from '../../core/src/chronicle/patterns/index.ts';
 import { runScenario } from '../src/harness.ts';
@@ -1713,3 +1715,81 @@ describe('review fixes: the epilogue says only what the record supports', () => 
     expect(content.chronicleTemplates.epi_displaced_act?.when.via_defense).toBe('displacement');
   });
 });
+
+describe('the journal speaks as I (playtest 2026-10-11)', () => {
+  /** Render a journal line with the diarist as actor or target, by hand (the binding forms). */
+  function asMe(text: string, me: 'actor' | 'target'): string {
+    const other = 'Joel Pike';
+    const forms: Record<string, string> =
+      me === 'actor'
+        ? { actor: 'I', actor_short: 'I', actor_given: 'I', he: 'I', his: 'my', him: 'me', himself: 'myself' }
+        : { target: 'me', target_short: 'me', target_given: 'me', target_he: 'I', target_his: 'my', target_him: 'me' };
+    const others: Record<string, string> =
+      me === 'actor'
+        ? { target: other, target_short: other, target_he: 'he', target_his: 'his', target_him: 'him' }
+        : { actor: other, actor_short: other, he: 'he', his: 'his', him: 'him', himself: 'himself' };
+    return text.replace(/\{(\^?)([a-z_]+)\}/g, (m, cap: string, name: string) => {
+      const v = forms[name] ?? others[name];
+      if (v === undefined) return m;
+      return cap ? v.charAt(0).toUpperCase() + v.slice(1) : v;
+    });
+  }
+
+  it('never writes "Me paid", "I and X", or the narrator in the third person', () => {
+    const bad = [
+      /(^|[.!?] )Me\b/,
+      /\bI and\b/,
+      /\bI (is|has|was in close talk)\b/,
+      /(^|[.!?;] )me (paid|is|was|has)\b/,
+      /their peace/,
+    ];
+    const problems: string[] = [];
+    for (const t of Object.values(content.chronicleTemplates)) {
+      if (t.voice !== 'journal') continue;
+      for (const me of ['actor', 'target'] as const) {
+        const self = me === 'actor' ? 'actor_me' : 'target_me';
+        const other = me === 'actor' ? 'target_me' : 'actor_me';
+        if (t.when[self] === false || t.when[other] === true) continue;
+        for (const text of t.text) {
+          const line = asMe(text, me);
+          if (bad.some((re) => re.test(line))) problems.push(`${t.id} [${me}]: ${line}`);
+        }
+      }
+    }
+    expect(problems).toEqual([]);
+  });
+
+  it('a newcomer with days of food in the pack is not written up as starving: the journal counts the pack', () => {
+    const sim = sessionSim(content, { source: 'iron_ford', seed: 42 });
+    const pc = sim.world.meta.playerId;
+    if (pc === null) throw new Error('player');
+    const hid = sim.world.actors[pc]?.householdId;
+    if (hid === undefined) throw new Error('household');
+    const readiness = provisionsReadiness(sim, pc);
+    expect(readiness).toBeGreaterThanOrEqual(40);
+    // The household pantry is bare; the provisions module reports a shortage.
+    const id = appendEvent(
+      sim.world.log,
+      {
+        kind: 'provisions.shortage',
+        data: { householdId: hid, daysOfFoodTenths: 0, rationPct: 50 },
+        roles: [{ actor: pc, role: 'participant' }],
+        visibility: 'private',
+      } as EventInput,
+      sim.world.time,
+    );
+    sim.world.chronicle.cursor = id - 1;
+    chronicle.chronicleSystem(sim.world, makeContext(sim.world, sim.content, []));
+    const texts = sim.world.chronicle.entries.filter((e) => e.sourceEventIds.includes(id)).map((e) => e.text);
+    for (const t of texts) {
+      expect(t).not.toMatch(/less than a day|under a day|no food/i);
+      expect(t).not.toMatch(/children/);
+    }
+    const tally = sim.world.chronicle.tallies.households[hid];
+    expect(tally?.lowestDaysTenths ?? readiness).toBeGreaterThanOrEqual(readiness);
+  });
+});
+
+function provisionsReadiness(sim: Sim, pc: NonNullable<World['meta']['playerId']>): number {
+  return provisions.readinessOf(sim.world, sim.content, { actorId: pc }, sim.world.time, 5).daysOfFoodTenths;
+}

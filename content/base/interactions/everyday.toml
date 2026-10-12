@@ -116,7 +116,7 @@ success.initiator_reason = "We talked long and honest"
 id = "confide"
 name = "Confide"
 label = "Confide"
-description = "Trades a private worry for trust (04 §3.5). The listener now holds it."
+description = "Trades a private worry for trust (04 §3.5): a secret or an unvoiced fear. The listener now holds it, and keeps it close unless keeping things close is not in them."
 requires = { acquainted = true, min_trust = 40, min_affection = 30 }
 volition = [
   { driver = "anxiety", weight = 40 },
@@ -126,6 +126,8 @@ volition = [
 ]
 threshold = 40
 cooldown_hours = 72
+transmits_rumor = true
+rumor_mode = "confidence"
 memory = { kind = "confidence", emotion = "gratitude", intensity = 35 }
 minutes = 30
 visibility = "private"
@@ -238,6 +240,7 @@ volition = [
 threshold = 45
 cooldown_hours = 24
 transmits_rumor = true
+rumor_mode = "warning"
 memory = { kind = "warning", emotion = "fear", intensity = 30 }
 tags = ["talk", "friendly"]
 success.target_opinion = { affection = 2, trust = 5 }

@@ -90,5 +90,7 @@ export function sideNames(dc: DetectCtx, side: number, isHousehold: boolean): { 
     };
   }
   const f = familyOfActor(dc.world, side);
+  // Someone with no surname is themselves, not a family ("Ellis Wayfarer", never "the Ellis Wayfarers").
+  if (!dc.world.actors[side as ActorId]?.name.family) return { family: f, families: f };
   return { family: f, families: `the ${f}${/s$/i.test(f) ? '' : 's'}` };
 }

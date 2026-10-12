@@ -83,6 +83,10 @@ export function singleEntries(dc: DetectCtx, f: Fact): number {
       .sort((a, b) => a - b)
       .join('-');
     const repeatKey = `${voice}|${f.cls}|${f.sub}|${pair}`;
+    // One diary line per pair per hour: two acts between the same two people in one hour (an
+    // accusation and its answer, a gift each way) read as the same scene written twice.
+    const sceneKey = `${voice}|scene|${pair}|${Math.floor(f.t / 60)}`;
+    if (aud === 'journal' && pair.includes('-') && st.recent[sceneKey] !== undefined) continue;
     const score = scoreStory(dc, {
       base: f.base,
       actors,
@@ -117,6 +121,7 @@ export function singleEntries(dc: DetectCtx, f: Fact): number {
     const e = writeEntry(dc, draft);
     if (e) {
       noteTold(st, repeatKey, f.t);
+      if (aud === 'journal' && pair.includes('-')) noteTold(st, sceneKey, f.t);
       written += 1;
     }
   }

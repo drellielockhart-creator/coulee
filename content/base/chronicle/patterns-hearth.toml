@@ -223,7 +223,7 @@ on = "shortage"
 voice = "journal"
 when = { level_word = ["short", "close"] }
 text = [
-  "The pantry is #lean_adj#. We are on {ration_pct} in the hundred, and I have begun to count what is left at night, as a child counts stairs.",
+  "{^lowest_days} of food in hand at the worst, and we are on {ration_pct} in the hundred. I have begun to count what is left at night, as a child counts stairs.",
   "Short again. We have lived mostly on {board}, and the cold meals number {cold_meals}. I do not say it to complain; I say it to have it written.",
 ]
 
@@ -251,7 +251,17 @@ text = [
 id = "shortage_journal_hard"
 on = "shortage"
 voice = "journal"
-when = { level_word = ["hard", "long"] }
+when = { level_word = ["hard", "long"], children = false }
+text = [
+  "{^lowest_days} of food at the worst of it. We have lived on {board}. I lost {lost} to the damp, which I will not forgive the cellar. I am going to the store with my pride in my pocket.",
+  "It has been {span}. The ration is at {ration_pct} in the hundred, and I have stopped looking at the barrel when I pass it.",
+]
+
+[[template]]
+id = "shortage_journal_hard_children"
+on = "shortage"
+voice = "journal"
+when = { level_word = ["hard", "long"], children = true }
 text = [
   "{^lowest_days} of food at the worst of it. We have lived on {board}. I lost {lost} to the damp, which I will not forgive the cellar. I am going to the store with my pride in my pocket.",
   "It has been {span}. The ration is at {ration_pct} in the hundred and the children no longer ask. That is the worst of it: they no longer ask.",
