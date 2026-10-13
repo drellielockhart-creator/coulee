@@ -88,9 +88,28 @@ export function stacksDeep(
   loc: ItemLocation,
   index: InventoryIndex = inventoryIndex(world),
 ): Array<{ stack: ItemStack; depth: number }> {
+  return deepSnapshot(world, loc, index).filter((entry) => world.items.stacks[entry.stack.id] === entry.stack);
+}
+
+/** Append live stacks without allocating an intermediate depth-entry array. */
+export function appendStacksDeep(
+  world: World,
+  loc: ItemLocation,
+  into: ItemStack[],
+  index: InventoryIndex = inventoryIndex(world),
+): void {
+  for (const { stack } of deepSnapshot(world, loc, index)) if (world.items.stacks[stack.id] === stack) into.push(stack);
+}
+
+/** Internal snapshot only: consumers check deletion live and never expose this array. */
+function deepSnapshot(
+  world: World,
+  loc: ItemLocation,
+  index: InventoryIndex,
+): Array<{ stack: ItemStack; depth: number }> {
   const key = locKey(loc);
   const cached = index.deep?.get(key);
-  if (cached) return cached.filter((entry) => world.items.stacks[entry.stack.id] === entry.stack);
+  if (cached) return cached;
   const out: Array<{ stack: ItemStack; depth: number }> = [];
   const pending = (index.at[locKey(loc)] ?? []).map((stack) => ({ stack, depth: 0 })).reverse();
   const seen = new Set<ItemId>();
@@ -116,8 +135,9 @@ export const atPlace = (placeId: PlaceId): ItemLocation => ({ kind: 'place', pla
 /** Total weight in grams of everything at a location (deep). */
 export function weightG(world: World, content: ContentBundle, loc: ItemLocation, index?: InventoryIndex): number {
   let g = 0;
-  for (const { stack } of stacksDeep(world, loc, index))
-    g += (content.items[stack.defId]?.weight_g ?? 0) * stack.qty + (stack.waterMl ?? 0);
+  for (const { stack } of deepSnapshot(world, loc, index ?? inventoryIndex(world)))
+    if (world.items.stacks[stack.id] === stack)
+      g += (content.items[stack.defId]?.weight_g ?? 0) * stack.qty + (stack.waterMl ?? 0);
   return g;
 }
 
@@ -158,7 +178,8 @@ export function stackAffordance(content: ContentBundle, stack: ItemStack, key: s
  */
 export function affordanceAt(world: World, content: ContentBundle, loc: ItemLocation, key: string): number {
   let best = 0;
-  for (const { stack } of stacksDeep(world, loc)) {
+  for (const { stack } of deepSnapshot(world, loc, inventoryIndex(world))) {
+    if (world.items.stacks[stack.id] !== stack) continue;
     const t = stackAffordance(content, stack, key);
     if (t > best) best = t;
   }
@@ -371,7 +392,8 @@ export function supplyUnits(
   index?: InventoryIndex,
 ): number {
   let t = 0;
-  for (const { stack } of stacksDeep(world, loc, index)) t += stackSupplyUnits(content, stack, kind);
+  for (const { stack } of deepSnapshot(world, loc, index ?? inventoryIndex(world)))
+    if (world.items.stacks[stack.id] === stack) t += stackSupplyUnits(content, stack, kind);
   return t;
 }
 
@@ -411,7 +433,7 @@ export function consumeSupply(
 ): number {
   let need = Math.max(0, Math.round(units));
   let drawn = 0;
-  for (const { stack } of stacksDeep(world, loc, index)) {
+  for (const { stack } of deepSnapshot(world, loc, index ?? inventoryIndex(world))) {
     if (need <= 0) break;
     const take = consumeStackSupply(world, content, stack, kind, need);
     drawn += take;

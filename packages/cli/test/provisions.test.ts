@@ -8,6 +8,7 @@ import { asActorId, asHouseholdId, asPlaceId, mustGet } from '../../core/src/ids
 import {
   affordanceAt,
   allStacks,
+  appendStacksDeep,
   carriedBy,
   consumeStack,
   consumeSupply,
@@ -27,7 +28,14 @@ import { heatPlaces } from '../../core/src/needs/thermal.ts';
 import { drinkWater, readinessOf, refillWater, waterHour } from '../../core/src/provisions/api.ts';
 import { purchase, replenishDomestic, shoppingHour } from '../../core/src/provisions/economy.ts';
 import { devicesHour, storageHour } from '../../core/src/provisions/environment.ts';
-import { foodServings, kitchenOf, preparationHour, recipesFor, serveMeal } from '../../core/src/provisions/meals.ts';
+import {
+  foodServings,
+  kitchenOf,
+  preparationHour,
+  recipesFor,
+  serveMeal,
+  withProjectionMeals,
+} from '../../core/src/provisions/meals.ts';
 import { nutritionHour } from '../../core/src/provisions/nutrition.ts';
 import { spoilageFactors } from '../../core/src/provisions/spoilage.ts';
 import { createProvisionsState, emptyNutrition } from '../../core/src/provisions/state.ts';
@@ -88,6 +96,10 @@ describe('provisions acceptance', () => {
         [food, 1],
         [leaf, 0],
       ]);
+      stacksDeep(world, carriedBy(A)).length = 0;
+      const collected: import('../../core/src/items/state.ts').ItemStack[] = [];
+      appendStacksDeep(world, carriedBy(A), collected);
+      expect(collected.map((s) => s.id)).toEqual([bag, food, leaf]);
       withInventoryPass(world, () => deleteStack(world, leaf));
       expect(atActor()).toEqual([
         [bag, 0],
@@ -100,6 +112,28 @@ describe('provisions acceptance', () => {
       );
       expect(atActor()).toEqual([]);
       expect(stacksDeep(world, { kind: 'household', householdId: H }).map(({ stack }) => stack.id)).toEqual([food]);
+    });
+  });
+
+  it('internal supply snapshots stay live across nested draws and exhausted stacks', () => {
+    const world = fixture(content);
+    const loc = { kind: 'household' as const, householdId: H };
+    const box = add(world, 'oilcloth_bag', 1);
+    const fuel = newStack(world, 'firewood_armload', 1, { kind: 'container', itemId: box }, world.time);
+    const spare = add(world, 'firewood_armload', 1);
+    const units = content.items.firewood_armload?.supply?.units ?? 0;
+    withInventoryPass(world, () => {
+      expect(supplyUnits(world, content, loc, 'fire')).toBe(units * 2);
+      expect(consumeSupply(world, content, loc, 'fire', units + 1)).toBe(units + 1);
+      expect(world.items.stacks[fuel]).toBeUndefined();
+      expect(world.items.stacks[spare]?.partial).toBe(1);
+      expect(supplyUnits(world, content, loc, 'fire')).toBe(units - 1);
+      const collected: import('../../core/src/items/state.ts').ItemStack[] = [];
+      appendStacksDeep(world, loc, collected);
+      expect(collected.map((s) => s.id)).toEqual([box, spare]);
+      deleteStack(world, spare);
+      expect(supplyUnits(world, content, loc, 'fire')).toBe(0);
+      expect(consumeSupply(world, content, loc, 'fire', 1)).toBe(0);
     });
   });
 
@@ -262,6 +296,49 @@ describe('provisions acceptance', () => {
     expect(hashValue(w)).toBe(before);
     expect(readinessOf(w, content, { householdId: H }, w.time, 4)).toEqual(plan);
     expect(hashValue(w)).toBe(before);
+  });
+
+  it('compiled preparation paths retain live resource checks and caller-owned steps', () => {
+    const w = fixture(content);
+    const holder = { householdId: H };
+    const coffee = mustGet(w.items.stacks, add(w, 'coffee_green', 2));
+    const oysters = mustGet(w.items.stacks, add(w, 'oysters_tinned', 2));
+    add(w, 'flint_steel_char_tin', 1);
+    add(w, 'firewood_armload', 20);
+    add(w, 'frying_pan', 1);
+    add(w, 'camp_kettle_pair', 1);
+    withProjectionMeals(w, () => {
+      const kitchen = kitchenOf(w, content, holder);
+      const brew = () => recipesFor(w, content, holder, coffee, 1.333, false, 'roast', 360, kitchen);
+      const first = brew();
+      expect(first[0]?.steps.map((p) => p.method)).toEqual(['roast', 'grind', 'brew']);
+      expect(first[0]?.water).toBe(334);
+      first[0]?.steps.pop();
+      expect(brew()[0]?.steps).toHaveLength(3);
+      expect(recipesFor(w, content, holder, coffee, 1, false, 'grind', 360, kitchen)).toEqual([]);
+      mustGet(w.provisions.households, H).waterMl = 0;
+      consumeSupply(w, content, { kind: 'household', householdId: H }, 'fire', 100000);
+      kitchen.refresh();
+      expect(brew()[0]?.missing).toContain('water');
+      expect(brew()[0]?.missing).toContain('fire supply');
+      expect(brew()).toEqual(
+        recipesFor(w, content, holder, coffee, 1.333, false, 'roast', 360, {
+          ...kitchen,
+          preparationPaths: undefined,
+        }),
+      );
+      const closed = recipesFor(w, content, holder, oysters, 1, false, 'raw', 360, kitchen)[0];
+      oysters.opened = true;
+      oysters.spoilage = 999;
+      const opened = recipesFor(w, content, holder, oysters, 1, false, 'raw', 360, kitchen)[0];
+      expect(opened?.minutes).toBe((closed?.minutes ?? 0) - 1);
+      expect(opened?.morale).toBeLessThan(closed?.morale ?? 0);
+      // A later kitchen shares only content paths, not the previous kitchen's frozen state.
+      coffee.frozen = true;
+      const frozen = kitchenOf(w, content, holder);
+      const frozenBrew = recipesFor(w, content, holder, coffee, 1.333, false, 'roast', 360, frozen)[0];
+      expect(frozenBrew?.fire).toBe(Math.ceil(((brew()[0]?.fire ?? 0) * 150) / 100));
+    });
   });
 
   it('5: shortages cut rations; cash transfers balance and credit obeys the limit', () => {
