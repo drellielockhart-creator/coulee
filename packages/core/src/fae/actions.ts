@@ -15,11 +15,12 @@ import { purchase, storeOpen } from '../provisions/api.ts';
 import { authorizeAct, type Basis, chosenUrge, commandBasis } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
+import { attemptTheft } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { restitutionOwed } from './arc.ts';
 import { charmDefOf, holdingOf, keeperOf, knownRecord, learn } from './charms.ts';
 import { ironByPlace } from './conditions.ts';
-import { householdArg, itemArg } from './desire.ts';
+import { believedKeeper, householdArg, itemArg } from './desire.ts';
 import { countStock } from './discovery.ts';
 import { drawEffectOf } from './draws.ts';
 import { takeFound } from './found.ts';
@@ -39,7 +40,15 @@ import { seedClaimId } from './witness.ts';
 const SALT_STUDY = 0x57d1;
 const SALT_RITE = 0x7173;
 
-const FAE_ACTIVITIES = ['tend_charm', 'fetch_charm', 'study_charm', 'bury_charm', 'destroy_charm', 'return_charm'];
+const FAE_ACTIVITIES = [
+  'steal_charm',
+  'tend_charm',
+  'fetch_charm',
+  'study_charm',
+  'bury_charm',
+  'destroy_charm',
+  'return_charm',
+];
 
 function refuse(
   _world: World,
@@ -397,6 +406,14 @@ function dispose(
   });
 }
 
+/** Taking occupies this hour here, so the ordinary schedule cannot carry the actor away. */
+function stealCharm(world: World, ctx: SimContext, actorId: ActorId, c: CharmState, basis: Basis): TendResult {
+  const victimId = believedKeeper(world, actorId, c.itemId);
+  if (victimId === null) return { ok: false, reason: 'You do not know whose sack this is' };
+  const outcome = attemptTheft(world, ctx, { actorId, victimId, itemId: c.itemId, basis, interactionId: 'take' });
+  return outcome.success ? { ok: true, text: 'You took the sack.' } : { ok: false, reason: 'The sack was not taken' };
+}
+
 /** Out of the household stores, to carry it somewhere. */
 function fetchCharm(world: World, ctx: SimContext, actorId: ActorId, c: CharmState, basis: Basis): TendResult {
   const a = world.actors[actorId];
@@ -449,17 +466,19 @@ export function actionsHour(world: World, ctx: SimContext): void {
     if (!c) continue;
     const basis: Basis = chosen?.voice === 'command' ? commandBasis(ctx, id, ['core.urge']) : { kind: 'own' };
     const r =
-      actId === 'tend_charm'
-        ? tendCharm(world, ctx, id, c, basis)
-        : actId === 'fetch_charm'
-          ? fetchCharm(world, ctx, id, c, basis)
-          : actId === 'study_charm'
-            ? studyCharm(world, ctx, id, c, basis)
-            : actId === 'bury_charm'
-              ? buryCharm(world, ctx, id, c, basis)
-              : actId === 'destroy_charm'
-                ? destroyCharm(world, ctx, id, c, basis)
-                : returnCharm(world, ctx, id, c, basis);
+      actId === 'steal_charm'
+        ? stealCharm(world, ctx, id, c, basis)
+        : actId === 'tend_charm'
+          ? tendCharm(world, ctx, id, c, basis)
+          : actId === 'fetch_charm'
+            ? fetchCharm(world, ctx, id, c, basis)
+            : actId === 'study_charm'
+              ? studyCharm(world, ctx, id, c, basis)
+              : actId === 'bury_charm'
+                ? buryCharm(world, ctx, id, c, basis)
+                : actId === 'destroy_charm'
+                  ? destroyCharm(world, ctx, id, c, basis)
+                  : returnCharm(world, ctx, id, c, basis);
     if (!r.ok && chosen?.voice === 'command') refuse(world, ctx, id, c.itemId, actId, r.reason);
   }
 }

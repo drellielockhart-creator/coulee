@@ -165,3 +165,17 @@ voice = "epilogue"
 text = [
   "In the end {keeper} lent {charm} to {asker}, whom {keeper_short} had turned away, and slept the better for it.",
 ]
+
+# A loss is public; the taker's identity belongs to the epilogue until evidenced in play.
+[[template]]
+id = "charm_stolen"
+on = "charm.stolen"
+voice = "paper"
+headline = "A Theft of the Sack"
+text = ["The count finds {charm} missing from its keeping. It was not lent out. A theft is reported; no name has been proved."]
+
+[[template]]
+id = "charm_theft_truth"
+on = "charm.theft_truth"
+voice = "epilogue"
+text = ["{asker} took {charm} from {keeper}, and became its keeper by possession, without a right to it. The sack chose no new master that day."]

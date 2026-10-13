@@ -71,3 +71,12 @@ description = "Take the thing out of the household stores to carry it somewhere.
 at = "anywhere"
 labor = "light"
 tags = ["chore", "charm"]
+
+[[activity]]
+id = "steal_charm"
+name = "Take the sack"
+verb = "reaching for the sack"
+description = "Risk taking the sack from another household's keeping, without leave."
+at = "anywhere"
+labor = "light"
+tags = ["charm", "theft", "hostile"]

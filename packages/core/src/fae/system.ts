@@ -15,6 +15,7 @@ import { investigate } from './investigate.ts';
 import { noticeEpisode } from './omens.ts';
 import { isProtectedSite } from './sites.ts';
 import { dawnRecharge } from './tend.ts';
+import { theftDiscoveryHour } from './theft.ts';
 import { charmDaily, witnessHour } from './witness.ts';
 export function initFaeState(world: World, ctx: InitContext): void {
   seedReservoir(world, ctx);
@@ -87,4 +88,5 @@ function charmHour(world: World, ctx: SimContext): void {
   standingTies(world, ctx);
   witnessHour(world, ctx);
   discoveryHour(world, ctx);
+  theftDiscoveryHour(world, ctx);
 }

@@ -13,8 +13,7 @@
  *   refusal becomes gossip ("they keep it to themselves while others go short"), and refusal after
  *   refusal founds grudges that run along the existing strife lines (an apology owed; humiliation).
  *
- * Desperation theft is not built here: `charmCovetPressure` is the hook a generic theft act
- * (module:social, wave 6 relief) can read to decide when a refused, short household turns to it.
+ * `charmCovetPressure` feeds the Id proposal in urges.ts; social owns the theft executor.
  * OWNER: module:fae.
  */
 import { formGrudge, internProp, observe } from '../belief/api.ts';
@@ -81,9 +80,10 @@ export function charmRefused(
   const def = charmDefOf(ctx.content, c?.defId);
   if (!c || !def || !keeper?.alive || !asker?.alive || keeper.householdId === asker.householdId) return;
   c.refusals ??= {};
-  const rec = c.refusals[askerId] ?? { n: 0, last: 0, grudges: 0 };
+  const rec: NonNullable<CharmState['refusals']>[number] = c.refusals[askerId] ?? { n: 0, last: 0, grudges: 0 };
   rec.n += 1;
   rec.last = ctx.now;
+  rec.by = keeperId;
   c.refusals[askerId] = rec;
 
   // The keeper: duty-guilt by conscience, need and bond.
@@ -195,7 +195,7 @@ export function guiltEased(world: World, c: CharmState, giverId: ActorId | null,
 }
 
 /**
- * The hook for desperation theft (not built here): how hard a refused, wanting actor presses toward
+ * The pressure behind desperation theft: how hard a refused, wanting actor presses toward
  * the charm. Desire, plus 100 for each time turned away, plus 200 when the household is short.
  * A generic theft act in module:social can compare this against its own threshold and the
  * actor's honesty; it is 0 for the keeping household.
