@@ -232,6 +232,11 @@ Every doc uses these terms with these meanings.
     - **Witch-mode misattribution (05 Q8):** yes, as system behavior, within 05 §8.9's guardrails.
     - **The unconscious (C55):** the Director may read unconscious states (anxiety near thresholds, a charged Shadow, defenses that fired) to time stressors. It never writes psyche state.
     - **Foresight:** by default the Director may look ahead only on unseen counter-based rolls it is allowed to tilt, choosing threads before it looks. This is an **optional setting** per run (off / tiltable-only (default) / full), recorded in the manifest and the Ledger.
+  - **County scale (M5; 08 #14's "come back with options" trigger, at ~321× over budget):** the 2e benchmark puts a Standard county (~2,800 people) at 1.6 s/game-hour, with T2 only about 11% cheaper than T1 because it keeps hourly decisions to stay faithful. Ellie chose:
+    - **a dormant T3 tier:** distant settlements advance in seasonal or monthly aggregate (births, deaths, debts, harvests and feuds as facts), with persistent identities, and get deterministic recent history filled in as the PC approaches;
+    - **speeding up the hourly sim** (T0/T1 per-actor cost).
+
+    She did **not** choose a statistical T2 (T2 keeps its validated hourly-decision fidelity) or a smaller default county.
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.
