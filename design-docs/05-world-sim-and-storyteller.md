@@ -1264,7 +1264,7 @@ Personalities are **data**: a curve, weights, budget, mercy policy, and category
 Guardrails, because this is the most dangerous system behavior in the doc:
 - **It runs through `04`'s attribution, not around it.** N3 is a ±10% tip among candidates `04` already scores (including `10`'s projection terms and `12`'s Prejudice dial). It cannot introduce a candidate, and it cannot weight a candidate by people or culture (§8.3). With `12`'s recommended restrained prejudice (P3), the default scapegoats are the kinds of people any frontier town blamed: the newcomer, the widow, the quarrelsome neighbor.
 - **Legal texture (C13).** `01` §5.4 has no witchcraft statute, so persecution is extralegal. The outcomes are `04` rung 6 mob action (charivari, burning out, riding out of the county, lynching) or a **mundane** trial (poisoning a well, arson, slander), not a "witch trial." This doc's old "tried, hanged, or swum" is withdrawn pending `01` Q6.
-- **[OPEN, Q8]** Is this the right moral texture as *system* behavior, or only as a player choice via Curses? The alternative is to drop Director mercy in witch mode and leave scapegoating to the player.
+- **[DECIDED 2026-10-13, Q8 — Ellie: yes, misattribution is system behavior.]** The guardrails above stand (through `04`'s attribution only, ±10% among existing candidates, never by people or culture, never a faekin rumor). Original question: is this the right moral texture as *system* behavior, or only as a player choice via Curses? The alternative is to drop Director mercy in witch mode and leave scapegoating to the player.
 
 ---
 

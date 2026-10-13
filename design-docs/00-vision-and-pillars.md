@@ -228,6 +228,10 @@ Every doc uses these terms with these meanings.
     - a three-gun retained-charge misfire subset;
     - a minimal inquiry/arrest/hearing loop.
   - Item 14 (M5 travel defaults) was not overridden, so slice 2 proceeds on them.
+  - **The storyteller (Director, 05 §8; `docs/impl/DIRECTOR-PLAN.md`):** queued, with D0 (measurement) started.
+    - **Witch-mode misattribution (05 Q8):** yes, as system behavior, within 05 §8.9's guardrails.
+    - **The unconscious (C55):** the Director may read unconscious states (anxiety near thresholds, a charged Shadow, defenses that fired) to time stressors. It never writes psyche state.
+    - **Foresight:** by default the Director may look ahead only on unseen counter-based rolls it is allowed to tilt, choosing threads before it looks. This is an **optional setting** per run (off / tiltable-only (default) / full), recorded in the manifest and the Ledger.
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.
