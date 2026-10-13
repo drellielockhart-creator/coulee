@@ -16,8 +16,8 @@
   - `packages/core` is the pure deterministic sim.
   - `packages/content` turns TOML into a zod-validated JSON bundle.
   - `packages/cli` is the headless `coulee` harness.
-  - `packages/play` defines the shared, IO-free `PlaySession` for fair/god observations, interrupts, replay/save/fork, and telemetry (ADR 0002; in progress).
-  - `packages/worldgen` is the pure deterministic layered generator, emitting authored-scenario shapes (ADR 0003; town-site slice done on `wip/worldgen`).
+  - `packages/play` defines the shared, IO-free `PlaySession` for fair/god observations, interrupts, replay/save/fork, and telemetry (ADR 0002; built).
+  - `packages/worldgen` is the pure deterministic layered generator, emitting authored-scenario shapes (ADR 0003; town v2 and county stage v3 built).
   - `apps/web` is a Vite + React + three.js **PWA**, with the sim in a **Web Worker**.
   - Vitest + fast-check for tests; Biome plus `scripts/check-invariants.ts` for lint.
   - Capacitor and Tauri come later.
@@ -26,7 +26,7 @@
 - **[DECISION, with `11`] Scale is a World setting** (Small / Standard / Large), recorded in the World and identical on every device. Phones run the same sim *slower* through a speed governor. They never run a coarser sim (§6).
 - **[DECISION] Census materialization (`00`):** named actors have full sheets and minds. Everyone else lives in household census records and is materialized deterministically, with a time-independent identity, on first relevance (§5.3).
 - **[PROPOSAL, aligned with `11` §4.3] A save is a snapshot plus a command journal,** stored in OPFS from the worker with an IndexedDB index. The World never crosses the worker boundary. Positions travel as transferable typed arrays, and panels get small view models and query results (§7).
-- **Today (2026-10-11):** M0 is done. The M1–M3 town slice (needs/activities, psyche, social, belief, provisions, chronicle, web shell, Blender assets) is implemented and being integrated; headless play (ADR 0002) is in progress. The first M5a town-site generator is done on `wip/worldgen`; county generation remains ahead. Next come **M4 Outfitter + P8 provisions, M5a procedural worldgen (ADR 0003), M5 region/travel, M6 combat, M7 adventurer slice, M8 witch slice**, each with acceptance gates and agent playtests (ADR 0002; §12).
+- **Today (2026-10-12):** M0 and the M1–M3 town slice are integrated; headless/web PlaySession and survival are done. M4 P8 systems and storefront/Kit Sheet are built; winter relief (#3) is in progress. M5a town v2 and county stage v3 are done; census, pre-roll and non-town layouts remain ahead. M5 has a written plan (`docs/impl/M5-PLAN.md`), with slice 1 in progress. Doc 13 fae 1a/1b are implemented; spread/rota/performance gates remain partial and refusal costs are in progress. Full milestone, engine/device and M6–M8 gates remain ahead. **[DECISION]** marks canon; plan recommendations remain **[PROPOSAL]** unless explicitly decided.
 
 ---
 
@@ -635,7 +635,7 @@ coulee bench     --size standard --days 30                      |  coulee save d
 
 Sweep parameters are integers (per-cent), so tuning never introduces floats into state.
 
-### 10.3 PlaySession (ADR 0002; in progress)
+### 10.3 PlaySession (ADR 0002; built)
 
 **[DECISION]** `packages/play` is pure TypeScript over core, with no IO. A `PlaySession` holds the World, one player-controlled actor, the command log, and an observation renderer. Pocket, desktop, text REPL and JSONL are views over the same API and view model: **every graphical player action must also be a headless Command**. A feature that cannot be played headlessly is not done.
 
@@ -651,7 +651,7 @@ coulee play --scenario iron_ford --seed 42 --jsonl [--god]
 coulee play --replay log.jsonl
 ```
 
-These are the ADR target transports, not a claim that headless play has landed in this checkout.
+These transports are built, along with stateless `--session` play; see `packages/play/README.md`.
 
 ### 10.4 Optional LLM adapter
 
@@ -666,18 +666,18 @@ These are the ADR target transports, not a claim that headless play has landed i
 
 ## 11. Repo: what exists vs. what's planned
 
-### 11.1 Actual state (2026-10-11; `wip/worldgen`)
+### 11.1 Actual state (2026-10-12)
 
 | Path | State |
 |---|---|
 | Root | Workspace, tsconfigs, Biome, `justfile`, Vitest and invariant checker landed (M0). `CLAUDE.md` and its `AGENTS.md` symlink share the rules for the two agent pools: Claude and Codex |
-| `packages/core/src` | Foundation and module slices for `needs/`, `activity/`, `psyche/`, `social/`, `belief/`, `items/`, `provisions/`, `chronicle/`. The M1–M3 town work is implemented and being integrated; this checkout still has a social-system stub and day-heading Chronicle wiring, so integrated story acceptance is pending |
+| `packages/core/src` | Foundation and module slices for `needs/`, `activity/`, `psyche/`, `social/`, `belief/`, `items/`, `provisions/`, `chronicle/`, `fae/`. Town social/Chronicle integration, survival and fae 1a/1b are built; LOD/census/region runtime remain ahead |
 | `packages/content/src`, `content/base` | Loader, validator, bundler and module schemas; authored Iron Ford fixture, peoples/cultures, name pools, occupations/schedules, items and P8 food, beliefs and seeded tensions |
 | `packages/cli` | Headless scenario runs, inspection and content commands; generated-town run/export/replay-manifest support |
-| `packages/play` | ADR 0002 package/API target (§10.3); headless play in progress, package not yet present here |
-| `packages/worldgen` | **Town-site slice DONE on `wip/worldgen`:** pure deterministic layers → ordinary `ScenarioDef`, `SiteDef`, `PlaceDef`; town population, households, relationships, pantries and tensions. `coulee run --scenario gen:town` runs it; `coulee gen town` exports editable TOML plus recipe/report. County layers and history pre-roll remain planned (§12.3a) |
-| `apps/web`, `tools/blender`, `apps/web/public/assets` | Worker/PWA shell, pocket/desktop panels and data-driven site rendering; Blender scripts and low-poly assets implemented as part of the town slice, being integrated. Full M3 movement/materialization and PlaySession parity gates remain acceptance targets |
-| `scripts/`, `docs/impl/MODULES.md` | Invariant checker and screen capture tooling; `scripts/codex.sh` delegates Codex jobs alongside Claude's pool. `MODULES.md` owns file boundaries, additive contracts and module acceptance; its original build-wave exclusions are historical, not the current worldgen status |
+| `packages/play` | ADR 0002 PlaySession built: fair/god observations, shared interrupts, replay/save/load/fork/verify, telemetry and storefront/food-ledger queries; used by CLI and web |
+| `packages/worldgen` | **Town v2 and county stage v3 built:** pure deterministic layers → ordinary `ScenarioDef`, `SiteDef`, `PlaceDef`; town population, households, relationships, pantries and tensions. `coulee run --scenario gen:town` runs it; `coulee gen town` exports editable TOML plus recipe/report. County layers/graph, names and ford-town context exist; census, non-town layouts and pre-roll remain planned (§12.3a) |
+| `apps/web`, `tools/blender`, `apps/web/public/assets` | Worker/PWA shell, pocket/desktop panels and data-driven site rendering; Blender scripts/placeholder assets, web PlaySession, storefront and Kit Sheet integrated. Materialization and measured cross-engine/device gates remain ahead |
+| `scripts/`, `docs/impl/MODULES.md` | Invariant checker and screen capture tooling; `scripts/codex.sh` delegates Codex jobs alongside Claude's pool. `MODULES.md` owns file boundaries, additive contracts and module acceptance; current ownership includes fae, play and worldgen, with proposed region ownership for M5 |
 
 Implementation of the town slice does **not** establish completion of every M1–M3 target below, cross-engine/device budgets, or the ADR 0002 agent playtest pass.
 
@@ -692,8 +692,8 @@ packages/core/src/
   world-sim/    weather.ts · ecology.ts · disease.ts · economy.ts · travel.ts
   director/  persecution/  views/  queries/  snapshot.ts · migrate.ts
 apps/web/src/   worker/ (sim.worker, loop, governor, protocol, opfs, idb) · ui/{pocket,desk,folio,shared} · render/ · pwa/
-packages/play/     PlaySession · fair/god observations · shared interrupt policy · replay/save/fork · telemetry (ADR 0002)
-packages/worldgen/ layered county generator → authored-scenario shapes; town-site slice exists (ADR 0003)
+packages/play/     exists: shared PlaySession (ADR 0002); regional actions planned
+packages/worldgen/ exists: town v2 + county v3 (ADR 0003); census/pre-roll/non-town layouts planned
 scripts/        gen-fixed-tables.ts (planned); check-invariants.ts · codex.sh (exist)
 docs/impl/      MODULES.md (exists)
 CLAUDE.md · AGENTS.md (symlink): shared rules for Claude and Codex pools
@@ -720,7 +720,7 @@ CLAUDE.md · AGENTS.md (symlink): shared rules for Claude and Codex pools
 
 **[PROPOSAL] Coverage below** makes the gates runnable; seed counts and balance/story pass bands remain `08` Q15, not new settled decisions. For "fresh seeds," record at least two seeds outside the listed regression set. Later fixtures are authored acceptance targets to build with their milestone. Before PlaySession or the UI exists, use command-driven harness smoke on the available surface and mark the missing gate evidence pending; M0's foundation is done, but do not invent a retrospective ADR 0002 pass.
 
-### 12.1 Today's slice: M0 done; M1–M3 town slice implemented, being integrated
+### 12.1 Today's slice: M0 done; M1–M3 town slice integrated
 
 | # | Scope | Acceptance |
 |---|---|---|
@@ -729,7 +729,7 @@ CLAUDE.md · AGENTS.md (symlink): shared rules for Claude and Codex pools
 | **M2** Memory, belief, rumor, grudge, defenses | `04` §4–8 using the §4.3 integer forms; projection/displacement into attribution; grudges; notoriety; persecution rungs 0–6; headless `witch_hunt` scenario | `inspect rumor` prints the transmission tree; with 6 injected curses per season, an accusation (rung ≥ 2) emerges in ≥ 50% and < 100% of 64 seeds; **ADR gate: < 5 ms per game-hour for 30 T1 actors on the mid phone** |
 | **M3** Web shell, thin | worker + protocol v1; one T0 site (instanced low-poly); tap/click-to-move; pause/speeds; inspector via `view()`; installable PWA | the site is entered **through `materialize()`**; NPCs stand where their activities say; the inspector equals `coulee inspect --as pc`; Playwright smoke passes at both viewports |
 
-**Status (2026-10-11):** M0 is done. M1–M3 town-slice implementations include needs/activities, psyche, social, belief, provisions, chronicle, web shell and Blender assets, and are being integrated. That is narrower than the full milestone targets above. Headless play is in progress; social/Chronicle integration and complete parity evidence remain pending in this worktree.
+**Status (2026-10-12):** M0 and the M1–M3 town slice are integrated (needs/activities, psyche, social, belief, provisions, Chronicle, web and Blender assets). Headless play is done; web PlaySession logs replay headlessly to the same hash. Survival is done (deprivation, collapse/death, aid, funerals/estates and death/retire/depart endings). Doc 13 fae 1a/1b are implemented; 1b spread, year-long rota and performance remain partial, and costs for keepers and those refused are in progress. Full targets remain unmet: LOD/materialization, persecution beyond rung 3, `witch_hunt`, cross-engine validation and phone budgets. The wave-4 Iron Ford year measured 17.1 ms/hour on desktop; performance targets remain unmet.
 
 | Milestone | Explicit playtest gate (shared blockers and triage above apply to each) |
 |---|---|
@@ -739,6 +739,8 @@ CLAUDE.md · AGENTS.md (symlink): shared rules for Claude and Codex pools
 | **M3** | **Greenhorn + Pocket player:** `iron_ford`, seeds 1 and 42, plus fresh seeds; replay movement, inspection, pause/wait and resume headlessly and at 390×844 / 1440×900, comparing Commands, observations and interrupts |
 
 ### 12.2 M2.5: LOD + census (must land before M5)
+
+**Status (2026-10-12):** Not built. Census/materialization, T1/T2 tiering and compartment diffusion remain on M5's critical path (plan slice 2); slice 1 keeps two small populations hourly. The design below remains **[PROPOSAL]**.
 
 Tiering with hysteresis, pending deltas, compartment diffusion, census records and materialization, relevance pinning, `CensusRef` event roles, and World size in `meta`.
 
@@ -751,6 +753,8 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 **Playtest gate:** **Explorer + Roleplayer / socialite + Exploit hunter / griefer**, on authored two-settlement LOD/census fixtures, seeds 1–50 plus fresh seeds. Leave, hear a rumor, return and contact a census witness; repeat across promotion/demotion and save/load. Shared blockers and triage apply, including any recorded-history contradiction.
 
 ### 12.3 M4: Outfitter + P8 provisions
+
+**Status (2026-10-12):** P8 meals/nutrition, timed preparation, spoilage, nested gear/load, water, camping, trade/credit and restocking are built, with the web storefront, compare/buy preview and Kit Sheet. Acceptance **#2, #5 and #6 are met** (summer spoilage/Explains; food-number Explains; pocket shopping). **#1** has shared planner/sim kernels and regression coverage, but the exact $50/10-day/three-temperature gate is pending. **#3** relief is in progress; borrowing and rescue exist, but a zero-food household still lacks ordinary neighbor relief and the failed-harvest Standard gate is pending. **#4** is data-driven in its parts; the end-to-end new-food gate is pending. **#7** save/load is tested; cross-engine evidence is pending. **#8** awaits Standard T2, which is not built. M4 is not fully accepted.
 
 **Scope:**
 - `03` ratifies the `items.ts` field list.
@@ -782,29 +786,31 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 
 ### 12.3a M5a: Worldgen (before M5; ADR 0003)
 
-**Status (2026-10-11): first town-site slice DONE on `wip/worldgen`; county generation next.**
+**Status (2026-10-12):** Town slice v2 and county stage v3 are done and integrated. County generation has terrain, hydrology, ecology, fae field, named settlements/creeks/valleys and terrain-following route graphs, with QA across seeds 1–64 in both presets and county-to-ford-town context/export. Census, history pre-roll, non-town layouts, the county charm reservoir and playable county travel are not built. Real phone/cross-engine measurements and full county acceptance remain pending; Q07/Q08 and plan recommendations remain open/proposed.
 
-**First slice, implemented:**
+**Town slice, implemented:**
 
 - `generateTown` layers terrain → settlement → population → tensions → QA, using independent fixed salts on the `worldgen` RNG stream, keyed by generator version and stable actor keys. World seed and simulation seed are separate.
-- `coulee` / `river` presets; town name, river and 3–5 farmstead constraints. An 80×64 town site uses descriptive geology and place footprints; elevation and stream curves are inferred by the renderer, with no county heightfield or hydrological simulation yet. It contains 23–30 actors, homes/workplaces, pantries/store stocks, kinship/debts, concealment and seeded tensions.
+- `coulee` / `river` presets; town name, river and 3–5 farmstead constraints. An 80×64 town site uses descriptive geology and place footprints; the standalone renderer infers elevation and stream curves, while county v3 supplies a separate terrain/hydrology raster. It contains roughly 23–33 actors, homes/workplaces, pantries/store stocks, kinship/debts, concealment and seeded tensions.
 - Emits ordinary authored-scenario/site/place records; `townContent` installs them without mutating the input bundle. Core and renderer have no generator-specific rule path.
 - `coulee run --scenario gen:town` and `coulee gen town` support runs and editable TOML export with recipe/report; manifests restore world source, simulation seed and content hash. Invalid recipes or failed seeds reject explicitly, with no retry or silent seed substitution.
 - Every generation validates schemas/references, integer seeds, footprints, reachability, homes/pantries, workplaces, names, ford, fae anchor, concealment and tensions, then runs a disposable 30-day sim. QA leaves the returned start untouched. CLI integration coverage spans seeds 1–50, determinism, manifest replay and TOML round trips (`runs/worldgen-qa.json`).
 
-**Next scope:** county terrain (drainage, valley carving, caprock/karst raster), hydrology, aspect/slope/soil ecology and wildlife, fae field, settlement siting, region routes/fae paths, on-demand site layouts, census/households/population, constrained set pieces, and **history pre-roll**. ADR 0003 proposes 5–10 years; `08` Q08 still owns duration and seed-validity bands. Hollin is the constraint/flavor bible, and authored Iron Ford remains a regression fixture.
+**Remaining scope:** on-demand non-town site layouts, census/households/population, county charm reservoir, playable travel/food acceptance, constrained set pieces, and **history pre-roll**. ADR 0003 proposes 5–10 years; `08` Q08 still owns duration and seed-validity bands. Hollin is the constraint/flavor bible, and authored Iron Ford remains a regression fixture.
 
 **Acceptance for the county stage:**
 
 1. Same versioned recipe (preset, seed, constraints/pins and layer versions) gives the same output/hash across engines; later-layer changes leave earlier layers stable. Authored and generated worlds use the same sim/UI contracts.
 2. QA across seeds flags missing ford towns, unreachable required sites, unplayable starting routes/food, county collapse, fae deserts and towns without tensions. Hardship and shortages are reported separately; a hungry spring is intended.
 3. The town slice's provisional collapse detector rejects ≥50% deaths or ≥75% of actors meeting <25% of energy obligations on at least five of the final seven days. This is an engineering detector, **not** Q08's settled hunger policy or proof of a playable PC opening. Add explicit starting-route/food checks for county acceptance.
-4. Pre-roll produces learnable local history, grudges, debts, rumors and Figures; inspect and replay it after full social/Chronicle integration. This checkout's headings-only 30-day chronicles do not prove story quality.
+4. Pre-roll produces learnable local history, grudges, debts, rumors and Figures; inspect and replay it after full social/Chronicle integration. Town Chronicles now contain integrated social stories; they do not establish county pre-roll acceptance.
 5. Re-run the existing 1–50 town matrix after integration; **[PROPOSAL]** county QA covers seeds 1–64 across supported presets plus fresh seeds, preserving recipes and failing checks. Measure generation + pre-roll against ADR 0003's **<3 s mid-phone target**; a miss requires explicit lead review, not a desktop-only timing claim.
 
-**Playtest gate:** **Greenhorn + Explorer + Roleplayer / socialite + Catalog kid / min-maxer + Exploit hunter / griefer**, on `gen:town` world seeds 1–50 (both presets; farmstead constraints 3 and 5), simulation seeds 9 and 42, and authored `iron_ford` seed 42 as control, plus fresh world seeds. For the county stage, use the 1–64 matrix above: outfit, reach a required site/fae anchor, return and learn a pre-roll tension. Shared blockers and triage apply. Automated all-AI survival QA does not substitute for these fair PlaySession runs; their evidence is pending while headless play is in progress.
+**Playtest gate:** **Greenhorn + Explorer + Roleplayer / socialite + Catalog kid / min-maxer + Exploit hunter / griefer**, on `gen:town` world seeds 1–50 (both presets; farmstead constraints 3 and 5), simulation seeds 9 and 42, and authored `iron_ford` seed 42 as control, plus fresh world seeds. For the county stage, use the 1–64 matrix above: outfit, reach a required site/fae anchor, return and learn a pre-roll tension. Shared blockers and triage apply. Automated all-AI survival QA does not substitute for these fair PlaySession runs; town fair-play reports exist in `playtests/`; the full matrix and playable county gate remain pending.
 
 ### 12.4 M5: Region map + travel
+
+**Status (2026-10-12):** Plan written and merged: `docs/impl/M5-PLAN.md`; slice 1 (two authored sites, a multi-hour road, carried P8 supplies and arrival in both shells) is in progress. This checkout still has single-site play and no region runtime. County travel, trip forecasts, census/LOD, region UI and acceptance evidence remain ahead. Plan recommendations are **[PROPOSAL]**; §7 defaults await Ellie in `08`.
 
 **Scope:**
 - the procedurally generated county graph (ADR 0003 M5a), with Hollin constraints and authored fixtures
@@ -827,6 +833,8 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 
 ### 12.5 M6: First combat
 
+**Status (2026-10-12):** Not started. Survival already uses Vigor/Wounds and Fortitude saves; tactical combat, the T0 scheduler, weapon/reload execution and combat UI remain ahead. Scope and gates below remain **[PROPOSAL]**.
+
 **Scope:**
 - the T0 sub-minute clock and heap
 - `02` §7 timed actions (windup/recovery, initiative delay, Concentration)
@@ -848,6 +856,8 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 
 ### 12.6 M7: Adventurer vertical slice
 
+**Status (2026-10-12):** Not complete. Newcomer creation/starting kits, outfitting, local exploration/camping, fae omens/charms and death/retire/depart endings exist. Full character creation, regional expedition/return, Director, dreams and legacy starts remain ahead; the vertical-slice gates remain **[PROPOSAL]**.
+
 **Scope:**
 - character creation (`02`/`06`; `11` §2.9) with people choice from content
 - Iron Ford, a farmstead cluster, an old mine or cave, and a fae glade with an FI field
@@ -864,6 +874,8 @@ Tiering with hysteresis, pending deltas, compartment diffusion, census records a
 **Playtest gate:** **Greenhorn + Catalog kid / min-maxer + Roleplayer / socialite + Explorer + Pocket player**, on the authored Iron Ford/farm/mine/glade fixture, seed 42, and generated counties, seeds 1–10 plus fresh seeds. Complete the 60–90-minute outfit/explore/return/legacy loop on phone, desktop and headless. Shared blockers and triage apply; provisioning impact, callbacks and story value are recorded against the acceptance criteria above.
 
 ### 12.7 M8: Witch vertical slice
+
+**Status (2026-10-12):** Not started. Psyche defenses, concealment, belief attribution and persecution rungs 0–3 exist; pact/witch start, curses, Woe/Tithe/Drift play, hunts and curse UI do not. Doc 13 is canon for fae systems; its implemented slices do not establish the Witch loop. Scope and gates below remain **[PROPOSAL]**.
 
 **Scope:**
 - the pact and witch start (`06`)

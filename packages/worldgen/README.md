@@ -1,4 +1,4 @@
-# Town generation, version 2
+# World generation: town v2 and county v3
 
 `generateTown(content, { genVersion: GEN_VERSION, seed, preset?, constraints? })`
 returns `{ scenario, site, places, report }`. `scenario`, `site` and `places` are
@@ -80,19 +80,18 @@ entry, never the Node content loader.
 
 Current limitations: the renderer infers elevation and stream curves; geology
 is descriptive place data, not a heightfield or hydrological simulation. The standalone town has no county context unless supplied. County generation is
-described below; history pre-roll, ecological production and long-term wholesale
-restocking remain unimplemented. The integrated social and chronicle systems simulate the selected tensions.
+described below; census/history pre-roll, non-town layouts and playable regional
+travel remain unimplemented. Seasonal food/wood production and abstract freight
+restocking are built in core; persistent county wildlife/ecology simulation and
+physical trade routes remain ahead. The integrated social and chronicle systems simulate the selected tensions.
 Version 2 varies street plats, institutional names and denominations, household
 cultures and a weighted ten-card tension deck. Naming has its own RNG key;
 pinning the displayed town name cannot move geography. Authored full names are
 excluded. Version 1 recipes are rejected explicitly rather than silently rerolled.
 
-The social API change is only additive compatibility for memory fields already
-passed by belief code (`aboutId`, `did`, `count`, `since`); it adds no behavior to
-the stub. The `justfile` uses `node --import tsx` for scripts so restricted
-sandboxes do not need the `tsx` executable's IPC socket. Build the web content
-artifact with `just bundle` before the first `just check` in a fresh worktree.
-
+The `justfile` uses `node --import tsx` for scripts so restricted sandboxes do not
+need the `tsx` executable's IPC socket. Build the web content artifact with
+`just bundle` before the first `just check` in a fresh worktree.
 
 ## County generation (M5a slice 2, version 3)
 
@@ -104,7 +103,7 @@ Channel initiation is calibrated to the nearest 25-cell contributing area within
 
 Springs are spaced contact points near first/second-order heads. Caves and sinkholes are spaced valley-wall/caprock points. Fords are shallow gravel reaches with an explicit three-cell transverse bank-to-bank trail, independent of subsequent wagon roads. Mills are ranked order-2–4 falls near those trails; settlement siting adds dispersed farmstead clusters so every selected seat has a settlement within three miles. Main villages retain two ford towns, two landings, a mill and diggings. Eight-neighbor roads favor uplands and valley floors, penalize boundaries and bridges, and cannot cross diagonal water unnoticed. D8 segment lengths and grades are accounted for.
 
-### Before/after audit
+### Historical v1 → v2 terrain audit (2026-10-12)
 
 Seeds **1–64**, `coulee`; every value is **minimum / mean / maximum**. Both presets pass the full 128-county matrix. Version-1 channel orders were recomputed from channel heads for this comparison because its stored orders incorrectly included dry hillslopes. Thus Horton alone would not have caught the comb.
 
@@ -155,14 +154,14 @@ Focused generation with hashing and QA: 92.00 / 103.70 / 187.00 ms (minimum / me
 
 Tests protect exact repeat output, earlier-layer hashes under every later-layer version change, integer output, protected sites, connectivity, channel confluences, dry head exclusions, feature spacing, crossing geometry, and SVG size. A synthetic connected comb and boundary-road fixture fails the new shape gates. County-to-town context/export/reload remains covered. The no-context town regression fixture checks default-town seeds 1–50, byte for byte; the prior audit also checked both presets’ 100 layouts. No town generation code or golden snapshots changed in this revision.
 
-Changed this revision: `src/county/{common,terrain,nature,types,index,metrics,routes,settlements,qa,svg}.ts`, `packages/cli/test/county.test.ts`, and this README. Additive fields include terrain channel orders, ford trail cells and scalar morphology statistics; county generation version is 2. No edits to core/play/web, no content domains, no commits.
+The v2 terrain revision added channel orders, ford trail cells and morphology statistics. Current county recipes use v3; v3 preserves the first four default layers and advances naming/routes, as described below.
 
-Deferred: M5 travel, non-town layouts, fair starting-food/travel acceptance, real device benchmarks, Q07 Native-nations content, Q08 census/history pre-roll, and the fae reservoir.
+Deferred: M5 travel, non-town layouts, fair starting-food/travel acceptance, real device benchmarks, Q07 Native-nations content, Q08 census/history pre-roll, and the county fae reservoir.
 
-Final validation: `VITEST_MAX_WORKERS=4 just check` passed: 645 tests / 61 files, invariants (189 files), and content validation (91 files). No commits.
+Historical v2 validation: `VITEST_MAX_WORKERS=4 just check` passed (645 tests / 61 files), including invariants and content validation.
 
 
-### County polish (version 3)
+### Current county polish (version 3)
 
 County recipes now use version 3; settlement/cartography and route layer versions
 advance to 2. The v2 RNG namespace and the first four default layer versions stay
@@ -203,7 +202,14 @@ Audit artifacts: `runs/county-polish-before.json`, `runs/county-polish-after.jso
 PNGs rendered with `rsvg-convert`: `runs/county-{7,42,63}/map.png`.
 
 
-Version-3 validation: `VITEST_MAX_WORKERS=4 just check` passed: **667 tests / 63
+Historical v3 merge validation: `VITEST_MAX_WORKERS=4 just check` passed: **667 tests / 63
 files**, invariants (**191 files**), content validation (**91 files**). Includes
 county-to-town export/reload and the unchanged 50-seed no-context town fixture.
 No commits.
+
+Current status (2026-10-12): town v2 and county stage v3 are integrated. County
+census, history pre-roll, non-town layouts, the county charm reservoir and
+playable travel remain ahead; M5 slice 1 is in progress under
+`docs/impl/M5-PLAN.md`. Standalone town charm reservoirs/finds exist in core;
+they do not populate the county generator's reservoir. Plan recommendations
+remain proposals, and phone/cross-engine measurements are still pending.
