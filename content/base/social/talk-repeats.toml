@@ -1,0 +1,39 @@
+# Replies to words this listener heard in the last 30 days (not necessarily from this teller).
+# OWNER: module:social. These replace a reply only when an exhausted pool forces a repeat;
+# they do not assert a remembered teller, date, rumor, or changed version of a story.
+
+[[talk]]
+id = "repeat_heard_before"
+on = ["chat", "tell_tale", "deep_talk", "gossip", "warn", "preach_at"]
+tags = ["repeat_aware"]
+lines = [{ by = "target", text = "I've heard that before. Go on." }]
+
+[[talk]]
+id = "repeat_familiar"
+on = ["chat", "tell_tale", "deep_talk", "gossip", "warn", "preach_at"]
+tags = ["repeat_aware"]
+lines = [{ by = "target", text = "That sounds familiar, {you}." }]
+
+[[talk]]
+id = "repeat_remember"
+on = ["chat", "tell_tale", "deep_talk", "gossip", "warn", "preach_at"]
+tags = ["repeat_aware"]
+lines = [{ by = "target", text = "Yes, I remember hearing that." }]
+
+[[talk]]
+id = "repeat_other_version"
+on = ["tell_tale"]
+tags = ["repeat_aware"]
+lines = [{ by = "target", text = "I know that one. Let's hear how you tell it." }]
+
+[[talk]]
+id = "repeat_end"
+on = ["tell_tale"]
+tags = ["repeat_aware"]
+lines = [{ by = "target", text = "I remember the end of that one. Tell it anyway." }]
+
+[[talk]]
+id = "repeat_news"
+on = ["gossip", "warn"]
+tags = ["repeat_aware"]
+lines = [{ by = "target", text = "That talk's come round to me already." }]

@@ -5,7 +5,8 @@
  * Appetite or Conscience thought), and the live world: weather, season, the Sabbath, market
  * day, store prices, the town's latest misfortune, what the speakers remember of each other.
  * Speakers use their own culture's idiom (`#word#`). No line is repeated between the same pair
- * within a week (`world.social.talk`).
+ * within a week when alternatives fit (`world.social.talk`). Listener text hashes also keep
+ * already-heard words out of an exchange for 30 days, even when another speaker says them.
  *
  * Two parts (P1): `act` lines go on the `social.interaction` event, which witnesses may
  * overhear, so they never carry a rumor's content; `said` lines carry the news itself and go on
@@ -68,6 +69,9 @@ const SALT_TALK = 0x7a1c;
 /** Under this age a speaker talks as a child (talk lines' `child`). */
 const CHILD_AGE = 13;
 const WEEK = 7 * 1440;
+const HEARD = 30 * 1440;
+/** A busy listener retains about 500 turns/month; cap pathological command-heavy saves. */
+const MAX_HEARD = 1024;
 
 // ---- content index (cached per bundle) ----
 
@@ -75,6 +79,7 @@ interface TalkIndex {
   act: Map<string, TalkLine[]>;
   said: Map<string, TalkLine[]>;
   words: Record<string, TalkWord>;
+  weights: Map<TalkLine, number>;
   cultureByKey: Map<string, string>;
 }
 
@@ -100,7 +105,8 @@ function indexOf(content: ContentBundle, scenarioId: string): TalkIndex {
   }
   const cultureByKey = new Map<string, string>();
   for (const a of content.scenarios[scenarioId]?.actors ?? []) if (a.culture) cultureByKey.set(a.key, a.culture);
-  const idx: TalkIndex = { act, said, words: content.talk_words ?? {}, cultureByKey };
+  const weights = new Map(lines.map((l) => [l, l.weight * (1 + 2 * whenSpecificity(l.when))]));
+  const idx: TalkIndex = { act, said, words: content.talk_words ?? {}, cultureByKey, weights };
   indexCache = { content, scenarioId, idx };
   return idx;
 }
@@ -370,6 +376,14 @@ class Scene {
   }
   /** Slots every line may use. Per-turn slots ({you}) are added when the turn is filled. */
   slots(line: TalkLine): Record<string, string> {
+    return this.once(`slots:${line.when.remembers ?? ''}:${line.when.target_remembers ?? ''}`, () =>
+      this.makeSlots(line),
+    );
+  }
+  address(speaker: ActorId, listener: ActorId): string {
+    return this.once(`address:${speaker}`, () => addressOf(this, speaker, listener));
+  }
+  private makeSlots(line: TalkLine): Record<string, string> {
     const w = this.world;
     const content = this.ctx.content;
     const place = this.placeId !== null ? w.places[this.placeId] : undefined;
@@ -519,6 +533,14 @@ function speakerKey(id: ActorId): string {
   return `s${id}`;
 }
 
+function listenerKey(id: ActorId): string {
+  return `h${id}`;
+}
+
+function retention(key: string): number {
+  return key.startsWith('h') ? HEARD : key.startsWith('p') ? ROOM : key.startsWith('s') ? SPEAKER : WEEK;
+}
+
 function placeKey(placeId: PlaceId | null): string | null {
   return placeId === null ? null : `p${placeId}`;
 }
@@ -530,19 +552,30 @@ function remember(world: World, key: string, ids: readonly string[], now: number
     delete rec[id];
     rec[id] = now;
   }
-  // Bound history by its live window, never by a count that evicts active cooldowns.
-  const keep = key.startsWith('p') ? ROOM : key.startsWith('s') ? SPEAKER : WEEK;
-  for (const id of Object.keys(rec)) if (now - (rec[id] ?? 0) >= keep) delete rec[id];
+  // Pair/speaker/room cooldowns retain their full live windows. Listener hashes also have
+  // a hard count cap; under exceptional load the oldest remembered words are forgotten first.
+  const keep = retention(key);
+  const hashes = Object.keys(rec).filter((id) => {
+    if (now - (rec[id] ?? 0) < keep) return true;
+    delete rec[id];
+    return false;
+  });
+  if (key.startsWith('h')) {
+    if (hashes.length > MAX_HEARD) {
+      hashes.sort((a, b) => (rec[a] ?? 0) - (rec[b] ?? 0) || Number(a) - Number(b));
+      for (const hash of hashes.slice(0, hashes.length - MAX_HEARD)) delete rec[hash];
+    }
+  }
   world.social.talk[key] = rec;
 }
 
-/** Drop what was said more than a week ago (daily), and a room's talk after a few hours. */
+/** Daily expiry of pair/speaker/room cooldowns and the bounded 30-day listener window. */
 export function pruneTalk(world: World, now: number): void {
   const talk = world.social.talk;
   if (!talk) return;
   for (const k of Object.keys(talk)) {
     const rec = talk[k] ?? {};
-    const keep = k.startsWith('p') ? ROOM : k.startsWith('s') ? SPEAKER : WEEK;
+    const keep = retention(k);
     for (const id of Object.keys(rec)) if (now - (rec[id] ?? 0) >= keep) delete rec[id];
     if (Object.keys(rec).length === 0) delete talk[k];
   }
@@ -571,12 +604,9 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   const scene = new Scene(world, ctx, i, t, req.placeId, req.facts ?? {});
   scene.cultureByKey = idx.cultureByKey;
   const outcome = req.success ? 'success' : 'failure';
-  let fits = pool.filter((l) => (l.outcome === 'any' || l.outcome === outcome) && scene.matches(l.when));
-  // A child at either end: their own lines first, grown-up talk only if there is nothing else.
-  if (scene.child(i) || scene.child(t)) {
-    const kid = fits.filter((l) => l.when.child !== undefined || l.when.target_child !== undefined);
-    if (kid.length > 0) fits = kid;
-  }
+  const fits = pool.filter(
+    (l) => !l.tags?.includes('repeat_aware') && (l.outcome === 'any' || l.outcome === outcome) && scene.matches(l.when),
+  );
   if (fits.length === 0) return null;
   const pk = pairKey(i, t);
   const room = placeKey(req.placeId);
@@ -586,46 +616,112 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   const byT = world.social.talk?.[speakerKey(t)];
   const within = (rec: Record<string, number> | undefined, id: string, span: number): boolean =>
     rec?.[id] !== undefined && ctx.now - (rec[id] ?? 0) < span;
-  // Fresh: not said between this pair this week, nor in this room in the last few hours; and,
-  // where there is a choice, not by either speaker to anyone these three days (playtest r2: the
-  // same lines rotated between speakers).
-  const pairFresh = fits.filter((l) => !within(recent, l.id, WEEK) && !within(heardHere, l.id, ROOM));
-  const speakerFresh = pairFresh.filter((l) => !within(byI, l.id, SPEAKER) && !within(byT, l.id, SPEAKER));
-  const fresh = speakerFresh.length > 0 ? speakerFresh : pairFresh;
   const r = ctx.rng('social', mixKey(i, t, hashString32(req.def.id), SALT_TALK, req.part === 'said' ? 1 : 0));
-  let line: TalkLine | undefined;
-  if (fresh.length > 0) {
-    // Specific lines (more conditions met) weigh more: they say something about this moment.
-    line = r.weighted(fresh, (l) => l.weight * (1 + 2 * whenSpecificity(l.when)));
-  } else {
-    // Everything that fits was said lately: the one longest unheard (by this pair, and in this
-    // room) comes round again.
-    // A repeat to this pair is worse than one in this room, and that worse than one by the speaker.
-    const last = (l: TalkLine): number => Math.max(recent?.[l.id] ?? -1, heardHere?.[l.id] ?? -1);
-    const said = (l: TalkLine): number => Math.max(byI?.[l.id] ?? -1, byT?.[l.id] ?? -1);
-    line = [...fits].sort((a, b) => last(a) - last(b) || said(a) - said(b) || (a.id < b.id ? -1 : 1))[0];
+  // Cooldowns are preferences, not barriers to unheard text. Child-specific lines have first
+  // choice, then ordinary lines whose conditions fit: a tiny child pool must not trap a child
+  // into hearing the same reply hundreds of times while suitable general lines go unused.
+  const child = scene.child(i) || scene.child(t);
+  const priority = (l: TalkLine): number => {
+    const grown = child && l.when.child === undefined && l.when.target_child === undefined ? 3 : 0;
+    if (within(recent, l.id, WEEK) || within(heardHere, l.id, ROOM)) return grown + 2;
+    return grown + (within(byI, l.id, SPEAKER) || within(byT, l.id, SPEAKER) ? 1 : 0);
+  };
+  const tiers: TalkLine[][] = Array.from({ length: 6 }, () => []);
+  for (const l of fits) tiers[priority(l)]?.push(l);
+
+  const lastHeard = (turn: TalkTurn): number => {
+    const listener = turn.speakerId === i ? t : i;
+    const at = world.social.talk?.[listenerKey(listener)]?.[String(hashString32(turn.text))];
+    return at !== undefined && ctx.now - at < HEARD ? at : -1;
+  };
+  let chosen: { line: TalkLine; turns: TalkTurn[]; repeats: number; last: number } | undefined;
+  // Try each eligible template once, then two more renderings of templates with alternatives.
+  // Rejection checks the final text, including replies shared by different template ids.
+  search: for (let pass = 0; pass < 3; pass++) {
+    for (const tier of tiers) {
+      const candidates = pass === 0 ? [...tier] : tier.filter((l) => l.lines.some((x) => /[#|]/.test(x.text)));
+      while (candidates.length > 0) {
+        const line = r.weighted(candidates, (l) => idx.weights.get(l) ?? l.weight);
+        if (!line) break;
+        candidates.splice(candidates.indexOf(line), 1);
+        // Candidate expansion uses its own counter-based stream, unaffected by skipped lines.
+        const turns = render(line, scene, idx, r.fork(mixKey(hashString32(line.id), pass)));
+        if (turns.length === 0) continue;
+        const times = turns.map(lastHeard);
+        const repeats = times.filter((at) => at >= 0).length;
+        const last = Math.max(...times);
+        if (!chosen || repeats < chosen.repeats || (repeats === chosen.repeats && last < chosen.last))
+          chosen = { line, turns, repeats, last };
+        if (repeats === 0) break search;
+      }
+    }
   }
-  if (!line) return null;
-  const base = scene.slots(line);
-  const turns: TalkTurn[] = [];
-  for (const turn of line.lines) {
-    const speaker = turn.by === 'initiator' ? i : t;
-    const listener = speaker === i ? t : i;
-    const culture = cultureOf(world, idx, speaker);
-    const slots: Record<string, string> = { you: addressOf(scene, speaker, listener) };
-    for (const [k, v] of Object.entries(base)) slots[k] = v.includes('#') ? expandWords(v, idx, culture, r) : v;
-    const words = expandWords(turn.text, idx, culture, r);
-    const text = tidy(fillSlots(expandAlternatives(words, r), slots));
-    if (text) turns.push({ speaker: nameOf(world, speaker), speakerId: speaker, text });
+  if (!chosen) return null;
+  const { line, turns } = chosen;
+  const ids = [line.id];
+  if (chosen.repeats > 0) {
+    const repeated = turns.find((turn) => lastHeard(turn) >= 0);
+    if (repeated) {
+      const speaker = repeated.speakerId;
+      const listener = speaker === i ? t : i;
+      // Repeat-aware content is written as the target's response, whichever side repeated.
+      const replyScene = new Scene(world, ctx, speaker, listener, req.placeId, req.facts ?? {});
+      replyScene.cultureByKey = idx.cultureByKey;
+      const replies = pool.filter(
+        (l) =>
+          l.tags?.includes('repeat_aware') &&
+          (l.outcome === 'any' || l.outcome === outcome) &&
+          replyScene.matches(l.when),
+      );
+      while (replies.length > 0) {
+        const reply = r.weighted(replies, (l) => l.weight);
+        if (!reply) break;
+        replies.splice(replies.indexOf(reply), 1);
+        const response = render(reply, replyScene, idx, r.fork(hashString32(reply.id)));
+        // The acknowledgement itself should not become a new repeated stock response.
+        if (
+          response.length !== 1 ||
+          response[0]?.speakerId !== listener ||
+          response.some((turn) => lastHeard(turn) >= 0)
+        )
+          continue;
+        const repeatedAt = turns.indexOf(repeated);
+        const at = turns.findIndex((turn, n) => n > repeatedAt && turn.speakerId === listener);
+        if (at >= 0) turns[at] = response[0] as TalkTurn;
+        else if (turns.length < 3) turns.push(response[0] as TalkTurn);
+        else continue;
+        ids.push(reply.id);
+        break;
+      }
+    }
   }
-  if (turns.length === 0) return null;
-  remember(world, pk, [line.id], ctx.now);
-  if (room !== null) remember(world, room, [line.id], ctx.now);
-  remember(world, speakerKey(i), [line.id], ctx.now);
-  remember(world, speakerKey(t), [line.id], ctx.now);
+  remember(world, pk, ids, ctx.now);
+  if (room !== null) remember(world, room, ids, ctx.now);
+  remember(world, speakerKey(i), ids, ctx.now);
+  remember(world, speakerKey(t), ids, ctx.now);
+  for (const turn of turns) {
+    const listener = turn.speakerId === i ? t : i;
+    remember(world, listenerKey(listener), [String(hashString32(turn.text))], ctx.now);
+  }
   return {
     line: turns.map((x) => `${x.speaker}: “${x.text}”`).join(' '),
     lines: turns,
-    ids: [line.id],
+    ids,
   };
+}
+
+function render(line: TalkLine, scene: Scene, idx: TalkIndex, r: Rng): TalkTurn[] {
+  const base = scene.slots(line);
+  const turns: TalkTurn[] = [];
+  for (const turn of line.lines) {
+    const speaker = turn.by === 'initiator' ? scene.i : scene.t;
+    const listener = speaker === scene.i ? scene.t : scene.i;
+    const culture = cultureOf(scene.world, idx, speaker);
+    const slots: Record<string, string> = { you: scene.address(speaker, listener) };
+    for (const [k, v] of Object.entries(base)) slots[k] = v.includes('#') ? expandWords(v, idx, culture, r) : v;
+    const words = expandWords(turn.text, idx, culture, r);
+    const text = tidy(fillSlots(expandAlternatives(words, r), slots));
+    if (text) turns.push({ speaker: nameOf(scene.world, speaker), speakerId: speaker, text });
+  }
+  return turns;
 }
