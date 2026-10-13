@@ -85,6 +85,8 @@ vi.mock('@coulee/core', () => ({
 vi.mock('@coulee/play', () => ({
   PlaySession: play.FakeSession,
   sessionSimOf: (s: { sim: unknown }) => s.sim,
+  sessionKnowledgeOf: () => [],
+  playViewModel: core.toViewModel,
   // The REPL grammar, reduced: "wait Nh" or a refusal in words.
   parseText: (text: string) => {
     const m = /^wait (\d+)h$/.exec(text);

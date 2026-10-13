@@ -87,6 +87,8 @@ export function perceivedEvents(events: readonly Event[], pc: ActorId, priorPlac
   let place = priorPlace;
   const seen: Event[] = [];
   for (const e of events) {
+    // A private change of heart is not an observable act, even when it concerns the viewer.
+    if (e.kind === 'social.label_changed' && e.data.holderId !== pc) continue;
     if (e.kind === 'activity.journey' && e.data.actorId === pc && e.place !== undefined) place = e.place;
     if (e.kind === 'activity.moved' && e.data.actorId === pc) place = e.data.to;
     if (e.kind === 'fae.omen' && !e.data.witnesses.includes(pc)) continue;

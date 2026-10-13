@@ -27,6 +27,7 @@ import {
   type World,
 } from '@coulee/core';
 import { availableActions, validateCommand } from './actions.ts';
+import type { KnownEvent } from './observation.ts';
 import type { PlaySession } from './session.ts';
 
 /** Read-only access to a session's sim for host queries. Never mutate it: act through the session. */
@@ -34,6 +35,12 @@ export function sessionSimOf(session: PlaySession): Sim {
   // Friend access within @coulee/play: the session keeps its sim private from players.
   // biome-ignore lint/complexity/useLiteralKeys: bracket access is TypeScript's sanctioned private read
   return session['sim'] as Sim;
+}
+
+/** Durable perceived deeds for view composition, including aid that creates no PC memory. */
+export function sessionKnowledgeOf(session: PlaySession): readonly KnownEvent[] {
+  // biome-ignore lint/complexity/useLiteralKeys: friend access within @coulee/play
+  return session['knowledge'];
 }
 
 /** The figures a kit is judged by, before and after a trade. */

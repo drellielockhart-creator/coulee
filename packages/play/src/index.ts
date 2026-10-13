@@ -9,3 +9,4 @@ export * from './route.ts';
 export * from './session.ts';
 export * from './source.ts';
 export * from './text.ts';
+export * from './view.ts';

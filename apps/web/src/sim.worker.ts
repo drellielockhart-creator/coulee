@@ -21,7 +21,6 @@ import {
   provisions,
   TICKS_PER_SECOND,
   timeView,
-  toViewModel,
   type ViewModel,
   type ViewOptions,
 } from '@coulee/core';
@@ -31,8 +30,10 @@ import {
   type ObservationMode,
   PlaySession,
   parseText,
+  playViewModel,
   renderDetail,
   renderInterrupts,
+  sessionKnowledgeOf,
   sessionSimOf,
   storefront,
   tradePreview,
@@ -153,7 +154,7 @@ function snapshot(stepMs: number, stepped: number, alerts: Alert[] = []): void {
   const sim = sessionSimOf(session);
   post({
     type: 'snapshot',
-    ...snapshotPayload(toViewModel(sim.world, sim.content, viewOptions)),
+    ...snapshotPayload(playViewModel(sim.world, sim.content, viewOptions, sessionKnowledgeOf(session))),
     hash: null,
     stepMs,
     pending: 0,

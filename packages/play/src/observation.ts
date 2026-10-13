@@ -40,6 +40,25 @@ export function knownExplain(e: Explain | undefined, pc: ActorId, mode: Observat
     return null;
   return {
     ...e,
+    ...(mode === 'god'
+      ? {}
+      : {
+          terms: e.terms.map((t) =>
+            t.source === 'opinion' && t.label.startsWith('Their regard') ? { ...t, label: 'Their apparent manner' } : t,
+          ),
+          ...(e.dc
+            ? {
+                dc: {
+                  ...e.dc,
+                  terms: e.dc.terms.map((t) =>
+                    t.source === 'opinion' && t.label.startsWith('Their regard')
+                      ? { ...t, label: 'Their apparent manner' }
+                      : t,
+                  ),
+                },
+              }
+            : {}),
+        }),
     ...(e.children
       ? {
           children: e.children.flatMap((child) => {
@@ -59,7 +78,7 @@ export function eventView(e: Event, pc: ActorId, mode: ObservationMode, view?: E
   const explain = knownExplain(e.explain, pc, mode);
   // Every event is told in plain words (describe.ts): never an event kind, whatever its source.
   const described = view
-    ? describeEvent(view.world, view.content, pc, e)
+    ? describeEvent(view.world, view.content, pc, e, mode === 'god')
     : { text: e.kind === 'social.interaction' ? e.data.label : fallbackText(e.kind), routine: true };
   const summary: string = described.text;
   // What was said (social talk lines): the act on social.interaction, the news itself on the
@@ -88,8 +107,19 @@ export function eventView(e: Event, pc: ActorId, mode: ObservationMode, view?: E
     ...(described.routine ? { routine: true } : {}),
     ...by,
     ...words,
+    ...(e.roles.some((role) => role.role === 'agent')
+      ? {
+          deed: {
+            agentId: e.roles.find((role) => role.role === 'agent')?.actor as ActorId,
+            targetIds: e.roles
+              .filter((role) => ['target', 'victim', 'beneficiary'].includes(role.role))
+              .map((role) => role.actor),
+          },
+        }
+      : {}),
   } as {
     id: number;
+    deed?: { agentId: ActorId; targetIds: ActorId[] };
     t: number;
     tenth?: number;
     kind: Event['kind'];

@@ -801,6 +801,7 @@ export function renderDetail(detail: unknown): string {
       reasons: Array<{ label: string; affection: number; respect: number; trust: number; fear: number }>;
       relationships: Array<{ label: string }>;
       memories: Array<{ summary: string }>;
+      regard?: import('@coulee/core').social.RegardView;
       acquainted?: boolean;
       familiarity?: number;
       between?: string[];
@@ -815,6 +816,22 @@ export function renderDetail(detail: unknown): string {
     return [
       `${d.person.name} — ${d.person.people}; ${d.person.activity}${d.person.child ? ' (a child)' : ''}.`,
       `${met}Ties: ${d.relationships.map((r) => r.label).join(', ') || 'none'}. Your opinion: ${d.opinion ? d.opinion.label || 'Neutral' : 'unfamiliar'}.`,
+      ...(d.regard
+        ? [
+            `Seems to feel about you: ${d.regard.band} — ${d.regard.phrase}.`,
+            ...d.regard.reasons.map((r) => `What you know between you: ${r}`),
+            ...(d.regard.explain ? [explainLine(d.regard.explain)] : []),
+            ...(d.regard.truth
+              ? [
+                  `True regard: affection ${d.regard.truth.opinion.affection}, respect ${d.regard.truth.opinion.respect}, trust ${d.regard.truth.opinion.trust}, fear ${d.regard.truth.opinion.fear}.`,
+                  ...d.regard.truth.reasons.map(
+                    (r) =>
+                      `True cause: ${r.label} (affection ${r.affection}, respect ${r.respect}, trust ${r.trust}, fear ${r.fear})`,
+                  ),
+                ]
+              : []),
+          ]
+        : ['You cannot read their manner from here.']),
       ...(d.between ?? []),
       ...(['affection', 'respect', 'trust', 'fear'] as const).flatMap((key) =>
         d.opinion
