@@ -5,12 +5,13 @@ export function shortMinutes(sim: Sim, command: Command): number | null {
   const { world: w, content: c } = sim;
   if (w.tactical || c.scenarios[w.meta.scenarioId]?.tactical_scene) return null;
   const timing = c.playTiming?.town;
-  if (!timing) return null;
+  if (!timing || activity.shortActBlock(w, c, command.actorId)) return null;
   if (command.kind === 'provisions.buy' || command.kind === 'provisions.sell') return timing.purchase_minutes;
   if (command.kind !== 'core.urge') return null;
   const u = command.data.urge;
   if (u.kind === 'interaction') {
-    const minutes = c.interactions[u.interactionId]?.minutes;
+    const def = c.interactions[u.interactionId];
+    const minutes = def?.short_act ? def.minutes : undefined;
     return minutes !== undefined && minutes < 60 ? minutes : null;
   }
   if (u.kind !== 'activity' || u.activityId !== 'walk' || u.placeId === undefined) return null;

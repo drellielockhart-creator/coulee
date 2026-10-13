@@ -386,6 +386,19 @@ export * from './tactical.ts';
 export * from './travel.ts';
 export * from './travel-rules.ts';
 
+/** A short order may wake a sleeper, but cannot cancel work or any travel. */
+export function shortActBlock(world: World, content: ContentBundle, actorId: ActorId): string | null {
+  const state = currentActivity(world, actorId);
+  if (state?.travel || onJourney(world, actorId)) return 'Finish or stop your journey before doing that';
+  if (
+    state?.lockedUntil != null &&
+    state.lockedUntil > world.time &&
+    !content.activities[state.activityId ?? '']?.asleep
+  )
+    return `You are still ${content.activities[state.activityId ?? '']?.verb ?? 'busy'}; wait until this activity finishes`;
+  return null;
+}
+
 /** Immediate local movement/transaction posture. This is actor-generic, never controller-gated. */
 export function shortAct(world: World, ctx: SimContext, actorId: ActorId, minutes: number, to?: PlaceId): void {
   const actor = world.actors[actorId],
@@ -402,6 +415,9 @@ export function shortAct(world: World, ctx: SimContext, actorId: ActorId, minute
     ).ok
   )
     return;
+  if (shortActBlock(world, ctx.content, actorId)) return;
+  // Capture the lagged charge before changing posture, including the initial null activity.
+  spendMinutes(world, actorId, 0, 'idle_at_home');
   const from = actor.placeId;
   if (to !== undefined) {
     actor.placeId = to;
@@ -437,22 +453,27 @@ export function minuteBudget(world: World, actorId: ActorId): { spent: number; r
 }
 export function spendMinutes(world: World, actorId: ActorId, minutes: number, activityId: string): void {
   world.activity.minuteBudgets ??= {};
-  world.activity.minuteBudgets[actorId] ??= { spent: 0, activities: {} };
+  world.activity.minuteBudgets[actorId] ??= {
+    spent: 0,
+    activities: {},
+    startActivity: world.activity.byActor[actorId]?.activityId ?? null,
+  };
   const b = world.activity.minuteBudgets[actorId];
   if (!b) return;
   b.spent += minutes;
   b.activities[activityId] = (b.activities[activityId] ?? 0) + minutes;
 }
-/** Charge one whole hour to its dominant activity; the remaining activity wins ties. */
-export function settleMinuteActivity(world: World, actorId: ActorId, remainingActivity?: string): void {
-  const b = world.activity.minuteBudgets?.[actorId],
-    state = world.activity.byActor[actorId];
-  if (!b || !state) return;
-  const remaining = remainingActivity ?? state.activityId ?? 'idle_at_home';
-  const totals = { ...b.activities, [remaining]: (b.activities[remaining] ?? 0) + 60 - b.spent };
-  let dominant = remaining;
-  for (const id of Object.keys(totals).sort()) if ((totals[id] ?? 0) > (totals[dominant] ?? 0)) dominant = id;
-  b.accountedActivity = dominant;
+/** Settle the lagged activity, just as an hour without short orders would. */
+export function settleMinuteActivity(world: World, actorId: ActorId, _remainingActivity?: string): void {
+  const b = world.activity.minuteBudgets?.[actorId];
+  if (!b) return;
+  b.accountedActivity =
+    b.startActivity === undefined ? (world.activity.byActor[actorId]?.activityId ?? null) : b.startActivity;
+}
+/** The pending physiology charge also drives explanations before the boundary. */
+export function minutePhysiologyActivity(world: World, actorId: ActorId): string | null | undefined {
+  const b = world.activity.minuteBudgets?.[actorId];
+  return b?.startActivity !== undefined ? b.startActivity : b?.accountedActivity;
 }
 export function clearMinuteBudget(world: World, actorId: ActorId): void {
   if (!world.activity.minuteBudgets) return;

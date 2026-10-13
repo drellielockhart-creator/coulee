@@ -79,9 +79,10 @@ introduced, and uncommanded NPC schedules are unchanged.
   walk cutoff and 5 minutes per buy/sell line (regardless of quantity). Walks use
   `activity.walkMinutes`: grid distance in feet / 264 feet per minute, rounded up,
   then the existing load speed percentage, rounded up again. Social interactions
-  use their existing TOML `minutes`: durations below 60 resolve as short acts;
-  durations of 60 or more retain the hourly action path. Rest, work, sleep, food
-  preparation, water handling, packing, regional travel and fae workings retain
+  opt in with TOML `short_act = true` and a `minutes` duration below 60; all
+  others retain the hourly path. An implicit default duration never opts in.
+  Theft, threats, fights, loans and fae take/return demands remain hourly.
+  Rest, work, sleep, food preparation, water handling, packing, regional travel and fae workings retain
   the hourly path. Look, inspect, help, previews, signs and settings cost zero.
 - **Execution and accounting.** A short act resolves immediately through the
   ordinary authorized movement, transaction or social executor. Psyche arbitrates
@@ -89,13 +90,22 @@ introduced, and uncommanded NPC schedules are unchanged.
   hourly thought decay, defenses and NPC decisions do not run again. The actor
   wakes and remains at leisure after the short act. No hourly need decay, wages,
   meals or production run until the boundary. The activity slice records integer
-  minutes per activity. At the boundary, physiology charges exactly one hour to
-  the dominant activity, adding unspent minutes to the remaining activity (the
-  newly ordered activity for a long act, or current leisure when waiting). Ties
-  favor the remaining activity, then activity-id order. This is deliberately an
-  hourly approximation, not minute-by-minute physiology. Paid labor and production
-  use only the unspent minutes; they cannot earn a full hour after shopping for
+  minutes per activity and captures the activity in effect when the budget opens,
+  before a short act changes it. At the boundary, physiology charges that lagged
+  activity exactly as an hour without short acts would. New work or sleep never
+  replaces the pending charge or gains an early recovery hour. This retains the
+  ordinary hourly physiology approximation; short walks add no separate need tick.
+  Paid labor and production use only the unspent minutes; they cannot earn a full hour after shopping for
   most of it. Long actions still establish their ordinary activity duration locks.
+  Purchases and sales are refused during non-sleep locks, local transit or a
+  regional journey; short execution cannot clear those commitments.
+- **Social throughput.** Sub-hour conversations share one exchange per unordered
+  pair and interaction per hour, including subsequent NPC resolution at that
+  boundary. Full exchanges retain their discrete familiarity and rumor effects;
+  repeated orders cannot multiply them. A nonsociable worker shares
+  `work_talk_minutes` across all exchanges and speakers that hour. The lazy social
+  allowance is actor-generic and saved with the world; uncommanded hourly
+  simulations keep their existing scheduling and state.
 - **Crossing a boundary.** An act that exhausts or exceeds the budget resolves
   once, runs exactly one hourly tick, and carries any excess minutes into the new
   budget. It is never replayed as a command during that tick. A long order closes
@@ -109,12 +119,12 @@ introduced, and uncommanded NPC schedules are unchanged.
   boundary, its own alerts and that tick's alerts are returned together. Hourly
   event timestamps remain hourly; log order and the command's minute cursor order
   sub-hour actions. Cooldowns remain in hourly world time; command RNG uses the
-  hour plus starting cursor so distinct acts do not reuse a draw. Queries consume
-  neither draws nor minutes.
+  hour plus starting cursor plus one, separating short acts from boundary draws.
+  Queries consume neither draws nor minutes.
 - **Persistence and display.** Optional `World.activity.minuteBudgets[actorId]`
-  holds `spent`, activity minute totals, and a transient accounting activity during
-  settlement. It is absent from untouched simulations and included in world hashes,
-  saves and forks. Existing saves without it start with 60 minutes available.
+  holds `spent`, activity minute totals, the captured `startActivity`, and a
+  transient accounting activity during settlement. It is absent from untouched
+  simulations and included in world hashes, saves and forks. Existing saves without it start with 60 minutes available.
   Command logs add `atMinute`/`endMinute` and advertise `rulesVersion: 2`; explicitly
   versioned v1 replays are rejected because action timing changed. Observations add
   `minuteBudget: { spent, remaining }`; `time.t` stays the hourly world boundary,

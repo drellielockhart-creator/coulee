@@ -24,7 +24,7 @@ export interface SimHandle {
   actions: ActionCatalog;
   error: string | null;
   stepMs: number;
-  /** Commands waiting for the next step (always 0 now: an order takes its hour at once). */
+  /** Commands waiting for the next step (always 0 now: orders resolve immediately through the minute budget). */
   pending: number;
   /** Increments each time the worker actually advanced the clock (drives walk animations). */
   stepSerial: number;

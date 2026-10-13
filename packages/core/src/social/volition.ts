@@ -17,6 +17,7 @@ import { effectiveTraits, psycheOf } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { MINUTES_PER_DAY } from '../time.ts';
 import type { World } from '../world.ts';
+import { minuteTalkBlock } from './availability.ts';
 import { giftStack } from './gifts.ts';
 import { type MemoryDigest, memoryDigest } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
@@ -172,6 +173,8 @@ export function requiresFail(p: Pair, def: InteractionDef, mode: RequireMode): s
   const tg = p.target.id;
   const now = p.ctx.now;
   if (i === tg) return 'self';
+  const hourlyBlock = minuteTalkBlock(w, p.content, i, tg, def);
+  if (hourlyBlock) return hourlyBlock;
   if (mode !== 'forced') {
     const until = opinionRecord(w, i, tg)?.cooldowns[def.id];
     if (until !== undefined && until > now) return 'cooldown';

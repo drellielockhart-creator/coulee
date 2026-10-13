@@ -45,6 +45,7 @@ threshold = 40
 cooldown_hours = 24
 memory = { kind = "prayer", emotion = "awe", intensity = 15 }
 minutes = 20
+short_act = true
 tags = ["faith", "friendly"]
 success.target_needs = { faith = 60 }
 success.initiator_needs = { faith = 60 }
@@ -75,6 +76,7 @@ cooldown_hours = 168
 memory = { kind = "confession", emotion = "shame", intensity = 45 }
 visibility = "private"
 minutes = 30
+short_act = true
 tags = ["faith", "secret"]
 success.initiator_anxiety = -150
 success.target_opinion = { affection = 2, trust = 5 }

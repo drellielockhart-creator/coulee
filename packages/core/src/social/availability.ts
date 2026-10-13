@@ -115,6 +115,50 @@ export function workAllows(content: ContentBundle, work: WorkStatus | null, def:
   return def.minutes <= tuningOf(content).work_talk_minutes;
 }
 
+/** Open the shared allowance only when sub-hour social execution is used. */
+export function beginMinuteTalk(world: World): void {
+  if (world.social.minuteTalk?.at !== world.time)
+    world.social.minuteTalk = { at: world.time, pairs: {}, workMinutes: {} };
+}
+
+const talkKey = (a: ActorId, b: ActorId, interaction: string) => `${Math.min(a, b)}:${Math.max(a, b)}:${interaction}`;
+
+/** Shared by preflight, NPC selection and resolution; no controller-specific rules. */
+export function minuteTalkBlock(
+  world: World,
+  content: ContentBundle,
+  a: ActorId,
+  b: ActorId,
+  def: InteractionDef,
+): string | null {
+  const budget = world.social.minuteTalk;
+  if (budget?.at !== world.time) return null;
+  if (budget.pairs[talkKey(a, b, def.id)])
+    return 'You have already had this exchange together this hour; try next hour';
+  for (const id of [a, b]) {
+    const used = budget.workMinutes[id] ?? 0;
+    if (used > 0 && !workAllows(content, workStatus(world, content, id), { ...def, minutes: used + def.minutes }))
+      return `${world.actors[id]?.name.given ?? 'That person'} has no more time for talk at work this hour; try next hour`;
+  }
+  return null;
+}
+
+export function noteMinuteTalk(
+  world: World,
+  content: ContentBundle,
+  a: ActorId,
+  b: ActorId,
+  def: InteractionDef,
+): void {
+  const budget = world.social.minuteTalk;
+  if (budget?.at !== world.time) return;
+  budget.pairs[talkKey(a, b, def.id)] = true;
+  for (const id of [a, b]) {
+    const work = workStatus(world, content, id);
+    if (work?.working && !work.sociable) budget.workMinutes[id] = (budget.workMinutes[id] ?? 0) + def.minutes;
+  }
+}
+
 /**
  * Does a deliberate exchange keep the target from their work (at work, or due there, at work
  * that is not done while talking)? Social books a little regard for it (`kept_from_work`).
@@ -182,6 +226,8 @@ export function interactionAvailability(
     def = content.interactions[interactionId];
   const no = (reason: string) => ({ ok: false, reason });
   if (!actor || !target || !def) return no('Unknown person or interaction');
+  const hourlyBlock = minuteTalkBlock(world, content, actorId, targetId, def);
+  if (hourlyBlock) return no(hourlyBlock);
   if (def.theft) {
     const reason = theftPreflight(world, content, actorId, targetId, itemId);
     return reason ? no(reason) : { ok: true };

@@ -28,6 +28,7 @@ import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { ChosenUrge } from '../urge.ts';
 import type { World } from '../world.ts';
+import { beginMinuteTalk } from './availability.ts';
 import { sampleCandidates } from './encounter.ts';
 import { giftStack } from './gifts.ts';
 import { type InteractionVia, resolveInteraction } from './interact.ts';
@@ -479,6 +480,7 @@ export function executeSocialCommand(world: World, ctx: SimContext, id: ActorId)
     ).ok
   )
     return;
+  beginMinuteTalk(world);
   const pool =
     venues(world)
       .find((v) => v.placeId === actor.placeId)
