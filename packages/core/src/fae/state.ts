@@ -126,6 +126,11 @@ export interface CharmState {
   warned?: Record<number, { at: number; by: ActorId }>;
   /** Holder:misfortune pairs already refuted (once each). */
   refuted?: Record<string, number>;
+  // ---- refusal costs (wave 6; design-docs/00 decisions 2026-10-12) ----
+  /** Duty-guilt per keeper for turning neighbors away (0..600; decays slowly; lending relieves it). */
+  guilt?: Record<number, number>;
+  /** Per asker: times turned away, when last, and how many grudges it has founded so far. */
+  refusals?: Record<number, { n: number; last: number; grudges: number }>;
 }
 
 /**

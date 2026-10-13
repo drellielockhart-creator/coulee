@@ -686,7 +686,9 @@ describe('fae slice 1b: the loan chain (13 §6.1)', () => {
       expect(why).toContain('Keep it (attachment');
       expect(why).toContain('Neighborliness');
     }
-    expect(c.attachment[edwin] ?? 0).toBeGreaterThanOrEqual(90);
+    // Refusal has costs (wave 6): the honest keeper ends up lending, and attachment eases while the
+    // sack is out on loan; it remains a preference, not a veto, never gone.
+    expect(c.attachment[edwin] ?? 0).toBeGreaterThan(0);
   }, 240000);
 });
 

@@ -36,6 +36,8 @@ export interface Accept {
 }
 
 export interface PatternDef {
+  /** Extra entry keys this pattern writes itself beyond `<id>`, `.closed` and `.truth` (templates' `on`). */
+  entryKeys?: readonly string[];
   id: string;
   /** Coarse subject for the UI filter. */
   topic: string;

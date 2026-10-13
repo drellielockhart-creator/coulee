@@ -101,7 +101,7 @@ The chronicle reads:
 | 6 | Spread | PARTIAL (reported, not gating) | See the spread table. |
 | 7 | Readiness | MET | See below. |
 | 8 | Culpability | MET | Test: after the truth is told, some households retract the hired-man blame and some keep it. `kept_drawing` forms only after a warning. |
-| 9 | Attachment, year-long rota | PARTIAL | After butter on credit, the sack stays fed all year, but a weekly rota holds about 17 weeks in seed 1 and never forms in seed 2. See "Rota" below. |
+| 9 | Attachment, year-long rota | PARTIAL (much improved by refusal costs) | With refusal costs (wave 6), 52-week runs lend in 42 of 52 weeks (seed 1) and hold a 29-week unbroken weekly rota (seed 5). No seed holds all 52 weeks. See "Refusal costs" below. |
 | 10 | Iron | MET | Test: a loan falls due while the sack is sealed in iron and the breach still fires; nothing recharges while sealed. Play: "Suppressed: 2.0 lb of iron in contact (Cut nails, lb)". |
 | 11 | Persistence | MET | See below. |
 | 12 | Fairness | MET | See below. |
@@ -241,6 +241,85 @@ Values are month-end figures from `stats.csv`; draws and loans come from `events
 - or should the rota start from the first clean loan, wherever it comes from?
 
 The 12-week test now asserts what holds. The keeper lends on terms, every loan comes back on the day, and a refused beg is an arbitration that weighs attachment against neighborliness, not a veto.
+
+## Refusal costs (wave 6, 2026-10-12)
+
+**Ruling.** Ellie delegated the open question: "go with the option that leads to the most interesting gameplay outcomes" (design-docs/00 decisions). A keeper at the attachment cap may refuse, but refusal has costs on both sides, so it becomes a story, not a stall. It is implemented in `packages/core/src/fae/refusal.ts`.
+
+**What counts as a refusal.** Three cases call `charmRefused`:
+- a failed `beg_loan` (the keeper's own arbitration, or a failed persuasion);
+- a commanded keeper answering "no" to a lend request;
+- a commanded keeper letting such a request lapse.
+
+**The keeper's side.**
+- **Guilt per refusal:** ⌊(2 × honesty + neighborliness) × need% × bond% / 10000⌋.
+  - need% is 150 if the asker's household is short, else 100.
+  - bond% is 100 + affection, with affection clamped to −50..100.
+  - Guilt caps at 600, decays about 4% a day, and halves when the keeper lends to a household once turned away.
+  - An honest keeper refusing a needy friend gains about 430; a dishonest keeper gains about 70.
+- **What guilt does:**
+  - It adds moral anxiety and a superego "I turned Johanne away" thought aimed at lending to them.
+  - It is a pro term, "Guilt over turning neighbors away", in the next lending decision: in full toward a household already refused, half toward anyone else.
+  - It pushes lending unasked to a refused neighbor who is present.
+- **Commanded PC:** the guilt is felt (the conscience thought is held for orders), but the PC refuses or lends only by Command.
+- **Legibility:** an inner event `fae.turned_away` carries the guilt formula as an Explain, knowledge `self`.
+
+**The refused side.**
+- Their opinion of the keeper falls: "Turned us away when we asked" (trust −6, affection −4, respect −2).
+- Their desire for the sack rises by 8, or 16 if their household is short; covet acts follow.
+- They observe `hoards(household, item)` ("…keep it to themselves while others go short", juiciness 60), which spreads by rumor.
+- Repeat refusals found grudges along the existing strife lines: the third refusal founds an `apology` grudge, the fifth a `humiliation` grudge.
+
+**Theft hook.** Theft is not built here. `charmCovetPressure(world, actorId, itemId)` (desire + 100 per refusal + 200 if short, and 0 for the keeper's own house) is the hook the generic desperation-theft act (wave 6 relief, module:social) can read. A comment marks the covet code where it would route.
+
+**The epilogue tells it.** Fixture year, seed 42: Edwin Fenn refused 14 times and lent 11 times.
+> **September 24.** Edwin Fenn turned Clara Stoughton away a third time. It sat on Edwin's conscience, and Clara began to say the sack was kept from people who went short.
+> **October 8.** In the end Edwin Fenn lent the moonsilk flour sack to Clara Stoughton, whom Edwin had turned away, and slept the better for it.
+
+**52-week rota** (`runs/scratch/rota2.ts`: the Fenns keep the sack at attachment 90 and honesty 70; the Moes want it). Before is main `36c0d10`; after is with refusal costs:
+
+| seed | loans | refusals | longest weekly run | breaches | refusal grudges | gossip holders | guilt (year end) |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 10 → **42** | 78 → 28 | 3 → **11** | 1 → 0 | 0 → 1 | 0 → 2 | 60 |
+| 2 | 3 → 14 | 49 → 9 | 2 → 4 | 1 → 2 | 0 → 0 | 0 → 0 | 0 |
+| 3 | 0 → 2 | 8 → 5 | 0 → 2 | 0 → 0 | 0 → 2 | 0 → 1 | 109 |
+| 4 | 0 → 5 | 4 → 4 | 0 → 5 | 0 → 0 | 0 → 0 | 0 → 1 | 108 |
+| 5 | 0 → **33** | 59 → 33 | 0 → **29** | 0 → 0 | 0 → 2 | 0 → 1 | 66 |
+| 6 | 0 → 14 | 99 → 30 | 0 → 2 | 0 → 0 | 0 → 1 | 0 → 1 | 147 |
+
+Over the six seeds:
+- **Loans** rose from 13 to 110 and **refusals** fell from 297 to 109.
+- **Seed 1** lent in 42 of 52 weeks.
+- **Seed 5** ran an unbroken weekly rota for 29 weeks.
+- **Seeds 3 and 4** stay sparse: few people asked.
+- **Attachment** drains while the sack is out (seeds 1, 2 and 5 end at 0–13). The rota then runs on promise and conscience, not on attachment.
+
+**Batch** (64 seeds × 60 days, main `36c0d10` → refusal costs):
+
+| arm | loans / returned / breaches | refusals | covet acts | gossip (mean) | guilt max (mean) | L2 / L3 | closed peacefully | kinds | violations | non-integers |
+|---|---|---:|---:|---:|---:|---|---:|---|---:|---:|
+| baseline | 53/48/4 → 52/47/7 | 17 → 14 | 43 → 38 | 0 → 0.1 | 0 → 26 | 3%/0 → 2%/0 | 78% → 78% | quiet, settled, shared | 0 → 0 | 1 → 0 |
+| honor-loans | 52/48/4 → 53/48/2 | 13 → 20 | 37 → 42 | 0 → 0.2 | 0 → 39 | 3%/0 → 3%/0 | 80% → 80% | quiet, settled, shared | 0 → 0 | 1 → 0 |
+
+In 60 days a seed sees only about 0.2–0.3 refusals, so the batch barely moves. Spread (criterion 6) is unchanged: level 2 is 2–3% and level 3 is 0, against targets of 30–90% and 10–60%. The year is where refusal costs act.
+
+The one non-integer before was a pre-existing `-0` in social's opinion-reason merge (seed 42, day 60). It is fixed (`social/opinion.ts`, an out-of-area edit).
+
+**Tests** (`packages/cli/test/fae-refusal.test.ts`, 5 tests):
+- honest versus dishonest guilt, and the guilt term in the next decision;
+- the refused side: opinion, desire, the `hoards` belief, grudges at 3 and 5, and the theft-hook pressure;
+- relief by lending, and decay;
+- a commanded PC refusing by Command who feels guilt, with no loan;
+- the two epilogue lines, each told once.
+
+Fairness and agency stay green: `fae-charms` and the 64-seed agency test pass. The rota test now expects attachment to ease while the sack is lent, instead of staying at 90.
+
+**Files:**
+- New: `packages/core/src/fae/refusal.ts` and `packages/cli/test/fae-refusal.test.ts`.
+- Edited (fae): `fae/{state,events,api,urges,witness,arc}.ts`.
+- Edited (other modules): `social/{interact,requests,objects,opinion}.ts`; `chronicle/{facts.ts,patterns/charm.ts,patterns/types.ts}` (`PatternDef.entryKeys?`); `content/src/schema/chronicle.ts` (slots `asker`, `asker_short`); `play/src/describe.ts`.
+- Content: `content/base/beliefs/charms.toml` (`hoards`) and `content/base/chronicle/patterns-charm.toml` (two epilogue templates).
+- Also: `scripts/fae1b-batch.ts` (metrics), `docs/impl/MODULES.md`, the fae-charms rota test, and the template-coverage test in `chronicle.test.ts`, which now accepts pattern `entryKeys`. The golden snapshot is unchanged: Iron Ford has no charm.
 
 ## Performance (§7.3)
 

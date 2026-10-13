@@ -72,6 +72,17 @@ export interface SeedResult {
   blamed: number;
   /** Restitution grudges from loans broken past their day (13 §6.2). */
   restitutionGrudges: number;
+  // ---- refusal costs (wave 6) ----
+  /** Requests to borrow the charm that were turned down (failed begs, refused or lapsed requests). */
+  refusals: number;
+  /** Returns in the busiest rota (the longest run of one household pair's loans). */
+  rotaReturns: number;
+  /** Most outsiders at once holding "they sit on plenty while others go short" at credence ≥ 20. */
+  gossip: number;
+  /** Grudges founded on being turned away. */
+  refusalGrudges: number;
+  /** Highest duty-guilt any keeper carried. */
+  guiltMax: number;
   /** Highest charm-story level reached per audience, and how threads closed. */
   level: { pub: number; pc: number; all: number };
   closures: string[];
@@ -153,6 +164,11 @@ export function runSeed(seed: number, arm: Arm, days: number, scenarioId = 'char
     boon: 0,
     blamed: 0,
     restitutionGrudges: 0,
+    refusals: 0,
+    rotaReturns: 0,
+    gossip: 0,
+    refusalGrudges: 0,
+    guiltMax: 0,
     level: { pub: 0, pc: 0, all: 0 },
     closures: [],
     truths: 0,
@@ -187,9 +203,16 @@ export function runSeed(seed: number, arm: Arm, days: number, scenarioId = 'char
       case 'social.loan_breached':
         out.breaches++;
         break;
+      case 'social.request_answered':
+        if (e.data.status !== 'accepted') {
+          const r = (w.social.pendingRequests ?? []).find((x) => x.id === e.data.requestId);
+          if (r?.response === 'lend_item') out.refusals++;
+        }
+        break;
       case 'social.interaction': {
         const id = e.data.interactionId;
         if (COVET.includes(id)) out.covetActs++;
+        if (id === 'beg_loan' && !e.data.success) out.refusals++;
         if (id === 'make_restitution' && e.data.success) out.restitutions++;
         if (id === 'tell_what_found' && e.data.success) out.tells++;
         break;
@@ -248,6 +271,14 @@ export function runSeed(seed: number, arm: Arm, days: number, scenarioId = 'char
       if (p.pred === 'bane' && b.credence >= 50) bane++;
       if (p.pred === 'boon' && b.credence >= 50) boon++;
     }
+    let gossip = 0;
+    for (const b of Object.values(w.belief.beliefs)) {
+      const p = w.belief.props[b.propId];
+      if (p?.pred === 'hoards' && b.credence >= 20 && w.actors[b.holderId]?.householdId !== holder) gossip++;
+    }
+    out.gossip = Math.max(out.gossip, gossip);
+    const guilt = (c as { guilt?: Record<string, number> }).guilt ?? {};
+    out.guiltMax = Math.max(out.guiltMax, ...Object.values(guilt), 0);
     out.bane = Math.max(out.bane, bane);
     out.boon = Math.max(out.boon, boon);
     for (const [k, d] of Object.entries(c.desire))
@@ -273,6 +304,10 @@ export function runSeed(seed: number, arm: Arm, days: number, scenarioId = 'char
   out.restitutionGrudges = Object.values(w.belief.grudges).filter((g) =>
     g.founding.some((f) => f.label === 'Kept what was lent past the day'),
   ).length;
+  out.refusalGrudges = Object.values(w.belief.grudges).filter((g) =>
+    g.founding.some((f) => f.label.startsWith('Turned us away') || f.label.startsWith('Sits on plenty')),
+  ).length;
+  out.rotaReturns = Math.max(0, ...Object.values(w.social.rotas ?? {}).map((r) => r.returned));
   out.talked = talked.size;
   out.coveted = coveted.size;
   out.transactions = transactions;
@@ -388,6 +423,11 @@ export function summarize(rows: SeedResult[]): Record<string, number | string> {
     breaches: sum((r) => r.breaches),
     restitutions: sum((r) => r.restitutions),
     restitutionGrudges: sum((r) => r.restitutionGrudges),
+    refusals: sum((r) => r.refusals ?? 0),
+    rotaReturnsMean: Math.round((sum((r) => r.rotaReturns ?? 0) * 10) / n) / 10,
+    gossipMean: Math.round((sum((r) => r.gossip ?? 0) * 10) / n) / 10,
+    refusalGrudges: sum((r) => r.refusalGrudges ?? 0),
+    guiltMaxMean: Math.round(sum((r) => r.guiltMax ?? 0) / n),
     tells: sum((r) => r.tells),
     studies: sum((r) => r.studies),
     bane: Math.round((sum((r) => r.bane) * 10) / n) / 10,

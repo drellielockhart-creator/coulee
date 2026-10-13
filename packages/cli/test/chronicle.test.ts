@@ -1365,6 +1365,7 @@ describe('content coverage', () => {
       kinds.add(p.id);
       kinds.add(`${p.id}.closed`);
       kinds.add(`${p.id}.truth`);
+      for (const k of p.entryKeys ?? []) kinds.add(k);
     }
     for (const t of Object.values(content.chronicleTemplates)) {
       expect(kinds.has(t.on), `template ${t.id} answers unknown '${t.on}'`).toBe(true);

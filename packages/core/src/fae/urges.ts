@@ -28,6 +28,7 @@ import {
   itemArg,
 } from './desire.ts';
 import { drawEffectOf } from './draws.ts';
+import { charmGuilt, refusedHousehold } from './refusal.ts';
 import type { CharmState } from './state.ts';
 import { offeringBlocked, tieWindow } from './tend.ts';
 
@@ -238,17 +239,24 @@ function keeperUrges(world: World, ctx: SimContext, actorId: ActorId, c: CharmSt
         continue;
       const theyCanFeed =
         spent && def.recharge.some((r) => r.kind === 'offering' && hasIngredients(world, n.householdId, r.items));
-      if (!householdShort(world, n.householdId) && !theyCanFeed) continue;
-      const intensity = neighborly * 5 + 150 - keep + (theyCanFeed ? 250 : 0);
+      // Refusal costs (wave 6): a neighbor once turned away is owed it, as the conscience weighs.
+      const refused = refusedHousehold(world, c, n.householdId);
+      const guilt = refused ? charmGuilt(world, actorId, item) : 0;
+      if (!householdShort(world, n.householdId) && !theyCanFeed && !refused) continue;
+      const intensity = neighborly * 5 + 150 - keep + (theyCanFeed ? 250 : 0) + guilt;
       if (intensity > 250 && feasible(world, ctx, 'share_out', actorId, x, item, loanTerms(ctx.now)))
         out.push(
           proposal(
             { kind: 'interaction', interactionId: 'share_out', targetId: x, itemId: item, terms: loanTerms(ctx.now) },
             'superego',
             intensity,
-            `${n.name.given}'s children have had nothing warm`,
-            [term('psyche', 'Neighborliness', neighborly * 5), term('psyche', 'Keep it', -keep)],
-            { norm: 'neighborliness' },
+            refused ? `I turned ${n.name.given} away before` : `${n.name.given}'s children have had nothing warm`,
+            [
+              term('psyche', 'Neighborliness', neighborly * 5),
+              term('psyche', 'Keep it', -keep),
+              ...(guilt > 0 ? [term('psyche', 'Guilt over turning them away', guilt)] : []),
+            ],
+            { norm: refused ? 'duty' : 'neighborliness' },
           ),
         );
       break;
@@ -453,6 +461,8 @@ function outsiderUrges(world: World, ctx: SimContext, actorId: ActorId, c: Charm
   // Covet (13 §5.6): desire, voiced by hunger or greed; conscience speaks against theft and the Devil.
   const d = c.desire[actorId] ?? 0;
   if (d < 20 || keeper === null || !k || k.householdId === a.householdId) return out;
+  // Desperation theft is not proposed here: a generic theft act in module:social (wave 6 relief)
+  // can read `charmCovetPressure` (fae/refusal.ts) for a refused, short household (the hook).
   // Its own house does not covet what it has lent out: getting it back is the loan's business.
   if (openLoanOf(world, item)?.lenderHouseholdId === a.householdId) return out;
   if ((c.asked?.[actorId] ?? -1e9) > ctx.now - 3 * 1440) return out;

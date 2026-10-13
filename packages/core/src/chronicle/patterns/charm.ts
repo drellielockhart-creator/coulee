@@ -74,6 +74,8 @@ function kindOf(dc: DetectCtx, f: Fact): string | null {
         return 'ret';
       case 'loan_breached':
         return 'breach';
+      case 'turned_away':
+        return 'refuse';
     }
     return null;
   }
@@ -338,8 +340,59 @@ function writeTruth(dc: DetectCtx, th: ChronicleThread, final: boolean): void {
   memoOf(dc, itemId).truthLb = src.lb;
 }
 
+/**
+ * Refusal costs (wave 6) told in the epilogue: a neighbor turned away a third time, and the day the
+ * keeper lent it at last to someone once turned away. Each is told once per asker.
+ */
+function refusalLines(dc: DetectCtx, th: ChronicleThread): void {
+  const hh = (id: number) => dc.world.actors[id as never]?.householdId;
+  for (const f of th.facts) {
+    if (f.k === 'refuse' && f.w >= 3 && !th.data[`refused_${f.b}`]) {
+      th.data[`refused_${f.b}`] = 1;
+      writeRefusalLine(dc, th, 'charm.refused', f.a, f.b);
+    }
+    if (f.k === 'loan' && f.b > 0 && !th.data[`relent_${hh(f.b)}`]) {
+      const once = th.facts.find((r) => r.k === 'refuse' && r.t < f.t && hh(r.b) === hh(f.b) && r.a > 0);
+      if (!once) continue;
+      th.data[`relent_${hh(f.b)}`] = 1;
+      writeRefusalLine(dc, th, 'charm.relented', f.a, once.b);
+    }
+  }
+}
+
+function writeRefusalLine(dc: DetectCtx, th: ChronicleThread, key: string, keeper: number, asker: number): void {
+  const draft = newDraft({
+    key,
+    importance: 60,
+    terms: [],
+    valence: key === 'charm.refused' ? -20 : 15,
+    t: dc.ctx.now as number,
+    tEnd: dc.ctx.now as number,
+    actorIds: [keeper, asker].filter((x) => x > 0),
+    placeIds: [],
+    sources: [],
+    pattern: 'charm',
+    kind: 'pattern',
+    level: 150,
+    threadId: th.id,
+    topics: ['charm'],
+    voice: 'epilogue',
+    basis: 'omniscient',
+    bind: {
+      charm: itemSubjectName(dc.world, dc.content, th.data.item ?? 0),
+      keeper: nameOf(dc, keeper),
+      keeper_short: dc.world.actors[keeper as never]?.name.given ?? '',
+      asker: nameOf(dc, asker),
+      asker_short: dc.world.actors[asker as never]?.name.given ?? '',
+    },
+  });
+  const e = writeEntry(dc, draft);
+  if (e) th.entryIds.push(e.id);
+}
+
 export const charm: PatternDef = {
   id: 'charm',
+  entryKeys: ['charm.refused', 'charm.relented'],
   topic: 'charm',
   importance: 55,
   balladLevel: 3,
@@ -361,7 +414,8 @@ export const charm: PatternDef = {
     if (k === 'rest' && th) th.data.rest = (th.data.rest ?? 0) + 1;
     // A draw and a shortfall connect to the charm only in the omniscient view (P1): who is
     // short does not know why. Revealed facts stay with the one who learned them.
-    const hidden = k === 'drew' || k === 'short';
+    // A keeper's conscience over a refusal is inner: the story knows it only omnisciently.
+    const hidden = k === 'drew' || k === 'short' || k === 'refuse';
     const tf = tfOf(f, k, hidden ? { pub: 0, by: [] } : {});
     return [accept(key, tf, { actors: [f.agent, f.target].filter((x) => x > 0), tags: { item: String(itemId) } })];
   },
@@ -420,6 +474,7 @@ export const charm: PatternDef = {
   daily(dc: DetectCtx): Accept[] {
     for (const th of dc.world.chronicle.threads) {
       if (th.pattern !== 'charm') continue;
+      refusalLines(dc, th);
       const since = (th.data.truth_t ?? th.openedAt) as number;
       if ((dc.ctx.now as number) - since >= TRUTH_EVERY * DAY && (th.data.uses ?? 0) + th.facts.length > 3)
         writeTruth(dc, th, false);

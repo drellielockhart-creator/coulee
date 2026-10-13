@@ -13,7 +13,14 @@ import { formGrudge, internProp, observe } from '../belief/api.ts';
 import type { InteractionDef } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import { term } from '../explain.ts';
-import { charmKeepWeight, charmTransferred, grantLook, restitutionMade, restitutionOwed } from '../fae/api.ts';
+import {
+  charmKeepWeight,
+  charmTransferred,
+  grantLook,
+  guiltToward,
+  restitutionMade,
+  restitutionOwed,
+} from '../fae/api.ts';
 import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 import { asItemId } from '../ids.ts';
 import { carriedBy, moveStack, pantryOf, rootOf, stacksDeep } from '../items/api.ts';
@@ -175,6 +182,12 @@ export function holderDecision(
     term('opinion', 'Trust', op.trust * 3),
     term('opinion', 'Affection', op.affection * 2),
     term('psyche', 'A promise kept before (the rota)', promise),
+    // Refusal has costs (wave 6): the keeper's duty-guilt over turning neighbors away.
+    term(
+      'psyche',
+      'Guilt over turning neighbors away',
+      act === 'loan' ? guiltToward(world, holderId, askerId, itemId) : 0,
+    ),
   ];
   const con = [
     term('psyche', 'Keep it (attachment ×5)', keep),

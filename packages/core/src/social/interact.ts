@@ -17,7 +17,7 @@ import {
 import { opposedCheck, resolveCheck, type SaveId, saveTerms, skillCheck, skillTerms } from '../checks.ts';
 import type { DefenseId, InteractionDef } from '../content.ts';
 import { type Explain, type ExplainTerm, signed, term } from '../explain.ts';
-import { noteItemInteraction } from '../fae/api.ts';
+import { charmRefused, noteItemInteraction } from '../fae/api.ts';
 import type { ActorId, EventId, ItemId, MemoryId, PlaceId, PropId } from '../ids.ts';
 import { carriedBy, loadCheckTerms, moveStack } from '../items/api.ts';
 import { satisfyNeed } from '../needs/api.ts';
@@ -868,6 +868,9 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   for (const a of audience) if (a !== i && a !== tg) refreshLabel(world, ctx, a, i);
   if (req.itemId !== undefined)
     noteItemInteraction(world, ctx, def.item?.act ?? (def.transmits_rumor ? 'tell' : null), i, tg, req.itemId);
+  // Asked for the loan of a thing and turned down: refusal has costs on both sides (fae, wave 6).
+  if (!success && req.itemId !== undefined && def.item?.act === 'loan' && def.item.holder === 'target')
+    charmRefused(world, ctx, tg, i, req.itemId, 'decided');
   // The validated item act itself (13 §6.1 steps 5-6): the thing moves, the promise opens.
   if (success && def.item && req.itemId !== undefined)
     applyItemAct(world, ctx, def, i, tg, req.itemId, req.terms, eventId, witnesses, req.placeId);

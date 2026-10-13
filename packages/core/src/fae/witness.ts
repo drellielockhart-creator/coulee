@@ -15,6 +15,7 @@ import type { World } from '../world.ts';
 import { charmDefOf, charmIds, charmLive, claimPredicateOf, holdingOf, ironOn, keeperOf, learn } from './charms.ts';
 import { actorArg, believesDraws, bestClaimCredence, evaluateDesire, householdShort, itemArg } from './desire.ts';
 import { drawEffectOf } from './draws.ts';
+import { guiltDaily } from './refusal.ts';
 import type { CharmState } from './state.ts';
 import { thankCharm } from './tend.ts';
 
@@ -139,6 +140,7 @@ export function charmDaily(world: World, ctx: SimContext): void {
     const def = charmDefOf(ctx.content, c?.defId);
     const stack = world.items.stacks[id];
     if (!c || !def) continue;
+    guiltDaily(c);
     for (const key of Object.keys(c.attachment)) {
       const a = Number(key);
       const last = c.attachWeek[a]?.lastBenefitDay ?? -1;
