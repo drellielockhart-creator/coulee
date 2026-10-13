@@ -159,7 +159,7 @@ export function weeklyDigest(dc: DetectCtx, endedWeek: number, at: number): void
   const market = marketLine(dc, pubWeek);
   if (market) almanacBind.services = services ? `${services} ${market}` : market;
   if (kept) almanacBind.observances = kept;
-  almanacBind.weather = weekWeatherText(dc.ctx.seed, monday - 6 * DAY);
+  almanacBind.weather = weekWeatherText(dc.ctx.seed, monday - 6 * DAY, dc.world);
   if (week.creditCents > 0) almanacBind.credit = moneyText(week.creditCents);
   writeEntry(
     dc,

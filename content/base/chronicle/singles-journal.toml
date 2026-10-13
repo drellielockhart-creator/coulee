@@ -803,7 +803,7 @@ on = "needs.band_changed"
 voice = "journal"
 when = { severity = "severe" }
 text = [
-  "I went to bed {band}. A person can learn a good deal about the world from the floor of an empty belly.",
+  "I was {band}. The body keeps account of what it lacks.",
 ]
 
 # ---- misfortunes, names, verdicts -----------------------------------------------------------------------

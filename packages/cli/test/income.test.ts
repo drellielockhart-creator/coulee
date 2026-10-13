@@ -266,6 +266,8 @@ describe('ordinary newcomer income', () => {
     act('go Pratt');
     act('hire Augusta daily');
     expect(session.observe().self.provisions.employment?.dailyCents).toBe(60);
+    // Hiring now takes ten minutes; start the eight-hour shift at the next whole hour.
+    act('wait until 08:00');
     const before = session.observe().self.provisions.purseCents;
     for (let i = 0; i < 8; i++) act('work');
     expect(session.observe().self.provisions.purseCents).toBeGreaterThan(before);

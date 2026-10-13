@@ -1,4 +1,5 @@
 import type { RoutePreview } from '@coulee/play';
+import { useState } from 'react';
 import { num } from '../lib/format.ts';
 
 const markers = { ok: '✓ OK', short: '! Short', watch: '! Watch', unknown: '? Unconfirmed' } as const;
@@ -21,10 +22,13 @@ export function RouteCard({
   route: RoutePreview;
   busy: boolean;
   canGo: boolean;
-  onGo: () => void;
+  onGo: (confirmed?: boolean) => void;
   onCancel: () => void;
 }) {
+  const [confirmation, setConfirmation] = useState<RoutePreview | null>(null);
+  const confirm = confirmation === route;
   const f = route.forecast;
+  const critical = f.warnings.some((w) => /critical vitals/i.test(w));
   const review = f.warnings.length > 0 || route.checks.some((c) => c.status !== 'ok');
   return (
     <article className="route-preview" aria-label={`Route to ${route.destination}`} data-testid="route-preview">
@@ -114,9 +118,19 @@ export function RouteCard({
       {!canGo ? (
         <p className="warn">Departure is unavailable. Review your load and the route's crossing or hazard limits.</p>
       ) : null}
+      {critical && confirm ? (
+        <p role="alert" className="warn">
+          Critical vitals along the route. Confirm departure to accept the risk.
+        </p>
+      ) : null}
       <div className="route-actions">
-        <button type="button" className="route-action primary" disabled={busy || !canGo} onClick={onGo}>
-          Go to {route.destination}
+        <button
+          type="button"
+          className="route-action primary"
+          disabled={busy || !canGo}
+          onClick={() => (critical && !confirm ? setConfirmation(route) : onGo(critical && confirm))}
+        >
+          {critical && confirm ? 'Confirm travel despite critical vitals' : `Go to ${route.destination}`}
         </button>
         <button type="button" className="route-action" onClick={onCancel}>
           Cancel

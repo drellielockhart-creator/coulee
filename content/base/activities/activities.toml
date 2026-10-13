@@ -71,6 +71,8 @@ duty_label = "The fire wants minding"
 
 [[activity]]
 id = "fetch_water"
+short_act = true
+minutes = 3
 name = "Fetch water"
 verb = "fetching water"
 at = "home"

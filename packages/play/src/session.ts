@@ -30,7 +30,7 @@ import { availableActions, validateCommand } from './actions.ts';
 import { moneyReason } from './describe.ts';
 import { addressedToPC, alertForEvent, type Interrupt, perceivedEvents, provisionsAlert } from './interrupts.ts';
 import { packKnowledge, unpackKnowledge } from './knowledge.ts';
-import { shortMinutes } from './minutes.ts';
+import { localWalkMinutes, shortMinutes } from './minutes.ts';
 import { claimsOf, claimText, obligationsOf, obligationText } from './obligations.ts';
 import {
   eventView,
@@ -118,6 +118,8 @@ export class PlaySession {
   private changes: Observation['changes'] = { elapsed: 0, money: [], needs: [], events: [], skipped: 0 };
   /** Said or done to her during the current order that asked nothing of her (the digest). */
   private addressed: string[] = [];
+  /** Dialogue belongs to the latest command, not the whole hour. Persisted for host snapshots. */
+  private dialogue: KnownEvent[] = [];
   /**
    * This story has been forked (or is a fork): a fair ending then keeps "what the county never
    * knew" to itself, or a fork could read it and play on in the original (playtest r2).
@@ -188,6 +190,7 @@ export class PlaySession {
           this.branched ? 'fair' : 'omniscient',
         ),
         changes: this.changes,
+        said: this.dialogue,
       }),
     ) as ReturnType<typeof observation>;
   }
@@ -217,6 +220,26 @@ export class PlaySession {
       error = 'Malformed command';
     }
     if (error) return this.fail(error, mode);
+    this.dialogue = [];
+    if (command.kind === 'activity.travel' && !command.data.confirmed) {
+      const forecast = provisions.tripReadiness(this.sim.world, this.sim.content, this.playerId, command.data);
+      if (typeof forecast !== 'string' && forecast.warnings.some((w) => /critical vitals/i.test(w)))
+        return {
+          ...this.fail(
+            'Critical vitals along the route. Review route and supplies, then travel ' +
+              command.data.destinationNodeId +
+              ' confirm to accept the risk.',
+            mode,
+          ),
+          routePreview: routePreviewOf(
+            this.sim,
+            this.playerId,
+            command.data.destinationNodeId,
+            command.data.edgeIds,
+            forecast,
+          ),
+        };
+    }
     if (
       command.kind.startsWith('tactical.') ||
       (command.kind === 'activity.wait' &&
@@ -234,6 +257,7 @@ export class PlaySession {
       command.kind.startsWith('fae.') && command.kind !== 'fae.signs' && command.kind !== 'fae.investigate'
         ? this.save()
         : undefined;
+    const executionSave = shortMinutes(this.sim, command) !== null ? this.save() : undefined;
     const previous = this.observe(mode);
     this.addressed = [];
     const moneyStart = this.money.length,
@@ -256,7 +280,11 @@ export class PlaySession {
       const o = this.observe(mode),
         d = command.data;
       if (d.query === 'route') {
-        const edgeIds = activity.routeTo(this.sim.world, this.playerId, d.target ?? '');
+        const journey = this.sim.world.activity.journeys?.[this.playerId];
+        const edgeIds =
+          activity.onJourney(this.sim.world, this.playerId) && journey && journey.destinationNodeId === d.target
+            ? journey.legs.slice(journey.segment).map((l) => l.edgeId)
+            : activity.routeTo(this.sim.world, this.playerId, d.target ?? '');
         detail = edgeIds
           ? provisions.tripReadiness(this.sim.world, this.sim.content, this.playerId, {
               destinationNodeId: d.target ?? '',
@@ -265,7 +293,7 @@ export class PlaySession {
               campPolicy: 'ask',
             })
           : 'No known route from here';
-        if (edgeIds && typeof detail !== 'string')
+        if (edgeIds && typeof detail !== 'string') {
           routePreview = routePreviewOf(
             this.sim,
             this.playerId,
@@ -273,6 +301,8 @@ export class PlaySession {
             edgeIds,
             detail as provisions.TripReadiness,
           );
+          detail = routePreview.forecast;
+        }
       } else if (d.query === 'explain') {
         const retained = this.sim.world.log.events.find((e) => e.id === Number(d.target));
         const event =
@@ -412,6 +442,10 @@ export class PlaySession {
             familiarity: record?.familiarity ?? 0,
             between: [...owe, ...owed],
           };
+        } else if (kind === 'catalog') {
+          const line = o.store.stock?.find((s) => s.defId === id);
+          if (!line) return this.fail('Those goods are not on this counter', mode);
+          detail = { catalog: this.sim.content.items[id ?? ''], stock: line };
         } else if (kind === 'item') {
           const item = o.self.inventory.carried.find((i) => i.id === Number(id));
           detail = item ? { item, catalog: this.sim.content.items[item.defId] } : undefined;
@@ -452,6 +486,22 @@ export class PlaySession {
         ...this.tick([command], false, shortMinutes(this.sim, command) ?? undefined).filter((a) => a.pause),
       );
       const recent = eventsSince(this.sim.world.log, start);
+      const failed = recent.find(
+        (e) =>
+          ((e.kind === 'provisions.command_rejected' || e.kind === 'needs.command_rejected') &&
+            e.data.actorId === this.playerId) ||
+          (e.kind === 'provisions.hiring' && e.data.workerId === this.playerId && !e.data.accepted),
+      );
+      if (executionSave && failed && 'reason' in failed.data && typeof failed.data.reason === 'string') {
+        const restored = PlaySession.load(this.base, executionSave);
+        this.sim = restored.sim;
+        this.known = restored.known;
+        this.knowledge = restored.knowledge;
+        this.metrics = restored.metrics;
+        this.money = restored.money;
+        this.changes = restored.changes;
+        return this.fail(failed.data.reason, mode);
+      }
       const rejected = recent.find(
         (e) =>
           (e.kind === 'provisions.command_rejected' || e.kind === 'needs.command_rejected') &&
@@ -536,6 +586,9 @@ export class PlaySession {
     }
     const next = this.observe(mode);
     const recentKnown = this.knowledge.slice(knowledgeStart);
+    this.dialogue = recentKnown.filter(
+      (e) => (e.lines?.length ?? 0) > 0 || (e.kind === 'social.interaction' && e.speakerId === this.playerId),
+    );
     const background = recentKnown.filter(
       (e) => e.kind === 'social.interaction' && !interrupts.some((i) => i.eventId === e.id),
     );
@@ -788,10 +841,17 @@ export class PlaySession {
         command?.kind === 'core.urge' && command.data.urge.kind === 'activity' ? command.data.urge.placeId : undefined;
       // A short order wakes the actor and leaves them at leisure at their destination.
       psyche.arbitrateShortCommand(w, shortCtx, pc, minutes);
-      activity.shortAct(w, shortCtx, pc, minutes, walk);
+      const walkingMinutes = walk === undefined ? minutes : (localWalkMinutes(this.sim, pc, walk) ?? minutes);
+      activity.shortAct(w, shortCtx, pc, walkingMinutes, walk);
       if (command?.kind === 'core.urge' && command.data.urge.kind === 'interaction')
         social.executeSocialCommand(w, shortCtx, pc);
       provisions.executeProvisionCommands(w, shortCtx);
+      if (
+        command?.kind === 'core.urge' &&
+        command.data.urge.kind === 'activity' &&
+        command.data.urge.activityId === 'fetch_water'
+      )
+        provisions.waterHour(w, shortCtx, pc);
       activity.spendMinutes(w, pc, Math.min(minutes, 60 - spentBefore), walk === undefined ? 'idle_at_home' : 'walk');
     }
     this.sim.sink = undefined;
@@ -894,6 +954,7 @@ export class PlaySession {
       metrics: this.metrics,
       money: this.money,
       changes: this.changes,
+      dialogue: this.dialogue,
       ...(this.branched ? { branched: true } : {}),
       // Retain generated source content so loading does not regenerate a town or run QA.
       ...(typeof this.configuration.source === 'object' ? { generatedContent: this.sim.content } : {}),
@@ -937,6 +998,7 @@ export class PlaySession {
     session.metrics = saved.metrics;
     session.money = saved.money ?? [];
     session.changes = saved.changes ?? session.changes;
+    session.dialogue = saved.dialogue ?? [];
     session.branched = saved.branched === true;
     return session;
   }
@@ -951,6 +1013,7 @@ export class PlaySession {
     copy.metrics = JSON.parse(JSON.stringify(this.metrics));
     copy.money = JSON.parse(JSON.stringify(this.money));
     copy.changes = JSON.parse(JSON.stringify(this.changes));
+    copy.dialogue = JSON.parse(JSON.stringify(this.dialogue));
     // Both lines of a forked story are branched: neither may read the other's omniscient ending.
     this.branched = true;
     copy.branched = true;

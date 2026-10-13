@@ -6,6 +6,7 @@ import {
   type provisions,
   region,
   type Sim,
+  provisions as supplies,
   timeView,
 } from '@coulee/core';
 
@@ -39,7 +40,8 @@ export function routePreviewOf(
 ): RoutePreview {
   const { world, content } = sim;
   const map = region.regionView(world, pc)?.map;
-  let from = map?.currentNodeId ?? '';
+  const location = map ? world.activity.journeys?.[pc] : undefined;
+  let from = map?.currentNodeId ?? location?.legs[location.segment]?.from ?? '';
   const name = (id: string) => map?.sites.find((n) => n.id === id)?.name ?? id;
   const legs = edgeIds.flatMap((edgeId) => {
     const road = map?.roads.find((e) => e.id === edgeId);
@@ -61,12 +63,27 @@ export function routePreviewOf(
       detail: `${detail} · ${band?.label ?? (value === undefined ? 'not projected' : 'satisfied')} (${value ?? '?'}/1000)`,
     };
   };
+  const siteId = world.region?.definition.nodes.find((n) => n.id === nodeId)?.site;
+  const sources = Object.values(world.places).filter(
+    (p) => p.siteId === siteId && supplies.isWaterSource(world, content, p.id),
+  );
+  forecast = { ...forecast, warnings: [...forecast.warnings] };
+  if (!sources.length)
+    forecast.warnings.push(
+      `No reachable water source recorded at ${forecast.destination}; carry water for your stay and return.`,
+    );
   const checks: RouteCheck[] = [
     needCheck('food', 'Food', 'hunger', `${forecast.kcal} kcal eaten`),
     needCheck('water', 'Water', 'thirst', `${forecast.waterUsedMl} ml used; ${forecast.waterLeftMl} ml left`),
     needCheck('warmth', 'Warmth', 'warmth', 'Projected warmth'),
   ];
   const water = checks.find((c) => c.id === 'water');
+  if (water) {
+    water.detail += sources.length
+      ? ` · Destination water: ${sources.map((p) => p.name).join(', ')}`
+      : ' · No destination water source recorded';
+    if (!sources.length && water.status === 'ok') water.status = 'watch';
+  }
   if (forecast.waterLeftMl === 0 && water && water.status !== 'short') water.status = 'watch';
   const load = items.loadReport(world, content, pc);
   checks.push({

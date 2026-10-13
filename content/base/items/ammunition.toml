@@ -19,6 +19,7 @@ supply = { kind = "arrow", units = 12 }
 
 [[item]]
 id = "arrows_flint_dozen"
+catalog_alias = "arrows_horn_dozen"
 name = "Arrows, dozen, horn-tipped"
 section = "ammunition"
 unit = "dozen"

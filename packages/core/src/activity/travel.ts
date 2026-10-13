@@ -11,6 +11,7 @@ import { processesActor } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
+import { minuteBudget } from './api.ts';
 import { recomputeOccupancy } from './state.ts';
 import { tacticalPinned } from './tactical.ts';
 import { type JourneyLeg, type TravelInterval, travelInterval } from './travel-rules.ts';
@@ -19,6 +20,8 @@ export interface TravelOrder {
   edgeIds: string[];
   pace: 'walk';
   campPolicy: 'ask' | 'auto';
+  /** Explicit acceptance of a critical-vitals preview in play hosts. */
+  confirmed?: boolean;
 }
 export interface Journey {
   leader: ActorId;
@@ -298,7 +301,10 @@ export function prepareJourneys(w: World, ctx: SimContext): void {
     const allowed = canAct(w, id) && authorizeAct(w, id, { kind: 'activity.travel' }, j.basis).ok;
     const speed = allowed && j.status === 'walking' ? loadReport(w, ctx.content, id).band.speedPct : 0;
     if (speed > 0) leaveRoadCamp(w, ctx, id);
-    const budget = Math.min(60, Math.max(0, w.region.definition.walking_minutes_per_day - j.dailyWalkingMinutes));
+    const budget = Math.min(
+      minuteBudget(w, id).remaining,
+      Math.max(0, w.region.definition.walking_minutes_per_day - j.dailyWalkingMinutes),
+    );
     j.interval = { ...travelInterval(j.legs, j, speed, budget), at: ctx.now };
     state.activityId = allowed && j.status === 'camp' ? 'sleep_rough' : speed > 0 ? 'walk' : 'idle_at_home';
     state.travel = null;

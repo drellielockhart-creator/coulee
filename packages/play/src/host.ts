@@ -26,7 +26,7 @@ import {
   term,
   type World,
 } from '@coulee/core';
-import { availableActions, validateCommand } from './actions.ts';
+import { availableActions, catalogStock, validateCommand } from './actions.ts';
 import type { KnownEvent } from './observation.ts';
 import type { PlaySession } from './session.ts';
 
@@ -547,7 +547,7 @@ export function storefront(sim: Sim, pc: ActorId): Storefront | null {
   const cash = purse + Math.max(0, household);
   const credit = store ? Math.max(0, store.creditLimitCents - (store.tabs[pc] ?? 0)) : 0;
   const byDef = new Map<string, { stack: items.ItemStack; qty: number }>();
-  for (const s of store ? eligibleStock(w, placeId) : []) {
+  for (const s of store ? catalogStock(c, eligibleStock(w, placeId)) : []) {
     const prev = byDef.get(s.defId);
     if (prev) prev.qty += s.qty;
     else byDef.set(s.defId, { stack: s, qty: s.qty });

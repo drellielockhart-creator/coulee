@@ -22,7 +22,7 @@ import {
   type World,
   yearsBetween,
 } from '@coulee/core';
-import { availableActions } from './actions.ts';
+import { availableActions, catalogStock } from './actions.ts';
 import { describeEvent, fallbackText } from './describe.ts';
 import { claimsOf, obligationsOf } from './obligations.ts';
 export type ObservationMode = 'fair' | 'god';
@@ -184,6 +184,7 @@ export function observation(
   const journal = chronicle
     .viewChronicleGlobal(w, c, { ...opts, recentChronicle: w.chronicle.entries.length })
     .recent.filter((e) => journalIds.has(e.id))
+    .sort((a, b) => a.t - b.t || a.id - b.id)
     .slice(journalLimit > 0 ? -journalLimit : 0);
   const publicActor = (id: ActorId) => {
     const actor = w.actors[id];
@@ -224,7 +225,11 @@ export function observation(
     weather: {
       temperatureF: provisions.airTempF(calendarAt(w.time), w),
       raining: provisions.isRaining(w.meta.seed, calendarAt(w.time), w),
-      description: provisions.isRaining(w.meta.seed, calendarAt(w.time), w) ? 'Rain' : 'Dry',
+      description: provisions.isRaining(w.meta.seed, calendarAt(w.time), w)
+        ? provisions.airTempF(calendarAt(w.time), w) <= 32
+          ? 'Snow'
+          : 'Rain'
+        : 'Dry',
     },
     place: {
       id: a.placeId,
@@ -250,7 +255,20 @@ export function observation(
         ...mind,
         // The id of the arbitration she can `explain` (why she chose what she did this hour).
         verdictEventId: knowledge.findLast((e) => e.kind === 'psyche.arbitrated' && e.explain !== null)?.id,
-        thoughts: mind.thoughts.map((t) => ({ ...t, voice: voice(t.voice) })),
+        thoughts: mind.thoughts
+          .filter((t) => {
+            if (
+              t.urge === 'activity:sleep' &&
+              t.voice === 'superego' &&
+              calendarAt(w.time).hour >= 6 &&
+              calendarAt(w.time).hour < 19
+            )
+              return false;
+            if (t.urge === 'activity:fetch_water' && t.voice === 'id' && needs.needValue(w, pc, 'thirst') >= 600)
+              return false;
+            return true;
+          })
+          .map((t) => ({ ...t, voice: voice(t.voice) })),
         chosen: mind.chosen
           ? {
               ...mind.chosen,
@@ -313,7 +331,10 @@ export function observation(
       .map((other) => publicActor(other.id)),
     interactionVerbs: Object.values(c.interactions).map((d) => ({ id: d.id, name: d.name })),
     changes: { elapsed: 0, money: [], needs: [], events: [], skipped: 0 } as ObservationChanges,
-    store: provisions.viewProvisionsPlace(w, c, a.placeId, opts),
+    store: (() => {
+      const store = provisions.viewProvisionsPlace(w, c, a.placeId, opts);
+      return { ...store, stock: store.stock === null ? null : catalogStock(c, store.stock) };
+    })(),
     events:
       mode === 'god'
         ? w.log.events.slice(-8).map((e) => eventView(e, pc, mode, { world: w, content: c }))

@@ -1,7 +1,9 @@
 /** Trip forecast: private execution of the same completed road intervals and supply kernels. */
 import {
   advanceJourneys,
+  clearMinuteBudget,
   finishJourneys,
+  minuteBudget,
   prepareJourneys,
   startJourney,
   type TravelOrder,
@@ -83,14 +85,22 @@ export function tripReadiness(
   projection.provisions.stores = {};
   projection.provisions.settings.npcBuying = false;
   const begin = makeContext(projection, content, []);
-  const refusal = startJourney(
-    projection,
-    begin,
-    id,
-    { ...order, campPolicy: 'auto' },
-    { kind: 'command', issuer: { kind: 'player' } },
-  );
-  if (refusal) return refusal;
+  const existing = projection.activity.journeys?.[id];
+  if (existing && existing.status !== 'arrived') {
+    if (existing.destinationNodeId !== order.destinationNodeId) return 'Preview the current journey destination';
+    existing.campPolicy = 'auto';
+    if (existing.status === 'stopped') existing.status = 'walking';
+    existing.pendingInterruption = null;
+  } else {
+    const refusal = startJourney(
+      projection,
+      begin,
+      id,
+      { ...order, campPolicy: 'auto' },
+      { kind: 'command', issuer: { kind: 'player' } },
+    );
+    if (refusal) return refusal;
+  }
   const carried = () =>
     rowsOf(projection.items.stacks).filter((s) => {
       const root = rootOf(projection, s);
@@ -118,11 +128,12 @@ export function tripReadiness(
   const initialJourney = projection.activity.journeys?.[id];
   if (!initialJourney) return 'No journey';
   // Also retain a complete conditional itinerary if known shortages stop the supply projection.
-  let nominal = { segment: 0, feet: 0, remainder: 0 },
+  let nominal = { segment: initialJourney.segment, feet: initialJourney.feet, remainder: initialJourney.remainder },
     nominalElapsed = 0,
     nominalWalking = 0;
   const speed = loadReport(projection, content, id).band.speedPct;
-  let daily = 0,
+  if (speed === 0) return 'Your load prevents walking; lighten it before previewing arrival';
+  let daily = initialJourney.dailyWalkingMinutes,
     day = calendarAt(start).dayIndex;
   while (nominal.segment < initialJourney.legs.length) {
     const cal = calendarAt(asGameMinute(start + nominalElapsed));
@@ -135,7 +146,12 @@ export function tripReadiness(
       nominalElapsed += 480;
       continue;
     }
-    const interval = travelInterval(initialJourney.legs, nominal, speed, Math.min(60, limit - daily));
+    const interval = travelInterval(
+      initialJourney.legs,
+      nominal,
+      speed,
+      Math.min(nominalElapsed === 0 ? minuteBudget(projection, id).remaining : 60, limit - daily),
+    );
     nominal = interval;
     nominalElapsed += 60;
     nominalWalking += interval.movingMinutes;
@@ -191,6 +207,7 @@ export function tripReadiness(
       fatG += afterIntake.fatG - (sameDay ? (beforeIntake.fatG ?? 0) : 0);
       freshPoints += afterIntake.freshPoints - (sameDay ? (beforeIntake.freshPoints ?? 0) : 0);
     }
+    clearMinuteBudget(projection, id);
     projection.time = asGameMinute(projection.time + 60);
     elapsedMinutes += 60;
     const j = projection.activity.journeys?.[id];

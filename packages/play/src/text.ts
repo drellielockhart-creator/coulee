@@ -2,15 +2,16 @@ import { asActorId, asItemId, type Command, type Explain, explainLine, TICKS_PER
 import type { AvailableAction } from './actions.ts';
 import { claimText, obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
-export const HELP = `Short walks, purchase lines and chats spend minutes within the hour; long acts finish the hour. Settings (standing, agency, rations) and queries take no time. Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on, or give any order (wake, drink, go) to get up.
+export const HELP = `Short walks, shopping, chats, hiring, quitting, drinking, filling, waking and fetching water spend minutes within the hour; long acts finish the hour. Settings (standing, agency, rations) and queries take no time. Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on, or give any order (wake, drink, go) to get up.
 Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects settle once per hour; a partly spent hour uses its dominant activity.
 Out on open ground with bedding, sleep makes camp where you stand; wait follows your lodging order, returning to a nearby paid or own bed when available.
 look | signs | investigate <sign id> | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
 hire <employer> [daily|weekly] | quit | dismiss <worker>
 buy <item> [qty] | sell <item> [qty] | eat <item> [servings] [method] | cook <item> [servings] [method]
 drink | fill <canteen/kettle> | empty <canteen/kettle> | fetch water | meal | sleep | wake | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
-Springs, creeks, rivers and fords are water: drink raw there and fill your vessels (a litre weighs a kilo: a fill stops where you could no longer walk, and empty pours a vessel out); fetch water walks to the nearest.
+Wells, springs, creeks, rivers and fords are water: drink raw there and fill your vessels (a litre weighs a kilo: a fill stops where you could no longer walk, and empty pours a vessel out); fetch water walks to the nearest.
 prices [page|word] | places [page] | standing [<sleep|eat|drink|warmth|lodging> <on|off>] | agency [commanded|psyche]
+route <destination> | travel <destination> [confirm]
 inspect <person/item/place/me> | pack <item> into <container> (moves one) | unpack <item>
 yes | no (answer what you were asked) | aid <person> | rations [10..150] | plan | journal (lists what you owe) | explain <event id>
 retire confirm | depart confirm (each ends this life) | Enter a menu number or stable action id. save <file> | load <file> | fork | help | quit`;
@@ -20,7 +21,8 @@ export const SESSION_HELP = HELP.replace('save <file> | load <file> | fork | hel
 const NEAREST = 8;
 
 export function menuActions(o: Observation, page = 0): AvailableAction[] {
-  if (page < 0) return o.actions.filter((a) => a.id.startsWith('go:')).slice((-page - 1) * 20, -page * 20);
+  if (page < 0)
+    return o.actions.filter((a) => /^(go:|route:|travel:|journey:)/.test(a.id)).slice((-page - 1) * 20, -page * 20);
   if (page > 0) return o.actions.slice((page - 1) * 20, page * 20);
   const basic = [
     'look',
@@ -31,6 +33,7 @@ export function menuActions(o: Observation, page = 0): AvailableAction[] {
     'drink',
     'activity:idle_at_home',
     'activity:work',
+    'activity:attend_church',
     'wait',
   ];
   return [
@@ -331,15 +334,13 @@ export function renderInterrupts(
     stopped?: { at: number; wanted: number | null; reasons: string[] };
     observation: { changes: { events: string[] } };
   },
-  opts: { allReasons?: boolean } = {},
+  _opts: { allReasons?: boolean } = {},
 ): string[] {
   const lines: string[] = [];
   if (result.stopped) {
     const { at, wanted, reasons } = result.stopped;
     const when = wanted === null ? '' : ` (you meant to wait until ${moment(wanted)})`;
-    const shown = (
-      opts.allReasons ? reasons : reasons.filter((r) => !result.observation.changes.events.includes(r))
-    ).map(unstop);
+    const shown = reasons.map(unstop);
     lines.push(`Wait stopped at ${moment(at)}${when}${shown.length ? `: ${shown.join('; ')}` : ''}.`);
   }
   for (const i of result.interrupts) if (i.eventId === undefined && !result.stopped) lines.push(`${unstop(i.reason)}.`);
@@ -399,11 +400,16 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
     );
   };
   const pc = o.self.id;
-  if (verb === 'route' || verb === 'travel')
-    return find(
+  if (verb === 'route' || verb === 'travel') {
+    const confirmed = verb === 'travel' && /\s+confirm$/i.test(tail);
+    const found = find(
       o.actions.filter((a) => a.id.startsWith(`${verb}:`)),
-      tail,
+      confirmed ? tail.replace(/\s+confirm$/i, '') : tail,
     );
+    return typeof found !== 'string' && found.kind === 'activity.travel' && confirmed
+      ? { ...found, data: { ...found.data, confirmed: true } }
+      : found;
+  }
   if (verb === 'stop' || verb === 'resume' || verb === 'camp' || text === 'turn back') {
     const id = `journey:${text === 'turn back' ? 'turn_back' : verb}`;
     const offered = o.actions.find((a) => a.id === id);
@@ -411,6 +417,9 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
   }
   const action = o.actions.find((a) => a.id === text);
   if (action) return confirmEnding(action.command, text) ?? action.command;
+  const bareActivity = /^activity:([a-z_]+)$/.exec(text);
+  if (bareActivity?.[1])
+    return { kind: 'core.urge', actorId: pc, data: { urge: { kind: 'activity', activityId: bareActivity[1] } } };
   // A stable social id that is not on offer now still goes to the game, which says exactly why not.
   const talk = /^talk:([a-z_]+):(\d+)$/.exec(text);
   if (talk?.[1] && o.interactionVerbs.some((d) => d.id === talk[1]))
@@ -570,9 +579,19 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
       ? { kind: 'provisions.empty', actorId: pc, data: { itemId: asItemId(vessel.id) } }
       : `You carry nothing called “${query}”; plan lists your pack`;
   }
-  if (verb === 'wake') return find(o.actions, 'activity:idle_at_home');
+  if (verb === 'wake') return o.actions.find((a) => a.id === 'activity:wake')?.command ?? 'You are already awake';
   if (verb === 'sleep' && o.region?.location.kind === 'edge')
     return o.actions.find((a) => a.id === 'journey:camp')?.command ?? 'Camp is unavailable';
+  if (text === 'fetch water')
+    return o.actions.find((a) => a.id === 'activity:fetch_water')?.command ?? 'No reachable water source on this site';
+  if (text === 'attend church' || text === 'church')
+    return (
+      o.actions.find((a) => a.id === 'activity:attend_church')?.command ?? {
+        kind: 'core.urge',
+        actorId: pc,
+        data: { urge: { kind: 'activity', activityId: 'attend_church' } },
+      }
+    );
   if (['sleep', 'rest', 'work'].includes(verb)) {
     const activityId = { sleep: 'sleep', rest: 'idle_at_home', work: 'work' }[verb as 'sleep' | 'rest' | 'work'];
     const offered = o.actions.find((a) => a.id === `activity:${activityId}`);
@@ -598,7 +617,21 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
         : found.kind === 'provisions.sell'
           ? { ...found, data: { ...found.data, qty } }
           : found;
-    if (found.startsWith('Which one?')) return found;
+    if (found.startsWith('Which one?')) {
+      if (verb === 'sell') {
+        const q = normalized(query);
+        const sales = o.actions.filter(
+          (a) =>
+            a.command.kind === 'provisions.sell' && (normalized(a.label).includes(q) || normalized(a.id).includes(q)),
+        );
+        const ids = sales.flatMap((a) => (a.command.kind === 'provisions.sell' ? [a.command.data.itemId] : []));
+        const defs = new Set(ids.map((id) => o.self.inventory.carried.find((i) => i.id === id)?.defId));
+        const first = sales[0]?.command;
+        if (first?.kind === 'provisions.sell' && defs.size === 1 && !defs.has(undefined))
+          return { ...first, data: { ...first.data, qty, itemIds: ids } };
+      }
+      return found;
+    }
     // Not on offer: name the goods and let the game say why (closed, sold out, too dear, broken open).
     const q = normalized(query);
     if (verb === 'buy') {
@@ -879,6 +912,27 @@ export function renderDetail(detail: unknown): string {
       ),
       ...d.memories.slice(-3).map((m) => `Remembered: ${m.summary}`),
     ].join('\n');
+  }
+  if (detail && typeof detail === 'object' && 'stock' in detail && 'catalog' in detail) {
+    const d = detail as {
+      stock: NonNullable<Observation['store']['stock']>[number];
+      catalog: import('@coulee/core').ContentBundle['items'][string];
+    };
+    const c = d.catalog,
+      f = c.food;
+    return [
+      `${c.name}: $${(d.stock.priceCents / 100).toFixed(2)} per ${c.unit}; ${d.stock.qty} in stock.`,
+      c.copy,
+      `Per ${c.unit}: ${c.weight_g} g; bulk ${c.bulk}.`,
+      ...(f
+        ? [
+            `${f.servings} servings: ${f.kcal} kcal; protein ${f.protein_g} g; fat ${f.fat_g} g; fresh ${f.fresh}/100; shelf life ${f.shelf_life_days} days.`,
+            `Preparation: ${f.prep.map((p) => p.method).join(', ')}.`,
+          ]
+        : []),
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
   if (detail && typeof detail === 'object' && 'item' in detail && 'catalog' in detail) {
     const d = detail as {

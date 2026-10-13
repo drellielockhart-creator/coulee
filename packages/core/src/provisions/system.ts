@@ -20,6 +20,7 @@ import {
   refillCheck,
   refillWater,
   sell,
+  sellAcrossStacks,
   storeOpen,
   waterHour,
 } from './api.ts';
@@ -188,7 +189,11 @@ export function executeProvisionCommands(world: World, ctx: SimContext): Set<Act
         if (!drinkWater(world, ctx, actor.id, cmd.data.ml)) reject('Not enough accessible water');
         break;
       case 'provisions.sell':
-        if (!sell(world, ctx, actor.id, cmd.data.placeId, cmd.data.itemId, cmd.data.qty))
+        if (
+          !(cmd.data.itemIds
+            ? sellAcrossStacks(world, ctx, actor.id, cmd.data.placeId, cmd.data.itemIds, cmd.data.qty)
+            : sell(world, ctx, actor.id, cmd.data.placeId, cmd.data.itemId, cmd.data.qty))
+        )
           reject('Store cannot buy these goods');
         break;
       case 'provisions.buy':

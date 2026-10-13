@@ -6,3 +6,13 @@ verb = "walking about"
 at = "anywhere"
 labor = "light"
 tags = ["travel"]
+
+# A deliberate waking order; ordinary rest remains an hour-long activity.
+[[activity]]
+id = "wake"
+name = "Wake"
+verb = "getting up"
+at = "anywhere"
+labor = "rest"
+short_act = true
+minutes = 1

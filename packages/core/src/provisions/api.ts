@@ -346,6 +346,56 @@ export function saleQuote(
     : Math.floor(((content.items[stack.defId]?.value_cents ?? 0) * pct) / 100);
   return Math.max(0, Math.min(retail - 1, lowestRetail - 1, bid));
 }
+/** Same-goods counter sale across separate stacks, preserving wetness and preparation state. */
+export function saleBundleCheck(
+  world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+  placeId: PlaceId,
+  itemIds: readonly ItemId[],
+  qty: number,
+): string | null {
+  if (
+    !Number.isSafeInteger(qty) ||
+    qty <= 0 ||
+    !itemIds.length ||
+    itemIds.length > 128 ||
+    new Set(itemIds).size !== itemIds.length
+  )
+    return 'Choose a positive quantity of carried goods';
+  const defId = world.items.stacks[itemIds[0] ?? 0]?.defId;
+  if (!defId || itemIds.some((id) => world.items.stacks[id]?.defId !== defId)) return 'Choose stacks of the same goods';
+  const copy: World = JSON.parse(JSON.stringify(world));
+  const projected = { ...ctx, emit: () => 0 as import('../ids.ts').EventId };
+  let remaining = qty;
+  for (const id of itemIds) {
+    const amount = Math.min(remaining, copy.items.stacks[id]?.qty ?? 0);
+    if (amount > 0 && !sell(copy, projected, actorId, placeId, id, amount))
+      return 'Store cannot buy that quantity of these goods (check demand, condition and available cash)';
+    remaining -= amount;
+    if (!remaining) return null;
+  }
+  return 'You do not carry that many of these goods';
+}
+export function sellAcrossStacks(
+  world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+  placeId: PlaceId,
+  itemIds: readonly ItemId[],
+  qty: number,
+): boolean {
+  if (saleBundleCheck(world, ctx, actorId, placeId, itemIds, qty)) return false;
+  let remaining = qty;
+  for (const id of itemIds) {
+    const amount = Math.min(remaining, world.items.stacks[id]?.qty ?? 0);
+    if (amount > 0) sell(world, ctx, actorId, placeId, id, amount);
+    remaining -= amount;
+    if (!remaining) break;
+  }
+  return true;
+}
+
 export function sell(
   world: World,
   ctx: SimContext,
@@ -615,9 +665,10 @@ function fetchOrdered(world: World, ctx: SimContext, actorId: ActorId): boolean 
 }
 
 /** Ordinary sipping and filling at an accessible source, also used in readiness projections. */
-export function waterHour(world: World, ctx: SimContext): void {
+export function waterHour(world: World, ctx: SimContext, onlyActor?: ActorId): void {
   const index = inventoryIndex(world);
   for (const actor of rowsOf(world.actors)) {
+    if (onlyActor !== undefined && actor.id !== onlyActor) continue;
     if (!processesActor(world, actor.id)) continue;
     if (tacticalPinned(world, actor.id)) continue;
     if (

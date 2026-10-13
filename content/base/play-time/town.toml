@@ -2,3 +2,6 @@
 id = "town"
 walk_limit_minutes = 15
 purchase_minutes = 5
+
+# Counter terms and drawing water take minutes, not the rest of the hour.
+short_acts = { "provisions.hire_on" = 10, "provisions.quit" = 5, "provisions.drink" = 2, "provisions.refill" = 3 }
