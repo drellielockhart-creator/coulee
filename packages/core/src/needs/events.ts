@@ -5,6 +5,7 @@ import type { EventOf } from '../events/base.ts';
 import type { ActorId } from '../ids.ts';
 
 export type NeedsEvent =
+  | EventOf<'needs.combat_health', { actorId: ActorId; text: string }>
   | EventOf<'needs.survival_check', { actorId: ActorId; cause: string; damage: number; vigor: number; wounds: number }>
   | EventOf<'needs.collapsed', { actorId: ActorId; cause: string }>
   | EventOf<'needs.recovered', { actorId: ActorId }>

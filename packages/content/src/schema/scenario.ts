@@ -77,7 +77,15 @@ export const ScenarioSchema = z.strictObject({
   site: ref(),
   region: ref().optional(),
   tactical_scene: z
-    .strictObject({ id: id(), place: ref(), at_minute: int().min(0), text: z.string().min(1) })
+    .strictObject({
+      id: id(),
+      place: ref(),
+      at_minute: int().min(0),
+      text: z.string().min(1),
+      exit: z.strictObject({ x: int().nonnegative(), y: int().nonnegative(), place: ref() }).optional(),
+      brawlers: z.tuple([id(), id()]).optional(),
+      exclude_actors: z.array(id()).optional(),
+    })
     .optional(),
   /** Start date 'YYYY-MM-DD' (the epoch is 1855-04-01; later starts fast-forward the clock). */
   start: z
@@ -115,6 +123,7 @@ export function scenarioRefs(b: ContentBundle): Issue[] {
     const where = `scenarios:${s.id}`;
     checkRefs(issues, where, 'site', [s.site], b.sites, 'site');
     checkRefs(issues, where, 'tactical_scene.place', [s.tactical_scene?.place], b.places, 'place');
+    checkRefs(issues, where, 'tactical_scene.exit.place', [s.tactical_scene?.exit?.place], b.places, 'place');
     const actorKeys: Record<string, true> = {};
     const householdKeys: Record<string, true> = {};
     const figureKeys: Record<string, true> = {};
@@ -122,6 +131,15 @@ export function scenarioRefs(b: ContentBundle): Issue[] {
       if (actorKeys[a.key]) issues.push({ where, message: `duplicate actor key '${a.key}'` });
       actorKeys[a.key] = true;
     }
+    checkRefs(issues, where, 'tactical_scene.brawlers', s.tactical_scene?.brawlers ?? [], actorKeys, 'actor key');
+    checkRefs(
+      issues,
+      where,
+      'tactical_scene.exclude_actors',
+      s.tactical_scene?.exclude_actors ?? [],
+      actorKeys,
+      'actor key',
+    );
     for (const h of s.households) {
       if (householdKeys[h.key]) issues.push({ where, message: `duplicate household key '${h.key}'` });
       householdKeys[h.key] = true;

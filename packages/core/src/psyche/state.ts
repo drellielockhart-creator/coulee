@@ -75,6 +75,7 @@ export interface AnxietyPools {
 }
 
 export interface ActorPsyche {
+  combatFear?: { triggers: string[]; shaken: boolean };
   /** Absent means psyche; preserves existing NPC state hashes. */
   agency?: import('./agency.ts').AgencyState;
   agencyMode?: import('./agency.ts').AgencyMode;

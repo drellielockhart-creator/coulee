@@ -1,4 +1,4 @@
-import { asActorId, asItemId, type Command, explainLine, TICKS_PER_SECOND, timeView } from '@coulee/core';
+import { asActorId, asItemId, type Command, type Explain, TICKS_PER_SECOND, timeView } from '@coulee/core';
 import type { AvailableAction } from './actions.ts';
 import { claimText, obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
@@ -168,7 +168,7 @@ ${o.epilogue ?? ''}`;
       .join('; ')}`,
     ...(o.self.needs.survival
       ? [
-          `Health: Vigor ${o.self.needs.survival.vigor}/${o.self.needs.survival.maxVigor}; Wounds ${o.self.needs.survival.wounds}/${o.self.needs.survival.woundLimit}. ${o.self.needs.survival.conditions.join(', ')}`.trimEnd(),
+          `Health: Vigor ${o.self.needs.survival.vigor}/${o.self.needs.survival.maxVigor}${o.self.needs.survival.nonlethal ? `, bruised ${o.self.needs.survival.nonlethal}` : ''}; Wounds ${o.self.needs.survival.wounds}/${o.self.needs.survival.woundLimit}. ${o.self.needs.survival.conditions.join(', ')}`.trimEnd(),
         ]
       : []),
     ...(o.self.needs.warnings ?? []),
@@ -352,13 +352,32 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
     const id =
       phrase === 'resume'
         ? 'tactical:resume'
-        : ['guard', 'cancel', 'breathe'].includes(phrase)
+        : ['guard', 'cancel', 'breathe', 'yield', 'escape', 'parley', 'flee'].includes(phrase)
           ? `tactical:${phrase}`
           : /^(step|move) (north|south|east|west)$/.test(phrase)
             ? `tactical:move:${phrase.split(' ')[1]}`
             : '';
     const action = o.actions.find((a) => a.id === id);
     if (action) return action.command;
+    if (phrase === 'break up') {
+      const parley = o.actions.find((a) => a.id === 'tactical:parley');
+      if (parley) return parley.command;
+    }
+    if (/^(attack|grapple|accept|stabilize) /.test(phrase)) {
+      const verb = phrase.split(' ')[0],
+        target = phrase.slice((verb?.length ?? 0) + 1);
+      const matches = o.actions.filter(
+        (a) => a.id.startsWith(`tactical:${verb}:`) && a.label.toLowerCase().includes(target),
+      );
+      if (matches.length === 1 && matches[0]) return matches[0].command;
+      return matches.length
+        ? `Choose: ${matches.map((a) => a.id).join(', ')}`
+        : 'No adjacent eligible target; try actions or step toward them.';
+    }
+    if (phrase === 'reaction' || phrase === 'revoke reactions') {
+      const reaction = o.actions.find((a) => a.id === `tactical:reaction:${phrase === 'reaction' ? 1 : 0}`);
+      if (reaction) return reaction.command;
+    }
   }
   const text = line.trim(),
     words = text.split(/\s+/),
@@ -895,7 +914,7 @@ export function renderDetail(detail: unknown): string {
     return `[${event.id}] ${event.summary}${event.explain ? ` — explain ${event.id} for how it went` : ''}`;
   }
   if (detail && typeof detail === 'object' && 'knowledge' in detail && 'terms' in detail)
-    return explainLine(detail as Parameters<typeof explainLine>[0]);
+    return explainTree(detail as Explain);
   if (Array.isArray(detail) && detail.some((e) => e && typeof e === 'object' && 'signId' in e))
     return detail
       .map(
@@ -955,4 +974,14 @@ export function obligationLines(o: Observation): string[] {
 function employmentText(e: NonNullable<Observation['self']['provisions']['employment']>): string {
   const terms = `${e.employer}: $${(e.dailyCents / 100).toFixed(2)} per ${e.hours}h day, paid ${e.pay}; ${e.fromHour}:00–${e.toHour}:00 at ${e.workplace}`;
   return `Employment ${e.ended ? `ended (${e.ended})` : terms}. Earned and unpaid $${(e.earnedCents / 100).toFixed(2)}.`;
+}
+
+/** Detail has already passed the perspective gate; preserve all visible sub-decisions. */
+function explainTree(e: Explain, depth = 0): string {
+  const terms = e.terms.map((t) => `${t.label} ${t.value >= 0 ? '+' : ''}${t.value}`).join(', ');
+  const dc = e.dc ? ` vs DC ${e.dc.total}` : '';
+  return [
+    `${'  '.repeat(depth)}${e.label}: ${e.total} (${[e.roll ? `d${e.roll.die} ${e.roll.natural}` : '', terms].filter(Boolean).join(', ')})${dc} -> ${e.outcome}${e.note ? ` — ${e.note}` : ''}`,
+    ...(e.children ?? []).map((child) => explainTree(child, depth + 1)),
+  ].join('\n');
 }

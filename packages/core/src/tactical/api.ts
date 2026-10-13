@@ -4,15 +4,16 @@ import type { Command } from '../command.ts';
 import type { ContentBundle } from '../content.ts';
 import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
 import { loadReport } from '../items/api.ts';
-import { canAct } from '../needs/api.ts';
+import { canAct, healthOf } from '../needs/api.ts';
 import { authorizationExplain, authorizeAct, type Basis, tacticalReaction } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import { instantOf, TICKS_PER_SECOND } from '../sim/clock.ts';
 import type { SimContext } from '../sim/context.ts';
 import { compareEntries, heapPush } from '../sim/heap.ts';
 import type { World } from '../world.ts';
+import { activeBrawls, beginBrawl, brawlCheck, decideBrawl, movementReactions } from './brawl.ts';
 import type { TacticalCommand } from './commands.ts';
-import { cellKey, movementCheck, sceneCells } from './spatial.ts';
+import { cellKey, fleeStep, movementCheck, sceneCells } from './spatial.ts';
 import type { Action } from './state.ts';
 export function requestEncounter(
   w: World,
@@ -22,13 +23,25 @@ export function requestEncounter(
   actors: ActorId[],
   text: string,
 ): boolean {
-  if (w.tactical?.active || w.tactical?.sceneId === sceneId || w.time % 60 !== 0 || (w.tenth ?? 0) !== 0) return false;
+  if (
+    (w.backgroundTactical &&
+      (w.backgroundTactical.sceneId === sceneId ||
+        w.backgroundTactical.frame?.phase !== 'settled' ||
+        w.backgroundTactical.heap.length > 0 ||
+        w.backgroundTactical.brawls?.some((b) => b.endedAt === undefined))) ||
+    w.tactical?.active ||
+    w.tactical?.sceneId === sceneId ||
+    w.time % 60 !== 0 ||
+    (w.tenth ?? 0) !== 0
+  )
+    return false;
   const ids = [...new Set(actors)]
     .sort((a, b) => a - b)
     .filter((id) => w.actors[id]?.placeId === placeId && canAct(w, id));
   const cells = sceneCells(w, ctx.content, placeId);
   if (ids.length < 2 || cells.length < ids.length) return false;
   const now = instantOf(w);
+  delete w.backgroundTactical;
   w.tactical = {
     version: 1,
     sceneId,
@@ -101,36 +114,105 @@ export function tacticalCommandCheck(w: World, c: ContentBundle, command: Comman
       ? null
       : 'Advance 1..36000 clock ticks';
   if (cmd.kind === 'tactical.breathe')
-    return s.heap.length || instantOf(w) - s.quietSince < 6 * TICKS_PER_SECOND
-      ? 'Wait for six quiet seconds and all recovery to finish'
-      : null;
+    return p.fled
+      ? p.action || instantOf(w) - p.readyAt < 6 * TICKS_PER_SECOND
+        ? 'Wait for six quiet seconds and your recovery to finish'
+        : null
+      : s.heap.length ||
+          activeBrawls(w).length ||
+          idsOf<ActorId>(s.participants).some((id) => healthOf(w, id)?.dying) ||
+          instantOf(w) - s.quietSince < 6 * TICKS_PER_SECOND
+        ? 'Wait for six quiet seconds and all recovery to finish'
+        : null;
+  if (
+    cmd.kind === 'tactical.reaction' &&
+    (!Number.isInteger(cmd.data.count) || cmd.data.count < 0 || cmd.data.count > 3)
+  )
+    return 'Grant 0..3 reactions';
+  if (cmd.kind === 'tactical.reaction' && cmd.data.count === 0)
+    return p.reaction || (p.action?.phase === 'windup' && (p.action.kind === 'reaction' || p.action.fromReaction))
+      ? null
+      : 'No defensive reaction to revoke';
   if (cmd.kind === 'tactical.cancel')
     return p.action?.phase === 'windup' ? null : 'No cancellable windup; recovery must finish';
   if (p.action) return 'Finish recovery or cancel the current windup';
   if ((s.declarations[command.actorId] ?? 0) >= 3) return 'Resume time before declaring another action';
+  const rule = brawlCheck(
+    w,
+    c,
+    cmd.actorId,
+    cmd.kind.slice(9) as Action['kind'],
+    'targetId' in cmd.data ? cmd.data.targetId : undefined,
+  );
+  if (rule) return rule;
   if (cmd.kind === 'tactical.move') return movementCheck(w, c, cmd.actorId, cmd.data);
-  return cmd.kind === 'tactical.guard' ? null : 'Unknown tactical command';
+  return [
+    'tactical.guard',
+    'tactical.attack',
+    'tactical.grapple',
+    'tactical.escape',
+    'tactical.yield',
+    'tactical.accept',
+    'tactical.parley',
+    'tactical.flee',
+    'tactical.stabilize',
+    'tactical.reaction',
+  ].includes(cmd.kind)
+    ? null
+    : 'Unknown tactical command';
 }
 export function startAction(
   w: World,
   ctx: SimContext,
   id: ActorId,
-  kind: 'move' | 'guard',
+  kind: Action['kind'],
   basis: Basis,
   destination?: { x: number; y: number },
+  targetId?: ActorId,
+  reactionCount?: number,
+  fromReaction = false,
 ): boolean {
   const s = w.tactical,
     p = s?.participants[id];
-  if (!s?.active || !p || p.action || !canAct(w, id) || !authorizeAct(w, id, { kind: `tactical.${kind}` }, basis).ok)
+  if (
+    !s ||
+    (!s.active && !activeBrawls(w, id).length) ||
+    !p ||
+    p.action ||
+    !canAct(w, id) ||
+    !authorizeAct(w, id, { kind: `tactical.${kind}` }, basis).ok
+  )
     return false;
   if ((s.declarations[id] ?? 0) >= 3) return false;
+  if (
+    fromReaction &&
+    (!p.reaction || p.reaction.remaining <= 0 || p.reaction.until < instantOf(w) || (p.reactionAt ?? 0) > instantOf(w))
+  )
+    return false;
+  if (brawlCheck(w, ctx.content, id, kind, targetId)) return false;
+  if (kind === 'flee') destination = fleeStep(w, ctx.content, id) ?? undefined;
   if (kind === 'move' && (!destination || movementCheck(w, ctx.content, id, destination))) return false;
   const load = loadReport(w, ctx.content, id);
-  if (kind === 'move' && load.band.speedPct <= 0) return false;
-  const duration =
-    kind === 'guard'
-      ? 1 * TICKS_PER_SECOND
-      : Math.max(1, Math.ceil((5 * 60 * TICKS_PER_SECOND * 100) / (264 * Math.max(1, load.band.speedPct))));
+  if ((kind === 'move' || kind === 'flee') && load.band.speedPct <= 0) return false;
+  const t = ctx.content.combat_rules.brawl;
+  const moving = kind === 'move' || kind === 'flee';
+  const moveDuration = Math.max(
+    1,
+    Math.ceil((5 * 60 * TICKS_PER_SECOND * 100) / (264 * Math.max(1, load.band.speedPct))),
+  );
+  const duration = fromReaction
+    ? (t?.reaction_windup_ticks ?? 1)
+    : moving
+      ? moveDuration * (kind === 'move' ? 2 : 1) * (w.actors[id]?.sheet.conditions.includes('staggered') ? 2 : 1)
+      : kind === 'guard'
+        ? 10
+        : kind === 'stabilize'
+          ? (t?.stabilize_ticks ?? 600)
+          : kind === 'attack' || kind === 'parley'
+            ? (t?.attack_ticks ?? 18)
+            : kind === 'grapple' || kind === 'escape'
+              ? (t?.grapple_ticks ?? 18)
+              : (t?.declaration_ticks ?? 5);
   const token = ++s.seq,
     due = Math.max(instantOf(w), p.readyAt) + duration;
   const action: Action = {
@@ -139,11 +221,17 @@ export function startAction(
     phase: 'windup',
     basis,
     due,
-    recoverUntil: due + Math.round(1.2 * TICKS_PER_SECOND),
+    recoverUntil: Math.max(
+      due + (t?.recovery_ticks ?? 12),
+      w.actors[id]?.sheet.conditions.includes('staggered') ? Math.max(instantOf(w), p.readyAt) + 60 : 0,
+    ),
+    ...(targetId !== undefined ? { targetId } : {}),
+    ...(reactionCount !== undefined ? { reactionCount } : {}),
+    ...(fromReaction ? { fromReaction: true } : {}),
     ...(destination ? { destination } : {}),
   };
   p.action = action;
-  if (kind === 'move') p.guarding = false;
+  if (kind !== 'guard') p.guarding = false;
   s.declarations[id] = (s.declarations[id] ?? 0) + 1;
   if (destination) s.reservations[cellKey(destination)] = { actorId: id, token };
   heapPush(s.heap, { instant: due, actorId: id, seq: ++s.seq, kind: 'commit', token });
@@ -153,12 +241,14 @@ export function startAction(
       actorId: id,
       action: kind,
       phase: 'windup',
-      text: kind === 'guard' ? 'You prepare to guard.' : 'You begin a step.',
+      text: kind === 'guard' ? 'You prepare to guard.' : `You begin ${kind}.`,
     },
     roles: [{ actor: id, role: 'agent' }],
     visibility: 'private',
     explain: authorizationExplain(w, id, { kind: `tactical.${kind}` }, basis),
   });
+  if ((kind === 'attack' || kind === 'grapple') && targetId !== undefined) beginBrawl(w, ctx, id, targetId);
+  if (kind === 'flee') movementReactions(w, ctx, id);
   return true;
 }
 export function releaseReservation(w: World, id: ActorId, action: Action): void {
@@ -174,6 +264,7 @@ export function cancelAction(w: World, ctx: SimContext, id: ActorId): void {
   releaseReservation(w, id, a);
   s.heap = s.heap.filter((e) => e.token !== a.token).sort(compareEntries);
   a.phase = 'recovery';
+  a.cancelled = true;
   heapPush(s.heap, { instant: a.recoverUntil, actorId: id, seq: ++s.seq, kind: 'recover', token: a.token });
   ctx.emit({
     kind: 'tactical.action',
@@ -196,7 +287,13 @@ export function commandTactical(w: World, ctx: SimContext, cmd: TacticalCommand)
   const s = w.tactical;
   if (!s) return;
   s.commandSeq++;
-  if (cmd.kind === 'tactical.cancel') cancelAction(w, ctx, cmd.actorId);
+  if (cmd.kind === 'tactical.reaction' && cmd.data.count === 0) {
+    const p = s.participants[cmd.actorId];
+    if (p) {
+      delete p.reaction;
+      if (p.action?.kind === 'reaction' || p.action?.fromReaction) cancelAction(w, ctx, cmd.actorId);
+    }
+  } else if (cmd.kind === 'tactical.cancel') cancelAction(w, ctx, cmd.actorId);
   else if (cmd.kind === 'tactical.breathe') {
     s.active = false;
     s.pause = null;
@@ -206,17 +303,31 @@ export function commandTactical(w: World, ctx: SimContext, cmd: TacticalCommand)
       place: s.placeId,
       visibility: 'public',
     });
-  } else if (cmd.kind === 'tactical.move' || cmd.kind === 'tactical.guard')
+  } else if (cmd.kind !== 'tactical.advance')
     startAction(
       w,
       ctx,
       cmd.actorId,
-      cmd.kind === 'tactical.move' ? 'move' : 'guard',
+      cmd.kind.slice(9) as Action['kind'],
       { kind: 'command', issuer: cmd.issuer ?? { kind: 'player' } },
       cmd.kind === 'tactical.move' ? cmd.data : undefined,
+      'targetId' in cmd.data ? cmd.data.targetId : undefined,
+      cmd.kind === 'tactical.reaction' ? cmd.data.count : undefined,
     );
 }
 export function participants(w: World): ActorId[] {
   return w.tactical?.active ? idsOf<ActorId>(w.tactical.participants) : [];
 }
 export { tacticalPosition };
+
+/** Authored/owner request: hostility still requires agency, reach, and a living opponent. */
+export function requestBrawl(w: World, ctx: SimContext, a: ActorId, b: ActorId, basis: Basis): boolean {
+  if (
+    !authorizeAct(w, a, { kind: 'tactical.attack', targetId: b }, basis).ok ||
+    brawlCheck(w, ctx.content, a, 'attack', b)
+  )
+    return false;
+  beginBrawl(w, ctx, a, b);
+  decideBrawl(w, ctx, a);
+  return true;
+}

@@ -76,7 +76,17 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
   };
   const out = (text: string, routine = false): Described => ({ text, routine });
 
-  if (e.kind === 'tactical.danger' || e.kind === 'tactical.action' || e.kind === 'tactical.breathe')
+  if (e.kind === 'needs.combat_health') return out(`${Who(e.data.actorId)}: ${e.data.text}`);
+  if (
+    e.kind === 'tactical.blow' ||
+    e.kind === 'tactical.grapple' ||
+    e.kind === 'tactical.submission' ||
+    e.kind === 'tactical.outcome' ||
+    e.kind === 'tactical.morale' ||
+    e.kind === 'tactical.danger' ||
+    e.kind === 'tactical.action' ||
+    e.kind === 'tactical.breathe'
+  )
     return { text: e.data.text, routine: false };
   switch (e.kind) {
     case 'activity.started': {

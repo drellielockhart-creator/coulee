@@ -42,6 +42,8 @@ export interface World {
   time: GameMinute;
   tenth?: number;
   tactical?: import('./tactical/state.ts').TacticalState;
+  /** Inactive scene clock: retains the open hour and off-site actions after Breathe. */
+  backgroundTactical?: import('./tactical/state.ts').TacticalState;
   counters: { actor: number; household: number; place: number };
   actors: Table<ActorId, ActorCore>;
   households: Table<HouseholdId, Household>;

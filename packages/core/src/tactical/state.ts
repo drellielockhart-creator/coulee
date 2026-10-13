@@ -11,10 +11,25 @@ export interface Position extends Cell {
 }
 export interface Action {
   token: number;
-  kind: 'move' | 'guard';
+  kind:
+    | 'move'
+    | 'guard'
+    | 'attack'
+    | 'grapple'
+    | 'escape'
+    | 'yield'
+    | 'accept'
+    | 'parley'
+    | 'flee'
+    | 'stabilize'
+    | 'reaction';
   phase: 'windup' | 'recovery';
   basis: Basis;
   destination?: Cell;
+  targetId?: ActorId;
+  cancelled?: boolean;
+  fromReaction?: boolean;
+  reactionCount?: number;
   due: number;
   recoverUntil: number;
 }
@@ -23,6 +38,21 @@ export interface Participant {
   action: Action | null;
   unready: boolean;
   guarding: boolean;
+  submitted?: boolean;
+  reactionAt?: number;
+  fled?: boolean;
+  reaction?: { remaining: number; until: number; nextAt: number; basis: Basis };
+}
+export interface Brawl {
+  id: number;
+  a: ActorId;
+  b: ActorId;
+  startedAt: number;
+  attempts: number;
+  stamped?: boolean;
+  endedAt?: number;
+  outcome?: 'submission' | 'knockout' | 'flight' | 'peace' | 'incapacity';
+  witnesses: ActorId[];
 }
 export interface Entry extends TimedEntry {
   actorId: ActorId;
@@ -44,6 +74,8 @@ export interface HourFrame {
   elapsed: Record<number, number>;
 }
 export interface TacticalState {
+  brawls?: Brawl[];
+  grapples?: Array<{ holder: ActorId; target: ActorId; stage: 1 | 2 | 3 }>;
   version: 1;
   sceneId: string;
   placeId: PlaceId;

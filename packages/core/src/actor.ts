@@ -18,6 +18,8 @@ export type Values = Record<ValueId, number>;
 
 /** The rules-state (02). Only the fields M1 needs; combat/feats/vigor arrive later. */
 export interface Sheet {
+  /** Existing townsfolk default to +0 progression and Medium grapple size. */
+  combat?: { attack: number; grappleSize: number };
   abilities: Abilities;
   /** Skill id -> ranks (02 §4.2). Missing = 0 ranks. */
   skills: Record<SkillId, number>;

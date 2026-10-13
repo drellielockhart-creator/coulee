@@ -1,3 +1,4 @@
+import { advanceCombatHealth, nextCombatHealthInstant } from '../needs/api.ts';
 /** Version 1: sparse action instants inside a saved hour frame. Legacy adapter stays byte-stable. */
 
 import { finishJourneys, prepareJourneys } from '../activity/api.ts';
@@ -8,7 +9,7 @@ import { type ActorId, idsOf } from '../ids.ts';
 import { accrueTacticalNeeds, nextTacticalNeedInstant, prepareTacticalNeeds } from '../needs/api.ts';
 import { nextTacticalSupplyInstant, tacticalSupplies } from '../provisions/api.ts';
 import { regionSystem } from '../region/api.ts';
-import { commandTactical, requestEncounter } from '../tactical/api.ts';
+import { commandTactical, requestBrawl, requestEncounter } from '../tactical/api.ts';
 import type { TacticalCommand } from '../tactical/commands.ts';
 import { tacticalSystem } from '../tactical/system.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
@@ -20,17 +21,47 @@ import { announceDay, makeContext, type Sim, stepHourly } from './sim.ts';
 export function admitScriptedScene(sim: Sim): boolean {
   const w = sim.world,
     def = sim.content.scenarios[w.meta.scenarioId]?.tactical_scene;
-  if (!def || w.tactical || w.time < def.at_minute || w.time % 60 !== 0) return false;
+  if (!def || w.tactical || w.backgroundTactical || w.time < def.at_minute || w.time % 60 !== 0) return false;
   const place = w.index.placeByDef[def.place];
   if (!place) return false;
-  const ids = idsOf<ActorId>(w.actors).filter((id) => w.actors[id]?.placeId === place);
-  return requestEncounter(w, makeContext(w, sim.content, [], sim.sink), def.id, place, ids, def.text);
+  const ids = idsOf<ActorId>(w.actors).filter(
+    (id) => w.actors[id]?.placeId === place && !def.exclude_actors?.includes(w.actors[id]?.key ?? ''),
+  );
+  const ctx = makeContext(w, sim.content, [], sim.sink);
+  const admitted = requestEncounter(w, ctx, def.id, place, ids, def.text);
+  if (admitted && def.brawlers) {
+    const a = w.index.actorByKey[def.brawlers[0]],
+      b = w.index.actorByKey[def.brawlers[1]];
+    if (a && b) requestBrawl(w, ctx, a, b, { kind: 'own' });
+  }
+  return admitted;
 }
 export interface AdvanceResult {
   elapsedTicks: number;
   interrupted: boolean;
 }
+/** Keep ordinary orders free of tactical UI state without discarding partial-hour accounting. */
 export function advanceUntil(
+  sim: Sim,
+  target: number,
+  commands: readonly Command[] = [],
+  interrupt?: (events: Event[]) => boolean,
+): AdvanceResult {
+  const w = sim.world;
+  if (!w.tactical && w.backgroundTactical) {
+    w.tactical = w.backgroundTactical;
+    delete w.backgroundTactical;
+  }
+  try {
+    return advanceScene(sim, target, commands, interrupt);
+  } finally {
+    if (w.tactical && !w.tactical.active) {
+      w.backgroundTactical = w.tactical;
+      delete w.tactical;
+    }
+  }
+}
+function advanceScene(
   sim: Sim,
   target: number,
   commands: readonly Command[] = [],
@@ -80,7 +111,7 @@ export function advanceUntil(
         end: now + TICKS_PER_HOUR,
         phase: 'open',
         commands: s.pendingCommands.splice(0),
-        live: s.active ? idsOf<ActorId>(s.participants) : [],
+        live: s.active || s.heap.length ? idsOf<ActorId>(s.participants) : [],
         rates: {},
         activeRates: {},
         carries: {},
@@ -102,6 +133,7 @@ export function advanceUntil(
       frame.end,
       s.heap[0]?.instant ?? target,
       nextTacticalNeedInstant(w) ?? target,
+      nextCombatHealthInstant(w) ?? target,
       nextTacticalSupplyInstant(w, schedule) ?? target,
     );
     if (next < instantOf(w)) throw new Error('Past heap entry');
@@ -116,6 +148,7 @@ export function advanceUntil(
       elapsed,
     );
     tacticalSystem(w, tick);
+    advanceCombatHealth(w, tick);
     if (next === frame.end) {
       settleHourFrame(sim);
       frame.phase = 'settled';

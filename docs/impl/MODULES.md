@@ -791,3 +791,37 @@ stamps refer to the actual closing boundary. Sparse need-meter and carried-devic
 deadlines make alert instants independent of query subdivision. The activity ownership
 query also excludes former participants during settlement of their partial scene hour.
 Implementation, 30-day legacy proof and fair play reports: `M6-SLICE1.md`.
+
+### M6 slice 2 — brawls (2026-10-13)
+
+The tactical owner extends `core/src/tactical/**` rather than creating a second combat
+clock/module. Combat tuning is owned in `content/src/schema/combat.ts` and `content/base/combat/**`;
+fixtures are `tavern_instant` and `tavern_brawl`, with acceptance in `cli/test/brawl.test.ts`.
+`Action` adds melee, grapple/escape, yield/accept, parley, reachable flee, stabilization and
+bounded reaction orders. Optional saved brawl episodes deduplicate the social handoff by
+scene/pair. Explicit commands authorize one action (or the cells of one flee route);
+no commanded retaliation is implied. Commitment revalidates the saved issuer.
+
+Condition owners: tactical owns Grabbed/Held/Pinned and existing Unready; psyche owns
+source-specific `combat_shaken`; needs owns `combat_unconscious`, Dying, Spent and Staggered.
+`needs.api.applyHit/healthOf/stabilize/advanceCombatHealth/nextCombatHealthInstant` keep combat
+health separate from deprivation wounds. Foundation's sparse clock consults injury deadlines
+without re-running hourly systems. `die` remains the sole death path. Located/Blood/bleeding
+and material treatment remain slice 3. `activity.api.leaveTactical` commits a paid crossing
+of an authored door; no coordinate/actor place writes occur in the tactical owner.
+
+`psyche.api.brawlFear/brawlIntent/endBrawlFear` owns transition-deduplicated morale and NPC
+choices. `social.api.recordCombatOutcome` owns durable incidents, memories, opinions and
+one `noteStrife` stamp per pair/scene. `chronicle.api.recordFight` persists the witnessed
+summary synchronously. Play supplies fair menu/parser/interrupt additions; the existing web
+TacticalTimeline renders these same actions. Replay rules version 3 identifies the reviewed
+behavior; version-1 and version-2 journals are explicitly rejected. Noncombat snapshots remain additive.
+See `M6-SLICE2.md` for the outcome distribution, fair transcripts and exact file inventory.
+
+
+M6 slice 2 review adds `World.backgroundTactical`: Breathe removes active tactical state while
+retaining the open clock frame and any remote brawl deadlines. The shared advancement driver
+restores this state only while executing, then parks it again; saves remain plain data.
+Needs owns Stable's `wakeAt` deadline and hourly recovery outside scenes. Fear trigger retention
+ends with each episode; social retains at most 256 incidents, with per-scene episode stamp flags
+preserving pair deduplication beyond archive eviction.
