@@ -1,12 +1,16 @@
 import {
   type ActorId,
   activity,
+  advanceUntil,
   belief,
+  CLOCK_VERSION,
   type Command,
   type ContentBundle,
   type Event,
   eventsSince,
   fae,
+  hashValue,
+  instantOf,
   items,
   needs,
   provisions,
@@ -16,6 +20,7 @@ import {
   social,
   stateHash,
   step,
+  TICKS_PER_MINUTE,
   timeView,
 } from '@coulee/core';
 import { GEN_VERSION } from '@coulee/worldgen';
@@ -41,12 +46,19 @@ export interface LogStep {
   after: string;
   at: number;
   end: number;
+  atInstant?: number;
+  endInstant?: number;
+  seq?: number;
 }
 export interface LogHeader {
   type: 'session';
   format: 1;
   spec: SessionSpec;
   contentHash: string;
+  clockVersion?: number;
+  engineVersion?: string;
+  rulesVersion?: number;
+  sourceHash?: string;
   /** Additive: a forked story (its fair ending keeps the omniscient epilogue to itself). */
   branched?: boolean;
 }
@@ -83,6 +95,7 @@ export interface ActResult {
   /** Set when a wait stopped early. */
   stopped?: WaitStopped;
   elapsedMinutes: number;
+  elapsedTicks?: number;
   interrupts: Interrupt[];
   observation: ReturnType<PlaySession['observe']>;
   detail?: unknown;
@@ -141,6 +154,10 @@ export class PlaySession {
           format: 1,
           spec: this.spec,
           contentHash: this.base.meta.hash,
+          clockVersion: CLOCK_VERSION,
+          engineVersion: 'm6-slice1',
+          rulesVersion: 1,
+          sourceHash: hashValue(this.spec),
           ...(this.branched ? { branched: true } : {}),
         },
         ...this.entries,
@@ -192,6 +209,12 @@ export class PlaySession {
       error = 'Malformed command';
     }
     if (error) return this.fail(error, mode);
+    if (
+      command.kind.startsWith('tactical.') ||
+      (command.kind === 'activity.wait' &&
+        (this.sim.world.tactical || this.sim.content.scenarios[this.sim.world.meta.scenarioId]?.tactical_scene))
+    )
+      return this.actAtInstant(command, mode);
     // Settings take no game time (playtest r2): the order is logged and applied at once, through
     // the same setters the systems use, so a replay applies it identically.
     if (command.kind === 'core.standing_orders' || command.kind === 'provisions.set_rations')
@@ -514,6 +537,69 @@ export class PlaySession {
       ...(detail === undefined ? {} : { detail }),
     };
   }
+  /** Same atomic driver and interrupt callback for CLI and worker. */
+  private actAtInstant(command: Command, mode: ObservationMode): ActResult {
+    const w = this.sim.world,
+      pc = this.playerId;
+    const before = this.hash,
+      at = w.time,
+      start = instantOf(w);
+    const ticks =
+      command.kind === 'tactical.advance'
+        ? command.data.ticks
+        : command.kind === 'activity.wait'
+          ? command.data.minutes * TICKS_PER_MINUTE
+          : 0;
+    const interrupts: Interrupt[] = [];
+    const prior = w.actors[pc]?.placeId;
+    const seenIds = new Set<number>();
+    const receive = (events: Event[]): boolean => {
+      for (const e of perceivedEvents(events, pc, prior)) {
+        if (seenIds.has(e.id)) continue;
+        seenIds.add(e.id);
+        this.known.push(e.id);
+        if (e.kind !== 'core.command')
+          this.knowledge.push(eventView(e, pc, 'fair', { world: w, content: this.sim.content }));
+        const alert = alertForEvent(w, this.sim.content, pc, e);
+        if (alert.pause) interrupts.push(alert);
+      }
+      return interrupts.length > 0;
+    };
+    const last = w.log.lastId;
+    const result = advanceUntil(this.sim, start + ticks, [command], receive);
+    receive(eventsSince(w.log, last));
+    this.changes = {
+      elapsed: w.time - at,
+      elapsedTicks: result.elapsedTicks,
+      money: [],
+      needs: [],
+      events: interrupts.map((i) => i.reason),
+      skipped: 0,
+    };
+    this.entries.push({
+      type: 'command',
+      command: JSON.parse(JSON.stringify(command)),
+      before,
+      after: this.hash,
+      at,
+      end: w.time,
+      atInstant: start,
+      endInstant: instantOf(w),
+      seq: this.entries.length + 1,
+    });
+    return {
+      ok: true,
+      elapsedMinutes: w.time - at,
+      elapsedTicks: result.elapsedTicks,
+      interrupts,
+      observation: this.observe(mode),
+      ...(result.interrupted
+        ? { notice: `Paused at ${this.observe(mode).tactical?.clock ?? 'the hour boundary'}.` }
+        : command.kind === 'tactical.breathe'
+          ? { notice: 'You take a breath. Ordinary time resumes from this instant.' }
+          : {}),
+    };
+  }
   /** Apply a settings order (standing orders, agency, rations) now, in no game time. */
   private settle(command: Command, mode: ObservationMode): ActResult {
     const w = this.sim.world,
@@ -539,6 +625,7 @@ export class PlaySession {
       after: this.hash,
       at,
       end: at,
+      ...(w.tactical ? { atInstant: instantOf(w), endInstant: instantOf(w), seq: this.entries.length + 1 } : {}),
     });
     return { ok: true, notice, elapsedMinutes: 0, interrupts: [], observation: this.observe(mode) };
   }
@@ -779,6 +866,12 @@ export class PlaySession {
   }
   static replay(content: ContentBundle, log: ReplayLog, mode: ObservationMode = 'fair'): PlaySession {
     const [header, ...steps] = log;
+    if (header.rulesVersion !== undefined && header.rulesVersion !== 1)
+      throw new Error('Unsupported replay rules version');
+    if (header.sourceHash !== undefined && header.sourceHash !== hashValue(header.spec))
+      throw new Error('Replay source mismatch');
+    if (header.clockVersion !== undefined && header.clockVersion !== CLOCK_VERSION)
+      throw new Error('Unsupported replay clock version');
     if (header.type !== 'session' || header.format !== 1 || header.contentHash !== content.meta.hash)
       throw new Error('Replay content/version mismatch');
     const session = PlaySession.create(content, header.spec);
@@ -786,7 +879,12 @@ export class PlaySession {
     for (const entry of steps) {
       if (entry.type !== 'command' || entry.before !== session.hash) throw new Error('Replay diverged before command');
       const result = session.act(entry.command, mode);
-      if (!result.ok || session.hash !== entry.after || session.sim.world.time !== entry.end)
+      if (
+        !result.ok ||
+        session.hash !== entry.after ||
+        session.sim.world.time !== entry.end ||
+        (entry.endInstant !== undefined && instantOf(session.sim.world) !== entry.endInstant)
+      )
         throw new Error('Replay diverged after command');
     }
     return session;

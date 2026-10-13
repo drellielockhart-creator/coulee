@@ -1,3 +1,4 @@
+import { tacticalPinned } from '../activity/api.ts';
 import { authorizeAct, commandBasis, standingOrders } from '../psyche/api.ts';
 /**
  * Provisions cross-module API. OWNER: module:provisions.
@@ -571,6 +572,7 @@ function fetchOrdered(world: World, ctx: SimContext, actorId: ActorId): boolean 
 export function waterHour(world: World, ctx: SimContext): void {
   const index = inventoryIndex(world);
   for (const actor of rowsOf(world.actors)) {
+    if (tacticalPinned(world, actor.id)) continue;
     if (
       !actor.alive ||
       (!authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok &&
@@ -935,3 +937,5 @@ export function leaveRoadCamp(world: World, ctx: SimContext, id: ActorId): void 
     },
   });
 }
+
+export * from './tactical.ts';

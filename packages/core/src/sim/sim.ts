@@ -19,6 +19,8 @@ import { rng, type Stream } from '../rng.ts';
 import { type PackedJson, unpackJson } from '../serialization.ts';
 import { asGameMinute, calendarAt, MINUTES_PER_DAY, minuteOfDay } from '../time.ts';
 import type { World } from '../world.ts';
+import { admitScriptedScene, advanceUntil } from './advance.ts';
+import { instantOf, TICKS_PER_HOUR } from './clock.ts';
 import type { SimContext } from './context.ts';
 import { type CreateWorldOptions, createWorld } from './init.ts';
 import { HOURLY_SYSTEMS } from './schedule.ts';
@@ -46,6 +48,7 @@ export function restoreSim(
   opts: { allowContentMismatch?: boolean } = {},
 ): Sim {
   const world = unpackJson<World>(saved);
+  if (world.tactical && world.tactical.version !== 1) throw new Error('Unsupported tactical clock version');
   if (!opts.allowContentMismatch && world.meta.contentHash !== content.meta.hash) {
     throw new Error(
       `content hash mismatch: world ${world.meta.contentHash.slice(0, 12)} vs bundle ${content.meta.hash.slice(0, 12)}`,
@@ -77,35 +80,29 @@ export function makeContext(
     rng: (stream: Stream, key: number) => rng(seed, stream, now, key),
     emit: sink
       ? (e: EventInput) => {
-          const id = appendEvent(world.log, e, now);
+          const id = appendEvent(world.log, world.tactical ? { ...e, tenth: world.tenth ?? 0 } : e, now);
           sink(world.log.events[world.log.events.length - 1] as Event);
           return id;
         }
-      : (e: EventInput) => appendEvent(world.log, e, now),
+      : (e: EventInput) => appendEvent(world.log, world.tactical ? { ...e, tenth: world.tenth ?? 0 } : e, now),
   };
 }
 
 /** Simulate one game-hour. */
 export function step(sim: Sim, commands: readonly Command[] = []): void {
+  admitScriptedScene(sim);
+  if (sim.world.tactical) {
+    advanceUntil(sim, instantOf(sim.world) + TICKS_PER_HOUR, commands);
+    return;
+  }
+  stepHourly(sim, commands);
+}
+
+export function stepHourly(sim: Sim, commands: readonly Command[] = [], logCommands = true): void {
   const { world, content } = sim;
   const ctx = makeContext(world, content, commands, sim.sink);
-  if (ctx.isNewDay) {
-    const c = ctx.cal;
-    ctx.emit({
-      kind: 'core.day_started',
-      data: {
-        dayIndex: c.dayIndex,
-        year: c.year,
-        month: c.month,
-        day: c.day,
-        weekday: c.weekday,
-        season: c.season,
-        moon: c.moon.phase,
-        isSabbath: c.isSabbath,
-      },
-    });
-  }
-  for (const command of commands) {
+  announceDay(ctx);
+  for (const command of logCommands ? commands : []) {
     ctx.emit({
       kind: 'core.command',
       roles: [{ actor: command.actorId, role: 'agent' }],
@@ -127,6 +124,26 @@ export function step(sim: Sim, commands: readonly Command[] = []): void {
   // The chronicle (last system) has sifted everything up to lastId: older events may leave memory.
   if (ctx.isNewDay) trimLog(world.log, ctx.now);
   world.time = asGameMinute(world.time + 60);
+}
+
+/** Calendar announcement shared by legacy hours and open tactical frames. */
+export function announceDay(ctx: SimContext): void {
+  if (ctx.isNewDay) {
+    const c = ctx.cal;
+    ctx.emit({
+      kind: 'core.day_started',
+      data: {
+        dayIndex: c.dayIndex,
+        year: c.year,
+        month: c.month,
+        day: c.day,
+        weekday: c.weekday,
+        season: c.season,
+        moon: c.moon.phase,
+        isSabbath: c.isSabbath,
+      },
+    });
+  }
 }
 
 export interface RunOptions {

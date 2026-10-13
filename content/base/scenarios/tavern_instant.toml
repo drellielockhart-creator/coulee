@@ -1,0 +1,9 @@
+id = "tavern_instant"
+name = "A chair scrapes at Dunleavy's"
+extends = "iron_ford"
+description = "Opt-in M6 clock fixture. A chair scrapes; no damage rules are enabled."
+[tactical_scene]
+id = "scraping_chair"
+place = "dunleavys_tavern"
+at_minute = 0
+text = "A chair scrapes back. Someone squares up to you. Paused before anyone acts."

@@ -15,6 +15,7 @@ import {
   region,
   type Sim,
   social,
+  tactical,
   timeView,
   toViewModel,
   type World,
@@ -80,6 +81,7 @@ export function eventView(e: Event, pc: ActorId, mode: ObservationMode, view?: E
   return {
     id: e.id,
     t: e.t,
+    ...(e.tenth === undefined ? {} : { tenth: e.tenth }),
     kind: e.kind,
     summary,
     explain,
@@ -89,6 +91,7 @@ export function eventView(e: Event, pc: ActorId, mode: ObservationMode, view?: E
   } as {
     id: number;
     t: number;
+    tenth?: number;
     kind: Event['kind'];
     summary: string;
     explain: Explain | null;
@@ -175,6 +178,7 @@ export function observation(
   const ownProvisions = provisions.viewProvisionsActor(w, c, pc, opts);
   return {
     region: regional,
+    tactical: tactical.tacticalView(sim.world, pc),
     remains: needs.remainsAt(w, a.placeId),
     ending: ending ?? null,
     epilogue: epilogue ?? null,
@@ -312,6 +316,7 @@ export type Observation = ReturnType<typeof observation>;
 /** What changed since the last order: time, money, needs, the events that stopped a wait. */
 export interface ObservationChanges {
   elapsed: number;
+  elapsedTicks?: number;
   money: MoneyChange[];
   needs: string[];
   events: string[];

@@ -1,4 +1,4 @@
-import { asActorId, asItemId, type Command, explainLine, timeView } from '@coulee/core';
+import { asActorId, asItemId, type Command, explainLine, TICKS_PER_SECOND, timeView } from '@coulee/core';
 import type { AvailableAction } from './actions.ts';
 import { claimText, obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
@@ -36,6 +36,7 @@ export function menuActions(o: Observation, page = 0): AvailableAction[] {
     // What needs her answer, and anyone here who needs help, come first.
     ...o.actions.filter((a) => a.id.startsWith('answer:')),
     ...o.actions.filter((a) => a.id.startsWith('aid:')),
+    ...o.actions.filter((a) => a.id.startsWith('tactical:')),
     ...o.actions.filter((a) => /^(route:|travel:|journey:)/.test(a.id)),
     ...basic.flatMap((id) => o.actions.find((a) => a.id === id) ?? []),
     // Destinations are offered nearest first, with their minutes on foot.
@@ -94,6 +95,7 @@ function presentTags(a: Observation['present'][number]): string {
 }
 /** One line for a reply that took no time (playtest r2: phone-size output). */
 export function renderBrief(o: Observation): string {
+  if (o.tactical) return o.tactical.timeline;
   return `No time passed (${o.time.stamp}, ${o.place.name}).`;
 }
 /** The standing orders, agency and rations as they stand, with how to change them. */
@@ -140,7 +142,7 @@ ${o.epilogue ?? ''}`;
   const changes = o.changes;
   const addressed = changes.addressed ?? [];
   const lines = [
-    `Since last look: ${changes.elapsed ? `${changes.elapsed / 60}h passed` : 'no time passed'}${changes.needs.length ? '; ' + changes.needs.join('; ') : ''}.`,
+    `Since last look: ${changes.elapsedTicks ? `${changes.elapsedTicks / TICKS_PER_SECOND}s passed` : changes.elapsed ? `${changes.elapsed / 60}h passed` : 'no time passed'}${changes.needs.length ? '; ' + changes.needs.join('; ') : ''}.`,
     ...changes.money.map((m) => `Money: purse ${cash(m.purse)}, household ${cash(m.household)} — ${m.reason}`),
     ...(changes.skipped
       ? [`Skipped ${changes.skipped} minor conversation${changes.skipped === 1 ? '' : 's'} nearby.`]
@@ -153,6 +155,7 @@ ${o.epilogue ?? ''}`;
       : []),
     // A request is said once, below, with how to answer it.
     ...changes.events.filter((e) => !o.requests.some((r) => r.text && e.startsWith(askOf(r.text)))).slice(-3),
+    ...(o.tactical ? [o.tactical.timeline] : []),
     `${o.time.stamp} | ${o.mode.toUpperCase()} | ${o.place.name}`,
     `${o.self.name} — ${doing(o)}. Purse $${(o.self.provisions.purseCents / 100).toFixed(2)}; household $${(o.self.provisions.householdCents / 100).toFixed(2)}. ${o.weather.temperatureF}°F, ${o.weather.description.toLowerCase()}.`,
     `Food ${(r.daysOfFoodTenths / 10).toFixed(1)} days${pantryNote(o)}; ${o.self.inventory.loadBand}, ${(o.self.inventory.totalWeightG / 1000).toFixed(1)} kg.`,
@@ -341,6 +344,19 @@ export function renderInterrupts(
 }
 const normalized = (s: string) => s.trim().toLowerCase().replaceAll('_', ' ');
 export function parseText(line: string, o: Observation, page = 0): Command | string {
+  if (o.tactical) {
+    const phrase = line.trim().toLowerCase();
+    const id =
+      phrase === 'resume'
+        ? 'tactical:resume'
+        : ['guard', 'cancel', 'breathe'].includes(phrase)
+          ? `tactical:${phrase}`
+          : /^(step|move) (north|south|east|west)$/.test(phrase)
+            ? `tactical:move:${phrase.split(' ')[1]}`
+            : '';
+    const action = o.actions.find((a) => a.id === id);
+    if (action) return action.command;
+  }
   const text = line.trim(),
     words = text.split(/\s+/),
     verb = words.shift()?.toLowerCase() ?? '',

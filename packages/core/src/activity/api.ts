@@ -359,5 +359,6 @@ export function relocateForCare(
     });
 }
 
+export * from './tactical.ts';
 export * from './travel.ts';
 export * from './travel-rules.ts';

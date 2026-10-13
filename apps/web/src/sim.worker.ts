@@ -19,6 +19,7 @@ import {
   type Command,
   DEFAULT_VIEW_OPTIONS,
   provisions,
+  TICKS_PER_SECOND,
   timeView,
   toViewModel,
   type ViewModel,
@@ -281,13 +282,19 @@ function order(command: Command | string, label: string, id?: number): void {
   const r = session.act(command, mode);
   observation = strip(r.observation);
   if (r.ok) steps++;
-  if (r.ok && r.elapsedMinutes > 0) {
+  const changed = r.elapsedMinutes > 0 || r.elapsedTicks !== undefined;
+  if (r.ok && changed) {
     digest = emptyDigest(at);
     absorb(r, at);
   }
   const outcome = outcomeOf(r, label);
   // A quiet read (journal, look) leaves the last order's outcome on show; refusals always show.
-  const quiet = r.ok && r.elapsedMinutes === 0 && (r.detail === undefined || Array.isArray(r.detail));
+  const quiet =
+    r.ok &&
+    !changed &&
+    r.interrupts.length === 0 &&
+    r.elapsedMinutes === 0 &&
+    (r.detail === undefined || Array.isArray(r.detail));
   if (!quiet) lastOutcome = outcome;
   // Her own order's arrival is already its outcome; a wait's stop, danger or a summons still
   // needs a dispatch. Any interrupt pauses the clock either way (the shared policy, 11 §1.6).
@@ -295,10 +302,10 @@ function order(command: Command | string, label: string, id?: number): void {
   const alerts = r.ok ? alertsOf(r).filter((a) => isWait || a.category !== 'arrival') : [];
   if (r.interrupts.length || ended()) pauseSelf();
   // An order that took its hour starts the next hour's countdown afresh; a read leaves it be.
-  else if (r.elapsedMinutes > 0) accumulator = 0;
+  else if (changed) accumulator = 0;
   if (id !== undefined) post({ type: 'acted', id, outcome });
   // Reads and refusals leave the world as it was: no new view model to send.
-  if (r.elapsedMinutes > 0) snapshot(0, Math.ceil(r.elapsedMinutes / 60), alerts);
+  if (changed) snapshot(0, Math.ceil(r.elapsedMinutes / 60), alerts);
   postPlay();
 }
 
@@ -314,13 +321,15 @@ function runHours(n: number, stopOnAlert: boolean): void {
   let stepped = 0;
   for (let i = 0; i < n; i++) {
     const at = sessionSimOf(session).world.time;
-    const r = session.advance(60, mode);
+    const r = sessionSimOf(session).world.tactical?.active
+      ? session.act({ kind: 'tactical.advance', actorId: session.playerId, data: { ticks: 1 } }, mode)
+      : session.advance(60, mode);
     observation = strip(r.observation);
     if (r.ok) steps++;
     absorb(r, at);
     stepped++;
     alerts.push(...alertsOf(r));
-    if (ended() || (stopOnAlert && alerts.length > 0)) {
+    if (ended() || ((stopOnAlert || !!r.observation.tactical) && alerts.length > 0)) {
       pauseSelf();
       break;
     }
@@ -335,12 +344,22 @@ function tick(): void {
   last = now;
   // Paused keeps the partial hour: resuming continues the countdown to the next hour.
   if (speed === 'paused') return;
-  accumulator += dt * SPEEDS[speed];
+  // Tactical throughput: 0.5/1/2 game seconds per real second; Ultra is capped at 2.
+  const tactical = !!session && !!sessionSimOf(session).world.tactical?.active;
+  accumulator +=
+    dt *
+    (tactical
+      ? speed === 'x1'
+        ? TICKS_PER_SECOND / 2
+        : speed === 'x2'
+          ? TICKS_PER_SECOND
+          : 2 * TICKS_PER_SECOND
+      : SPEEDS[speed]);
   const whole = Math.floor(accumulator);
   if (whole > 0) {
     // The governor (11 §5.1): a slow device runs the same sim slower, never a different sim.
     const n = Math.min(whole, MAX_HOURS_PER_TICK);
-    accumulator -= whole;
+    accumulator -= n;
     runHours(n, true);
   }
   // runHours may have auto-paused (TS narrowed `speed` above).

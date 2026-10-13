@@ -7,11 +7,13 @@ import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { monthMatches } from './calendar.ts';
+import { tacticalPinned } from './tactical.ts';
 
 export function productionHour(world: World, ctx: SimContext): void {
   for (const actor of rowsOf(world.actors)) {
     const state = world.activity.byActor[actor.id];
     const activity = state?.activityId ? ctx.content.activities[state.activityId] : undefined;
+    if (tacticalPinned(world, actor.id)) continue;
     if (!actor.alive || state?.travel || !activity?.tags.includes('wild_production')) continue;
     const place = world.places[actor.placeId];
     const season = monthMatches(ctx.cal.month, activity.months);

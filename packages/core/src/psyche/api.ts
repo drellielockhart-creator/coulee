@@ -172,3 +172,4 @@ export {
   setAgency,
   standingOrders,
 } from './agency.ts';
+export * from './tactical.ts';

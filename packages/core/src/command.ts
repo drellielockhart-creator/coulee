@@ -33,6 +33,7 @@ export type CoreCommand =
   CommandOf<'core.urge', { urge: Urge }>;
 
 export type Command =
+  | import('./tactical/commands.ts').TacticalCommand
   | FaeCommand
   | CoreCommand
   | NeedsCommand

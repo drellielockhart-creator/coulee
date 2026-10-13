@@ -11,7 +11,9 @@ import {
   psyche,
   type Sim,
   social,
+  tactical,
 } from '@coulee/core';
+import { tacticalActions } from './tactical.ts';
 export interface AvailableAction {
   id: string;
   label: string;
@@ -67,6 +69,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       actorId: pc,
       data: { query },
     });
+  if (w.tactical?.active) return [...out, ...tacticalActions(sim, pc)];
   if (w.region) {
     if (activity.onJourney(w, pc)) {
       for (const [verb, label] of [
@@ -424,6 +427,7 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   );
   if (!authorization.ok) return authorization.reason;
   if (!needs.canAct(w, pc) && command.kind !== 'activity.wait') return 'You have collapsed and need help';
+  if (command.kind.startsWith('tactical.')) return tactical.tacticalCommandCheck(w, c, command);
   const load = loadRefusal(w, c, pc, command);
   if (load) return load;
   if (

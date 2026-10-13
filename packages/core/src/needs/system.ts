@@ -247,7 +247,7 @@ export function baselineOf(world: World, content: ContentBundle, id: ActorId, ke
 }
 
 export function needsSystem(world: World, ctx: SimContext): void {
-  const temperatures = heatPlaces(world, ctx);
+  const temperatures = world.tactical?.frame?.temperatures ?? heatPlaces(world, ctx);
   const air = ambientTemperatureF(ctx.cal, world);
   const keys = Object.keys(ctx.content.needs).sort();
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
@@ -271,6 +271,7 @@ export function needsSystem(world: World, ctx: SimContext): void {
         inventory,
         false,
       );
+      if (world.tactical?.frame?.live.includes(id)) continue;
       // The hourly balance is routine: it updates the meter (and emits band changes) without an
       // event per actor-need-hour. The dossier re-derives the math on demand (hourlyNeedExplain).
       const after = satisfyNeed(world, ctx, id, key, ledger.delta, {

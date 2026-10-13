@@ -16,6 +16,7 @@ import type { ActOutcome, Digest, PlayObservation } from '../protocol.ts';
 import { type ActGroup, useUi } from '../state/ui.ts';
 import { useSimCtx } from './ctx.ts';
 import { ExplainView } from './ExplainView.tsx';
+import { TacticalTimeline } from './TacticalTimeline.tsx';
 import { Empty, SectionHead } from './ui.tsx';
 
 /**
@@ -46,6 +47,7 @@ export function PlayPanel() {
   return (
     <div className="play" data-testid="play">
       <Outcome last={play.last} stops={play.digest.stops} />
+      <TacticalTimeline observation={o} run={runner.run} busy={runner.busy} />
       {group && meta ? (
         <>
           <div className="act-crumb">

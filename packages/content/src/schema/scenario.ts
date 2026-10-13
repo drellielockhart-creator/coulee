@@ -76,6 +76,9 @@ export const ScenarioSchema = z.strictObject({
   description: z.string().default(''),
   site: ref(),
   region: ref().optional(),
+  tactical_scene: z
+    .strictObject({ id: id(), place: ref(), at_minute: int().min(0), text: z.string().min(1) })
+    .optional(),
   /** Start date 'YYYY-MM-DD' (the epoch is 1855-04-01; later starts fast-forward the clock). */
   start: z
     .string()
@@ -111,6 +114,7 @@ export function scenarioRefs(b: ContentBundle): Issue[] {
   for (const s of Object.values(b.scenarios)) {
     const where = `scenarios:${s.id}`;
     checkRefs(issues, where, 'site', [s.site], b.sites, 'site');
+    checkRefs(issues, where, 'tactical_scene.place', [s.tactical_scene?.place], b.places, 'place');
     const actorKeys: Record<string, true> = {};
     const householdKeys: Record<string, true> = {};
     const figureKeys: Record<string, true> = {};

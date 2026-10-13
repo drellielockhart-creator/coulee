@@ -18,6 +18,7 @@ import {
 import { protectionsOf, rootLocation } from '../items/containers.ts';
 import { recordProvenance } from '../items/state.ts';
 import { mixKey } from '../rng.ts';
+import { TICKS_PER_HOUR } from '../sim/clock.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { mealExplain } from './meals.ts';
@@ -196,7 +197,7 @@ export function storageHour(
 }
 
 /** Atomic supply draw: devices do not grant light when they cannot sustain this hour. */
-export function devicesHour(world: World, ctx: SimContext): void {
+export function devicesHour(world: World, ctx: SimContext, elapsedTicks?: number): void {
   const inventory = inventoryIndex(world);
   for (const stack of allStacks(world)) {
     const def = ctx.content.items[stack.defId];
@@ -204,6 +205,8 @@ export function devicesHour(world: World, ctx: SimContext): void {
     if (!def || !consumes.length) continue;
     const loc = rootLocation(world, stack);
     const owner = loc.kind === 'actor' ? world.actors[loc.actorId] : undefined;
+    const live = !!owner && !!world.tactical?.frame?.live.includes(owner.id);
+    if (elapsedTicks === undefined ? live : !live) continue;
     const awake = owner
       ? !isAsleep(world, ctx, owner.id)
       : rowsOf(world.actors).some(
@@ -221,7 +224,14 @@ export function devicesHour(world: World, ctx: SimContext): void {
     const nextCarry = { ...stack.supplyCarry };
     for (const c of consumes) {
       let units = c.units;
-      if (c.per === 'day') {
+      if (elapsedTicks !== undefined) {
+        world.provisions.tacticalCarry ??= {};
+        const key = `device:${stack.id}:${c.kind}`;
+        const denominator = TICKS_PER_HOUR * (c.per === 'day' ? 24 : 1);
+        const accumulated = (world.provisions.tacticalCarry[key] ?? 0) + c.units * elapsedTicks;
+        units = Math.floor(accumulated / denominator);
+        if (wanted) world.provisions.tacticalCarry[key] = accumulated % denominator;
+      } else if (c.per === 'day') {
         const accumulated = (nextCarry[c.kind] ?? 0) + c.units;
         units = Math.floor(accumulated / 24);
         nextCarry[c.kind] = accumulated % 24;

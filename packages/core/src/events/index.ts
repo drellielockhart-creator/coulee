@@ -22,6 +22,7 @@ export type { DistributiveOmit, EventBase, EventOf, EventRole, EventRoleKind, Vi
 export type { CoreEvent } from './core-events.ts';
 
 export type Event =
+  | import('../tactical/events.ts').TacticalEvent
   | FaeEvent
   | CoreEvent
   | NeedsEvent

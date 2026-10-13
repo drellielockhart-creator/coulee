@@ -184,6 +184,7 @@ export interface ProvisionsSettings {
 }
 
 export interface ProvisionsState {
+  tacticalCarry?: Record<string, number>;
   nutrition: Table<ActorId, Nutrition>;
   households: Table<HouseholdId, HouseholdProvisions>;
   /** Actor purse, cents. */

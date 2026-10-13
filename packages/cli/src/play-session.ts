@@ -182,7 +182,11 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     // A reply that took no time is the answer and one line (playtest r2: phone-size output); look,
     // actions and places show the whole scene. A wait's stop says why on its own line, so the
     // scene does not repeat the reason.
-    const full = result.elapsedMinutes > 0 || ['look', 'actions', 'places'].includes((verb ?? '').toLowerCase());
+    const full =
+      result.elapsedMinutes > 0 ||
+      (result.elapsedTicks ?? 0) > 0 ||
+      !!result.observation.tactical ||
+      ['look', 'actions', 'places'].includes((verb ?? '').toLowerCase());
     const stopped = result.stopped?.reasons ?? [];
     const scene = {
       ...result.observation,

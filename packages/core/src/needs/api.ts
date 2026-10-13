@@ -257,3 +257,5 @@ export function remainsAt(
 }
 
 export { needsSystem as itineraryNeedsHour } from './system.ts';
+
+export * from './tactical.ts';

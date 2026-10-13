@@ -755,3 +755,39 @@ Contracts (all additive):
   - the epilogue writes `charm.refused` (a third refusal of the same asker) and `charm.relented` (the keeper lends at last to a household once turned away), each once;
   - new template slots `asker` and `asker_short`;
   - `PatternDef.entryKeys?`: extra entry keys a pattern writes, which the template-coverage test accepts.
+
+## module:tactical — M6 slice 1 (2026-10-12)
+
+**Owner:** `core/src/tactical/**`, `content/base/scenarios/tavern_instant.toml`,
+`cli/test/tactical.test.ts`. Foundation owns `sim/{clock,heap,advance}.ts` and composition;
+activity owns `activity/tactical.ts` positions/suspension; needs and provisions own interval
+settlement; psyche owns `psyche/tactical.ts` entry reactions. Play/web retain their shells.
+
+**Additive contracts:** optional `World.tenth` and versioned `World.tactical`; integer instant
+`time * TICKS_PER_MINUTE + tenth`, with resolution in `sim/clock.ts`. Saved heap orders
+`(instant, actorId, seq)`; tokens, authorization basis, recovery deadlines, reservations,
+interrupt latch and hour-frame cursors survive saves. `advanceUntil` stops after an atomic
+instant using the host's shared, perception-filtered interrupt callback. Legacy `step` uses
+its unchanged hourly path when no scene occurs. Format-1 absent-state saves remain valid.
+
+`activity.api` alone installs/moves authoritative five-foot grid positions (site, level 0,
+x, y); the authored place footprint supplies walkable cells in this slice. Tactical
+participants suspend ordinary action executors; needs uses the same hourly ledger with
+integer elapsed carries; provisions settles carried-device time through its API. Hour-frame
+rates are written by needs at preparation and consumed through `needs.api`; supply carries
+remain provisions-owned. `psyche.api.tacticalReaction` proposes one authorized guard at
+entry. Commands `tactical.move/guard/cancel/advance/breathe` are shared by both shells.
+Scenario `tactical_scene` is opt-in content; no ordinary social fight replacement yet.
+
+**Acceptance:** scripted danger/worker parity, heap/boundary/reservation properties,
+mid-action/midnight persistence, replay, commanded and revoked agency; `just check` and
+unchanged legacy hashes with pinned content. Damage, hostile AI, perception geometry,
+weapons, law and fae harm permission remain later slices.
+
+M6 slice 1 frame phases: preparation installs saved journey intervals, thermal/rest/exertion
+rates and psyche intentions. Closing runs the remaining hourly systems in module order
+once; the accounting calendar/RNG keys refer to the elapsed interval, while emitted event
+stamps refer to the actual closing boundary. Sparse need-meter and carried-device unit
+deadlines make alert instants independent of query subdivision. The activity ownership
+query also excludes former participants during settlement of their partial scene hour.
+Implementation, 30-day legacy proof and fair play reports: `M6-SLICE1.md`.

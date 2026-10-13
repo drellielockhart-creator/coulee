@@ -27,3 +27,10 @@ export const HOURLY_SYSTEMS: ReadonlyArray<{ id: string; run: SystemFn }> = [
   { id: 'provisions', run: provisionsSystem },
   { id: 'chronicle', run: chronicleSystem },
 ];
+
+/** Tactical frames prepare minds after needs rates, then commit activities and settle
+ * supplies at the closing boundary. Legacy hours continue to run the list above unchanged. */
+export const TACTICAL_PREPARATION_SYSTEMS = new Set(['psyche']);
+export function prepareHourIntentions(world: World, ctx: SimContext): void {
+  for (const system of HOURLY_SYSTEMS) if (TACTICAL_PREPARATION_SYSTEMS.has(system.id)) system.run(world, ctx);
+}
