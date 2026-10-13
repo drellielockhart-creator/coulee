@@ -10,6 +10,7 @@ import {
   findNonIntegers,
   type MemoryId,
   makeContext,
+  needs,
   type PlaceId,
   restoreSim,
   rowsOf,
@@ -48,6 +49,69 @@ const content = baseContent();
 const ctxOf = (sim: Sim) => makeContext(sim.world, sim.content, []);
 const interactions = (w: World) =>
   w.log.events.filter((e): e is Extract<Event, { kind: 'social.interaction' }> => e.kind === 'social.interaction');
+
+describe('social: loans require money in hand', () => {
+  it.each(['lend', 'borrow'] as const)('%s checks the lender, including the shared cash box', (id) => {
+    const sim = simFor({ seed: 42 });
+    sim.world.time = asGameMinute(18 * 60);
+    const i = sim.world.index.actorByKey.johanne_moe;
+    const target = sim.world.index.actorByKey.kristoffer_moe;
+    if (i === undefined || target === undefined) throw new Error('Moes');
+    const pair = social.makePair(sim.world, ctxOf(sim), i, target, sim.world.actors[i]?.placeId ?? null, 0);
+    const def = content.interactions[id];
+    if (!pair || !def) throw new Error('loan pair');
+    const lender = id === 'lend' ? i : target;
+    const borrower = id === 'lend' ? target : i;
+    const cashBox = sim.world.provisions.households[pair.initiator.householdId];
+    if (!cashBox) throw new Error('cash box');
+    const reason = id === 'lend' ? 'not enough cash' : 'target has not enough cash';
+    cashBox.cashCents = 0;
+    sim.world.provisions.purses[lender] = 0;
+    sim.world.provisions.purses[borrower] = 500;
+    // The borrower's purse cannot fund the lender's promise. This is structural,
+    // including commanded urges and forced follow-ups, not just encounter selection.
+    for (const mode of ['spontaneous', 'urge', 'forced'] as const)
+      expect(social.requiresFail(pair, def, mode)).toBe(reason);
+    expect(social.interactionAvailability(sim.world, content, i, target, id).reason).toContain('cash');
+    // A partial but real loan remains possible; the ledger records the actual transfer.
+    sim.world.provisions.purses[lender] = 1;
+    expect(social.requiresFail(pair, def, 'urge')).toBeNull();
+    sim.world.provisions.purses[lender] = 0;
+    cashBox.cashCents = 1;
+    expect(social.requiresFail(pair, def, 'urge')).toBeNull();
+  });
+
+  it.each(['lend', 'borrow'] as const)('%s distinguishes hunger from a shortage of money', (id) => {
+    const sim = simFor({ seed: 42 });
+    const i = sim.world.index.actorByKey.johanne_moe;
+    const target = sim.world.index.actorByKey.kristoffer_moe;
+    if (i === undefined || target === undefined) throw new Error('Moes');
+    const ctx = ctxOf(sim);
+    const pair = social.makePair(sim.world, ctx, i, target, sim.world.actors[i]?.placeId ?? null, 0);
+    const def = content.interactions[id];
+    if (!pair || !def) throw new Error('loan pair');
+    const borrower = id === 'lend' ? target : i;
+    const cashBox = sim.world.provisions.households[pair.initiator.householdId];
+    if (!cashBox) throw new Error('cash box');
+    cashBox.cashCents = 0;
+    sim.world.provisions.purses[borrower] = 0;
+    needs.satisfyNeed(sim.world, ctx, borrower, 'hunger', -needs.needValue(sim.world, borrower, 'hunger') + 100, {
+      label: 'Hungry before a meal',
+    });
+    const threshold = def.threshold;
+    const poor = social.volition(pair, def);
+    expect(poor.score).toBeGreaterThanOrEqual(threshold);
+    // The same hunger, kinship and regard with a funded cash box is not the same financial need.
+    cashBox.cashCents = 1000;
+    const funded = social.volition(pair, def);
+    expect(funded.score).toBeLessThan(threshold);
+    expect(funded.terms).toContainEqual(expect.objectContaining({ source: 'money', value: -15 }));
+    // These personal loans also take means in the borrower's own purse into account.
+    cashBox.cashCents = 0;
+    sim.world.provisions.purses[borrower] = 1000;
+    expect(social.volition(pair, def).score).toBe(funded.score);
+  });
+});
 
 function adultsAtSamePlace(sim: Sim, n = 2): ActorId[] | null {
   const now = sim.world.time;

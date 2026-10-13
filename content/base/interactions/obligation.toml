@@ -4,20 +4,24 @@
 # `ledger` writes the Obligation ledger (positive = the target now owes the initiator).
 # Hunger drives borrowing, so a short pantry becomes debts, dunning, and grudges.
 # Cash changes hands through provisions' transferCash (purse first, then household cash): the
-# ledger records what actually moved, so a lender with empty pockets lends nothing.
+# ledger records what actually moved. An empty lender cannot offer a loan or be asked for one.
+# Hunger before a meal is not financial hardship. A borrower with money already available
+# (including the shared cash box) has less reason to ask, or to be offered a loan. Means use
+# the same $0..$10 scale as owed_cents; generosity and urgent hunger can still outweigh them.
 
 [[interaction]]
 id = "lend"
 name = "Lend"
 label = "Lend"
 description = "Offers a little money to someone who looks short. Creates a debt."
-requires = { acquainted = true, min_age = 16, target_min_age = 16, min_affection = 10 }
+requires = { acquainted = true, min_age = 16, target_min_age = 16, min_affection = 10, initiator_min_cash_cents = 1 }
 volition = [
   { driver = "target_need:hunger", weight = 30 },
   { driver = "value:neighborliness", weight = 10 },
   { driver = "value:thrift", weight = -10 },
   { driver = "opinion:affection", weight = 20 },
   { driver = "kin", weight = 10 },
+  { driver = "target_cash", weight = -15 },
 ]
 threshold = 45
 cooldown_hours = 168
@@ -34,12 +38,13 @@ id = "borrow"
 name = "Borrow"
 label = "Borrow"
 description = "Asks for the loan of a little money against hard times."
-requires = { acquainted = true, min_age = 16, target_min_age = 16 }
+requires = { acquainted = true, min_age = 16, target_min_age = 16, target_min_cash_cents = 1 }
 volition = [
   { driver = "need:hunger", weight = 35 },
   { driver = "value:thrift", weight = -10 },
   { driver = "opinion:trust", weight = 15 },
   { driver = "kin", weight = 15 },
+  { driver = "cash", weight = -15 },
   { driver = "owes", weight = -20 },
 ]
 threshold = 40

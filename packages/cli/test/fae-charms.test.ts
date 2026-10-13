@@ -667,7 +667,8 @@ describe('fae slice 1b: the loan chain (13 §6.1)', () => {
   }, 240000);
 
   it('a keeper at 90 attachment with honesty ≥ 60 lends on terms, every loan comes back on the day, and a refusal is weighed, never a veto (12 weeks; the year rota is in the report)', () => {
-    const { sim, c, edwin } = keepers(1);
+    // Financially grounded money loans remove seed 1's charm-loan demand; seed 5 exercises three returns.
+    const { sim, c, edwin } = keepers(5);
     runHours(sim, 24 * 7 * 12);
     const loans = sim.world.social.objectLoans ?? [];
     expect(loans.length).toBeGreaterThanOrEqual(1);
