@@ -56,25 +56,34 @@ _Updated 2026-10-11, night. The repo is https://github.com/drellielockhart-creat
   - church-time loan misses accepted;
   - a keeper's refusal has costs on both sides.
 
-## Wave 6 (in flight)
-| Job | What | Where |
-|---|---|---|
-| Poor relief | Codex astra: knowing want, neighbor charity, church/club relief offices, credit by opinion, generic desperation theft (api entry), PC parity; M4 acceptance 3 harness; tavern store keeper bug | `../coulee-w6-relief`, branch `wave6/relief` |
-| Charm pressure | Claude Opus (the fae 1b agent): refusal guilt for keepers, resentment/covet/gossip for the refused; rota and batch numbers | `../coulee-w6-charm-pressure`, branch `wave6/charm-pressure` |
-| M5 plan | DONE (`docs/impl/M5-PLAN.md`); its §7 defaults are listed as 08 item 14 | merged |
-| M5 slice 1 | Codex astra: walk to a neighboring settlement (region registry, journeys, trip forecast, road observation, web route card) | `../coulee-w6-m5s1`, branch `wave6/m5-slice1` |
-| Fae 1b review | Codex astra: cross-model adversarial review of fae slice 1b (read-only) | `../coulee-w6-review` |
-| M6 plan | Codex astra: planning only, writes `docs/impl/M6-PLAN.md` | `../coulee-w6-m6-plan`, branch `wave6/m6-plan` |
-| Docs sync | Codex sol: 07 status, MODULES, BACKLOG staleness, READMEs, root README | `../coulee-w6-docsync`, branch `wave6/docsync` |
-| Talk repeats | Codex sol: listener memory + ambient chat volume (target ≤15% listener repeats) | `../coulee-w6-talk-repeats`, branch `wave6/talk-repeats` |
+## Wave 6
+**Merged** (`43fba9a`, `just check` 799 green; default test timeout is now 180 s for loaded machines):
+- poor relief: M4 acceptance 3 passes on the half-stores harness; no starvation deaths in the year runs;
+- charm refusal costs;
+- fae 1b cross-model fixes (12);
+- M5 plan and slice 1 plus polish (walk to Cedar Farm in `iron_ford_neighbors`);
+- talk listener memory: repeats 10–14%;
+- M6 plan;
+- docs sync with a root README.
+
+**In flight (all Codex):**
+
+| Job | Where |
+|---|---|
+| M6 slice 1, tactical clock and auto-pause (on the Q04 defaults) | `../coulee-w6-m6-slice1`, branch `wave6/m6-slice1` |
+| Web region map (basic; Claude must run the screenshots) | `../coulee-w6-web-region`, branch `wave6/web-region` |
+| Charm theft wiring (coveting → `social.attemptTheft`) | `../coulee-w6-theft`, branch `wave6/charm-theft` |
+| Perf wave 2 (hash-identical; target under 5 ms/h) | `../coulee-w6-perf2`, branch `wave6/perf2` |
+
+Two of these, M6 slice 1 and the web map, were launched detached; watch with `pgrep -fa "codex exec"`.
 
 ## Next
-1. Merge the relief and charm-pressure branches (both touch social: relief owns theft).
-2. Review the M5 plan, then build slice 1.
-3. **Perf wave 2:** readiness projections; hash-identical.
-4. **Listener-heard dialogue repeats** are still 33–38%: add listener memory or lower the ambient chat volume.
-5. **r3 persona playtests** after relief and charm pressure land, with each agent keeping its helper scripts in its own dir.
-6. **Small follow-up:** stacked county name qualifiers ("West Upper Silver Mills").
+1. Merge the four in-flight jobs. Screenshot the region map (`pnpm exec tsx scripts/screens.ts`).
+2. **Ellie's decisions:** 08 items 11–15 (D1–D3, M5 defaults, M6 defaults including Q04).
+3. **Social tuning:** borrow/lend interactions fire about 5 a day in Iron Ford (1,933 a year) against about 1.3 a day in generated towns. Find out why and tune.
+4. **M5 slice 2** (census, T1/T2 LOD), then slice 3 (start in a generated county).
+5. **r3 persona playtests** on the current build, CLI plus web, with per-agent helper dirs.
+6. **Small:** stacked county name qualifiers.
 
 The parking lot is `docs/impl/BACKLOG.md`. Ellie asked for vehicles and river trade there.
 
