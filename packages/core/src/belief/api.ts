@@ -1165,3 +1165,25 @@ export function isShunning(world: World, holderId: ActorId, targetId: ActorId): 
 }
 
 export { grudgeTargetsOf } from './grudges.ts';
+
+/** Ground-truth observer query, including Figures attached to the actor. No attribution changes. */
+export function tensionBelief(world: World, id: ActorId) {
+  const matches = (target: import('./state.ts').GrudgeTarget): boolean =>
+    target.kind === 'actor'
+      ? target.id === id
+      : target.kind === 'household'
+        ? target.id === world.actors[id]?.householdId
+        : target.kind === 'figure'
+          ? (world.belief.figures[target.id]?.attachedIds.includes(id) ?? false)
+          : false;
+  const grudges = rowsOf(world.belief.grudges).filter((g) => matches(g.target));
+  const processes = world.belief.persecutions.filter((p) => matches(p.target));
+  const rung = Math.max(0, ...processes.map((p) => p.rung));
+  const rungPm = [0, 50, 150, 300, 500, 800, 1000][Math.min(6, rung)] ?? 0;
+  const heat = Math.max(0, ...processes.map((p) => p.heat));
+  return {
+    social: Math.min(1000, grudges.reduce((sum, g) => sum + g.intensity * 10, 0) + rungPm),
+    pursuit: Math.min(1000, rungPm + Math.floor((rungPm * Math.min(1000, heat)) / 1000)),
+    hostileIds: [...new Set(grudges.filter((g) => g.intensity >= 40).map((g) => g.holderId))].sort((a, b) => a - b),
+  };
+}

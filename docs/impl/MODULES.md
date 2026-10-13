@@ -791,3 +791,26 @@ stamps refer to the actual closing boundary. Sparse need-meter and carried-devic
 deadlines make alert instants independent of query subdivision. The activity ownership
 query also excludes former participants during settlement of their partial scene hour.
 Implementation, 30-day legacy proof and fair play reports: `M6-SLICE1.md`.
+
+
+## module:director — D0 measurement (2026-10-13)
+
+**Owner: director.** `packages/core/src/director/**`, `packages/content/src/schema/director.ts`,
+`content/base/director/**`, `packages/cli/test/director.test.ts`, `docs/impl/director/**`.
+Foundation composition is granted for D0. Runs hourly after chronicle, assesses daily.
+Chronicle retains pattern definitions and owns optional `PatternDef.openState` projections;
+its engine passes projections through `director.api.recordProjection` without changing prose.
+Needs, belief, social, provisions, region and tactical expose additive read-only tension APIs.
+Social owns the shared fair event perception query (play delegates to it).
+
+**Contracts:** optional version-1 `World.director` (legacy saves migrate on restore),
+`director.personality = land_itself`, `director.foresight = off | tiltable | full` (default tiltable).
+Director events have slice-local IDs in a bounded 168-hour journal, and never enter the causal
+simulation log. This is necessary for exact non-director state/event-ID invariance.
+Ledger retains 90 daily assessments; older rows compact to a count and monthly metrics.
+No bias hooks, RNG draws, LOD pins, agency changes, or writes to other slices in D0.
+God observations and CLI manifests expose analytics; fair observations expose nothing new.
+
+**Acceptance:** `just check`; unchanged Iron Ford golden; stripped-world hashes against
+pre-D0 at Iron Ford 42 (30/365d), generated towns 7/19 (90d), neighbors 42 (30d);
+year-run baseline for Iron Ford and generated towns 7/19, measured Director ms/hour.

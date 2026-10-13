@@ -21,6 +21,7 @@ import {
   stacksAt,
   stacksDeep,
   supplyUnits,
+  withInventoryPass,
 } from '../items/api.ts';
 import { fitsInContainer } from '../items/containers.ts';
 import { loadReport, MOVE_LIMIT_PCT, movableRoomG } from '../items/encumbrance.ts';
@@ -1015,3 +1016,25 @@ export { pieceRate, pieceStock, saleTotal } from './piece-rates.ts';
 export { type FoodParcel, householdFoodDays, type ReliefPlanningMemo, reliefParcel } from './relief.ts';
 export { executeProvisionCommands } from './system.ts';
 export * from './tactical.ts';
+
+/** Three-day P8 projection, sufficient for the Director's <3 day threshold. */
+export function tensionProvisions(world: World, content: ContentBundle, id: ActorId, now: number, survivalFloor = 0) {
+  const a = world.actors[id];
+  if (!a) return { food: 0, scurvy: 0, cash: 0 };
+  const home = world.households[a.householdId]?.homePlaceId;
+  const holder = a.placeId === home ? { householdId: a.householdId } : { actorId: id };
+  const scurvy = world.provisions.nutrition[id]?.scurvy ?? 0;
+  // Once food pressure is below the other survival terms, further projection cannot
+  // change their maximum. This shortens work without approximating the final term.
+  const floor = Math.max(survivalFloor, scurvy);
+  const horizon = Math.max(0, Math.min(3, Math.ceil(((1000 - floor) * 3) / 1000)));
+  const days =
+    horizon === 0
+      ? 30
+      : withInventoryPass(world, () => planReadiness(world, content, holder, now, horizon, false)).daysOfFoodTenths;
+  return {
+    food: Math.max(0, Math.floor(((30 - days) * 1000) / 30)),
+    scurvy,
+    cash: cashOf(world, id),
+  };
+}

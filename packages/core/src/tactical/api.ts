@@ -220,3 +220,9 @@ export function participants(w: World): ActorId[] {
   return w.tactical?.active ? idsOf<ActorId>(w.tactical.participants) : [];
 }
 export { tacticalPosition };
+
+/** A scene is not itself a fight. Count danger only when a hostile shares the active scene. */
+export function combatDanger(world: World, id: ActorId, hostiles: readonly ActorId[]): number {
+  const t = world.tactical;
+  return t?.active && t.participants[id] && hostiles.some((h) => !!t.participants[h]) ? 1000 : 0;
+}

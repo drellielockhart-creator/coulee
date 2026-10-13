@@ -150,3 +150,29 @@ export function renderChronicleMarkdown(
 }
 
 export { argForm, familiesOf, formalName, type HouseholdForms, householdForms } from './names.ts';
+
+export type { OpenProjection } from './patterns/open.ts';
+
+/** Score already-perceived events using the Chronicle's salience scale. Repetition is
+ * intentionally not applied: it changes prose selection, not whether an event occurred. */
+export function notableObservedEvents(
+  world: World,
+  ctx: import('../sim/context.ts').SimContext,
+  pc: import('../ids.ts').ActorId | null,
+  events: readonly import('../events/index.ts').Event[],
+): boolean {
+  if (pc === null) return false;
+  const dc = measurementDetectCtx(world, ctx);
+  const minimum = dc.params('notability', 0).n('journal_min', 30);
+  return events.some((e) => {
+    if (e.kind.startsWith('chronicle.') || (e.importance ?? 0) <= 0) return false;
+    const actors = e.roles.map((r) => r.actor);
+    return (
+      measurementScore(dc, { base: e.importance ?? 0, actors, repeatKey: null, t: e.t, pcIn: actors.includes(pc) })
+        .total >= minimum
+    );
+  });
+}
+
+import { scoreStory as measurementScore } from './notability.ts';
+import { makeDetectCtx as measurementDetectCtx } from './system.ts';
