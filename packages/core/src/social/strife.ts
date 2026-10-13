@@ -19,6 +19,7 @@ import type { ContentBundle } from '../content.ts';
 import { type ExplainTerm, term } from '../explain.ts';
 import type { ActorId, EventId, PlaceId } from '../ids.ts';
 import { authorizeAct } from '../psyche/api.ts';
+import { processesActor } from '../region/processing.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { MINUTES_PER_DAY } from '../time.ts';
@@ -220,7 +221,7 @@ export function dailyStrife(world: World, ctx: SimContext): void {
   const due = world.social.relationships.filter(
     (r) => r.kind === 'estranged' && ctx.now - r.since >= t.estrangement_days * MINUTES_PER_DAY,
   );
-  for (const r of due) endEstrangement(world, ctx, r.a, r.b, null, null);
+  for (const r of due.filter((r) => processesActor(world, r.a))) endEstrangement(world, ctx, r.a, r.b, null, null);
 }
 
 /**

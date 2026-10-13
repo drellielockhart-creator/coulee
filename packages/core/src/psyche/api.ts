@@ -180,3 +180,5 @@ export function arbitrateShortCommand(world: World, ctx: SimContext, actorId: Ac
   if (!ctx.commands.some((c) => c.actorId === actorId && c.kind === 'core.urge')) return;
   psycheHour(world, ctx, actorId, undefined, minutes);
 }
+
+export { psycheSystem as regionPsycheHour } from './system.ts';

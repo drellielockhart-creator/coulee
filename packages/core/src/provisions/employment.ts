@@ -3,6 +3,7 @@ import { currentActivity, minuteBudget, tacticalPinned } from '../activity/api.t
 import { term } from '../explain.ts';
 import { type ActorId, type HouseholdId, rowsOf } from '../ids.ts';
 import { authorizeAct } from '../psyche/api.ts';
+import { processesActor, processingActors } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { relationshipsOf } from '../social/api.ts';
 import type { World } from '../world.ts';
@@ -65,14 +66,15 @@ export function employmentHour(world: World, ctx: SimContext): void {
   const accounts = world.provisions.employment;
   if (ctx.isNewDay && world.provisions.wageArrears) {
     for (const claim of world.provisions.wageArrears)
-      settleWages(world, ctx, claim.workerId, claim.account, claim.employerId);
+      if (processesActor(world, claim.workerId))
+        settleWages(world, ctx, claim.workerId, claim.account, claim.employerId);
     world.provisions.wageArrears = world.provisions.wageArrears.filter((claim) => claim.account.earnedCents > 0);
   }
   // An unemployed person short of cash may ask a proprietor they encounter that morning.
   // The same executor, consent, terms and refusal cooldown serve commands and autonomous acts.
   if (ctx.cal.hour === 8 && ctx.cal.weekday !== 'sun') {
-    const employers = rowsOf(world.actors).filter((a) => hiringOffer(world, ctx.content, a.id));
-    for (const worker of rowsOf(world.actors)) {
+    const employers = processingActors(world).filter((a) => hiringOffer(world, ctx.content, a.id));
+    for (const worker of processingActors(world)) {
       if (
         !worker.alive ||
         cashOf(world, worker.id) >= 300 ||
@@ -87,7 +89,7 @@ export function employmentHour(world: World, ctx: SimContext): void {
       if (employer) hireOn(world, ctx, worker.id, employer.id, 'daily');
     }
   }
-  for (const actor of rowsOf(world.actors)) {
+  for (const actor of processingActors(world)) {
     if (!actor.alive) continue;
     const contract = world.provisions.contracts?.[actor.id];
     if (contract && !contract.ended && (ctx.now >= contract.endsAt || !world.actors[contract.employerId]?.alive))

@@ -1,3 +1,4 @@
+import { isDailyProcessing, processesPlace, processingActorIds } from '../region/processing.ts';
 import { tacticalPinned } from './tactical.ts';
 /** Execute the chosen activity, falling back to the content calendar. */
 
@@ -46,7 +47,7 @@ export function activitySystem(world: World, ctx: SimContext): void {
     }
   }
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
-  for (const id of idsOf<ActorId>(world.actors)) {
+  for (const id of processingActorIds(world)) {
     if (tacticalPinned(world, id)) continue;
     const actor = requiredRow(world.actors, id);
     const state = world.activity.byActor[id];
@@ -119,7 +120,7 @@ export function activitySystem(world: World, ctx: SimContext): void {
           !ctx.content.activities[chosen.urge.activityId]?.asleep));
     if (state.lockedUntil !== null && ctx.now < state.lockedUntil && !woken) continue;
     const routine = routineFor(world, ctx, id);
-    const urge = chosen?.urge;
+    const urge = chosen?.at === ctx.now || !isDailyProcessing(world) ? chosen?.urge : undefined;
     // An explicit conversation occupies this hour at the current venue. A schedule must
     // not carry its speaker away (or put them to sleep) before social resolves it.
     const conversation = (chosen?.voice === 'command' && urge?.kind === 'interaction') || invited.has(id);
@@ -229,6 +230,7 @@ export function activitySystem(world: World, ctx: SimContext): void {
       const previous = { ...ctx.cal, hour: (ctx.cal.hour + 23) % 24 };
       if (blockActive(b, previous)) continue;
       for (const pid of idsOf(world.activity.occupancy)) {
+        if (!processesPlace(world, pid)) continue;
         const actorIds = requiredRow(world.activity.occupancy, pid).filter(
           (id) => world.activity.byActor[id]?.activityId === b.activity,
         );

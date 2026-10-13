@@ -1,8 +1,8 @@
 /** Small wilderness production slice. Scheduling and movement remain activity's job. */
 import { skillCheck } from '../checks.ts';
 import { term } from '../explain.ts';
-import { rowsOf } from '../ids.ts';
 import { affordanceAt, carriedBy, createStack, pantryOf } from '../items/api.ts';
+import { processingActors } from '../region/processing.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -11,7 +11,7 @@ import { monthMatches } from './calendar.ts';
 import { tacticalPinned } from './tactical.ts';
 
 export function productionHour(world: World, ctx: SimContext): void {
-  for (const actor of rowsOf(world.actors)) {
+  for (const actor of processingActors(world)) {
     const minutes = minuteBudget(world, actor.id).remaining;
     if (minutes === 0) continue;
     const state = world.activity.byActor[actor.id];

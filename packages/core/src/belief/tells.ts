@@ -1,7 +1,7 @@
 import { hourInBlock, isAsleep } from '../activity/api.ts';
 import { resolveCheck, type SaveId, saveTerms, skillCheck } from '../checks.ts';
 import { effectiveFi } from '../fae/api.ts';
-import { rowsOf } from '../ids.ts';
+import { processingActors } from '../region/processing.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { familiarityOf } from '../social/api.ts';
@@ -20,7 +20,7 @@ export function processTells(world: World, ctx: SimContext): void {
       (tell.hours && !hourInBlock(ctx.cal.hour, tell.hours.from, tell.hours.to))
     )
       continue;
-    for (const actor of rowsOf(world.actors)) {
+    for (const actor of processingActors(world)) {
       const place = world.places[actor.placeId];
       if (
         !actor.alive ||
@@ -74,7 +74,7 @@ export function processTells(world: World, ctx: SimContext): void {
           };
         }
       }
-      for (const observer of rowsOf(world.actors)) {
+      for (const observer of processingActors(world)) {
         if (
           !observer.alive ||
           observer.id === actor.id ||

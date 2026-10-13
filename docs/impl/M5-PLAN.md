@@ -413,3 +413,160 @@ and script typechecks, 241 invariant-checked files, 110 content files validated.
 `runs/scratch/m5-2c-check.log`. The final one-line compatibility adjustment preserving
 census-only evidence recipients was checked afterward with Biome and the full **20/20 region
 suite** (`runs/scratch/m5-2c-region-final.log`, 13.20 seconds). No commits.
+
+## Slice 2d status — executor ownership, 2026-10-13
+
+**Actual T2 is enabled for wholly absent, independent authored sites. Slice 2's
+fidelity/performance release gates remain separate from activation.** This supersedes the
+2a–2c statements that daily ownership is empty. The orchestrator explicitly granted edits
+to the hourly systems/executors; this slice uses that grant rather than stopping at APIs.
+
+### Execution and settlement
+
+- Regional processing owns complete sites, including their households, logical places and
+  nested item roots. Every retained actor/household belongs to exactly one bucket. A selected
+  T2 site enters the daily bucket after the ordinary 24-hour grace; selected T0/T1 actors and
+  worlds without `region` retain their original executor path. The six-hour relevance radius
+  is unchanged. **The original 250/240-minute Cedar Road therefore still has no T2 actors.**
+- The owner filters cover needs, hearth fuel, survival/care/aftermath, psyche, activity,
+  production, provisions, social upkeep/encounters/requests/relief/loans, belief, and local fae
+  episodes. The kernel calls owning APIs in the existing system order. Scoped execution is a
+  synchronous `Map` entry cleared in `finally`, never saved in World. Readiness projections
+  remove the live processing partition while retaining the regional weather definition.
+- `provisions.householdProcessingHour`, exposed by the shared household kernel, uses the
+  existing meals, recipes, cooking reservations, pending plates, nutrition, water, storage,
+  devices, production, wages, shopping and freight executors. `householdEconomyDay` receipts
+  check the household owner before replenishing or changing rations. No alternative food or
+  money equations were introduced. Needs and survival retain their actual hourly integer
+  steps/checks inside the daily batch, including collapse, death, estates and durable census
+  death facts.
+- Each day's named mind uses four full deliberations, at canonical 00/06/12/18 hours. Between
+  those, the content calendar and small authorized sleep/food routine run; stale social or
+  commanded choices are not repeated. Daily memory, opinion and psyche upkeep remains
+  per named actor. Social encounters still use the ordinary hourly opportunities inside the
+  batch. Belief owns daily decay and six-hour local compartment snapshots/diffusion, only
+  among co-present awake named adults; it does not install communal beliefs in every mind.
+- A saved per-site `through` cursor represents unresolved physical time. The daily boundary
+  commits only `[through, boundary)`, advancing the receipt after each physical substep.
+  Promotion flushes all outstanding sites in canonical time/order, then hands the site back
+  to hourly ownership. Consumption already committed by a previous daily batch is never
+  charged again. There is no duplicate shadow pantry or additive consumption payload to
+  apply on arrival. RNG and event cause timestamps use historical canonical hours, not the
+  contact time. The full event stream remains append-only; late coarse facts have older
+  `t` values, and the next Chronicle pass sees their newly appended IDs.
+- Mixed/relevant sites remain hourly. Cross-site kin, jobs, pending requests/meals, loans,
+  store ownership and travelers prevent demotion. Regions with active reservoir charms
+  remain hourly because those charms can draw across site boundaries. Persecution targets
+  stay hourly. These conservative pins are deliberate and visible in the processing bucket;
+  a selected T2 label alone never promises daily execution.
+
+### Verification and gate results
+
+The detailed measurements below use seeds 1–50, 336 hours each, full 42-actor worlds,
+with the PC in Iron Ford and absent from Cedar Farm. The comparison fixture changes only
+Cedar Road's directed costs to 600/700 minutes; controls explicitly pin every actor T1.
+Both sides include the first 24-hour demotion grace. Measurements concern Cedar Farm's
+two actors and household; performance measures the complete world.
+
+Bands are fixed as follows: needs in 200-point bins (1000 belongs to the top bin), directed
+affection in 20-point bins (100 belongs to the top bin), interactions in 14-event bins
+(one event/day over the absence), household cash in 500-cent bins, and net pantry depletion
+in 10-percentage-point bins. Pantry depletion is initial minus final food kcal, normalized
+to initial stock; it includes spoilage and production, not just calories eaten. Needs and
+opinions have 100 samples; household/interaction metrics have 50. Reported band gaps are
+the largest absolute difference in the fraction of observations in any matching bin.
+
+| Outcome | Mean T1 → T2 | Largest band gap | Result / cause |
+| --- | --- | --- | --- |
+| Hunger (0–1000) | 813.24 → 831.09 | 4 pp | Pass; meal kernels retained, activity/meal timing differs. |
+| Rest (0–1000) | 501.80 → 789.11 | **47 pp** | Fail; the calendar wins between the four deliberations, allowing more regular sleep. |
+| Warmth (0–1000) | 1000 → 1000 | 0 pp | Pass in fixed 55°F weather with the shared heating kernel. |
+| Thirst (0–1000) | 622.20 → 703.76 | **31 pp** | Fail; changed activity/sleep shifts expenditure and sipping opportunities. |
+| Directed affection (−100..100) | 31.67 → 30.39 | **9 pp** | Fail; fewer deliberations/defenses and changed venue schedules feed different memories to the same opinion rules. |
+| Farm interactions / 14 days | 64.04 → 66.28 | **10 pp** | Fail; encounter opportunities remain hourly, but activity/co-presence and chosen acts differ. |
+| Household cash (cents) | 2500 → 2500 | 0 pp | Pass here; this farm did not exercise a changing cash balance, so this is not a general transfer stress test. |
+| Net pantry depletion (%) | 53.296 → 50.772 | **18 pp** | Fail; changed energy demand reduces net draw. The mean difference is 2.524 pp, but 18% of T2 runs cross below the 50% depletion boundary; no T1 run does. |
+
+**Fidelity is not green:** five of eight measured distributions exceed 5 pp. These are actual
+coarse outcomes, not the old retained-hourly equality result. Both farm actors survive all
+50 runs. Daily ownership is **2 actors / 1 household in all 50 candidates**, versus zero in
+all pinned controls. The seed-one JSON restore after day seven plus eleven hours matches
+the uninterrupted day-14 world hash; final integer validation is empty.
+
+Same-process timing, seeds 41/42/43, each run for 336 hours after a separate 24-hour
+warmup, both T1→candidate and candidate→T1 orders (six pairs per fixture). These are
+whole-world ms/game-hour on the shared host, with the full test gate also running.
+
+| Fixture | Daily actors | Median pinned T1 ms/h | Median candidate ms/h | Median paired change |
+| --- | --- | --- | --- | --- |
+| Authored 250/240-minute road | 0 | 16.411 | 16.419 | +0.45%; both hourly |
+| Distant 600/700-minute road | 2 | 16.240 | 16.570 | **+2.43% slower** |
+
+**Speed gate FAIL.** All six distant pairs are slower (about +1.27% to +5.01%). Only
+2/42 actors lose full hourly deliberation; site-scoped physical/social substeps still run,
+and the second executor pass retains global table/index overhead. Sharing the mutation-aware
+inventory index across the batch was hash-identical in the four-seed check and is included
+in these final timings. No clear speedup or county-scale saving is claimed.
+
+| Other gate | Result |
+| --- | --- |
+| Identity independent of delayed/reversed promotion | Pass, existing 50-seed identity test |
+| Reverse contact order with an unfinished coarse interval | Pass, identical complete world hash |
+| JSON load after day seven + 11 hours, continued to day 14 | Pass, identical complete world hash |
+| Headless wait through coarse absence and replay | Pass, same command-log replay hash |
+| Hourly exclusion, single-owner memory decay, collapse/death and repeated settlement | Pass, targeted region suite |
+| Full repository check | See final gate record below |
+
+The region integration suite adds hourly exclusion of physical and named-mind state,
+partial-day promotion and repeat-promotion receipts, reversed contact order, coarse death
+facts, materialized memory decay ownership, a mid-absence save continuation and headless
+coarse replay. Existing delayed evidence and tactical-boundary tests remain in place.
+
+Direct before/after core comparisons (HEAD baseline copied to `/tmp`, identical content and
+seed) retained complete non-regional world hashes:
+
+| World | Seed / simulated hours | Baseline = slice 2d |
+| --- | --- | --- |
+| Iron Ford | 42 / 240 | `3cba40c846781a71` |
+| gen:town | 7 / 72 | `7fc2546fa6c3cced` |
+| gen:town | 42 / 72 | `07cdefdd4b798cef` |
+| gen:town | 131 / 72 | `d1453d0aa585b877` |
+
+Reproduction artifacts (gitignored): `runs/scratch/m5-slice2d-gates.ts`,
+`m5-slice2d-outcomes.json`, `m5-slice2d-gates.log`, `m5-slice2d-legacy.{ts,log}`,
+`m5-slice2d-region.log`, and `m5-slice2d-check.log`. The earlier exploratory results are
+explicitly separate. Boundary metadata/tactical guards were verified in the final 26-test
+region pass. The inventory-pass optimization was independently hash-identical for 14 daily
+batches at seeds 1/7/42/50 (`m5-inventory-check.{ts,log}`); performance is remeasured in a
+fresh process using `m5-slice2d-final-bench.{ts,json,log}`.
+
+### Remaining
+
+1. Tune/replace the sampled psyche routine against the reported distribution gaps. Full
+   hourly social/physical substeps preserve existing rules but limit the batching speedup;
+   weather/storage still take hourly physical substeps rather than a six-hour approximation.
+2. Split independent households within mixed/relevant sites without splitting shared hearths,
+   meals or simultaneous venue interactions. Resolve cross-site transfer/kin/charms and
+   persecution contracts before relaxing their conservative pins. The two-site fixture is
+   not evidence that an absent Iron Ford full of PC ties can all become T2.
+3. Generated, never-materialized census and Standard 3–4k population/phone timing, heap and
+   packed-save gates remain unimplemented/unmeasured. Winter/year balance is not established
+   by this 14-day gate. No county-scale performance claim.
+4. Multi-day fair Explorer/Socialite/edge-case playtesting with repeated travel and forks;
+   the automated coarse wait/replay and contact tests do not substitute for this release pass.
+
+Files: `core/src/region/{api,census,coarse,evidence,lod,processing,state,system}.ts`;
+small API exports and owner-filter edits in `activity`, `needs`, `psyche`, `provisions`,
+`social`, `belief`, and `fae`; `provisions/{household,planner}.ts`; `cli/test/region.test.ts`;
+and this plan. No tactical/combat sibling files, golden snapshots, content fixtures,
+dependencies or commits were changed.
+
+
+Final gate: **`VITEST_MAX_WORKERS=2 just check` green: 86 files / 910 tests**, Biome,
+all package/script typechecks, 244 invariant-checked core files and 112 content files.
+Vitest took 971.89 seconds on the shared host. Iron Ford's golden passed unchanged.
+After the final boundary guards and shared inventory-pass optimization, the dedicated
+**26/26 region tests** passed again (44.68 seconds); current core typecheck, scoped Biome
+and invariants also passed. Full gate: `runs/scratch/m5-slice2d-check.log`; targeted final
+suite: `runs/scratch/m5-slice2d-region.log`; complete distributions and paired timings:
+`runs/scratch/m5-slice2d-summary.json` (`m5-slice2d-report.mjs`). No commits.

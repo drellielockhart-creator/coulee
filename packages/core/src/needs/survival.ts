@@ -3,7 +3,8 @@ import { abilityMod, setCondition } from '../actor.ts';
 import { resolveCheck, saveTerms } from '../checks.ts';
 import type { ContentBundle } from '../content.ts';
 import { type Explain, term } from '../explain.ts';
-import { type ActorId, idsOf } from '../ids.ts';
+import type { ActorId } from '../ids.ts';
+import { processingActorIds } from '../region/processing.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -68,7 +69,7 @@ export function survivalHour(world: World, ctx: SimContext): void {
     .sort()
     .map((k) => ctx.content.survival_rules[k])
     .filter((r) => r !== undefined);
-  for (const id of idsOf<ActorId>(world.actors)) {
+  for (const id of processingActorIds(world)) {
     const a = world.actors[id],
       n = world.needs.byActor[id];
     if (!a?.alive || !n) continue;

@@ -10,6 +10,7 @@
 import { shortName } from '../actor.ts';
 import type { ContentBundle } from '../content.ts';
 import { type ActorId, asMemoryId, type MemoryId, nextId } from '../ids.ts';
+import { processesActor } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { calendarAt, type GameMinute, ordinal } from '../time.ts';
 import type { World } from '../world.ts';
@@ -227,6 +228,7 @@ export function decayMemoriesDaily(world: World, content: ContentBundle): Memory
     .map(Number)
     .sort((a, b) => a - b);
   for (const owner of owners) {
+    if (!processesActor(world, owner)) continue;
     const list = world.social.memoriesByOwner[owner] ?? [];
     for (const id of [...list]) {
       const m = world.social.memories[id];
@@ -268,6 +270,7 @@ export function consolidateMemories(world: World, content: ContentBundle): Conso
     .map(Number)
     .sort((a, b) => a - b) as ActorId[];
   for (const owner of owners) {
+    if (!processesActor(world, owner)) continue;
     const groups = new Map<string, Memory[]>();
     const keys: string[] = [];
     for (const m of ownerMemories(world, owner)) {

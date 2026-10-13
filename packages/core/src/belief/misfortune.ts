@@ -2,6 +2,7 @@ import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 import { nextId, rowsOf } from '../ids.ts';
 import { satisfyNeed } from '../needs/api.ts';
 import { addAnxiety, psycheOf } from '../psyche/api.ts';
+import { processesHousehold, processingActors } from '../region/processing.ts';
 import type { InitContext, SimContext } from '../sim/context.ts';
 import { addMemory, opinionOf, relationshipsOf } from '../social/api.ts';
 import { asGameMinute } from '../time.ts';
@@ -150,11 +151,12 @@ export const ATTRIBUTION_WINDOW_DAYS = 90;
 /** Reconsider only on new evidence; the same inference is not fresh evidence every hour. */
 export function attributeMisfortunes(world: World, ctx: SimContext): void {
   for (const m of rowsOf(world.belief.misfortunes)) {
+    if (!processesHousehold(world, m.householdId)) continue;
     const def = ctx.content.misfortunes[m.kindId];
     if (!def) continue;
     // After a season the matter is settled in people's minds: stop re-weighing old misfortunes.
     if (ctx.now - m.at > ATTRIBUTION_WINDOW_DAYS * 1440) continue;
-    for (const holder of rowsOf(world.actors)) {
+    for (const holder of processingActors(world)) {
       if (!holder.alive || (beliefOf(world, holder.id, m.propId)?.credence ?? 0) < 40) continue;
       const previous = m.attributions.find((a) => a.holderId === holder.id);
       const beliefs = (world.belief.beliefsByHolder[holder.id] ?? []).flatMap((id) =>
@@ -165,7 +167,7 @@ export function attributeMisfortunes(world: World, ctx: SimContext): void {
       for (const r of relationshipsOf(world, holder.id)) known.add(r.a === holder.id ? r.b : r.a);
       for (const b of beliefs)
         for (const a of world.belief.props[b.propId]?.args ?? []) if (a.kind === 'actor') known.add(a.id);
-      for (const a of rowsOf(world.actors)) if (a.placeId === holder.placeId) known.add(a.id);
+      for (const a of processingActors(world)) if (a.placeId === holder.placeId) known.add(a.id);
       const candidates: Array<{ target: GrudgeTarget | null; weight: number; order: number }> = [];
       const natural = Math.max(
         50,

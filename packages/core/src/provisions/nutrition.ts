@@ -1,8 +1,8 @@
 import { hasCondition, setCondition } from '../actor.ts';
 import type { ContentBundle } from '../content.ts';
 import { type ExplainTerm, term } from '../explain.ts';
-import { rowsOf } from '../ids.ts';
 import { hourlyExpenditure } from '../needs/api.ts';
+import { processingActors } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute } from '../time.ts';
 import type { World } from '../world.ts';
@@ -34,7 +34,7 @@ export function nutritionTargets(content: ContentBundle) {
 export function nutritionHour(world: World, ctx: SimContext): void {
   const hunger = Object.values(ctx.content.needs).find((d) => d.intake?.unit === 'kcal');
   const air = airTempF(ctx.cal, world);
-  for (const actor of rowsOf(world.actors)) {
+  for (const actor of processingActors(world)) {
     const n = world.provisions.nutrition[actor.id];
     if (!n || !actor.alive) continue;
     nutritionDay(world, ctx, actor, n);

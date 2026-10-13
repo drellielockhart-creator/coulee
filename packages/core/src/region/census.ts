@@ -2,7 +2,7 @@
 import type { ActorId, HouseholdId } from '../ids.ts';
 import { rowsOf } from '../ids.ts';
 import type { World } from '../world.ts';
-import { processingBuckets } from './processing.ts';
+import { actorSite, processingBuckets } from './processing.ts';
 import type { CensusState } from './state.ts';
 
 /** Idempotent on old region saves too. Never runs population, stock or mind initialization. */
@@ -65,7 +65,10 @@ export function refreshCensus(world: World): void {
     const actor = world.actors[member.actorId];
     if (!actor) continue;
     member.alive = member.alive && actor.alive && !member.death;
-    member.observedThrough = Math.max(member.observedThrough, world.time);
+    member.observedThrough = Math.max(
+      member.observedThrough,
+      world.region?.processing?.sites?.[actorSite(world, actor.id)]?.through ?? world.time,
+    );
     const death = world.needs.byActor[member.actorId]?.survival?.death;
     if (death) {
       member.alive = false;
@@ -89,7 +92,7 @@ export function censusAgeDays(world: World, actorId: ActorId): number | null {
   return born === undefined ? null : Math.max(0, Math.floor((world.time - born) / 1440));
 }
 
-/** All retained sheets remain hourly-owned until every T2 executor honors the shared partition. */
+/** Hourly sheets exclude absent sites whose saved intervals belong to the daily kernel. */
 export function hourlyActorIds(world: World): ActorId[] {
   return processingBuckets(world).hourly.actors;
 }

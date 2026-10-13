@@ -131,6 +131,8 @@ export function planReadiness(
   // Only owned slices are cloned; neither social nor belief state is touched by this kernel.
   const projection: World = {
     ...world,
+    // A private forecast has no live processing owner.
+    region: world.region ? { ...world.region, processing: undefined } : undefined,
     items: { counters: { ...world.items.counters }, stacks: Object.create(null) },
     // Only the eaters exist in the projection: every hourly kernel iterates actors.
     actors: Object.create(null),

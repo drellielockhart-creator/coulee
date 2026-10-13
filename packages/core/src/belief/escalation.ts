@@ -1,6 +1,7 @@
 import type { ActorCore } from '../actor.ts';
 import { nextId, rowsOf } from '../ids.ts';
 import { addAnxiety, chosenUrge, psycheOf } from '../psyche/api.ts';
+import { processesActor, processingActors } from '../region/processing.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { opinionOf } from '../social/api.ts';
@@ -57,7 +58,7 @@ function advance(world: World, ctx: SimContext, p: Persecution, rung: number, ca
       const b = beliefOf(world, catalyst.id, prop);
       if (b) b.voiced = true;
     }
-    for (const g of rowsOf(world.belief.grudges))
+    for (const g of rowsOf(world.belief.grudges).filter((g) => processesActor(world, g.holderId)))
       if (g.holderId === catalyst.id && targetKey(g.target) === targetKey(p.target)) g.public = true;
   }
   if (rung < 3) p.shunnerIds = [];
@@ -65,7 +66,7 @@ function advance(world: World, ctx: SimContext, p: Persecution, rung: number, ca
 
 /** Public anger and agreement are distinct; secret beliefs alone are not public revelation. */
 export function updatePersecutions(world: World, ctx: SimContext): void {
-  const adults = rowsOf(world.actors).filter((a) => a.alive && yearsBetween(a.born, ctx.now) >= 16);
+  const adults = processingActors(world).filter((a) => a.alive && yearsBetween(a.born, ctx.now) >= 16);
   const totalWeight = Math.max(
     1,
     adults.reduce((n, a) => n + weight(world, a), 0),
@@ -74,6 +75,7 @@ export function updatePersecutions(world: World, ctx: SimContext): void {
     adults.reduce((n, a) => n + (psycheOf(world, a.id)?.anxiety ?? 0), 0) / Math.max(1, adults.length),
   );
   for (const b of rowsOf(world.belief.beliefs)) {
+    if (!processesActor(world, b.holderId)) continue;
     const prop = world.belief.props[b.propId];
     const pred = prop && ctx.content.predicates[prop.pred];
     const subject = prop?.args[0];
@@ -136,7 +138,7 @@ export function updatePersecutions(world: World, ctx: SimContext): void {
           (20 * weight(world, a) * opinionOf(world, a.id, p.target.id).fear * world.belief.misfortune) / 1000000,
         );
     }
-    for (const g of rowsOf(world.belief.grudges)) {
+    for (const g of rowsOf(world.belief.grudges).filter((g) => processesActor(world, g.holderId))) {
       if (targetKey(g.target) !== targetKey(p.target)) continue;
       const holder = world.actors[g.holderId];
       if (!holder?.alive) continue;
@@ -185,7 +187,7 @@ export function updatePersecutions(world: World, ctx: SimContext): void {
     const candidates = adults
       .map((a) => {
         let grudge = 0;
-        for (const g of rowsOf(world.belief.grudges))
+        for (const g of rowsOf(world.belief.grudges).filter((g) => processesActor(world, g.holderId)))
           if (g.holderId === a.id && targetKey(g.target) === targetKey(p.target))
             grudge = Math.max(grudge, g.intensity);
         const credence = Math.max(

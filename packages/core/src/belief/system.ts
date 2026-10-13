@@ -1,11 +1,21 @@
+import { isAsleep } from '../activity/api.ts';
 /** Hourly evidence/attribution; daily pressure, forgetting, grudges, and Commons. */
 import { rowsOf } from '../ids.ts';
+import { canAct } from '../needs/api.ts';
+import { authorizeAct } from '../psyche/api.ts';
+import {
+  isDailyProcessing,
+  processesActor,
+  processingActors,
+  processingHouseholds,
+  recordBeliefCompartment,
+} from '../region/processing.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { memoriesOf, opinionOf } from '../social/api.ts';
 import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
-import { beliefOf } from './api.ts';
+import { beliefOf, channelForPlace, transmit } from './api.ts';
 import { updatePersecutions } from './escalation.ts';
 import { formula } from './evidence.ts';
 import { decayStep, logitQ8, logitStep, view3 } from './intmath.ts';
@@ -15,9 +25,12 @@ import { processTells } from './tells.ts';
 
 function daily(world: World, ctx: SimContext): void {
   const pressure = decayStep(world.belief.misfortune, world.belief.misfortuneResidue, 30);
-  world.belief.misfortune = pressure.value;
-  world.belief.misfortuneResidue = pressure.residue;
+  if (!isDailyProcessing(world)) {
+    world.belief.misfortune = pressure.value;
+    world.belief.misfortuneResidue = pressure.residue;
+  }
   for (const b of rowsOf(world.belief.beliefs)) {
+    if (!processesActor(world, b.holderId)) continue;
     if (b.conceal || b.credence === 0 || b.credence === 100 || ctx.now - b.lastEvidenceAt < 1440) continue;
     const prop = world.belief.props[b.propId];
     const pred = prop && ctx.content.predicates[prop.pred];
@@ -43,6 +56,7 @@ function daily(world: World, ctx: SimContext): void {
     });
   }
   for (const g of rowsOf(world.belief.grudges)) {
+    if (!processesActor(world, g.holderId)) continue;
     if (g.decay === 'none' || ctx.now - g.lastRehearsedAt < 1440) continue;
     const before = g.intensity;
     const tau = Math.max(15, 60 * (1 + view3(world.actors[g.holderId]?.values.rancor)));
@@ -62,7 +76,7 @@ function daily(world: World, ctx: SimContext): void {
         }),
       });
   }
-  for (const actor of rowsOf(world.actors)) {
+  for (const actor of processingActors(world)) {
     if (!actor.alive) continue;
     for (const m of memoriesOf(world, actor.id)) {
       if (m.intensity < 60 || ctx.content.memory_kinds[m.kind]?.valence !== 'negative') continue;
@@ -107,7 +121,7 @@ function daily(world: World, ctx: SimContext): void {
       }
     }
   }
-  for (const household of rowsOf(world.households)) {
+  for (const household of processingHouseholds(world)) {
     for (const key of Object.keys(ctx.content.misfortunes).sort()) {
       const def = ctx.content.misfortunes[key];
       if (!def || def.base_permille_per_household_day <= 0) continue;
@@ -128,7 +142,7 @@ function daily(world: World, ctx: SimContext): void {
       reportMisfortune(world, ctx, { kindId: key, householdId: household.id, victimId });
     }
   }
-  updateCommons(world, ctx);
+  if (!isDailyProcessing(world)) updateCommons(world, ctx);
 }
 
 function updateCommons(world: World, ctx: SimContext): void {
@@ -201,5 +215,47 @@ export function beliefSystem(world: World, ctx: SimContext): void {
   processTells(world, ctx);
   if (ctx.isNewDay) daily(world, ctx);
   attributeMisfortunes(world, ctx);
-  updatePersecutions(world, ctx);
+  if (isDailyProcessing(world) && ctx.cal.hour % 6 === 0) compartmentStep(world, ctx);
+  if (!isDailyProcessing(world)) updatePersecutions(world, ctx);
+}
+
+/** Four canonical daily opportunities, restricted to named adults sharing a physical venue.
+ * A compartment records prevalence, never installs a common belief into every mind. */
+function compartmentStep(world: World, ctx: SimContext): void {
+  const sites = new Map<string, ReturnType<typeof processingActors>>();
+  for (const actor of processingActors(world)) {
+    if (!actor.alive || yearsBetween(actor.born, ctx.now) < 16) continue;
+    const site = world.places[actor.placeId]?.siteId ?? '';
+    const group = sites.get(site) ?? [];
+    group.push(actor);
+    sites.set(site, group);
+  }
+  for (const [site, adults] of [...sites].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
+    const holders: Record<number, number> = {};
+    for (const actor of adults) {
+      for (const id of world.belief.beliefsByHolder[actor.id] ?? []) {
+        const b = world.belief.beliefs[id];
+        if (b && !b.conceal && b.credence > 50) holders[b.propId] = (holders[b.propId] ?? 0) + 1;
+      }
+      if (
+        !canAct(world, actor.id) ||
+        isAsleep(world, ctx, actor.id) ||
+        !authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok
+      )
+        continue;
+      const peers = adults.filter(
+        (a) => a.id !== actor.id && a.placeId === actor.placeId && canAct(world, a.id) && !isAsleep(world, ctx, a.id),
+      );
+      const peer = ctx.rng('belief', mixKey(actor.id, 0x632d)).pick(peers);
+      if (peer)
+        transmit(world, ctx, {
+          speakerId: actor.id,
+          listenerId: peer.id,
+          placeId: actor.placeId,
+          channel: channelForPlace(world, ctx.content, actor.placeId),
+          interactionEventId: null,
+        });
+    }
+    recordBeliefCompartment(world, site, ctx.now, adults.length, holders);
+  }
 }

@@ -1,10 +1,11 @@
+import { processesStack, processingActors } from '../region/processing.ts';
 /** Hourly storage and scheduled supplies. Shared with the forward readiness projection. */
 
 import { isAsleep } from '../activity/api.ts';
 import type { ProtectionId } from '../content.ts';
 import { term } from '../explain.ts';
 import { type HemSet, hemmed, openHemHour, spillHems } from '../fae/hem.ts';
-import { type ItemId, rowsOf } from '../ids.ts';
+import type { ItemId } from '../ids.ts';
 import {
   allStacks,
   campThermal,
@@ -51,7 +52,7 @@ export function storageHour(
   const campShelter = new Map<number, boolean>();
   if (raining) {
     const index = inventoryIndex(world);
-    for (const actor of rowsOf(world.actors)) {
+    for (const actor of processingActors(world)) {
       const activity = ctx.content.activities[world.activity.byActor[actor.id]?.activityId ?? ''];
       if (actor.alive && !world.activity.byActor[actor.id]?.travel && (activity?.asleep || activity?.labor === 'rest'))
         campShelter.set(actor.id, campThermal(world, ctx.content, actor.id, true, index).shelter >= 20);
@@ -81,6 +82,7 @@ export function storageHour(
       return r.exposed && !r.underFly;
     });
   for (const stack of allStacks(world)) {
+    if (!processesStack(world, stack)) continue;
     const def = ctx.content.items[stack.defId];
     if (!def) continue;
     let placed = memo?.[stack.id];
@@ -200,6 +202,7 @@ export function storageHour(
 export function devicesHour(world: World, ctx: SimContext, elapsedTicks?: number): void {
   const inventory = inventoryIndex(world);
   for (const stack of allStacks(world)) {
+    if (!processesStack(world, stack)) continue;
     const def = ctx.content.items[stack.defId];
     const consumes = def?.consumes.filter((c) => c.per === 'hour' || c.per === 'day') ?? [];
     if (!def || !consumes.length) continue;
@@ -209,7 +212,7 @@ export function devicesHour(world: World, ctx: SimContext, elapsedTicks?: number
     if (elapsedTicks === undefined ? live : !live) continue;
     const awake = owner
       ? !isAsleep(world, ctx, owner.id)
-      : rowsOf(world.actors).some(
+      : processingActors(world).some(
           (a) =>
             a.alive &&
             !isAsleep(world, ctx, a.id) &&

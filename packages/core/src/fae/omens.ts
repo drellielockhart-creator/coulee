@@ -3,8 +3,9 @@ import { beliefOf, internProp, observe } from '../belief/api.ts';
 import { skillCheck } from '../checks.ts';
 import { term } from '../explain.ts';
 import type { ActorId } from '../ids.ts';
-import { asEventId, rowsOf } from '../ids.ts';
+import { asEventId } from '../ids.ts';
 import { addAnxiety, addThought, psycheOf } from '../psyche/api.ts';
+import { processingActors } from '../region/processing.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addMemory } from '../social/api.ts';
@@ -67,7 +68,7 @@ export function noticeEpisode(world: World, ctx: SimContext, e: Episode): void {
   const d = ctx.content.omens[e.defId];
   if (!d) return;
   if (!e.witnessed && (world.fae.cooldowns[`place:${e.snapshot.placeId}:${e.family}`] ?? -1) > ctx.now) return;
-  const present = rowsOf(world.actors).filter(
+  const present = processingActors(world).filter(
     (a) => a.alive && a.placeId === e.snapshot.placeId && !isAsleep(world, ctx, a.id),
   );
   present.sort((a, b) => mixKey(hashString32(e.id), a.id) - mixKey(hashString32(e.id), b.id) || a.id - b.id);

@@ -2,6 +2,7 @@ import type { ContentBundle, InteractionDef } from '../content.ts';
 import { charmRefused } from '../fae/api.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { authorizationExplain, authorizeAct, type Basis } from '../psyche/api.ts';
+import { processesActor } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { dayText } from './availability.ts';
@@ -154,6 +155,7 @@ export function pendingRequests(world: World, id: ActorId): PendingRequest[] {
 }
 export function requestsHour(world: World, ctx: SimContext): void {
   for (const r of world.social.pendingRequests ?? []) {
+    if (!processesActor(world, r.to)) continue;
     if (r.status !== 'pending') continue;
     const answer = ctx.commands.find(
       (c) => c.kind === 'social.answer_request' && c.actorId === r.to && c.data.requestId === r.id,

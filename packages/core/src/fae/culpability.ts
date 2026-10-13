@@ -13,6 +13,7 @@
 import { beliefOf, formGrudge, internProp, observe } from '../belief/api.ts';
 import type { ActorId, HouseholdId } from '../ids.ts';
 import { rowsOf } from '../ids.ts';
+import { processingActors } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
@@ -22,7 +23,7 @@ import type { DrawCase } from './state.ts';
 
 export function culpabilityDaily(world: World, ctx: SimContext): void {
   if (!world.fae.drawCases) return;
-  const adults = rowsOf(world.actors).filter((a) => a.alive && yearsBetween(a.born, ctx.now) >= 14);
+  const adults = processingActors(world).filter((a) => a.alive && yearsBetween(a.born, ctx.now) >= 14);
   for (const id of charmIds(world)) {
     const c = world.fae.charms?.[id];
     if (!c) continue;

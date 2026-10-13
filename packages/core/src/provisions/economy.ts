@@ -1,4 +1,5 @@
 import { authorizeAct, commandBasis, recordStandingSpend } from '../psyche/api.ts';
+import { isDailyProcessing, processesPlace, processingActors, processingHouseholds } from '../region/processing.ts';
 /** Cash, credit and physical goods share one transaction path for commands and errands. */
 
 import { formGrudge, isShunning } from '../belief/api.ts';
@@ -10,7 +11,6 @@ import { atPlace, carriedBy, createStack, moveStack, pantryOf, stacksDeep, suppl
 import { loadReport, MOVE_LIMIT_PCT } from '../items/encumbrance.ts';
 import type { ItemLocation } from '../items/state.ts';
 import { canAct } from '../needs/api.ts';
-import { processingBuckets } from '../region/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addOpinionReason, areKin, debtOf, extendCredit, opinionOf, reliefRules } from '../social/api.ts';
 import type { World } from '../world.ts';
@@ -389,8 +389,10 @@ function setFreightOwed(store: Store, defId: string, hundredths: number): void {
 }
 
 export function householdDay(world: World, ctx: SimContext): void {
-  for (const id of processingBuckets(world).hourly.households) householdEconomyDay(world, ctx, id);
+  for (const h of processingHouseholds(world))
+    householdEconomyDay(world, ctx, h.id, isDailyProcessing(world) ? 'daily' : 'hourly');
   for (const store of rowsOf(world.provisions.stores)) {
+    if (!processesPlace(world, store.placeId)) continue;
     const restock = store.restockId ? ctx.content.restocks?.[store.restockId] : undefined;
     if (
       !restock ||
@@ -446,7 +448,7 @@ export function householdDay(world: World, ctx: SimContext): void {
 /** A shopping activity brings the buyer physically to a store; activity owns all travel. */
 export function shoppingHour(world: World, ctx: SimContext): void {
   if (!world.provisions.settings.npcBuying) return;
-  for (const household of rowsOf(world.households)) {
+  for (const household of processingHouseholds(world)) {
     const h = world.provisions.households[household.id];
     // Whoever of the household is at a store this hour buys (the head first, then by id).
     const atStore = (id: ActorId) => {
@@ -609,9 +611,10 @@ export function shoppingHour(world: World, ctx: SimContext): void {
  * their own till account; a shop with a keeper never keeps an independent monetary debt. */
 export function synchronizeStoreTabs(world: World): void {
   for (const store of rowsOf(world.provisions.stores)) {
+    if (!processesPlace(world, store.placeId)) continue;
     const keeper = store.ownerHouseholdId === null ? undefined : world.households[store.ownerHouseholdId]?.headId;
     if (keeper === undefined) continue;
-    for (const actor of rowsOf(world.actors)) {
+    for (const actor of processingActors(world)) {
       const cents = debtOf(world, keeper, actor.id).cents;
       if (cents || store.tabs[actor.id] !== undefined) store.tabs[actor.id] = cents;
     }

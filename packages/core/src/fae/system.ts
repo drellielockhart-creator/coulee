@@ -1,4 +1,4 @@
-import { rowsOf } from '../ids.ts';
+import { isDailyProcessing, processesPlace, processingActors, processingPlaces } from '../region/processing.ts';
 import { hashString32 } from '../rng.ts';
 import type { InitContext, SimContext } from '../sim/context.ts';
 import { loansDaily, loansHourly } from '../social/api.ts';
@@ -19,7 +19,7 @@ import { theftDiscoveryHour } from './theft.ts';
 import { charmDaily, witnessHour } from './witness.ts';
 export function initFaeState(world: World, ctx: InitContext): void {
   seedReservoir(world, ctx);
-  for (const p of rowsOf(world.places)) {
+  for (const p of processingPlaces(world)) {
     if (isProtectedSite(p) || effectiveFi(world, p) < 2) continue;
     const options = eligibleFamilies(ctx.content, p, effectiveFi(world, p));
     const id = options[hashString32(p.defId) % options.length];
@@ -28,29 +28,29 @@ export function initFaeState(world: World, ctx: InitContext): void {
 }
 export function faeSystem(world: World, ctx: SimContext): void {
   if (!world.fae.enabled) return;
-  recordSnow(world, ctx.now, ctx);
+  if (!isDailyProcessing(world)) recordSnow(world, ctx.now, ctx);
   let iron: Record<number, number> | undefined;
   if (ctx.isNewDay) {
     for (const key of Object.keys(world.fae.episodes).sort())
       if ((world.fae.episodes[key]?.traceEnd ?? 0) < ctx.now) delete world.fae.episodes[key];
-    for (const p of rowsOf(world.places)) {
+    for (const p of processingPlaces(world)) {
       const v = world.fae.thinning[p.id] ?? 0;
       if (v) world.fae.thinning[p.id] = v - Math.floor((v * 30) / 1000);
     }
     for (const key of Object.keys(world.fae.cooldowns).sort())
       if ((world.fae.cooldowns[key] ?? 0) < ctx.now - 10080) delete world.fae.cooldowns[key];
-    for (const a of rowsOf(world.actors))
+    for (const a of processingActors(world))
       if (world.fae.questions[a.id])
         world.fae.questions[a.id] = (world.fae.questions[a.id] ?? []).filter((q) => q.openedAt > ctx.now - 10080);
   }
-  for (const p of rowsOf(world.places)) {
+  for (const p of processingPlaces(world)) {
     if (isProtectedSite(p)) continue;
     if (effectiveFi(world, p) === 0 && !p.tags.includes('home')) continue;
     for (const period of windows(p, ctx.cal.dayIndex)) {
       if (period.at < ctx.now || period.at >= ctx.now + 60) continue;
       iron ??= ironByPlace(world, ctx.content);
       const e = resolveEpisode(world, ctx, snapshotWindow(world, ctx, p, period.window, period.at, iron));
-      if (!e) continue;
+      if (!e || !processesPlace(world, e.snapshot.placeId)) continue;
       const key = `place:${p.id}:${e.family}`;
       if ((world.fae.cooldowns[key] ?? -10000) > period.at) continue;
       world.fae.episodes[e.id] = e;
@@ -59,13 +59,16 @@ export function faeSystem(world: World, ctx: SimContext): void {
   }
   for (const key of Object.keys(world.fae.episodes).sort()) {
     const e = world.fae.episodes[key];
-    if (!e) continue;
+    if (!e || !processesPlace(world, e.snapshot.placeId)) continue;
     if (e.end >= ctx.now && e.snapshot.at < ctx.now + 60) noticeEpisode(world, ctx, e);
   }
   for (const c of ctx.commands)
     if (c.kind === 'fae.investigate')
       investigate(world, ctx, c.actorId, c.data.signId, { kind: 'command', issuer: c.issuer ?? { kind: 'player' } });
-  charmHour(world, ctx);
+  if (isDailyProcessing(world)) {
+    if (ctx.isNewDay) loansDaily(world, ctx);
+    loansHourly(world, ctx);
+  } else charmHour(world, ctx);
 }
 
 /** Charms (slice 1b, 13 §5-§6): cheap when there are none. */

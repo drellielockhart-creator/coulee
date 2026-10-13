@@ -12,10 +12,10 @@ import type { CharmDef, CharmEffectDef } from '@coulee/content/schema';
 import type { ContentBundle } from '../content.ts';
 import { type ExplainTerm, term } from '../explain.ts';
 import type { HouseholdId, ItemId, PlaceId } from '../ids.ts';
-import { rowsOf } from '../ids.ts';
 import { binIron, inventoryIndex, moveStack, pantryOf, stacksDeep } from '../items/api.ts';
 import { fitsInContainer, sameLoc } from '../items/containers.ts';
 import type { ItemLocation, ItemStack } from '../items/state.ts';
+import { processingHouseholds, processingPlaces } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { effectiveFi, isProtectedSite } from './api.ts';
@@ -62,7 +62,7 @@ export interface DrawSource {
 function placeOwner(world: World, placeId: PlaceId): HouseholdId | null {
   const store = world.provisions.stores[placeId];
   if (store?.ownerHouseholdId !== undefined && store.ownerHouseholdId !== null) return store.ownerHouseholdId;
-  for (const h of rowsOf(world.households)) if (h.homePlaceId === placeId) return h.id;
+  for (const h of processingHouseholds(world)) if (h.homePlaceId === placeId) return h.id;
   return null;
 }
 
@@ -82,12 +82,12 @@ export function findDrawSource(
   const origin = holding.placeId;
   if (origin === null || isProtectedSite(world.places[origin] ?? { tags: [] })) return null;
   const radiusFt = eff.radius_mi * 5280;
-  const places = rowsOf(world.places)
+  const places = processingPlaces(world)
     .map((p) => ({ p, feet: feetBetween(world, content, origin, p.id) }))
     .filter((x) => x.feet <= radiusFt && !isProtectedSite(x.p))
     .sort((a, b) => a.feet - b.feet || a.p.id - b.p.id);
   const homes: Record<number, HouseholdId[]> = {};
-  for (const h of rowsOf(world.households)) {
+  for (const h of processingHouseholds(world)) {
     const list = homes[h.homePlaceId] ?? [];
     list.push(h.id);
     homes[h.homePlaceId] = list;
