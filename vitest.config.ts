@@ -9,7 +9,8 @@ export default defineConfig({
       'scripts/**/*.test.ts',
     ],
     environment: 'node',
-    // Determinism tests simulate days of game time; give them room.
-    testTimeout: 60_000,
+    // Determinism tests simulate days of game time; give them room. Parallel agent waves share
+    // the machine, so the default allows for load (override with VITEST_TEST_TIMEOUT_MS).
+    testTimeout: Number(process.env.VITEST_TEST_TIMEOUT_MS ?? 180_000),
   },
 });
