@@ -1,5 +1,12 @@
 /** Trip forecast: private execution of the same completed road intervals and supply kernels. */
-import { advanceJourneys, finishJourneys, prepareJourneys, startJourney, type TravelOrder } from '../activity/api.ts';
+import {
+  advanceJourneys,
+  finishJourneys,
+  prepareJourneys,
+  startJourney,
+  type TravelOrder,
+  travelInterval,
+} from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import { forecastHems } from '../fae/forecast.ts';
@@ -8,13 +15,14 @@ import { loadReport, rootOf } from '../items/api.ts';
 import { itineraryNeedsHour } from '../needs/api.ts';
 import { environmentAt } from '../region/api.ts';
 import { makeContext } from '../sim/sim.ts';
-import { asGameMinute } from '../time.ts';
+import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
 import { foodServings, holderSupply } from './meals.ts';
 import { provisionsSystem } from './system.ts';
 export interface TripReadiness {
   destination: string;
   elapsedMinutes: number;
+  walkingMinutes?: number;
   arrivalTime: number;
   arrived: boolean;
   boundaryMinutes: 60;
@@ -30,6 +38,7 @@ export interface TripReadiness {
   needs: Record<string, number>;
   warnings: string[];
   uncertainty: string[];
+  risks?: string[];
   explain: Explain;
 }
 /** Read-only forecast; never executes social/future fae checks or reveals hidden charm state. */
@@ -39,7 +48,26 @@ export function tripReadiness(
   id: ActorId,
   order: TravelOrder,
 ): TripReadiness | string {
-  let projection: World = JSON.parse(JSON.stringify(world));
+  const projection: World = JSON.parse(JSON.stringify(world));
+  const warnings: string[] = [];
+  const risks = order.edgeIds.flatMap((eid) => {
+    const edge = world.region?.definition.edges.find((e) => e.id === eid);
+    return edge
+      ? [
+          `${edge.name}: ${edge.distance_ft} feet; crossings: ${edge.crossings.join(', ') || 'none recorded'}; hazards: ${edge.hazards.join(', ') || 'none recorded'}.`,
+          ...(edge.crossings.length || edge.hazards.length
+            ? [
+                `Crossing/hazard decisions on ${edge.name} are not supported yet; this estimate assumes passage without delay.`,
+              ]
+            : []),
+        ]
+      : [];
+  });
+  // Preview known routes even when a future crossing currently prevents an executable order.
+  for (const edge of projection.region?.definition.edges ?? []) {
+    edge.crossings = [];
+    edge.hazards = [];
+  }
   // Only this traveler receives physiology and provisioning. No distant household or social projection.
   const actor = projection.actors[id];
   if (!actor) return 'No traveler';
@@ -55,7 +83,13 @@ export function tripReadiness(
   projection.provisions.stores = {};
   projection.provisions.settings.npcBuying = false;
   const begin = makeContext(projection, content, []);
-  const refusal = startJourney(projection, begin, id, order, { kind: 'command', issuer: { kind: 'player' } });
+  const refusal = startJourney(
+    projection,
+    begin,
+    id,
+    { ...order, campPolicy: 'auto' },
+    { kind: 'command', issuer: { kind: 'player' } },
+  );
   if (refusal) return refusal;
   const carried = () =>
     rowsOf(projection.items.stacks).filter((s) => {
@@ -80,37 +114,76 @@ export function tripReadiness(
     fatG = 0,
     freshPoints = 0;
   const start = world.time;
-  const uncertainCheck = {};
-  let checkAhead = false;
+  const uncertainty = new Set<string>();
+  const initialJourney = projection.activity.journeys?.[id];
+  if (!initialJourney) return 'No journey';
+  // Also retain a complete conditional itinerary if known shortages stop the supply projection.
+  let nominal = { segment: 0, feet: 0, remainder: 0 },
+    nominalElapsed = 0,
+    nominalWalking = 0;
+  const speed = loadReport(projection, content, id).band.speedPct;
+  let daily = 0,
+    day = calendarAt(start).dayIndex;
+  while (nominal.segment < initialJourney.legs.length) {
+    const cal = calendarAt(asGameMinute(start + nominalElapsed));
+    if (day !== cal.dayIndex) {
+      day = cal.dayIndex;
+      daily = 0;
+    }
+    const limit = projection.region?.definition.walking_minutes_per_day ?? 480;
+    if (daily >= limit) {
+      nominalElapsed += 480;
+      continue;
+    }
+    const interval = travelInterval(initialJourney.legs, nominal, speed, Math.min(60, limit - daily));
+    nominal = interval;
+    nominalElapsed += 60;
+    nominalWalking += interval.movingMinutes;
+    daily += interval.movingMinutes;
+  }
+  let walkingMinutes = 0;
   for (let hour = 0; hour < 168; hour++) {
-    const checkpoint = JSON.stringify(projection),
-      priorKcal = kcal;
     const beforeIntake = { ...projection.provisions.nutrition[id]?.today };
     const ctx = makeContext(projection, content, [], (event) => {
       if (event.kind === 'provisions.meal' && event.data.actorId === id) {
         kcal += event.data.kcal;
       }
     });
-    // Never sample future cooking, vermin, survival or magic checks for a fair preview.
+    const leg = projection.activity.journeys?.[id]?.legs[projection.activity.journeys?.[id]?.segment ?? 0];
+    const road = world.region?.definition.edges.find((e) => e.id === leg?.edgeId)?.name ?? 'the road';
+    const when = `${String(ctx.cal.hour).padStart(2, '0')}:00, day ${ctx.cal.dayIndex + 1}, on ${road}`;
+    // Known stochastic kernels report their checks and assume no mishap. Guard every other stream.
     ctx.rng = () => {
-      throw uncertainCheck;
+      throw new Error('Trip forecast attempted an unlabelled future check');
     };
     ctx.rngAt = () => {
-      throw uncertainCheck;
+      throw new Error('Trip forecast attempted an unlabelled future check');
     };
-    try {
-      prepareJourneys(projection, ctx);
-      itineraryNeedsHour(projection, ctx);
-      advanceJourneys(projection, ctx);
-      provisionsSystem(projection, ctx, { hems });
-      finishJourneys(projection, ctx);
-    } catch (error) {
-      if (error !== uncertainCheck) throw error;
-      projection = JSON.parse(checkpoint);
-      kcal = priorKcal;
-      checkAhead = true;
-      break;
+    const journey = projection.activity.journeys?.[id];
+    if (journey?.status === 'camp' && (journey.campUntil ?? 0) <= ctx.now) {
+      journey.status = 'walking';
+      journey.campUntil = null;
     }
+    prepareJourneys(projection, ctx);
+    walkingMinutes += journey?.interval?.movingMinutes ?? 0;
+    itineraryNeedsHour(projection, ctx);
+    advanceJourneys(projection, ctx);
+    provisionsSystem(projection, ctx, {
+      hems,
+      vermin: (food, risk) => {
+        if (risk > 0)
+          uncertainty.add(
+            `Uncertain vermin check at ${when}: ${food}, ${risk}/1000 risk; assumes no loss. A loss would leave less food, and could require a resupply delay.`,
+          );
+      },
+      preparation: (label) =>
+        uncertainty.add(
+          `Uncertain ${label} at ${when}; assumes success. Failure wastes provisions and may delay the journey.`,
+        ),
+    });
+    finishJourneys(projection, ctx, (reason) => {
+      if (!warnings.includes(reason)) warnings.push(reason);
+    });
     const afterIntake = projection.provisions.nutrition[id]?.today;
     if (afterIntake) {
       const sameDay = beforeIntake.dayIndex === afterIntake.dayIndex;
@@ -137,17 +210,30 @@ export function tripReadiness(
     };
   });
   const values = { ...projection.needs.byActor[id]?.values };
-  const warnings: string[] = [];
-  if (checkAhead) warnings.push('A future check is uncertain; forecast stops before rolling it.');
   if (!arrived)
     warnings.push(journey?.pendingInterruption ?? 'Forecast stops before arrival; review camp or supplies.');
   if (water() === 0) warnings.push('No carried water remains.');
   if ((values.rest ?? 1000) < 400) warnings.push('Rest will be low; plan a camp.');
+  const elapsedToArrival = arrived ? elapsedMinutes : nominalElapsed;
+  const environment = environmentAt(world);
+  risks.push(
+    `Weather: ${environment.temperatureF}°F, ${environment.raining ? 'rain; exposed gear may get wet' : 'dry'}${world.region?.definition.fixed_weather ? ' (fixed authored weather)' : '; departure weather assumed throughout'}.`,
+  );
+  for (let minute = 0; minute < elapsedToArrival; minute += 60) {
+    if (!calendarAt(asGameMinute(start + minute)).isDaylight) {
+      risks.push(
+        'Night/dark travel: reduced visibility along the route; footing and navigation are harder. No navigation check is scheduled on this route.',
+      );
+      break;
+    }
+  }
+  if (!calendarAt(start).isDaylight) warnings.push('Consider leaving at dawn: wait until dawn, then route again.');
   return {
     destination:
       world.region?.definition.nodes.find((n) => n.id === order.destinationNodeId)?.name ?? order.destinationNodeId,
-    elapsedMinutes,
-    arrivalTime: start + elapsedMinutes,
+    elapsedMinutes: elapsedToArrival,
+    walkingMinutes: arrived ? walkingMinutes : nominalWalking,
+    arrivalTime: start + elapsedToArrival,
     arrived,
     boundaryMinutes: 60,
     waterUsedMl: waterStart - water(),
@@ -161,9 +247,18 @@ export function tripReadiness(
     loadPct: loadReport(projection, content, id).loadPct,
     needs: values,
     warnings,
-    uncertainty: world.region?.definition.fixed_weather
-      ? ['Fixed authored weather; excludes encounters and unknown magic.']
-      : ['Departure weather held constant; changing weather, encounters and future checks remain uncertain.'],
+    risks,
+    uncertainty: [
+      ...(world.region?.definition.fixed_weather
+        ? ['Fixed authored weather; excludes encounters and unknown magic.']
+        : ['Departure weather held constant; changing weather and encounters remain uncertain.']),
+      ...uncertainty,
+      ...(!arrived
+        ? [
+            `Supply projection covers only the first ${elapsedMinutes / 60} hours: arrival above assumes the shortage/stop is resolved; re-plan after tending to it.`,
+          ]
+        : []),
+    ],
     explain: {
       kind: 'formula',
       label: 'Trip forecast: shared hourly itinerary and provision kernels',

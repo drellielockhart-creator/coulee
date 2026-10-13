@@ -14,6 +14,7 @@ export const RegionSchema = z.strictObject({
         a: ref(),
         b: ref(),
         name: z.string().min(1),
+        description: z.string().min(1).optional(),
         distance_ft: int().positive(),
         cost_minutes: z.strictObject({ ab: int().positive(), ba: int().positive() }),
         capability: z.enum(['walk', 'boat']),

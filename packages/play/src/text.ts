@@ -47,6 +47,8 @@ export function menuActions(o: Observation, page = 0): AvailableAction[] {
 /** A held urge as the verb the player would type: "sleep", "take a meal", "repay Michael Dunleavy". */
 function orderHint(o: Observation, urge: string): string {
   if (!urge) return '';
+  if (urge === 'activity:fetch_water' && o.region?.location.kind === 'edge')
+    return o.actions.some((a) => a.id === 'drink') ? 'drink' : '';
   if (urge === 'activity:sleep') return 'sleep';
   const activity = /^activity:(.+)$/.exec(urge);
   if (activity?.[1]) {
@@ -713,13 +715,17 @@ export function renderDetail(detail: unknown): string {
   if (detail && typeof detail === 'object' && 'boundaryMinutes' in detail) {
     const r = detail as import('@coulee/core').provisions.TripReadiness;
     return [
-      `Route to ${r.destination}: ${r.elapsedMinutes / 60} hours${r.arrived ? ' to arrival' : ' to the next decision'} (hourly boundaries; final spare minutes are waiting).`,
+      `Route to ${r.destination}: ${r.elapsedMinutes / 60} hours to arrival if nothing goes wrong (hourly boundaries; final spare minutes are waiting).`,
+      ...(r.walkingMinutes === undefined
+        ? []
+        : [`Walking time: ${r.walkingMinutes} min; arrival ${timeView(r.arrivalTime).stamp}.`]),
       `Carried provisions: ${r.kcal} kcal, protein ${r.proteinG} g, fat ${r.fatG} g, Fresh ${r.freshPoints}; water ${r.waterUsedMl} ml used / ${r.waterLeftMl} ml left; fuel ${r.fuelUsed}.`,
       ...r.foods.map(
         (f) =>
           `${f.name}: ${f.servingsPm / 1000} servings used, ${f.remainingPm / 1000} left; spoilage ${f.spoilage}/1000.`,
       ),
       `Arrival load ${r.loadPct}%; rest ${r.needs.rest ?? '?'}/1000.`,
+      ...(r.risks ?? []),
       ...r.warnings,
       ...r.uncertainty,
     ].join('\n');

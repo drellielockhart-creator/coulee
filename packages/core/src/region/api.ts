@@ -51,6 +51,24 @@ export function locationOf(world: World, actorId: ActorId) {
   };
 }
 
+/** Physical road prose uses the traveler's position, rather than the private transit placeholder. */
+export function describeRoad(world: World, actorId: ActorId, placeId: PlaceId): string[] | null {
+  if (world.region?.transit[actorId] !== placeId) return null;
+  const location = locationOf(world, actorId);
+  if (location.kind !== 'edge') return null;
+  const edge = world.region.definition.edges.find((e) => e.id === location.edgeId);
+  if (!edge) return null;
+  const destination = world.region.definition.nodes.find(
+    (n) => n.id === (location.direction === 'ab' ? edge.b : edge.a),
+  );
+  return [
+    `${edge.name}, toward ${destination?.name ?? 'the next junction'}. ${edge.description ?? (edge.climb_ft || edge.descent_ft ? 'The road rises and falls across sloping ground.' : 'The road runs across level ground.')}`,
+    calendarAt(world.time).isDaylight
+      ? 'In daylight you can see the road ahead and the ground on either side.'
+      : 'In the dark, the road ahead and the land beyond its edges are hard to make out.',
+  ];
+}
+
 /** Slice 1 fixtures can pin weather; ordinary regions retain the standalone seasonal defaults. */
 export function fixedEnvironment(world: World) {
   return world.region?.definition.fixed_weather;

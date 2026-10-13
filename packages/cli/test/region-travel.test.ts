@@ -15,7 +15,7 @@ import {
   step,
   toViewModel,
 } from '@coulee/core';
-import { PlaySession, parseText, sessionSimOf } from '@coulee/play';
+import { PlaySession, parseText, renderDetail, renderObservation, sessionSimOf } from '@coulee/play';
 import { describe, expect, it } from 'vitest';
 import { baseContent } from './helpers.ts';
 
@@ -52,6 +52,119 @@ function carriedWater(sim: Sim, id: PlaySession['playerId']) {
     .reduce((n, s) => n + (s.waterMl ?? 0), 0);
 }
 describe('M5 walk to the neighbor', () => {
+  it('CLI midnight route forecasts arrival and supplies, labels unrolled checks and suggests dawn', () => {
+    const session = PlaySession.create(content, { source: 'iron_ford_neighbors', seed: 42 });
+    const sim = sessionSimOf(session);
+    const before = session.hash;
+    const command = parseText('route Cedar Farm', session.observe());
+    if (typeof command === 'string') throw new Error(command);
+    const result = session.act(command);
+    const forecast = result.detail as provisions.TripReadiness;
+    const text = renderDetail(forecast);
+    expect(result.ok).toBe(true);
+    expect(result.elapsedMinutes).toBe(0);
+    expect(session.hash).toBe(before);
+    expect(forecast.arrived).toBe(true);
+    expect(forecast.elapsedMinutes).toBe(360);
+    expect(forecast.walkingMinutes).toBe(313);
+    expect(text).toContain('arrival 1855-04-01 06:00');
+    expect(forecast.waterUsedMl).toBeGreaterThan(0);
+    expect(text).toContain('crossings: none recorded');
+    expect(text).toContain('Weather: 55°F, dry');
+    expect(text).toContain('Night/dark travel');
+    expect(text).toContain('Uncertain vermin check at 00:00, day 1, on Cedar Ridge Road');
+    expect(text).toContain('assumes no loss');
+    expect(text).toContain('resupply delay');
+    expect(text).toContain('leaving at dawn');
+    expect(text).not.toContain('forecast stops');
+    expect(renderDetail(session.act(command).detail)).toBe(text);
+    expect(findNonIntegers(sim.world)).toEqual([]);
+    // This seed incurs no loss: the conditional forecast agrees with the real midnight journey.
+    const water = carriedWater(sim, session.playerId);
+    session.act({ kind: 'activity.travel', actorId: session.playerId, data: order });
+    arrive(sim, session.playerId);
+    expect(sim.world.time).toBe(forecast.arrivalTime);
+    expect(water - carriedWater(sim, session.playerId)).toBe(forecast.waterUsedMl);
+  });
+  it('CLI route names crossings and hazards even when travel requires an unsupported decision', () => {
+    const { session, sim } = ready();
+    if (!sim.world.region) throw new Error('Missing region');
+    sim.world.region.definition = structuredClone(sim.world.region.definition);
+    const edge = sim.world.region.definition.edges[0];
+    if (!edge) throw new Error('Missing road');
+    edge.crossings = ['Cedar Creek ford'];
+    edge.hazards = ['flooded approach'];
+    sim.world.region.definition.fixed_weather = { temperature_f: 45, raining: true };
+    const before = session.hash;
+    const command = parseText('route Cedar Farm', session.observe());
+    if (typeof command === 'string') throw new Error(command);
+    const text = renderDetail(session.act(command).detail);
+    expect(text).toContain('crossings: Cedar Creek ford; hazards: flooded approach');
+    expect(text).toContain('assumes passage without delay');
+    expect(text).toContain('45°F, rain');
+    expect(text).toContain('arrival 1855-04-01');
+    expect(session.hash).toBe(before);
+    expect(activity.travelCheck(sim.world, sim.content, session.playerId, order)).toContain('not supported yet');
+  });
+  it('CLI preview labels exhausted water while still showing the whole conditional itinerary', () => {
+    const { session, sim, id } = ready();
+    for (const stack of Object.values(sim.world.items.stacks)) {
+      const root = items.rootOf(sim.world, stack);
+      if (root.kind === 'actor' && root.actorId === id) stack.waterMl = 0;
+    }
+    const before = session.hash;
+    const command = parseText('route Cedar Farm', session.observe());
+    if (typeof command === 'string') throw new Error(command);
+    const forecast = session.act(command).detail as provisions.TripReadiness;
+    expect(forecast.arrived).toBe(true);
+    expect(forecast.elapsedMinutes).toBeGreaterThan(60);
+    expect(renderDetail(forecast)).toContain('Carried water is exhausted');
+    expect(renderDetail(forecast)).toContain('arrival 1855-04-01');
+    expect(session.hash).toBe(before);
+    // Live travel still stops at the shortage, despite the conditional forecast continuing.
+    session.act({ kind: 'activity.travel', actorId: id, data: order });
+    expect(sim.world.activity.journeys?.[id]?.status).toBe('stopped');
+  });
+  it('CLI transit prose names the road and terrain, and respects night and daylight visibility', () => {
+    for (const [departure, visibility] of [
+      [0, 'In the dark'],
+      [360, 'In daylight'],
+    ] as const) {
+      const { session, sim, id } = ready();
+      sim.world.time = asGameMinute(departure);
+      const command = parseText('travel Cedar Farm', session.observe());
+      if (typeof command === 'string') throw new Error(command);
+      const observation = session.act(command).observation;
+      const text = renderObservation(observation);
+      expect(observation.place.description).toContain('Cedar Ridge Road, toward Cedar Farm');
+      expect(observation.place.description).toContain('wooded slopes');
+      expect(observation.place.description).toContain('farm clearings');
+      expect(observation.place.description).toContain(visibility);
+      expect(text).not.toContain('Spring at On the road');
+      expect(text).not.toContain('paths about On the road');
+      session.act({ kind: 'activity.stop', actorId: id, data: {} });
+      expect(session.observe().place.description).toContain('Cedar Ridge Road');
+    }
+  });
+  it('CLI road Appetite offers the carried-water drink command when there is no nearby source', () => {
+    const session = PlaySession.create(content, { source: 'iron_ford_neighbors', seed: 42 });
+    for (const line of ['travel Cedar Farm', 'wait 3h']) {
+      const command = parseText(line, session.observe());
+      if (typeof command === 'string') throw new Error(command);
+      expect(session.act(command).ok).toBe(true);
+    }
+    const sim = sessionSimOf(session),
+      observation = session.observe();
+    expect(provisions.nearestWaterSource(sim.world, sim.content, session.playerId)).toBe(null);
+    const text = renderObservation(observation);
+    expect(text).toContain('Appetite: Drink from carried water');
+    expect(text).toContain('you may: drink)');
+    expect(text).not.toContain('you may: fetch water');
+    const command = parseText('drink', observation);
+    if (typeof command === 'string') throw new Error(command);
+    expect(command.kind).toBe('provisions.drink');
+    expect(session.act(command).ok).toBe(true);
+  });
   it('installs scoped geometry idempotently, initializes both populations once, and leaves absent regions absent', () => {
     const { sim } = ready();
     const before = stateHash(sim.world);
