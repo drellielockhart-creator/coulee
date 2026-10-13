@@ -1000,8 +1000,6 @@ export function leaveRoadCamp(world: World, ctx: SimContext, id: ActorId): void 
   });
 }
 export { creditLimitFor } from './economy.ts';
-/** Shared household day kernel for region scheduling; retains real stores and ration policy. */
-export { householdEconomyDay } from './household.ts';
 export {
   activeEmployment,
   dismissWorker,
@@ -1011,6 +1009,8 @@ export {
   hiringOffer,
   quitWork,
 } from './hiring.ts';
+/** Shared household day kernel for region scheduling; retains real stores and ration policy. */
+export { householdEconomyDay } from './household.ts';
 export { pieceRate, pieceStock, saleTotal } from './piece-rates.ts';
 export { type FoodParcel, householdFoodDays, type ReliefPlanningMemo, reliefParcel } from './relief.ts';
 export { executeProvisionCommands } from './system.ts';
