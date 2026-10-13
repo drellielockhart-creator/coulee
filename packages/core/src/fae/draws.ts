@@ -18,7 +18,7 @@ import { fitsInContainer, sameLoc } from '../items/containers.ts';
 import type { ItemLocation, ItemStack } from '../items/state.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
-import { effectiveFi } from './api.ts';
+import { effectiveFi, isProtectedSite } from './api.ts';
 import {
   caseTable,
   charmDefOf,
@@ -27,9 +27,12 @@ import {
   feetBetween,
   holdingOf,
   ironOn,
+  keeperOf,
+  tiedContents,
   transact,
   unitsInside,
 } from './charms.ts';
+import { harmAllowed } from './harm.ts';
 import type { CharmState, DrawCase } from './state.ts';
 
 type DrawEffect = Extract<CharmEffectDef, { kind: 'draw' }>;
@@ -77,11 +80,11 @@ export function findDrawSource(
 ): DrawSource | null {
   const holding = holdingOf(world, charmStack);
   const origin = holding.placeId;
-  if (origin === null) return null;
+  if (origin === null || isProtectedSite(world.places[origin] ?? { tags: [] })) return null;
   const radiusFt = eff.radius_mi * 5280;
   const places = rowsOf(world.places)
     .map((p) => ({ p, feet: feetBetween(world, content, origin, p.id) }))
-    .filter((x) => x.feet <= radiusFt)
+    .filter((x) => x.feet <= radiusFt && !isProtectedSite(x.p))
     .sort((a, b) => a.feet - b.feet || a.p.id - b.p.id);
   const homes: Record<number, HouseholdId[]> = {};
   for (const h of rowsOf(world.households)) {
@@ -161,6 +164,13 @@ export function tieHeld(
   ctx: Pick<SimContext, 'now' | 'cal'>,
 ): string | null {
   if (!c.tie) return 'not tied overnight';
+  const stack = world.items.stacks[c.itemId];
+  const accessed =
+    c.tie.revision !== undefined
+      ? c.tie.revision !== (stack?.contentsRevision ?? 0)
+      : (stack?.contentsAccessedAt ?? -1) >= c.tie.at;
+  if (accessed) return 'opened before cockcrow';
+  if (c.tie.contents !== undefined && c.tie.contents !== tiedContents(world, c.itemId)) return 'opened before cockcrow';
   const dawnAt = ctx.now - (ctx.now % 1440) + ctx.cal.sunriseMinute;
   if (c.tie.at > dawnAt - 240) return 'tied too late to sit the night';
   if (c.tie.at < dawnAt - 1440) return 'the tie is from another night';
@@ -175,6 +185,7 @@ export function dawnDraw(world: World, ctx: SimContext, c: CharmState): DawnOutc
   const eff = drawEffectOf(def);
   const stack = world.items.stacks[c.itemId];
   if (!def || !eff || !stack) return { kind: 'idle', reason: 'no draw' };
+  const activator = c.tie?.by ?? keeperOf(world, c);
   const tie = tieHeld(world, c, def, ctx);
   c.tie = null; // a tie is spent by the dawn whatever comes of it
   if (!charmLive(c)) return { kind: 'idle', reason: 'dormant' };
@@ -182,11 +193,32 @@ export function dawnDraw(world: World, ctx: SimContext, c: CharmState): DawnOutc
   if (c.virtue < eff.virtue) return { kind: 'idle', reason: 'no virtue' };
   if (c.rechargeBlockedUntil > ctx.now) return { kind: 'idle', reason: 'sulking (thanked aloud)' };
   const holding = holdingOf(world, stack);
+  if (holding.placeId !== null && isProtectedSite(world.places[holding.placeId] ?? { tags: [] }))
+    return { kind: 'idle', reason: 'protected site' };
   if (holding.placeId !== null && effectiveFi(world, holding.placeId, ctx.now) < def.minimum_fi)
     return { kind: 'idle', reason: 'too little Faerie here' };
   if (ironOn(world, ctx.content, stack, def).suppressed) return { kind: 'idle', reason: 'iron in contact' };
   const src = findDrawSource(world, ctx.content, stack, eff);
   if (!src) return { kind: 'idle', reason: 'no source in reach' };
+  if (!harmAllowed(world, def, activator, src.householdId)) {
+    const reason = 'The source has not forfeited protection';
+    ctx.emit({
+      kind: 'fae.charm_fizzled',
+      visibility: 'secret',
+      place: src.placeId,
+      data: { itemId: c.itemId, reason },
+      explain: {
+        kind: 'formula',
+        label: reason,
+        subjects: [],
+        knowledge: 'omniscient',
+        terms: [term('fae', 'Eligible for harm', 0)],
+        total: 0,
+        outcome: 'fizzled',
+      },
+    });
+    return { kind: 'idle', reason };
+  }
   const qty = roomFor(world, ctx.content, src.stack, Math.min(eff.qty, availableUnits(src.stack)), stack);
   if (qty < 1) return { kind: 'idle', reason: 'no room' };
   const into: ItemLocation = { kind: 'container', itemId: c.itemId as ItemId };
@@ -200,7 +232,8 @@ export function dawnDraw(world: World, ctx: SimContext, c: CharmState): DawnOutc
   c.drawLedger[key] = (c.drawLedger[key] ?? 0) + qty;
   const def0 = src.stack.defId;
   const cases = caseTable(world);
-  const id = `${c.itemId}:${key}:${def0}`;
+  const caseKey = src.householdId === null ? key : `h${src.householdId}`;
+  const id = `${c.itemId}:${caseKey}:${def0}`;
   const dc: DrawCase = cases[id] ?? {
     id,
     itemId: c.itemId,
@@ -219,6 +252,28 @@ export function dawnDraw(world: World, ctx: SimContext, c: CharmState): DawnOutc
     traceRolls: {},
   };
   cases[id] = dc;
+  dc.bins ??=
+    dc.undiscovered + dc.discovered > 0
+      ? {
+          [sourceKey(dc.source)]: {
+            source: dc.source,
+            placeId: dc.placeId,
+            undiscovered: dc.undiscovered,
+            discovered: dc.discovered,
+            lastAt: dc.lastAt,
+          },
+        }
+      : {};
+  dc.bins[key] ??= {
+    source: src.source,
+    placeId: src.placeId,
+    undiscovered: 0,
+    discovered: 0,
+    lastAt: ctx.now,
+  };
+  const bin = dc.bins[key];
+  bin.undiscovered += qty;
+  bin.lastAt = ctx.now;
   dc.undiscovered += qty;
   dc.lastAt = ctx.now;
   dc.traceUntil = ctx.now + 1440;

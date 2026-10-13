@@ -24,7 +24,7 @@ import {
 import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 import { asItemId } from '../ids.ts';
 import { carriedBy, moveStack, pantryOf, rootOf, stacksDeep } from '../items/api.ts';
-import { transferCash } from '../provisions/api.ts';
+import { cashOf, transferCash } from '../provisions/api.ts';
 import { authorizeAct, chosenUrge, driveWeight, normStrength } from '../psyche/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -45,6 +45,8 @@ export interface ObjectLoan {
   dueAt: number;
   use: 'household' | 'any';
   depositCents: number;
+  /** Actual receipt; absent on legacy loans whose nominal deposit was not verified. */
+  collectedDepositCents?: number;
   rechargeDuty: boolean;
   status: 'open' | 'returned' | 'reclaimed' | 'lost';
   closedAt: number | null;
@@ -125,6 +127,8 @@ export function itemPreflight(
       if (terms.dueAt <= now + 60 || terms.dueAt > now + 30 * 1440)
         return 'The day for its return must be within a month.';
       if (!Number.isInteger(terms.depositCents) || terms.depositCents < 0) return 'The deposit must be whole cents.';
+      const borrower = spec.act === 'loan' ? initiatorId : targetId;
+      if (cashOf(world, borrower) < terms.depositCents) return 'The borrower cannot afford that deposit.';
       return null;
     }
     case 'return':
@@ -136,7 +140,7 @@ export function itemPreflight(
         return 'Nothing of yours is lent to them.';
       return holds(world, targetId, itemId) ? null : 'They have not got it with them.';
     case 'restitution': {
-      const owed = restitutionOwed(world, itemId, tgt.householdId);
+      const owed = restitutionOwed(world, itemId, tgt.householdId, initiatorId);
       if (owed <= 0) return 'There is nothing owed them that you know of.';
       return null;
     }
@@ -250,6 +254,7 @@ export function applyItemAct(
   const ini = world.actors[initiatorId];
   const tgt = world.actors[targetId];
   if (!act || !ini || !tgt) return;
+  if (itemPreflight(world, def, initiatorId, targetId, itemId, terms, ctx.now) !== null) return;
   const item = { kind: 'item' as const, id: asItemId(itemId) };
   const saw = (who: ActorId, pred: 'has' | 'lent', args: Array<{ kind: 'actor'; id: ActorId } | typeof item>) => {
     observe(world, ctx, who, internProp(world, pred, args), {
@@ -269,8 +274,10 @@ export function applyItemAct(
     const borrower = act === 'loan' ? initiatorId : targetId;
     const t = terms?.kind === 'loan' ? terms : null;
     if (!t) return;
+    const collected =
+      t.depositCents > 0 ? transferCash(world, ctx, borrower, lender, t.depositCents, 'Deposit on a loan', eventId) : 0;
+    if (collected !== t.depositCents) return;
     moveStack(world, ctx, itemId, 1, carriedBy(borrower));
-    if (t.depositCents > 0) transferCash(world, ctx, borrower, lender, t.depositCents, 'Deposit on a loan', eventId);
     const lenderH = world.actors[lender]?.householdId as HouseholdId;
     const borrowerH = world.actors[borrower]?.householdId as HouseholdId;
     const loan: ObjectLoan = {
@@ -283,7 +290,8 @@ export function applyItemAct(
       at: ctx.now,
       dueAt: t.dueAt,
       use: t.use,
-      depositCents: t.depositCents,
+      depositCents: collected,
+      collectedDepositCents: collected,
       rechargeDuty: t.rechargeDuty,
       status: 'open',
       closedAt: null,
@@ -339,8 +347,8 @@ export function applyItemAct(
     const receiver = act === 'return' ? targetId : initiatorId;
     moveStack(world, ctx, itemId, 1, carriedBy(receiver));
     closeLoan(world, ctx, loan, 'returned', eventId, placeId, witnesses, receiver);
-    if (loan.depositCents > 0)
-      transferCash(world, ctx, receiver, giver, loan.depositCents, 'Deposit returned', eventId);
+    if ((loan.collectedDepositCents ?? 0) > 0)
+      transferCash(world, ctx, receiver, giver, loan.collectedDepositCents ?? 0, 'Deposit returned', eventId);
     charmTransferred(world, ctx, itemId, receiver);
     for (const w of everyone) saw(w, 'has', [{ kind: 'actor', id: receiver }, item]);
     return;
@@ -351,12 +359,12 @@ export function applyItemAct(
     return;
   }
   if (act === 'restitution') {
-    const owed = restitutionOwed(world, itemId, tgt.householdId);
+    const owed = restitutionOwed(world, itemId, tgt.householdId, initiatorId);
     let paid = 0;
     // In kind first, from the keeper's household stores; the rest in cash at 5 cents a pound.
     for (const { stack } of stacksDeep(world, pantryOf(ini.householdId))) {
       if (paid >= owed || stack.defId !== 'flour' || stack.id === itemId) continue;
-      const n = Math.min(owed - paid, stack.qty - (stack.partial > 0 ? 1 : 0));
+      const n = Math.min(owed - paid, stack.qty - (stack.partial > 0 || (stack.foodPartialPm ?? 0) > 0 ? 1 : 0));
       if (n <= 0) continue;
       moveStack(world, ctx, stack.id, n, pantryOf(tgt.householdId));
       paid += n;
@@ -580,16 +588,16 @@ export function loanUrges(world: World, ctx: SimContext, actorId: ActorId): Urge
       })();
     if ((loan.borrowerId === actorId || carrying) && ctx.now >= loan.dueAt - 720) {
       const lender = world.actors[loan.lenderId];
-      if (!lender?.alive) continue;
+      if (!world.households[loan.lenderHouseholdId]) continue;
       const duty = world.fae?.ablation?.loanDuty ?? 350 + normStrength(world, actorId, 'duty') * 4;
       const overdue = ctx.now > loan.dueAt ? 150 : 0;
-      const home = world.households[lender.householdId]?.homePlaceId;
+      const home = world.households[loan.lenderHouseholdId]?.homePlaceId;
       const returnDef = ctx.content.interactions.return_item;
       // The loan is between households (13 §6.1): the lender first, else any grown member of the
       // lender's household who is here and awake takes it back.
       const takers = [
         loan.lenderId,
-        ...(world.households[lender.householdId]?.memberIds ?? []).filter((m) => m !== loan.lenderId),
+        ...(world.households[loan.lenderHouseholdId]?.memberIds ?? []).filter((m) => m !== loan.lenderId),
       ];
       const taker = takers.find((m) => {
         const t = world.actors[m];
@@ -609,7 +617,7 @@ export function loanUrges(world: World, ctx: SimContext, actorId: ActorId): Urge
           voice: 'superego',
           norm: 'duty',
           intensity: Math.min(1000, duty + overdue),
-          label: `It's due back to ${lender.name.given}; bring it`,
+          label: `It's due back to ${lender?.name.given ?? 'the lender'}; bring it`,
           source: 'social',
           reasons: [term('psyche', 'Loan due', duty), term('psyche', 'Overdue', overdue)],
         });
@@ -625,7 +633,7 @@ export function loanUrges(world: World, ctx: SimContext, actorId: ActorId): Urge
           voice: 'superego',
           norm: 'duty',
           intensity: Math.min(1000, duty + overdue - 50),
-          label: `It's due back; take it round to ${lender.name.given}'s`,
+          label: `It's due back; take it round to ${lender?.name.given ?? 'the lender'}'s`,
           source: 'social',
           reasons: [term('psyche', 'Loan due', duty), term('psyche', 'Overdue', overdue)],
         });

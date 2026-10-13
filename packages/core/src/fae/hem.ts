@@ -12,11 +12,13 @@
 import type { CharmDef, CharmEffectDef } from '@coulee/content/schema';
 import type { ContentBundle } from '../content.ts';
 import type { ActorId, ItemId, PlaceId } from '../ids.ts';
-import { binIron, type InventoryIndex, inventoryIndex, stacksDeep } from '../items/api.ts';
+import { type InventoryIndex, inventoryIndex, stacksDeep } from '../items/api.ts';
 import { containerLoadMemo, contentsLoad, parentOf, rootLocation, sameLoc } from '../items/containers.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
-import { charmDefOf, charmIds, charmLive, holdingOf, learn } from './charms.ts';
+import { isProtectedSite } from './api.ts';
+import { charmDefOf, charmIds, charmLive, holdingOf, ironOn, learn } from './charms.ts';
+import { harmAllowed } from './harm.ts';
 
 type DryEffect = Extract<CharmEffectDef, { kind: 'container_dry' }>;
 export function dryEffectOf(def: CharmDef | undefined): DryEffect | undefined {
@@ -39,6 +41,7 @@ export interface HemRecord {
   /** Container that took the turned rain this hour, if any. */
   spilledOn: ItemId | null;
   suppressed: boolean;
+  fizzled?: boolean;
   placeId: PlaceId | null;
   holderId: ActorId | null;
   /** Rainy, exposed hours seen and hours covered (the forecast's exact row; 13 §5.7). */
@@ -102,13 +105,17 @@ export function openHemHour(
     r.active = false;
     r.exposedThisHour = !!container && exposedRoot(r.containerId);
     if (!container || !hem) continue;
+    if (r.placeId !== null && isProtectedSite(world.places[r.placeId] ?? { tags: [] })) {
+      r.exposure = 0;
+      continue;
+    }
     if (!r.exposedThisHour) {
       r.exposure = 0;
       continue;
     }
     r.exposedHours = (r.exposedHours ?? 0) + 1;
     const def = charmDefOf(content, hem.defId);
-    r.suppressed = !!def && binIron(world, content, hem, index).grams >= def.iron.nearby_g;
+    r.suppressed = !!def && ironOn(world, content, hem, def, index).suppressed;
     const load = contentsLoad(world, content, r.containerId, containerLoadMemo(world));
     if (r.suppressed || load.weightG > r.maxContentsG) {
       r.exposure = 0;
@@ -176,6 +183,11 @@ export function spillHems(
             ? world.households[root.householdId]?.homePlaceId
             : root.placeId;
       if (place !== r.placeId) continue;
+      const def = charmDefOf(content, world.fae.charms?.[r.hemId]?.defId);
+      if (def && !harmAllowed(world, def, r.holderId, holdingOf(world, s).householdId)) {
+        r.fizzled = true;
+        continue;
+      }
       const same = sameLoc(root, myRoot) ? 0 : 1;
       const rank = same * 1_000_000_000 + s.id;
       if (!best || rank < best.rank) best = { id: s.id, rank };
@@ -196,6 +208,22 @@ export function commitHems(world: World, ctx: SimContext, hems: HemSet): void {
     if (!r || !c) continue;
     c.virtue = r.virtue;
     c.exposure = r.exposure;
+    if (r.fizzled && r.spilledOn === null) {
+      ctx.emit({
+        kind: 'fae.charm_fizzled',
+        visibility: 'secret',
+        data: { itemId: r.hemId, reason: 'The rain recipient has not forfeited protection' },
+        explain: {
+          kind: 'formula',
+          label: 'Turned rain: protected recipient',
+          subjects: [],
+          knowledge: 'omniscient',
+          terms: [],
+          total: 0,
+          outcome: 'fizzled',
+        },
+      });
+    }
     if (!r.active) continue;
     c.lastUseAt = ctx.now;
     // The holder sees the bag come in dry while the rest is soaked: a controlled result (13 §5.3).

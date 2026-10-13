@@ -16,6 +16,7 @@ import { authorizeAct, type Basis, chosenUrge, commandBasis } from '../psyche/ap
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
+import { restitutionOwed } from './arc.ts';
 import { charmDefOf, holdingOf, keeperOf, knownRecord, learn } from './charms.ts';
 import { ironByPlace } from './conditions.ts';
 import { householdArg, itemArg } from './desire.ts';
@@ -187,6 +188,8 @@ export function studyCharm(world: World, ctx: SimContext, actorId: ActorId, c: C
     });
     const k = knownRecord(world, actorId, c.itemId);
     k.sources = [...(k.sources ?? []).filter((x) => x !== hid), hid];
+    k.losses ??= {};
+    k.losses[hid] = restitutionOwed(world, c.itemId, hid);
   }
   // From nothing it makes nothing (the exaggerations are refuted by what it is).
   for (const x of def.claims)

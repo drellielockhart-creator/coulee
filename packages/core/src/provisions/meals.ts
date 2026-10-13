@@ -1,4 +1,5 @@
 import { walking } from '../activity/api.ts';
+import { accessContents } from '../items/api.ts';
 import { provisionCalendar as calendarAt } from './calendar.ts';
 /** Shared meal kernel: runtime and readiness both consume this exact inventory/preparation model. */
 
@@ -895,6 +896,7 @@ export function serveMeal(
       const usedPm = stack.partial * 1000 + (stack.foodPartialPm ?? 0) + servingsPm;
       const food = content.items[stack.defId]?.food;
       if (!food) continue;
+      accessContents(world, stack);
       const unitsUsed = Math.floor(usedPm / (food.servings * 1000));
       stack.qty -= unitsUsed;
       const leftPm = usedPm % (food.servings * 1000);

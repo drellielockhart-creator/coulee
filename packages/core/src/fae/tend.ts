@@ -13,7 +13,7 @@ import { isOutdoorsPlace } from '../provisions/spoilage.ts';
 import { authorizeAct, type Basis } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
-import { charmDefOf, charmIds, charmLive, holdingOf, ironOn, unitsInside } from './charms.ts';
+import { charmDefOf, charmIds, charmLive, holdingOf, ironOn, tiedContents, unitsInside } from './charms.ts';
 import { drawEffectOf } from './draws.ts';
 import { dryEffectOf } from './hem.ts';
 import type { CharmState } from './state.ts';
@@ -49,10 +49,22 @@ export function tieCharm(world: World, ctx: SimContext, actorId: ActorId, c: Cha
   if (!def || !eff || def.activation.kind !== 'tied_overnight') return { ok: false, reason: 'It is not tied to work' };
   if (!canReach(world, actorId, c)) return { ok: false, reason: 'You do not have it to hand' };
   if (def.activation.dark && !tieWindow(ctx)) return { ok: false, reason: 'It must be tied after dark' };
-  if (c.tie && c.tie.at > ctx.now - 720) return { ok: false, reason: 'It is already tied for tonight' };
+  if (
+    c.tie &&
+    c.tie.at > ctx.now - 720 &&
+    (c.tie.revision === undefined || c.tie.revision === (world.items.stacks[c.itemId]?.contentsRevision ?? 0)) &&
+    (c.tie.contents === undefined || c.tie.contents === tiedContents(world, c.itemId))
+  )
+    return { ok: false, reason: 'It is already tied for tonight' };
   const denied = authorize(world, actorId, 'tie_charm', c, basis);
   if (denied) return { ok: false, reason: denied };
-  c.tie = { at: ctx.now, by: actorId, units: unitsInside(world, c.itemId, eff.defs) };
+  c.tie = {
+    at: ctx.now,
+    by: actorId,
+    units: unitsInside(world, c.itemId, eff.defs),
+    revision: world.items.stacks[c.itemId]?.contentsRevision ?? 0,
+    contents: tiedContents(world, c.itemId),
+  };
   emitTended(world, ctx, actorId, c, 'tie', 'You tie the sack shut and set it by the hearth for the night.');
   return { ok: true, text: 'Tied shut for the night. Do not look in before cockcrow.' };
 }
