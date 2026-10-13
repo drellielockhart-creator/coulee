@@ -16,6 +16,7 @@ import type { ActOutcome, Digest, PlayObservation } from '../protocol.ts';
 import { type ActGroup, useUi } from '../state/ui.ts';
 import { useSimCtx } from './ctx.ts';
 import { ExplainView } from './ExplainView.tsx';
+import { RouteCard } from './RouteCard.tsx';
 import { TacticalTimeline } from './TacticalTimeline.tsx';
 import { Empty, SectionHead } from './ui.tsx';
 
@@ -48,6 +49,7 @@ export function PlayPanel() {
     <div className="play" data-testid="play">
       <Outcome last={play.last} stops={play.digest.stops} />
       <TacticalTimeline observation={o} run={runner.run} busy={runner.busy} />
+      <TravelCard o={o} runner={runner} />
       {group && meta ? (
         <>
           <div className="act-crumb">
@@ -68,7 +70,6 @@ export function PlayPanel() {
       ) : (
         <>
           <Situation o={o} />
-          <TravelCard key={o.place.id} o={o} runner={runner} />
           <nav className="act-groups" aria-label="Kinds of action">
             {GROUPS.filter((g) => groups.has(g.id)).map((g) => (
               <button key={g.id} type="button" onClick={() => ui.setActGroup(g.id)}>
@@ -108,7 +109,7 @@ export function Outcome({ last, stops }: { last: ActOutcome | null; stops: strin
       {stopped ? <p className="warn">❚❚ {stopped}</p> : null}
       {last.warning ? <p className="warn">⚠ {last.warning}</p> : null}
       {last.notice ? <p>{last.notice}</p> : null}
-      {last.text && last.elapsedMinutes === 0 && !Array.isArray(last.detail) ? (
+      {last.text && !last.routePreview && last.elapsedMinutes === 0 && !Array.isArray(last.detail) ? (
         <pre className="reading">{last.text}</pre>
       ) : null}
     </div>
@@ -320,7 +321,7 @@ function MoveList({ actions, o, runner }: { actions: AvailableAction[]; o: PlayO
           </div>
         ))}
       {actions
-        .filter((a) => !a.id.startsWith('go:'))
+        .filter((a) => !/^(go:|route:|travel:|journey:)/.test(a.id))
         .map((a) => (
           <ActionButton key={a.id} a={a} runner={runner} />
         ))}
@@ -693,9 +694,10 @@ function TravelCard({ o, runner }: { o: PlayObservation; runner: ReturnType<type
   const preview = ui.routePreview?.at === o.time.t ? ui.routePreview : null;
   const routes = o.actions.filter((a) => a.id.startsWith('route:'));
   const controls = o.actions.filter((a) => a.id.startsWith('travel:') || a.id.startsWith('journey:'));
+  const go = controls.find((a) => a.id === `travel:${preview?.nodeId}`);
   if (!o.region) return null;
   return (
-    <section aria-label="Regional travel" data-testid="route-card">
+    <section className="regional-travel" aria-label="Regional travel" data-testid="route-card">
       <h3>Walk to the neighbors</h3>
       {o.region.location.kind === 'edge' ? (
         <p>
@@ -712,9 +714,17 @@ function TravelCard({ o, runner }: { o: PlayObservation; runner: ReturnType<type
           onChange={async (e) => {
             const a = routes.find((a) => a.id === e.target.value);
             if (a) {
+              const nodeId = a.id.slice('route:'.length);
+              ui.showRoute(nodeId, 'Reading the route…', o.time.t);
               const result = await runner.run(a);
-              ui.showRoute(a.id.slice('route:'.length), result.text ?? result.reason ?? '', result.t);
-            }
+              if (useUi.getState().routePreview?.nodeId === nodeId)
+                ui.showRoute(
+                  nodeId,
+                  result.text ?? result.reason ?? 'No route report available.',
+                  result.t,
+                  result.routePreview,
+                );
+            } else ui.clearRoute();
           }}
         >
           <option value="">Choose a destination</option>
@@ -725,17 +735,35 @@ function TravelCard({ o, runner }: { o: PlayObservation; runner: ReturnType<type
           ))}
         </select>
       </label>
-      {preview ? (
-        <pre className="reading" data-testid="route-preview">
-          {preview.text}
-        </pre>
+      {preview?.view ? (
+        <RouteCard
+          route={preview.view}
+          busy={runner.busy}
+          canGo={!!go}
+          onGo={() => {
+            if (go)
+              void runner.run(go).then((result) => {
+                if (result.ok) ui.clearRoute();
+              });
+          }}
+          onCancel={ui.clearRoute}
+        />
+      ) : preview ? (
+        <div role="status">
+          <p>{preview.text}</p>
+          <button type="button" onClick={ui.clearRoute}>
+            Cancel
+          </button>
+        </div>
       ) : null}
       <div>
-        {controls.map((a) => (
-          <button type="button" key={a.id} disabled={runner.busy} onClick={() => runner.run(a)}>
-            {a.label}
-          </button>
-        ))}
+        {controls
+          .filter((a) => a.id.startsWith('journey:'))
+          .map((a) => (
+            <button type="button" key={a.id} disabled={runner.busy} onClick={() => runner.run(a)}>
+              {a.label}
+            </button>
+          ))}
       </div>
     </section>
   );

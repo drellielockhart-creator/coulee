@@ -30,6 +30,9 @@ export function groupOf(a: AvailableAction, catalog: ActionCatalog): ActGroup {
   const [head, rest] = [a.id.split(':')[0] ?? '', a.id.split(':')[1] ?? ''];
   switch (head) {
     case 'go':
+    case 'route':
+    case 'travel':
+    case 'journey':
       return 'move';
     case 'talk':
     case 'answer':

@@ -222,6 +222,7 @@ function outcomeOf(r: ActResult, label: string): ActOutcome {
     elapsedMinutes: r.elapsedMinutes,
     interrupts: r.interrupts,
     ...(r.detail === undefined ? {} : { detail: r.detail, text: renderDetail(r.detail) }),
+    ...(r.routePreview ? { routePreview: r.routePreview } : {}),
     label,
     t: r.observation.time.t,
   };

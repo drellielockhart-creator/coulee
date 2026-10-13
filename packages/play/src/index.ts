@@ -5,6 +5,7 @@ export * from './interrupts.ts';
 export * from './knowledge.ts';
 export * from './obligations.ts';
 export * from './observation.ts';
+export * from './route.ts';
 export * from './session.ts';
 export * from './source.ts';
 export * from './text.ts';

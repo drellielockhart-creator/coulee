@@ -38,6 +38,7 @@ import {
   type ObservationMode,
   observation,
 } from './observation.ts';
+import { type RoutePreview, routePreviewOf } from './route.ts';
 import { type SessionSpec, sessionContent, sessionSim } from './source.ts';
 export interface LogStep {
   type: 'command';
@@ -99,6 +100,7 @@ export interface ActResult {
   interrupts: Interrupt[];
   observation: ReturnType<PlaySession['observe']>;
   detail?: unknown;
+  routePreview?: RoutePreview;
 }
 export class PlaySession {
   private sim: Sim;
@@ -233,6 +235,7 @@ export class PlaySession {
     const before = this.hash,
       at = this.sim.world.time;
     let detail: unknown;
+    let routePreview: RoutePreview | undefined;
     const interrupts: Interrupt[] = [];
     let warning: string | undefined;
     let notice: string | undefined;
@@ -255,6 +258,14 @@ export class PlaySession {
               campPolicy: 'ask',
             })
           : 'No known route from here';
+        if (edgeIds && typeof detail !== 'string')
+          routePreview = routePreviewOf(
+            this.sim,
+            this.playerId,
+            d.target ?? '',
+            edgeIds,
+            detail as provisions.TripReadiness,
+          );
       } else if (d.query === 'explain') {
         const retained = this.sim.world.log.events.find((e) => e.id === Number(d.target));
         const event =
@@ -535,6 +546,7 @@ export class PlaySession {
       interrupts,
       observation: this.observe(mode),
       ...(detail === undefined ? {} : { detail }),
+      ...(routePreview ? { routePreview } : {}),
     };
   }
   /** Same atomic driver and interrupt callback for CLI and worker. */

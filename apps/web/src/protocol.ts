@@ -17,6 +17,7 @@ import type {
   Observation,
   ObservationMode,
   ReplayLog,
+  RoutePreview,
   Storefront,
   TradeOrder,
   TradePreview,
@@ -122,6 +123,7 @@ export interface ActOutcome {
   elapsedMinutes: number;
   interrupts: Interrupt[];
   detail?: unknown;
+  routePreview?: RoutePreview;
   /** The detail as the headless REPL prints it (`renderDetail`): one grammar for both players. */
   text?: string;
   /** What was ordered, in words ("Buy Hardtack ×3"). */
