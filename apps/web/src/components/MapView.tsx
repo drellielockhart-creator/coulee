@@ -33,11 +33,18 @@ export function MapView({ speed }: { speed: Speed }) {
             const action = routes.find((a) => a.id === `route:${id}`);
             if (!action) return;
             const ui = useUi.getState();
-            ui.openAct(null);
+            ui.openAct('move');
             ui.showRoute(id, 'Reading the route…', sim.play?.observation.time.t ?? 0);
             void sim.order(action.command, action.label).then((result) => {
               if (useUi.getState().routePreview?.nodeId === id)
-                useUi.getState().showRoute(id, result.text ?? result.reason ?? 'No route report available.', result.t);
+                useUi
+                  .getState()
+                  .showRoute(
+                    id,
+                    result.text ?? result.reason ?? 'No route report available.',
+                    result.t,
+                    result.routePreview,
+                  );
             });
           }}
         />

@@ -2,6 +2,8 @@
  * UI-only state (selection, open panels, sheet detent, chosen speed, label set, Book order).
  * OWNER: module:web. Nothing here is world state: the world changes only via Commands.
  */
+
+import type { RoutePreview } from '@coulee/play';
 import { create } from 'zustand';
 import type { LabelSet } from '../lib/format.ts';
 import type { SheetState } from '../lib/timePolicy.ts';
@@ -72,8 +74,9 @@ export interface UiState {
   /** Talk filtered to one person (from a map peek's Talk). */
   actTarget: number | null;
   ledgerTab: LedgerTab;
-  routePreview: { nodeId: string; text: string; at: number } | null;
-  showRoute: (nodeId: string, text: string, at: number) => void;
+  routePreview: { nodeId: string; text: string; at: number; view?: RoutePreview } | null;
+  showRoute: (nodeId: string, text: string, at: number, view?: RoutePreview) => void;
+  clearRoute: () => void;
 
   /** `fromMap`: a tap on the map opens the peek card first (11 §2.3), unless a sheet is already up. */
   selectActor: (id: number | null, opts?: { tab?: DossierTab; sheet?: SheetState; fromMap?: boolean }) => void;
@@ -130,7 +133,8 @@ export const useUi = create<UiState>((set, get) => ({
   actTarget: null,
   ledgerTab: 'journal',
   routePreview: null,
-  showRoute: (nodeId, text, at) => set({ routePreview: { nodeId, text, at } }),
+  showRoute: (nodeId, text, at, view) => set({ routePreview: { nodeId, text, at, ...(view ? { view } : {}) } }),
+  clearRoute: () => set({ routePreview: null }),
 
   selectActor: (id, opts) =>
     set((s) => ({

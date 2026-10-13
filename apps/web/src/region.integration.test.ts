@@ -66,6 +66,13 @@ it('posts fair leg progress and direction through departure, stop and turn-back,
     expect(result?.type === 'acted' && result.outcome.ok).toBe(true);
   };
   await act('route:cedar_farm');
+  expect(play().last?.routePreview).toMatchObject({
+    nodeId: 'cedar_farm',
+    destination: 'Cedar Farm',
+    distanceFt: 60000,
+    legs: [{ from: 'Iron Ford', to: 'Cedar Farm', name: 'Cedar Ridge Road' }],
+    checks: [{ id: 'food' }, { id: 'water' }, { id: 'warmth' }, { id: 'load' }, { id: 'light' }],
+  });
   expect(play().observation.time.t).toBe(0);
   await act('travel:cedar_farm');
   await send({ type: 'step', hours: 1 });
