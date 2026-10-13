@@ -7,7 +7,7 @@ import type { ContentBundle, ScheduleBlock } from '../content.ts';
 import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
 import { canAct } from '../needs/api.ts';
 import { activeEmployment, employmentDayMinutes } from '../provisions/api.ts';
-import { authorizeAct } from '../psyche/api.ts';
+import { authorizeAct, standingOrders } from '../psyche/api.ts';
 import { mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { areKin, familiarityOf, isEstranged, opinionLabel, opinionOf } from '../social/api.ts';
@@ -174,7 +174,7 @@ export function resolveActivityPlace(
     )
       return null;
     const home = world.households[actor.householdId]?.homePlaceId;
-    if (def.at === 'home' && world.places[home ?? 0]?.siteId !== site) return def.asleep ? null : actor.placeId;
+    if (def.at === 'home' && world.places[home ?? 0]?.siteId !== site) return actor.placeId;
     if (
       def.at === 'workplace' &&
       world.places[world.activity.byActor[actorId]?.workplaceId ?? home ?? 0]?.siteId !== site
@@ -195,7 +195,7 @@ export function resolveActivityPlace(
   if (held !== null) return held;
   if (requested !== undefined) return world.places[requested] ? requested : null;
   const home = world.households[actor.householdId]?.homePlaceId ?? actor.placeId;
-  if (def.at === 'home') return home;
+  if (def.at === 'home') return def.asleep && !standingOrders(world, actorId).lodging ? actor.placeId : home;
   if (def.at === 'anywhere') return actor.placeId;
   if (def.at === 'workplace') return world.activity.byActor[actorId]?.workplaceId ?? home;
   if (def.at === 'kin') {
@@ -382,6 +382,7 @@ export function relocateForCare(
     });
 }
 
+export { recomputeOccupancy } from './state.ts';
 export * from './tactical.ts';
 export * from './travel.ts';
 export * from './travel-rules.ts';
@@ -416,7 +417,7 @@ export function shortAct(world: World, ctx: SimContext, actorId: ActorId, minute
   )
     return;
   if (shortActBlock(world, ctx.content, actorId)) return;
-  // Capture the lagged charge before changing posture, including the initial null activity.
+  // Open the minute ledger before changing posture.
   spendMinutes(world, actorId, 0, 'idle_at_home');
   const from = actor.placeId;
   if (to !== undefined) {
@@ -463,17 +464,11 @@ export function spendMinutes(world: World, actorId: ActorId, minutes: number, ac
   b.spent += minutes;
   b.activities[activityId] = (b.activities[activityId] ?? 0) + minutes;
 }
-/** Settle the lagged activity, just as an hour without short orders would. */
-export function settleMinuteActivity(world: World, actorId: ActorId, _remainingActivity?: string): void {
-  const b = world.activity.minuteBudgets?.[actorId];
-  if (!b) return;
-  b.accountedActivity =
-    b.startActivity === undefined ? (world.activity.byActor[actorId]?.activityId ?? null) : b.startActivity;
-}
-/** The pending physiology charge also drives explanations before the boundary. */
+/** Compatibility hook: settlement now reads the selected activity after arbitration. */
+export function settleMinuteActivity(_world: World, _actorId: ActorId, _remainingActivity?: string): void {}
+/** Current posture for callers displaying a single activity; settlement uses the full minute ledger. */
 export function minutePhysiologyActivity(world: World, actorId: ActorId): string | null | undefined {
-  const b = world.activity.minuteBudgets?.[actorId];
-  return b?.startActivity !== undefined ? b.startActivity : b?.accountedActivity;
+  return world.activity.byActor[actorId]?.activityId;
 }
 export function clearMinuteBudget(world: World, actorId: ActorId): void {
   if (!world.activity.minuteBudgets) return;

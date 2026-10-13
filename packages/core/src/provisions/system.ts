@@ -1,4 +1,4 @@
-import { onJourney, tacticalPinned } from '../activity/api.ts';
+import { isAsleep, onJourney, tacticalPinned } from '../activity/api.ts';
 import { productionHour } from '../activity/production.ts';
 /** Meals, household economy, nutrition, storage and scheduled supplies; sixth in the hourly schedule. */
 import { commandsFor } from '../command.ts';
@@ -92,6 +92,7 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForec
     if (tacticalPinned(world, actor.id)) continue;
     if (
       !canAct(world, actor.id) ||
+      isAsleep(world, ctx, actor.id) ||
       awaitingMeal(world, actor.id, actor.placeId) ||
       ate.has(actor.id) ||
       world.provisions.nutrition[actor.id]?.lastMealAt === ctx.now
@@ -138,6 +139,8 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForec
       ...(group.standing ? { capKcal: group.cap, standing: true } : {}),
       forecastCheck: forecast?.preparation,
     });
+  // Meals finished within this elapsed hour are eaten before the caller sees its boundary.
+  preparationHour(world, ctx, ctx.now + 60);
   devicesHour(world, ctx);
 }
 

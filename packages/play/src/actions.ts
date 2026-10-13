@@ -204,10 +204,11 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       // Charm chores carry their item: they are offered as charm actions, never bare.
       if (def.tags.includes('charm')) continue;
       if (
-        w.region &&
         def.asleep &&
         def.at === 'home' &&
-        camp.bedding &&
+        (!psyche.standingOrders(w, pc).lodging ||
+          w.places[home ?? 0]?.siteId !== w.places[a.placeId]?.siteId ||
+          camp.bedding) &&
         campId !== null &&
         !activity.onJourney(w, pc)
       ) {

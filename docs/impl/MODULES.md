@@ -95,14 +95,16 @@ One step = one game-hour (T1). Before the systems run, the loop:
 
 | # | System | Owner | Reads | Writes |
 |---|---|---|---|---|
-| 1 | `needsSystem` | needs-activities | last hour's activity (labor, asleep) | `world.needs`, band conditions |
-| 2 | `psycheSystem` | psyche | proposals from every module + `core.urge` commands | `world.psyche` (thoughts, `chosen`, anxiety, defenses) |
-| 3 | `activitySystem` | needs-activities | `psyche.chosenUrge`, schedules, places | `world.activity`, **`ActorCore.placeId`**, occupancy |
+| 1 | `psycheSystem` | psyche | proposals from every module + `core.urge` commands | `world.psyche` (thoughts, `chosen`, anxiety, defenses) |
+| 2 | `activitySystem` | needs-activities | `psyche.chosenUrge`, schedules, places | `world.activity`, **`ActorCore.placeId`**, occupancy |
+| 3 | `needsSystem` | needs-activities | current hour's activity minutes (labor, asleep, local walks) | `world.needs`, band conditions |
 | 4 | `faeSystem` | fae | committed locations, canonical episodes, charm stores | `world.fae`; items/needs/social/belief effects through APIs |
 | 5 | `socialSystem` | social | `activity.venues`, `psyche.chosenUrge` | `world.social`; calls `belief.transmit`, `needs.satisfyNeed` |
 | 6 | `beliefSystem` | belief | beliefs, grudges, misfortune | `world.belief` |
 | 7 | `provisionsSystem` | provisions | activity, items, temperature | `world.items`, `world.provisions`; calls `needs.feed` |
 | 8 | `chronicleSystem` | chronicle | event log since cursor | `world.chronicle` |
+
+Wave 10 A (2026-10-13): intentions and activity precede physiology, eliminating the one-hour lag. Short orders and local walks replace their actual share of the hour; needs round the weighted balance once. The same order applies to coarse regional hours; tactical participants retain interval settlement. Provisions completes preparations due by the closing boundary and never automatically feeds or recruits a sleeping cook.
 
 Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last events at the next hour. Module init order is explicit in `sim/init.ts` (items before provisions; fae last), after core creates places, households and actors.
 

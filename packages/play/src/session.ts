@@ -703,18 +703,6 @@ export class PlaySession {
         urge?.kind === 'core.urge' && urge.data.urge.kind === 'activity' ? urge.data.urge.activityId : undefined;
       activity.settleMinuteActivity(w, pc, remaining);
     }
-    // Physiology runs first, using the previous activity. Read the same ledger before stepping.
-    const kcalBurned = needs
-      .viewNeedsActor(w, c, pc, { perspective: pc, omniscient: false, includeExplain: true, recentChronicle: 0 })
-      .list.reduce((sum, n) => {
-        const intake = c.needs[n.id]?.intake;
-        return (
-          sum +
-          (intake?.unit === 'kcal'
-            ? (n.explain?.children?.find((x) => x.label === 'Hourly expenditure')?.total ?? 0) * intake.per_point
-            : 0)
-        );
-      }, 0);
     const opinions = Object.values(w.actors).map((a) => ({ id: a.id, op: social.opinionOf(w, a.id, pc) }));
     const before = provisions.readinessOf(w, c, { actorId: pc }, w.time);
     const owned = new Set(
@@ -830,7 +818,7 @@ export class PlaySession {
         (n, e) => n + (e.kind === 'provisions.meal' && e.data.actorId === pc ? e.data.kcal : 0),
         0,
       ),
-      kcalBurned: minutes === undefined ? kcalBurned : 0,
+      kcalBurned: minutes === undefined ? (w.needs.byActor[pc]?.hourlyKcalBurned ?? 0) : 0,
       spoilageUnits: recent.reduce(
         (n, e) =>
           n +

@@ -8,8 +8,9 @@
 #           asleep at 70% labor x 50% asleep) burns ~790 points = ~2,370 kcal (05 §6.1: 2,400).
 #           Heavy labor x1.5. +20% below 20 F. Missing a day puts you ~790 points behind.
 #   thirst  2 ml/point. Decay 80/h: ~3 L on a normal day; +40% in July heat and under labor.
-#   rest    Awake 55/h (about 18 h to Tired); sleep restores 110/h, so 8 h sleep = 16 h awake.
-#           Heavy work costs 160%, a cold or hungry bed restores less (05 §6.4).
+#   rest    Leisure 21/h, light work 30/h, heavy work 48/h before load; sleep restores 140/h.
+#           Ten heavy hours + seven leisure hours cost 627; seven sound sleep hours restore 980.
+#           Cold, hunger, thirst and insecurity still reduce sleep quality (05 §6.4).
 
 [[need]]
 id = "hunger"
@@ -69,9 +70,9 @@ bands = [{ at_least = 600, label = "Dehydrated", condition = "dehydrated" }]
 id = "rest"
 name = "Rest"
 kind = "physical"
-description = "Hours awake and exertion (05 §6.4). An hour of sleep restores about two and a half waking hours, so a full night covers a heavy day."
+description = "Hours awake and exertion (05 §6.4). A sound night covers a normal working day; carried load and a cold or hungry bed still matter."
 initial = 800
-decay_per_hour = 55
+decay_per_hour = 30
 asleep_pct = 0
 labor_pct = { rest = 70, light = 100, heavy = 160 }
 bands = [

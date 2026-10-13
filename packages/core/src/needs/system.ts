@@ -1,5 +1,5 @@
-/** Hourly physiology uses the previous hour's activity. */
-import { isAsleep, laborOf, minutePhysiologyActivity } from '../activity/api.ts';
+/** Hourly physiology settles the minutes actually performed in the closing hour. */
+import { isAsleep, laborOf, recomputeOccupancy } from '../activity/api.ts';
 import { requiredRow } from '../activity/definitions.ts';
 import type { ContentBundle } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
@@ -39,27 +39,52 @@ export function hourlyLedger(
   trace = true,
   intervalPart = false,
 ): HourlyLedger {
-  const accounted = minutePhysiologyActivity(world, id);
+  const budget = world.activity.minuteBudgets?.[id];
   const current = world.activity.byActor[id];
-  if (accounted !== undefined && current && current.activityId !== accounted) {
-    return hourlyLedger(
-      {
-        ...world,
-        activity: {
-          ...world.activity,
-          byActor: { ...world.activity.byActor, [id]: { ...current, activityId: accounted } },
+  const walkingMinutes = current?.hourlyWalk?.at === world.time ? current.hourlyWalk.minutes : 0;
+  if (!intervalPart && current && ((budget?.spent ?? 0) > 0 || walkingMinutes > 0)) {
+    const minutes = { ...budget?.activities };
+    minutes.walk = (minutes.walk ?? 0) + walkingMinutes;
+    const remaining = current.activityId ?? 'idle_at_home';
+    minutes[remaining] = (minutes[remaining] ?? 0) + Math.max(0, 60 - (budget?.spent ?? 0) - walkingMinutes);
+    let weighted = 0;
+    const terms: ExplainTerm[] = [];
+    const calculations: Explain[] = [];
+    for (const activityId of Object.keys(minutes).sort()) {
+      const duration = minutes[activityId] ?? 0;
+      if (!duration) continue;
+      const part = hourlyLedger(
+        {
+          ...world,
+          activity: {
+            ...world.activity,
+            byActor: {
+              ...world.activity.byActor,
+              [id]: { ...current, activityId },
+            },
+          },
         },
-      },
-      content,
-      id,
-      key,
-      air,
-      placeTempF,
-      before,
-      inventory,
-      trace,
-      intervalPart,
-    );
+        content,
+        id,
+        key,
+        air,
+        placeTempF,
+        before,
+        inventory,
+        trace,
+        true,
+      );
+      weighted += part.delta * duration;
+      if (trace) {
+        terms.push({
+          source: 'activity',
+          label: `${duration} minutes: ${content.activities[activityId]?.name ?? activityId}`,
+          value: Math.round((part.delta * duration) / 60) || 0,
+        });
+        calculations.push(...part.calculations);
+      }
+    }
+    return { delta: Math.round(weighted / 60) || 0, terms, calculations };
   }
   const interval = world.activity.journeys?.[id]?.interval;
   if (!intervalPart && interval?.at === world.time && interval.movingMinutes > 0 && interval.movingMinutes < 60) {
@@ -282,6 +307,7 @@ export function needsSystem(world: World, ctx: SimContext): void {
     // Sleep penalties use one immutable set of beginning-of-hour needs, avoiding id-order effects.
     const before = { ...n.values };
     const hourly: Record<string, number> = {};
+    let kcalBurned = 0;
     for (const key of keys) {
       const def = requiredRow(ctx.content.needs, key);
       const ledger = hourlyLedger(
@@ -296,6 +322,7 @@ export function needsSystem(world: World, ctx: SimContext): void {
         false,
       );
       if (world.tactical?.frame?.live.includes(id)) continue;
+      if (def.intake?.unit === 'kcal') kcalBurned += Math.max(0, -ledger.delta) * def.intake.per_point;
       // The hourly balance is routine: it updates the meter (and emits band changes) without an
       // event per actor-need-hour. The dossier re-derives the math on demand (hourlyNeedExplain).
       const after = satisfyNeed(world, ctx, id, key, ledger.delta, {
@@ -305,6 +332,9 @@ export function needsSystem(world: World, ctx: SimContext): void {
       hourly[key] = after - (before[key] ?? def.initial);
     }
     n.hourly = hourly;
+    n.hourlyKcalBurned = kcalBurned;
   }
   survivalHour(world, ctx);
+  // Care, funerals and deaths can change attendance after activity has committed.
+  recomputeOccupancy(world);
 }

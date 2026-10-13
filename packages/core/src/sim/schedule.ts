@@ -19,9 +19,10 @@ export type SystemFn = (world: World, ctx: SimContext) => void;
 
 /** Per game-hour, in this order. */
 export const HOURLY_SYSTEMS: ReadonlyArray<{ id: string; run: SystemFn }> = [
-  { id: 'needs', run: needsSystem },
   { id: 'psyche', run: psycheSystem },
   { id: 'activity', run: activitySystem },
+  // Settle the activity just performed, before its meals and other intake.
+  { id: 'needs', run: needsSystem },
   { id: 'fae', run: faeSystem },
   { id: 'social', run: socialSystem },
   { id: 'belief', run: beliefSystem },

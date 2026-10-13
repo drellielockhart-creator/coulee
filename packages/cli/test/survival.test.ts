@@ -137,6 +137,8 @@ describe('survival consequences', () => {
     alone(sim, id);
     sim.world.time = toGameMinute(1856, 1, 15, 0, 0);
     const start = sim.world.time;
+    // Isolate exposure from rescue: the healthier town can otherwise carry him indoors.
+    for (const other of Object.values(sim.world.psyche.byActor)) other.agencyMode = 'commanded';
     const mind = required(sim.world.psyche.byActor[id]);
     mind.agencyMode = 'commanded';
     // Eat off too (wave 5): a standing eat order now walks him home to his larder when it is

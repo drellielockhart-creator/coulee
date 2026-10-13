@@ -6,3 +6,13 @@ verb = "walking about"
 at = "anywhere"
 labor = "light"
 tags = ["travel"]
+
+# Deliberate quiet recovery, available wherever the actor is standing.
+[[activity]]
+id = "rest"
+name = "Rest"
+verb = "resting quietly"
+at = "anywhere"
+labor = "rest"
+needs = { rest = 40 }
+tags = ["leisure"]
