@@ -23,6 +23,7 @@ import {
 import { PlaySession, sessionSimOf } from '@coulee/play';
 import { describe, expect, it } from 'vitest';
 import { trimLog } from '../../core/src/events/index.ts';
+import { decayMemoriesDaily } from '../../core/src/social/memory.ts';
 import type { MemoryInput } from '../../core/src/social/state.ts';
 import { actorByKey, baseContent } from './helpers.ts';
 
@@ -392,10 +393,11 @@ describe('M5 2b lifecycle and household ownership', () => {
       ),
     ).toBe(true);
     const memory = witnessMemory(sim);
-    region.recordCensusEvidence(sim.world, 'tactical boundary', memory);
+    region.recordCoarseCensusEvidence(sim.world, makeContext(sim.world, content, []), 'tactical boundary', memory);
     advanceUntil(sim, TICKS_PER_HOUR - 1);
     expect(sim.world.region?.lod?.evaluatedAt).toBe(0);
     expect(sim.world.region?.census?.evidence[0]?.hydratedMemoryId).toBeNull();
+    expect(region.hydrateCensusEvidence(sim.world, makeContext(sim.world, content, []), memory.ownerId)).toEqual([]);
     const loaded = restoreSim(content, JSON.parse(JSON.stringify(sim.world)));
     advanceUntil(sim, TICKS_PER_HOUR);
     advanceUntil(loaded, TICKS_PER_HOUR);
@@ -474,3 +476,80 @@ function mEvent(world: Sim['world']) {
   if (!event) throw new Error('Missing source event');
   return event.id;
 }
+
+describe('M5 2c delayed named evidence', () => {
+  it('matches ordinary integer memory decay across a 14-day absence and mid-absence load', () => {
+    const delayed = fresh();
+    const memory = witnessMemory(delayed);
+    const ordinary = restoreSim(content, structuredClone(delayed.world));
+    const id = social.addMemory(ordinary.world, makeContext(ordinary.world, content, []), memory);
+    expect(
+      region.recordCoarseCensusEvidence(delayed.world, makeContext(delayed.world, content, []), 'decay', memory),
+    ).toBe(true);
+    for (let day = 1; day <= 14; day++) {
+      delayed.world.time = asGameMinute(day * 1440 + 60);
+      decayMemoriesDaily(ordinary.world, content);
+      region.decayCensusEvidence(delayed.world);
+      if (day === 7) delayed.world = restoreSim(content, JSON.parse(JSON.stringify(delayed.world))).world;
+    }
+    region.promoteCensusActor(delayed.world, makeContext(delayed.world, content, []), memory.ownerId);
+    const actual = social.memoriesOf(delayed.world, memory.ownerId).find((m) => m.eventId === memory.eventId);
+    expect(actual?.salience).toBe(id === null ? undefined : ordinary.world.social.memories[id]?.salience);
+    const before = stateHash(delayed.world);
+    region.promoteCensusActor(delayed.world, makeContext(delayed.world, content, []), memory.ownerId);
+    expect(stateHash(delayed.world)).toBe(before);
+    expect(findNonIntegers(delayed.world)).toEqual([]);
+  });
+
+  it('hands midnight decay to exactly one owner before and after promotion', () => {
+    for (const minute of [1440, 1500]) {
+      const sim = fresh();
+      const memory = witnessMemory(sim);
+      region.recordCoarseCensusEvidence(sim.world, makeContext(sim.world, content, []), 'midnight', memory);
+      const policy = social.memoryDecayPolicy(sim.world, content, memory);
+      sim.world.time = asGameMinute(minute);
+      region.promoteCensusActor(sim.world, makeContext(sim.world, content, []), memory.ownerId);
+      if (minute === 1440) decayMemoriesDaily(sim.world, content);
+      region.decayCensusEvidence(sim.world, asGameMinute(1500));
+      const actual = social.memoriesOf(sim.world, memory.ownerId).find((m) => m.eventId === memory.eventId);
+      expect(actual?.salience).toBe(social.decayMemorySnapshot(memory.salience, false, policy));
+    }
+  });
+
+  it('retains forgotten receipts without allocating or repeatedly resurrecting a memory', () => {
+    const sim = fresh();
+    const memory = { ...witnessMemory(sim), intensity: 0, salience: 0 };
+    region.recordCoarseCensusEvidence(sim.world, makeContext(sim.world, content, []), 'forgotten', memory);
+    sim.world.time = asGameMinute(1500);
+    region.promoteCensusActor(sim.world, makeContext(sim.world, content, []), memory.ownerId);
+    expect(sim.world.region?.census?.evidence[0]?.decay?.forgottenAt).toBe(1440);
+    expect(social.memoriesOf(sim.world, memory.ownerId).filter((m) => m.eventId === memory.eventId)).toHaveLength(0);
+    const before = stateHash(sim.world);
+    expect(region.recordCoarseCensusEvidence(sim.world, makeContext(sim.world, content, []), 'forgotten', memory)).toBe(
+      false,
+    );
+    region.promoteCensusActor(sim.world, makeContext(sim.world, content, []), memory.ownerId);
+    expect(stateHash(sim.world)).toBe(before);
+  });
+
+  it('captures the producer policy once, independent of later disposition or hydration order', () => {
+    const sim = fresh();
+    const memory = witnessMemory(sim);
+    region.recordCoarseCensusEvidence(sim.world, makeContext(sim.world, content, []), 'cause-policy', memory);
+    const policy = structuredClone(sim.world.region?.census?.evidence[0]?.decay?.policy);
+    const actor = sim.world.actors[memory.ownerId];
+    if (!actor) throw new Error('Missing actor');
+    actor.values.neighborliness = -3;
+    sim.world.time = asGameMinute(1500);
+    region.decayCensusEvidence(sim.world);
+    expect(sim.world.region?.census?.evidence[0]?.decay?.policy).toEqual(policy);
+    const before = stateHash(sim.world);
+    expect(() =>
+      region.recordCoarseCensusEvidence(sim.world, makeContext(sim.world, content, []), 'cause-policy', {
+        ...memory,
+        salience: 1,
+      }),
+    ).toThrow('Conflicting');
+    expect(stateHash(sim.world)).toBe(before);
+  });
+});

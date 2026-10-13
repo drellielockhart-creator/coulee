@@ -326,3 +326,90 @@ all package/script typechecks, 241 invariant-checked files and 110 content files
 Vitest took 1152.46 seconds on the shared host. Iron Ford's golden passed unchanged.
 `just bundle` was run before the gate for the worker tests' generated content import.
 Complete gate log: `runs/scratch/m5-check.log` (gitignored).
+
+## Slice 2c status — delayed evidence subset, 2026-10-13
+
+**Incomplete: actual coarse population T2 remains disabled.** This change does not implement
+meal/preparation/storage, production/economic transfers, survival, daily social/psyche,
+belief compartments, or pending physical-delta settlement. No actor is removed from its
+hourly executor, and no T2 speedup is claimed.
+
+The implemented subset is **producer-snapshotted delayed memory decay**:
+
+- `social.memoryDecayPolicy` captures the existing memory rule's time constant, floor and
+  forgetting threshold. `decayMemorySnapshot` shares the ordinary integer daily decay step.
+  Neither changes the legacy social executor or allocates a memory ID.
+- `region.recordCoarseCensusEvidence` accepts an already-perceived memory after the current
+  day's mind upkeep. It captures policy at production time; an old event told today starts
+  aging today. Original evidence stays immutable for duplicate/conflict checks.
+- The completed-hour region boundary ages unresolved snapshots through completed midnight
+  upkeep only. At exactly 00:00, promotion leaves that day's decay to social; after that
+  hour closes, region has already applied it. Hydration permanently ends region's decay
+  ownership. Forgotten snapshots retain a receipt and cannot resurrect on repeat promotion.
+- Existing `recordCensusEvidence` callers/saves retain their behavior. No production source
+  is automatically routed into the new API: source-side named summaries still need their
+  owners' kernels. This is an available evidence kernel, not an enabled population T2 type.
+- Conflicting evidence now rejects before refreshing census timestamps, so failure does not
+  mutate the world.
+
+### Integration gates and exact remaining hooks
+
+`runs/scratch/m5-slice2c-gates.ts` compares the long-road two-site fixture against pinned T1
+for 50 seeds × 336 hours, records actual daily-owned actor counts, and checks a day-seven
+JSON save/load continuation. Full needs/social/belief/provisions/items equality is stricter
+than outcome bands **only for the retained executor being tested**. A zero daily-owned count
+fails the actual-T2 prerequisite regardless of equal outcomes. The ordinary fixture's
+250/240-minute road remains correctly within the six-hour T1 radius; enabling distant T2
+must not be confused with overriding that policy.
+
+Required owner work, beyond region and the granted cross-module `api.ts` edits:
+
+| Executor | Required partition/extraction before enabling population T2 |
+| --- | --- |
+| `needs/{system,thermal,survival,survival-social}.ts` | Scoped physiology, heating, exposure counters, checks, collapse/death, care and aftermath; preserve canonical checks and estate/death facts. |
+| `activity/{system,production}.ts`, `psyche/system.ts` | Scoped intentions/activity and named-mind daily summaries; pin journeys, mixed households and tactical actors; stop hourly work for daily owners. |
+| `provisions/{system,meals,environment,nutrition,economy,employment}.ts` | Scoped meal preparation/plates, six-hour storage/weather/devices/hems, nutrition, production, wages, shopping/freight; use the same P8 kernels and transfer APIs. |
+| `social/{system,memory,opinion,requests,relief,objects,strife}.ts` | Scoped encounters/upkeep and consequential producer evidence; preserve named ledgers and reasons. |
+| `belief/{system,tells,misfortune,escalation}.ts` | Scoped attribution/decay and settlement diffusion; avoid whole-world Commons as a substitute for compartments. |
+| `region/processing.ts` plus foundation composition | Activate a shared interval partition only after those owners honor it; save cursors/remainders, settle ordered physical deltas once on promotion, and never replay prior consumption. |
+
+The explicit file-ownership exception in the task covered small `api.ts` changes; broader
+executor-hook authorization was requested asynchronously and has not been received during
+this subset. No unapproved system files, sibling worktrees, golden snapshots or commits
+are changed.
+
+The isolated decay tests do not establish whole-mind summary parity: delayed insertion can
+interact with memory caps, weekly consolidation, opinion reasons and disposition changes.
+Those remain part of the social/psyche bands, not implied by the snapshot-kernel result.
+The hydration entry point also defers during unfinished tactical frames, including explicit
+promotion calls, to prevent applying midnight decay twice when social later closes the frame.
+
+### Measured gate table (this subset)
+
+| Gate | Result |
+| --- | --- |
+| 50 seeds × 14-day long-road absence: needs, interactions/opinions, cash, pantry | Exact full-slice equality for retained hourly executors; 0 percentage-point band difference. **Not coarse-T2 parity.** |
+| Actual T2 processing | **FAIL: 0 daily-owned actors in all 50 runs**, despite 2 selected T2 actors per run. |
+| Day-seven JSON save/load, continued to day 14 | Identical world hash (seed 1). |
+| Identity / reverse delayed promotion order | Existing 50-seed integration gate passes in the 20-test region suite. |
+| Isolated delayed memory decay, 14 days | Matches ordinary integer memory decay, including day-seven restore; midnight ownership, forgotten receipts and unfinished tactical frames pass. |
+| Population T2 speed / absent-site-only ms/h | **Unmeasured: no population T2 executor.** |
+
+The 50 paired full-fixture runs have median **21.74 ms/h pinned T1**, **21.95 ms/h
+retained candidate**. Each pair alternated candidate/control hours on the shared host.
+These are 42-actor two-site costs, not the cost of Cedar Farm's two absent actors.
+Do not interpret the timing noise as a speed comparison between T1 and coarse T2.
+Harness/results/log: `runs/scratch/m5-slice2c-gates.{ts,json,log}`; summarized results:
+`runs/scratch/m5-2c-summary.json` (generated by `m5-2c-report.mjs`). All are gitignored.
+
+Touched files: `packages/core/src/region/{evidence,state,system}.ts`,
+`packages/core/src/social/api.ts`, `packages/cli/test/region.test.ts`, and this plan.
+No commits or golden updates. Final-source focused gate: **20/20 region tests**, Biome and
+241 core-file invariants pass. Full-check result is recorded below after completion.
+
+Full gate: **`VITEST_MAX_WORKERS=2 just check` green: 82 files / 859 tests**, all package
+and script typechecks, 241 invariant-checked files, 110 content files validated. Vitest took
+1065.40 seconds on the shared host. Iron Ford's golden passed unchanged. Log:
+`runs/scratch/m5-2c-check.log`. The final one-line compatibility adjustment preserving
+census-only evidence recipients was checked afterward with Biome and the full **20/20 region
+suite** (`runs/scratch/m5-2c-region-final.log`, 13.20 seconds). No commits.

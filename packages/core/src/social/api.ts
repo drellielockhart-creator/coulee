@@ -9,7 +9,7 @@ import type { ContentBundle, DefenseId } from '../content.ts';
 import { type ActorId, type EventId, idsOf, type MemoryId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
-import { insertMemory, ownerMemories } from './memory.ts';
+import { decayOneDay, insertMemory, memoryFloor, memoryTauDays, ownerMemories } from './memory.ts';
 import {
   addReason,
   adjustLedger,
@@ -99,6 +99,35 @@ export function addDefenseReason(
 export function addMemory(world: World, ctx: SimContext, memory: MemoryInput): MemoryId | null {
   if (!world.actors[memory.ownerId]) return null;
   return insertMemory(world, ctx, memory);
+}
+
+/** Freeze the producer's decay inputs before a named off-screen memory is deferred.
+ * Subsequent disposition changes must not reroll its unresolved history on arrival. */
+export interface MemoryDecayPolicy {
+  tauDays: number;
+  floor: number;
+  forgetBelow: number;
+}
+export function memoryDecayPolicy(world: World, content: ContentBundle, input: MemoryInput): MemoryDecayPolicy {
+  const memory: Memory = {
+    ...input,
+    id: 0 as MemoryId,
+    aboutId: input.aboutId ?? null,
+    did: input.did ?? false,
+    count: input.count ?? 1,
+    since: input.since ?? input.at,
+  };
+  return {
+    tauDays: memoryTauDays(world, content, memory),
+    floor: memoryFloor(content, memory),
+    forgetBelow: tuningOf(content).forget_below,
+  };
+}
+
+/** Same integer daily step as a materialized mind; no World mutation or new memory ID. */
+export function decayMemorySnapshot(salience: number, pinned: boolean, policy: MemoryDecayPolicy): number | null {
+  const next = decayOneDay(salience, policy.tauDays, policy.floor);
+  return !pinned && next < policy.forgetBelow && policy.floor < policy.forgetBelow ? null : next;
 }
 
 export function memoriesOf(world: World, actorId: ActorId): Memory[] {
