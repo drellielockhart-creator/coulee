@@ -56,34 +56,33 @@ _Updated 2026-10-11, night. The repo is https://github.com/drellielockhart-creat
   - church-time loan misses accepted;
   - a keeper's refusal has costs on both sides.
 
-## Wave 6
-**Merged** (`43fba9a`, `just check` 799 green; default test timeout is now 180 s for loaded machines):
-- poor relief: M4 acceptance 3 passes on the half-stores harness; no starvation deaths in the year runs;
-- charm refusal costs;
-- fae 1b cross-model fixes (12);
-- M5 plan and slice 1 plus polish (walk to Cedar Farm in `iron_ford_neighbors`);
-- talk listener memory: repeats 10–14%;
-- M6 plan;
-- docs sync with a root README.
+## Wave 6 (merged into `main`)
+- **Poor relief** (M4 acceptance 3 passes) and **charm refusal costs**.
+- **Charm theft:** coveting turns to theft via `social.attemptTheft`; custody vs claims; accusations follow beliefs.
+- **The 12 fae 1b cross-model fixes.**
+- **Talk listener memory:** repeats are 10–14%.
+- **M5:** the plan, slice 1 plus polish, and the basic web region map. Screenshots are in `runs/screens/*-region-*`.
+- **M6:** the plan and slice 1, a tenth-second tactical clock with auto-pause on the Q04 defaults (`TICKS_PER_SECOND`), in the opt-in `tavern_instant` fixture.
+- **Docs sync and root README.**
+- The default test timeout is now 180 s for loaded machines.
 
-**In flight (all Codex):**
-
-| Job | Where |
-|---|---|
-| M6 slice 1, tactical clock and auto-pause (on the Q04 defaults) | `../coulee-w6-m6-slice1`, branch `wave6/m6-slice1` |
-| Web region map (basic; Claude must run the screenshots) | `../coulee-w6-web-region`, branch `wave6/web-region` |
-| Charm theft wiring (coveting → `social.attemptTheft`) | `../coulee-w6-theft`, branch `wave6/charm-theft` |
-| Perf wave 2 (hash-identical; target under 5 ms/h) | `../coulee-w6-perf2`, branch `wave6/perf2` |
-
-Two of these, M6 slice 1 and the web map, were launched detached; watch with `pgrep -fa "codex exec"`.
+**Still running when this was written:** perf wave 2 (Codex astra, hash-identical) in `../coulee-w6-perf2`, branch `wave6/perf2`. When it finishes:
+1. Verify its final hashes against `main` on fresh seeds.
+2. Commit the branch and merge it.
 
 ## Next
-1. Merge the four in-flight jobs. Screenshot the region map (`pnpm exec tsx scripts/screens.ts`).
-2. **Ellie's decisions:** 08 items 11–15 (D1–D3, M5 defaults, M6 defaults including Q04).
-3. **Social tuning:** borrow/lend interactions fire about 5 a day in Iron Ford (1,933 a year) against about 1.3 a day in generated towns. Find out why and tune.
-4. **M5 slice 2** (census, T1/T2 LOD), then slice 3 (start in a generated county).
-5. **r3 persona playtests** on the current build, CLI plus web, with per-agent helper dirs.
-6. **Small:** stacked county name qualifiers.
+1. **Ellie's decisions:** 08 items 11–15 (D1–D3, M5 defaults, M6 defaults including Q04).
+2. **Social tuning:** borrow/lend fires about 5 times a day in Iron Ford (1,933 a year) against about 1.3 a day in generated towns. Find out why and tune.
+3. **Web follow-ups:**
+   - the desktop Act panel shows the route preview twice;
+   - the route preview is raw monospace text: make it a formatted card;
+   - the region map is schematic until a county is playable (M5 slice 3).
+4. **M5 slice 2** (census, T1/T2 LOD), then slice 3 (start in a generated county). Two-site frames cost about 50 ms per game-hour on desktop today.
+5. **M6 slice 2** (melee, brawls, surrender) once Ellie confirms Q04.
+6. **r3 persona playtests** on the current build (CLI plus web), with per-agent helper dirs.
+7. **Small:** stacked county name qualifiers.
+
+**Machine note (2026-10-12 night):** two watcher processes (`while pgrep -f "codex exec" …; systemctl poweroff`) were set up to power the machine off after Codex finishes. Their `pgrep -f` also matches the other watcher's own command line, so they may never fire.
 
 The parking lot is `docs/impl/BACKLOG.md`. Ellie asked for vehicles and river trade there.
 
