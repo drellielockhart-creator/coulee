@@ -28,6 +28,8 @@ export interface Action {
   destination?: Cell;
   targetId?: ActorId;
   cancelled?: boolean;
+  /** Hostility already underway when this windup began; peace invalidates it. */
+  brawlId?: number;
   fromReaction?: boolean;
   reactionCount?: number;
   due: number;
@@ -75,6 +77,8 @@ export interface HourFrame {
 }
 export interface TacticalState {
   brawls?: Brawl[];
+  /** Saved marker: this scene has hosted a fight or a cancelled hostile declaration. */
+  engaged?: boolean;
   grapples?: Array<{ holder: ActorId; target: ActorId; stage: 1 | 2 | 3 }>;
   version: 1;
   sceneId: string;

@@ -117,8 +117,8 @@ export function workAllows(content: ContentBundle, work: WorkStatus | null, def:
 
 /** Open the shared allowance only when sub-hour social execution is used. */
 export function beginMinuteTalk(world: World): void {
-  if (world.social.minuteTalk?.at !== world.time)
-    world.social.minuteTalk = { at: world.time, pairs: {}, workMinutes: {} };
+  if (world.social.minuteTalk?.at !== Math.floor(world.time / 60) * 60)
+    world.social.minuteTalk = { at: Math.floor(world.time / 60) * 60, pairs: {}, workMinutes: {} };
 }
 
 const talkKey = (a: ActorId, b: ActorId, interaction: string) => `${Math.min(a, b)}:${Math.max(a, b)}:${interaction}`;
@@ -132,7 +132,7 @@ export function minuteTalkBlock(
   def: InteractionDef,
 ): string | null {
   const budget = world.social.minuteTalk;
-  if (budget?.at !== world.time) return null;
+  if (budget?.at !== Math.floor(world.time / 60) * 60) return null;
   if (budget.pairs[talkKey(a, b, def.id)])
     return 'You have already had this exchange together this hour; try next hour';
   for (const id of [a, b]) {
@@ -151,7 +151,7 @@ export function noteMinuteTalk(
   def: InteractionDef,
 ): void {
   const budget = world.social.minuteTalk;
-  if (budget?.at !== world.time) return;
+  if (budget?.at !== Math.floor(world.time / 60) * 60) return;
   budget.pairs[talkKey(a, b, def.id)] = true;
   for (const id of [a, b]) {
     const work = workStatus(world, content, id);

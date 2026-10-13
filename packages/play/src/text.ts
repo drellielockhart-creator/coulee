@@ -348,7 +348,10 @@ export function renderInterrupts(
 const normalized = (s: string) => s.trim().toLowerCase().replaceAll('_', ' ');
 export function parseText(line: string, o: Observation, page = 0): Command | string {
   if (o.tactical) {
-    const phrase = line.trim().toLowerCase();
+    const phrase = line
+      .trim()
+      .toLowerCase()
+      .replace(/^fight /, 'attack ');
     const id =
       phrase === 'resume'
         ? 'tactical:resume'
@@ -381,7 +384,7 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
   }
   const text = line.trim(),
     words = text.split(/\s+/),
-    verb = words.shift()?.toLowerCase() ?? '',
+    verb = (words.shift()?.toLowerCase() ?? '').replace(/^attack$/, 'fight'),
     tail = words.join(' ');
   const choose = (matches: AvailableAction[], query: string): Command | string => {
     if (matches.length === 1 && matches[0]) return matches[0].command;
@@ -544,7 +547,8 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
       actorId: pc,
       data: { householdId: null, rationPct: Number(verb === 'set' ? words[1] : tail) },
     };
-  if (verb === 'drink') return drinkRefusal(o);
+  if (verb === 'drink')
+    return o.tactical ? 'You cannot stop for a drink during the brawl; yield or flee first.' : drinkRefusal(o);
   if (verb === 'fill' || verb === 'refill') {
     if (!tail) return 'Fill what? Use fill <canteen, kettle or other vessel>';
     const vessels = o.self.inventory.carried.filter((s) => normalized(s.name).includes(normalized(tail)));

@@ -1,4 +1,4 @@
-import { installTacticalPositions, tacticalPosition } from '../activity/api.ts';
+import { installTacticalPositions, onJourney, tacticalPosition } from '../activity/api.ts';
 import { abilityMod } from '../actor.ts';
 import type { Command } from '../command.ts';
 import type { ContentBundle } from '../content.ts';
@@ -22,17 +22,14 @@ export function requestEncounter(
   placeId: PlaceId,
   actors: ActorId[],
   text: string,
+  combatants?: [ActorId, ActorId],
 ): boolean {
   if (
-    (w.backgroundTactical &&
-      (w.backgroundTactical.sceneId === sceneId ||
-        w.backgroundTactical.frame?.phase !== 'settled' ||
-        w.backgroundTactical.heap.length > 0 ||
-        w.backgroundTactical.brawls?.some((b) => b.endedAt === undefined))) ||
     w.tactical?.active ||
     w.tactical?.sceneId === sceneId ||
-    w.time % 60 !== 0 ||
-    (w.tenth ?? 0) !== 0
+    w.backgroundTactical?.sceneId === sceneId ||
+    w.backgroundTactical?.heap.length ||
+    w.backgroundTactical?.brawls?.some((b) => b.endedAt === undefined)
   )
     return false;
   const ids = [...new Set(actors)]
@@ -41,9 +38,11 @@ export function requestEncounter(
   const cells = sceneCells(w, ctx.content, placeId);
   if (ids.length < 2 || cells.length < ids.length) return false;
   const now = instantOf(w);
+  const frame = w.backgroundTactical?.frame ?? w.tactical?.frame;
   delete w.backgroundTactical;
   w.tactical = {
     version: 1,
+    ...(frame ? { frame } : {}),
     sceneId,
     placeId,
     active: true,
@@ -58,8 +57,10 @@ export function requestEncounter(
     reservations: {},
     pause: null,
   };
-  w.tenth = 0;
-  installTacticalPositions(w, placeId, ids, cells);
+  const placed = combatants
+    ? [...combatants].sort((a, b) => a - b).concat(ids.filter((id) => !combatants.includes(id)))
+    : ids;
+  installTacticalPositions(w, placeId, placed, cells);
   for (const id of ids) {
     const actor = w.actors[id];
     if (!actor) continue;
@@ -107,7 +108,10 @@ export function tacticalCommandCheck(w: World, c: ContentBundle, command: Comman
   if (!command.kind.startsWith('tactical.')) return 'Not a tactical command';
   const s = w.tactical,
     p = s?.participants[command.actorId];
-  if (!s?.active || !p) return 'No active tactical scene';
+  if (!s?.active || !p)
+    return command.kind === 'tactical.attack'
+      ? townBrawlCheck(w, c, command.actorId, command.data.targetId)
+      : 'No active tactical scene';
   const cmd = command as TacticalCommand;
   if (cmd.kind === 'tactical.advance')
     return Number.isSafeInteger(cmd.data.ticks) && cmd.data.ticks > 0 && cmd.data.ticks <= 36000
@@ -230,6 +234,8 @@ export function startAction(
     ...(fromReaction ? { fromReaction: true } : {}),
     ...(destination ? { destination } : {}),
   };
+  const ongoing = activeBrawls(w, id).find((b) => b.a === targetId || b.b === targetId);
+  if (ongoing) action.brawlId = ongoing.id;
   p.action = action;
   if (kind !== 'guard') p.guarding = false;
   s.declarations[id] = (s.declarations[id] ?? 0) + 1;
@@ -247,7 +253,7 @@ export function startAction(
     visibility: 'private',
     explain: authorizationExplain(w, id, { kind: `tactical.${kind}` }, basis),
   });
-  if ((kind === 'attack' || kind === 'grapple') && targetId !== undefined) beginBrawl(w, ctx, id, targetId);
+  if (kind === 'attack' || kind === 'grapple') s.engaged = true;
   if (kind === 'flee') movementReactions(w, ctx, id);
   return true;
 }
@@ -336,4 +342,27 @@ export function requestBrawl(w: World, ctx: SimContext, a: ActorId, b: ActorId, 
 export function combatDanger(world: World, id: ActorId, hostiles: readonly ActorId[]): number {
   const t = world.tactical;
   return t?.active && t.participants[id] && hostiles.some((h) => !!t.participants[h]) ? 1000 : 0;
+}
+
+/** Town admission uses the same agency and living-actor rules as an existing scene. */
+export function townBrawlCheck(w: World, c: ContentBundle, a: ActorId, b: ActorId): string | null {
+  if (a === b || !w.actors[a] || !w.actors[b] || w.actors[a]?.placeId !== w.actors[b]?.placeId)
+    return 'Choose someone here to fight';
+  if (!canAct(w, a) || !canAct(w, b)) return 'Nonlethal blows stop at incapacity';
+  if (onJourney(w, a) || onJourney(w, b)) return 'Finish the journey before fighting here';
+  if (w.backgroundTactical?.heap.length || w.backgroundTactical?.brawls?.some((b) => b.endedAt === undefined))
+    return 'Another brawl is still unfolding';
+  const place = w.actors[a]?.placeId;
+  if (place === undefined || sceneCells(w, c, place).length < 2) return 'No room to square up here';
+  return null;
+}
+/** An explicit resume visits this deadline even when the heap is empty. */
+export function quietDeadline(w: World, id: ActorId): number | null {
+  const s = w.tactical,
+    p = s?.participants[id];
+  if (!s?.active || !p || (!s.engaged && !s.brawls?.length && !p.fled)) return null;
+  if (p.fled) return p.action ? null : p.readyAt + 6 * TICKS_PER_SECOND;
+  if (s.heap.length || activeBrawls(w).length || idsOf<ActorId>(s.participants).some((a) => healthOf(w, a)?.dying))
+    return null;
+  return s.quietSince + 6 * TICKS_PER_SECOND;
 }

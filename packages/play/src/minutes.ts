@@ -3,7 +3,7 @@ import { activity, type Command, items, type Sim } from '@coulee/core';
 
 export function shortMinutes(sim: Sim, command: Command): number | null {
   const { world: w, content: c } = sim;
-  if (w.tactical || c.scenarios[w.meta.scenarioId]?.tactical_scene) return null;
+  if (w.tactical?.active) return null;
   const timing = c.playTiming?.town;
   if (!timing || activity.shortActBlock(w, c, command.actorId)) return null;
   if (command.kind === 'provisions.buy' || command.kind === 'provisions.sell') return timing.purchase_minutes;

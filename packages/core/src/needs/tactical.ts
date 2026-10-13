@@ -1,7 +1,8 @@
 /** T0 interval settlement uses the ordinary need mutation kernel and saved integer carries. */
 
+import { type ActorId, idsOf } from '../ids.ts';
 import { inventoryIndex } from '../items/api.ts';
-import { TICKS_PER_HOUR } from '../sim/clock.ts';
+import { instantOf, TICKS_PER_HOUR } from '../sim/clock.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { satisfyNeed } from './api.ts';
@@ -27,13 +28,13 @@ export function accrueTacticalNeeds(w: World, ctx: SimContext, through: number):
   f.through = through;
 }
 /** Prepare immutable hourly rates once; no need is charged before time elapses. */
-export function prepareTacticalNeeds(w: World, ctx: SimContext): void {
+export function prepareTacticalNeeds(w: World, ctx: SimContext, actors?: ActorId[]): void {
   const f = w.tactical?.frame;
   if (!f) return;
   f.temperatures = heatPlaces(w, ctx);
   const air = ambientTemperatureF(ctx.cal, w),
     inventory = inventoryIndex(w);
-  for (const id of f.live) {
+  for (const id of actors ?? f.live) {
     const actor = w.actors[id],
       n = w.needs.byActor[id],
       activity = w.activity.byActor[id];
@@ -92,4 +93,21 @@ export function nextTacticalNeedInstant(w: World): number | null {
     }
   }
   return delay === null ? null : f.through + Math.max(1, delay);
+}
+
+/** A second scene may admit different actors into an already open town hour. */
+export function enrollTacticalNeeds(w: World, ctx: SimContext): ActorId[] {
+  const f = w.tactical?.frame;
+  if (f?.phase !== 'open') return [];
+  const prior = f.live;
+  const added = idsOf<ActorId>(w.tactical?.participants ?? {}).filter((id) => !prior.includes(id));
+  if (!added.length) return [];
+  prepareTacticalNeeds(w, ctx, added);
+  const through = f.through;
+  f.live = added;
+  f.through = f.start;
+  accrueTacticalNeeds(w, ctx, instantOf(w));
+  f.live = [...prior, ...added].sort((a, b) => a - b);
+  f.through = through;
+  return added;
 }

@@ -12,7 +12,9 @@ export function tacticalPinned(w: World, id: ActorId): boolean {
       (w.tactical.active || !!w.tactical.brawls?.some((b) => b.endedAt === undefined && (b.a === id || b.b === id))) &&
       !!w.tactical.participants[id] &&
       !w.tactical.participants[id]?.fled) ||
-    (w.tactical?.frame?.phase === 'settling' && w.tactical.frame.live.includes(id))
+    (w.tactical?.frame?.phase === 'settling' &&
+      w.tactical.frame.live.includes(id) &&
+      !w.tactical.frame.commands.some((command) => command.actorId === id))
   );
 }
 export function installTacticalPositions(w: World, placeId: PlaceId, ids: ActorId[], cells: Cell[]): void {
@@ -25,7 +27,8 @@ export function installTacticalPositions(w: World, placeId: PlaceId, ids: ActorI
     w.activity.tacticalPositions[id] = { ...cell, site: p.siteId, level: 0 };
     const a = w.activity.byActor[id];
     if (a) {
-      a.activityId = 'idle_at_home';
+      a.activityId = null;
+      a.lockedUntil = null;
       a.travel = null;
     }
   }

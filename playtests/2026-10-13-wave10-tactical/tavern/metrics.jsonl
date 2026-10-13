@@ -1,0 +1,2 @@
+{"t":2,"mode":"telemetry","purseCents":5000,"householdCents":0,"kcalEaten":0,"kcalBurned":0,"spoilageUnits":0,"opinionDeltas":[],"rumorsAboutPC":[],"defensesTriggered":[],"storyBeats":[],"deaths":[],"idleMinutes":0,"decidingMinutes":2,"decidingTimeBasis":"simulation"}
+{"t":60,"mode":"telemetry","purseCents":5000,"householdCents":0,"kcalEaten":0,"kcalBurned":87,"spoilageUnits":1,"opinionDeltas":[],"rumorsAboutPC":[],"defensesTriggered":[],"storyBeats":[525,526],"deaths":[],"idleMinutes":58,"decidingMinutes":0,"decidingTimeBasis":"simulation"}

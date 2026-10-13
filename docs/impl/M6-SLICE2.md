@@ -220,3 +220,16 @@ content validation (112 files). Transcript: `runs/scratch/m6-review-check.log`.
 The final background-scene tests also pass independently. An ordinary-command replay across
 Breathe, save/load and a one-hour wait matches hash `35fdd4aaa938f632` (scratch reproduction:
 `runs/scratch/review-retired-replay.ts`). `git diff --check` is clean. No golden update and no commit.
+
+## Wave 10 C: ordinary-town entry and shell clock handoff (2026-10-13)
+
+The r3 follow-up supersedes the earlier authored-only admission policy for explicitly
+ordered unarmed fights. `fight`, `attack`, and `talk:fight` now enter the same tactical
+kernel in any town. Town minute cursors enter the open hour exactly once; ordinary
+short orders resume against the retained clock. Authored danger is present in the first
+observation. After a fight or flight, explicit resume/wait reaches the six-second quiet
+deadline and retires the scene without an hour-long wait. Queries never advance time.
+Cancelled windups retain recovery without starting hostility. Bystanders remember and
+can pass on the fight through the existing belief transmission API. Replay rules are 4.
+
+[Regression table, fair CLI journals, generated-town sample and 1,000-seed rerun](../../playtests/2026-10-13-wave10-tactical/report.md).

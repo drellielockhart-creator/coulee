@@ -34,12 +34,30 @@ export function movementCheck(w: World, c: ContentBundle, id: ActorId, to: Cell)
 
 /** Slice 2 authored door; offsets are five-foot cells from the interior's north-west corner. */
 export function sceneExit(w: World, c: ContentBundle): (Cell & { placeId: import('../ids.ts').PlaceId }) | null {
-  const s = w.tactical,
-    def = c.scenarios[w.meta.scenarioId]?.tactical_scene?.exit;
-  const first = s ? sceneCells(w, c, s.placeId)[0] : undefined;
-  const placeId = def ? w.index.placeByDef[def.place] : undefined;
-  if (!def || !first || !placeId || !s || w.places[placeId]?.siteId !== w.places[s.placeId]?.siteId) return null;
-  return { x: first.x + def.x, y: first.y + def.y, placeId };
+  const s = w.tactical;
+  if (!s) return null;
+  const authored = c.scenarios[w.meta.scenarioId]?.tactical_scene;
+  const def = authored?.id === s.sceneId ? authored.exit : undefined;
+  const first = sceneCells(w, c, s.placeId)[0];
+  if (!first) return null;
+  const placeId = def
+    ? w.index.placeByDef[def.place]
+    : idsOf<import('../ids.ts').PlaceId>(w.places)
+        .filter((id) => id !== s.placeId && w.places[id]?.siteId === w.places[s.placeId]?.siteId)
+        .sort((a, b) => {
+          const here = w.places[s.placeId],
+            x = w.places[a],
+            y = w.places[b];
+          if (!here || !x || !y) return a - b;
+          const distance = (p: typeof x) => Math.abs(p.x - here.x) + Math.abs(p.y - here.y);
+          return (
+            Number(!x.tags.includes('outdoors')) - Number(!y.tags.includes('outdoors')) ||
+            distance(x) - distance(y) ||
+            a - b
+          );
+        })[0];
+  if (!placeId || w.places[placeId]?.siteId !== w.places[s.placeId]?.siteId) return null;
+  return { x: first.x + (def?.x ?? 0), y: first.y + (def?.y ?? 0), placeId };
 }
 export function fleeStep(w: World, c: ContentBundle, id: ActorId): Cell | null {
   const start = tacticalPosition(w, id),

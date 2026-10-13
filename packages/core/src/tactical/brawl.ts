@@ -83,6 +83,7 @@ export function brawlCheck(
 export function beginBrawl(w: World, ctx: SimContext, a: ActorId, b: ActorId): void {
   const s = w.tactical;
   if (!s || activeBrawls(w, a).some((x) => x.a === b || x.b === b)) return;
+  s.engaged = true;
   s.brawls ??= [];
   const episode: Brawl = {
     id: ++s.seq,
@@ -121,7 +122,7 @@ function end(w: World, ctx: SimContext, b: Brawl, outcome: NonNullable<Brawl['ou
   const endings = {
     submission: 'submission accepted; the blows stop',
     knockout: 'a knockout; the blows stop',
-    flight: 'one fighter crossing the tavern door',
+    flight: 'one fighter leaving the scene',
     peace: 'words breaking up the fight',
     incapacity: 'a fighter unable to continue',
   };
@@ -205,6 +206,9 @@ export function commitBrawl(w: World, ctx: SimContext, id: ActorId, action: Acti
   if (!s || !p) return;
   const now = instantOf(w);
   if ((action.kind === 'attack' || action.kind === 'grapple') && target !== undefined) {
+    if (action.brawlId !== undefined && !activeBrawls(w).some((b) => b.id === action.brawlId)) return;
+    if (brawlCheck(w, ctx.content, id, action.kind, target)) return;
+    beginBrawl(w, ctx, id, target);
     const b = activeBrawls(w, id).find((x) => x.a === target || x.b === target);
     if (!b || brawlCheck(w, ctx.content, id, action.kind, target)) return;
     b.attempts++;
@@ -319,19 +323,27 @@ export function commitBrawl(w: World, ctx: SimContext, id: ActorId, action: Acti
       },
       ctx.rng('combat', mixKey(id, action.token, now, 0xface)),
     );
-    ctx.emit({
-      kind: 'tactical.action',
-      data: {
-        actorId: id,
-        action: 'parley',
-        phase: 'spoken',
-        text: result.success ? 'Your call for peace is heard.' : 'Your call for peace fails to carry.',
-      },
-      roles: [{ actor: id, role: 'agent' }],
-      place: s.placeId,
-      visibility: 'witnessed',
-      explain: result.explain,
-    });
+    const before = activeBrawls(w).length;
+    const spoken = () =>
+      ctx.emit({
+        kind: 'tactical.action',
+        data: {
+          actorId: id,
+          action: 'parley',
+          phase: 'spoken',
+          text: !result.success
+            ? 'Your call for peace fails to carry.'
+            : activeBrawls(w).length < before
+              ? activeBrawls(w).length
+                ? 'Some fighters accept peace; another brawl continues.'
+                : 'Your call for peace is accepted; the blows stop.'
+              : 'Your call for peace is heard, but the fighters refuse; the brawl continues.',
+        },
+        roles: [{ actor: id, role: 'agent' }],
+        place: s.placeId,
+        visibility: 'witnessed',
+        explain: result.explain,
+      });
     if (result.success)
       for (const b of activeBrawls(w)) {
         // The speaker offers peace; every other fighter must independently want to withdraw.
@@ -351,6 +363,7 @@ export function commitBrawl(w: World, ctx: SimContext, id: ActorId, action: Acti
         )
           end(w, ctx, b, 'peace');
       }
+    spoken();
   } else if (action.kind === 'flee') {
     const exit = sceneExit(w, ctx.content),
       pos = action.destination;
@@ -358,7 +371,7 @@ export function commitBrawl(w: World, ctx: SimContext, id: ActorId, action: Acti
       p.fled = true;
       ctx.emit({
         kind: 'tactical.action',
-        data: { actorId: id, action: 'flee', phase: 'crossed', text: 'You cross the tavern door and leave the brawl.' },
+        data: { actorId: id, action: 'flee', phase: 'crossed', text: 'You cross the exit and leave the brawl.' },
         roles: [{ actor: id, role: 'agent' }],
         visibility: 'private',
       });
