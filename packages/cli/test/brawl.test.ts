@@ -61,6 +61,10 @@ describe('M6 a brawl with an ending', () => {
       const attack = parseText('attack Joel', session.observe());
       expect(typeof attack).not.toBe('string');
       expect(session.act(attack).ok).toBe(true);
+      expect(activeBrawls(sim.world)).toHaveLength(1); // The joining windup is still cancellable.
+      const due = sim.world.tactical?.participants[session.playerId]?.action?.due;
+      if (due === undefined) throw Error('No joining windup');
+      advanceUntil(sim, due);
       expect(activeBrawls(sim.world)).toHaveLength(2);
       advanceUntil(sim, 3000);
       const conditions = Object.values(sim.world.actors).flatMap((a) => a.sheet.conditions.map((c) => `${a.id}:${c}`));
@@ -237,8 +241,8 @@ describe('M6 a brawl with an ending', () => {
     expect(session.act(attack.command).ok).toBe(true);
     for (let n = 0; n < 4; n++) session.act(parseText('resume', session.observe()));
     const oldLog = session.commandLog;
-    expect(oldLog[0].rulesVersion).toBe(3);
-    for (const version of [1, 2]) {
+    expect(oldLog[0].rulesVersion).toBe(4);
+    for (const version of [1, 2, 3]) {
       oldLog[0].rulesVersion = version;
       expect(() => PlaySession.replay(content, oldLog)).toThrow('Unsupported replay rules version');
     }

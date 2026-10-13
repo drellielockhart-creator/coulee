@@ -1,6 +1,7 @@
 import {
   type ActorId,
   activity,
+  admitScriptedScene,
   advanceUntil,
   asGameMinute,
   belief,
@@ -22,7 +23,9 @@ import {
   social,
   stateHash,
   step,
+  TICKS_PER_HOUR,
   TICKS_PER_MINUTE,
+  tactical,
   timeView,
 } from '@coulee/core';
 import { GEN_VERSION } from '@coulee/worldgen';
@@ -134,6 +137,14 @@ export class PlaySession {
     this.base = base;
     this.configuration = spec;
     this.sim = sim ?? sessionSim(base, spec);
+    if (!sim && admitScriptedScene(this.sim)) {
+      const w = this.sim.world;
+      const initial = perceivedEvents(w.log.events, this.playerId, w.actors[this.playerId]?.placeId);
+      this.known = initial.map((e) => e.id);
+      this.knowledge = initial
+        .filter((e) => e.kind !== 'core.command')
+        .map((e) => eventView(e, this.playerId, 'fair', this.sim));
+    }
   }
   static create(content: ContentBundle, spec: SessionSpec): PlaySession {
     const normalized =
@@ -165,8 +176,8 @@ export class PlaySession {
           spec: this.spec,
           contentHash: this.base.meta.hash,
           clockVersion: CLOCK_VERSION,
-          engineVersion: 'm6-slice2',
-          rulesVersion: 3,
+          engineVersion: 'm6-r3',
+          rulesVersion: 4,
           sourceHash: hashValue(this.spec),
           ...(this.branched ? { branched: true } : {}),
         },
@@ -210,7 +221,19 @@ export class PlaySession {
   }
   act(input: Command | string, mode: ObservationMode = 'fair'): ActResult {
     const offered = availableActions(this.sim, this.playerId);
-    const proposed = typeof input === 'string' ? offered.find((a) => a.id === input)?.command : input;
+    let proposed = typeof input === 'string' ? offered.find((a) => a.id === input)?.command : input;
+    if (
+      proposed?.kind === 'core.urge' &&
+      proposed.data?.urge?.kind === 'interaction' &&
+      proposed.data.urge.interactionId === 'fight' &&
+      proposed.data.urge.targetId !== undefined
+    )
+      proposed = {
+        kind: 'tactical.attack',
+        actorId: proposed.actorId,
+        issuer: proposed.issuer,
+        data: { targetId: proposed.data.urge.targetId },
+      };
     const command = proposed ? { ...proposed, issuer: proposed.issuer ?? { kind: 'player' as const } } : undefined;
     if (!command) return this.fail('Unknown action id; use look for current actions', mode);
     let error: string | null;
@@ -240,11 +263,7 @@ export class PlaySession {
           ),
         };
     }
-    if (
-      command.kind.startsWith('tactical.') ||
-      (command.kind === 'activity.wait' &&
-        (this.sim.world.tactical || this.sim.content.scenarios[this.sim.world.meta.scenarioId]?.tactical_scene))
-    )
+    if (command.kind.startsWith('tactical.') || (command.kind === 'activity.wait' && this.sim.world.tactical))
       return this.actAtInstant(command, mode);
     // Settings take no game time (playtest r2): the order is logged and applied at once, through
     // the same setters the systems use, so a replay applies it identically.
@@ -264,7 +283,7 @@ export class PlaySession {
       knowledgeStart = this.knowledge.length;
     const before = this.hash,
       at = this.sim.world.time;
-    const atMinute = activity.minuteBudget(this.sim.world, this.playerId).spent;
+    const atMinute = this.sim.world.backgroundTactical ? 0 : activity.minuteBudget(this.sim.world, this.playerId).spent;
     let detail: unknown;
     let routePreview: RoutePreview | undefined;
     const interrupts: Interrupt[] = [];
@@ -452,7 +471,9 @@ export class PlaySession {
         } else detail = o.places.find((p) => p.id === Number(id));
       }
     } else if (command.kind === 'activity.wait') {
-      const end = command.data.untilTime ?? at + command.data.minutes;
+      const end =
+        command.data.untilTime ??
+        (this.sim.world.backgroundTactical ? Math.floor(at / 60) * 60 : at) + command.data.minutes;
       let event: string | undefined;
       while (this.sim.world.time < end) {
         const lastId = this.sim.world.log.lastId;
@@ -592,7 +613,11 @@ export class PlaySession {
       (e) => e.kind === 'social.interaction' && !interrupts.some((i) => i.eventId === e.id),
     );
     this.changes = {
-      elapsed: this.sim.world.time - at + activity.minuteBudget(this.sim.world, this.playerId).spent - atMinute,
+      elapsed:
+        this.sim.world.time -
+        at +
+        (this.sim.world.backgroundTactical ? 0 : activity.minuteBudget(this.sim.world, this.playerId).spent) -
+        atMinute,
       money: this.money.slice(moneyStart),
       needs: next.self.needs.list.flatMap((n) => {
         const old = previous.self.needs.list.find((p) => p.id === n.id);
@@ -610,14 +635,18 @@ export class PlaySession {
       at,
       end: this.sim.world.time,
       atMinute,
-      endMinute: activity.minuteBudget(this.sim.world, this.playerId).spent,
+      endMinute: this.sim.world.backgroundTactical ? 0 : activity.minuteBudget(this.sim.world, this.playerId).spent,
     });
     return {
       ok: true,
       ...(warning ? { warning } : {}),
       ...(notice ? { notice } : {}),
       ...(stopped ? { stopped } : {}),
-      elapsedMinutes: this.sim.world.time - at + activity.minuteBudget(this.sim.world, this.playerId).spent - atMinute,
+      elapsedMinutes:
+        this.sim.world.time -
+        at +
+        (this.sim.world.backgroundTactical ? 0 : activity.minuteBudget(this.sim.world, this.playerId).spent) -
+        atMinute,
       interrupts,
       observation: this.observe(mode),
       ...(detail === undefined ? {} : { detail }),
@@ -629,13 +658,17 @@ export class PlaySession {
     const w = this.sim.world,
       pc = this.playerId;
     const before = this.hash,
-      at = w.time,
-      start = instantOf(w);
+      start =
+        instantOf(w) +
+        (!w.tactical && !w.backgroundTactical ? activity.minuteBudget(w, pc).spent * TICKS_PER_MINUTE : 0),
+      at = Math.floor(start / TICKS_PER_MINUTE);
     const ticks =
       command.kind === 'tactical.advance'
         ? command.data.ticks
         : command.kind === 'activity.wait'
-          ? command.data.minutes * TICKS_PER_MINUTE
+          ? this.entries.length === 0 && w.tactical?.enteredAt === start
+            ? 0
+            : command.data.minutes * TICKS_PER_MINUTE
           : 0;
     const interrupts: Interrupt[] = [];
     const prior = w.actors[pc]?.placeId;
@@ -653,8 +686,30 @@ export class PlaySession {
       return interrupts.length > 0;
     };
     const last = w.log.lastId;
-    const result = advanceUntil(this.sim, start + ticks, [command], receive);
+    let retired = false;
+    const receiveAndRetire = (events: Event[]): boolean => {
+      const pause = receive(events);
+      const deadline = tactical.quietDeadline(w, pc);
+      if (
+        deadline !== null &&
+        instantOf(w) >= deadline &&
+        !tactical.tacticalCommandCheck(w, this.sim.content, { kind: 'tactical.breathe', actorId: pc, data: {} })
+      ) {
+        tactical.commandTactical(w, makeContext(w, this.sim.content, [], this.sim.sink), {
+          kind: 'tactical.breathe',
+          actorId: pc,
+          data: {},
+          issuer: command.issuer,
+        });
+        retired = true;
+      }
+      return pause || retired;
+    };
+    const result = advanceUntil(this.sim, start + ticks, [command], receiveAndRetire, () =>
+      tactical.quietDeadline(w, pc),
+    );
     receive(eventsSince(w.log, last));
+    if (ticks === 0 && this.entries.length === 0) receive(w.log.events.filter((e) => e.kind === 'tactical.danger'));
     this.changes = {
       elapsed: w.time - at,
       elapsedTicks: result.elapsedTicks,
@@ -680,11 +735,13 @@ export class PlaySession {
       elapsedTicks: result.elapsedTicks,
       interrupts,
       observation: this.observe(mode),
-      ...(result.interrupted
-        ? { notice: `Paused at ${this.observe(mode).tactical?.clock ?? 'the hour boundary'}.` }
-        : command.kind === 'tactical.breathe'
-          ? { notice: 'You take a breath. Ordinary time resumes from this instant.' }
-          : {}),
+      ...(retired
+        ? { notice: 'The brawl has let go. Ordinary time resumes from this instant.' }
+        : result.interrupted
+          ? { notice: `Paused at ${this.observe(mode).tactical?.clock ?? 'the hour boundary'}.` }
+          : command.kind === 'tactical.breathe'
+            ? { notice: 'You take a breath. Ordinary time resumes from this instant.' }
+            : {}),
     };
   }
   /** Apply a settings order (standing orders, agency, rations) now, in no game time. */
@@ -806,7 +863,9 @@ export class PlaySession {
       }
     };
     if (minutes === undefined) {
-      step(this.sim, actual);
+      if (w.backgroundTactical)
+        advanceUntil(this.sim, (Math.floor(instantOf(w) / TICKS_PER_HOUR) + 1) * TICKS_PER_HOUR, actual);
+      else step(this.sim, actual);
       activity.clearMinuteBudget(w, pc);
     } else {
       const ctx = makeContext(w, c, actual, this.sim.sink);
@@ -814,7 +873,8 @@ export class PlaySession {
       const shortCtx = {
         ...ctx,
         rng: (stream: Parameters<typeof ctx.rng>[0], key: number) =>
-          ctx.rngAt?.(stream, asGameMinute(w.time + spentBefore + 1), key) ?? ctx.rng(stream, key),
+          ctx.rngAt?.(stream, asGameMinute(Math.floor(w.time / 60) * 60 + spentBefore + 1), key) ??
+          ctx.rng(stream, key),
       };
       for (const command of ctx.commands)
         ctx.emit({
@@ -839,7 +899,11 @@ export class PlaySession {
         command.data.urge.activityId === 'fetch_water'
       )
         provisions.waterHour(w, shortCtx, pc);
-      activity.spendMinutes(w, pc, Math.min(minutes, 60 - spentBefore), walk === undefined ? 'idle_at_home' : 'walk');
+      if (w.backgroundTactical) {
+        activity.clearMinuteBudget(w, pc);
+        advanceUntil(this.sim, instantOf(w) + minutes * TICKS_PER_MINUTE);
+      } else
+        activity.spendMinutes(w, pc, Math.min(minutes, 60 - spentBefore), walk === undefined ? 'idle_at_home' : 'walk');
     }
     this.sim.sink = undefined;
     const recent = eventsSince(w.log, lastId);
@@ -918,7 +982,7 @@ export class PlaySession {
       decidingMinutes: idle ? 0 : (minutes ?? 60 - spentBefore),
       decidingTimeBasis: 'simulation',
     });
-    if (minutes !== undefined && spentBefore + minutes >= 60) {
+    if (minutes !== undefined && !w.backgroundTactical && spentBefore + minutes >= 60) {
       alerts.push(...this.tick([], false));
       const carried = spentBefore + minutes - 60;
       if (carried > 0) {
@@ -1008,7 +1072,7 @@ export class PlaySession {
   }
   static replay(content: ContentBundle, log: ReplayLog, mode: ObservationMode = 'fair'): PlaySession {
     const [header, ...steps] = log;
-    if (header.rulesVersion !== undefined && header.rulesVersion !== 3)
+    if (header.rulesVersion !== undefined && header.rulesVersion !== 4)
       throw new Error('Unsupported replay rules version');
     if (header.sourceHash !== undefined && header.sourceHash !== hashValue(header.spec))
       throw new Error('Replay source mismatch');
@@ -1027,7 +1091,9 @@ export class PlaySession {
         session.sim.world.time !== entry.end ||
         (entry.endInstant !== undefined && instantOf(session.sim.world) !== entry.endInstant) ||
         (entry.endMinute !== undefined &&
-          activity.minuteBudget(session.sim.world, session.playerId).spent !== entry.endMinute)
+          (session.sim.world.backgroundTactical
+            ? 0
+            : activity.minuteBudget(session.sim.world, session.playerId).spent) !== entry.endMinute)
       )
         throw new Error('Replay diverged after command');
     }

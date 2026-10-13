@@ -1,15 +1,21 @@
 import { advanceCombatHealth, nextCombatHealthInstant } from '../needs/api.ts';
 /** Version 1: sparse action instants inside a saved hour frame. Legacy adapter stays byte-stable. */
 
-import { finishJourneys, prepareJourneys } from '../activity/api.ts';
+import { clearMinuteBudget, finishJourneys, minuteBudget, prepareJourneys, spendMinutes } from '../activity/api.ts';
 import type { Command } from '../command.ts';
 import type { Event } from '../events/index.ts';
 import { trimLog } from '../events/index.ts';
 import { type ActorId, idsOf } from '../ids.ts';
-import { accrueTacticalNeeds, nextTacticalNeedInstant, prepareTacticalNeeds } from '../needs/api.ts';
+import {
+  accrueTacticalNeeds,
+  enrollTacticalNeeds,
+  nextTacticalNeedInstant,
+  prepareTacticalNeeds,
+} from '../needs/api.ts';
 import { nextTacticalSupplyInstant, tacticalSupplies } from '../provisions/api.ts';
+import { authorizeAct } from '../psyche/api.ts';
 import { regionSystem } from '../region/api.ts';
-import { commandTactical, requestBrawl, requestEncounter } from '../tactical/api.ts';
+import { commandTactical, requestBrawl, requestEncounter, townBrawlCheck } from '../tactical/api.ts';
 import type { TacticalCommand } from '../tactical/commands.ts';
 import { tacticalSystem } from '../tactical/system.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
@@ -17,7 +23,7 @@ import { instantOf, setInstant, TICKS_PER_HOUR, TICKS_PER_MINUTE } from './clock
 import { HOURLY_SYSTEMS, prepareHourIntentions, TACTICAL_PREPARATION_SYSTEMS } from './schedule.ts';
 import { announceDay, makeContext, type Sim, stepHourly } from './sim.ts';
 
-/** Authored opt-in trigger; ordinary scenarios never allocate tactical state. */
+/** Admit authored danger before accepting the first order. Town fights enter lazily. */
 export function admitScriptedScene(sim: Sim): boolean {
   const w = sim.world,
     def = sim.content.scenarios[w.meta.scenarioId]?.tactical_scene;
@@ -46,14 +52,70 @@ export function advanceUntil(
   target: number,
   commands: readonly Command[] = [],
   interrupt?: (events: Event[]) => boolean,
+  deadline?: () => number | null,
 ): AdvanceResult {
   const w = sim.world;
+  const hostile = commands.find((c) => c.kind === 'tactical.attack');
+  if (
+    hostile?.kind === 'tactical.attack' &&
+    !w.tactical?.active &&
+    !townBrawlCheck(w, sim.content, hostile.actorId, hostile.data.targetId) &&
+    authorizeAct(
+      w,
+      hostile.actorId,
+      { kind: hostile.kind },
+      { kind: 'command', issuer: hostile.issuer ?? { kind: 'player' } },
+    ).ok
+  ) {
+    const actor = w.actors[hostile.actorId];
+    if (actor) {
+      const cursor = w.backgroundTactical
+        ? instantOf(w)
+        : instantOf(w) + minuteBudget(w, hostile.actorId).spent * TICKS_PER_MINUTE;
+      const previous = instantOf(w);
+      setInstant(w, cursor);
+      const ctx = makeContext(w, sim.content, [], sim.sink);
+      const actors = idsOf<ActorId>(w.actors).filter((id) => w.actors[id]?.placeId === actor.placeId);
+      if (
+        requestEncounter(
+          w,
+          ctx,
+          `brawl:${cursor}:${hostile.actorId}:${hostile.data.targetId}`,
+          actor.placeId,
+          actors,
+          'A quarrel turns toward blows. Fight, offer peace, yield or leave.',
+          [hostile.actorId, hostile.data.targetId],
+        )
+      ) {
+        if (!w.tactical?.frame || w.tactical.frame.phase === 'settled') openHourFrame(sim);
+        else {
+          const added = enrollTacticalNeeds(w, ctx),
+            scene = w.tactical;
+          if (added.length && scene?.frame) {
+            // New participants were not on the elapsed supply clock before this admission.
+            tacticalSupplies(
+              { ...w, tactical: { ...scene, frame: { ...scene.frame, live: added } } },
+              ctx,
+              cursor - scene.frame.start,
+            );
+          }
+        }
+        setInstant(w, cursor);
+        const elapsed = cursor - (w.tactical?.frame?.through ?? cursor);
+        const prefix = makeContext(w, sim.content, [], sim.sink);
+        accrueTacticalNeeds(w, prefix, cursor);
+        tacticalSupplies(w, prefix, elapsed);
+        clearMinuteBudget(w, hostile.actorId);
+        target = Math.max(target, cursor);
+      } else setInstant(w, previous);
+    }
+  }
   if (!w.tactical && w.backgroundTactical) {
     w.tactical = w.backgroundTactical;
     delete w.backgroundTactical;
   }
   try {
-    return advanceScene(sim, target, commands, interrupt);
+    return advanceScene(sim, target, commands, interrupt, deadline);
   } finally {
     if (w.tactical && !w.tactical.active) {
       w.backgroundTactical = w.tactical;
@@ -66,6 +128,7 @@ function advanceScene(
   target: number,
   commands: readonly Command[] = [],
   interrupt?: (events: Event[]) => boolean,
+  deadline?: () => number | null,
 ): AdvanceResult {
   const w = sim.world,
     start = instantOf(w);
@@ -97,40 +160,33 @@ function advanceScene(
       visibility: 'private',
     });
     if (command.kind.startsWith('tactical.')) commandTactical(w, ctx, command as TacticalCommand);
-    else if (command.kind !== 'activity.wait' && command.kind !== 'activity.observe') s.pendingCommands.push(command);
+    else if (command.kind !== 'activity.wait' && command.kind !== 'activity.observe') {
+      if (!s.active && s.frame?.phase === 'open') {
+        // Ordinary labor gets only the unspent part of this frame, including the town prelude.
+        const spent = Math.min(60, Math.ceil((instantOf(w) - s.frame.start) / TICKS_PER_MINUTE));
+        spendMinutes(w, command.actorId, Math.max(0, spent - minuteBudget(w, command.actorId).spent), 'idle_at_home');
+        s.frame.commands.push(command);
+        const accounting = { ...w, time: asGameMinute(Math.floor(s.frame.start / TICKS_PER_MINUTE)) };
+        prepareHourIntentions(accounting, makeContext(accounting, sim.content, [command], sim.sink));
+      } else s.pendingCommands.push(command);
+    }
   }
   if (target === instantOf(w)) return { elapsedTicks: 0, interrupted: false };
   s.pause = null;
   while (instantOf(w) < target) {
     if (!s.frame || s.frame.phase === 'settled') {
-      const now = instantOf(w);
-      if (now % TICKS_PER_HOUR !== 0) throw new Error('Hour frame missing at partial instant');
-      s.frame = {
-        start: now,
-        through: now,
-        end: now + TICKS_PER_HOUR,
-        phase: 'open',
-        commands: s.pendingCommands.splice(0),
-        live: s.active || s.heap.length ? idsOf<ActorId>(s.participants) : [],
-        rates: {},
-        activeRates: {},
-        carries: {},
-        elapsed: {},
-      };
       const before = w.log.lastId;
-      const opening = makeContext(w, sim.content, s.frame.commands, sim.sink);
-      announceDay(opening);
-      prepareJourneys(w, opening);
-      prepareTacticalNeeds(w, opening);
-      prepareHourIntentions(w, opening);
+      openHourFrame(sim);
       if (interrupt?.(w.log.events.filter((e) => e.id > before)))
-        return { elapsedTicks: now - start, interrupted: true };
+        return { elapsedTicks: instantOf(w) - start, interrupted: true };
     }
     const frame = s.frame;
+    if (!frame) throw new Error('Missing hour frame');
     const schedule = makeContext(w, sim.content, [], sim.sink);
     const next = Math.min(
       target,
       frame.end,
+      Math.max(instantOf(w), deadline?.() ?? target),
       s.heap[0]?.instant ?? target,
       nextTacticalNeedInstant(w) ?? target,
       nextCombatHealthInstant(w) ?? target,
@@ -152,6 +208,7 @@ function advanceScene(
     if (next === frame.end) {
       settleHourFrame(sim);
       frame.phase = 'settled';
+      for (const id of idsOf<ActorId>(w.activity.minuteBudgets ?? {})) clearMinuteBudget(w, id);
       regionSystem(w, makeContext(w, sim.content, [], sim.sink));
     }
     const events = w.log.events.filter((e) => e.id > before);
@@ -180,4 +237,34 @@ function settleHourFrame(sim: Sim): void {
     if (system.id === 'provisions') finishJourneys(accounting, ctx);
   }
   if (ctx.isNewDay) trimLog(w.log, w.time);
+}
+
+/** Open once, retaining the town cursor's uncharged prefix in the same needs ledger. */
+function openHourFrame(sim: Sim): void {
+  const w = sim.world,
+    s = w.tactical;
+  if (!s) return;
+  const now = instantOf(w),
+    start = Math.floor(now / TICKS_PER_HOUR) * TICKS_PER_HOUR;
+  s.frame = {
+    start,
+    through: start,
+    end: start + TICKS_PER_HOUR,
+    phase: 'open',
+    commands: s.pendingCommands.splice(0),
+    live: s.active || s.heap.length ? idsOf<ActorId>(s.participants) : [],
+    rates: {},
+    activeRates: {},
+    carries: {},
+    elapsed: {},
+  };
+  const accounting = { ...w, time: asGameMinute(Math.floor(start / TICKS_PER_MINUTE)) };
+  const opening = {
+    ...makeContext(accounting, sim.content, s.frame.commands, sim.sink),
+    emit: makeContext(w, sim.content, [], sim.sink).emit,
+  };
+  announceDay(opening);
+  prepareJourneys(accounting, opening);
+  prepareTacticalNeeds(accounting, opening);
+  prepareHourIntentions(accounting, opening);
 }

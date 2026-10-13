@@ -449,7 +449,7 @@ export function shortAct(world: World, ctx: SimContext, actorId: ActorId, minute
 }
 
 export function minuteBudget(world: World, actorId: ActorId): { spent: number; remaining: number } {
-  const spent = world.activity.minuteBudgets?.[actorId]?.spent ?? 0;
+  const spent = world.backgroundTactical ? world.time % 60 : (world.activity.minuteBudgets?.[actorId]?.spent ?? 0);
   return { spent, remaining: 60 - spent };
 }
 export function spendMinutes(world: World, actorId: ActorId, minutes: number, activityId: string): void {

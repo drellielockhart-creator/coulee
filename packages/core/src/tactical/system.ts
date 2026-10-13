@@ -20,6 +20,9 @@ export function tacticalSystem(w: World, ctx: SimContext): void {
     if (e.kind === 'commit') {
       if (
         (a.fromReaction && !p.reaction) ||
+        (a.brawlId !== undefined &&
+          (a.kind === 'attack' || a.kind === 'grapple') &&
+          !activeBrawls(w).some((b) => b.id === a.brawlId)) ||
         brawlCheck(w, ctx.content, e.actorId, a.kind, a.targetId) ||
         !canAct(w, e.actorId) ||
         !authorizeAct(w, e.actorId, { kind: `tactical.${a.kind}` }, a.basis).ok

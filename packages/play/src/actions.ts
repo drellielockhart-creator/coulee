@@ -71,6 +71,19 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       actorId: pc,
       data: { query },
     });
+  const inspect = (target: string, label: string) =>
+    add(`inspect:${target}`, `Inspect ${label}`, {
+      kind: 'activity.observe',
+      actorId: pc,
+      data: { query: 'inspect', target },
+    });
+  for (const p of Object.values(w.places))
+    if (!w.region || p.siteId === w.places[a.placeId]?.siteId) inspect(`place:${p.id}`, p.name);
+  for (const other of Object.values(w.actors))
+    if (other.placeId === a.placeId || social.isAcquainted(w, pc, other.id))
+      inspect(`actor:${other.id}`, `${other.name.given} ${other.name.family}`.trim());
+  const carried = items.stacksDeep(w, items.carriedBy(pc)).map((s) => s.stack);
+  for (const s of carried) inspect(`item:${s.id}`, c.items[s.defId]?.name ?? s.defId);
   if (w.tactical?.active) return [...out, ...tacticalActions(sim, pc)];
   if (w.region) {
     if (activity.onJourney(w, pc)) {
@@ -121,19 +134,6 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
         actorId: pc,
         data: { signId: q.signId },
       });
-  const inspect = (target: string, label: string) =>
-    add(`inspect:${target}`, `Inspect ${label}`, {
-      kind: 'activity.observe',
-      actorId: pc,
-      data: { query: 'inspect', target },
-    });
-  for (const p of Object.values(w.places))
-    if (!w.region || p.siteId === w.places[a.placeId]?.siteId) inspect(`place:${p.id}`, p.name);
-  for (const other of Object.values(w.actors))
-    if (other.placeId === a.placeId || social.isAcquainted(w, pc, other.id))
-      inspect(`actor:${other.id}`, `${other.name.given} ${other.name.family}`.trim());
-  const carried = items.stacksDeep(w, items.carriedBy(pc)).map((s) => s.stack);
-  for (const s of carried) inspect(`item:${s.id}`, c.items[s.defId]?.name ?? s.defId);
   const stock = catalogStock(
     c,
     provisions.viewProvisionsPlace(w, c, a.placeId, {
@@ -296,7 +296,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       if (other.id !== pc && other.alive && other.placeId === a.placeId)
         for (const def of Object.values(c.interactions)) {
           // Item interactions name their item: offered as charm actions (charmActions).
-          if (def.item || def.tags.includes('charm')) continue;
+          if (def.id === 'fight' || def.item || def.tags.includes('charm')) continue;
           if (!social.interactionAvailability(w, c, pc, other.id, def.id).ok) continue;
           add(`talk:${def.id}:${other.id}`, `${def.name}: ${other.name.given} ${other.name.family}`.trim(), {
             kind: 'core.urge',
@@ -305,6 +305,14 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
           });
         }
   }
+  for (const other of Object.values(w.actors))
+    if (!tactical.townBrawlCheck(w, c, pc, other.id))
+      add(`talk:fight:${other.id}`, `Fight: ${other.name.given} ${other.name.family} (unarmed, nonlethal)`.trim(), {
+        kind: 'tactical.attack',
+        actorId: pc,
+        data: { targetId: other.id },
+      });
+
   // A drink is up to 500 ml of whatever water is to hand: the last 200 ml in a canteen is still a drink.
   const drinkMl = Math.min(500, provisions.drinkingWater(w, c, pc));
   if (drinkMl > 0)
@@ -474,8 +482,14 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     { kind: 'command', issuer: command.issuer ?? { kind: 'player' } },
   );
   if (!authorization.ok) return authorization.reason;
-  if (!needs.canAct(w, pc) && command.kind !== 'activity.wait') return 'You have collapsed and need help';
+  if (!needs.canAct(w, pc) && !['activity.wait', 'tactical.advance', 'tactical.breathe'].includes(command.kind))
+    return 'You have collapsed and need help';
   if (command.kind.startsWith('tactical.')) return tactical.tacticalCommandCheck(w, c, command);
+  if (
+    w.tactical?.active &&
+    !['activity.observe', 'activity.wait', 'core.standing_orders', 'provisions.set_rations'].includes(command.kind)
+  )
+    return 'The brawl is still unfolding; use tactical actions, yield or flee before returning to ordinary tasks';
   const load = loadRefusal(w, c, pc, command);
   if (load) return load;
   if (

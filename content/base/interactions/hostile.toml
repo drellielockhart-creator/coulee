@@ -173,7 +173,7 @@ failure.initiator_reason = "Stared me down"
 id = "fight"
 name = "Fight"
 label = "Fight!"
-description = "Fisticuffs (M1: an opposed Athletics check, no injuries yet). Public, remembered."
+description = "Fisticuffs. An ordered fight opens an unarmed tactical brawl: blows, yielding and flight have lasting consequences. Public, remembered."
 requires = { acquainted = true, min_grudge = 50, not_venue_tags = ["church"], min_age = 14, target_min_age = 14 }
 volition = [
   { driver = "grudge", weight = 50 },

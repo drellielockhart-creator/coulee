@@ -3,7 +3,7 @@ import { activity, type Command, items, provisions, type Sim } from '@coulee/cor
 
 export function shortMinutes(sim: Sim, command: Command): number | null {
   const { world: w, content: c } = sim;
-  if (w.tactical || c.scenarios[w.meta.scenarioId]?.tactical_scene) return null;
+  if (w.tactical?.active) return null;
   const timing = c.playTiming?.town;
   if (!timing) return null;
   const cost = timing.short_acts?.[command.kind as keyof NonNullable<typeof timing.short_acts>];

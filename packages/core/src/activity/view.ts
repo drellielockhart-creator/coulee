@@ -48,13 +48,16 @@ export function viewActivityActor(
       arriveAt: null,
       observed: false,
     };
+  const participant = world.tactical?.active ? world.tactical.participants[actorId] : undefined;
+  const inScene = participant && !participant.fled;
   const journey = world.activity.journeys?.[actorId];
   const def = a?.activityId ? content.activities[a.activityId] : undefined;
   return {
     activityId: a?.activityId ?? null,
-    name: def?.name ?? 'Idle',
-    verb:
-      journey && journey.status !== 'arrived'
+    name: inScene ? 'Brawl' : (def?.name ?? 'Idle'),
+    verb: inScene
+      ? 'caught up in a brawl'
+      : journey && journey.status !== 'arrived'
         ? `${journey.status} on the road`
         : a?.activityId === 'walk' && !a.travel
           ? 'at leisure'

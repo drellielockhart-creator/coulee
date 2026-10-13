@@ -1,5 +1,6 @@
 /** One social handoff per pair/scene, independent of the rolling event window. */
 import { displayName } from '../actor.ts';
+import { internProp, observe } from '../belief/api.ts';
 import type { ActorId, EventId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -34,7 +35,15 @@ export function recordCombatOutcome(
     const actor = w.actors[id];
     return actor ? displayName(actor) : 'someone';
   };
+  const news = ctx.content.predicates.quarreled
+    ? internProp(w, 'quarreled', [
+        { kind: 'actor', id: incident.a },
+        { kind: 'actor', id: incident.b },
+      ])
+    : undefined;
   for (const id of incident.witnesses) {
+    if (news !== undefined)
+      observe(w, ctx, id, news, { type: 'observation', dir: 1, sourceId: null, eventId: incident.eventId });
     const other = id === incident.a ? incident.b : incident.a;
     const memory = addMemory(w, ctx, {
       ownerId: id,

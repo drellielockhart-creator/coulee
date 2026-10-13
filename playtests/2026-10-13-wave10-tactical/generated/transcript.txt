@@ -1,0 +1,479 @@
+60 min left in this hour (0 spent).
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Whitlock Mercantile (1 min) [go:22]
+11. Go to Rush Creek, upper reach (1 min) [go:4]
+12. Go to Tregear Farm (1 min) [go:7]
+13. Go to Tregear Wheat Field (1 min) [go:10]
+14. Go to Badger Ford (1 min) [go:13]
+15. Go to Coulee Road (1 min) [go:17]
+16. Go to Rush Creek District School (1 min) [go:18]
+17. Go to Kvale's Smithy (1 min) [go:20]
+18. Chat: Jory Rowe [talk:chat:3]
+19. Introduce oneself: Jory Rowe [talk:introduce:3]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:145:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:145:soak]
+Actions 133; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 12:00
+60 min left in this hour (0 spent).
+Since last look: 12h passed.
+Money: purse −$0.25, household +$0.00 — Tavern bed: $0.25
+Skipped 7 minor conversations nearby.
+To you: Loveday Rowe: Good day ▸ you (it went well); Jory Rowe: Good day ▸ you (it went well).
+1855-04-01 12:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — fetching water. Purse $49.75; household $0.00. 47°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 696; Rest 689; Thirst 900; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. The paths about the Wagon Wheel Tavern are quiet.
+Here: no one else.
+Conscience: Daily round: Keep the Sabbath (held for your order; you may: keep the Sabbath)
+Self-Command: Held for your order; routine standing orders only — explain 675
+[331] Standing order (eat): you ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 331
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Whitlock Mercantile (1 min) [go:22]
+11. Go to Rush Creek, upper reach (1 min) [go:4]
+12. Go to Tregear Farm (1 min) [go:7]
+13. Go to Tregear Wheat Field (1 min) [go:10]
+14. Go to Badger Ford (1 min) [go:13]
+15. Go to Coulee Road (1 min) [go:17]
+16. Go to Rush Creek District School (1 min) [go:18]
+17. Go to Kvale's Smithy (1 min) [go:20]
+18. Eat Hardtack (ship's biscuit) (raw) [eat:145:raw]
+19. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:145:soak]
+Actions 127; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> talk:fight:3
+Choose someone here to fight. No game time spent.
+> resume
+Nothing here matches “resume”; try look, prices, places or actions. No game time spent.
+> resume
+Nothing here matches “resume”; try look, prices, places or actions. No game time spent.
+> yield
+Nothing here matches “yield”; try look, prices, places or actions. No game time spent.
+> resume
+Nothing here matches “resume”; try look, prices, places or actions. No game time spent.
+> resume
+Nothing here matches “resume”; try look, prices, places or actions. No game time spent.
+> wait 1h
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+Skipped 4 minor conversations nearby.
+To you: Jory Rowe: Mock ▸ you (it went well).
+1855-04-01 13:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 797; Rest 612; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Appetite: Drink accessible water (held for your order; you may: fetch water at Rush Creek, upper reach (1 min on foot; drink and fill your vessels))
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 758
+[908] Standing order (eat): you ate Pemmican, Dried apples, Hardtack (ship's biscuit): 429 kcal, cold — explain 908
+  Jory Rowe: “Look how Ellis walks, like a goose on ice!”
+  Ellis Wayfarer: “Laugh. I've seen you try to dance.”
+  Loveday Rowe: “Lock up tonight, Jory, and sleep light.”
+  Jory Rowe: “I do both. It's the second that's hard.”
+  Peran Rowe: “Can I help, Loveday?”
+  Loveday Rowe: “You can fetch the kindling, and mind your fingers.”
+  Richard Pascoe: “Do you think the frost is done?”
+  Jory Rowe: “Ask me tomorrow. Frost lies.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Whitlock Mercantile (1 min) [go:22]
+11. Go to Rush Creek, upper reach (1 min) [go:4]
+12. Go to Tregear Farm (1 min) [go:7]
+13. Go to Tregear Wheat Field (1 min) [go:10]
+14. Go to Badger Ford (1 min) [go:13]
+15. Go to Coulee Road (1 min) [go:17]
+16. Go to Rush Creek District School (1 min) [go:18]
+17. Go to Kvale's Smithy (1 min) [go:20]
+18. Chat: Jory Rowe [talk:chat:3]
+19. Chat: Loveday Rowe [talk:chat:4]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:145:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:145:soak]
+Actions 194; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> fight Jory Rowe
+Since last look: no time passed.
+A quarrel turns toward blows. Fight, offer peace, yield or leave.
+Tactical 13:00:00.0 — attack: windup; 4.5s remaining.
+1855-04-01 13:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — caught up in a brawl. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 797; Rest 612; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Conscience: The table is laid (held for your order; you may: take meal)
+Self-Command: Held for your order; routine standing orders only — explain 932
+[804] Richard Pascoe: Chat ▸ Jory Rowe (it went well)
+[908] Standing order (eat): you ate Pemmican, Dried apples, Hardtack (ship's biscuit): 429 kcal, cold — explain 908
+[934] You begin attack. — explain 934
+  Jory Rowe: “Look how Ellis walks, like a goose on ice!”
+  Ellis Wayfarer: “Laugh. I've seen you try to dance.”
+  Loveday Rowe: “Lock up tonight, Jory, and sleep light.”
+  Jory Rowe: “I do both. It's the second that's hard.”
+  Peran Rowe: “Can I help, Loveday?”
+  Loveday Rowe: “You can fetch the kindling, and mind your fingers.”
+  Richard Pascoe: “Do you think the frost is done?”
+  Jory Rowe: “Ask me tomorrow. Frost lies.”
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 45; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> resume
+Paused at 13:00:04.5.
+Since last look: 4.5s passed.
+Ellis Wayfarer squares up to Jory Rowe. A nonlethal brawl begins.
+Tactical 13:00:04.5 — attack: recovery; 1.2s remaining.
+1855-04-01 13:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — caught up in a brawl. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 797; Rest 612; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Conscience: The table is laid (held for your order; you may: take meal)
+Self-Command: Held for your order; routine standing orders only — explain 932
+[934] You begin attack. — explain 934
+[945] Ellis Wayfarer misses Jory Rowe. — explain 945
+[946] attack resolves; you recover.
+  Jory Rowe: “Look how Ellis walks, like a goose on ice!”
+  Ellis Wayfarer: “Laugh. I've seen you try to dance.”
+  Loveday Rowe: “Lock up tonight, Jory, and sleep light.”
+  Jory Rowe: “I do both. It's the second that's hard.”
+  Peran Rowe: “Can I help, Loveday?”
+  Loveday Rowe: “You can fetch the kindling, and mind your fingers.”
+  Richard Pascoe: “Do you think the frost is done?”
+  Jory Rowe: “Ask me tomorrow. Frost lies.”
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. Resume for up to six seconds [tactical:resume]
+2. look [look]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+Actions 44; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> resume
+Paused at 13:00:05.7.
+Since last look: 1.2s passed.
+Your action and recovery are complete.
+Tactical 13:00:05.7 — awaiting your order.
+1855-04-01 13:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — caught up in a brawl. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 797; Rest 612; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Conscience: The table is laid (held for your order; you may: take meal)
+Self-Command: Held for your order; routine standing orders only — explain 932
+[942] Ellis Wayfarer squares up to Jory Rowe. A nonlethal brawl begins.
+[945] Ellis Wayfarer misses Jory Rowe. — explain 945
+[946] attack resolves; you recover.
+  Jory Rowe: “Look how Ellis walks, like a goose on ice!”
+  Ellis Wayfarer: “Laugh. I've seen you try to dance.”
+  Loveday Rowe: “Lock up tonight, Jory, and sleep light.”
+  Jory Rowe: “I do both. It's the second that's hard.”
+  Peran Rowe: “Can I help, Loveday?”
+  Loveday Rowe: “You can fetch the kindling, and mind your fingers.”
+  Richard Pascoe: “Do you think the frost is done?”
+  Jory Rowe: “Ask me tomorrow. Frost lies.”
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. yield [tactical:yield]
+3. Offer peace [tactical:parley]
+4. attack Jory Rowe (unarmed, nonlethal) [tactical:attack:3]
+5. grapple Jory Rowe [tactical:grapple:3]
+6. attack Loveday Rowe (unarmed, nonlethal) [tactical:attack:4]
+7. grapple Loveday Rowe [tactical:grapple:4]
+8. Authorize one defensive reaction for one minute [tactical:reaction:1]
+9. Resume for up to six seconds [tactical:resume]
+10. Step south [tactical:move:south]
+11. look [look]
+12. Plan provisions / Kit Sheet [plan]
+13. journal [journal]
+Actions 53; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> yield
+Since last look: no time passed.
+Tactical 13:00:05.7 — yield: windup; 0.5s remaining.
+1855-04-01 13:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — caught up in a brawl. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 797; Rest 612; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Conscience: The table is laid (held for your order; you may: take meal)
+Self-Command: Held for your order; routine standing orders only — explain 932
+[946] attack resolves; you recover.
+[950] Your action and recovery are complete.
+[952] You begin yield. — explain 952
+  Jory Rowe: “Look how Ellis walks, like a goose on ice!”
+  Ellis Wayfarer: “Laugh. I've seen you try to dance.”
+  Loveday Rowe: “Lock up tonight, Jory, and sleep light.”
+  Jory Rowe: “I do both. It's the second that's hard.”
+  Peran Rowe: “Can I help, Loveday?”
+  Loveday Rowe: “You can fetch the kindling, and mind your fingers.”
+  Richard Pascoe: “Do you think the frost is done?”
+  Jory Rowe: “Ask me tomorrow. Frost lies.”
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 45; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> resume
+Paused at 13:00:06.2.
+Since last look: 0.5s passed.
+Ellis Wayfarer yields. Accept the surrender; nonlethal blows have stopped.
+Tactical 13:00:06.2 — yield: recovery; 1.2s remaining. You have yielded.
+1855-04-01 13:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — caught up in a brawl. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 797; Rest 612; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Conscience: The table is laid (held for your order; you may: take meal)
+Self-Command: Held for your order; routine standing orders only — explain 932
+[950] Your action and recovery are complete.
+[952] You begin yield. — explain 952
+[955] yield resolves; you recover.
+  Jory Rowe: “Look how Ellis walks, like a goose on ice!”
+  Ellis Wayfarer: “Laugh. I've seen you try to dance.”
+  Loveday Rowe: “Lock up tonight, Jory, and sleep light.”
+  Jory Rowe: “I do both. It's the second that's hard.”
+  Peran Rowe: “Can I help, Loveday?”
+  Loveday Rowe: “You can fetch the kindling, and mind your fingers.”
+  Richard Pascoe: “Do you think the frost is done?”
+  Jory Rowe: “Ask me tomorrow. Frost lies.”
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. Resume for up to six seconds [tactical:resume]
+2. look [look]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+Actions 44; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> resume
+Paused at 13:00:07.4.
+Since last look: 1.2s passed.
+Your action and recovery are complete.
+Tactical 13:00:07.4 — awaiting your order. You have yielded.
+1855-04-01 13:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — caught up in a brawl. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 797; Rest 612; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Conscience: The table is laid (held for your order; you may: take meal)
+Self-Command: Held for your order; routine standing orders only — explain 932
+[952] You begin yield. — explain 952
+[954] Ellis Wayfarer yields. Accept the surrender; nonlethal blows have stopped.
+[955] yield resolves; you recover.
+  Jory Rowe: “Look how Ellis walks, like a goose on ice!”
+  Ellis Wayfarer: “Laugh. I've seen you try to dance.”
+  Loveday Rowe: “Lock up tonight, Jory, and sleep light.”
+  Jory Rowe: “I do both. It's the second that's hard.”
+  Peran Rowe: “Can I help, Loveday?”
+  Loveday Rowe: “You can fetch the kindling, and mind your fingers.”
+  Richard Pascoe: “Do you think the frost is done?”
+  Jory Rowe: “Ask me tomorrow. Frost lies.”
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. Offer peace [tactical:parley]
+3. Authorize one defensive reaction for one minute [tactical:reaction:1]
+4. Resume for up to six seconds [tactical:resume]
+5. Step south [tactical:move:south]
+6. look [look]
+7. Plan provisions / Kit Sheet [plan]
+8. journal [journal]
+Actions 48; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> resume
+Paused at 13:00:08.0.
+Since last look: 0.6s passed.
+Ellis Wayfarer and Jory Rowe: the brawl ends with submission accepted; the blows stop.
+Tactical 13:00:08.0 — awaiting your order. You have yielded.
+1855-04-01 13:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — caught up in a brawl. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 797; Rest 612; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Conscience: The table is laid (held for your order; you may: take meal)
+Self-Command: Held for your order; routine standing orders only — explain 932
+Heard: Ellis Wayfarer and Jory Rowe have fallen out
+[954] Ellis Wayfarer yields. Accept the surrender; nonlethal blows have stopped.
+[955] yield resolves; you recover.
+[958] Your action and recovery are complete.
+  Jory Rowe: “Look how Ellis walks, like a goose on ice!”
+  Ellis Wayfarer: “Laugh. I've seen you try to dance.”
+  Loveday Rowe: “Lock up tonight, Jory, and sleep light.”
+  Jory Rowe: “I do both. It's the second that's hard.”
+  Peran Rowe: “Can I help, Loveday?”
+  Loveday Rowe: “You can fetch the kindling, and mind your fingers.”
+  Richard Pascoe: “Do you think the frost is done?”
+  Jory Rowe: “Ask me tomorrow. Frost lies.”
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. Authorize one defensive reaction for one minute [tactical:reaction:1]
+3. Resume for up to six seconds [tactical:resume]
+4. Step south [tactical:move:south]
+5. look [look]
+6. Plan provisions / Kit Sheet [plan]
+7. journal [journal]
+Actions 47; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> resume
+The brawl has let go. Ordinary time resumes from this instant.
+60 min left in this hour (0 spent).
+Since last look: 6s passed.
+1855-04-01 13:00 | FAIR | the Wagon Wheel Tavern
+Ellis Wayfarer — idling. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 797; Rest 612; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Mr. Rowe keeps this frame house, with a long bar room below and beds above. Richard Pascoe, the keeper's brother-in-law, has the front room upstairs, and a survey chain hangs on a peg at the foot of the stairs. The porch roof sags at one corner, and a prop has stood under it so long it has put out roots. Spring at the Wagon Wheel Tavern. Wheel ruts and footprints cross the softer ground. Jory Rowe, Loveday Rowe, Peran Rowe are here.
+Here: Jory Rowe (#3), Loveday Rowe (#4), Peran Rowe (#5, child), Richard Pascoe (#24).
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 932
+Heard: Ellis Wayfarer and Jory Rowe have fallen out
+[958] Your action and recovery are complete.
+[962] Ellis Wayfarer and Jory Rowe: the brawl ends with submission accepted; the blows stop.
+[981] You take a breath. Ordinary time resumes from this instant.
+  Jory Rowe: “Look how Ellis walks, like a goose on ice!”
+  Ellis Wayfarer: “Laugh. I've seen you try to dance.”
+  Loveday Rowe: “Lock up tonight, Jory, and sleep light.”
+  Jory Rowe: “I do both. It's the second that's hard.”
+  Peran Rowe: “Can I help, Loveday?”
+  Loveday Rowe: “You can fetch the kindling, and mind your fingers.”
+  Richard Pascoe: “Do you think the frost is done?”
+  Jory Rowe: “Ask me tomorrow. Frost lies.”
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Whitlock Mercantile (1 min) [go:22]
+11. Go to Rush Creek, upper reach (1 min) [go:4]
+12. Go to Tregear Farm (1 min) [go:7]
+13. Go to Tregear Wheat Field (1 min) [go:10]
+14. Go to Badger Ford (1 min) [go:13]
+15. Go to Coulee Road (1 min) [go:17]
+16. Go to Rush Creek District School (1 min) [go:18]
+17. Go to Kvale's Smithy (1 min) [go:20]
+18. Chat: Jory Rowe [talk:chat:3]
+19. Chat: Loveday Rowe [talk:chat:4]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:145:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:145:soak]
+Actions 195; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> inspect Loveday Rowe
+Loveday Rowe — Human; idling.
+You have met (familiarity 40 of 1000). Ties: none. Your opinion: Neutral.
+Seems to feel about you: civil — offers you ordinary courtesy.
+Perception: reading their manner: 19 (d20 18, Wisdom +1, Time spent in their company) vs DC 17 -> success
+affection: 1 = base 0 + reasons 1 + immediate 0 (clamped −100..100)
+respect: 0 = base 0 + reasons 0 + immediate 0 (clamped −100..100)
+trust: 0 = base 0 + reasons 0 + immediate 0 (clamped −100..100)
+fear: 0 = base 0 + reasons 0 + immediate 0 (clamped −100..100)
+Introduced themselves civilly: affection 1, respect 0, trust 0, fear 0
+Remembered: Made the acquaintance of Loveday Rowe at the Wagon Wheel Tavern
+No time passed (1855-04-01 13:00, the Wagon Wheel Tavern).
+> go 22
+58 min left in this hour (2 spent).
+Since last look: 2 min passed.
+You arrive at Whitlock Mercantile (2 min on foot)
+1855-04-01 13:02 | FAIR | Whitlock Mercantile
+Ellis Wayfarer — at leisure. Purse $49.75; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.1 kg.
+Vitals: Hunger 796; Rest 610; Thirst 818; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–21:00. Freight due Wednesday (in 3 days), every 3 days.
+A long counter, a scale and shelves to the ceiling; Mrs. Whitlock's book of what the district owes is kept under it. Her son Josiah works the floor. Barrels of nails and salt stand on the porch. Spring at Whitlock Mercantile. The wind carries the smell of wet earth. Hannah Whitlock, Josiah Whitlock are here.
+Here: Hannah Whitlock (#1), Josiah Whitlock (#2).
+Conscience: The table is laid (held for your order; you may: take a meal)
+[958] Your action and recovery are complete.
+[962] Ellis Wayfarer and Jory Rowe: the brawl ends with submission accepted; the blows stop.
+[981] You take a breath. Ordinary time resumes from this instant.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Ridge Baptist Church (1 min) [go:2]
+11. Go to the Wagon Wheel Tavern (1 min) [go:25]
+12. Go to Rush Creek, lower reach (1 min) [go:3]
+13. Go to Vik Farm (1 min) [go:8]
+14. Go to Vik Corn Field (1 min) [go:11]
+15. Go to Badger Ford (1 min) [go:13]
+16. Go to Coulee Road (1 min) [go:17]
+17. Go to Dahl's Prayer House (1 min) [go:19]
+18. Chat: Hannah Whitlock [talk:chat:1]
+19. Introduce oneself: Hannah Whitlock [talk:introduce:1]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:145:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:145:soak]
+Actions 340; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
