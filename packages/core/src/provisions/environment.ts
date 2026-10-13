@@ -40,7 +40,7 @@ export type PlacementMemo = Record<
  * afterwards, the planner passes its own projected copy.
  */
 export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo, hems?: HemSet): void {
-  const raining = isRaining(ctx.seed, ctx.cal);
+  const raining = isRaining(ctx.seed, ctx.cal, world);
   const campShelter = new Map<number, boolean>();
   if (raining) {
     const index = inventoryIndex(world);

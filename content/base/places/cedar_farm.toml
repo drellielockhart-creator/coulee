@@ -1,0 +1,41 @@
+[[site]]
+id = "cedar_farm"
+name = "Cedar Farm"
+description = "A pair of farmsteads beyond the oak ridge."
+grid = {w=30,h=30}
+
+[[place]]
+id = "cedar_farm_gate"
+site = "cedar_farm"
+name = "Cedar Farm gate"
+kind = "yard"
+description = "A split-rail gate opens onto the Hales' farm."
+tags = ["outdoor"]
+x=1
+y=10
+w=3
+h=3
+
+[[place]]
+id = "cedar_farm_house"
+site = "cedar_farm"
+name = "Hale farmhouse"
+kind = "farmstead"
+description = "Smoke stains the limewashed chimney above a narrow porch. Work boots stand beside the Hales' kitchen door."
+tags = ["home","farm","hearth"]
+x=8
+y=8
+w=5
+h=5
+
+[[place]]
+id = "cedar_farm_field"
+site = "cedar_farm"
+name = "Cedar Farm fields"
+kind = "field"
+description = "Last autumn's corn stalks lie between new furrows. A stone wall follows the rise toward the oak ridge."
+tags = ["farm","field","workplace","outdoor"]
+x=15
+y=2
+w=12
+h=12

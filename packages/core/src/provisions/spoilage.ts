@@ -60,9 +60,9 @@ export function storageClassOf(world: World, content: ContentBundle, stack: Item
 }
 
 /** Effective storage temperature, F: worn items sit at max(air, 40) (03 §3.7.4 "carried on the body"). */
-export function stackTempF(cal: CalendarInfo, storage: StorageClass): number {
-  if (storage === 'body') return Math.max(airTempF(cal), 40);
-  return storageTempF(cal, storage);
+export function stackTempF(cal: CalendarInfo, storage: StorageClass, world?: World): number {
+  if (storage === 'body') return Math.max(airTempF(cal, world), 40);
+  return storageTempF(cal, storage, world);
 }
 
 /** Packaging multiplier from the protection classes in the container chain (distinct classes, floored at 5%). */
@@ -93,7 +93,7 @@ export function spoilageFactors(
   const food = content.items[stack.defId]?.food;
   if (!food) return null;
   const storage = pre?.storage ?? storageClassOf(world, content, stack);
-  const f = stackTempF(cal, storage);
+  const f = stackTempF(cal, storage, world);
   const band = tempBand(f);
   const tempPct = food.spoilage.temperature_pct[band];
   const wet = stack.wetness > 20;

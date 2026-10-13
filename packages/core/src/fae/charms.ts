@@ -170,7 +170,7 @@ export function feetBetween(world: World, content: ContentBundle, from: PlaceId,
   const b = world.places[to];
   if (!a || !b) return Number.MAX_SAFE_INTEGER;
   if (from === to) return 0;
-  if (a.siteId !== b.siteId) return 15840;
+  if (a.siteId !== b.siteId) return world.region ? Number.MAX_SAFE_INTEGER : 15840;
   const tileFt = content.sites?.[a.siteId]?.tile_ft ?? 10;
   const halfTiles = Math.abs(2 * a.x + a.w - (2 * b.x + b.w)) + Math.abs(2 * a.y + a.h - (2 * b.y + b.h));
   return Math.ceil((halfTiles * tileFt) / 2);

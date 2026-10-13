@@ -36,6 +36,7 @@ export function menuActions(o: Observation, page = 0): AvailableAction[] {
     // What needs her answer, and anyone here who needs help, come first.
     ...o.actions.filter((a) => a.id.startsWith('answer:')),
     ...o.actions.filter((a) => a.id.startsWith('aid:')),
+    ...o.actions.filter((a) => /^(route:|travel:|journey:)/.test(a.id)),
     ...basic.flatMap((id) => o.actions.find((a) => a.id === id) ?? []),
     // Destinations are offered nearest first, with their minutes on foot.
     ...o.actions.filter((a) => a.id.startsWith('go:')).slice(0, NEAREST),
@@ -66,6 +67,10 @@ function thoughtObject(o: Observation, urge: string, line: string): string {
 /** What the character is doing, in a phrase: on the road with the minutes left, or the activity's verb. */
 function doing(o: Observation): string {
   const a = o.self.activity;
+  if (o.region?.location.kind === 'edge') {
+    const loc = o.region.location;
+    return `${loc.status} on ${loc.name}, ${loc.feet} feet from this leg's entrance; only carried supplies are at hand`;
+  }
   if (a.travelingTo !== null && a.arriveAt !== null) {
     const left = Math.max(1, a.arriveAt - o.time.t);
     const to = o.places.find((p) => p.id === a.travelingTo)?.name ?? 'your destination';
@@ -354,6 +359,16 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
     );
   };
   const pc = o.self.id;
+  if (verb === 'route' || verb === 'travel')
+    return find(
+      o.actions.filter((a) => a.id.startsWith(`${verb}:`)),
+      tail,
+    );
+  if (verb === 'stop' || verb === 'resume' || verb === 'camp' || text === 'turn back') {
+    const id = `journey:${text === 'turn back' ? 'turn_back' : verb}`;
+    const offered = o.actions.find((a) => a.id === id);
+    if (offered) return offered.command;
+  }
   const action = o.actions.find((a) => a.id === text);
   if (action) return confirmEnding(action.command, text) ?? action.command;
   // A stable social id that is not on offer now still goes to the game, which says exactly why not.
@@ -516,6 +531,8 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
       : `You carry nothing called “${query}”; plan lists your pack`;
   }
   if (verb === 'wake') return find(o.actions, 'activity:idle_at_home');
+  if (verb === 'sleep' && o.region?.location.kind === 'edge')
+    return o.actions.find((a) => a.id === 'journey:camp')?.command ?? 'Camp is unavailable';
   if (['sleep', 'rest', 'work'].includes(verb)) {
     const activityId = { sleep: 'sleep', rest: 'idle_at_home', work: 'work' }[verb as 'sleep' | 'rest' | 'work'];
     const offered = o.actions.find((a) => a.id === `activity:${activityId}`);
@@ -693,6 +710,20 @@ function renderPrices(stock: Observation['store']['stock'], page?: number, filte
   ].join('\n');
 }
 export function renderDetail(detail: unknown): string {
+  if (detail && typeof detail === 'object' && 'boundaryMinutes' in detail) {
+    const r = detail as import('@coulee/core').provisions.TripReadiness;
+    return [
+      `Route to ${r.destination}: ${r.elapsedMinutes / 60} hours${r.arrived ? ' to arrival' : ' to the next decision'} (hourly boundaries; final spare minutes are waiting).`,
+      `Carried provisions: ${r.kcal} kcal, protein ${r.proteinG} g, fat ${r.fatG} g, Fresh ${r.freshPoints}; water ${r.waterUsedMl} ml used / ${r.waterLeftMl} ml left; fuel ${r.fuelUsed}.`,
+      ...r.foods.map(
+        (f) =>
+          `${f.name}: ${f.servingsPm / 1000} servings used, ${f.remainingPm / 1000} left; spoilage ${f.spoilage}/1000.`,
+      ),
+      `Arrival load ${r.loadPct}%; rest ${r.needs.rest ?? '?'}/1000.`,
+      ...r.warnings,
+      ...r.uncertainty,
+    ].join('\n');
+  }
   if (typeof detail === 'string') return detail;
   if (detail && typeof detail === 'object' && 'prices' in detail) {
     const d = detail as {

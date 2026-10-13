@@ -1,0 +1,36 @@
+# M5 slice 1: the unchanged Iron Ford plus two neighboring farmers.
+extends = "iron_ford"
+id = "iron_ford_neighbors"
+region = "iron_ford_neighbors"
+
+[[households]]
+key = "cedar_farm_hale"
+name = "The Hales at Cedar Farm"
+home = "cedar_farm_house"
+head = "cedar_farm_martha"
+cash_cents = 2500
+pantry = [{item="hardtack",qty=30},{item="pemmican",qty=20},{item="dried_apples",qty=20}]
+
+[[actors]]
+key = "cedar_farm_martha"
+given = "Martha"
+family = "Hale"
+sex = "female"
+age = 38
+ancestry = "human"
+occupation = "farmer"
+household = "cedar_farm_hale"
+workplace = "cedar_farm_field"
+abilities = {str=12,dex=10,con=12,int=10,wis=12,cha=10}
+
+[[actors]]
+key = "cedar_farm_jonas"
+given = "Jonas"
+family = "Hale"
+sex = "male"
+age = 40
+ancestry = "human"
+occupation = "farmer"
+household = "cedar_farm_hale"
+workplace = "cedar_farm_field"
+abilities = {str=12,dex=10,con=12,int=10,wis=12,cha=10}

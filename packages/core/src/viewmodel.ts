@@ -162,7 +162,11 @@ export function timeView(t: number): TimeView {
 export function toViewModel(world: World, content: ContentBundle, options: Partial<ViewOptions> = {}): ViewModel {
   const opts: ViewOptions = { ...DEFAULT_VIEW_OPTIONS, ...options };
   const scenario = content.scenarios[world.meta.scenarioId];
-  const siteDef = scenario ? content.sites[scenario.site] : undefined;
+  const activeSite =
+    world.region && opts.perspective !== null
+      ? world.places[world.actors[opts.perspective]?.placeId ?? 0]?.siteId
+      : scenario?.site;
+  const siteDef = activeSite ? content.sites[activeSite] : undefined;
   const actors: ActorView[] = idsOf<ActorId>(world.actors)
     .filter(
       (id) =>
@@ -199,35 +203,47 @@ export function toViewModel(world: World, content: ContentBundle, options: Parti
         provisions: viewProvisionsActor(world, content, id, opts),
       };
     });
-  const places: PlaceView[] = idsOf<PlaceId>(world.places).map((id) => {
-    const p = mustGet(world.places, id, 'place');
-    return {
-      id,
-      defId: p.defId,
-      name: p.name,
-      kind: p.kind,
-      tags: [...p.tags],
-      x: p.x,
-      y: p.y,
-      w: p.w,
-      h: p.h,
-      rotation: p.rotation,
-      model: p.model,
-      activity: viewActivityPlace(world, content, id, opts),
-      provisions: viewProvisionsPlace(world, content, id, opts),
-    };
-  });
-  const households: HouseholdView[] = idsOf<HouseholdId>(world.households).map((id) => {
-    const h = mustGet(world.households, id, 'household');
-    return {
-      id,
-      name: h.name,
-      headId: h.headId,
-      memberIds: [...h.memberIds],
-      homePlaceId: h.homePlaceId,
-      provisions: viewProvisionsHousehold(world, content, id, opts),
-    };
-  });
+  const places: PlaceView[] = idsOf<PlaceId>(world.places)
+    .filter(
+      (id) => !world.region || opts.omniscient || opts.perspective === null || world.places[id]?.siteId === activeSite,
+    )
+    .map((id) => {
+      const p = mustGet(world.places, id, 'place');
+      return {
+        id,
+        defId: p.defId,
+        name: p.name,
+        kind: p.kind,
+        tags: [...p.tags],
+        x: p.x,
+        y: p.y,
+        w: p.w,
+        h: p.h,
+        rotation: p.rotation,
+        model: p.model,
+        activity: viewActivityPlace(world, content, id, opts),
+        provisions: viewProvisionsPlace(world, content, id, opts),
+      };
+    });
+  const households: HouseholdView[] = idsOf<HouseholdId>(world.households)
+    .filter(
+      (id) =>
+        !world.region ||
+        opts.omniscient ||
+        opts.perspective === null ||
+        world.places[world.households[id]?.homePlaceId ?? 0]?.siteId === activeSite,
+    )
+    .map((id) => {
+      const h = mustGet(world.households, id, 'household');
+      return {
+        id,
+        name: h.name,
+        headId: h.headId,
+        memberIds: [...h.memberIds],
+        homePlaceId: h.homePlaceId,
+        provisions: viewProvisionsHousehold(world, content, id, opts),
+      };
+    });
   return {
     scenario: { id: world.meta.scenarioId, name: scenario?.name ?? world.meta.scenarioId },
     seed: world.meta.seed,

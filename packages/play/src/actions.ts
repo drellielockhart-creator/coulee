@@ -67,6 +67,31 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       actorId: pc,
       data: { query },
     });
+  if (w.region) {
+    if (activity.onJourney(w, pc)) {
+      for (const [verb, label] of [
+        ['stop', 'Stop on the road'],
+        ['resume', 'Resume journey'],
+        ['turn_back', 'Turn back'],
+        ['camp', 'Camp for eight hours'],
+      ] as const) {
+        const command: Command = { kind: `activity.${verb}`, actorId: pc, data: {} };
+        if (!activity.journeyCommandCheck(w, c, command)) add(`journey:${verb}`, label, command);
+      }
+    } else
+      for (const node of w.region.definition.nodes) {
+        const edgeIds = activity.routeTo(w, pc, node.id);
+        if (!edgeIds) continue;
+        add(`route:${node.id}`, `Route to ${node.name}`, {
+          kind: 'activity.observe',
+          actorId: pc,
+          data: { query: 'route', target: node.id },
+        });
+        const data = { destinationNodeId: node.id, edgeIds, pace: 'walk' as const, campPolicy: 'ask' as const };
+        if (!activity.travelCheck(w, c, pc, data))
+          add(`travel:${node.id}`, `Depart for ${node.name}`, { kind: 'activity.travel', actorId: pc, data });
+      }
+  }
   for (const r of social.pendingRequests(w, pc))
     for (const accept of [true, false])
       add(
@@ -89,7 +114,8 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       actorId: pc,
       data: { query: 'inspect', target },
     });
-  for (const p of Object.values(w.places)) inspect(`place:${p.id}`, p.name);
+  for (const p of Object.values(w.places))
+    if (!w.region || p.siteId === w.places[a.placeId]?.siteId) inspect(`place:${p.id}`, p.name);
   for (const other of Object.values(w.actors))
     if (other.placeId === a.placeId || social.isAcquainted(w, pc, other.id))
       inspect(`actor:${other.id}`, `${other.name.given} ${other.name.family}`.trim());
@@ -127,7 +153,10 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     const publicTags = social.tuningOf(c).public_venue_tags;
     const isPublic = (p: (typeof w.places)[number]) => (p.tags.some((t) => publicTags.includes(t)) ? 0 : 1);
     const destinations = Object.values(w.places)
-      .filter((p) => p.id !== a.placeId && c.activities.idle_at_home)
+      .filter(
+        (p) =>
+          p.id !== a.placeId && c.activities.idle_at_home && (!w.region || p.siteId === w.places[a.placeId]?.siteId),
+      )
       .map((p) => ({ p, minutes: activity.walkMinutes(w, c, a.placeId, p.id) }))
       .sort((x, y) => x.minutes - y.minutes || isPublic(x.p) - isPublic(y.p) || x.p.id - y.p.id);
     for (const { p, minutes } of destinations)
@@ -150,6 +179,22 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     for (const def of Object.values(c.activities)) {
       // Charm chores carry their item: they are offered as charm actions, never bare.
       if (def.tags.includes('charm')) continue;
+      if (
+        w.region &&
+        def.asleep &&
+        def.at === 'home' &&
+        camp.bedding &&
+        campId !== null &&
+        !activity.onJourney(w, pc)
+      ) {
+        add(`activity:${def.id}`, 'Make camp and sleep here', {
+          kind: 'core.urge',
+          actorId: pc,
+          data: { urge: { kind: 'activity', activityId: campId, placeId: a.placeId } },
+        });
+        continue;
+      }
+      if (activity.onJourney(w, pc) && (activity.walking(w, pc) || def.asleep)) continue;
       if (activity.resolveActivityPlace(w, sim, pc, def.id) === null) continue;
       const isCamp = def.tags.includes('camp') || def.tags.includes('campfire');
       if (isCamp && !camp.afield) continue;
@@ -381,6 +426,11 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   if (!needs.canAct(w, pc) && command.kind !== 'activity.wait') return 'You have collapsed and need help';
   const load = loadRefusal(w, c, pc, command);
   if (load) return load;
+  if (
+    command.kind === 'activity.travel' ||
+    ['activity.stop', 'activity.resume', 'activity.turn_back', 'activity.camp'].includes(command.kind)
+  )
+    return activity.journeyCommandCheck(w, c, command);
   if (offered) return null;
   if (command.kind === 'fae.signs') return null;
   if (command.kind === 'fae.investigate') return fae.investigationEligibility(w, pc, command.data.signId);
@@ -437,6 +487,7 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
       : 'Rations must be 10–150% for yourself or your household';
   if (command.kind === 'core.urge' && command.data.urge.kind === 'activity') {
     const u = command.data.urge;
+    if (activity.walking(w, pc)) return 'Stop or camp before another activity on the road';
     // Say why not (playtest r2: "Nothing here matches" for a locked activity, an internal id leaked).
     const state = activity.currentActivity(w, pc);
     if (state?.lockedUntil != null && state.lockedUntil > w.time) {
@@ -455,6 +506,8 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     )
       return null;
     const def = c.activities[u.activityId];
+    if (w.region && activity.resolveActivityPlace(w, sim, pc, u.activityId, u.placeId) === null)
+      return 'Use a regional travel order to leave this site';
     if (u.activityId === 'walk') return u.placeId !== undefined && w.places[u.placeId] ? null : 'No such place';
     if (!def) return 'No such activity';
     const own = (c.occupations[actor.occupationId]?.schedule ?? []).flatMap((b) => [b.activity, b.fallback]);

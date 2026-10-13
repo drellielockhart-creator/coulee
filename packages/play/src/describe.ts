@@ -97,6 +97,8 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
         ? out(`You ${gerund ? `begin ${verb}` : `are ${verb}`}`, d.source !== 'command' || def.tags.includes('leisure'))
         : out(`${name} is ${verb}`, true);
     }
+    case 'activity.journey':
+      return out(e.data.reason);
     case 'activity.moved': {
       const d = e.data;
       const walk = d.minutes && d.minutes > 1 ? ` (${d.minutes} min on foot)` : '';

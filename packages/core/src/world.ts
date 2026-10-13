@@ -22,6 +22,7 @@ import type { ItemsState } from './items/state.ts';
 import type { NeedsState } from './needs/state.ts';
 import type { ProvisionsState } from './provisions/state.ts';
 import type { PsycheState } from './psyche/state.ts';
+import type { RegionState } from './region/state.ts';
 import type { SocialState } from './social/state.ts';
 import type { GameMinute } from './time.ts';
 
@@ -52,6 +53,7 @@ export interface World {
   log: EventLog;
 
   // ---- module slices (each type owned by its module) ----
+  region?: RegionState;
   fae: FaeState;
   needs: NeedsState;
   activity: ActivityState;

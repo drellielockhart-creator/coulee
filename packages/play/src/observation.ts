@@ -12,6 +12,7 @@ import {
   needs,
   provisions,
   psyche,
+  region,
   type Sim,
   social,
   timeView,
@@ -170,8 +171,10 @@ export function observation(
         : {}),
     };
   };
+  const regional = region.regionView(w, pc);
   const ownProvisions = provisions.viewProvisionsActor(w, c, pc, opts);
   return {
+    region: regional,
     remains: needs.remainsAt(w, a.placeId),
     ending: ending ?? null,
     epilogue: epilogue ?? null,
@@ -183,9 +186,9 @@ export function observation(
     charms: fae.charmView(w, c, pc),
     requests: social.pendingRequests(w, pc),
     weather: {
-      temperatureF: provisions.airTempF(calendarAt(w.time)),
-      raining: provisions.isRaining(w.meta.seed, calendarAt(w.time)),
-      description: provisions.isRaining(w.meta.seed, calendarAt(w.time)) ? 'Rain' : 'Dry',
+      temperatureF: provisions.airTempF(calendarAt(w.time), w),
+      raining: provisions.isRaining(w.meta.seed, calendarAt(w.time), w),
+      description: provisions.isRaining(w.meta.seed, calendarAt(w.time), w) ? 'Rain' : 'Dry',
     },
     place: {
       id: a.placeId,
@@ -241,6 +244,7 @@ export function observation(
       // Household errands buy into the household pantry at her lodgings, not into her pack: say so.
       pantry: (() => {
         const home = w.households[a.householdId]?.homePlaceId;
+        if (w.region && mode !== 'god' && w.places[home ?? 0]?.siteId !== w.places[a.placeId]?.siteId) return null;
         const food = items
           .stacksDeep(w, items.pantryOf(a.householdId))
           .map((s) => s.stack)
@@ -260,12 +264,14 @@ export function observation(
     present: Object.values(w.actors)
       .filter((other) => other.id !== pc && other.placeId === a.placeId)
       .map((other) => publicActor(other.id)),
-    places: Object.values(w.places).map((p) => ({
-      id: p.id,
-      name: p.name,
-      kind: p.kind,
-      description: c.places[p.defId]?.description ?? '',
-    })),
+    places: Object.values(w.places)
+      .filter((p) => !w.region || mode === 'god' || p.siteId === w.places[a.placeId]?.siteId)
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        kind: p.kind,
+        description: c.places[p.defId]?.description ?? '',
+      })),
     knownPeople: Object.values(w.actors)
       .filter((other) => other.placeId === a.placeId || social.isAcquainted(w, pc, other.id))
       .map((other) => publicActor(other.id)),

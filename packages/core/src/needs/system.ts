@@ -36,7 +36,46 @@ export function hourlyLedger(
   inventory?: InventoryIndex,
   /** Routine ticks only need the delta; views retain the full explanation by default. */
   trace = true,
+  intervalPart = false,
 ): HourlyLedger {
+  const interval = world.activity.journeys?.[id]?.interval;
+  if (!intervalPart && interval?.at === world.time && interval.movingMinutes > 0 && interval.movingMinutes < 60) {
+    const state = world.activity.byActor[id];
+    if (state) {
+      const part = (activityId: string) =>
+        hourlyLedger(
+          {
+            ...world,
+            activity: { ...world.activity, byActor: { ...world.activity.byActor, [id]: { ...state, activityId } } },
+          },
+          content,
+          id,
+          key,
+          air,
+          placeTempF,
+          before,
+          inventory,
+          trace,
+          true,
+        );
+      const walk = part('walk'),
+        wait = part('idle_at_home');
+      const delta = Math.round((walk.delta * interval.movingMinutes + wait.delta * interval.waitingMinutes) / 60);
+      return {
+        delta: delta || 0,
+        terms: trace
+          ? [
+              {
+                source: 'travel',
+                label: `${interval.movingMinutes} minutes walking; ${interval.waitingMinutes} waiting`,
+                value: delta || 0,
+              },
+            ]
+          : [],
+        calculations: [...walk.calculations, ...wait.calculations],
+      };
+    }
+  }
   if (needsFrozen(world, content, id))
     return {
       delta: 0,
@@ -209,7 +248,7 @@ export function baselineOf(world: World, content: ContentBundle, id: ActorId, ke
 
 export function needsSystem(world: World, ctx: SimContext): void {
   const temperatures = heatPlaces(world, ctx);
-  const air = ambientTemperatureF(ctx.cal);
+  const air = ambientTemperatureF(ctx.cal, world);
   const keys = Object.keys(ctx.content.needs).sort();
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   for (const id of idsOf<ActorId>(world.actors)) {

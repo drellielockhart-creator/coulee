@@ -6,6 +6,10 @@ import type { ActorId, PlaceId } from '../ids.ts';
 import type { ActivitySource } from './state.ts';
 
 export type ActivityEvent =
+  | EventOf<
+      'activity.journey',
+      { actorId: ActorId; kind: 'departed' | 'stopped' | 'camp' | 'resumed' | 'turned_back'; reason: string }
+    >
   /** An actor began a new activity block. Routine: give it no importance. */
   | EventOf<'activity.started', { actorId: ActorId; activityId: string; placeId: PlaceId; source: ActivitySource }>
   /** An actor moved between places; `minutes` is how long the walk took (additive). */

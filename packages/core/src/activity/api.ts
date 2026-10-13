@@ -15,6 +15,7 @@ import type { World } from '../world.ts';
 import { blockActive, monthMatches, type Routine, routineFor } from './calendar.ts';
 import { requiredRow } from './definitions.ts';
 import type { ActorActivity } from './state.ts';
+import { onJourney } from './travel.ts';
 
 export function currentActivity(world: World, actorId: ActorId): ActorActivity | undefined {
   return world.activity.byActor[actorId];
@@ -50,7 +51,7 @@ export function walkMinutes(world: World, content: Pick<ContentBundle, 'sites'>,
   const a = world.places[from];
   const b = world.places[to];
   if (!a || !b || from === to) return 0;
-  if (a.siteId !== b.siteId) return BETWEEN_SITES_MINUTES;
+  if (a.siteId !== b.siteId) return world.region ? 1000000 : BETWEEN_SITES_MINUTES;
   const tileFt = content.sites?.[a.siteId]?.tile_ft ?? 10;
   // Centres in half tiles, so odd footprints keep exact integers.
   const halfTiles = Math.abs(2 * a.x + a.w - (2 * b.x + b.w)) + Math.abs(2 * a.y + a.h - (2 * b.y + b.h));
@@ -141,6 +142,22 @@ export function resolveActivityPlace(
   const actor = world.actors[actorId];
   const def = ctx.content.activities[activityId];
   if (!actor || !def) return null;
+  if (world.region) {
+    const site = world.places[actor.placeId]?.siteId;
+    if (requested !== undefined && world.places[requested]?.siteId !== site) return null;
+    if (
+      onJourney(world, actorId) &&
+      (def.at !== 'anywhere' || (requested !== undefined && requested !== actor.placeId))
+    )
+      return null;
+    const home = world.households[actor.householdId]?.homePlaceId;
+    if (def.at === 'home' && world.places[home ?? 0]?.siteId !== site) return def.asleep ? null : actor.placeId;
+    if (
+      def.at === 'workplace' &&
+      world.places[world.activity.byActor[actorId]?.workplaceId ?? home ?? 0]?.siteId !== site
+    )
+      return null;
+  }
   const age = yearsBetween(actor.born, world.time);
   if (
     (def.min_age !== undefined && age < def.min_age) ||
@@ -167,11 +184,13 @@ export function resolveActivityPlace(
     const target = callTarget(world, actorId);
     const targetHome =
       target !== null ? world.households[requiredRow(world.actors, target).householdId]?.homePlaceId : undefined;
+    if (world.region && world.places[targetHome ?? home]?.siteId !== world.places[actor.placeId]?.siteId) return null;
     return targetHome ?? home;
   }
   const origin = world.places[home];
   const candidates = idsOf<PlaceId>(world.places).filter((id) => {
     const p = requiredRow(world.places, id);
+    if (world.region && p.siteId !== world.places[actor.placeId]?.siteId) return false;
     return def.at === 'venue' && def.venue_tags.some((t) => p.tags.includes(t));
   });
   candidates.sort((a, b) => {
@@ -313,6 +332,8 @@ export function relocateForCare(
   const actor = world.actors[id],
     state = world.activity.byActor[id];
   if (!actor || !state || !world.places[place]) return;
+  if (world.region && (onJourney(world, id) || world.places[actor.placeId]?.siteId !== world.places[place]?.siteId))
+    return;
   const from = actor.placeId;
   actor.placeId = place;
   state.placeId = place;
@@ -337,3 +358,6 @@ export function relocateForCare(
       },
     });
 }
+
+export * from './travel.ts';
+export * from './travel-rules.ts';

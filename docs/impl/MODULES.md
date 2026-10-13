@@ -677,3 +677,10 @@ Contracts (all additive):
 - **chronicle:** fact class `charm`; pattern `charm` (levels 1–3, closing, `charm.truth`, written again only when the pounds drawn have changed); template slots `charm claim keeper keeper_short source lb resolution lent_to blame`; `when.stage` = `arrived | again | still` (a reopened story has no arrival; under the same keeper it is no news); `ChronicleState.charmMemo?` (per-charm last Truth pounds and last keeper, kept past closed-thread eviction).
 - **play:** charm actions, `charms` on the fair observation (`fae.charmView`), fae Command results as `detail`, refused charm Commands roll back at zero cost.
 - **fae API:** `charmView`, `forecastCharms`/`forecastHems`, `charmKeepWeight`, `charmTransferred`, `grantLook`, `restitutionOwed`, `restitutionMade`, `noteItemInteraction`, `loanTerms`, `tieWindow`; checkShortfall/countStock in `fae/discovery.ts`.
+
+## M5 slice 1 additive contracts (2026-10-12)
+
+- **region owner:** `core/src/region/**`: optional `World.region`, authored registry, knowledge and geographic location queries. Both fixture populations remain T1. `content-world` owns `schema/region.ts` and the authored fixture.
+- **activity:** optional `journeys`, directed leg progress in feet and integer fractional carry, shared interval preparation/commit/finalization, validated travel/stop/resume/turn-back/camp Commands. Only activity relocates actors. Foundation installs site geometry idempotently; fixture population is allocated once before module initialization in canonical scenario order.
+- **provisions:** `tripReadiness` projects the same travel itinerary and needs/provisions kernels on a private copy; carried-only road supply and stopped preparation. No changes to credit, relief or charity policy.
+- **foundation/play/web:** additive composition hooks before needs and after provisions, filtered region observation, zero-time route queries and offered travel Commands. Existing system order and absent-region state remain unchanged. No T0, census or LOD claim in slice 1.

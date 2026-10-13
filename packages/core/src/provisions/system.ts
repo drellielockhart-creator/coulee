@@ -1,3 +1,4 @@
+import { onJourney } from '../activity/api.ts';
 import { productionHour } from '../activity/production.ts';
 /** Meals, household economy, nutrition, storage and scheduled supplies; sixth in the hourly schedule. */
 import { commandsFor } from '../command.ts';
@@ -43,10 +44,14 @@ import { settleBeds } from './services.ts';
 const clock = (t: number) =>
   `${String(Math.floor((t % 1440) / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
 
-export function provisionsSystem(world: World, ctx: SimContext): void {
-  withInventoryPass(world, () => provisionsHour(world, ctx));
+export function provisionsSystem(
+  world: World,
+  ctx: SimContext,
+  forecast?: { hems: import('../fae/hem.ts').HemSet },
+): void {
+  withInventoryPass(world, () => provisionsHour(world, ctx, forecast));
 }
-function provisionsHour(world: World, ctx: SimContext): void {
+function provisionsHour(world: World, ctx: SimContext, forecast?: { hems: import('../fae/hem.ts').HemSet }): void {
   employmentHour(world, ctx);
   productionHour(world, ctx);
   settleBeds(world, ctx);
@@ -63,9 +68,9 @@ function provisionsHour(world: World, ctx: SimContext): void {
   }
   nutritionHour(world, ctx);
   if (ctx.isNewDay) householdDay(world, ctx);
-  const hems = world.fae?.charms ? hemSet(world, ctx.content) : undefined;
+  const hems = forecast?.hems ?? (world.fae?.charms ? hemSet(world, ctx.content) : undefined);
   storageHour(world, ctx, undefined, hems);
-  if (hems) commitHems(world, ctx, hems);
+  if (hems && !forecast) commitHems(world, ctx, hems);
   preparationHour(world, ctx);
   const ate = new Set<ActorId>();
   for (const cmd of commandsFor(ctx.commands, 'provisions.')) {
@@ -227,7 +232,8 @@ function provisionsHour(world: World, ctx: SimContext): void {
     const holder = holderOfActor(world, actor.id),
       meal = dueMeal(world, ctx.content, held ? { actorId: actor.id } : holder, ctx.cal.hour);
     const urge = chosenUrge(world, actor.id);
-    const eating = urge?.urge.kind === 'activity' && urge.urge.activityId === 'take_meal';
+    const eating =
+      !onJourney(world, actor.id) && urge?.urge.kind === 'activity' && urge.urge.activityId === 'take_meal';
     if (!meal && !eating) continue;
     if (held && hunger >= (meal ? STANDING_FULL : 600)) continue;
     // A chosen meal between scheduled meals is a snack; avoid a second full meal within three hours.

@@ -6,6 +6,7 @@
  * REPL numbers. A refused order says why and costs no time; an accepted one takes its hour at
  * once, and the "since your last order" digest says what came of it, in plain words.
  */
+
 import type { AvailableAction } from '@coulee/play';
 import { useState } from 'react';
 import { money } from '../lib/format.ts';
@@ -65,6 +66,7 @@ export function PlayPanel() {
       ) : (
         <>
           <Situation o={o} />
+          <TravelCard key={o.place.id} o={o} runner={runner} />
           <nav className="act-groups" aria-label="Kinds of action">
             {GROUPS.filter((g) => groups.has(g.id)).map((g) => (
               <button key={g.id} type="button" onClick={() => ui.setActGroup(g.id)}>
@@ -680,5 +682,53 @@ function Ending({ o }: { o: PlayObservation }) {
         </div>
       ) : null}
     </div>
+  );
+}
+
+/** No client routing or supply math: all controls use the fair session's offered Commands. */
+function TravelCard({ o, runner }: { o: PlayObservation; runner: ReturnType<typeof useRunner> }) {
+  const [preview, setPreview] = useState<string>('');
+  const routes = o.actions.filter((a) => a.id.startsWith('route:'));
+  const controls = o.actions.filter((a) => a.id.startsWith('travel:') || a.id.startsWith('journey:'));
+  if (!o.region) return null;
+  return (
+    <section aria-label="Regional travel">
+      <h3>Walk to the neighbors</h3>
+      {o.region.location.kind === 'edge' ? (
+        <p>
+          {o.region.location.status} on {o.region.location.name} · {o.region.location.feet} feet along this leg. Carried
+          supplies only.
+        </p>
+      ) : null}
+      <label>
+        Destination{' '}
+        <select
+          aria-label="Destination"
+          defaultValue=""
+          onChange={async (e) => {
+            const a = routes.find((a) => a.id === e.target.value);
+            if (a) {
+              const result = await runner.run(a);
+              setPreview(result.text ?? '');
+            }
+          }}
+        >
+          <option value="">Choose a destination</option>
+          {routes.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      {preview ? <pre className="reading">{preview}</pre> : null}
+      <div>
+        {controls.map((a) => (
+          <button type="button" key={a.id} disabled={runner.busy} onClick={() => runner.run(a)}>
+            {a.label}
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }

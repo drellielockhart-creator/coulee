@@ -87,6 +87,7 @@ export function perceivedEvents(events: readonly Event[], pc: ActorId, priorPlac
   let place = priorPlace;
   const seen: Event[] = [];
   for (const e of events) {
+    if (e.kind === 'activity.journey' && e.data.actorId === pc && e.place !== undefined) place = e.place;
     if (e.kind === 'activity.moved' && e.data.actorId === pc) place = e.data.to;
     if (e.kind === 'fae.omen' && !e.data.witnesses.includes(pc)) continue;
     const role = e.roles.find((r) => r.actor === pc);
@@ -140,6 +141,8 @@ export function addressedToPC(content: ContentBundle, pc: ActorId, e: Event): bo
 }
 
 function classify(world: World, content: ContentBundle, pc: ActorId, e: Event): Interrupt {
+  if (e.kind === 'activity.journey' && e.data.actorId === pc && (e.data.kind === 'camp' || e.data.kind === 'stopped'))
+    return { ...background(e), category: 'arrival', score: 80, pause: true };
   const participant =
     e.roles.some((r) => r.actor === pc && r.role !== 'witness') ||
     (e.kind === 'social.interaction' && (e.data.initiatorId === pc || e.data.targetId === pc));

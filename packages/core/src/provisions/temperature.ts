@@ -19,7 +19,8 @@ export const DIURNAL_OFFSET_F = [
 ] as const;
 
 /** Outdoor air temperature, °F (integer). */
-export function airTempF(cal: CalendarInfo): number {
+export function airTempF(cal: CalendarInfo, world?: import('../world.ts').World): number {
+  if (world?.region?.definition.fixed_weather) return world.region.definition.fixed_weather.temperature_f;
   const m = cal.month - 1;
   const here = MONTHLY_MEAN_F[m] as number;
   // Interpolate toward the neighboring month's mean around mid-month (day 15).
@@ -31,8 +32,12 @@ export function airTempF(cal: CalendarInfo): number {
 }
 
 /** Storage temperature for a kind of storage (indoors buffers swings; cellars hold ~50°F). */
-export function storageTempF(cal: CalendarInfo, storage: 'outdoor' | 'indoor' | 'cellar' | 'springhouse'): number {
-  const air = airTempF(cal);
+export function storageTempF(
+  cal: CalendarInfo,
+  storage: 'outdoor' | 'indoor' | 'cellar' | 'springhouse',
+  world?: import('../world.ts').World,
+): number {
+  const air = airTempF(cal, world);
   switch (storage) {
     case 'outdoor':
       return air;
@@ -73,7 +78,8 @@ export function rainSpell(seed: number, dayIdx: number, month: number): { start:
 }
 
 /** Is it raining during this hour? A spell is clipped at midnight. */
-export function isRaining(seed: number, cal: CalendarInfo): boolean {
+export function isRaining(seed: number, cal: CalendarInfo, world?: import('../world.ts').World): boolean {
+  if (world?.region?.definition.fixed_weather) return world.region.definition.fixed_weather.raining;
   const spell = rainSpell(seed, cal.dayIndex, cal.month);
   if (spell && cal.hour >= spell.start && cal.hour < spell.start + spell.hours) return true;
   return false;

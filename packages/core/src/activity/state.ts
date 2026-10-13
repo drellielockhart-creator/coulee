@@ -26,6 +26,7 @@ export interface ActorActivity {
 }
 
 export interface ActivityState {
+  journeys?: import('./travel.ts').Journeys;
   byActor: Table<ActorId, ActorActivity>;
   /** Place -> actor ids present, ascending. Recomputed every hour after movement. */
   occupancy: Table<PlaceId, ActorId[]>;
@@ -73,7 +74,12 @@ export function recomputeOccupancy(world: World): void {
   const occ: Table<PlaceId, ActorId[]> = {};
   for (const id of idsOf<ActorId>(world.actors)) {
     const a = mustGet(world.actors, id, 'actor');
-    if (!a.alive || world.activity.byActor[id]?.travel) continue;
+    if (
+      !a.alive ||
+      (world.activity.journeys?.[id] && world.activity.journeys[id]?.status !== 'arrived') ||
+      world.activity.byActor[id]?.travel
+    )
+      continue;
     const list = occ[a.placeId] ?? [];
     list.push(id);
     occ[a.placeId] = list;
