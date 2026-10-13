@@ -127,3 +127,89 @@ All playtest reports follow ADR 0002: mode, recipe/content versions, command log
 - **Vehicles/river trade:** capability-based directed legs accept later boats/wagons with item-container cargo, crew and portage. Replace abstract freight with manifested shipments once; prevent double restocking. No boat ownership UI in M5.
 - **Parties:** social owns recruitment, purpose and agency transfer; journey membership references those actors and supplies individual P8 contexts. Pins retain distant pursuers. Do not merge minds, inventories or permissions into the leader.
 - **Elevation:** addresses include a default level 0 and explicit entrance links; grade uses real rise/fall independently. Later stairs/caves add levels, flyers add altitude; neither requires renumbering sites or rewriting graph traversal.
+
+## Slice 2a status — wave 7, 2026-10-13
+
+**Mergeable region-owned subset: authored census and policy APIs. Slice 2 is not complete.**
+`region.initRegion` now captures the fixture's already allocated identities and household IDs
+once. `ensureCensus` also admits subsequently created sheets without reseeding an existing
+member. Birth/name/people/presentation/occupation/languages are persistent snapshots; culture
+and never-materialized procedural population generation are not implemented by this bridge.
+Current sheets, inventory, money, obligations and grudges remain solely in their owning slices.
+`censusConsumers` returns each living household member once; age derives from birth and
+objective time; `refreshCensus` preserves survival's death cause/time/place/event independently
+of log retention. These are records and queries, **not a second consumption or mortality kernel**.
+
+`selectRegionTiers` implements directed walking distance, six-hour relevance, kin, rivals,
+obligations, grudges, destination and active-thread relevance, explicit companion/pursuer pins,
+a 400-actor soft T1 cap with deterministic ties, and 24-hour demotion hysteresis. T0 identifies
+the focused actor's occupied site. The saved `selected` tier is separate from `processing`:
+**T2 selections still run T1 executors.** `hourlyActorIds` therefore returns all retained sheets.
+The unmodified Cedar road costs 250/240 minutes, so its absent site correctly stays within T1;
+a long-road test variant exercises T2 eligibility. The policy never changes with host speed.
+
+`recordCensusEvidence` accepts a producer-resolved, already-perceived memory snapshot plus a
+stable cause key. Duplicate keys are idempotent; conflicting payloads fail. Ordered hydration
+uses `social.addMemory`, with receipts surviving event eviction. The witness-only evidence view
+does not expose remote facts. `promoteCensusActor` reuses the existing sheet and hydrates once;
+it neither reconstructs inventory nor revives the dead. `regionSystem` flushes pending evidence
+at promotion/relevance or a maximum 48-hour unresolved age **when the host invokes it**.
+Evidence production, rumor compartments and canonical delayed-memory decay remain owner work;
+this API does not claim arrival-time-independent social outcome distributions yet.
+
+### Requests to foundation / owning modules for slice 2b
+
+- **Foundation:** invoke `region.api.regionSystem(world, ctx)` once at each completed hour,
+  after `sim/sim.ts:stepHourly` advances `world.time`, using a fresh `makeContext`; add the
+  corresponding hook to `sim/advance.ts` at completed tactical frame closure. This matches the
+  tested boundary timestamps (private hydration events are sifted next hour). Absent regions
+  are a no-op. Tests in `cli/test/region.test.ts` currently invoke the
+  boundary explicitly; production CLI/play retain the existing hourly schedule. No hidden
+  mutation has been added to a location or weather query. Register a region event union if tier
+  decisions need logged Explains, and validate census/LOD versions at restore.
+- **Play/foundation:** after PC creation or observation-focus changes, call `ensureCensus` and
+  `setRegionFocus(world, playerId)`; run the boundary hook before presenting arrival. Initial
+  authored census capture already runs through the existing `initRegion` composition hook.
+- **Provisions/needs/activity:** add household-scoped shared meal/prep/storage, production,
+  economic transfer and survival kernels, then let hourly systems consume processing buckets.
+  Do not enable actual T2 until every interval has exactly one owner. Preserve inventory,
+  obligation, death and pending-meal facts when promoting; never replay summarized consumption.
+- **Social/belief/psyche:** produce consequential evidence at its source, provide daily named-mind
+  and delayed hydration/decay APIs, and retain unresolved debts/grudges. The current explicit
+  snapshot API is exercised with a witness fixture, not automatically fed from the event log.
+- **Foundation/worldgen/content:** canonical census RNG and reserved IDs for never-materialized
+  households, culture/exposure generation, household APIs without placeholder heads, scoped
+  actor materialization and pinned population versions. Existing authored IDs are retained.
+- **Release gates still open:** real T2 ≤5 percentage-point outcome bands across seeds, Standard
+  3–4k census performance/heap/save gates, automated absent-site return consequences in the
+  production lifecycle, and full fair multi-day Explorer/Socialite QA. No phone/T2 speed claim.
+
+### Verification for this subset
+
+The region suite exercises 50 seeds × 42 authored members (2,100 identities), reversing promotion
+order after varied objective delays; 16-day event eviction before witness hydration; the exact
+24-hour demotion / 48-hour pending-evidence boundaries; 400-cap ordering and 405 pin override;
+inventory/debt/grudge/death preservation; JSON save/load mid-absence; and a replayable headless
+round trip. A five-day retained-executor comparison checks needs, interactions/opinions, cash,
+and pantry state for exact equality (0 percentage-point difference). This is T0/T1 fallback
+parity, **not validation of a coarse T2 approximation**. No golden is refreshed.
+
+Performance, `iron_ford_neighbors`, seed 42, 720 hours: the pre-edit CLI run measured
+**19.56 ms/h**, the post-edit CLI run **26.42 ms/h** (the latter overlapped test work).
+A subsequent same-process pair, removing only the new optional metadata for the baseline,
+measured **20.61 → 19.80 ms/h**. Host contention/JIT variation prevents a speedup claim;
+actual T2 performance is unmeasured. Both runs emitted 85,961 events, retained 8,808, and
+produced a 4.72 MB packed save. Removing `region.census` and `region.lod` from the after-save
+recovers the exact before hash **`73fe5661ebde796e`**. Artifacts: `runs/m5-before/`,
+`runs/m5-after/`, `runs/m5-benchmark-paired.json` (gitignored).
+
+Final gate: **`VITEST_MAX_WORKERS=2 just check` green: 81 files / 839 tests**, lint,
+all package/script typechecks, 239 core-file invariant checks and 110 content files validated.
+The unchanged Iron Ford golden passed. `just bundle` was needed first in this fresh worktree
+for the worker tests' generated bundle import. The initial unconstrained run was stopped after
+missing-bundle failures and a long test exceeding its explicit timeout; neither required a
+source change. The successful complete gate took 926 seconds in Vitest. Log:
+`runs/m5-check-final.log` (gitignored). No commits, golden edits or cross-owner source edits.
+
+Touched files: `core/src/region/{api,state,census,evidence,lod,system}.ts`,
+`cli/test/region.test.ts` (paths under `packages/`), and this plan.
