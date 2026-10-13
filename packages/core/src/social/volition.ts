@@ -12,6 +12,7 @@ import { VALUES } from '../content.ts';
 import { type ExplainTerm, signed, term } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
+import { cashOf } from '../provisions/api.ts';
 import { effectiveTraits, psycheOf } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { MINUTES_PER_DAY } from '../time.ts';
@@ -214,6 +215,9 @@ export function requiresFail(p: Pair, def: InteractionDef, mode: RequireMode): s
     if (!q.initiator_did.some((k) => (d[k] ?? 0) >= 100)) return 'nothing to atone for';
   }
   if (q.target_min_anxiety > 0 && anxietyOf(w, tg) < q.target_min_anxiety) return 'target at ease';
+  if (q.initiator_min_cash_cents !== undefined && cashOf(w, i) < q.initiator_min_cash_cents) return 'not enough cash';
+  if (q.target_min_cash_cents !== undefined && cashOf(w, tg) < q.target_min_cash_cents)
+    return 'target has not enough cash';
   // How well the target knows the initiator binds every mode: a command cannot make a near
   // stranger agree to walk out (playtest r2: courtship on one roll on the first evening).
   if ((q.target_min_familiarity ?? 0) > 0 && (opinionRecord(w, tg, i)?.familiarity ?? 0) < q.target_min_familiarity)
@@ -354,6 +358,14 @@ export function volition(p: Pair, def: InteractionDef): { score: number; terms: 
         const c = owedCents(w, i, tg);
         value = floorDiv(Math.min(100, floorDiv(c, 10)) * wt, 100);
         label = `owed ${c}¢`;
+        break;
+      }
+      case 'cash':
+      case 'target_cash': {
+        const cents = cashOf(w, prefix === 'cash' ? i : tg);
+        value = floorDiv(Math.min(100, floorDiv(cents, 10)) * wt, 100);
+        label = `${prefix === 'cash' ? 'My' : 'Their'} spendable cash ${cents}¢`;
+        source = 'money';
         break;
       }
       case 'owes':

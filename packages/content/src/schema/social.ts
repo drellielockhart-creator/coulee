@@ -120,6 +120,8 @@ export type RelationshipKind = (typeof RELATIONSHIP_KINDS)[number];
  *   stranger             weight if the initiator has no opinion record of the target yet
  *   familiarity          familiarity 0..1000 × weight / 1000
  *   owed_cents           min(100, cents the target owes the initiator / 10) × weight / 100
+ *   cash                 initiator's spendable cents / 10 (capped 100) × weight / 100
+ *   target_cash          target's spendable cents, same scale (means against financial want)
  *   owes                 weight if the initiator owes the target money or favors
  *   favors_owed          favors the initiator owes the target (capped 5) × weight
  *   anxiety              initiator's anxiety 0..1000 × weight / 1000
@@ -148,6 +150,8 @@ export const VOLITION_DRIVER_PREFIXES = [
   'stranger',
   'familiarity',
   'owed_cents',
+  'cash',
+  'target_cash',
   'owes',
   'favors_owed',
   'anxiety',
@@ -341,6 +345,9 @@ export const InteractionSchema = z.strictObject({
       min_grudge: int().min(0).max(100).default(0),
       /** Target anxiety (0..1000) at least this (comfort the frightened). */
       target_min_anxiety: int().min(0).max(1000).default(0),
+      /** Spendable cash (purse plus household cash), e.g. a lender must have something to lend. */
+      initiator_min_cash_cents: nonNegInt().optional(),
+      target_min_cash_cents: nonNegInt().optional(),
       /**
        * How well the TARGET must know the initiator (their familiarity 0..1000). Structural: it
        * holds for commands and urges too (nobody walks out with a near stranger on one word).

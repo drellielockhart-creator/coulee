@@ -145,6 +145,8 @@ function sentence(code: string, def: InteractionDef, name: string): string {
     'nothing to answer': `${name} has done nothing to you that wants an answer`,
     'nothing to atone for': `You have done ${name} no wrong to make amends for`,
     'target at ease': `${name} seems at ease; there is nothing to comfort`,
+    'not enough cash': 'You have not enough cash for that',
+    'target has not enough cash': `${name} has not enough cash for that`,
     'hardly knows you': `${name} hardly knows you yet; ask again when you are better acquainted`,
     'nothing to give': `You have nothing to give ${name}: a twist of tobacco, some sweets or a little food would do`,
     'not speaking': `You and ${name} are not on speaking terms`,
