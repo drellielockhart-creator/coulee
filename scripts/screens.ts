@@ -16,6 +16,7 @@ const arg = (name: string) => {
 const OUT = join(ROOT, arg('--out') ?? 'runs/screens');
 const PORT = Number(arg('--port') ?? process.env.SCREENS_PORT ?? 4173);
 const ONLY = arg('--only');
+const REGION_ONLY = process.argv.includes('--region');
 const CHROMIUM = ['/usr/bin/chromium', '/usr/sbin/chromium', '/usr/bin/chromium-browser'].find(existsSync);
 const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 900, mobile: false, layout: 'desk' },
@@ -319,6 +320,85 @@ async function tapPlayer(page: Page, context: BrowserContext, vp: Viewport, erro
   }
 }
 
+/** The two-site authored fixture, with real map taps and the same offered travel Command. */
+async function regionLoop(page: Page, vp: Viewport, errors: string[]): Promise<void> {
+  await page.getByRole('button', { name: 'Region', exact: true }).click();
+  const map = page.getByTestId('region-map');
+  await map.waitFor();
+  await capture(page, `${vp.name}-region-start`, errors);
+  // Exercise camera controls and a drag; Fit makes the destination tap reproducible.
+  const node = map.locator('[data-region-node]').first();
+  const initial = await node.boundingBox();
+  assert(initial, 'known site label');
+  await page.getByRole('button', { name: 'Zoom region in', exact: true }).click();
+  const zoomed = await node.boundingBox();
+  assert(zoomed && Math.abs(zoomed.x - initial.x) > 1, 'zoom moves the site relative to the camera anchor');
+  const bounds = await map.boundingBox();
+  assert(bounds, 'region map bounds');
+  const x = bounds.x + bounds.width / 2,
+    y = bounds.y + bounds.height * 0.55;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 35, y + 20, { steps: 5 });
+  await page.mouse.up();
+  const dragged = await node.boundingBox();
+  assert(dragged && dragged.x > zoomed.x + 25, 'mouse dragging pans the region');
+  await map.getByRole('button', { name: 'Fit', exact: true }).click();
+  if (vp.mobile) {
+    const fitted = await node.boundingBox();
+    assert(fitted, 'fitted site label');
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [
+        { x: x - 45, y, id: 1 },
+        { x: x + 45, y, id: 2 },
+      ],
+    });
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [
+        { x: x - 75, y, id: 1 },
+        { x: x + 75, y, id: 2 },
+      ],
+    });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await cdp.detach();
+    const pinched = await node.boundingBox();
+    assert(pinched && Math.abs(pinched.x - fitted.x) > 1, 'touch pinching zooms the region');
+    await map.getByRole('button', { name: 'Fit', exact: true }).click();
+  }
+  const destination = map.getByRole('button', { name: 'Route to Cedar Farm', exact: true });
+  if (vp.mobile) {
+    const target = await destination.boundingBox();
+    assert(target, 'known destination hit area');
+    await page.touchscreen.tap(target.x + target.width / 2, target.y + target.height / 2);
+  } else await destination.click();
+  const card = page.getByTestId('route-card');
+  await card.waitFor();
+  await page.waitForFunction(() =>
+    /Route to Cedar Farm:/.test(document.querySelector('[data-testid="route-preview"]')?.textContent ?? ''),
+  );
+  assert.equal(await clock(page), 0, 'the map route query costs no time');
+  await capture(page, `${vp.name}-region-route`, errors);
+  await card.getByRole('button', { name: 'Depart for Cedar Farm', exact: true }).click();
+  await outcomeFor(page, 'Depart for Cedar Farm');
+  await closeSheet(page);
+  await clearDispatches(page);
+  await stepHour(page);
+  await clearDispatches(page);
+  const position = map.getByTestId('region-position');
+  await position.waitFor();
+  const progress = Number(await position.getAttribute('data-progress'));
+  assert(progress > 0 && progress < 1000, 'PC is partway along the road');
+  await capture(page, `${vp.name}-region-mid-journey`, errors);
+  // Site/region stays available on the road; the site view must not show the departed town.
+  await page.getByRole('button', { name: 'Site', exact: true }).click();
+  assert.equal(await page.locator('.site-canvas:visible').count(), 0, 'no departed town on the road');
+  await page.getByRole('button', { name: 'Region', exact: true }).click();
+  await map.waitFor();
+}
+
 async function main(): Promise<void> {
   assert(CHROMIUM, 'no system Chromium found');
   assert(existsSync(join(ROOT, 'apps/web/dist/index.html')), 'run pnpm -C apps/web run build first');
@@ -382,10 +462,15 @@ async function main(): Promise<void> {
           errors.push(e.message);
           console.error(`screens: page error in ${vp.name}: ${e.stack ?? e.message}`);
         });
-        await page.goto(url);
+        await page.goto(REGION_ONLY ? `${url}?scenario=iron_ford_neighbors` : url);
         await page.getByTestId('settlement').waitFor({ timeout: 20_000 });
         await page.locator('.site-canvas').waitFor();
         await page.waitForLoadState('networkidle');
+        if (REGION_ONLY) {
+          await regionLoop(page, vp, errors);
+          await context.close();
+          continue;
+        }
         assert.equal(await page.getByTestId('settlement').getAttribute('data-layout'), vp.layout, 'layout');
         await page.getByTestId('vitals').waitFor();
         await capture(page, `${vp.name}-start`, errors);
@@ -486,6 +571,11 @@ async function main(): Promise<void> {
         );
         await audit(page, errors);
         console.log(`screens: ${vp.name} controls, time, play loop, tap, panels, saves and offline worker passed`);
+        await context.setOffline(false);
+        await page.goto(`${url}?scenario=iron_ford_neighbors`);
+        await page.getByTestId('settlement').waitFor({ timeout: 20_000 });
+        await clearDispatches(page);
+        await regionLoop(page, vp, errors);
         await context.close();
       }
     } finally {

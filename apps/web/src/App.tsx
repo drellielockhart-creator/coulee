@@ -7,12 +7,12 @@ import { NeedsTab } from './components/dossier/NeedsTab.tsx';
 import { OpinionsTab } from './components/dossier/OpinionsTab.tsx';
 import { KitSheet } from './components/KitSheet.tsx';
 import { Ledger } from './components/Ledger.tsx';
+import { MapView } from './components/MapView.tsx';
 import { ActorPeek, PlaceCard, StackChooser } from './components/Peek.tsx';
 import { DigestCard, PlayPanel } from './components/PlayPanel.tsx';
 import { Chronicle, People, Surroundings } from './components/Reading.tsx';
 import { Settings } from './components/Settings.tsx';
 import { Drawer, Sheet } from './components/Sheet.tsx';
-import { SiteMap } from './components/SiteMap.tsx';
 import { Storefront } from './components/Storefront.tsx';
 import { Empty, Tabs } from './components/ui.tsx';
 import { money } from './lib/format.ts';
@@ -42,7 +42,8 @@ const TABS: { id: DossierTab; label: string }[] = [
 ];
 
 export function App() {
-  const sim = useSim('iron_ford', 42);
+  const scenario = new URLSearchParams(window.location.search).get('scenario') ?? 'iron_ford';
+  const sim = useSim(scenario, 42);
   return (
     <SimCtx.Provider value={sim}>
       {sim.error ? (
@@ -207,7 +208,7 @@ function Settlement() {
       </header>
       <div className="workspace">
         <div className="map-column">
-          <SiteMap speed={speed} />
+          <MapView speed={speed} />
           <div className="dispatches">
             {alerted ? (
               <div className="dispatch alert" role="alert" data-testid="alert">
