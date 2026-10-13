@@ -7,6 +7,7 @@
 import type { z } from 'zod';
 import { beliefDomains, beliefRefs } from './belief.ts';
 import { chronicleDomains, chronicleRefs } from './chronicle.ts';
+import { combatDomains } from './combat.ts';
 import type { DomainSpec, Issue } from './common.ts';
 import { deriveCharmClaims, faeDomains, faeRefs } from './fae.ts';
 import { itemsDomains, itemsRefs } from './items.ts';
@@ -19,6 +20,7 @@ import { socialDomains, socialRefs } from './social.ts';
 import { worldDomains, worldRefs } from './world.ts';
 
 export const DOMAINS = {
+  ...combatDomains,
   ...faeDomains,
   ...rulesDomains,
   ...worldDomains,

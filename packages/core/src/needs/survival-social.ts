@@ -21,7 +21,13 @@ import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
 import { canAct, needsHelp, survivalExplain, survivalOf, survivalTuning } from './survival.ts';
 
-export function die(world: World, ctx: SimContext, id: ActorId, cause: string): void {
+export function die(
+  world: World,
+  ctx: SimContext,
+  id: ActorId,
+  cause: string,
+  explain?: import('../explain.ts').Explain,
+): void {
   const actor = world.actors[id],
     s = survivalOf(world, ctx.content, id);
   if (!actor?.alive || !s) return;
@@ -34,7 +40,7 @@ export function die(world: World, ctx: SimContext, id: ActorId, cause: string): 
     place: actor.placeId,
     visibility: 'witnessed',
     importance: 100,
-    explain: survivalExplain(id, `Death from ${cause}; Wounds reached Constitution`, s.wounds, 'dead'),
+    explain: explain ?? survivalExplain(id, `Death from ${cause}; Wounds reached Constitution`, s.wounds, 'dead'),
   });
   s.death = {
     at: ctx.now,

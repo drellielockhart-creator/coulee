@@ -33,6 +33,7 @@ export interface SurvivalState {
 }
 
 export interface ActorNeeds {
+  combat?: import('./combat.ts').CombatHealth;
   survival?: SurvivalState;
   /** Need id -> 0..1000. */
   values: Record<NeedId, number>;

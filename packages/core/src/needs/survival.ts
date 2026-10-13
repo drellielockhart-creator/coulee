@@ -7,6 +7,7 @@ import { type ActorId, idsOf } from '../ids.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
+import { combatUnconscious } from './combat.ts';
 import type { SurvivalState } from './state.ts';
 import { aftermathHour, die, helpHour } from './survival-social.ts';
 
@@ -38,7 +39,7 @@ export function survivalOf(world: World, content: ContentBundle, id: ActorId): S
 }
 export function canAct(world: World, id: ActorId): boolean {
   const s = world.needs.byActor[id]?.survival;
-  return world.actors[id]?.alive === true && !s?.collapsed && !s?.ending;
+  return world.actors[id]?.alive === true && !s?.collapsed && !s?.ending && !combatUnconscious(world, id);
 }
 /** Visible helplessness or prolonged hunger gives neighbors a reason to offer care. */
 export function needsHelp(world: World, id: ActorId): boolean {

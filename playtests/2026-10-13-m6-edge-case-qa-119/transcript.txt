@@ -1,0 +1,477 @@
+$ just run play --session runs/scratch/m6-verified-119 --new --scenario tavern_instant --seed 119
+node --import tsx packages/cli/src/main.ts "$@"
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Michael Dunleavy [talk:chat:28]
+19. Introduce oneself: Michael Dunleavy [talk:introduce:28]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 168; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 wait 1h
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:00.0.
+Since last look: no time passed.
+A chair scrapes back. Someone squares up to you. Paused before anyone acts.
+Tactical 00:00:00.0 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. flee [tactical:flee]
+3. attack Lucius Vance (unarmed, nonlethal) [tactical:attack:38]
+4. grapple Lucius Vance [tactical:grapple:38]
+5. Authorize one defensive reaction for one minute [tactical:reaction:1]
+6. Resume for up to six seconds [tactical:resume]
+7. Step east [tactical:move:east]
+8. Step south [tactical:move:south]
+9. look [look]
+10. Plan provisions / Kit Sheet [plan]
+11. journal [journal]
+Actions 11; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 attack Lucius
+node --import tsx packages/cli/src/main.ts "$@"
+Since last look: no time passed.
+Ellis Wayfarer squares up to Lucius Vance. A nonlethal brawl begins.
+Tactical 00:00:00.0 — attack: windup; 3.9s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+[42] A chair scrapes back. Someone squares up to you. Paused before anyone acts.
+[50] You begin attack. — explain 50
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:05.1.
+Since last look: 5.1s passed.
+Your action and recovery are complete.
+Tactical 00:00:05.1 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[349] Ellis Wayfarer lands a nonlethal blow on Lucius Vance. — explain 349
+[350] Lucius Vance: Takes a blow.
+[352] attack resolves; you recover.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. yield [tactical:yield]
+3. Break up the brawl [tactical:parley]
+4. flee [tactical:flee]
+5. attack Lucius Vance (unarmed, nonlethal) [tactical:attack:38]
+6. grapple Lucius Vance [tactical:grapple:38]
+7. Authorize one defensive reaction for one minute [tactical:reaction:1]
+8. Resume for up to six seconds [tactical:resume]
+9. Step east [tactical:move:east]
+10. Step south [tactical:move:south]
+11. look [look]
+12. Plan provisions / Kit Sheet [plan]
+13. journal [journal]
+Actions 13; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 flee
+node --import tsx packages/cli/src/main.ts "$@"
+Since last look: no time passed.
+Tactical 00:00:05.1 — flee: windup; 1.5s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[352] attack resolves; you recover.
+[358] Your action and recovery are complete.
+[360] You begin flee. — explain 360
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:07.8.
+Since last look: 2.7s passed.
+Your action and recovery are complete.
+Tactical 00:00:07.8 — flee: windup; 1.5s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[360] You begin flee. — explain 360
+[362] flee resolves; you recover.
+[365] You begin flee. — explain 365
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:08.4.
+Since last look: 0.6s passed.
+Lucius Vance yields. Accept the surrender; nonlethal blows have stopped.
+Tactical 00:00:08.4 — flee: windup; 0.9s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[362] flee resolves; you recover.
+[364] Your action and recovery are complete.
+[365] You begin flee. — explain 365
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:10.5.
+Since last look: 2.1s passed.
+Your action and recovery are complete.
+Tactical 00:00:10.5 — flee: windup; 1.5s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[370] Lucius Vance yields. Accept the surrender; nonlethal blows have stopped.
+[373] flee resolves; you recover.
+[376] You begin flee. — explain 376
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:13.2.
+Since last look: 2.7s passed.
+Your action and recovery are complete.
+Tactical 00:00:13.2 — flee: windup; 1.5s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[376] You begin flee. — explain 376
+[378] flee resolves; you recover.
+[380] You begin flee. — explain 380
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:15.9.
+Since last look: 2.7s passed.
+Your action and recovery are complete.
+Tactical 00:00:15.9 — flee: windup; 1.5s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[380] You begin flee. — explain 380
+[382] flee resolves; you recover.
+[384] You begin flee. — explain 384
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:18.6.
+Since last look: 2.7s passed.
+Your action and recovery are complete.
+Tactical 00:00:18.6 — flee: windup; 1.5s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[384] You begin flee. — explain 384
+[386] flee resolves; you recover.
+[388] You begin flee. — explain 388
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:21.3.
+Since last look: 2.7s passed.
+Your action and recovery are complete.
+Tactical 00:00:21.3 — flee: windup; 1.5s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[388] You begin flee. — explain 388
+[390] flee resolves; you recover.
+[392] You begin flee. — explain 392
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:22.8.
+Since last look: 1.5s passed.
+Ellis Wayfarer and Lucius Vance: the brawl ends with one fighter crossing the tavern door.
+Tactical 00:00:22.8 — flee: recovery; 1.2s remaining. You have left the brawl.
+1855-04-01 00:00 | FAIR | Main Street
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+The single street, laid along Hasp Creek. Spring at Main Street. Last year’s leaves lie against the shaded edges. The paths about Main Street are quiet.
+Here: no one else.
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[392] You begin flee. — explain 392
+[394] You cross the tavern door and leave the brawl.
+[403] flee resolves; you recover.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. Resume for up to six seconds [tactical:resume]
+2. look [look]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+Actions 4; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Paused at 00:00:24.0.
+Since last look: 1.2s passed.
+Your action and recovery are complete.
+Tactical 00:00:24.0 — awaiting your order. You have left the brawl.
+1855-04-01 00:00 | FAIR | Main Street
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+The single street, laid along Hasp Creek. Spring at Main Street. Last year’s leaves lie against the shaded edges. The paths about Main Street are quiet.
+Here: no one else.
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[394] You cross the tavern door and leave the brawl.
+[395] Ellis Wayfarer and Lucius Vance: the brawl ends with one fighter crossing the tavern door.
+[403] flee resolves; you recover.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. Resume for up to six seconds [tactical:resume]
+2. look [look]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+Actions 4; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Since last look: 6s passed.
+Tactical 00:00:30.0 — awaiting your order. You have left the brawl.
+1855-04-01 00:00 | FAIR | Main Street
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+The single street, laid along Hasp Creek. Spring at Main Street. Last year’s leaves lie against the shaded edges. The paths about Main Street are quiet.
+Here: no one else.
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[395] Ellis Wayfarer and Lucius Vance: the brawl ends with one fighter crossing the tavern door.
+[403] flee resolves; you recover.
+[405] Your action and recovery are complete.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. Breathe and return to ordinary time [tactical:breathe]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Since last look: 6s passed.
+Tactical 00:00:36.0 — awaiting your order. You have left the brawl.
+1855-04-01 00:00 | FAIR | Main Street
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 901
+Health: Vigor 7/7; Wounds 0/12.
+The single street, laid along Hasp Creek. Spring at Main Street. Last year’s leaves lie against the shaded edges. The paths about Main Street are quiet.
+Here: no one else.
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[395] Ellis Wayfarer and Lucius Vance: the brawl ends with one fighter crossing the tavern door.
+[403] flee resolves; you recover.
+[405] Your action and recovery are complete.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. Breathe and return to ordinary time [tactical:breathe]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 resume
+node --import tsx packages/cli/src/main.ts "$@"
+Since last look: 6s passed.
+Tactical 00:00:42.0 — awaiting your order. You have left the brawl.
+1855-04-01 00:00 | FAIR | Main Street
+Ellis Wayfarer — at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 901
+Health: Vigor 7/7; Wounds 0/12.
+The single street, laid along Hasp Creek. Spring at Main Street. Last year’s leaves lie against the shaded edges. The paths about Main Street are quiet.
+Here: no one else.
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 339
+[395] Ellis Wayfarer and Lucius Vance: the brawl ends with one fighter crossing the tavern door.
+[403] flee resolves; you recover.
+[405] Your action and recovery are complete.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. Breathe and return to ordinary time [tactical:breathe]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+
+$ just run play --session runs/scratch/m6-verified-119 breathe
+node --import tsx packages/cli/src/main.ts "$@"
+You take a breath. Ordinary time resumes from this instant.
+No time passed (1855-04-01 00:00, Main Street).
+
+$ just run play --session runs/scratch/m6-verified-119 --verify
+node --import tsx packages/cli/src/main.ts "$@"
+Verified 17 commands; final hash 4233196d2709ba68.

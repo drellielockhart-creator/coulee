@@ -2,12 +2,13 @@
 import type { ActorId, PlaceId } from '../ids.ts';
 import type { Cell, Position } from '../tactical/state.ts';
 import type { World } from '../world.ts';
+import { recomputeOccupancy } from './state.ts';
 export function tacticalPosition(w: World, id: ActorId): Position | undefined {
   return w.activity.tacticalPositions?.[id];
 }
 export function tacticalPinned(w: World, id: ActorId): boolean {
   return (
-    (!!w.tactical?.active && !!w.tactical.participants[id]) ||
+    (!!w.tactical?.active && !!w.tactical.participants[id] && !w.tactical.participants[id]?.fled) ||
     (w.tactical?.frame?.phase === 'settling' && w.tactical.frame.live.includes(id))
   );
 }
@@ -32,4 +33,19 @@ export function moveTactical(w: World, id: ActorId, cell: Cell): void {
     pos.x = cell.x;
     pos.y = cell.y;
   }
+}
+
+/** Commit crossing an authored door, after the tactical executor has paid for every step. */
+export function leaveTactical(w: World, id: ActorId, placeId: PlaceId): boolean {
+  const actor = w.actors[id],
+    state = w.activity.byActor[id],
+    target = w.places[placeId];
+  if (!actor || !state || !target || target.siteId !== w.places[actor.placeId]?.siteId) return false;
+  actor.placeId = placeId;
+  state.placeId = placeId;
+  state.travel = null;
+  state.activityId = 'idle_at_home';
+  if (w.activity.tacticalPositions) delete w.activity.tacticalPositions[id];
+  recomputeOccupancy(w);
+  return true;
 }

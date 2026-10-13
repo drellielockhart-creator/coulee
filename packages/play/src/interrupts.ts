@@ -141,6 +141,13 @@ export function addressedToPC(content: ContentBundle, pc: ActorId, e: Event): bo
 }
 
 function classify(world: World, content: ContentBundle, pc: ActorId, e: Event): Interrupt {
+  if (
+    (e.kind === 'tactical.blow' && e.data.targetId === pc) ||
+    e.kind === 'tactical.submission' ||
+    e.kind === 'tactical.outcome' ||
+    (e.kind === 'needs.combat_health' && e.data.actorId === pc)
+  )
+    return { ...background(e), category: 'danger', score: 900, pause: true };
   if (e.kind === 'tactical.danger') return { ...background(e), category: 'danger', score: 1000, pause: true };
   if (e.kind === 'tactical.action' && e.data.actorId === pc && e.data.phase === 'complete')
     return { ...background(e), category: 'action', score: 800, pause: true };

@@ -1,0 +1,15 @@
+[[combat]]
+id = "brawl"
+attack_ticks = 18
+recovery_ticks = 12
+grapple_ticks = 18 # plus recovery: one opposed contest per three seconds
+declaration_ticks = 5
+reaction_ticks = 60
+reaction_windup_ticks = 1 # a granted reaction resolves before the departing step
+stabilize_ticks = 600
+dying_ticks = 600
+dying_dc = 15
+dying_failures = 3
+nonlethal_recovery_ticks = 36000
+fist_die = 3
+morale_threat = 2

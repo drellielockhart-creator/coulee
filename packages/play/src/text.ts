@@ -349,13 +349,32 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
     const id =
       phrase === 'resume'
         ? 'tactical:resume'
-        : ['guard', 'cancel', 'breathe'].includes(phrase)
+        : ['guard', 'cancel', 'breathe', 'yield', 'escape', 'parley', 'flee'].includes(phrase)
           ? `tactical:${phrase}`
           : /^(step|move) (north|south|east|west)$/.test(phrase)
             ? `tactical:move:${phrase.split(' ')[1]}`
             : '';
     const action = o.actions.find((a) => a.id === id);
     if (action) return action.command;
+    if (phrase === 'break up') {
+      const parley = o.actions.find((a) => a.id === 'tactical:parley');
+      if (parley) return parley.command;
+    }
+    if (/^(attack|grapple|accept|stabilize) /.test(phrase)) {
+      const verb = phrase.split(' ')[0],
+        target = phrase.slice((verb?.length ?? 0) + 1);
+      const matches = o.actions.filter(
+        (a) => a.id.startsWith(`tactical:${verb}:`) && a.label.toLowerCase().includes(target),
+      );
+      if (matches.length === 1 && matches[0]) return matches[0].command;
+      return matches.length
+        ? `Choose: ${matches.map((a) => a.id).join(', ')}`
+        : 'No adjacent eligible target; try actions or step toward them.';
+    }
+    if (phrase === 'reaction' || phrase === 'revoke reactions') {
+      const reaction = o.actions.find((a) => a.id === `tactical:reaction:${phrase === 'reaction' ? 1 : 0}`);
+      if (reaction) return reaction.command;
+    }
   }
   const text = line.trim(),
     words = text.split(/\s+/),

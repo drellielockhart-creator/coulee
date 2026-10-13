@@ -157,8 +157,8 @@ export class PlaySession {
           spec: this.spec,
           contentHash: this.base.meta.hash,
           clockVersion: CLOCK_VERSION,
-          engineVersion: 'm6-slice1',
-          rulesVersion: 1,
+          engineVersion: 'm6-slice2',
+          rulesVersion: 2,
           sourceHash: hashValue(this.spec),
           ...(this.branched ? { branched: true } : {}),
         },
@@ -878,7 +878,7 @@ export class PlaySession {
   }
   static replay(content: ContentBundle, log: ReplayLog, mode: ObservationMode = 'fair'): PlaySession {
     const [header, ...steps] = log;
-    if (header.rulesVersion !== undefined && header.rulesVersion !== 1)
+    if (header.rulesVersion !== undefined && header.rulesVersion !== 2)
       throw new Error('Unsupported replay rules version');
     if (header.sourceHash !== undefined && header.sourceHash !== hashValue(header.spec))
       throw new Error('Replay source mismatch');

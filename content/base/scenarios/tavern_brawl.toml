@@ -1,0 +1,9 @@
+id = "tavern_brawl"
+name = "Pike and Whitcomb come to blows"
+extends = "tavern_instant"
+description = "M6 joining and peacemaking fixture. Two existing rivals square up beside the newcomer. The other patrons remain bystanders."
+[tactical_scene]
+id = "pike_whitcomb_brawl"
+text = "Pike and Whitcomb square up beside you. Join, call for peace, or leave through the door."
+brawlers = ["amos_whitcomb", "joel_pike"]
+exclude_actors = ["michael_dunleavy", "nora_dunleavy", "brigid_dunleavy", "lucius_vance"]

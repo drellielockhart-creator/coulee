@@ -5,8 +5,10 @@ import type { ContentBundle } from '../content.ts';
 import { calendarAt, MINUTES_PER_DAY } from '../time.ts';
 import type { World } from '../world.ts';
 import { weekNumber } from './bindings.ts';
+import { newDraft, writeEntry } from './entries.ts';
 import { shortNameOf } from './names.ts';
 import type { ChronicleEntry, KnowledgeBasis } from './state.ts';
+import { makeDetectCtx } from './system.ts';
 import { entryVisibleTo } from './view.ts';
 
 export interface ChronicleQuery {
@@ -150,3 +152,35 @@ export function renderChronicleMarkdown(
 }
 
 export { argForm, familiesOf, formalName, type HouseholdForms, householdForms } from './names.ts';
+
+/** Durable brawl summary is handed off synchronously, before micro-events can be evicted. */
+export function recordFight(
+  world: World,
+  ctx: import('../sim/context.ts').SimContext,
+  data: {
+    actors: import('../ids.ts').ActorId[];
+    witnesses: import('../ids.ts').ActorId[];
+    eventId: import('../ids.ts').EventId;
+    placeId: import('../ids.ts').PlaceId;
+    text: string;
+  },
+): void {
+  writeEntry(
+    makeDetectCtx(world, ctx),
+    newDraft({
+      key: 'tactical.outcome',
+      voice: 'almanac',
+      basis: 'witnessed',
+      knownBy: data.witnesses,
+      actorIds: data.actors,
+      placeIds: [data.placeId],
+      sources: [data.eventId],
+      t: ctx.now,
+      tEnd: ctx.now,
+      importance: 55,
+      kind: 'event',
+      topics: ['fight'],
+      fallback: data.text,
+    }),
+  );
+}
