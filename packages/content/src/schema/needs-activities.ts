@@ -274,6 +274,9 @@ export const YieldSchema = z.strictObject({
 export const ActivitySchema = z.strictObject({
   id: id(),
   name: z.string().min(1),
+  /** Opt into immediate local execution with a data-authored minute cost. */
+  short_act: z.boolean().optional(),
+  minutes: posInt().max(59).optional(),
   /** Present participle for UI/chronicle: "sleeping", "working the forge". */
   verb: z.string().min(1),
   description: z.string().default(''),
@@ -494,6 +497,12 @@ export const PlayTimingSchema = z.strictObject({
   id: id(),
   walk_limit_minutes: posInt().max(59),
   purchase_minutes: posInt().max(59),
+  short_acts: z
+    .partialRecord(
+      z.enum(['provisions.hire_on', 'provisions.quit', 'provisions.drink', 'provisions.refill']),
+      posInt().max(59),
+    )
+    .optional(),
 });
 export const needsActivitiesDomains = {
   playTiming: defineDomain({ dir: 'play-time', key: 'timing', schema: PlayTimingSchema }),

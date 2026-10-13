@@ -39,3 +39,15 @@ x=15
 y=2
 w=12
 h=12
+
+[[place]]
+id = "cedar_farm_well"
+site = "cedar_farm"
+name = "Cedar Farm well"
+kind = "yard"
+description = "A stone-lined well beside the farmhouse, with a rope, bucket and wooden cover. Visitors may draw water here."
+tags = ["water", "well", "outdoor"]
+x=6
+y=8
+w=2
+h=2

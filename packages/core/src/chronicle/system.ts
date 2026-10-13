@@ -72,7 +72,11 @@ function onDayStarted(dc: DetectCtx, ev: Extract<Event, { kind: 'core.day_starte
       kind: 'almanac',
       sources: [ev.id],
       topics: ['almanac'],
-      bind: { sabbath: d.isSabbath, moon: MOON_PHASE_NAMES[d.moon], weather: dayWeatherText(dc.ctx.seed, ev.t) },
+      bind: {
+        sabbath: d.isSabbath,
+        moon: MOON_PHASE_NAMES[d.moon],
+        weather: dayWeatherText(dc.ctx.seed, ev.t, dc.world),
+      },
       fallback: `${formatDate(ev.t)}. The ${MOON_PHASE_NAMES[d.moon]}.`,
     }),
   );

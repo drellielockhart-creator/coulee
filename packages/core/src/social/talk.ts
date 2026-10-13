@@ -135,8 +135,8 @@ function hourFacts(world: World, ctx: SimContext): HourFacts {
   const key = `${world.meta.seed}:${ctx.now}`;
   if (hourCache && hourCache.world === world && hourCache.facts.key === key) return hourCache.facts;
   const cal = ctx.cal;
-  const f = airTempF(cal);
-  const wet = isRaining(world.meta.seed, cal);
+  const f = airTempF(cal, world);
+  const wet = isRaining(world.meta.seed, cal, world);
   const h = cal.hour;
   const observances = Object.keys(ctx.content.observances ?? {})
     .sort()

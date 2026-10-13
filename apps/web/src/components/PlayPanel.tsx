@@ -742,11 +742,17 @@ function TravelCard({ o, runner }: { o: PlayObservation; runner: ReturnType<type
           route={preview.view}
           busy={runner.busy}
           canGo={!!go}
-          onGo={() => {
+          onGo={(confirmed) => {
             if (go)
-              void runner.run(go).then((result) => {
-                if (result.ok) ui.clearRoute();
-              });
+              void runner
+                .run(
+                  go.command.kind === 'activity.travel'
+                    ? { ...go, command: { ...go.command, data: { ...go.command.data, confirmed: confirmed === true } } }
+                    : go,
+                )
+                .then((result) => {
+                  if (result.ok) ui.clearRoute();
+                });
           }}
           onCancel={ui.clearRoute}
         />

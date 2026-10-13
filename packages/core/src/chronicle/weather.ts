@@ -6,6 +6,7 @@
  */
 import { airTempF, isRaining } from '../provisions/api.ts';
 import { calendarAt, MINUTES_PER_DAY } from '../time.ts';
+import type { World } from '../world.ts';
 
 export interface DayWeather {
   /** Hours of rain or snow, and which. */
@@ -20,30 +21,30 @@ export interface DayWeather {
 
 const partOfDay = (h: number): string => (h < 5 ? 'night' : h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening');
 
-export function dayWeather(seed: number, dayStart: number): DayWeather {
+export function dayWeather(seed: number, dayStart: number, world?: World): DayWeather {
   let wetHours = 0;
   let first = -1;
   let snowHours = 0;
   for (let h = 0; h < 24; h++) {
     const cal = calendarAt((dayStart + h * 60) as never);
-    if (!isRaining(seed, cal)) continue;
+    if (!isRaining(seed, cal, world)) continue;
     wetHours += 1;
     if (first < 0) first = h;
-    if (airTempF(cal) <= 32) snowHours += 1;
+    if (airTempF(cal, world) <= 32) snowHours += 1;
   }
   return {
     wetHours,
     snow: wetHours > 0 && snowHours * 2 >= wetHours,
     when: first >= 0 ? partOfDay(first) : '',
-    noonF: airTempF(calendarAt((dayStart + 14 * 60) as never)),
-    dawnF: airTempF(calendarAt((dayStart + 5 * 60) as never)),
+    noonF: airTempF(calendarAt((dayStart + 14 * 60) as never), world),
+    dawnF: airTempF(calendarAt((dayStart + 5 * 60) as never), world),
   };
 }
 
 /** The day line's weather clause ('' on an unremarkable day). */
-export function dayWeatherText(seed: number, dayStart: number): string {
-  const w = dayWeather(seed, dayStart);
-  const y = dayWeather(seed, dayStart - MINUTES_PER_DAY);
+export function dayWeatherText(seed: number, dayStart: number, world?: World): string {
+  const w = dayWeather(seed, dayStart, world);
+  const y = dayWeather(seed, dayStart - MINUTES_PER_DAY, world);
   const parts: string[] = [];
   if (w.wetHours > 0) {
     const heavy = w.wetHours >= 6;
@@ -60,14 +61,14 @@ export function dayWeatherText(seed: number, dayStart: number): string {
 }
 
 /** The week's weather for the Almanac digest ('' when nothing to say). `start` = the week's first day. */
-export function weekWeatherText(seed: number, start: number): string {
+export function weekWeatherText(seed: number, start: number, world?: World): string {
   let wet = 0;
   let snow = 0;
   let noonSum = 0;
   let market = '';
   for (let d = 0; d < 7; d++) {
     const day = start + d * MINUTES_PER_DAY;
-    const w = dayWeather(seed, day);
+    const w = dayWeather(seed, day, world);
     noonSum += w.noonF;
     if (w.wetHours > 0) {
       if (w.snow) snow += 1;

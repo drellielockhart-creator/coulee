@@ -36,11 +36,11 @@ export function ironByPlace(world: World, content: ContentBundle): Record<number
 export function weatherAt(world: World, p: Place, at: number, ctx: SimContext) {
   if (!ctx.rngAt) throw new Error('Weather snapshots require canonical-time RNG');
   const cal = calendarAt(asGameMinute(at));
-  const rain = isRaining(world.meta.seed, cal);
-  const snow = rain && airTempF(cal) <= 32;
+  const rain = isRaining(world.meta.seed, cal, world);
+  const snow = rain && airTempF(cal, world) <= 32;
   const thunder =
     rain &&
-    airTempF(cal) >= 60 &&
+    airTempF(cal, world) >= 60 &&
     ctx.rngAt('weather', asGameMinute(cal.dayIndex * 1440), mixKey(0xfae6)).chancePermille(200);
   const fog =
     !rain &&

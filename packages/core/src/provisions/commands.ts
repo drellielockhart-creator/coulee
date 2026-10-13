@@ -13,7 +13,7 @@ export type ProvisionsCommand =
   | CommandOf<'provisions.refill', { itemId: ItemId; ml?: number }>
   | CommandOf<'provisions.empty', { itemId: ItemId }>
   | CommandOf<'provisions.drink', { ml: number }>
-  | CommandOf<'provisions.sell', { placeId: PlaceId; itemId: ItemId; qty: number }>
+  | CommandOf<'provisions.sell', { placeId: PlaceId; itemId: ItemId; qty: number; itemIds?: ItemId[] }>
   | CommandOf<'provisions.buy', { placeId: PlaceId; defId: string; qty: number; onCredit: boolean }>
   | CommandOf<'provisions.eat', { itemId: ItemId; method: string; servings: number }>
   | CommandOf<'provisions.set_rations', { householdId: HouseholdId | null; rationPct: number }>

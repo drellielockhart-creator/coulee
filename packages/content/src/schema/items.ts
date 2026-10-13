@@ -272,6 +272,8 @@ export const ItemSchema = z.strictObject({
   tags: z.array(id()).default([]),
   /** Whether units stack into one instance (false for tools with individual condition). */
   stackable: z.boolean().default(true),
+  /** Compatibility stock represented by its current catalog entry when both are present. */
+  catalog_alias: ref().optional(),
   container: z
     .strictObject({
       capacity_g: nonNegInt(),
@@ -542,6 +544,7 @@ export function itemsRefs(b: ContentBundle): Issue[] {
     }
     if (it.container && !it.shape.includes('soft') && it.bulk < it.container.capacity_bulk)
       issues.push({ where, path: 'bulk', message: 'rigid container external bulk is smaller than its capacity' });
+    checkRefs(issues, where, 'catalog_alias', [it.catalog_alias], b.items, 'item');
     if (it.food) {
       checkRefs(issues, where, 'food.opening.yields', [it.food.opening?.yields], b.items, 'item');
       checkRefs(issues, where, 'food.spoilage.spoils_to', [it.food.spoilage.spoils_to], b.items, 'item');

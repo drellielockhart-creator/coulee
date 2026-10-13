@@ -16,3 +16,13 @@ at = "anywhere"
 labor = "rest"
 needs = { rest = 40 }
 tags = ["leisure"]
+
+# A deliberate waking order; ordinary rest remains an hour-long activity.
+[[activity]]
+id = "wake"
+name = "Wake"
+verb = "getting up"
+at = "anywhere"
+labor = "rest"
+short_act = true
+minutes = 1

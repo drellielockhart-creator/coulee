@@ -146,7 +146,7 @@ describe('M5 walk to the neighbor', () => {
       expect(session.observe().place.description).toContain('Cedar Ridge Road');
     }
   });
-  it('CLI road Appetite offers the carried-water drink command when there is no nearby source', () => {
+  it('CLI road offers carried water without a stale Appetite at satisfied thirst', () => {
     const session = PlaySession.create(content, { source: 'iron_ford_neighbors', seed: 42 });
     const vitals = sessionSimOf(session).world.needs.byActor[session.playerId];
     if (vitals) vitals.values.thirst = 600;
@@ -160,8 +160,8 @@ describe('M5 walk to the neighbor', () => {
       observation = session.observe();
     expect(provisions.nearestWaterSource(sim.world, sim.content, session.playerId)).toBe(null);
     const text = renderObservation(observation);
-    expect(text).toContain('Appetite: Drink from carried water');
-    expect(text).toContain('you may: drink)');
+    expect(text).not.toContain('Appetite: Drink from carried water');
+    expect(text).toContain('Drink water (500 ml)');
     expect(text).not.toContain('you may: fetch water');
     const command = parseText('drink', observation);
     if (typeof command === 'string') throw new Error(command);

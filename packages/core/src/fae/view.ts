@@ -50,7 +50,7 @@ export function describe(
     'Last year’s leaves lie against the shaded edges.',
     'Wheel ruts and footprints cross the softer ground.',
   ];
-  const weather = `${c.season[0]?.toUpperCase()}${c.season.slice(1)} at ${p.name}. ${details[hashString32(`${p.id}:${c.dayIndex}:weather`) % details.length]}`;
+  const weather = `${c.season[0]?.toUpperCase()}${c.season.slice(1)} has come to ${p.name}. ${details[hashString32(`${p.id}:${c.dayIndex}:weather`) % details.length]}`;
   const people = rowsOf(world.actors).filter((x) => x.alive && x.placeId === p.id && x.id !== perspective);
   const use = people.length
     ? `${people
@@ -78,7 +78,7 @@ export function describe(
       ? undefined
       : world.fae.questions[perspective]?.filter((q) => q.placeId === p.id && q.openedAt < world.time).slice(-1)[0];
   if (residue && !episodesAt(world, p.id).some((e) => e.id === residue.signId && e.end >= world.time))
-    layers.push(residue.evidence ?? `You remember: ${residue.text} The question is still open; use signs.`);
+    layers.push(residue.evidence ?? `You remember: ${residue.text} That trace has faded.`);
   if (p.tags.includes('algific')) layers.push(content.omens.ice?.counter ?? 'Cold air rises from the stones.');
   else if (p.tags.includes('iron') || p.tags.includes('ford'))
     layers.push('Iron and running water mark a boundary here.');

@@ -6,6 +6,7 @@ import {
   fae,
   hashValue,
   items,
+  makeContext,
   needs,
   provisions,
   psyche,
@@ -13,6 +14,7 @@ import {
   social,
   tactical,
 } from '@coulee/core';
+import { localWalkMinutes } from './minutes.ts';
 import { tacticalActions } from './tactical.ts';
 export interface AvailableAction {
   id: string;
@@ -72,6 +74,14 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
   if (w.tactical?.active) return [...out, ...tacticalActions(sim, pc)];
   if (w.region) {
     if (activity.onJourney(w, pc)) {
+      const destination = w.activity.journeys?.[pc]?.destinationNodeId;
+      const node = w.region.definition.nodes.find((n) => n.id === destination);
+      if (node)
+        add(`route:${node.id}`, `Remaining route to ${node.name}`, {
+          kind: 'activity.observe',
+          actorId: pc,
+          data: { query: 'route', target: node.id },
+        });
       for (const [verb, label] of [
         ['stop', 'Stop on the road'],
         ['resume', 'Resume journey'],
@@ -124,6 +134,16 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       inspect(`actor:${other.id}`, `${other.name.given} ${other.name.family}`.trim());
   const carried = items.stacksDeep(w, items.carriedBy(pc)).map((s) => s.stack);
   for (const s of carried) inspect(`item:${s.id}`, c.items[s.defId]?.name ?? s.defId);
+  const stock = catalogStock(
+    c,
+    provisions.viewProvisionsPlace(w, c, a.placeId, {
+      perspective: pc,
+      omniscient: false,
+      includeExplain: false,
+      recentChronicle: 0,
+    }).stock ?? [],
+  );
+  for (const line of stock) inspect(`catalog:${line.defId}`, line.name);
   add('prices', 'Prices / local stock', {
     kind: 'activity.observe',
     actorId: pc,
@@ -180,7 +200,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
         (p) =>
           p.id !== a.placeId && c.activities.idle_at_home && (!w.region || p.siteId === w.places[a.placeId]?.siteId),
       )
-      .map((p) => ({ p, minutes: activity.walkMinutes(w, c, a.placeId, p.id) }))
+      .map((p) => ({ p, minutes: localWalkMinutes(sim, pc, p.id) ?? activity.walkMinutes(w, c, a.placeId, p.id) }))
       .sort((x, y) => x.minutes - y.minutes || isPublic(x.p) - isPublic(y.p) || x.p.id - y.p.id);
     for (const { p, minutes } of destinations)
       add(`go:${p.id}`, `Go to ${p.name} (${minutes} min)`, {
@@ -202,7 +222,8 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     const home = w.households[a.householdId]?.homePlaceId;
     for (const def of Object.values(c.activities)) {
       // Charm chores carry their item: they are offered as charm actions, never bare.
-      if (def.tags.includes('charm')) continue;
+      if (def.tags.includes('charm') || ['incapacitated', 'walk', 'travel_on_foot'].includes(def.id)) continue;
+      if (def.id === 'wake' && !asleep) continue;
       if (
         def.asleep &&
         def.at === 'home' &&
@@ -220,7 +241,9 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
         continue;
       }
       if (activity.onJourney(w, pc) && (activity.walking(w, pc) || def.asleep)) continue;
-      if (activity.resolveActivityPlace(w, sim, pc, def.id) === null) continue;
+      const source = def.id === 'fetch_water' ? provisions.nearestWaterSource(w, c, pc) : null;
+      if (def.id === 'fetch_water' && !source) continue;
+      if (activity.resolveActivityPlace(w, sim, pc, def.id, source?.placeId) === null) continue;
       const isCamp = def.tags.includes('camp') || def.tags.includes('campfire');
       if (isCamp && !camp.afield) continue;
       if (
@@ -239,14 +262,14 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
         continue;
       }
       // Fetching water goes to the nearest spring, creek or ford (vessels fill there), not home.
-      const source = def.id === 'fetch_water' ? provisions.nearestWaterSource(w, c, pc) : null;
       if (source) {
+        const minutes = localWalkMinutes(sim, pc, source.placeId) ?? source.minutes;
         const where = w.places[source.placeId]?.name ?? 'the water';
         add(
           `activity:${def.id}`,
           source.minutes === 0
             ? `Fetch water here at ${where} (drink and fill your vessels)`
-            : `Fetch water at ${where} (${source.minutes} min on foot; drink and fill your vessels)`,
+            : `Fetch water at ${where} (${minutes} min on foot; drink and fill your vessels)`,
           {
             kind: 'core.urge',
             actorId: pc,
@@ -306,7 +329,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
   const store = w.provisions.stores[a.placeId];
   const canTrade = activity.shortActBlock(w, c, pc) === null;
   if (canTrade && store && provisions.storeOpen(w, c, a.placeId))
-    for (const s of items.stacksAt(w, items.atPlace(a.placeId))) {
+    for (const s of catalogStock(c, items.stacksAt(w, items.atPlace(a.placeId)))) {
       const price = provisions.priceAt(w, c, a.placeId, s.defId);
       const cash = (w.provisions.purses[pc] ?? 0) + (w.provisions.households[a.householdId]?.cashCents ?? 0);
       if (price === null || price > cash || s.partial || s.foodPartialPm || s.condition <= 0 || s.spoilage >= 1000)
@@ -464,6 +487,12 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     const blocked = activity.shortActBlock(w, c, pc);
     if (blocked) return blocked;
   }
+  if (command.kind === 'core.urge' && command.data.urge.kind === 'activity') {
+    const u = command.data.urge;
+    if (u.activityId === 'incapacitated') return 'Collapse is a condition, not an activity you can choose';
+    if (u.activityId === 'fetch_water' && !provisions.nearestWaterSource(w, c, pc))
+      return 'No reachable water source on this site';
+  }
   if (offered) return null;
   if (command.kind === 'fae.signs') return null;
   if (command.kind === 'fae.investigate') return fae.investigationEligibility(w, pc, command.data.signId);
@@ -533,7 +562,7 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     if (activity.walking(w, pc)) return 'Stop or camp before another activity on the road';
     // Say why not (playtest r2: "Nothing here matches" for a locked activity, an internal id leaked).
     const state = activity.currentActivity(w, pc);
-    if (state?.lockedUntil != null && state.lockedUntil > w.time) {
+    if (state?.lockedUntil != null && state.lockedUntil > w.time && !c.activities[state.activityId ?? '']?.asleep) {
       const held = c.activities[state.activityId ?? ''];
       const camp = held?.tags.includes('camp') === true;
       return `You are still ${held?.verb ?? 'busy'} until ${clock(state.lockedUntil)}${camp ? ': a night at camp holds you eight hours; wait, and you will wake' : '; wait until then'}`;
@@ -573,6 +602,10 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   if (command.kind === 'provisions.buy' || command.kind === 'provisions.sell') {
     if (!Number.isSafeInteger(command.data.qty) || command.data.qty <= 0)
       return 'Quantity must be a positive whole number';
+  }
+  if (command.kind === 'provisions.sell' && command.data.itemIds) {
+    const d = command.data;
+    return provisions.saleBundleCheck(w, makeContext(w, c, [command]), pc, d.placeId, d.itemIds ?? [], d.qty);
   }
   if (command.kind === 'provisions.sell') {
     const d = command.data,
@@ -761,4 +794,13 @@ function charmActions(sim: Sim, pc: ActorId, add: (id: string, label: string, co
   const home = w.households[a.householdId]?.homePlaceId;
   if (a.placeId === home || w.provisions.stores[a.placeId])
     add('fae.count', 'Count the stock here against the book', { kind: 'fae.count', actorId: pc, data: {} });
+}
+
+/** Collapse authored compatibility aliases in counter views, without changing physical stocks. */
+export function catalogStock<T extends { defId: string }>(content: Sim['content'], stock: readonly T[]): T[] {
+  const present = new Set(stock.map((s) => s.defId));
+  return stock.filter((s) => {
+    const alias = content.items[s.defId]?.catalog_alias;
+    return !alias || !present.has(alias);
+  });
 }
