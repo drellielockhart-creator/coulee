@@ -3,7 +3,7 @@ import { authorizeAct, commandBasis, standingOrders } from '../psyche/api.ts';
  * Provisions cross-module API. OWNER: module:provisions.
  */
 
-import { isAsleep, reservePreparation, walkMinutes } from '../activity/api.ts';
+import { isAsleep, onJourney, reservePreparation, walkMinutes } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { term } from '../explain.ts';
 import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
@@ -140,7 +140,9 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
       intensity,
       label: source
         ? `Thirsty: water at ${world.places[source.placeId]?.name ?? 'the spring'}`
-        : 'Drink accessible water',
+        : onJourney(world, actorId)
+          ? 'Drink from carried water'
+          : 'Drink accessible water',
       source: 'provisions',
       drive: 'hunger',
       reasons: [

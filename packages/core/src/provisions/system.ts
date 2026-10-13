@@ -44,14 +44,15 @@ import { settleBeds } from './services.ts';
 const clock = (t: number) =>
   `${String(Math.floor((t % 1440) / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
 
-export function provisionsSystem(
-  world: World,
-  ctx: SimContext,
-  forecast?: { hems: import('../fae/hem.ts').HemSet },
-): void {
+export function provisionsSystem(world: World, ctx: SimContext, forecast?: ProvisionForecast): void {
   withInventoryPass(world, () => provisionsHour(world, ctx, forecast));
 }
-function provisionsHour(world: World, ctx: SimContext, forecast?: { hems: import('../fae/hem.ts').HemSet }): void {
+interface ProvisionForecast {
+  hems: import('../fae/hem.ts').HemSet;
+  vermin?: (food: string, riskPm: number) => void;
+  preparation?: (label: string) => void;
+}
+function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForecast): void {
   employmentHour(world, ctx);
   productionHour(world, ctx);
   settleBeds(world, ctx);
@@ -69,7 +70,7 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: { hems: import
   nutritionHour(world, ctx);
   if (ctx.isNewDay) householdDay(world, ctx);
   const hems = forecast?.hems ?? (world.fae?.charms ? hemSet(world, ctx.content) : undefined);
-  storageHour(world, ctx, undefined, hems);
+  storageHour(world, ctx, undefined, hems, forecast?.vermin);
   if (hems && !forecast) commitHems(world, ctx, hems);
   preparationHour(world, ctx);
   const ate = new Set<ActorId>();
@@ -261,17 +262,9 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: { hems: import
   }
   const pass = { inventory: inventoryIndex(world), energy: new Map<string, number>() };
   for (const group of groups)
-    serveMeal(
-      world,
-      ctx,
-      group.holder,
-      group.actors,
-      group.share,
-      group.cold,
-      undefined,
-      pass,
-      undefined,
-      group.standing ? { capKcal: group.cap, standing: true } : undefined,
-    );
+    serveMeal(world, ctx, group.holder, group.actors, group.share, group.cold, undefined, pass, undefined, {
+      ...(group.standing ? { capKcal: group.cap, standing: true } : {}),
+      forecastCheck: forecast?.preparation,
+    });
   devicesHour(world, ctx);
 }

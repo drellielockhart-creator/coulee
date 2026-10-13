@@ -598,6 +598,8 @@ export interface MealOptions {
   capKcal?: Readonly<Record<number, number>>;
   /** Served by a standing order rather than chosen or commanded (announced as such). */
   standing?: boolean;
+  /** A private forecast assumes successful preparation and labels each unrolled check. */
+  forecastCheck?: (label: string) => void;
 }
 export interface MealResult {
   target: number;
@@ -873,6 +875,12 @@ export function serveMeal(
       for (let i = 0; i < batch.steps.length; i++) {
         const prep = batch.steps[i];
         if (prep?.check && cook && content.skills[prep.check.skill]) {
+          if (opts?.forecastCheck) {
+            opts.forecastCheck(
+              `Prepare ${content.items[stack.defId]?.name}: ${prep.check.skill} check, DC ${prep.check.dc}`,
+            );
+            continue;
+          }
           const result = skillCheck(
             content,
             cook,

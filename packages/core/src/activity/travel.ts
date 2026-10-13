@@ -319,7 +319,7 @@ export function advanceJourneys(w: World, ctx: SimContext): void {
   }
 }
 /** Supply kernels finish the road interval before exposing the destination hearth/water. */
-export function finishJourneys(w: World, ctx: SimContext): void {
+export function finishJourneys(w: World, ctx: SimContext, forecastWarning?: (reason: string) => void): void {
   for (const id of idsOf<ActorId>(w.activity.journeys ?? {})) {
     const j = w.activity.journeys?.[id],
       a = w.actors[id],
@@ -346,14 +346,24 @@ export function finishJourneys(w: World, ctx: SimContext): void {
         ),
       });
     } else if (j.status === 'walking' && !j.suppliesWarned && drinkingWater(w, ctx.content, id) === 0) {
+      const reason = 'Carried water is exhausted; stop and decide whether to resume or turn back.';
+      if (forecastWarning) {
+        j.suppliesWarned = true;
+        forecastWarning(reason);
+        continue;
+      }
       j.status = 'stopped';
       j.suppliesWarned = true;
-      j.pendingInterruption = 'Carried water is exhausted; stop and decide whether to resume or turn back.';
+      j.pendingInterruption = reason;
       emit(w, ctx, id, 'stopped', j.pendingInterruption);
     } else if (
       j.status === 'walking' &&
       ['hunger', 'thirst', 'rest', 'warmth'].some((n) => needValue(w, id, n) < 150)
     ) {
+      if (forecastWarning) {
+        forecastWarning('Critical vitals along the route: tend to your needs before continuing.');
+        continue;
+      }
       j.status = 'stopped';
       j.pendingInterruption = 'Critical vitals: stopped on the road; tend to your needs before resuming.';
       emit(w, ctx, id, 'stopped', j.pendingInterruption);

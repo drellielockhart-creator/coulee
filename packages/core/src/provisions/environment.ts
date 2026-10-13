@@ -39,7 +39,13 @@ export type PlacementMemo = Record<
  * containers and spills their turned rain; the live sim passes the fae hem set and commits it
  * afterwards, the planner passes its own projected copy.
  */
-export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo, hems?: HemSet): void {
+export function storageHour(
+  world: World,
+  ctx: SimContext,
+  memo?: PlacementMemo,
+  hems?: HemSet,
+  forecastVermin?: (food: string, riskPm: number) => void,
+): void {
   const raining = isRaining(ctx.seed, ctx.cal, world);
   const campShelter = new Map<number, boolean>();
   if (raining) {
@@ -139,6 +145,10 @@ export function storageHour(world: World, ctx: SimContext, memo?: PlacementMemo,
     }
     if (ctx.isNewDay && def.food.spoilage.vermin && !VERMIN_BLOCKERS.some((p) => protections.includes(p))) {
       const risk = VERMIN_DAILY_PERMILLE[placed.storage] ?? 0;
+      if (forecastVermin) {
+        forecastVermin(def.name, risk);
+        continue;
+      }
       const r = ctx.rng('spoilage', mixKey(stack.id, 0x6d696365));
       const roll = r.int(1, 1000);
       if (roll <= risk) {

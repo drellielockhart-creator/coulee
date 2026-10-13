@@ -3,6 +3,7 @@ import type { ContentBundle } from '../content.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { rowsOf } from '../ids.ts';
 import { binIron } from '../items/api.ts';
+import { describeRoad } from '../region/api.ts';
 import { hashString32 } from '../rng.ts';
 import { calendarAt, ordinal, WEEKDAY_NAMES, weekdayOf } from '../time.ts';
 import type { World } from '../world.ts';
@@ -39,6 +40,7 @@ export function describe(
 ): string[] {
   const p = world.places[placeId];
   if (!p) return [];
+  const road = perspective === null ? null : describeRoad(world, perspective, placeId);
   const c = calendarAt(world.time),
     a = perspective === null ? undefined : world.actors[perspective];
   const base =
@@ -56,7 +58,7 @@ export function describe(
         .map((x) => `${x.name.given} ${x.name.family}`)
         .join(', ')} ${people.length === 1 ? 'is' : 'are'} here.`
     : `The paths about ${p.name} are quiet.`;
-  const layers = [base, weather, use];
+  const layers = road ?? [base, weather, use];
   if (isProtectedSite(p)) return layers;
   const skill = a?.sheet.skills.lore_fae ?? 0;
   const signature = world.fae.signatures[p.id];

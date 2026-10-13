@@ -8,7 +8,7 @@ Implementation report, 2026-10-12. Branch `wave6/m5-slice1`, baseline `1b6abdb`.
 - Foundation's idempotent `installSite(world, content, siteId)` installs only that site's geometry. Both authored populations are allocated once at creation before the existing module initializers. Arrival never reinitializes actors, pantries or shops. Deferred population materialization and canonical census reservation remain slice 2; this API is not a claim of general county installation.
 - Activity owns `TravelOrder`, `Journey`, `travelInterval`, validation, authorized start/continuation and the preparation/commit/finalization hooks. Integer feet carry fractional numerators; unused whole minutes continue across junctions. Final spare minutes are waiting. Commands: `activity.travel`, `stop`, `resume`, `turn_back`, `camp`. NPC intentions can call the same authorized start API; no automatic NPC journeys are added.
 - `provisions.tripReadiness` and the optional itinerary argument/result on `readinessOf` project the same needs, travel and provisioning kernels. Walking admits only carried cold/zero-preparation foods and carried water. Stopped cooking uses existing real cookware, ignition, water, fuel and time. Resuming extinguishes roadside heat and waits for unfinished roadside meals. No relief, credit or charity policy changed.
-- Fair route previews are zero-time `activity.observe` queries. Forecasts name hourly rounding, foods/servings/spoilage, kcal/protein/fat/Fresh, water, fuel, load and rest, with self-knowledge Explain. Unknown future checks halt a projection before RNG is sampled; outside fixed weather, departure weather is an explicit assumption. This can shorten a midnight preview at a vermin check. Dynamic weather/encounters and multi-day uncertainty belong to later slices.
+- Fair route previews are zero-time `activity.observe` queries. Forecasts name hourly rounding, walking minutes, arrival time, foods/servings/spoilage, kcal/protein/fat/Fresh, water, fuel, load and rest, with self-knowledge Explain. Future vermin/preparation checks are labeled with time, road and consequences; the projection assumes no loss/success without sampling RNG. Outside fixed weather, departure weather is an explicit assumption. Dynamic weather/encounters and multi-day uncertainty belong to later slices.
 - Headless text/menu and the web route card send the same offered Commands. Journey location shows the road/direction/feet; private addresses prevent distant walkers witnessing each other. Arrival selects the destination site. Arrival, critical vitals/water and camp decisions interrupt. The web hides the departed town canvas on the road. No region map or phone performance claim.
 
 The authored `iron_ford_neighbors` scenario extends unchanged Iron Ford with Martha and Jonas Hale at Cedar Farm. Cedar Ridge Road is 60,000 feet, with directed base costs 250/240 minutes. The test fixture pins dry, calm 55°F weather. The ordinary daily limit is eight walking hours, with an eight-hour camp.
@@ -141,3 +141,53 @@ Implement census and scoped materialization, T1/T2 selections, shared household 
 - `packages/play/src/observation.ts`
 - `packages/play/src/session.ts`
 - `packages/play/src/text.ts`
+
+## Wave 6 polish: midnight forecast, road prose, water orders
+
+Branch `wave6/m5-polish`, baseline `6452521`, 2026-10-12. No commit. Reproduced with fresh fair `iron_ford_neighbors` / seed 42 sessions in this worktree: `runs/smoke-m5-polish-before` and `runs/smoke-m5-polish-after`. Commands: `route Cedar Farm`, `travel Cedar Farm`, `wait 3h`. The optional authored road description changes the content fingerprint; the after session starts fresh.
+
+### Before / after
+
+Before:
+
+> Route to Cedar Farm: 0 hours to the next decision (hourly boundaries; final spare minutes are waiting).
+> A future check is uncertain; forecast stops before rolling it.
+
+After:
+
+> Route to Cedar Farm: 6 hours to arrival if nothing goes wrong (hourly boundaries; final spare minutes are waiting).
+> Walking time: 313 min; arrival 1855-04-01 06:00.
+> Carried provisions: 0 kcal, protein 0 g, fat 0 g, Fresh 0; water 740 ml used / 4960 ml left; fuel 0.
+> Uncertain vermin check at 00:00, day 1, on Cedar Ridge Road: Hardtack (ship's biscuit), 90/1000 risk; assumes no loss. A loss would leave less food, and could require a resupply delay.
+> Consider leaving at dawn: wait until dawn, then route again.
+
+Zero food intake is correct for this particular departure: arrival at the 06:00 boundary precedes execution of the breakfast hour. The existing dawn regression still proves nonzero food intake and exact nutrition/supply/needs agreement. Forecasts additionally name darkness, weather, crossings and hazards. Unsupported crossings remain unavailable for actual travel, but can be previewed conditionally. Future vermin and cooking checks are reported without sampling RNG. Empty carried water produces a warning while projecting a conditional arrival; actual travel still stops. Long itineraries assume eight-hour camps and resumption; if physiology prevents completion or the seven-day projection limit is reached, the card labels the partial supply coverage alongside a nominal complete itinerary.
+
+Before:
+
+> Spring at On the road. Last year’s leaves lie against the shaded edges. The paths about On the road are quiet.
+
+After:
+
+> Cedar Ridge Road, toward Cedar Farm. The road climbs out of the coulee through wooded slopes, then follows the ridge toward farm clearings. In the dark, the road ahead and the land beyond its edges are hard to make out.
+
+Before:
+
+> Appetite: Drink accessible water (held for your order; you may: fetch water)
+
+After:
+
+> Appetite: Drink from carried water (held for your order; you may: drink)
+
+### Verification and ownership
+
+`packages/cli/test/region-travel.test.ts`: 18 integration tests, including separate CLI text/command regressions for midnight forecasting, transit descriptions in darkness/daylight and after stopping, and the actionable carried-water hint. Additional regressions cover named crossings/rain and a water shortage with unchanged live interruption behavior. Midnight forecasting preserves the world hash, repeats identically, and agrees with execution for this no-loss seed. Original travel arithmetic and dawn exactness regressions remain intact.
+
+`VITEST_MAX_WORKERS=4 just check` passed: Biome, all package/script typechecks, **69 test files / 749 tests**, invariants (214 files) and content validation (103 files). Vitest took 1,020.82 seconds. Log: `runs/scratch/m5-polish-check.txt`. Final targeted verification: `runs/scratch/m5-polish-travel-tests.txt` (18 passed). The after smoke session's `--verify` passed: three commands, final hash `a94ad558fea52ab9`. No golden changes.
+
+Owned edits: activity travel finalization's optional forecast-warning callback; provisions trip, storage, meal and system forecast options and road Appetite label; region road prose API; optional region-edge description schema and Cedar Ridge Road content; regional CLI tests and this report.
+
+Out-of-area edits, complete list:
+
+- `packages/core/src/fae/view.ts`: one import, one road-description lookup and one base-layer substitution (three added lines, one removed). Keeps all subsequent fair omen layers. No fae rules changed.
+- `packages/play/src/text.ts`: route-card arrival/walking/risk text and the road-only fetch-water thought's hint to the offered `drink` command. No `play/describe.ts`, social or talk edits.
