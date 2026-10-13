@@ -24,9 +24,13 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
     homes[h.homePlaceId] ??= hid;
   }
   const occupied = new Set<number>();
-  for (const aid of processingActorIds(world))
+  const workplaceOwners: Record<number, ActorId> = {};
+  for (const aid of processingActorIds(world)) {
+    const workplace = world.activity.byActor[aid]?.workplaceId;
+    if (workplace != null) workplaceOwners[workplace] ??= aid;
     if (world.actors[aid]?.alive && !world.activity.byActor[aid]?.travel)
       occupied.add(requiredRow(world.actors, aid).placeId);
+  }
   for (const pid of idsOf<PlaceId>(world.places).filter((id) => processesPlace(world, id))) {
     const place = requiredRow(world.places, pid);
     const hearth = Object.keys(ctx.content.hearths)
@@ -41,7 +45,7 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
     const wanted = hearth.burn_base + Math.floor((hearth.burn_per_10f * Math.max(0, hearth.ref_f - air)) / 10);
     let fuel = 0;
     if (lit && hearth.fuel_from === 'household' && wanted > 0) {
-      const owner = processingActorIds(world).find((id) => world.activity.byActor[id]?.workplaceId === pid);
+      const owner = workplaceOwners[pid];
       const hid = homes[pid] ?? (owner !== undefined ? world.actors[owner]?.householdId : undefined);
       if (hid === undefined) lit = false;
       else {

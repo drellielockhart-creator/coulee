@@ -29,8 +29,8 @@ import type { Explain } from '../explain.ts';
 import { type ActorId, idsOf } from '../ids.ts';
 import { campContext, campSleepActivity, loadReport, withInventoryPass } from '../items/api.ts';
 import { needValue } from '../needs/api.ts';
-import { foodSeekingUrge, isWaterSource, lodgingPlace } from '../provisions/api.ts';
-import { isDailyProcessing, processesActor } from '../region/processing.ts';
+import { isWaterSource, lodgingPlace } from '../provisions/api.ts';
+import { processesActor } from '../region/processing.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addDefenseReason, areKin, familiarityOf, opinionOf, strifeCount, wearinessPermille } from '../social/api.ts';
@@ -149,31 +149,11 @@ function psychePass(world: World, ctx: SimContext): void {
       p.chosen = null;
       continue;
     }
-    if (isDailyProcessing(world) && ctx.cal.hour % 6 !== 0) {
-      // Between named deliberations, the content calendar and ordinary survival urges run.
-      // Never repeat a stale social choice or a command at a later canonical hour.
-      const urge = routineSurvivalUrge(world, ctx, id);
-      p.chosen = urge
-        ? {
-            urge,
-            voice: 'ego',
-            compromise: false,
-            at: ctx.now,
-            explain: {
-              kind: 'formula',
-              label: 'Distant household routine',
-              subjects: [id],
-              knowledge: 'self',
-              terms: [
-                { source: 'need', label: 'Rest (sleep below 250)', value: needValue(world, id, 'rest') },
-                { source: 'need', label: 'Hunger (seek food below 400)', value: needValue(world, id, 'hunger') },
-              ],
-              total: 0,
-              outcome: 'routine',
-            },
-          }
-        : null;
-    } else psycheHour(world, ctx, id, idx);
+    // A daily batch still resolves the routine at each canonical hour. Skipping arbitration
+    // makes the calendar win sleep unconditionally and leaves thoughts/anxiety unaged;
+    // physiology then correctly accounts for the wrong activity. Use the same decision
+    // clock as the shared hourly ledger, water and meal kernels.
+    psycheHour(world, ctx, id, idx);
   }
   if (ctx.isNewDay) psycheDaily(world, ctx);
 }
@@ -1322,14 +1302,4 @@ function psycheDaily(world: World, ctx: SimContext): void {
       }
     }
   }
-}
-
-/** Coarse hours preserve the same agency gate and immediate intake/sleep needs. */
-function routineSurvivalUrge(world: World, ctx: SimContext, id: ActorId): Urge | null {
-  const orders = standingOrders(world, id);
-  const held = !authorizeAct(world, id, { kind: 'consequential' }, { kind: 'own' }).ok;
-  if (needValue(world, id, 'rest') < 250 && (!held || orders.sleep)) return { kind: 'activity', activityId: 'sleep' };
-  if (needValue(world, id, 'hunger') < 400 && (!held || orders.eat)) return foodSeekingUrge(world, ctx, id);
-  if (held) return { kind: 'activity', activityId: 'idle_at_home', placeId: world.actors[id]?.placeId };
-  return null;
 }
