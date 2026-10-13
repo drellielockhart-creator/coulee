@@ -21,7 +21,7 @@ import type { World } from '../world.ts';
 import { memoriesOf, relationshipsOf } from './api.ts';
 import { isZeroDims } from './model.ts';
 import { opinionOf, reasonContribution, reasonStrength } from './opinion.ts';
-import type { Opinion, OpinionDims } from './state.ts';
+import type { Memory, Opinion, OpinionDims } from './state.ts';
 
 export interface OpinionReasonView {
   label: string;
@@ -186,7 +186,7 @@ export function viewSocialActor(
     ? memoriesOf(world, actorId).map((m) => ({
         id: m.id,
         kind: m.kind,
-        summary: m.summary,
+        summary: opts.omniscient || viewer === null ? m.summary : memoryAccount(m, name),
         at: m.at,
         emotion: m.emotion,
         intensity: m.intensity,
@@ -279,4 +279,12 @@ export function reliefObligations(
         ]
       : [];
   });
+}
+
+/** Provenance survives log eviction and does not turn a belief into a fact. */
+function memoryAccount(m: Memory, name: (id: ActorId) => string): string {
+  if (m.source.kind === 'told') return `Heard from ${name(m.source.by)} that ${m.summary}`;
+  if (m.source.kind === 'dreamt') return `Dreamed that ${m.summary}`;
+  if (m.source.kind === 'inferred' || m.kind === 'observation') return `Suspected that ${m.summary}`;
+  return m.summary;
 }

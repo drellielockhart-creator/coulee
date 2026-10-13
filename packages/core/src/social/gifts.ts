@@ -19,7 +19,7 @@ export function giftStack(world: World, content: ContentBundle, giverId: ActorId
   if (!giver) return null;
   const t = tuningOf(content);
   const sections = new Set<string>(t.gift_sections);
-  const fit = (s: ItemStack): boolean => {
+  const fit = (s: ItemStack, openedFood: boolean): boolean => {
     const def = content.items[s.defId];
     return (
       def !== undefined &&
@@ -30,15 +30,14 @@ export function giftStack(world: World, content: ContentBundle, giverId: ActorId
       s.qty >= 1 &&
       s.condition > 0 &&
       s.spoilage < 500 &&
-      s.partial === 0 &&
-      !(s.foodPartialPm ?? 0)
+      ((openedFood && def.food !== undefined) || (s.partial === 0 && !(s.foodPartialPm ?? 0)))
     );
   };
-  const pick = (stacks: ItemStack[]): ItemStack | null => {
+  const pick = (stacks: ItemStack[], openedFood = false): ItemStack | null => {
     let best: ItemStack | null = null;
     let bestGap = 0;
     for (const s of stacks) {
-      if (!fit(s)) continue;
+      if (!fit(s, openedFood)) continue;
       const value = content.items[s.defId]?.value_cents ?? 0;
       const gap = Math.abs(value - t.gift_value_cents);
       if (best === null || gap < bestGap || (gap === bestGap && s.id < best.id)) {
@@ -48,6 +47,9 @@ export function giftStack(world: World, content: ContentBundle, giverId: ActorId
     }
     return best;
   };
-  const own = pick(stacksDeep(world, carriedBy(giverId)).map((e) => e.stack));
-  return own ?? pick(stacksDeep(world, pantryOf(giver.householdId)).map((e) => e.stack));
+  const own = stacksDeep(world, carriedBy(giverId)).map((e) => e.stack);
+  const pantry = stacksDeep(world, pantryOf(giver.householdId)).map((e) => e.stack);
+  // Prefer a whole gift; an opened food parcel still has something worth sharing.
+  // moveStack leaves partial use behind when splitting off a whole unit.
+  return pick(own) ?? pick(pantry) ?? pick(own, true) ?? pick(pantry, true);
 }

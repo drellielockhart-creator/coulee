@@ -1708,6 +1708,7 @@ describe('iron_ford seed 42', () => {
     // Wave 5 social review: actual repayments, net creditor edges and accessible gifts change downstream stories.
     // Wave 8 income: seasonal hiring adds economic events, shifting deterministic chronicle prose draws.
     // Wave 10 A: current-hour minute accounting, sustainable Rest and awake-only timely meals change routines and stories.
+    // Wave 10 B: refusal/defeat memories now name the responder as doer; real introductions and shareable food also change encounters.
     await expect(md30).toMatchFileSnapshot('./__snapshots__/chronicle-iron_ford-42-30d.md');
     assertNoLeak(sim);
     for (const e of nonHeading(sim.world)) noArtifacts(e.text);

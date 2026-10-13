@@ -939,8 +939,8 @@ on = ["gift"]
 weight = 4
 when = { season = "spring" }
 lines = [
-  { by = "initiator", text = "A dozen eggs, {you}, while the hens are generous." },
-  { by = "target", text = "That's kind. I'll bring the shells back for the garden." },
+  { by = "initiator", text = "{gift}, {you}. A little something to share." },
+  { by = "target", text = "That's kind. I'll remember it." },
 ]
 
 [[talk]]
@@ -949,8 +949,8 @@ on = ["gift"]
 weight = 4
 when = { season = "autumn" }
 lines = [
-  { by = "initiator", text = "A basket of apples from the cellar." },
-  { by = "target", text = "They smell like October. Thank you." },
+  { by = "initiator", text = "I brought you {gift}." },
+  { by = "target", text = "A welcome gift. Thank you." },
 ]
 
 [[talk]]
@@ -959,8 +959,8 @@ on = ["gift"]
 weight = 4
 when = { season = "winter" }
 lines = [
-  { by = "initiator", text = "An armload of dry wood, {you}. For the cold nights." },
-  { by = "target", text = "Dry wood! That's worth more than a ring." },
+  { by = "initiator", text = "{gift}, {you}. For you to keep." },
+  { by = "target", text = "That's kind of you to think of me." },
 ]
 
 [[talk]]
@@ -969,7 +969,7 @@ on = ["gift"]
 weight = 4
 when = { season = "spring" }
 lines = [
-  { by = "initiator", text = "First of the lettuce. It's the only thing the frost hasn't wanted." },
+  { by = "initiator", text = "I had a little to spare: {gift}." },
   { by = "target", text = "A grand beginning to the summer. Thank you." },
 ]
 

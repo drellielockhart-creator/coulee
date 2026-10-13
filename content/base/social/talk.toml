@@ -1788,7 +1788,7 @@ id = "gift_table"
 on = ["gift"]
 weight = 12
 lines = [
-  { by = "initiator", text = "{A loaf|Some eggs|A twist of tobacco|A jar of preserves} for your table, {you}." },
+  { by = "initiator", text = "{gift}, for you, {you}." },
   { by = "target", text = "#oath#, that's kind. I'll not forget it." },
 ]
 
@@ -1808,7 +1808,7 @@ on = ["gift"]
 weight = 8
 when = { courting = true }
 lines = [
-  { by = "initiator", text = "A ribbon. I thought of you when I saw it." },
+  { by = "initiator", text = "{gift}. I thought of you when I saw it." },
   { by = "target", text = "It's lovely, {you}." },
 ]
 
@@ -1818,7 +1818,7 @@ on = ["gift"]
 weight = 4
 when = { season = "winter" }
 lines = [
-  { by = "initiator", text = "Something to keep the cold out." },
+  { by = "initiator", text = "A little something for you: {gift}." },
   { by = "target", text = "#bless#." },
 ]
 

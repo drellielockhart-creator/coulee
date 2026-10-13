@@ -13,6 +13,8 @@ import { targetLabel } from './misfortune.ts';
 export interface BeliefView {
   id: number;
   text: string;
+  /** A claim with its provenance, for fair presentations. */
+  account?: string;
   /** 0..100 */
   credence: number;
   evidenceCount: number;
@@ -57,9 +59,16 @@ export function viewBeliefActor(
   for (const id of world.belief.beliefsByHolder[actorId] ?? []) {
     const b = world.belief.beliefs[id];
     if (!b || !mayView) continue;
+    const source = b.evidence.findLast((e) => e.sourceId !== null)?.sourceId;
+    const teller = source == null ? undefined : world.actors[source];
+    const claim = propText(world, content, b.propId);
+    const account = teller
+      ? `Heard from ${teller.name.given} ${teller.name.family} that ${claim}`
+      : `${b.credence >= 50 ? 'Believes' : 'Suspects'} that ${claim}`;
     beliefs.push({
       id: b.id,
-      text: propText(world, content, b.propId),
+      text: claim,
+      ...(!opts.omniscient && opts.perspective !== null ? { account } : {}),
       credence: b.credence,
       evidenceCount: b.evidence.length,
       voiced: b.voiced,

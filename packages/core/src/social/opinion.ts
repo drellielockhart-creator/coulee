@@ -45,6 +45,26 @@ export function isAcquainted(world: World, from: ActorId, to: ActorId): boolean 
   return opinionRecord(world, from, to) !== undefined;
 }
 
+/** A name acquired through hearsay is not a meeting. Seeded ties and direct exchanges count. */
+export function hasMet(world: World, from: ActorId, to: ActorId): boolean {
+  const op = opinionRecord(world, from, to);
+  if (!op) return false;
+  return (
+    op.familiarity > 0 ||
+    world.actors[from]?.householdId === world.actors[to]?.householdId ||
+    world.social.relationships.some((r) => (r.a === from && r.b === to) || (r.a === to && r.b === from)) ||
+    op.reasons.some((r) => r.cites.kind === 'seed') ||
+    (world.social.memoriesByOwner[from] ?? []).some((id) => {
+      const m = world.social.memories[id];
+      return (
+        m?.aboutId === to &&
+        m.source.kind === 'witnessed' &&
+        m.roles.some((r) => r.who === from && r.role !== 'witness')
+      );
+    })
+  );
+}
+
 function hasEdge(world: World, a: ActorId, b: ActorId, kind: string): boolean {
   for (const r of world.social.relationships) {
     if (r.kind === kind && ((r.a === a && r.b === b) || (r.a === b && r.b === a))) return true;

@@ -236,7 +236,7 @@ it('play resolves the social catalog and retains PC knowledge across weeks, trim
   }
   expect(new Set(interactionIds).size).toBe(6);
   expect(s.observe().self.social.memories.length).toBeGreaterThan(0);
-  expect(s.observe().self.social.opinions.some((o) => o.reasons.length > 0)).toBe(true);
+  expect(s.observe('god').self.social.opinions.some((o) => o.reasons.length > 0)).toBe(true);
   expect(s.observe().self.belief.beliefs.length).toBeGreaterThan(0);
   expect(s.observe().self.mind.chosen?.voice).toBe('Self-Command');
   expect(s.observe().self.mind.thoughts.some((t) => t.voice === 'Appetite')).toBe(true);

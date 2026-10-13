@@ -234,6 +234,8 @@ const EffectSchema = z
     witness_memory: z.string().optional(),
     /** Override the interaction's memory kind/emotions for this outcome. */
     memory_kind: z.enum(MEMORY_KINDS).optional(),
+    /** Who did the remembered deed (a refusal or counterblow may be the responder's act). */
+    memory_agent: z.enum(['initiator', 'target']).optional(),
     target_emotion: z.enum(EMOTIONS).optional(),
     initiator_emotion: z.enum(EMOTIONS).optional(),
     /** Scales the interaction's base memory intensity for this outcome. */

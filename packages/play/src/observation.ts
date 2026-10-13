@@ -25,6 +25,7 @@ import {
 import { availableActions, catalogStock } from './actions.ts';
 import { describeEvent, fallbackText } from './describe.ts';
 import { claimsOf, obligationsOf } from './obligations.ts';
+import { impressionSocial } from './view.ts';
 export type ObservationMode = 'fair' | 'god';
 /** Under this age someone is marked a child in the Here list. */
 const CHILD_AGE = 13;
@@ -277,7 +278,10 @@ export function observation(
             }
           : null,
       },
-      social: social.viewSocialActor(w, c, pc, opts),
+      social:
+        mode === 'god'
+          ? social.viewSocialActor(w, c, pc, opts)
+          : impressionSocial(social.viewSocialActor(w, c, pc, opts)),
       belief: belief.viewBeliefActor(w, c, pc, opts),
       inventory: items.viewItemsActor(w, c, pc, opts),
       provisions: { ...ownProvisions, householdCents: w.provisions.households[a.householdId]?.cashCents ?? 0 },

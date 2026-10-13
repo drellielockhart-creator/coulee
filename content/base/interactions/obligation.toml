@@ -59,6 +59,7 @@ success.target_memory = "{initiator} borrowed {cents} off me"
 success.initiator_memory = "Borrowed {cents} off {target}"
 success.initiator_reason = "Lent me {cents} when I asked"
 failure.memory_kind = "rejection"
+failure.memory_agent = "target"
 failure.intensity_pct = 60
 failure.initiator_opinion = { affection = -3 }
 failure.target_memory = "{initiator} asked me for money; I said no"

@@ -236,7 +236,9 @@ ${o.epilogue ?? ''}`;
         ]
       : []),
     // What she has been told shows when it happens (as an event); a look lists what she holds.
-    ...(changes.elapsed === 0 ? o.self.belief.beliefs.slice(-2).map((b) => `Heard: ${b.text}`) : []),
+    ...(changes.elapsed === 0
+      ? o.self.belief.beliefs.slice(-2).map((b) => b.account ?? `Believes that ${b.text}`)
+      : []),
     ...o.self.obligations.filter((d) => d.overdue || d.daysLeft <= 7).map((d) => obligationText(d)),
     ...freshEvents(o, previous).map((e) => `[${e.id}] ${e.summary}${e.explain ? ' — explain ' + e.id : ''}`),
     // What was said this hour, in the speakers' words (social talk lines). Her own exchange comes
@@ -878,11 +880,13 @@ export function renderDetail(detail: unknown): string {
       d.acquainted === undefined
         ? ''
         : d.acquainted
-          ? `You have met (familiarity ${d.familiarity ?? 0} of 1000). `
+          ? d.familiarity === undefined
+            ? 'You have met. '
+            : `You have met (familiarity ${d.familiarity} of 1000). `
           : 'You have not met. ';
     return [
       `${d.person.name} — ${d.person.people}; ${d.person.activity}${d.person.child ? ' (a child)' : ''}.`,
-      `${met}Ties: ${d.relationships.map((r) => r.label).join(', ') || 'none'}. Your opinion: ${d.opinion ? d.opinion.label || 'Neutral' : 'unfamiliar'}.`,
+      `${met}Ties: ${d.relationships.map((r) => r.label).join(', ') || 'none'}. Your impression: ${d.opinion ? d.opinion.label || 'Neutral' : 'unfamiliar'}.`,
       ...(d.regard
         ? [
             `Seems to feel about you: ${d.regard.band} — ${d.regard.phrase}.`,
@@ -901,16 +905,16 @@ export function renderDetail(detail: unknown): string {
         : ['You cannot read their manner from here.']),
       ...(d.between ?? []),
       ...(['affection', 'respect', 'trust', 'fear'] as const).flatMap((key) =>
-        d.opinion
+        d.opinion && d.opinion.numbersKnown !== false
           ? [
               `${key}: ${d.opinion[key]} = base ${d.base?.[key] ?? 0} + reasons ${d.reasons.reduce((n, r) => n + r[key], 0)} + immediate ${d.volatile?.[key] ?? 0} (clamped −100..100)`,
             ]
           : [],
       ),
-      ...d.reasons.map(
+      ...(d.opinion?.numbersKnown === false ? [] : d.reasons).map(
         (r) => `${r.label}: affection ${r.affection}, respect ${r.respect}, trust ${r.trust}, fear ${r.fear}`,
       ),
-      ...d.memories.slice(-3).map((m) => `Remembered: ${m.summary}`),
+      ...[...new Set(d.memories.map((m) => m.summary))].slice(-3).map((summary) => `Remembered: ${summary}`),
     ].join('\n');
   }
   if (detail && typeof detail === 'object' && 'stock' in detail && 'catalog' in detail) {

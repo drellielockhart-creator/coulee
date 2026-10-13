@@ -4,6 +4,7 @@
  * relationship edges, injected thoughts, gossip through belief.transmit, and escalation.
  * OWNER: module:social.
  */
+import { isAsleep } from '../activity/api.ts';
 import { shortName } from '../actor.ts';
 import {
   type Channel,
@@ -250,7 +251,13 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   const t = tuningOf(content);
   const i = req.initiatorId;
   const tg = req.targetId;
-  const hourlyBlock = minuteTalkBlock(world, content, i, tg, def);
+  // Requests may be answered after either party has moved or gone to sleep.
+  const unavailable =
+    !def.theft &&
+    (world.actors[i]?.placeId !== world.actors[tg]?.placeId || isAsleep(world, ctx, i) || isAsleep(world, ctx, tg));
+  const hourlyBlock = unavailable
+    ? 'Both people must be here and awake to converse'
+    : minuteTalkBlock(world, content, i, tg, def);
   if (hourlyBlock) {
     const eventId = ctx.emit({
       kind: 'social.act_refused',
@@ -555,6 +562,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     ...(def.transmits_rumor ? { told: plan !== null } : {}),
     ...(def.transmits_rumor && plan === null ? { stale: holdsNews(world, teller) } : {}),
     slots: {
+      gift: giving ? (content.items[giving.defId]?.name ?? 'a little something') : 'a little something',
       cents: repaying || cents > 0 ? formatCents(cents) : 'a little money',
       remaining: formatCents(remaining),
       settlement: remaining > 0 ? `${formatCents(remaining)} still owed.` : "We're square.",
@@ -651,9 +659,11 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     const tI = clampInt(floorDiv(base * (100 + surprise), 100), 0, 100);
     const iI = clampInt(floorDiv(base * t.initiator_intensity_pct, 100), 0, 100);
     const wI = clampInt(floorDiv(base * t.witness_intensity_pct, 100), 0, 100);
+    const memoryAgent = eff.memory_agent === 'target' ? tg : i;
+    const memoryTarget = memoryAgent === i ? tg : i;
     const roles = [
-      { who: i, role: 'agent' as const, conf: 100 },
-      { who: tg, role: negative ? ('victim' as const) : ('target' as const), conf: 100 },
+      { who: memoryAgent, role: 'agent' as const, conf: 100 },
+      { who: memoryTarget, role: negative ? ('victim' as const) : ('target' as const), conf: 100 },
     ];
     const mk = (
       owner: ActorId,
@@ -689,7 +699,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       eff.target_emotion ?? def.memory.emotion,
       fill(eff.target_memory ?? `${def.name} with {initiator}`, vars),
       i,
-      false,
+      memoryAgent === tg,
       { kind: 'witnessed' },
       false,
     );
@@ -699,7 +709,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       eff.initiator_emotion ?? def.memory.emotion,
       fill(eff.initiator_memory ?? `${def.name} with {target}`, vars),
       tg,
-      true,
+      memoryAgent === i,
       { kind: 'witnessed' },
       false,
     );
@@ -707,7 +717,16 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       for (const a of audience) {
         audienceMem.set(
           a,
-          mk(a, wI, def.memory.emotion, fill(eff.witness_memory, vars), i, false, { kind: 'overheard' }, true),
+          mk(
+            a,
+            wI,
+            def.memory.emotion,
+            fill(eff.witness_memory, vars),
+            memoryAgent,
+            false,
+            { kind: 'overheard' },
+            true,
+          ),
         );
       }
     }

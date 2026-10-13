@@ -132,6 +132,30 @@ describe('empty module snapshots', () => {
     const html = render(<OpinionsTab actor={other} />);
     expect(html).not.toMatch(/Friend|Unafraid|affection 0/);
   });
+  it('renders the player opinion as an impression without axes or memory deltas', () => {
+    const self: ActorView = {
+      ...actor,
+      social: {
+        ...actor.social,
+        opinions: [
+          {
+            targetId: 2 as never,
+            targetName: 'Josiah Whitlock',
+            label: 'cool',
+            numbersKnown: false,
+            affection: 0,
+            respect: 0,
+            trust: 0,
+            fear: 0,
+            reasons: [],
+          },
+        ],
+      },
+    };
+    const html = render(<OpinionsTab actor={self} />);
+    expect(html).toContain('Your impression: seems cool');
+    expect(html).not.toMatch(/class="axes"|Affection|Unafraid|deltas/);
+  });
   it('renders all dossier tabs without data or catalog entries', () => {
     expect(render(<MindTab actor={actor} />)).toContain('No thoughts are pressing');
     expect(render(<NeedsTab actor={actor} />)).toContain('No needs defined');

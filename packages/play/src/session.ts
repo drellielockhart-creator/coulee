@@ -407,7 +407,7 @@ export class PlaySession {
           const target = person?.id;
           const record = target === undefined ? undefined : this.sim.world.social.opinions[this.playerId]?.[target];
           const reasons =
-            target === undefined
+            target === undefined || mode !== 'god'
               ? []
               : social.reasonsOf(this.sim.world, this.playerId, target).map((r) => ({
                   label: r.label,
@@ -432,14 +432,13 @@ export class PlaySession {
                   ),
                 }),
             opinion,
-            base: record?.base,
-            volatile: record?.volatile,
+            ...(mode === 'god' ? { base: record?.base, volatile: record?.volatile } : {}),
             reasons,
             relationships: o.self.social.relationships.filter((r) => r.otherId === target),
             memories: o.self.social.memories.filter((m) => person && m.summary.includes(person.name)),
             // Additive (playtest r2): met or not, how well, and what lies between you.
-            acquainted: record !== undefined,
-            familiarity: record?.familiarity ?? 0,
+            acquainted: target !== undefined && social.hasMet(this.sim.world, this.playerId, target),
+            ...(mode === 'god' ? { familiarity: record?.familiarity ?? 0 } : {}),
             between: [...owe, ...owed],
           };
         } else if (kind === 'catalog') {

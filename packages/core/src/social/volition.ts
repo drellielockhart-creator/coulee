@@ -21,7 +21,7 @@ import { minuteTalkBlock } from './availability.ts';
 import { giftStack } from './gifts.ts';
 import { type MemoryDigest, memoryDigest } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
-import { grievance, isAcquainted, opinionOf, opinionRecord, owedCents, owedFavors } from './opinion.ts';
+import { grievance, hasMet, isAcquainted, opinionOf, opinionRecord, owedCents, owedFavors } from './opinion.ts';
 import type { OpinionDims } from './state.ts';
 import { isEstranged, wearinessTerm } from './strife.ts';
 import { ageYears, tuningOf, valueView } from './tuning.ts';
@@ -184,7 +184,7 @@ export function requiresFail(p: Pair, def: InteractionDef, mode: RequireMode): s
   }
   const acquainted = isAcquainted(w, i, tg);
   if (q.acquainted && !acquainted) return 'not acquainted';
-  if (q.stranger && acquainted) return 'already acquainted';
+  if (q.stranger && hasMet(w, i, tg)) return 'already acquainted';
   if (q.min_age > 0 && ageYears(p.initiator, now) < q.min_age) return 'too young';
   if (q.target_min_age > 0 && ageYears(p.target, now) < q.target_min_age) return 'target too young';
   const tags = p.place?.tags ?? [];
