@@ -9,6 +9,7 @@ import { ensureLod, selectRegionTiers } from './lod.ts';
 export * from './census.ts';
 export * from './evidence.ts';
 export * from './lod.ts';
+export * from './processing.ts';
 export { regionSystem } from './system.ts';
 /** Called once after scoped site/population installation. No arrival reseeds stocks or actors. */
 export function initRegion(

@@ -1,7 +1,8 @@
 /** Authored census bridge. Identity is captured once; owning modules retain every live sheet and balance. */
 import type { ActorId, HouseholdId } from '../ids.ts';
-import { idsOf, rowsOf } from '../ids.ts';
+import { rowsOf } from '../ids.ts';
 import type { World } from '../world.ts';
+import { processingBuckets } from './processing.ts';
 import type { CensusState } from './state.ts';
 
 /** Idempotent on old region saves too. Never runs population, stock or mind initialization. */
@@ -88,7 +89,7 @@ export function censusAgeDays(world: World, actorId: ActorId): number | null {
   return born === undefined ? null : Math.max(0, Math.floor((world.time - born) / 1440));
 }
 
-/** All retained sheets remain hourly-owned in 2a. This is the safe selection until T2 kernels land. */
+/** All retained sheets remain hourly-owned until every T2 executor honors the shared partition. */
 export function hourlyActorIds(world: World): ActorId[] {
-  return idsOf<ActorId>(world.actors);
+  return processingBuckets(world).hourly.actors;
 }

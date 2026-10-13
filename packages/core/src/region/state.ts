@@ -9,6 +9,7 @@ export interface SiteRecord {
   installedAt: number;
 }
 export interface RegionState {
+  processing?: import('./processing.ts').ProcessingState;
   census?: CensusState;
   lod?: LodState;
   version: 1;

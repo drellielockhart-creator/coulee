@@ -5,7 +5,7 @@ import { hydrateCensusEvidence } from './evidence.ts';
 import { selectRegionTiers } from './lod.ts';
 
 /** Region boundary hook. Metadata and already-resolved evidence only: never duplicates an hourly executor.
- * Foundation must call after journey settlement at each completed boundary, including tactical frames. */
+ * Runs after journey settlement at each completed boundary, including tactical frames. */
 export function regionSystem(world: World, ctx: SimContext): void {
   if (!world.region) return;
   ensureCensus(world);

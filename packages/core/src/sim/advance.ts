@@ -7,6 +7,7 @@ import { trimLog } from '../events/index.ts';
 import { type ActorId, idsOf } from '../ids.ts';
 import { accrueTacticalNeeds, nextTacticalNeedInstant, prepareTacticalNeeds } from '../needs/api.ts';
 import { nextTacticalSupplyInstant, tacticalSupplies } from '../provisions/api.ts';
+import { regionSystem } from '../region/api.ts';
 import { commandTactical, requestEncounter } from '../tactical/api.ts';
 import type { TacticalCommand } from '../tactical/commands.ts';
 import { tacticalSystem } from '../tactical/system.ts';
@@ -118,6 +119,7 @@ export function advanceUntil(
     if (next === frame.end) {
       settleHourFrame(sim);
       frame.phase = 'settled';
+      regionSystem(w, makeContext(w, sim.content, [], sim.sink));
     }
     const events = w.log.events.filter((e) => e.id > before);
     if (interrupt?.(events)) return { elapsedTicks: next - start, interrupted: true };

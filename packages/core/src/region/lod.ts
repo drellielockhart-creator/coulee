@@ -4,6 +4,7 @@ import { opinionOf } from '../social/api.ts';
 import { calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
 import { nodeAt } from './api.ts';
+import { ensureCensus } from './census.ts';
 import type { LodRecord, LodState } from './state.ts';
 
 export const LOD_POLICY = { version: 1, radiusMinutes: 360, demotionMinutes: 1440, hourlySoftCap: 400 } as const;
@@ -47,9 +48,12 @@ export function ensureLod(world: World, focusActorId: ActorId | null = world.met
 
 /** Called by hosts when changing the observation focus; never alters actor agency. */
 export function setRegionFocus(world: World, actorId: ActorId | null): void {
+  if (!world.region) return;
   if (actorId !== null && !world.actors[actorId]) throw new Error('Unknown regional focus');
+  ensureCensus(world);
   const lod = ensureLod(world, actorId);
   if (lod) lod.focusActorId = actorId;
+  selectRegionTiers(world);
 }
 export function setRegionRelevance(
   world: World,

@@ -10,10 +10,12 @@ import { atPlace, carriedBy, createStack, moveStack, pantryOf, stacksDeep, suppl
 import { loadReport, MOVE_LIMIT_PCT } from '../items/encumbrance.ts';
 import type { ItemLocation } from '../items/state.ts';
 import { canAct } from '../needs/api.ts';
+import { processingBuckets } from '../region/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addOpinionReason, areKin, debtOf, extendCredit, opinionOf, reliefRules } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { priceAt } from './api.ts';
+import { householdEconomyDay } from './household.ts';
 import {
   dailyKcal,
   foodServings,
@@ -25,8 +27,7 @@ import {
   recipesFor,
 } from './meals.ts';
 import { nutritionTargets } from './nutrition.ts';
-import { planReadiness } from './planner.ts';
-import { RATION_RESTORE_DAYS, RATION_STEPS, SHUNNED, shoppingDays, WOODPILE } from './rules.ts';
+import { SHUNNED, shoppingDays, WOODPILE } from './rules.ts';
 import { storeOpen } from './services.ts';
 import type { Store } from './state.ts';
 
@@ -388,61 +389,7 @@ function setFreightOwed(store: Store, defId: string, hundredths: number): void {
 }
 
 export function householdDay(world: World, ctx: SimContext): void {
-  for (const household of rowsOf(world.households)) {
-    const h = world.provisions.households[household.id];
-    if (!h) continue;
-    const members = membersOf(world, { householdId: household.id });
-    replenishDomestic(world, ctx, household.id);
-    if (
-      !world.provisions.settings.autoRations ||
-      !members.length ||
-      !authorizeAct(world, household.headId, { kind: 'consequential' }, { kind: 'own' }).ok
-    )
-      continue;
-    // The ration decision only compares against its thresholds, so project only as far as can matter:
-    // at full rations the question is "below the first cut?"; on short rations, "back above restore?".
-    const firstCut = Math.max(...RATION_STEPS.map((s) => s.belowDays));
-    const horizon = (h.rationPct >= 100 ? firstCut : RATION_RESTORE_DAYS) + 1;
-    const readiness = planReadiness(world, ctx.content, { householdId: household.id }, ctx.now, horizon, false);
-    const step = RATION_STEPS.find((s) => readiness.daysOfFoodTenths < s.belowDays * 10);
-    const pct = step
-      ? Math.min(h.rationPct, step.pct)
-      : readiness.daysOfFoodTenths >= RATION_RESTORE_DAYS * 10
-        ? 100
-        : h.rationPct;
-    if (pct < h.rationPct || (readiness.daysOfFoodTenths < 40 && h.lastShortageDay !== ctx.cal.dayIndex)) {
-      h.lastShortageDay = ctx.cal.dayIndex;
-      ctx.emit({
-        kind: 'provisions.shortage',
-        data: { householdId: household.id, daysOfFoodTenths: readiness.daysOfFoodTenths, rationPct: pct },
-        roles: members.map((actor) => ({ actor, role: 'participant' })),
-        visibility: 'private',
-        explain: mealExplain(
-          'Larder horizon and ration cut',
-          members,
-          pct,
-          [term('food', 'Days of food tenths', readiness.daysOfFoodTenths), term('policy', 'Ration percent', pct)],
-          'rations_cut',
-        ),
-      });
-    }
-    if (pct > h.rationPct)
-      ctx.emit({
-        kind: 'provisions.rations',
-        data: { actorId: household.headId, householdId: household.id, rationPct: pct },
-        roles: members.map((actor) => ({ actor, role: 'participant' })),
-        visibility: 'private',
-        explain: mealExplain(
-          'Full rations restored',
-          members,
-          pct,
-          [term('food', 'Days of food tenths', readiness.daysOfFoodTenths)],
-          'restored',
-        ),
-      });
-    h.rationPct = pct;
-    h.shortageStep = pct === 100 ? 0 : pct === 90 ? 1 : pct === 75 ? 2 : 3;
-  }
+  for (const id of processingBuckets(world).hourly.households) householdEconomyDay(world, ctx, id);
   for (const store of rowsOf(world.provisions.stores)) {
     const restock = store.restockId ? ctx.content.restocks?.[store.restockId] : undefined;
     if (

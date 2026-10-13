@@ -1,19 +1,24 @@
 import {
   type ActorId,
+  advanceUntil,
   asActorId,
   asGameMinute,
   belief,
   createSim,
   findNonIntegers,
   idsOf,
+  instantOf,
   items,
   makeContext,
+  provisions,
   region,
   restoreSim,
   type Sim,
   social,
   stateHash,
   step,
+  TICKS_PER_HOUR,
+  tactical,
 } from '@coulee/core';
 import { PlaySession, sessionSimOf } from '@coulee/play';
 import { describe, expect, it } from 'vitest';
@@ -29,10 +34,7 @@ function boundary(sim: Sim) {
   region.regionSystem(sim.world, makeContext(sim.world, sim.content, [], sim.sink));
 }
 function hours(sim: Sim, count: number) {
-  for (let h = 0; h < count; h++) {
-    step(sim);
-    boundary(sim);
-  }
+  for (let h = 0; h < count; h++) step(sim);
 }
 function identities(sim: Sim) {
   return Object.values(sim.world.region?.census?.members ?? {}).map((m) => [m.actorId, m.ref, m.identity]);
@@ -270,12 +272,18 @@ describe('M5 2a census and tier policy (retained hourly executors)', () => {
   it('retained T1 accounting matches the existing executor exactly over a 5-day absence and a saved continuation', () => {
     const sim = fresh(),
       control = restoreSim(content, structuredClone(sim.world));
+    longRoad(sim);
+    longRoad(control);
+    for (const id of idsOf<ActorId>(control.world.actors))
+      region.setRegionRelevance(control.world, id, 0, true, 'comparison hourly pin');
     const pantryBefore = structuredClone(sim.world.items.stacks);
     hours(sim, 48);
     const loaded = restoreSim(content, JSON.parse(JSON.stringify(sim.world)));
     hours(sim, 72);
     hours(loaded, 72);
     for (let h = 0; h < 120; h++) step(control);
+    expect(Object.values(sim.world.region?.lod?.actors ?? {}).some((r) => r.selected === 'T2')).toBe(true);
+    expect(Object.values(control.world.region?.lod?.actors ?? {}).some((r) => r.selected === 'T2')).toBe(false);
     expect(stateHash(loaded.world)).toBe(stateHash(sim.world));
     for (const slice of ['needs', 'social', 'belief', 'provisions', 'items'] as const)
       expect(sim.world[slice], slice).toEqual(control.world[slice]);
@@ -314,6 +322,9 @@ describe('M5 2a census and tier policy (retained hourly executors)', () => {
     for (let n = 0; n < 24 && sim.world.activity.journeys?.[id]?.status !== 'arrived'; n++)
       session.act({ kind: 'activity.wait', actorId: id, data: { minutes: 60 } });
     expect(region.nodeAt(sim.world, id)).toBe('cedar_farm');
+    expect(sim.world.region?.lod?.focusActorId).toBe(id);
+    expect(sim.world.region?.lod?.actors[actorByKey(sim, 'cedar_farm_martha')]?.selected).toBe('T0');
+    expect(sim.world.region?.lod?.evaluatedAt).toBe(sim.world.time);
     const field = sim.world.index.placeByDef.cedar_farm_field;
     const go = session.observe().actions.find((a) => a.id === `go:${field}`);
     if (!go) throw new Error('No field route');
@@ -328,6 +339,134 @@ describe('M5 2a census and tier policy (retained hourly executors)', () => {
     expect(region.nodeAt(sim.world, id)).toBe('iron_ford');
     expect(identities(sim)).toEqual(original);
     expect(PlaySession.replay(content, session.commandLog).hash).toBe(session.hash);
+  });
+});
+
+describe('M5 2b lifecycle and household ownership', () => {
+  it('automatically settles the completed hour, hydrates with boundary time, and preserves receipts', () => {
+    const sim = fresh();
+    const memory = witnessMemory(sim);
+    region.recordCensusEvidence(sim.world, 'automatic boundary', memory);
+    const seen: number[] = [];
+    sim.sink = (event) => seen.push(event.t);
+    step(sim);
+    expect(sim.world.region?.lod?.evaluatedAt).toBe(60);
+    const evidence = sim.world.region?.census?.evidence[0];
+    expect(evidence?.hydratedMemoryId).not.toBeNull();
+    expect(seen.at(-1)).toBe(60);
+    const before = stateHash(sim.world);
+    boundary(sim);
+    expect(stateHash(sim.world)).toBe(before);
+    hours(sim, 24);
+    expect(sim.world.region?.census?.evidence[0]?.hydratedMemoryId).toBe(evidence?.hydratedMemoryId);
+    expect(sim.world.region?.census?.members[memory.ownerId]?.observedThrough).toBe(1500);
+  });
+
+  it('flushes at the 48-hour deadline through the ordinary clock with no explicit boundary call', () => {
+    const sim = fresh();
+    longRoad(sim);
+    boundary(sim);
+    sim.world.time = asGameMinute(1440);
+    boundary(sim);
+    region.recordCensusEvidence(sim.world, 'automatic deadline', witnessMemory(sim));
+    sim.world.time = asGameMinute(4260);
+    step(sim);
+    expect(sim.world.region?.census?.evidence[0]?.hydratedMemoryId).not.toBeNull();
+    expect(sim.world.region?.lod?.evaluatedAt).toBe(4320);
+  });
+
+  it('tactical partial frames defer the boundary, and mid-frame restores settle it once', () => {
+    const sim = fresh();
+    const group = Object.values(sim.world.places)
+      .map((place) => ({ place, actors: Object.values(sim.world.actors).filter((a) => a.placeId === place.id) }))
+      .find((g) => g.actors.length >= 2);
+    if (!group) throw new Error('Missing encounter fixture');
+    expect(
+      tactical.requestEncounter(
+        sim.world,
+        makeContext(sim.world, content, []),
+        'region-boundary',
+        group.place.id,
+        group.actors.map((a) => a.id),
+        'A pause on the road.',
+      ),
+    ).toBe(true);
+    const memory = witnessMemory(sim);
+    region.recordCensusEvidence(sim.world, 'tactical boundary', memory);
+    advanceUntil(sim, TICKS_PER_HOUR - 1);
+    expect(sim.world.region?.lod?.evaluatedAt).toBe(0);
+    expect(sim.world.region?.census?.evidence[0]?.hydratedMemoryId).toBeNull();
+    const loaded = restoreSim(content, JSON.parse(JSON.stringify(sim.world)));
+    advanceUntil(sim, TICKS_PER_HOUR);
+    advanceUntil(loaded, TICKS_PER_HOUR);
+    expect(sim.world.region?.lod?.evaluatedAt).toBe(60);
+    expect(sim.world.region?.census?.evidence[0]?.hydratedMemoryId).not.toBeNull();
+    expect(stateHash(sim.world)).toBe(stateHash(loaded.world));
+    const hash = stateHash(sim.world);
+    advanceUntil(sim, instantOf(sim.world));
+    expect(stateHash(sim.world)).toBe(hash);
+  });
+
+  it('partitions every actor and household exactly once even when selected T2', () => {
+    const sim = fresh();
+    longRoad(sim);
+    boundary(sim);
+    sim.world.time = asGameMinute(1440);
+    boundary(sim);
+    const buckets = region.processingBuckets(sim.world);
+    expect(buckets.hourly.actors).toEqual(idsOf(sim.world.actors));
+    expect(buckets.hourly.households).toEqual(idsOf(sim.world.households));
+    expect(buckets.daily).toEqual({ actors: [], households: [] });
+    expect(Object.values(sim.world.region?.lod?.actors ?? {}).some((r) => r.selected === 'T2')).toBe(true);
+  });
+
+  it('uses real daily household supplies once across repeated calls, save/load and promotion', () => {
+    const sim = fresh(),
+      actor = actorByKey(sim, 'cedar_farm_martha'),
+      householdId = sim.world.actors[actor]?.householdId;
+    if (!householdId) throw new Error('Missing household');
+    const before = stateHash(sim.world);
+    provisions.householdEconomyDay(sim.world, makeContext(sim.world, content, []), householdId);
+    expect(stateHash(sim.world)).not.toBe(before);
+    const after = stateHash(sim.world);
+    provisions.householdEconomyDay(sim.world, makeContext(sim.world, content, []), householdId);
+    expect(stateHash(sim.world)).toBe(after);
+    const loaded = restoreSim(content, JSON.parse(JSON.stringify(sim.world)));
+    region.promoteCensusActor(loaded.world, makeContext(loaded.world, content, []), actor);
+    const promoted = stateHash(loaded.world);
+    provisions.householdEconomyDay(loaded.world, makeContext(loaded.world, content, []), householdId);
+    expect(stateHash(loaded.world)).toBe(promoted);
+    expect(loaded.world.items).toEqual(sim.world.items);
+    expect(loaded.world.provisions).toEqual(sim.world.provisions);
+    expect(() =>
+      provisions.householdEconomyDay(loaded.world, makeContext(loaded.world, content, []), householdId, 'daily'),
+    ).toThrow('Daily processing is not enabled');
+    expect(stateHash(loaded.world)).toBe(promoted);
+    loaded.world.time = asGameMinute(1440);
+    provisions.householdEconomyDay(loaded.world, makeContext(loaded.world, content, []), householdId);
+    expect(loaded.world.region?.processing?.householdEconomy[householdId]?.day).toBe(1);
+    expect(Object.keys(loaded.world.region?.processing?.householdEconomy ?? {})).toHaveLength(1);
+    expect(() => region.claimHouseholdEconomyDay(loaded.world, householdId, 0, 'hourly')).toThrow('earlier interval');
+    expect(() => region.claimHouseholdEconomyDay(loaded.world, householdId, 1441, 'hourly')).toThrow('canonical');
+    expect(findNonIntegers(loaded.world)).toEqual([]);
+  });
+
+  it('validates regional save versions without mutating supported old saves', () => {
+    const sim = fresh();
+    for (const key of ['census', 'lod', 'processing'] as const) {
+      const saved = JSON.parse(JSON.stringify(sim.world));
+      saved.region[key] = { ...saved.region[key], version: 999 };
+      expect(() => restoreSim(content, saved)).toThrow('Unsupported regional');
+    }
+    const saved = JSON.parse(JSON.stringify(sim.world));
+    delete saved.region.census;
+    delete saved.region.lod;
+    const before = stateHash(saved);
+    const restored = restoreSim(content, saved);
+    expect(stateHash(restored.world)).toBe(before);
+    step(restored);
+    expect(restored.world.region?.census?.version).toBe(1);
+    expect(restored.world.region?.lod?.evaluatedAt).toBe(60);
   });
 });
 function mEvent(world: Sim['world']) {
