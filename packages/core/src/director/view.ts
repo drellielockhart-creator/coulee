@@ -34,6 +34,8 @@ export function directorReport(world: World) {
     dead_air: { ...st.dead_air },
     patterns: structuredPatterns(st.patterns),
     guns: { ...st.guns },
+    retention: st.retention ? { ...st.retention, retired_ids: [...st.retention.retired_ids] } : null,
+    survival_sample: st.survival_sample ? { ...st.survival_sample } : null,
     top_threads: st.top_threads.map((t) => ({
       id: t.id,
       pattern: t.pattern,

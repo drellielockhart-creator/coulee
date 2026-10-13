@@ -20,6 +20,21 @@ stops there: `ceil(3 * (1000 - otherPressure) / 1000)` days. This preserves the 
 exactly; the bounded food result alone is not an independent days-of-food readout.
 The API uses a transient inventory pass, never a saved planning cache.
 
+**Cost revision:** the scheduled Director samples the complete survival term once on the
+first observed hour of each game-day (and immediately on a change of focus actor), then
+holds that integer observation between samples. Its actor, calendar day, minute and value
+are saved in `survival_sample`, so restoring mid-day does not resample. This is measurement
+state, not a cache of inventories or planner work. The other six terms, including cash and
+physical danger, remain hourly. Direct `measureTension` calls without a held observation
+still perform the exact projection. The latest Explain identifies the survival sample time.
+
+This deliberately chooses daily sampling over coupling Director to household planning:
+those decisions do not necessarily describe the PC's current carried kit, ration or location.
+A 3-day food outlook changes slowly enough for this observational term and the 7-day slow
+EMA; the 6-hour fast EMA still responds hourly to the other terms. Within-day survival changes
+can appear up to 23 hours late. No claim of equality with the former hourly tension curve is
+made; the [year baselines](2026-10-13-d0-baseline.md) measure the difference. P8 meal and storage kernels are unchanged.
+
 Belief supplies grudges targeting the actor, their household or an attached Figure;
 persecution uses `[0,50,150,300,500,800,1000]`, multiplied by `1 + heat/1000` and clamped.
 Social pressure adds ten points per grudge-intensity point, rung pressure and up to 500
@@ -58,7 +73,10 @@ not restart the clock.
 
 Chronicle patterns own an optional `openState` projection. The engine sends it to the
 Director after each accepted fact and at closure, before Chronicle buffers can be evicted.
-This captures partial matches as well as prose milestones. Roles, stakes and questions
+This observes partial matches as well as prose milestones. Full records are admitted only
+for a PC role, a planted gun, or a detector milestone. A generic pattern importance score
+on an unmatched off-screen partial is not evidence of concrete stakes. Filtered partials
+may be admitted later if their projection becomes relevant. Roles, stakes and questions
 are observations of those patterns. Prose templates and output selection are unchanged.
 Unmatched threads start Latent; seeing a planted gun can make them Foreshadowed; detector
 milestones become Active and Climax. Repayment, accepted/refused proposal and charm disposal
@@ -77,17 +95,48 @@ merely sharing the PC does not make two unrelated experiences a callback.
 
 Interest follows 05 §8.6's `/10` formula, including zero implausibility. Ripeness is linearly
 interpolated through days 0/7/21/60/90 with values 0/1000/1000/200/0. Novelty recovers over
-30 days since another thread of that pattern opened. Repetition rises by 250 per resolution
-in 30 days, capped at 1000. Mode fit is neutral 500 because this runtime has no adventurer/
-witch run-mode selector. The report retains the ten highest **daily scores attained**, plus
+30 days from the recorded opening of the most recently admitted other thread of that pattern.
+Repetition rises by 250 per retained resolution in 30 calendar days, capped at 1000; daily
+per-pattern buckets bound this history. Mode fit is neutral 500 because this runtime has no
+adventurer/witch run-mode selector. The report retains the ten highest **daily scores attained**, plus
 a separate current top ten open threads. Interest is not a per-mille value; it may exceed
 1000 or be negative, as specified by the formula.
 
-Director tension events use an independent, 168-hour journal with local IDs. Adding them
-to the shared log would shift causal IDs and violate D0's hard invariance rule. The Ledger
-retains 90 daily assessments, with older row counts and permanent monthly aggregates.
-Closed threads compact after 90 days only after all gun windows finish. Pattern/gun totals,
-recency, monthly statistics and the all-time top ten survive this compaction. Saves retain
-all remaining records; an absent Director slice in a legacy save initializes on restoration.
-No fair observation exposes any of this state. God observations, CLI manifests and
+Director tension events use slice-local IDs; only the latest full seven-term Explain is
+retained. Monthly sums/maxima and the event sequence preserve the aggregate history.
+Adding these events to the shared log would shift causal IDs and violate D0 invariance.
+The Ledger retains seven daily assessments with compact decision Explains; older rows
+compact to a count. It does not retain duplicate tension Explains. Monthly aggregates remain
+permanent (one small row per calendar month).
+
+The registry retains at most **64 total threads**, including at most **24 Latent** records.
+Retention ranks PC involvement, stakes, daily interest, then ascending ID; the total limit
+prefers open over closed records. Interest Explains survive for the current top ten open
+threads and the all-time top ten daily peaks. Peak snapshots contain no duplicate guns.
+Resolved/Abandoned records compact after **7 days**, once their gun windows finish; capacity
+may compact them earlier. Each thread retains at most **8 guns**, favoring unfinished windows;
+settled guns disappear after 7 days. At most eight callback references remain per thread.
+These limits hold after every projection, not just at the daily assessment.
+
+Pattern opened/resolved/abandoned totals now describe **admitted records**. Retention is not
+a fictional ending: capacity removal increments `capacity_evictions`, never resolved or
+abandoned. `compacted_threads` includes both normal retirement and capacity removal.
+`candidates` counts first-observed monotonically allocated Chronicle IDs, including filtered
+partials; `filtered_projections` counts rejected observations, not unique candidates.
+A 512-ID retirement set plus a monotonically advancing retired-ID floor prevents reopening
+or double-counting compacted records. Once the floor advances, an older unadmitted partial
+can no longer enter; currently retained threads below the floor continue normally.
+
+Gun totals describe admitted and retained observation windows. Capacity removal of an
+unfinished gun increments `compacted_unfired_guns`, never fired or expired. Thus
+`planted - fired - expired - compacted_unfired_guns` is the live retained gun count.
+Seen totals stop tracking a gun when its record retires. These are bounded observation
+statistics, not an exhaustive census of all world stories; compare them to the previous
+unbounded baseline only with that cohort change stated. The baseline report retains the
+original cost/size and describes the change in candidate coverage.
+
+Saves retain the held survival measurement and remaining records; an absent Director slice
+in a legacy save initializes on restoration. Older version-1 D0 saves lack the optional
+sampling/retention fields and initialize these on their next observation. No fair observation
+exposes any of this state. God observations, CLI manifests and
 `coulee director report --run <dir>` do.

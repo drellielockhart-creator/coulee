@@ -4,7 +4,7 @@ import { type Explain, normalizeExplain, term } from '../explain.ts';
 import { effectiveFi } from '../fae/api.ts';
 import type { ActorId } from '../ids.ts';
 import { tensionNeeds } from '../needs/api.ts';
-import { tensionProvisions } from '../provisions/api.ts';
+import { cashOf, tensionProvisions } from '../provisions/api.ts';
 import { anxietyOf } from '../psyche/api.ts';
 import { pinnedPursuit } from '../region/api.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -20,7 +20,12 @@ export const WEIGHTS = {
   economic_pressure: 7,
   inner_pressure: 10,
 } as const;
-export function measureTension(world: World, ctx: SimContext, pc: ActorId | null) {
+export function measureTension(
+  world: World,
+  ctx: SimContext,
+  pc: ActorId | null,
+  survival?: { value: number; at: number },
+) {
   const a = pc === null ? undefined : world.actors[pc];
   let terms: Record<keyof typeof WEIGHTS, number> = {
     physical_danger: 0,
@@ -34,16 +39,21 @@ export function measureTension(world: World, ctx: SimContext, pc: ActorId | null
   if (pc !== null && a) {
     const needs = tensionNeeds(world, ctx.content, pc),
       belief = tensionBelief(world, pc);
-    const supplies = tensionProvisions(world, ctx.content, pc, ctx.now, needs.survival),
-      owed = obligationsCents(world, pc);
+    const survivalPressure =
+      survival?.value ??
+      (() => {
+        const supplies = tensionProvisions(world, ctx.content, pc, ctx.now, needs.survival);
+        return Math.max(needs.survival, supplies.food, supplies.scurvy);
+      })();
+    const owed = obligationsCents(world, pc);
     const nearby = belief.hostileIds.some((id) => {
       const other = world.actors[id];
       return other?.alive && walkMinutes(world, ctx.content, a.placeId, other.placeId) <= 60;
     });
-    const economic = owed > 0 ? Math.max(0, Math.floor(((owed - supplies.cash) * 1000) / owed)) : 0;
+    const economic = owed > 0 ? Math.max(0, Math.floor(((owed - cashOf(world, pc)) * 1000) / owed)) : 0;
     terms = {
       physical_danger: Math.max(needs.physical, combatDanger(world, pc, belief.hostileIds), nearby ? 500 : 0),
-      survival_pressure: Math.max(needs.survival, supplies.food, supplies.scurvy),
+      survival_pressure: survivalPressure,
       pursuit: Math.max(belief.pursuit, pinnedPursuit(world, pc, belief.hostileIds)),
       social_pressure: Math.min(1000, belief.social + Math.min(500, owed)),
       uncanny: effectiveFi(world, a.placeId, ctx.now) * 200,
@@ -69,7 +79,7 @@ export function measureTension(world: World, ctx: SimContext, pc: ActorId | null
     terms: contributions,
     total: tau,
     outcome: 'measured',
-    note: 'D0: observation only; no roll, no nudge.',
+    note: `D0: observation only; survival sampled at minute ${survival?.at ?? ctx.now} and held until the next game-day.`,
   });
   return { tau, terms, explain };
 }

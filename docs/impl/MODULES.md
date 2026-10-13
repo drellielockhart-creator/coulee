@@ -805,9 +805,12 @@ Social owns the shared fair event perception query (play delegates to it).
 
 **Contracts:** optional version-1 `World.director` (legacy saves migrate on restore),
 `director.personality = land_itself`, `director.foresight = off | tiltable | full` (default tiltable).
-Director events have slice-local IDs in a bounded 168-hour journal, and never enter the causal
+Director events have slice-local IDs; only the latest tension Explain is retained, and none enter the causal
 simulation log. This is necessary for exact non-director state/event-ID invariance.
-Ledger retains 90 daily assessments; older rows compact to a count and monthly metrics.
+Ledger retains seven compact daily assessments; older rows compact to a count and monthly metrics.
+Survival is sampled daily and held; other tension terms remain hourly. The registry caps total
+threads at 64 (24 Latent), guns at eight per thread, and retires settled records after seven days.
+Retention counters distinguish capacity removal from story endings; see `director/D0-MEASUREMENT.md`.
 No bias hooks, RNG draws, LOD pins, agency changes, or writes to other slices in D0.
 God observations and CLI manifests expose analytics; fair observations expose nothing new.
 

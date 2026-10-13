@@ -6,6 +6,62 @@ import type { World } from '../world.ts';
 import type { DirectorState, Thread } from './state.ts';
 
 const DAY = 1440;
+export const THREAD_LIMIT = 64;
+export const LATENT_LIMIT = 24;
+export const GUN_LIMIT = 8;
+export const CLOSED_RETENTION_DAYS = 7;
+const RETIRED_LIMIT = 512;
+export function retention(st: DirectorState) {
+  st.retention ??= {
+    candidates: 0,
+    projection_high_water: 0,
+    filtered_projections: 0,
+    compacted_threads: 0,
+    capacity_evictions: 0,
+    compacted_unfired_guns: 0,
+    retired_through: 0,
+    retired_ids: [],
+  };
+  return st.retention;
+}
+function retire(st: DirectorState, th: Thread, capacity = false): void {
+  const r = retention(st);
+  r.compacted_threads++;
+  if (capacity) r.capacity_evictions++;
+  r.compacted_unfired_guns += th.guns.filter((g) => !g.fired && !g.expired).length;
+  if (th.id > r.retired_through) r.retired_ids.push(th.id);
+  if (r.retired_ids.length > RETIRED_LIMIT) {
+    r.retired_ids.sort((a, b) => a - b);
+    r.retired_through = r.retired_ids.splice(0, r.retired_ids.length - RETIRED_LIMIT).at(-1) ?? r.retired_through;
+  }
+  delete st.threads[th.id];
+}
+/** PC involvement, concrete stakes, then latest measured interest; stable ID tie-break. */
+function rankRetention(a: Thread, b: Thread): number {
+  return b.player_involvement_pm - a.player_involvement_pm || b.stakes_pm - a.stakes_pm || rankThreads(a, b);
+}
+function boundThreads(st: DirectorState): void {
+  const all = rowsOf(st.threads);
+  const latent = all.filter((t) => t.state === 'Latent').sort(rankRetention);
+  for (const th of latent.slice(LATENT_LIMIT)) retire(st, th, true);
+  const remaining = rowsOf(st.threads).sort(
+    (a, b) => Number(a.closed_at !== null) - Number(b.closed_at !== null) || rankRetention(a, b),
+  );
+  for (const th of remaining.slice(THREAD_LIMIT)) retire(st, th, true);
+}
+function boundGuns(st: DirectorState, th: Thread, now: number): void {
+  th.guns = th.guns.filter(
+    (g) =>
+      !(g.fired || g.expired) ||
+      now - (g.fired_at ?? g.planted_at + g.fire_window[1] * DAY) <= CLOSED_RETENTION_DAYS * DAY,
+  );
+  // Prefer live windows to settled records; never describe capacity loss as a payoff or expiry.
+  while (th.guns.length > GUN_LIMIT) {
+    const settled = th.guns.findIndex((g) => g.fired || g.expired);
+    const [gone] = th.guns.splice(settled < 0 ? 0 : settled, 1);
+    if (gone && !gone.fired && !gone.expired) retention(st).compacted_unfired_guns++;
+  }
+}
 export function patternCounts(st: DirectorState, pattern: string) {
   st.patterns[pattern] ??= { opened: 0, resolved: 0, abandoned: 0 };
   return st.patterns[pattern];
@@ -16,12 +72,31 @@ function finish(st: DirectorState, thread: Thread, state: 'Resolved' | 'Abandone
   thread.closed_at = at;
   thread.open_questions = [];
   patternCounts(st, thread.pattern)[state === 'Resolved' ? 'resolved' : 'abandoned']++;
-  if (state === 'Resolved') st.recent_resolutions.push({ pattern: thread.pattern, at });
+  if (state === 'Resolved') {
+    const day = Math.floor(at / DAY) * DAY;
+    const bucket = st.recent_resolutions.find((r) => r.pattern === thread.pattern && r.at === day);
+    if (bucket) bucket.count = (bucket.count ?? 1) + 1;
+    else st.recent_resolutions.push({ pattern: thread.pattern, at: day, count: 1 });
+  }
 }
 export function recordProjection(world: World, p: OpenProjection): void {
   const st = world.director;
   if (!st) return;
+  const r = retention(st);
+  if (p.id > r.projection_high_water) {
+    r.projection_high_water = p.id;
+    r.candidates++;
+  }
   let th = st.threads[p.id];
+  if (!th && (p.id <= r.retired_through || r.retired_ids.includes(p.id))) return;
+  // Generic pattern importance is not evidence of stakes in an unmatched partial.
+  // A PC role, planted consequence, or detector milestone is evidence.
+  const involved = st.focus !== null && Object.values(p.actors).includes(st.focus);
+  if (!th && p.state === 'Latent' && !involved && p.guns.length === 0) {
+    r.filtered_projections++;
+    return;
+  }
+  if (!th && (p.state === 'Resolved' || p.state === 'Abandoned')) return;
   if (!th) {
     th = {
       id: p.id,
@@ -31,7 +106,7 @@ export function recordProjection(world: World, p: OpenProjection): void {
       opened_at: p.opened_at,
       last_advanced: p.last_advanced,
       stakes_pm: p.stakes_pm,
-      player_involvement_pm: 0,
+      player_involvement_pm: involved ? 1000 : 0,
       open_questions: [...p.open_questions],
       state: 'Latent',
       guns: [],
@@ -79,6 +154,8 @@ export function recordProjection(world: World, p: OpenProjection): void {
   }
   th.state = p.state;
   if (p.state === 'Resolved' || p.state === 'Abandoned') finish(st, th, p.state, world.time);
+  boundGuns(st, th, world.time);
+  boundThreads(st);
 }
 export function ripeness(age: number): number {
   const points = [
@@ -111,7 +188,7 @@ export function scoreThread(st: DirectorState, th: Thread, now: number) {
     term('director', 'Seen unfired guns ×10', 10 * guns),
     term('director', 'Novelty ×10', 10 * novelty),
     term('director', 'Mode fit ×5 (neutral in D0)', 2500),
-    term('director', 'Repetition ×−20', -20 * Math.min(1000, recent.length * 250)),
+    term('director', 'Repetition ×−20', -20 * Math.min(1000, recent.reduce((sum, r) => sum + (r.count ?? 1), 0) * 250)),
     term('director', 'Implausibility ×−30 (no nudges)', 0),
   ];
   th.interest = Math.floor(terms.reduce((s, t) => s + t.value, 0) / 10);
@@ -148,6 +225,7 @@ export function updateThreads(world: World, now: number, seen: ReadonlySet<numbe
         if (!gun.seen_by_player) st.guns.expired_unseen++;
       }
     }
+    boundGuns(st, th, now);
     if (th.closed_at === null && now - th.last_advanced > 120 * DAY) finish(st, th, 'Abandoned', now);
     if (th.state === 'Latent' && th.guns.some((g) => g.seen_by_player)) th.state = 'Foreshadowed';
     if (daily) {
@@ -185,14 +263,26 @@ export function updateThreads(world: World, now: number, seen: ReadonlySet<numbe
         ...t,
         actors: { ...t.actors },
         places: [...t.places],
-        guns: t.guns.map((g) => ({ ...g, fire_window: [...g.fire_window] })),
+        guns: [],
         callbacks: t.callbacks.map((m) => ({ ...m })),
         open_questions: [...t.open_questions],
       }));
+    const explained = new Set(
+      rowsOf(st.threads)
+        .filter((t) => t.closed_at === null)
+        .sort(rankThreads)
+        .slice(0, 10)
+        .map((t) => t.id),
+    );
     for (const th of rowsOf(st.threads)) {
-      // Keep a closed thread until every gun's window has elapsed, then compact into counters.
-      if (th.closed_at !== null && now - th.closed_at > 90 * DAY && th.guns.every((g) => g.fired || g.expired))
-        delete st.threads[th.id];
+      if (!explained.has(th.id)) th.interest_explain = null;
+      if (
+        th.closed_at !== null &&
+        now - th.closed_at > CLOSED_RETENTION_DAYS * DAY &&
+        th.guns.every((g) => g.fired || g.expired)
+      )
+        retire(st, th);
     }
+    boundThreads(st);
   }
 }

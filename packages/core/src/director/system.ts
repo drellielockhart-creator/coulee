@@ -75,7 +75,16 @@ export function directorSystem(world: World, ctx: SimContext): void {
   const seen = st.focus === null ? [] : perceivedEvents(events, st.focus, st.prior_place ?? undefined);
   st.cursor = world.log.lastId;
   st.prior_place = st.focus === null ? null : (world.actors[st.focus]?.placeId ?? null);
-  const measure = measureTension(world, ctx, st.focus);
+  const sample = st.survival_sample;
+  const held = sample?.actor === st.focus && sample.day === ctx.cal.dayIndex ? sample : undefined;
+  const measure = measureTension(world, ctx, st.focus, held);
+  if (!held)
+    st.survival_sample = {
+      actor: st.focus,
+      day: ctx.cal.dayIndex,
+      at: ctx.now,
+      value: measure.terms.survival_pressure,
+    };
   st.tau = measure.tau;
   st.fast_q16 = first ? st.tau * 65536 : emaQ16(st.fast_q16, st.tau, EMA_ALPHA_Q16.fast);
   st.slow_q16 = first ? st.tau * 65536 : emaQ16(st.slow_q16, st.tau, EMA_ALPHA_Q16.slow);
@@ -105,7 +114,7 @@ export function directorSystem(world: World, ctx: SimContext): void {
     explain: measure.explain,
     data: { tau: st.tau, tau_fast: st.tau_fast, tau_slow: st.tau_slow, pacing: st.pacing, terms: measure.terms },
   });
-  if (st.events.length > 168) st.events.splice(0, st.events.length - 168);
+  if (st.events.length > 1) st.events.splice(0, st.events.length - 1);
   updateThreads(world, ctx.now, new Set(seen.map((e) => e.id as number)), ctx.isNewDay || first);
   const key = `${ctx.cal.year}-${String(ctx.cal.month).padStart(2, '0')}`;
   st.months[key] ??= newMonth();
@@ -153,7 +162,15 @@ export function directorSystem(world: World, ctx: SimContext): void {
       foresaw: false,
       foresight: st.settings.foresight,
       knowledge: 'omniscient',
-      explain: measure.explain,
+      explain: {
+        kind: 'formula',
+        label: 'Daily observational assessment',
+        knowledge: 'omniscient',
+        subjects: st.focus === null ? [] : [st.focus],
+        terms: [],
+        total: 0,
+        outcome: 'No nudge; land_itself has zero budget.',
+      },
     });
   }
 }

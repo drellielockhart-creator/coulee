@@ -75,6 +75,18 @@ export interface DirectorState {
   version: 1;
   settings: DirectorSettings;
   focus: ActorId | null;
+  /** A held observation, not a provisions planner cache. Optional in pre-fix D0 saves. */
+  survival_sample?: { actor: ActorId | null; day: number; at: number; value: number };
+  retention?: {
+    candidates: number;
+    projection_high_water: number;
+    filtered_projections: number;
+    compacted_threads: number;
+    capacity_evictions: number;
+    compacted_unfired_guns: number;
+    retired_through: number;
+    retired_ids: number[];
+  };
   prior_place: PlaceId | null;
   tau: number;
   tau_fast: number;
@@ -103,7 +115,7 @@ export interface DirectorState {
     day_notable: boolean;
   };
   pattern_recency: Record<string, { id: number; at: number; previous_at: number | null }>;
-  recent_resolutions: Array<{ pattern: string; at: number }>;
+  recent_resolutions: Array<{ pattern: string; at: number; count?: number }>;
   top_threads: Thread[];
 }
 export function directorSettings(input: Partial<DirectorSettings> = {}): DirectorSettings {

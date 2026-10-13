@@ -3,7 +3,14 @@ import { describe, expect, it } from 'vitest';
 import { EMA_ALPHA_Q16, emaQ16 } from '../../core/src/director/fixed.ts';
 import { pacingStep } from '../../core/src/director/system.ts';
 import { measureTension, WEIGHTS } from '../../core/src/director/tension.ts';
-import { recordProjection, scoreThread, updateThreads } from '../../core/src/director/threads.ts';
+import {
+  GUN_LIMIT,
+  LATENT_LIMIT,
+  recordProjection,
+  scoreThread,
+  THREAD_LIMIT,
+  updateThreads,
+} from '../../core/src/director/threads.ts';
 import { packJson } from '../../core/src/serialization.ts';
 import { makeContext } from '../../core/src/sim/sim.ts';
 import { observation } from '../../play/src/observation.ts';
@@ -74,6 +81,95 @@ describe('Director D0 is observational', () => {
       runHours(sim, 1);
     }
   }, 60_000);
+
+  it('samples survival daily, holds it within the day, and preserves the sample across saves', () => {
+    const sim = simFor({ seed: 42, fullLog: false });
+    let samples = 0;
+    sim.wrapSystem = (id, run) => {
+      const prior = required(sim.world.director).survival_sample;
+      run();
+      if (id === 'director' && prior !== required(sim.world.director).survival_sample) samples++;
+    };
+    runHours(sim, 1);
+    const first = required(required(sim.world.director).survival_sample);
+    runHours(sim, 22);
+    expect(required(sim.world.director).survival_sample).toBe(first);
+    expect(required(sim.world.director).events).toHaveLength(1);
+    expect(required(sim.world.director).events[0]?.data.terms.survival_pressure).toBe(first.value);
+    const restored = restoreSim(sim.content, packJson(sim.world));
+    runHours(sim, 26);
+    runHours(restored, 26);
+    expect(samples).toBe(3);
+    expect(required(sim.world.director).survival_sample?.day).toBe(2);
+    expect(stateHash(sim.world)).toBe(stateHash(restored.world));
+  }, 60_000);
+
+  it('bounds candidate churn, guns and closure retention without inventing endings', () => {
+    const sim = simFor(),
+      st = required(sim.world.director),
+      pc = required(st.focus);
+    const base = {
+      id: 10000,
+      pattern: 'debt',
+      actors: { debtor: pc },
+      places: [],
+      opened_at: 0,
+      last_advanced: 0,
+      stakes_pm: 600,
+      state: 'Latent' as const,
+      level: 0,
+      open_questions: ['Pay?'],
+      guns: [],
+      firedAt: null,
+    };
+    const other = required(Object.values(sim.world.actors).find((a) => a.id !== pc)).id;
+    recordProjection(sim.world, { ...base, actors: { debtor: other } });
+    expect(st.threads[base.id]).toBeUndefined();
+    expect(st.retention?.filtered_projections).toBe(1);
+    // A previously uninteresting partial can acquire a real milestone later.
+    recordProjection(sim.world, { ...base, actors: { debtor: other }, state: 'Active', level: 1 });
+    expect(st.threads[base.id]?.state).toBe('Active');
+    for (let i = 1; i <= 600; i++) recordProjection(sim.world, { ...base, id: base.id + i });
+    expect(Object.values(st.threads).filter((t) => t.state === 'Latent')).toHaveLength(LATENT_LIMIT);
+    const evicted = base.id + 600;
+    recordProjection(sim.world, { ...base, id: evicted, state: 'Active', level: 1 });
+    expect(st.threads[evicted]).toBeUndefined();
+    expect(st.retention?.retired_ids.length).toBeLessThanOrEqual(512);
+    for (let i = 601; i <= 750; i++)
+      recordProjection(sim.world, {
+        ...base,
+        id: base.id + i,
+        state: 'Active',
+        level: 1,
+        guns: Array.from({ length: 12 }, (_, j) => ({
+          event: i * 100 + j,
+          at: 0,
+          salience: 700,
+          window: [1, 3] as [number, number],
+        })),
+      });
+    expect(Object.values(st.threads)).toHaveLength(THREAD_LIMIT);
+    expect(Object.values(st.threads).every((t) => t.guns.length <= GUN_LIMIT)).toBe(true);
+    expect(st.patterns.debt?.resolved).toBe(0);
+    expect(st.patterns.debt?.abandoned).toBe(0);
+    const tracked = Object.values(st.threads).filter((t) => t.guns.length)[0];
+    const th = required(tracked);
+    const pending = () =>
+      Object.values(st.threads).reduce((n, t) => n + t.guns.filter((g) => !g.fired && !g.expired).length, 0);
+    expect(st.guns.planted - st.guns.fired - st.guns.expired - required(st.retention).compacted_unfired_guns).toBe(
+      pending(),
+    );
+    recordProjection(sim.world, { ...base, id: th.id, state: 'Resolved', firedAt: 2880 });
+    const resolved = st.patterns.debt?.resolved;
+    updateThreads(sim.world, 8 * 1440, new Set(), true);
+    expect(st.threads[th.id]).toBeUndefined();
+    recordProjection(sim.world, { ...base, id: th.id, state: 'Resolved', firedAt: 2880 });
+    expect(st.patterns.debt?.resolved).toBe(resolved);
+    expect(st.guns.planted - st.guns.fired - st.guns.expired - required(st.retention).compacted_unfired_guns).toBe(
+      pending(),
+    );
+    expect(findNonIntegers(sim.world)).toEqual([]);
+  });
 
   it('retains subpoint EMA movement and follows each pacing transition', () => {
     let slow = 0;

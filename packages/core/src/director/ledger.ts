@@ -1,5 +1,5 @@
 import type { DirectorState, LedgerRecord } from './state.ts';
-export const LEDGER_RETENTION = 90;
+export const LEDGER_RETENTION = 7;
 export function assess(st: DirectorState, row: LedgerRecord): void {
   st.ledger.push(row);
   if (st.ledger.length > LEDGER_RETENTION) {
