@@ -1,5 +1,5 @@
 import { type ContentBundle, ScenarioActorSchema, ScenarioHouseholdSchema } from '@coulee/content/schema';
-import { createSim, hashValue, psyche, region } from '@coulee/core';
+import { createSim, type director, hashValue, psyche, region } from '@coulee/core';
 import { GEN_VERSION, generateTown, type TownRecipe, townContent } from '@coulee/worldgen';
 
 export type WorldSource = string | { kind: 'generated'; recipe: TownRecipe };
@@ -12,6 +12,7 @@ export interface PCSpec {
   lodging?: 'tavern' | 'camp';
 }
 export interface SessionSpec {
+  director?: Partial<director.DirectorSettings>;
   source: WorldSource;
   seed: number;
   worldSeed?: number;
@@ -79,7 +80,7 @@ export function sessionContent(base: ContentBundle, spec: SessionSpec) {
 
 export function sessionSim(base: ContentBundle, spec: SessionSpec) {
   const { content, scenarioId } = sessionContent(base, spec);
-  const sim = createSim(content, { scenarioId, seed: spec.seed, withPlayer: true });
+  const sim = createSim(content, { scenarioId, seed: spec.seed, withPlayer: true, director: spec.director });
   region.ensureCensus(sim.world);
   region.setRegionFocus(sim.world, sim.world.meta.playerId);
   return sim;

@@ -9,7 +9,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
 import { CONTENT_ROOT, formatIssues, loadContent, loadContentOrThrow, REPO_ROOT } from '@coulee/content';
-import { formatStamp, toViewModel } from '@coulee/core';
+import { director, formatStamp, toViewModel } from '@coulee/core';
 import { COUNTY_GEN_VERSION, countyTownContext, GEN_VERSION } from '@coulee/worldgen';
 import { cac } from 'cac';
 import { packJson } from '../../core/src/serialization.ts';
@@ -40,11 +40,15 @@ cli
   .option('--hours <n>', 'Hours to simulate')
   .option('--out <dir>', 'Output directory (default runs/<scenario>-<seed>)')
   .option('--mods <list>', 'Content mods, comma-separated', { default: 'base' })
+  .option('--director-personality <id>', 'D0: land_itself only', { default: 'land_itself' })
+  .option('--director-foresight <mode>', 'off | tiltable | full (observational in D0)', { default: 'tiltable' })
   .option('--profile', 'Time each system and print ms per game-hour')
   .option('--no-events', 'Do not write events.jsonl (it is large: hundreds of MB per simulated year)')
   .option('--save', 'Also write save.json (the World as JSON: what a saved game holds)')
   .action(
     (o: {
+      directorPersonality?: string;
+      directorForesight?: string;
       scenario: string;
       seed: number;
       worldSeed?: number;
@@ -59,6 +63,10 @@ cli
     }) => {
       const content = loadContentOrThrow(modsOf(o.mods));
       const spec = {
+        director: director.directorSettings({
+          personality: o.directorPersonality as 'land_itself',
+          foresight: o.directorForesight as director.Foresight,
+        }),
         scenarioId: String(o.scenario),
         seed: Number(o.seed),
         hours: hoursOf(o),
@@ -99,6 +107,7 @@ cli
         eventsStreamed: stream !== null,
         manifest: {
           msPerGameHour: Math.round(msPerHour * 100) / 100,
+          ...(o.profile ? { directorMsPerGameHour: (timers.director ?? 0) / Math.max(1, spec.hours) } : {}),
           saveBytes,
           saveBytesBySlice: bySlice,
           heapUsedMB: Math.round(mem.heapUsed / 1e6),
@@ -114,6 +123,19 @@ cli
           `save ${(saveBytes / 1e6).toFixed(2)} MB; heap ${Math.round(mem.heapUsed / 1e6)} MB, rss ${Math.round(mem.rss / 1e6)} MB; hash ${res.hash}`,
       );
       if (o.profile) {
+        const d = director.directorReport(res.sim.world);
+        console.log(
+          `  Director D0: τ ${d?.tau_fast}/${d?.tau_slow}; ${d?.pacing}; dead air ${d?.dead_air.hours} h / ${d?.dead_air.days} days; guns ${d?.guns.planted} planted, ${d?.guns.expired_unseen} expired unseen`,
+        );
+        if (d) {
+          for (const [month, m] of Object.entries(d.months))
+            console.log(
+              `    ${month}: fast mean/max ${m.fast_mean}/${m.fast_max}, slow ${m.slow_mean}/${m.slow_max}; pacing h ${JSON.stringify(m.pacing)}; dead air ${m.dead_air_hours} h, ${m.dead_air_days} days`,
+            );
+          console.log(`    Threads opened/resolved/abandoned: ${JSON.stringify(d.patterns)}`);
+          console.log(`    Guns: ${JSON.stringify(d.guns)}; longest dead air ${d.dead_air.longest_hours} h`);
+          console.log(`    Top 10 threads by peak daily interest: ${JSON.stringify(d.top_threads)}`);
+        }
         const actors = Object.keys(res.sim.world.actors).length;
         for (const [id, t] of Object.entries(timers).sort((a, b) => b[1] - a[1]))
           console.log(
@@ -125,6 +147,16 @@ cli
       );
     },
   );
+
+cli
+  .command('director <action>', 'Director pacing metrics from a run manifest')
+  .option('--run <dir>', 'Run directory')
+  .action((action: string, o: { run?: string }) => {
+    if (action !== 'report' || !o.run) throw new Error('Use coulee director report --run <dir>');
+    const manifest = JSON.parse(readFileSync(join(resolveOut(o.run), 'manifest.json'), 'utf8'));
+    if (!manifest.director) throw new Error('This run predates Director D0 metrics');
+    console.log(JSON.stringify(manifest.director, null, 2));
+  });
 
 cli
   .command('gen <kind>', 'Generate a town content mod or county JSON and SVG')
@@ -254,6 +286,8 @@ cli
   .option('--jsonl', 'One JSON Command in, one JSON observation out')
   .option('--replay <file>', 'Replay commands.jsonl and verify every state hash')
   .option('--god', 'Reveal ground truth')
+  .option('--director-personality <id>', 'D0: land_itself only', { default: 'land_itself' })
+  .option('--director-foresight <mode>', 'off | tiltable | full (recorded at creation)', { default: 'tiltable' })
   .option('--scenario <id>', 'Authored id or gen:town', { default: 'iron_ford' })
   .option('--seed <n>', 'Simulation seed', { default: 42 })
   .option('--world-seed <n>', 'Independent world generation seed')

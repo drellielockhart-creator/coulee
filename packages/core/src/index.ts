@@ -11,6 +11,7 @@ export * from './checks.ts';
 export * as chronicle from './chronicle/index.ts';
 export * from './command.ts';
 export * from './content.ts';
+export * as director from './director/index.ts';
 export * from './events/index.ts';
 export * from './explain.ts';
 export * as fae from './fae/index.ts';

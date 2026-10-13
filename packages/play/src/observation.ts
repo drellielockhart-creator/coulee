@@ -5,6 +5,7 @@ import {
   type ContentBundle,
   calendarAt,
   chronicle,
+  director,
   type Event,
   type Explain,
   fae,
@@ -339,7 +340,9 @@ export function observation(
     })(),
     journal,
     actions: availableActions(sim, pc),
-    ...(mode === 'god' ? { truth: toViewModel(w, c, opts), beliefGraph: w.belief } : {}),
+    ...(mode === 'god'
+      ? { truth: toViewModel(w, c, opts), beliefGraph: w.belief, director: director.directorView(w, true) }
+      : {}),
   };
 }
 export type Observation = ReturnType<typeof observation>;

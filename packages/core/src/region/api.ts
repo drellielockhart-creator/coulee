@@ -93,3 +93,20 @@ export function environmentAt(world: World, at = world.time) {
 }
 
 export { settleDailySites } from './coarse.ts';
+/** Explicit hostile pins within an hour, weighted by known proximity; no new LOD pins in D0. */
+export function pinnedPursuit(world: World, pc: ActorId, hostiles: readonly ActorId[]): number {
+  const node = nodeAt(world, pc);
+  const distances = tensionRouteDistances(world, node);
+  let pressure = 0;
+  for (const id of hostiles) {
+    if (!world.region?.lod?.relevance[id]?.pinned) continue;
+    const other = nodeAt(world, id);
+    const minutes = other === node ? 0 : other === null ? 1440 : (distances[other] ?? 1440);
+    // Co-presence is known location; an off-site pin has proximity, not clairvoyance.
+    const known = world.actors[id]?.placeId === world.actors[pc]?.placeId;
+    pressure = Math.max(pressure, Math.floor((Math.max(0, 1000 - minutes * 10) * (known ? 1000 : 500)) / 1000));
+  }
+  return pressure;
+}
+
+import { routeDistances as tensionRouteDistances } from './lod.ts';

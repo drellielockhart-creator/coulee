@@ -110,9 +110,9 @@ Each process has its own rng stream and a window. Their sum keeps the world from
 
 ## 6. Gaps and decisions for Ellie
 
-1. **C55 (open):** may the Director read the unconscious (anxiety near a threshold, a charged Shadow) to time stressors? D2 depends on it. Recommendation: reads yes, writes never, as 05 drafts.
-2. **05 Q8 (open):** witch-mode mercy by misattribution: system behavior, or only a player Curse? Recommendation: defer to the M8 witch slice playtests.
-3. **Foresight rule (new, §2):** may the Director peek at unseen counter-based rolls it may tilt? Recommendation: yes, only for rolls it may tilt, logged as "foresaw".
+1. ~~C55~~ **Decided 2026-10-13: yes.** The Director reads unconscious states; it never writes them.
+2. ~~05 Q8~~ **Decided 2026-10-13: yes,** misattribution is system behavior within 05 §8.9's guardrails.
+3. ~~Foresight rule~~ **Decided 2026-10-13:** tiltable-only by default, with a per-run **setting** `director.foresight = off | tiltable | full`, recorded in the manifest and the Ledger.
 4. **Default personality:** 05 says the Almanac. For tests and goldens, the Land Itself (budget 0), so the sim stays the source of truth.
 5. **Player-facing:** RimWorld shows its storyteller's portrait. Proposal: the chosen personality is named at new-game with its folklore blurb (the Almanac, the Hidebehind…) and appears in the annual Almanac and Paper voice. The Ledger stays hidden unless opted in.
 6. **How much "plot" is welcome?** The Director ripens what the sim already grows; it never authors arcs. If Ellie wants authored beats (Wildermyth-style storylets cast from existing characters; 10 §8.3 already anticipates "the Director and Chronicle cast storylets by archetype"), that's a separate, optional content layer to decide later.

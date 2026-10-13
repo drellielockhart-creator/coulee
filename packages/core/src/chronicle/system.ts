@@ -1,5 +1,5 @@
 /**
- * Chronicle system: runs LAST each hour. OWNER: module:chronicle.
+ * Chronicle system: sifts after causal systems, before the observational Director. OWNER: module:chronicle.
  *
  * Incremental story sifting over the events since the cursor (05 §9): every module's events
  * become Facts; Facts feed the pattern threads (partial matches stay open) and the tallies;

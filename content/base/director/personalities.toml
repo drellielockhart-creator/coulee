@@ -1,0 +1,79 @@
+# D0: only land_itself is selectable. Its pacing thresholds classify the pure sim.
+# Numeric thresholds are initial measurement calibration; no curve spends or acts in D0.
+
+[[personality]]
+id = "almanac"
+name = "The Almanac"
+curve = "seasonal"
+budget_per_day = 3
+relax_days = 6
+peak_threshold = 700
+peak_hours = 12
+mercy = "on"
+category_multipliers = { balanced = 1000 }
+
+[[personality]]
+id = "hearthside"
+name = "The Hearthside"
+curve = "gentle"
+budget_per_day = 2
+relax_days = 20
+peak_threshold = 550
+peak_hours = 6
+mercy = "strong"
+category_multipliers = { social = 2000, economic = 2000, opportunity = 2000 }
+
+[[personality]]
+id = "tall_tale"
+name = "The Tall Tale"
+curve = "random_walk"
+budget_per_day = 5
+relax_days = 3
+peak_threshold = 800
+peak_hours = 24
+mercy = "none"
+category_multipliers = { novelty = 2000, spectacle = 2000 }
+
+[[personality]]
+id = "hidebehind"
+name = "The Hidebehind"
+curve = "slow_build"
+budget_per_day = 3
+relax_days = 20
+peak_threshold = 850
+peak_hours = 12
+mercy = "meaningful_death"
+category_multipliers = { uncanny = 2000, pursuit = 2000, dream = 2000 }
+
+[[personality]]
+id = "circuit_rider"
+name = "The Circuit Rider"
+curve = "sabbath"
+budget_per_day = 3
+relax_days = 7
+peak_threshold = 700
+peak_hours = 12
+mercy = "on"
+category_multipliers = { social = 2000, grudge = 2000, callback = 2000 }
+
+[[personality]]
+id = "good_neighbors"
+name = "The Good Neighbors"
+curve = "lunar"
+budget_per_day = 4
+relax_days = 7
+peak_threshold = 750
+peak_hours = 12
+mercy = "capricious"
+category_multipliers = { fae = 2000 }
+
+[[personality]]
+id = "land_itself"
+name = "The Land Itself"
+curve = "none"
+budget_per_day = 0
+relax_days = 7
+peak_threshold = 700
+peak_hours = 12
+mercy = "none"
+category_multipliers = {  }

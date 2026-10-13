@@ -262,3 +262,43 @@ export {
 export { knowsWant, officeOf, prepareReliefTravel, reliefOffices, reliefReservations, reliefRules } from './relief.ts';
 export { executeSocialCommand, socialSystem as regionSocialHour } from './system.ts';
 export { attemptTheft, desperationUrges, type TheftOutcome, type TheftRequest, theftPreflight } from './theft.ts';
+
+/** Positive balances held by creditors against this debtor; never materializes opinion rows. */
+export function obligationsCents(world: World, debtor: ActorId): number {
+  let cents = 0;
+  for (const holder of idsOf<ActorId>(world.social.opinions))
+    cents += Math.max(0, world.social.opinions[holder]?.[debtor]?.obligation.cents ?? 0);
+  return cents;
+}
+
+/** Shared fair perception gate; read-only, including movement in event order. */
+export function perceivedEvents(
+  events: readonly import('../events/index.ts').Event[],
+  pc: ActorId,
+  priorPlace: import('../ids.ts').PlaceId | undefined,
+): import('../events/index.ts').Event[] {
+  let place = priorPlace;
+  const seen: import('../events/index.ts').Event[] = [];
+  for (const e of events) {
+    // A private change of heart is not an observable act, even when it concerns the viewer.
+    if (e.kind === 'social.label_changed' && e.data.holderId !== pc) continue;
+    if (e.kind === 'activity.journey' && e.data.actorId === pc && e.place !== undefined) place = e.place;
+    if (e.kind === 'activity.moved' && e.data.actorId === pc) place = e.data.to;
+    if (e.kind === 'fae.omen' && !e.data.witnesses.includes(pc)) continue;
+    const role = e.roles.find((r) => r.actor === pc);
+    const own =
+      role &&
+      ((e.visibility !== 'secret' && e.visibility !== 'inner') || role.role === 'agent' || role.role === 'subject');
+    const visible =
+      own ||
+      (e.visibility === 'public' && e.place !== undefined && e.place === place) ||
+      (e.visibility === 'witnessed' && e.place === place);
+    if (
+      visible &&
+      e.kind !== 'psyche.defense' &&
+      !(e.kind === 'belief.tell' && !e.data.noticed && e.data.targetId !== pc)
+    )
+      seen.push(e);
+  }
+  return seen;
+}

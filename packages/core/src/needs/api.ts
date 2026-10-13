@@ -259,3 +259,16 @@ export function remainsAt(
 export * from './combat.ts';
 export { needsSystem as itineraryNeedsHour } from './system.ts';
 export * from './tactical.ts';
+
+/** Read-only danger projection; unlike survivalOf this never initializes physiology. */
+export function tensionNeeds(world: World, content: import('../content.ts').ContentBundle, id: ActorId) {
+  const n = world.needs.byActor[id],
+    s = n?.survival;
+  const maximum = tensionMaxVigor(world, content, id);
+  const lost = s ? Math.floor((Math.max(0, maximum - s.vigor) * 1000) / maximum) : 0;
+  const exposure = 1000 - needValue(world, id, 'warmth');
+  const worst = Math.max(0, ...Object.values(n?.values ?? {}).map((v) => 1000 - v));
+  return { physical: Math.min(1000, Math.max(lost, (s?.wounds ?? 0) * 200, exposure)), survival: worst };
+}
+
+import { maxVigor as tensionMaxVigor } from './survival.ts';

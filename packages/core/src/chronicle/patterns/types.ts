@@ -36,6 +36,8 @@ export interface Accept {
 }
 
 export interface PatternDef {
+  /** Optional read-only projection for the observational Director; never renders prose. */
+  openState?(th: ChronicleThread, dc: DetectCtx, p: PatternParams): import('./open.ts').OpenProjection;
   /** Extra entry keys this pattern writes itself beyond `<id>`, `.closed` and `.truth` (templates' `on`). */
   entryKeys?: readonly string[];
   id: string;

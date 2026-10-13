@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { loadContentOrThrow } from '@coulee/content';
+import { director } from '@coulee/core';
 import {
   HELP,
   PlaySession,
@@ -13,6 +14,8 @@ import {
 } from '@coulee/play';
 import { sessionCLI } from './play-session.ts';
 export interface PlayOptions {
+  directorPersonality?: string;
+  directorForesight?: string;
   compact?: boolean;
   text?: boolean;
   jsonl?: boolean;
@@ -51,6 +54,10 @@ export async function playCLI(o: PlayOptions, command?: string): Promise<void> {
       )
     : PlaySession.create(content, {
         source: o.scenario,
+        director: director.directorSettings({
+          personality: o.directorPersonality as 'land_itself',
+          foresight: o.directorForesight as director.Foresight,
+        }),
         pc: { kit: o.kit ?? 'newcomer' },
         seed: Number(o.seed),
         ...(o.worldSeed === undefined ? {} : { worldSeed: Number(o.worldSeed) }),
