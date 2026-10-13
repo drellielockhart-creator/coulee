@@ -570,3 +570,214 @@ After the final boundary guards and shared inventory-pass optimization, the dedi
 and invariants also passed. Full gate: `runs/scratch/m5-slice2d-check.log`; targeted final
 suite: `runs/scratch/m5-slice2d-region.log`; complete distributions and paired timings:
 `runs/scratch/m5-slice2d-summary.json` (`m5-slice2d-report.mjs`). No commits.
+
+## Slice 2e status — fidelity recovery and county benchmark, 2026-10-13
+
+**The four-deliberation approximation is withdrawn. Daily ownership/catch-up remains;
+its physical and decision substeps now use the hourly rules. This is a fidelity-first
+batched executor, not a validated cheap daily mind model. County release remains gated.**
+
+### Root cause and implementation
+
+The 2d physical kernel already calls `needs.hourlyLedger` through `itineraryNeedsHour`,
+then the ordinary water, preparation, meal, nutrition and storage executors. Its cursor
+settles `[through, boundary)`; both comparisons end at the same completed midnight. There
+was no missing second physiology pass or extra daily sleep/drink credit. The mismatch
+was the **decision clock**: on 20/24 hours, `regionPsycheHour` replaced arbitration with
+only rest<250/hunger<400 fallback urges. Otherwise it cleared the choice and let the
+calendar win, including its sleep block. Those hours also skipped thought aging,
+anxiety/discharge and defenses. The changed sleep/labor schedule feeds different
+expenditure into the correct ledger; water suppresses sipping while asleep and meals
+use that changed energy demand. Social encounters were already hourly, but changed
+wakefulness/venue/activity and defenses changed their opportunities and memories.
+
+The daily batch now resolves the same authorized routine/arbitration at each canonical
+hour before activity/social/provisions. Sleep remains a real scheduled/chosen activity;
+there is no fitted rest offset, synthetic drinking credit, pantry correction or social
+rate multiplier. Integer hourly rounding, clamping, sleep quality and prior-hour activity
+semantics remain shared with T1. Named memory/opinion upkeep and compartment behavior
+retain the existing owner filters. The cheaper approximation needs a new design and
+validation before being reinstated.
+
+County profiling also exposed avoidable batch overhead. Household readiness projections
+copied the whole county temperature/hearth tables into their small private world, and
+then copied those tables again in every projected heat hour. Regional projections now
+retain only their actual places and fires. The first T2 profile then isolated the same
+problem in preparation: every projected hour expired every county fire. The projection
+now copies only fires at its own places. Regional household meal membership uses the existing
+household member list instead of scanning every county actor. Hearth ownership is indexed
+once per heat pass, and daily actor/household/place selections are cached only within one
+physical substep (actor lists are returned as copies because care sorts them). No cache
+is serialized; subsequent hours and nested scopes rebuild their membership.
+
+### Reproduction and coverage
+
+The tracked manual harnesses are `packages/cli/test/bench/region-{fixture,fidelity,scale}.ts`.
+Run fidelity with `node --import tsx packages/cli/test/bench/region-fidelity.ts <output> 50`.
+Run scale with `node --expose-gc --import tsx packages/cli/test/bench/region-scale.ts <output> 14 100 24 2`;
+`REGION_PROFILE=1` enables CPU profiles around daily flushes (separate from timing runs).
+Outputs belong under `runs/scratch/`. The fixture uses ordinary scenario initialization
+and authored-sheet census capture: 40 Iron Ford actors at T0, two nearby settlements
+with 400 T1 actors, and twelve distant settlements with 2,400 T2 actors. Each added
+settlement has 100 independent two-adult farm households, real homes/fields, clothing,
+water, pantries and named minds. It deliberately reuses the authored farm templates,
+not town-generation QA. It is a synthetic farm-heavy cost fixture, not a generated county
+or representative town economy; there are no invented anonymous aggregate consumers.
+
+Scale pairs use the same process, seeds 41/42 and opposite AB/BA execution orders,
+48 hours warm-up including grace and a first daily flush, then a complete measured day.
+The T1 control pins all remote actors. Timing includes the full world, Chronicle and
+region boundaries. Heap is absolute post-GC process heap before serialization (including content/runtime),
+not a delta against a preceding live world; saves are packed
+World JSON plus gzip size, not complete PlaySession/worker/device measurements. CPU
+profiles use inspector sampling restricted to descendants of `settleDailySites`.
+
+A new four-day regression compares completed midnights against pinned T1, checking actual
+T2 ownership, every farm need, nutrition, water/ration/cash state, pantry quantities and
+spoilage, and interaction counts. Existing tests retain mid-absence restore, repeated and
+reversed promotion, one-owner decay/death, headless replay and tactical boundary coverage.
+
+### T2 profile and optimization checks
+
+A separately profiled, warmed daily flush in the seed-42 / 2,840-actor fixture sampled **40.264 s**
+inside `settleDailySites`. Before scoping forecast fires it sampled **80.655 s**. These are
+instrumented samples on a contended host, not the uninstrumented paired timings below.
+The profile-only scratch harness admits ownership at minute 1440 without replaying the
+grace day, warms one full daily batch, then samples the next flush; it is not used for
+fidelity or the paired speed result (`runs/scratch/region-t2-profile.ts`).
+Top ten self-time buckets (percent of samples under the T2 call tree; GC outside that
+call tree is excluded):
+
+| Function / file | Sampled self ms | Share |
+| --- | ---: | ---: |
+| `idsOf`, `ids.ts` | 7,588 | 18.85% |
+| `heatPlaces`, `needs/thermal.ts` | 2,792 | 6.93% |
+| `rowsOf`, `ids.ts` | 1,299 | 3.23% |
+| `withInventoryPass`, `items/api.ts` | 1,253 | 3.11% |
+| callbacks in `social/api.ts` (mostly `areKin`) | 1,124 | 2.79% |
+| `proposeBeliefUrges`, `belief/api.ts` | 1,119 | 2.78% |
+| `civilFromDays`, `time.ts` | 980 | 2.43% |
+| `inventoryIndex`, `items/api.ts` | 791 | 1.96% |
+| projection callbacks in `provisions/planner.ts` | 771 | 1.91% |
+| `resolveActivityPlace`, `activity/api.ts` | 706 | 1.75% |
+
+The remaining enumeration hot spots include co-present suspicion proposals scanning
+all actors, nearest-water queries scanning all places, forecast hourly physiology and
+local fae-window candidate scans. The present batch still pays for 24 complete decisions
+and physical/social substeps; these costs cannot be described as a cheap daily summary.
+The exact optimization check compares the final code against HEAD with only the fidelity
+fix applied: 14-day regional complete-world hashes match at seeds 1
+(`132510f9563d5e90`) and 42 (`6309fcaa3aff3fa5`). This covers all four index/projection
+optimizations, not just final outcome bands.
+
+Direct legacy comparison against this worktree's HEAD, with identical content:
+
+| World | Seed / hours | Before = after hash |
+| --- | --- | --- |
+| Iron Ford | 42 / 240 | `32faf2bddc0cd8da` |
+| gen:town | 7 / 72 | `23a3780724acc6b9` |
+| gen:town | 42 / 72 | `384c0a97ab2c0f4c` |
+| gen:town | 131 / 72 | `c6e44522093ad7fb` |
+
+These compare current HEAD, rather than the earlier 2d integration baseline. No golden
+refresh or commit. Raw artifacts: `runs/scratch/region-{before,after,scale}.json`,
+`region-t2{,-before-fire-scope}.cpuprofile`, `region-legacy-compare.log`,
+`region-optimization-compare.log`, and `region-final-kernel-tests.log` (65/65 focused tests).
+
+**Pantry metric correction:** the original 2d harness is still available in the 2d
+worktree's `runs/scratch/m5-slice2d-gates.ts`. Its `pantry()` multiplies each food's
+**per-unit** kcal by `qty * servings - partial`, without dividing by servings, and
+omits `foodPartialPm`. That weights foods by serving count and does not measure kcal.
+The new harness uses `(qty * servings - partial - foodPartialPm/1000) * kcal/servings`
+across the household pantry, plus a separate whole-unit diagnostic. The original
+**18 pp** is retained above as a historical result, not silently relabeled. Repeating
+50 seeds on unmodified HEAD with the corrected kcal formula gives **2 pp**, means
+**56.361% T1 → 53.718% old T2**. The other seven reproduced baseline bands and means
+match 2d exactly. The remaining real pantry mean difference tracks the changed activity
+energy demand; the corrected kernel eliminates that difference as well as the band gap.
+
+### Final fidelity gate: 50 seeds × 14 days
+
+The same long-road fixture, initial 24-hour grace, PC focus, canonical final midnight and
+bins from 2d are used. There are two daily-owned actors in every candidate and none in
+its pinned control. All eight bands pass the ≤5 pp criterion:
+
+| Outcome | Before: largest band gap | After T1 mean → T2 mean | After gap |
+| --- | ---: | --- | ---: |
+| Hunger | 4 pp | 813.24 → 813.24 | 0 pp |
+| Rest | 47 pp | 501.80 → 501.80 | 0 pp |
+| Warmth | 0 pp | 1000 → 1000 | 0 pp |
+| Thirst | 31 pp | 622.20 → 622.20 | 0 pp |
+| Directed affection | 9 pp | 31.67 → 31.71 | 1 pp |
+| Farm interactions / 14 days | 10 pp | 64.04 → 64.04 | 0 pp |
+| Household cash | 0 pp | 2500 → 2500 cents | 0 pp |
+| Net pantry depletion, actual kcal | 2 pp (2d's invalid weighted metric: 18 pp) | 56.361% → 56.361% | 0 pp |
+
+Physical/interaction/cash/pantry observations match for every seed, not only in aggregate.
+Affection retains a small named-mind difference; complete social/belief state equality is
+not claimed. All final integer checks pass. The existing restore/contact/replay tests
+remain the durable-state gate; these distribution results do not establish winter balance,
+changing farm cash, dense settlement social behavior or a cheaper approximation's fidelity.
+
+### Final county scale gate
+
+Uninstrumented same-process pairs, 48-hour warm-up + 24 measured hours each:
+
+| Seed / order | Mode | T0 / T1 / T2 actors at end | ms/game-hour | Packed / gzip save MB |
+| --- | --- | --- | ---: | --- |
+| 41 / first | Forced T1 | 40 / 2800 / 0 | 1768.103 | 114.307 / 23.964 |
+| 41 / second | T2 enabled | 40 / 400 / 2400 | 1604.345 | 114.256 / 24.164 |
+| 42 / first | T2 enabled | 40 / 600 / 2200 | 1609.733 | 114.933 / 24.350 |
+| 42 / second | Forced T1 | 40 / 2800 / 0 | 1828.727 | 114.845 / 24.119 |
+
+Seed 42 selects 400 T1 / 2,400 T2 actors but processes one extra 200-person site
+(`bench_3`) hourly because a resident becomes a persecution target. The existing
+whole-site eligibility pin is honored; no actor cap is silently overridden for timing.
+Diagnostic: `runs/scratch/region-scale-pins.json`.
+
+Median **1798.415 → 1607.039 ms/h**. Paired improvements are **9.26% and 11.98%**,
+median **10.62% faster**. The fixture is large enough to measure a batching saving, but
+**the scale budget fails**: T2-enabled total cost is **321× the eventual <5 ms/h desktop
+proxy**. The current coarse boundary costs 28.5–31.6 seconds per simulated day, roughly
+190–211× the plan's 150 ms/day T2 budget. These are desktop/shared-host measurements;
+no phone performance is asserted.
+
+The system wrapper measures hourly owners and the remainder of `step` includes the
+region boundary. Dividing by actual populations gives **0.656–0.659 ms/actor-hour for
+T0/T1 jointly** and **0.540–0.548 ms/actor-hour for T2** (about 13 ms/actor-day).
+These are amortized inclusive costs: T0 and T1 share the hourly executor in this fixture;
+Chronicle/global work is charged to that bucket, and region-selection/clock overhead is
+included in the T2 remainder. They are not isolated marginal actor costs. The forced-T1
+world averages 0.622–0.643 ms/actor-hour excluding the region remainder.
+
+Heap measured in fresh processes at the same seed-41/day-three boundary is **931.661 MB
+forced T1**, **932.803 MB T2** (absolute post-GC process heap before serialization,
+including content/runtime). The T1 number is the first paired case; T2 was repeated alone
+with the optional final `T2` argument to the benchmark. Later paired heap readings around
+1.17 GB include earlier harness serialization buffers and must not be read as the size
+of an isolated simulation. Separate result: `runs/scratch/region-scale-isolated-t2.json`.
+T2 therefore provides **no material heap saving**; even this short run is about 7.8× the
+120 MB worker budget. Gzip World saves around **24 MB exceed the 15 MB hard ceiling**;
+these exclude complete PlaySession/generated-content persistence. Serialization temporarily
+pushes the benchmark process above 2 GB. This is not a release-ready save or phone claim.
+
+### Verification, files, and remaining
+
+**`VITEST_MAX_WORKERS=2 just check` GREEN: 87 files / 936 tests**, all package/script
+typechecks, 248 invariant-checked core files and 114 validated content files. Vitest took
+1001.98 seconds. The Iron Ford golden passed unchanged. Log:
+`runs/scratch/region-check-final.log`. The manual harness's reporting/isolated-case options
+were additionally checked with Biome and the CLI typecheck after that gate started.
+
+Files: `packages/core/src/psyche/system.ts`, `region/processing.ts`, `needs/thermal.ts`,
+`provisions/{meals,planner}.ts`; `packages/cli/test/region.test.ts`;
+`packages/cli/test/bench/region-{fixture,fidelity,scale}.ts`; this plan. No commits.
+
+Remaining: a cheaper daily decision/physical kernel that retains the measured
+bands; co-present actor/site/water/kin query indexes; smaller forecast/event/Explain work;
+named-state and log/save compaction without losing durable evidence; bounded worker yields;
+generated census and representative dense-town/cross-site economy fixtures; year/winter
+balance and fair repeated-return playtests; actual phone/worker/save/resume measurements.
+Do not reinstate the four-deliberation shortcut or call this county-feasible on the strength
+of a 10.62% relative saving. Slice 2's fidelity gate passes for this fixture, while its
+absolute scale/heap/save and broader release gates remain open.

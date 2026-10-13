@@ -15,10 +15,18 @@ export interface ProcessingState {
 }
 
 /** Execution scopes are synchronous, never saved, and never shared between worlds. */
-const scopes = new Map<World, ReadonlySet<string>>();
+/** Membership is stable during one physical substep; lists are rebuilt at the next hour.
+ * Actor liveness, position and mutable inventory are always read live by executors. */
+interface ProcessingScope {
+  sites: ReadonlySet<string>;
+  actors?: ActorId[];
+  households?: World['households'][number][];
+  places?: World['places'][number][];
+}
+const scopes = new Map<World, ProcessingScope>();
 export function withDailySites<T>(world: World, sites: ReadonlySet<string>, run: () => T): T {
   const previous = scopes.get(world);
-  scopes.set(world, sites);
+  scopes.set(world, { sites });
   try {
     return run();
   } finally {
@@ -32,7 +40,7 @@ export function isDailyProcessing(world: World): boolean {
 export function processesSite(world: World, site: string): boolean {
   if (!world.region) return true;
   const scope = scopes.get(world);
-  return scope ? scope.has(site) : !world.region.processing?.sites?.[site];
+  return scope ? scope.sites.has(site) : !world.region.processing?.sites?.[site];
 }
 export function actorSite(world: World, id: number): string {
   const actor = world.actors[id];
@@ -48,7 +56,11 @@ export function processesPlace(world: World, id: number): boolean {
   return !world.region || processesSite(world, world.places[id]?.siteId ?? '');
 }
 export function processingActorIds(world: World): ActorId[] {
-  return idsOf<ActorId>(world.actors).filter((id) => processesActor(world, id));
+  const scope = scopes.get(world);
+  if (scope?.actors) return [...scope.actors];
+  const actors = idsOf<ActorId>(world.actors).filter((id) => processesActor(world, id));
+  if (scope) scope.actors = [...actors];
+  return actors;
 }
 export function processingActors(world: World) {
   return processingActorIds(world)
@@ -56,10 +68,18 @@ export function processingActors(world: World) {
     .filter((a) => a !== undefined);
 }
 export function processingHouseholds(world: World) {
-  return rowsOf(world.households).filter((h) => processesHousehold(world, h.id));
+  const scope = scopes.get(world);
+  if (scope?.households) return scope.households;
+  const households = rowsOf(world.households).filter((h) => processesHousehold(world, h.id));
+  if (scope) scope.households = households;
+  return households;
 }
 export function processingPlaces(world: World) {
-  return rowsOf<PlaceId, World['places'][number]>(world.places).filter((p) => processesPlace(world, p.id));
+  const scope = scopes.get(world);
+  if (scope?.places) return scope.places;
+  const places = rowsOf<PlaceId, World['places'][number]>(world.places).filter((p) => processesPlace(world, p.id));
+  if (scope) scope.places = places;
+  return places;
 }
 /** One owner per entire site: shared pantries, venues and local transfers cannot split. */
 export function processingBuckets(world: World): {

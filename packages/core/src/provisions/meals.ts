@@ -241,9 +241,13 @@ export function membersOf(world: World, holder: Holder): ActorId[] {
       ? world.actors[holder.actorId]?.alive
         ? [holder.actorId]
         : []
-      : rowsOf(world.actors)
-          .filter((a) => a.alive && a.householdId === holder.householdId)
-          .map((a) => a.id);
+      : world.region && world.households[holder.householdId]
+        ? [...(world.households[holder.householdId]?.memberIds ?? [])]
+            .filter((id) => world.actors[id]?.alive && world.actors[id]?.householdId === holder.householdId)
+            .sort((a, b) => a - b)
+        : rowsOf(world.actors)
+            .filter((a) => a.alive && a.householdId === holder.householdId)
+            .map((a) => a.id);
   memo?.set(key, members);
   return members;
 }

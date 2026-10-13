@@ -141,15 +141,19 @@ export function planReadiness(
     needs: {
       ...world.needs,
       byActor: {},
-      hearthLit: { ...world.needs.hearthLit },
-      placeTempF: { ...world.needs.placeTempF },
+      // A regional household projection contains only its own places. Copying the county's
+      // temperature table here makes every projected heat hour copy thousands of cold rows.
+      hearthLit: world.region ? {} : { ...world.needs.hearthLit },
+      placeTempF: world.region ? {} : { ...world.needs.placeTempF },
     },
     activity: { ...world.activity, byActor: {} },
     provisions: {
       ...world.provisions,
       nutrition: {},
       households: Object.create(null),
-      fires: Object.fromEntries(rowsOf(world.provisions.fires).map((fire) => [fire.placeId, { ...fire }])),
+      fires: world.region
+        ? {}
+        : Object.fromEntries(rowsOf(world.provisions.fires).map((fire) => [fire.placeId, { ...fire }])),
       pendingMeals: [],
     },
   };
@@ -161,6 +165,18 @@ export function planReadiness(
     const actor = world.actors[id];
     const pid = 'householdId' in holder ? world.households[holder.householdId]?.homePlaceId : actor?.placeId;
     if (pid !== undefined && world.places[pid]) projection.places[pid] = world.places[pid];
+  }
+  if (world.region) {
+    projection.needs.hearthLit ??= {};
+    projection.needs.placeTempF ??= {};
+    for (const place of rowsOf(projection.places)) {
+      const lit = world.needs.hearthLit?.[place.id];
+      const temperature = world.needs.placeTempF?.[place.id];
+      if (lit !== undefined) projection.needs.hearthLit[place.id] = lit;
+      if (temperature !== undefined) projection.needs.placeTempF[place.id] = temperature;
+      const fire = world.provisions.fires[place.id];
+      if (fire) projection.provisions.fires[place.id] = { ...fire };
+    }
   }
   for (const stack of stacks)
     projection.items.stacks[stack.id] = {

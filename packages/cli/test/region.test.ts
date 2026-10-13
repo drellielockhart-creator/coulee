@@ -696,3 +696,40 @@ describe('M5 coarse consequences', () => {
     expect(sim.world.social.memories[id]?.salience).toBe(social.decayMemorySnapshot(memory.salience, false, policy));
   });
 });
+
+describe('M5 daily kernel decision clock', () => {
+  it('matches settled hourly physiology, water, meals and social opportunities through four days', () => {
+    const hourly = fresh(3),
+      daily = fresh(3);
+    const ids = ['cedar_farm_martha', 'cedar_farm_jonas'].map((key) => actorByKey(hourly, key));
+    const counts = [0, 0];
+    for (const [i, sim] of [hourly, daily].entries()) {
+      longRoad(sim);
+      if (i === 0)
+        for (const id of idsOf<ActorId>(sim.world.actors)) region.setRegionRelevance(sim.world, id, 0, true, 'control');
+      boundary(sim);
+      sim.sink = (event) => {
+        if (event.kind === 'social.interaction' && event.roles.some((role) => ids.includes(role.actor)))
+          counts[i] = (counts[i] ?? 0) + 1;
+      };
+    }
+    for (let day = 0; day < 4; day++) {
+      hours(hourly, 24);
+      hours(daily, 24);
+      expect(region.processingBuckets(daily.world).daily.actors).toEqual(ids);
+      for (const id of ids) {
+        expect(daily.world.needs.byActor[id]?.values).toEqual(hourly.world.needs.byActor[id]?.values);
+        expect(daily.world.provisions.nutrition[id]).toEqual(hourly.world.provisions.nutrition[id]);
+        const household = daily.world.actors[id]?.householdId;
+        if (household === undefined) throw new Error('Missing household');
+        expect(daily.world.provisions.households[household]).toEqual(hourly.world.provisions.households[household]);
+        const food = (sim: Sim) =>
+          items
+            .stacksDeep(sim.world, items.pantryOf(household))
+            .map(({ stack }) => [stack.defId, stack.qty, stack.partial, stack.foodPartialPm ?? 0, stack.spoilage]);
+        expect(food(daily)).toEqual(food(hourly));
+      }
+      expect(counts[1]).toBe(counts[0]);
+    }
+  }, 30_000);
+});
