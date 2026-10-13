@@ -2,6 +2,7 @@ import {
   type ActorId,
   activity,
   advanceUntil,
+  asGameMinute,
   belief,
   CLOCK_VERSION,
   type Command,
@@ -12,6 +13,7 @@ import {
   hashValue,
   instantOf,
   items,
+  makeContext,
   needs,
   provisions,
   psyche,
@@ -28,6 +30,7 @@ import { availableActions, validateCommand } from './actions.ts';
 import { moneyReason } from './describe.ts';
 import { addressedToPC, alertForEvent, type Interrupt, perceivedEvents, provisionsAlert } from './interrupts.ts';
 import { packKnowledge, unpackKnowledge } from './knowledge.ts';
+import { shortMinutes } from './minutes.ts';
 import { claimsOf, claimText, obligationsOf, obligationText } from './obligations.ts';
 import {
   eventView,
@@ -49,6 +52,8 @@ export interface LogStep {
   end: number;
   atInstant?: number;
   endInstant?: number;
+  atMinute?: number;
+  endMinute?: number;
   seq?: number;
 }
 export interface LogHeader {
@@ -158,7 +163,7 @@ export class PlaySession {
           contentHash: this.base.meta.hash,
           clockVersion: CLOCK_VERSION,
           engineVersion: 'm6-slice1',
-          rulesVersion: 1,
+          rulesVersion: 2,
           sourceHash: hashValue(this.spec),
           ...(this.branched ? { branched: true } : {}),
         },
@@ -234,6 +239,7 @@ export class PlaySession {
       knowledgeStart = this.knowledge.length;
     const before = this.hash,
       at = this.sim.world.time;
+    const atMinute = activity.minuteBudget(this.sim.world, this.playerId).spent;
     let detail: unknown;
     let routePreview: RoutePreview | undefined;
     const interrupts: Interrupt[] = [];
@@ -429,7 +435,9 @@ export class PlaySession {
       // Out on open ground with nothing to sleep in, a bed means the walk back to her lodgings.
       if (bedDef?.asleep && bedDef.at === 'home' && previous.self.camp.afield && !previous.self.camp.bedding)
         notice = 'You carry nothing to sleep in out here, so you head back to your lodgings.';
-      interrupts.push(...this.tick([command], false).filter((a) => a.pause));
+      interrupts.push(
+        ...this.tick([command], false, shortMinutes(this.sim, command) ?? undefined).filter((a) => a.pause),
+      );
       const recent = eventsSince(this.sim.world.log, start);
       const rejected = recent.find(
         (e) =>
@@ -519,7 +527,7 @@ export class PlaySession {
       (e) => e.kind === 'social.interaction' && !interrupts.some((i) => i.eventId === e.id),
     );
     this.changes = {
-      elapsed: this.sim.world.time - at,
+      elapsed: this.sim.world.time - at + activity.minuteBudget(this.sim.world, this.playerId).spent - atMinute,
       money: this.money.slice(moneyStart),
       needs: next.self.needs.list.flatMap((n) => {
         const old = previous.self.needs.list.find((p) => p.id === n.id);
@@ -536,13 +544,15 @@ export class PlaySession {
       after: this.hash,
       at,
       end: this.sim.world.time,
+      atMinute,
+      endMinute: activity.minuteBudget(this.sim.world, this.playerId).spent,
     });
     return {
       ok: true,
       ...(warning ? { warning } : {}),
       ...(notice ? { notice } : {}),
       ...(stopped ? { stopped } : {}),
-      elapsedMinutes: this.sim.world.time - at,
+      elapsedMinutes: this.sim.world.time - at + activity.minuteBudget(this.sim.world, this.playerId).spent - atMinute,
       interrupts,
       observation: this.observe(mode),
       ...(detail === undefined ? {} : { detail }),
@@ -668,11 +678,18 @@ export class PlaySession {
       mode,
     );
   }
-  private tick(commands: Command[], idle: boolean): Interrupt[] {
+  private tick(commands: Command[], idle: boolean, minutes?: number): Interrupt[] {
     const { world: w, content: c } = this.sim,
       pc = this.playerId;
     const prior = w.actors[pc]?.placeId;
     const lastId = w.log.lastId;
+    const spentBefore = activity.minuteBudget(w, pc).spent;
+    if (minutes === undefined) {
+      const urge = commands.find((c) => c.kind === 'core.urge');
+      const remaining =
+        urge?.kind === 'core.urge' && urge.data.urge.kind === 'activity' ? urge.data.urge.activityId : undefined;
+      activity.settleMinuteActivity(w, pc, remaining);
+    }
     // Physiology runs first, using the previous activity. Read the same ledger before stepping.
     const kcalBurned = needs
       .viewNeedsActor(w, c, pc, { perspective: pc, omniscient: false, includeExplain: true, recentChronicle: 0 })
@@ -735,7 +752,35 @@ export class PlaySession {
         household = h;
       }
     };
-    step(this.sim, actual);
+    if (minutes === undefined) {
+      step(this.sim, actual);
+      activity.clearMinuteBudget(w, pc);
+    } else {
+      const ctx = makeContext(w, c, actual, this.sim.sink);
+      // Different sub-hour orders draw independently, while cooldowns/calendar stay hourly.
+      const shortCtx = {
+        ...ctx,
+        rng: (stream: Parameters<typeof ctx.rng>[0], key: number) =>
+          ctx.rngAt?.(stream, asGameMinute(w.time + spentBefore), key) ?? ctx.rng(stream, key),
+      };
+      for (const command of ctx.commands)
+        ctx.emit({
+          kind: 'core.command',
+          roles: [{ actor: command.actorId, role: 'agent' }],
+          visibility: 'private',
+          data: { command },
+        });
+      const command = commands[0];
+      const walk =
+        command?.kind === 'core.urge' && command.data.urge.kind === 'activity' ? command.data.urge.placeId : undefined;
+      // A short order wakes the actor and leaves them at leisure at their destination.
+      psyche.arbitrateShortCommand(w, shortCtx, pc, minutes);
+      activity.shortAct(w, shortCtx, pc, minutes, walk);
+      if (command?.kind === 'core.urge' && command.data.urge.kind === 'interaction')
+        social.executeSocialCommand(w, shortCtx, pc);
+      provisions.executeProvisionCommands(w, shortCtx);
+      activity.spendMinutes(w, pc, Math.min(minutes, 60 - spentBefore), walk === undefined ? 'idle_at_home' : 'walk');
+    }
     this.sim.sink = undefined;
     const recent = eventsSince(w.log, lastId);
     // Perception and alert classification are shared with the web worker (ADR 0002 §3).
@@ -772,7 +817,7 @@ export class PlaySession {
         (n, e) => n + (e.kind === 'provisions.meal' && e.data.actorId === pc ? e.data.kcal : 0),
         0,
       ),
-      kcalBurned,
+      kcalBurned: minutes === undefined ? kcalBurned : 0,
       spoilageUnits: recent.reduce(
         (n, e) =>
           n +
@@ -809,10 +854,19 @@ export class PlaySession {
         .map((e) => e.id),
       storyBeats: recent.filter((e) => e.kind === 'chronicle.pattern_matched').map((e) => e.id),
       deaths: seen.filter((e) => e.kind === 'needs.died').map((e) => e.id),
-      idleMinutes: idle ? 60 : 0,
-      decidingMinutes: idle ? 0 : 60,
+      idleMinutes: idle ? 60 - spentBefore : 0,
+      decidingMinutes: idle ? 0 : (minutes ?? 60 - spentBefore),
       decidingTimeBasis: 'simulation',
     });
+    if (minutes !== undefined && spentBefore + minutes >= 60) {
+      alerts.push(...this.tick([], false));
+      const carried = spentBefore + minutes - 60;
+      if (carried > 0) {
+        const command = commands[0];
+        const walking = command?.kind === 'core.urge' && command.data.urge.kind === 'activity';
+        activity.spendMinutes(w, pc, carried, walking ? 'walk' : 'idle_at_home');
+      }
+    }
     return alerts;
   }
   save(): string {
@@ -878,7 +932,7 @@ export class PlaySession {
   }
   static replay(content: ContentBundle, log: ReplayLog, mode: ObservationMode = 'fair'): PlaySession {
     const [header, ...steps] = log;
-    if (header.rulesVersion !== undefined && header.rulesVersion !== 1)
+    if (header.rulesVersion !== undefined && header.rulesVersion !== 2)
       throw new Error('Unsupported replay rules version');
     if (header.sourceHash !== undefined && header.sourceHash !== hashValue(header.spec))
       throw new Error('Replay source mismatch');
@@ -895,7 +949,9 @@ export class PlaySession {
         !result.ok ||
         session.hash !== entry.after ||
         session.sim.world.time !== entry.end ||
-        (entry.endInstant !== undefined && instantOf(session.sim.world) !== entry.endInstant)
+        (entry.endInstant !== undefined && instantOf(session.sim.world) !== entry.endInstant) ||
+        (entry.endMinute !== undefined &&
+          activity.minuteBudget(session.sim.world, session.playerId).spent !== entry.endMinute)
       )
         throw new Error('Replay diverged after command');
     }

@@ -22,7 +22,7 @@
  * slight), never into ostentatious kindness. Social executes the defense urge with the
  * interactions of its `defense_interactions` row, which must name hostile/exposing acts.
  */
-import { currentActivity, walkMinutes } from '../activity/api.ts';
+import { currentActivity, minuteBudget, walkMinutes } from '../activity/api.ts';
 import { formProjection, suspicionOf } from '../belief/api.ts';
 import type { ContentBundle, DefenseId } from '../content.ts';
 import type { Explain } from '../explain.ts';
@@ -163,7 +163,7 @@ function realDrives(content: ContentBundle): Set<string> {
 // One actor-hour
 // ---------------------------------------------------------------------------------------------
 
-export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?: TagIndex): void {
+export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?: TagIndex, minutes?: number): void {
   const m = mindFor(world, ctx, actorId, idx);
   if (!m) return;
   const { p, content } = m;
@@ -171,12 +171,12 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
   const prevChosen = p.chosen;
 
   // 1. Thoughts.
-  const external = externalProposals(m);
+  const external = minutes === undefined ? externalProposals(m) : [];
   const commands = commandProposals(m, ctx.commands);
   const candidates: Candidate[] = [
     ...external.map((e) => proposalCandidate(e, 'ext')),
     ...commands.map((c) => proposalCandidate(c, 'cmd')),
-    ...ruleCandidates(m, external),
+    ...(minutes === undefined ? ruleCandidates(m, external) : []),
   ];
   for (const c of candidates) {
     const r = mergeCandidate(world, m, c, ctx.now);
@@ -337,6 +337,22 @@ export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?
   } else {
     p.chosen = null;
     p.lastMode = 'none';
+  }
+
+  // Short orders hear the current voices; only their fraction of override anxiety accrues.
+  // Decay, defenses, habituation and discharge remain on the single hourly pass.
+  if (minutes !== undefined) {
+    const frustrated = p.thoughts
+      .filter((t) => !supports(t, chosenUrge ?? { kind: 'activity', activityId: 'idle_at_home' }))
+      .map((thought) => ({ thought, f: 0 }));
+    const liveFear = p.thoughts.filter((t) => t.voice === 'id' && t.drive !== undefined && fearDrives.has(t.drive));
+    const acc = accrueAnxiety(p, frustrated, fearDrives, liveFear);
+    addToPools(p, {
+      real: Math.round((acc.add.real * minutes) / 60),
+      neur: Math.round((acc.add.neur * minutes) / 60),
+      moral: Math.round((acc.add.moral * minutes) / 60),
+    });
+    return;
   }
 
   // 3. Frustration and anxiety.
@@ -674,7 +690,12 @@ function bookFrustration(
   if (res) {
     const liveFear = p.thoughts.filter((t) => t.voice === 'id' && t.drive !== undefined && fearDrives.has(t.drive));
     const acc = accrueAnxiety(p, frustrated, fearDrives, liveFear);
-    addToPools(p, acc.add);
+    const remaining = minuteBudget(m.world, m.actorId).remaining;
+    addToPools(p, {
+      real: Math.round((acc.add.real * remaining) / 60),
+      neur: Math.round((acc.add.neur * remaining) / 60),
+      moral: Math.round((acc.add.moral * remaining) / 60),
+    });
   }
   // Habituation counters, after accrual (it reads the previous count).
   const lostSet = new Set(frustrated.map((x) => x.thought));

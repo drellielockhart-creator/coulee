@@ -2,7 +2,7 @@
 
 `PlaySession.create(content, {source: 'iron_ford', seed: 42, pc: {name: 'Ellis Wayfarer', kit: 'newcomer', lodging: 'tavern'}})` creates a **new** ordinary actor and household before module initialization. `source` also accepts `gen:town` (optional independent `worldSeed`) or `{kind: 'generated', recipe}`. Logs normalize generated sources to a versioned recipe. Neither the base content nor the authored population is mutated.
 
-The public package is pure TypeScript with no IO. `observe('fair' | 'god')`, `act(Command | stableActionId)`, `advance(minutes | {time?, event?, maxMinutes?})`, `save()`, static `load(content, json)`, `fork()`, `commandLog`, `telemetry`, and static `replay(content, log)` are exported. Actions return validation failures without advancing time. Queries and agency/standing-order/ration settings are zero-time Commands; other actions occupy an hour because the current core clock is hourly. Activities can lock their duration. Effects of an activity enter the next hourly physiology pass, exactly as in core. An accepted intention can still fail a core check; `warning` reports resource rejection. Unavailable social intentions are rejected without advancing time, including a rollback if the target becomes unavailable during the hourly pass.
+The public package is pure TypeScript with no IO. `observe('fair' | 'god')`, `act(Command | stableActionId)`, `advance(minutes | {time?, event?, maxMinutes?})`, `save()`, static `load(content, json)`, `fork()`, `commandLog`, `telemetry`, and static `replay(content, log)` are exported. Actions return validation failures without advancing time. Queries and agency/standing-order/ration settings are zero-time Commands. Short walks, purchase lines and conversations spend a shared minute budget; other actions close the current hour. Activities can lock their duration. Physiology settles once at the hourly boundary, using the dominant activity of a partly spent hour. An accepted intention can still fail a core check; `warning` reports resource rejection. Unavailable social intentions are rejected without advancing time, including a rollback if the target becomes unavailable during the hourly pass.
 
 `commandLog` is a JSONL header followed by commands with before/after hashes and times. Replay checks each boundary, not only the final hash. Saves include the world, source/PC specification, compact PC event summaries, interned perspective-gated Explain trees, command log and deterministic telemetry. Forks clone the state and history. Loading restores the world without module initialization; new generated saves also retain prepared source content to avoid regenerating the town and rerunning QA. Older saves remain loadable.
 
@@ -70,7 +70,35 @@ Existing `core.urge` supplies movement, rest/sleep/work, and catalog interaction
 
 The web worker already uses `PlaySession`: player orders call `act`, speed ticks call `advance(60)`, and shared interrupts pause play. The storefront, trade preview and Kit Sheet food ledger use this package's host queries. Web command logs replay headlessly to the same hash; worker saves restore the session with mode preserved. The shell owns persistence and real-time pause coalescing; telemetry stays out of fair UI snapshots.
 
-Current limits: hourly action timing, automatic domestic supply errands only under actor authorization/standing orders, employment wages from existing occupations (no newcomer hiring loop), and no reserved cooked-meal inventory. Town v2 sources work; county v3 generation is not yet a playable session source. M5 slice 1 is in progress (`docs/impl/M5-PLAN.md`).
+Current limits: hourly long-action timing, automatic domestic supply errands only under actor authorization/standing orders, employment wages from existing occupations (no newcomer hiring loop), and no reserved cooked-meal inventory. Town v2 sources work; county v3 generation is not yet a playable session source. M5 slice 1 is in progress (`docs/impl/M5-PLAN.md`).
+
+## Minute budget (2026-10-13)
+
+`observation.time.t` remains the hourly simulation boundary. `minuteBudget.spent`
+and `.remaining` show the integer cursor within it; `ActResult.elapsedMinutes`
+reports minutes consumed. A two-minute walk, a five-minute purchase line, and a
+ten-minute chat leave 43 minutes. Pure queries and settings leave the cursor alone.
+The CLI prints remaining minutes and the web clock shows them alongside HH:MM.
+
+Walks up to 15 minutes use the existing feet/pace/load calculation. Buy/sell line
+costs and the walk cutoff live in `content/base/play-time/town.toml`; conversations
+use each interaction's existing `minutes` (under 60 is short). All other physical
+acts retain hourly resolution. `wait 1h`, a long act, or spending the budget closes
+the current hour. Overflow runs one tick and carries the excess: 58 minutes spent
+plus a five-minute purchase leaves 57 minutes in the next hour. `wait 1h` from
+minute 12 therefore passes 48 minutes. Short acts never rerun NPC hourly routines.
+
+Needs settle once against the dominant activity (remaining activity wins ties).
+Wages and production use only the remaining working minutes. Short-act results
+and interrupts are immediate, using the same fair perception and auto-pause
+policy as hourly acts. Tactical and regional clocks retain their existing paths.
+
+The optional cursor lives in `World.activity.minuteBudgets`, so saves, forks and
+hashes include it. Command logs add `atMinute`/`endMinute`; `--verify` checks their
+replay. Rules version 2 rejects explicitly versioned v1 command logs because their
+hour-per-command timing differs; saves with no cursor still load at the boundary.
+See [ADR 0002's amendment](../../design-docs/adr/0002-headless-play-and-agent-playtesting.md#amendment-2026-10-13-minute-budget)
+for costs, accounting and interrupt details.
 
 ## Agency and observation (2026-10-11 playtest fixes)
 

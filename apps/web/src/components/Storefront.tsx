@@ -5,7 +5,7 @@
  * side by side on Pocket and four at Desk. Buying or selling opens an order with a quantity and a
  * preview, from the planner's own projection, of weight, bulk, load band, days of food and purse
  * before anything is confirmed. Confirming sends the session the very Command the preview judged;
- * it takes its hour like any order. Every food number has its Explain one tap away (M4 #5).
+ * it spends minutes through the shared session. Every food number has its Explain one tap away (M4 #5).
  */
 import type { Storefront as Front, StoreLine, TradeOrder } from '@coulee/play';
 import { useEffect, useRef, useState } from 'react';
@@ -194,7 +194,7 @@ export function Counter({ front, wide }: { front: Front; wide: boolean }) {
         </div>
       ) : null}
       <p className="hint">
-        An order to buy or sell takes its hour at once. Figures come from the store’s Book and your own kit.
+        Each buy or sell line spends minutes from this hour. Figures come from the store’s Book and your own kit.
       </p>
     </div>
   );

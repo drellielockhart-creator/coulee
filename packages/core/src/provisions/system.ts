@@ -74,6 +74,73 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForec
   storageHour(world, ctx, undefined, hems, forecast?.vermin);
   if (hems && !forecast) commitHems(world, ctx, hems);
   preparationHour(world, ctx);
+  const ate = executeProvisionCommands(world, ctx);
+  waterHour(world, ctx);
+  shoppingHour(world, ctx);
+  const groups: Array<{
+    holder: Holder;
+    actors: ActorId[];
+    share: number;
+    cold: boolean;
+    standing: boolean;
+    cap: Record<number, number>;
+  }> = [];
+  const perPoint = ctx.content.needs.hunger?.intake?.per_point ?? 3;
+  for (const actor of rowsOf(world.actors)) {
+    if (tacticalPinned(world, actor.id)) continue;
+    if (
+      !canAct(world, actor.id) ||
+      awaitingMeal(world, actor.id, actor.placeId) ||
+      ate.has(actor.id) ||
+      world.provisions.nutrition[actor.id]?.lastMealAt === ctx.now
+    )
+      continue;
+    // Held for orders: the standing eat order feeds them from their own stores (the pack, and the
+    // household larder when home: what foodSeekingUrge offers), at the meals, unless nearly full.
+    const held = !authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok;
+    if (held && !standingOrders(world, actor.id).eat) continue;
+    const hunger = needValue(world, actor.id, 'hunger');
+    const holder = holderOfActor(world, actor.id),
+      meal = dueMeal(world, ctx.content, held ? { actorId: actor.id } : holder, ctx.cal.hour);
+    const urge = chosenUrge(world, actor.id);
+    const eating =
+      !onJourney(world, actor.id) && urge?.urge.kind === 'activity' && urge.urge.activityId === 'take_meal';
+    if (!meal && !eating) continue;
+    if (held && hunger >= (meal ? STANDING_FULL : 600)) continue;
+    // A chosen meal between scheduled meals is a snack; avoid a second full meal within three hours.
+    if (!meal && ctx.now - (world.provisions.nutrition[actor.id]?.lastMealAt ?? -10000) < 180) continue;
+    if (eating && autonomousProvisioning(world, actor.id) && boardMeal(world, ctx, actor.id)) continue;
+    const group = groups.find(
+      (g) =>
+        !held &&
+        !g.standing &&
+        'householdId' in holder &&
+        'householdId' in g.holder &&
+        holder.householdId === g.holder.householdId,
+    );
+    if (group) group.actors.push(actor.id);
+    else
+      groups.push({
+        holder,
+        actors: [actor.id],
+        share: meal?.share_pct ?? 30,
+        cold: meal?.cold ?? false,
+        standing: held,
+        // An order never gorges: the plate is sized to the room left in the hunger meter.
+        cap: held ? { [actor.id]: Math.max(0, (1000 - hunger) * perPoint) } : {},
+      });
+  }
+  const pass = { inventory: inventoryIndex(world), energy: new Map<string, number>() };
+  for (const group of groups)
+    serveMeal(world, ctx, group.holder, group.actors, group.share, group.cold, undefined, pass, undefined, {
+      ...(group.standing ? { capKcal: group.cap, standing: true } : {}),
+      forecastCheck: forecast?.preparation,
+    });
+  devicesHour(world, ctx);
+}
+
+/** Apply only explicit orders; no meals, wages, production, or hourly upkeep. */
+export function executeProvisionCommands(world: World, ctx: SimContext): Set<ActorId> {
   const ate = new Set<ActorId>();
   for (const cmd of commandsFor(ctx.commands, 'provisions.')) {
     const actor = world.actors[cmd.actorId];
@@ -207,66 +274,5 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForec
       }
     }
   }
-  waterHour(world, ctx);
-  shoppingHour(world, ctx);
-  const groups: Array<{
-    holder: Holder;
-    actors: ActorId[];
-    share: number;
-    cold: boolean;
-    standing: boolean;
-    cap: Record<number, number>;
-  }> = [];
-  const perPoint = ctx.content.needs.hunger?.intake?.per_point ?? 3;
-  for (const actor of rowsOf(world.actors)) {
-    if (tacticalPinned(world, actor.id)) continue;
-    if (
-      !canAct(world, actor.id) ||
-      awaitingMeal(world, actor.id, actor.placeId) ||
-      ate.has(actor.id) ||
-      world.provisions.nutrition[actor.id]?.lastMealAt === ctx.now
-    )
-      continue;
-    // Held for orders: the standing eat order feeds them from their own stores (the pack, and the
-    // household larder when home: what foodSeekingUrge offers), at the meals, unless nearly full.
-    const held = !authorizeAct(world, actor.id, { kind: 'consequential' }, { kind: 'own' }).ok;
-    if (held && !standingOrders(world, actor.id).eat) continue;
-    const hunger = needValue(world, actor.id, 'hunger');
-    const holder = holderOfActor(world, actor.id),
-      meal = dueMeal(world, ctx.content, held ? { actorId: actor.id } : holder, ctx.cal.hour);
-    const urge = chosenUrge(world, actor.id);
-    const eating =
-      !onJourney(world, actor.id) && urge?.urge.kind === 'activity' && urge.urge.activityId === 'take_meal';
-    if (!meal && !eating) continue;
-    if (held && hunger >= (meal ? STANDING_FULL : 600)) continue;
-    // A chosen meal between scheduled meals is a snack; avoid a second full meal within three hours.
-    if (!meal && ctx.now - (world.provisions.nutrition[actor.id]?.lastMealAt ?? -10000) < 180) continue;
-    if (eating && autonomousProvisioning(world, actor.id) && boardMeal(world, ctx, actor.id)) continue;
-    const group = groups.find(
-      (g) =>
-        !held &&
-        !g.standing &&
-        'householdId' in holder &&
-        'householdId' in g.holder &&
-        holder.householdId === g.holder.householdId,
-    );
-    if (group) group.actors.push(actor.id);
-    else
-      groups.push({
-        holder,
-        actors: [actor.id],
-        share: meal?.share_pct ?? 30,
-        cold: meal?.cold ?? false,
-        standing: held,
-        // An order never gorges: the plate is sized to the room left in the hunger meter.
-        cap: held ? { [actor.id]: Math.max(0, (1000 - hunger) * perPoint) } : {},
-      });
-  }
-  const pass = { inventory: inventoryIndex(world), energy: new Map<string, number>() };
-  for (const group of groups)
-    serveMeal(world, ctx, group.holder, group.actors, group.share, group.cold, undefined, pass, undefined, {
-      ...(group.standing ? { capKcal: group.cap, standing: true } : {}),
-      forecastCheck: forecast?.preparation,
-    });
-  devicesHour(world, ctx);
+  return ate;
 }

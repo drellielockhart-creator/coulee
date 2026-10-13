@@ -264,7 +264,7 @@ function alertsOf(r: ActResult): Alert[] {
 /** Stop the clock and say so: the UI's chosen speed must follow the worker's (11 §1.6 `❚❚!`). */
 function pauseSelf(): void {
   speed = 'paused';
-  accumulator = 0;
+  accumulator = (observation?.minuteBudget?.spent ?? 0) / 60;
   post({ type: 'paused' });
 }
 
@@ -302,11 +302,12 @@ function order(command: Command | string, label: string, id?: number): void {
   const isWait = typeof command !== 'string' && command.kind === 'activity.wait';
   const alerts = r.ok ? alertsOf(r).filter((a) => isWait || a.category !== 'arrival') : [];
   if (r.interrupts.length || ended()) pauseSelf();
-  // An order that took its hour starts the next hour's countdown afresh; a read leaves it be.
-  else if (changed) accumulator = 0;
+  // Resume the countdown from the saved cursor; a read leaves it be.
+  else if (changed) accumulator = (observation.minuteBudget?.spent ?? 0) / 60;
+  if (changed) post({ type: 'progress', t: sessionSimOf(session).world.time, frac: accumulator });
   if (id !== undefined) post({ type: 'acted', id, outcome });
   // Reads and refusals leave the world as it was: no new view model to send.
-  if (changed) snapshot(0, Math.ceil(r.elapsedMinutes / 60), alerts);
+  if (changed) snapshot(0, (sessionSimOf(session).world.time - at) / 60, alerts);
   postPlay();
 }
 
@@ -467,6 +468,7 @@ self.onmessage = async (ev: MessageEvent<ToWorker>) => {
           omniscient: mode === 'god',
         };
         observation = strip(session.observe(mode));
+        accumulator = (observation.minuteBudget?.spent ?? 0) / 60;
         digest = emptyDigest(sim.world.time);
         lastOutcome = null;
         money = [];

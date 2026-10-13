@@ -730,7 +730,7 @@ export function tradePreview(sim: Sim, pc: ActorId, order: TradeOrder): TradePre
     explain: foodLedger(p, c, pc).explain,
     note:
       order.kind === 'buy'
-        ? 'If bought now. The purchase takes its hour; the receipt shows what the keeper charged.'
+        ? 'If bought now. The purchase spends minutes; the receipt shows what the keeper charged.'
         : 'If sold now. The store pays below county retail for used goods.',
   };
 }

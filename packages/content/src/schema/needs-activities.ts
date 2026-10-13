@@ -489,7 +489,14 @@ export const HearthSchema = z.strictObject({
 });
 export type HearthDef = z.output<typeof HearthSchema>;
 
+/** Town-scale action costs; the simulation itself still advances in hours. */
+export const PlayTimingSchema = z.strictObject({
+  id: id(),
+  walk_limit_minutes: posInt().max(59),
+  purchase_minutes: posInt().max(59),
+});
 export const needsActivitiesDomains = {
+  playTiming: defineDomain({ dir: 'play-time', key: 'timing', schema: PlayTimingSchema }),
   survival_rules: defineDomain({ dir: 'needs', key: 'survival_rule', schema: SurvivalRuleSchema }),
   survival_tuning: defineDomain({ dir: 'needs', key: 'survival_tuning', schema: SurvivalTuningSchema }),
   needs: defineDomain({ dir: 'needs', key: 'need', schema: NeedSchema }),

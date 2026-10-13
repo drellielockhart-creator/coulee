@@ -464,3 +464,36 @@ function dailySocial(world: World, ctx: SimContext): void {
     }
   }
 }
+
+/** Resolve one commanded exchange without advancing anyone's hourly schedule. */
+export function executeSocialCommand(world: World, ctx: SimContext, id: ActorId): void {
+  const chosen = chosenUrge(world, id);
+  const actor = world.actors[id];
+  if (!actor || !chosen || chosen.voice !== 'command' || chosen.at !== ctx.now || !canAct(world, id)) return;
+  if (
+    !authorizeAct(
+      world,
+      id,
+      { kind: 'core.urge' },
+      { kind: 'command', issuer: ctx.commands.find((c) => c.actorId === id)?.issuer ?? { kind: 'player' } },
+    ).ok
+  )
+    return;
+  const pool =
+    venues(world)
+      .find((v) => v.placeId === actor.placeId)
+      ?.actorIds.filter(
+        (other) => world.actors[other]?.alive && canAct(world, other) && !isAsleep(world, ctx, other),
+      ) ?? [];
+  withInventoryPass(world, () =>
+    runUrge(
+      world,
+      ctx,
+      id,
+      chosen,
+      { placeId: actor.placeId, pool, present: new Set(pool) },
+      () => true,
+      () => {},
+    ),
+  );
+}

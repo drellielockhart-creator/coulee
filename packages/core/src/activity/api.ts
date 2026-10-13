@@ -6,6 +6,7 @@ import { grudgeTargetsOf } from '../belief/grudges.ts';
 import type { ContentBundle, ScheduleBlock } from '../content.ts';
 import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
 import { canAct } from '../needs/api.ts';
+import { authorizeAct } from '../psyche/api.ts';
 import { mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { areKin, familiarityOf, isEstranged, opinionLabel, opinionOf } from '../social/api.ts';
@@ -14,7 +15,7 @@ import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { blockActive, monthMatches, type Routine, routineFor } from './calendar.ts';
 import { requiredRow } from './definitions.ts';
-import type { ActorActivity } from './state.ts';
+import { type ActorActivity, recomputeOccupancy } from './state.ts';
 import { onJourney } from './travel.ts';
 
 export function currentActivity(world: World, actorId: ActorId): ActorActivity | undefined {
@@ -362,3 +363,77 @@ export function relocateForCare(
 export * from './tactical.ts';
 export * from './travel.ts';
 export * from './travel-rules.ts';
+
+/** Immediate local movement/transaction posture. This is actor-generic, never controller-gated. */
+export function shortAct(world: World, ctx: SimContext, actorId: ActorId, minutes: number, to?: PlaceId): void {
+  const actor = world.actors[actorId],
+    state = world.activity.byActor[actorId];
+  if (!actor || !state || !canAct(world, actorId)) return;
+  const command = ctx.commands.find((c) => c.actorId === actorId);
+  if (
+    !command ||
+    !authorizeAct(
+      world,
+      actorId,
+      { kind: command.kind },
+      { kind: 'command', issuer: command.issuer ?? { kind: 'player' } },
+    ).ok
+  )
+    return;
+  const from = actor.placeId;
+  if (to !== undefined) {
+    actor.placeId = to;
+    state.placeId = to;
+  }
+  state.activityId = 'idle_at_home';
+  state.source = 'command';
+  state.since = ctx.now;
+  state.lockedUntil = null;
+  if (to !== undefined && to !== from)
+    ctx.emit({
+      kind: 'activity.moved',
+      data: { actorId, from, to, minutes },
+      place: to,
+      roles: [{ actor: actorId, role: 'agent' }],
+      visibility: 'witnessed',
+      explain: {
+        kind: 'formula',
+        label: 'Local walk',
+        subjects: [actorId],
+        knowledge: 'public',
+        terms: [{ source: 'distance', label: 'Walking minutes, including load', value: minutes }],
+        total: minutes,
+        outcome: 'arrived',
+      },
+    });
+  recomputeOccupancy(world);
+}
+
+export function minuteBudget(world: World, actorId: ActorId): { spent: number; remaining: number } {
+  const spent = world.activity.minuteBudgets?.[actorId]?.spent ?? 0;
+  return { spent, remaining: 60 - spent };
+}
+export function spendMinutes(world: World, actorId: ActorId, minutes: number, activityId: string): void {
+  world.activity.minuteBudgets ??= {};
+  world.activity.minuteBudgets[actorId] ??= { spent: 0, activities: {} };
+  const b = world.activity.minuteBudgets[actorId];
+  if (!b) return;
+  b.spent += minutes;
+  b.activities[activityId] = (b.activities[activityId] ?? 0) + minutes;
+}
+/** Charge one whole hour to its dominant activity; the remaining activity wins ties. */
+export function settleMinuteActivity(world: World, actorId: ActorId, remainingActivity?: string): void {
+  const b = world.activity.minuteBudgets?.[actorId],
+    state = world.activity.byActor[actorId];
+  if (!b || !state) return;
+  const remaining = remainingActivity ?? state.activityId ?? 'idle_at_home';
+  const totals = { ...b.activities, [remaining]: (b.activities[remaining] ?? 0) + 60 - b.spent };
+  let dominant = remaining;
+  for (const id of Object.keys(totals).sort()) if ((totals[id] ?? 0) > (totals[dominant] ?? 0)) dominant = id;
+  b.accountedActivity = dominant;
+}
+export function clearMinuteBudget(world: World, actorId: ActorId): void {
+  if (!world.activity.minuteBudgets) return;
+  delete world.activity.minuteBudgets[actorId];
+  if (Object.keys(world.activity.minuteBudgets).length === 0) delete world.activity.minuteBudgets;
+}
