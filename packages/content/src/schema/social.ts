@@ -438,6 +438,8 @@ export const InteractionSchema = z.strictObject({
   rumor_mode: z.enum(['news', 'warning', 'confidence', 'charge']).default('news'),
   /** Flag for chronicle/director: big events (04 §11.2). */
   notable: z.boolean().default(false),
+  /** Explicit opt-in to sub-hour resolution; duration alone does not opt in. */
+  short_act: z.boolean().optional(),
   /** Game-minutes the interaction takes. */
   minutes: int().min(1).max(240).default(10),
   tags: z.array(id()).default([]),

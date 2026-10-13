@@ -282,7 +282,8 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       data: {},
     });
   const store = w.provisions.stores[a.placeId];
-  if (store && provisions.storeOpen(w, c, a.placeId))
+  const canTrade = activity.shortActBlock(w, c, pc) === null;
+  if (canTrade && store && provisions.storeOpen(w, c, a.placeId))
     for (const s of items.stacksAt(w, items.atPlace(a.placeId))) {
       const price = provisions.priceAt(w, c, a.placeId, s.defId);
       const cash = (w.provisions.purses[pc] ?? 0) + (w.provisions.households[a.householdId]?.cashCents ?? 0);
@@ -330,6 +331,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       provisions.storeOpen(w, c, a.placeId) &&
       root.kind === 'actor' &&
       root.actorId === pc &&
+      canTrade &&
       quote !== null &&
       quote <= (owner?.cashCents ?? store.tillCents)
     )
@@ -435,6 +437,10 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     ['activity.stop', 'activity.resume', 'activity.turn_back', 'activity.camp'].includes(command.kind)
   )
     return activity.journeyCommandCheck(w, c, command);
+  if (command.kind === 'provisions.buy' || command.kind === 'provisions.sell') {
+    const blocked = activity.shortActBlock(w, c, pc);
+    if (blocked) return blocked;
+  }
   if (offered) return null;
   if (command.kind === 'fae.signs') return null;
   if (command.kind === 'fae.investigate') return fae.investigationEligibility(w, pc, command.data.signId);

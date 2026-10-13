@@ -1,5 +1,5 @@
 /** Hourly physiology uses the previous hour's activity. */
-import { isAsleep, laborOf } from '../activity/api.ts';
+import { isAsleep, laborOf, minutePhysiologyActivity } from '../activity/api.ts';
 import { requiredRow } from '../activity/definitions.ts';
 import type { ContentBundle } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
@@ -38,9 +38,9 @@ export function hourlyLedger(
   trace = true,
   intervalPart = false,
 ): HourlyLedger {
-  const accounted = world.activity.minuteBudgets?.[id]?.accountedActivity;
+  const accounted = minutePhysiologyActivity(world, id);
   const current = world.activity.byActor[id];
-  if (accounted && current && current.activityId !== accounted) {
+  if (accounted !== undefined && current && current.activityId !== accounted) {
     return hourlyLedger(
       {
         ...world,

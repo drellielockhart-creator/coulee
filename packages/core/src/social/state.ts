@@ -145,6 +145,8 @@ export interface SocialDaily {
 }
 
 export interface SocialState {
+  /** Sub-hour exchanges share the ordinary hourly social allowance. Lazy; one hour only. */
+  minuteTalk?: { at: number; pairs: Record<string, true>; workMinutes: Record<number, number> };
   relief?: import('./relief.ts').ReliefState;
   pendingRequests?: import('./requests.ts').PendingRequest[];
   /** Object loans (13 §6.1 step 6), oldest first. Absent until the first. */

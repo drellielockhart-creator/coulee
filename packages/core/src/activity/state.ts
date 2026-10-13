@@ -26,7 +26,9 @@ export interface ActorActivity {
 }
 
 export interface MinuteBudget {
-  accountedActivity?: string;
+  /** Activity awaiting lagged physiology when the first short order opened this hour. */
+  startActivity?: string | null;
+  accountedActivity?: string | null;
   spent: number;
   activities: Record<string, number>;
 }

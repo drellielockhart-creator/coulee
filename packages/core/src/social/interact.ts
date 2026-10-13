@@ -27,7 +27,7 @@ import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { Terms } from '../urge.ts';
 import type { World } from '../world.ts';
-import { keepsFromWork, workStatus } from './availability.ts';
+import { keepsFromWork, minuteTalkBlock, noteMinuteTalk, workStatus } from './availability.ts';
 import { giftStack } from './gifts.ts';
 import { encodeSalience, insertMemory, isNegativeKind, softenMemories } from './memory.ts';
 import { clampInt, floorDiv, formatCents, isZeroDims, scaleDimsPct } from './model.ts';
@@ -250,6 +250,25 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
   const t = tuningOf(content);
   const i = req.initiatorId;
   const tg = req.targetId;
+  const hourlyBlock = minuteTalkBlock(world, content, i, tg, def);
+  if (hourlyBlock) {
+    const eventId = ctx.emit({
+      kind: 'social.act_refused',
+      data: { actorId: i, reason: hourlyBlock },
+      roles: [{ actor: i, role: 'agent' }],
+      visibility: 'private',
+      explain: {
+        kind: 'choice',
+        label: 'Hourly conversation allowance',
+        subjects: [i, tg],
+        knowledge: 'participants',
+        terms: [],
+        total: 0,
+        outcome: hourlyBlock,
+      },
+    });
+    return { eventId, success: false, told: null, escalatedEventId: null };
+  }
   const accepted = world.social.pendingRequests?.find(
     (r) =>
       r.id === req.acceptedRequestId &&
@@ -399,6 +418,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     });
     return { eventId, success: false, told: null, escalatedEventId: null };
   }
+  noteMinuteTalk(world, content, i, tg, def);
   const check = runCheck(world, ctx, req);
   let success = check.success;
   // The holder's own decision after persuasion (13 §6.1 step 4), unless they answered by Command.

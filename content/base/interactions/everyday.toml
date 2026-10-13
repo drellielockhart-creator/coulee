@@ -22,6 +22,7 @@ volition = [
 ]
 memory = { kind = "chat", intensity = 5 }
 minutes = 10
+short_act = true
 tags = ["friendly"]
 success.volatile = true
 success.target_opinion = { affection = 3 }
@@ -47,6 +48,7 @@ volition = [
 threshold = 10
 memory = { kind = "introduction", intensity = 10 }
 minutes = 10
+short_act = true
 tags = ["friendly"]
 success.target_opinion = { affection = 3, trust = 2 }
 success.initiator_opinion = { affection = 3, trust = 2 }
@@ -76,6 +78,7 @@ cooldown_hours = 4
 memory = { kind = "gossip", intensity = 15 }
 transmits_rumor = true
 minutes = 15
+short_act = true
 tags = ["talk"]
 success.initiator_needs = { company = 40 }
 success.target_needs = { company = 40 }
@@ -130,6 +133,7 @@ transmits_rumor = true
 rumor_mode = "confidence"
 memory = { kind = "confidence", emotion = "gratitude", intensity = 35 }
 minutes = 30
+short_act = true
 visibility = "private"
 tags = ["friendly", "secret"]
 success.target_opinion = { affection = 3, trust = 10 }
@@ -305,6 +309,7 @@ cooldown_hours = 24
 check = { kind = "dc", skill = "perform_storytelling", dc = 12 }
 memory = { kind = "tale", emotion = "joy", intensity = 15 }
 minutes = 20
+short_act = true
 tags = ["talk", "public"]
 success.audience_opinion = { affection = 1, respect = 2 }
 success.target_opinion = { affection = 2, respect = 3 }
@@ -339,6 +344,7 @@ cooldown_hours = 12
 check = { kind = "dc", skill = "persuade", dc = 10, attitude = true }
 memory = { kind = "comfort", emotion = "gratitude", intensity = 35 }
 minutes = 30
+short_act = true
 tags = ["friendly"]
 success.target_opinion = { affection = 8 }
 success.target_anxiety = -120
@@ -361,6 +367,7 @@ transmits_rumor = true
 rumor_speaker = "target"
 memory = { kind = "gossip", intensity = 15 }
 minutes = 15
+short_act = true
 tags = ["talk"]
 success.initiator_needs = { company = 40 }
 success.target_needs = { company = 40 }

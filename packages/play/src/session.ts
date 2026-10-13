@@ -716,7 +716,7 @@ export class PlaySession {
         .map((s) => s.id),
     );
 
-    // A transactional intention keeps the actor at the counter/table for its hour.
+    // A transactional intention keeps the actor at the counter/table while it resolves.
     const actual = [...commands];
     if (
       commands.length &&
@@ -761,7 +761,7 @@ export class PlaySession {
       const shortCtx = {
         ...ctx,
         rng: (stream: Parameters<typeof ctx.rng>[0], key: number) =>
-          ctx.rngAt?.(stream, asGameMinute(w.time + spentBefore), key) ?? ctx.rng(stream, key),
+          ctx.rngAt?.(stream, asGameMinute(w.time + spentBefore + 1), key) ?? ctx.rng(stream, key),
       };
       for (const command of ctx.commands)
         ctx.emit({
