@@ -30,6 +30,14 @@ These answers unblock M4 provisions/Outfitter, M5a worldgen, M5 travel, M6 comba
     - P8 pressure stays on logistics.
 13. **Others' opinions of you.** Players can't see how anyone feels about them.
     - Editorial Rec: a perception-gated "seems to feel about you" line on `inspect`, with the visible reasons (what you did to them) and a coarse band, never the number.
+14. **M5 travel defaults** ([M5 plan §7](../docs/impl/M5-PLAN.md)). Slice 1 proceeds on these defaults; override any of them:
+    - hourly travel boundaries, with sub-minute pathing and combat in M6;
+    - an 800 sq mi Standard county with a 3–4k census, about 800 named at first;
+    - history pre-roll deferred;
+    - off-screen life with exact identities and conserved stores;
+    - no adjacent-county simulation; the county seat is off-map;
+    - fae time-slip forward only, capped at 144 h, noncombat;
+    - if phone performance misses by 3× or more, come back with options rather than silently shrinking the population.
 
 ## Already answered
 
