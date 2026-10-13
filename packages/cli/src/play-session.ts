@@ -13,6 +13,7 @@ import {
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { ContentBundle } from '@coulee/core';
+import { director } from '@coulee/core';
 import {
   type AvailableAction,
   confirmEnding,
@@ -76,6 +77,10 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
     if (o.new) {
       const session = PlaySession.create(content, {
         source: o.scenario,
+        director: director.directorSettings({
+          personality: o.directorPersonality as 'land_itself',
+          foresight: o.directorForesight as director.Foresight,
+        }),
         seed: Number(o.seed),
         ...(o.worldSeed === undefined ? {} : { worldSeed: Number(o.worldSeed) }),
         pc: {

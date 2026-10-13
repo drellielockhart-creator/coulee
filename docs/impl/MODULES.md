@@ -825,3 +825,28 @@ restores this state only while executing, then parks it again; saves remain plai
 Needs owns Stable's `wakeAt` deadline and hourly recovery outside scenes. Fear trigger retention
 ends with each episode; social retains at most 256 incidents, with per-scene episode stamp flags
 preserving pair deduplication beyond archive eviction.
+
+## module:director — D0 measurement (2026-10-13)
+
+**Owner: director.** `packages/core/src/director/**`, `packages/content/src/schema/director.ts`,
+`content/base/director/**`, `packages/cli/test/director.test.ts`, `docs/impl/director/**`.
+Foundation composition is granted for D0. Runs hourly after chronicle, assesses daily.
+Chronicle retains pattern definitions and owns optional `PatternDef.openState` projections;
+its engine passes projections through `director.api.recordProjection` without changing prose.
+Needs, belief, social, provisions, region and tactical expose additive read-only tension APIs.
+Social owns the shared fair event perception query (play delegates to it).
+
+**Contracts:** optional version-1 `World.director` (legacy saves migrate on restore),
+`director.personality = land_itself`, `director.foresight = off | tiltable | full` (default tiltable).
+Director events have slice-local IDs; only the latest tension Explain is retained, and none enter the causal
+simulation log. This is necessary for exact non-director state/event-ID invariance.
+Ledger retains seven compact daily assessments; older rows compact to a count and monthly metrics.
+Survival is sampled daily and held; other tension terms remain hourly. The registry caps total
+threads at 64 (24 Latent), guns at eight per thread, and retires settled records after seven days.
+Retention counters distinguish capacity removal from story endings; see `director/D0-MEASUREMENT.md`.
+No bias hooks, RNG draws, LOD pins, agency changes, or writes to other slices in D0.
+God observations and CLI manifests expose analytics; fair observations expose nothing new.
+
+**Acceptance:** `just check`; unchanged Iron Ford golden; stripped-world hashes against
+pre-D0 at Iron Ford 42 (30/365d), generated towns 7/19 (90d), neighbors 42 (30d);
+year-run baseline for Iron Ford and generated towns 7/19, measured Director ms/hour.

@@ -84,30 +84,7 @@ export function provisionsAlert(
  * this, so they stop on the same events (ADR 0002 §3).
  */
 export function perceivedEvents(events: readonly Event[], pc: ActorId, priorPlace: PlaceId | undefined): Event[] {
-  let place = priorPlace;
-  const seen: Event[] = [];
-  for (const e of events) {
-    // A private change of heart is not an observable act, even when it concerns the viewer.
-    if (e.kind === 'social.label_changed' && e.data.holderId !== pc) continue;
-    if (e.kind === 'activity.journey' && e.data.actorId === pc && e.place !== undefined) place = e.place;
-    if (e.kind === 'activity.moved' && e.data.actorId === pc) place = e.data.to;
-    if (e.kind === 'fae.omen' && !e.data.witnesses.includes(pc)) continue;
-    const role = e.roles.find((r) => r.actor === pc);
-    const own =
-      role &&
-      ((e.visibility !== 'secret' && e.visibility !== 'inner') || role.role === 'agent' || role.role === 'subject');
-    const visible =
-      own ||
-      (e.visibility === 'public' && e.place !== undefined && e.place === place) ||
-      (e.visibility === 'witnessed' && e.place === place);
-    if (
-      visible &&
-      e.kind !== 'psyche.defense' &&
-      !(e.kind === 'belief.tell' && !e.data.noticed && e.data.targetId !== pc)
-    )
-      seen.push(e);
-  }
-  return seen;
+  return social.perceivedEvents(events, pc, priorPlace);
 }
 
 /** Classify one perceived event for the alert policy (danger, summons, vitals, arrival). */

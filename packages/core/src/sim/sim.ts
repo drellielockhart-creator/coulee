@@ -11,6 +11,7 @@
 import { finishJourneys, prepareJourneys } from '../activity/api.ts';
 import type { Command } from '../command.ts';
 import type { ContentBundle } from '../content.ts';
+import { restoreDirector } from '../director/api.ts';
 import { appendEvent, type Event, type EventInput, trimLog } from '../events/index.ts';
 import { hashValue } from '../hash.ts';
 import { advanceCombatHealth, canAct } from '../needs/api.ts';
@@ -55,6 +56,7 @@ export function restoreSim(
   )
     throw new Error('Unsupported tactical clock version');
   validateRegionState(world);
+  restoreDirector(world);
   if (!opts.allowContentMismatch && world.meta.contentHash !== content.meta.hash) {
     throw new Error(
       `content hash mismatch: world ${world.meta.contentHash.slice(0, 12)} vs bundle ${content.meta.hash.slice(0, 12)}`,
@@ -137,7 +139,7 @@ export function stepHourly(sim: Sim, commands: readonly Command[] = [], logComma
     else sys.run(world, systemCtx);
     if (sys.id === 'provisions') finishJourneys(world, systemCtx);
   }
-  // The chronicle (last system) has sifted everything up to lastId: older events may leave memory.
+  // Chronicle has sifted the causal log up to lastId; Director writes only its own journal.
   if (ctx.isNewDay) trimLog(world.log, ctx.now);
   world.time = asGameMinute(world.time + 60);
   regionSystem(world, makeContext(world, content, [], sim.sink));

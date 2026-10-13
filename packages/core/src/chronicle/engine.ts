@@ -11,6 +11,7 @@
  * common knowledge from some level on; the public entry then gains the thread's public face
  * but still none of the private facts.)
  */
+import { recordProjection } from '../director/api.ts';
 import type { ExplainTerm } from '../explain.ts';
 import { nextId } from '../ids.ts';
 import { newDraft, writeEntry } from './entries.ts';
@@ -238,6 +239,7 @@ export function feedAccept(dc: DetectCtx, def: PatternDef, p: PatternParams, acc
   const th = findThread(dc, def.id, acc.key) ?? openThread(dc, def.id, acc.key, acc.tf.t);
   addToThread(th, acc);
   evaluate(dc, def, p, th);
+  if (dc.world.director && def.openState) recordProjection(dc.world, def.openState(th, dc, p));
   return th;
 }
 
@@ -314,6 +316,7 @@ function closeThread(dc: DetectCtx, def: PatternDef, p: PatternParams, th: Chron
     }
   }
   th.closed = true;
+  if (dc.world.director && def.openState) recordProjection(dc.world, def.openState(th, dc, p));
   const idx = st.threads.indexOf(th);
   if (idx >= 0) st.threads.splice(idx, 1);
   st.closedThreads.push({ ...th, facts: th.facts.slice(-3) });

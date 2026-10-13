@@ -1,3 +1,5 @@
+import { createDirectorState, type DirectorSettings } from '../director/state.ts';
+import { focusDirector } from '../director/system.ts';
 import { idsOf } from '../ids.ts';
 import { initRegion } from '../region/api.ts';
 /**
@@ -24,6 +26,7 @@ import type { World } from '../world.ts';
 import type { InitContext } from './context.ts';
 
 export interface CreateWorldOptions {
+  director?: Partial<DirectorSettings>;
   scenarioId: string;
   /** Any integer; folded to uint32. */
   seed: number;
@@ -68,6 +71,7 @@ export function createWorld(content: ContentBundle, opts: CreateWorldOptions): W
     places: {},
     index: { actorByKey: {}, householdByKey: {}, placeByDef: {} },
     log: emptyLog(opts.logRetention === undefined ? DEFAULT_LOG_RETENTION : opts.logRetention),
+    director: createDirectorState(opts.director),
     fae: createFaeState(),
     needs: createNeedsState(),
     activity: createActivityState(),
@@ -174,6 +178,7 @@ export function createWorld(content: ContentBundle, opts: CreateWorldOptions): W
     kind: 'core.world_created',
     data: { scenarioId: scenario.id, seed, actorCount: scenario.actors.length },
   });
+  focusDirector(world, { content });
   return world;
 }
 

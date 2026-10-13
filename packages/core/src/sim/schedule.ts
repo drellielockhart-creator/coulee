@@ -6,6 +6,7 @@
 import { activitySystem } from '../activity/system.ts';
 import { beliefSystem } from '../belief/system.ts';
 import { chronicleSystem } from '../chronicle/system.ts';
+import { directorSystem } from '../director/system.ts';
 import { faeSystem } from '../fae/system.ts';
 import { needsSystem } from '../needs/system.ts';
 import { provisionsSystem } from '../provisions/system.ts';
@@ -26,6 +27,7 @@ export const HOURLY_SYSTEMS: ReadonlyArray<{ id: string; run: SystemFn }> = [
   { id: 'belief', run: beliefSystem },
   { id: 'provisions', run: provisionsSystem },
   { id: 'chronicle', run: chronicleSystem },
+  { id: 'director', run: directorSystem },
 ];
 
 /** Tactical frames prepare minds after needs rates, then commit activities and settle

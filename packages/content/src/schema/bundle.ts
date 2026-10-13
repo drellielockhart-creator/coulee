@@ -9,6 +9,7 @@ import { beliefDomains, beliefRefs } from './belief.ts';
 import { chronicleDomains, chronicleRefs } from './chronicle.ts';
 import { combatDomains } from './combat.ts';
 import type { DomainSpec, Issue } from './common.ts';
+import { directorDomains } from './director.ts';
 import { deriveCharmClaims, faeDomains, faeRefs } from './fae.ts';
 import { itemsDomains, itemsRefs } from './items.ts';
 import { needsActivitiesDomains, needsActivitiesRefs } from './needs-activities.ts';
@@ -21,6 +22,7 @@ import { worldDomains, worldRefs } from './world.ts';
 
 export const DOMAINS = {
   ...combatDomains,
+  ...directorDomains,
   ...faeDomains,
   ...rulesDomains,
   ...worldDomains,

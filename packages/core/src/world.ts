@@ -57,6 +57,7 @@ export interface World {
   log: EventLog;
 
   // ---- module slices (each type owned by its module) ----
+  director?: import('./director/state.ts').DirectorState;
   region?: RegionState;
   fae: FaeState;
   needs: NeedsState;

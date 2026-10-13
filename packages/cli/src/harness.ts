@@ -10,6 +10,7 @@ import {
   type ContentBundle,
   chronicle,
   createSim,
+  director,
   type Event,
   formatStamp,
   type LogRetention,
@@ -31,6 +32,7 @@ export type WorldSource =
   | { kind: 'generated'; generator: 'town'; recipe: TownRecipe };
 
 export interface RunSpec {
+  director?: Partial<director.DirectorSettings>;
   scenarioId: string;
   seed: number;
   hours: number;
@@ -87,6 +89,7 @@ export function runScenario(content: ContentBundle, spec: RunSpec, opts: Scenari
   } else scenarioId = worldSource.scenarioId;
   const sim = createSim(content, {
     scenarioId,
+    director: spec.director,
     seed: spec.seed,
     ...(opts.logRetention !== undefined ? { logRetention: opts.logRetention } : {}),
   });
@@ -177,6 +180,7 @@ export function writeRunOutputs(
     join(dir, 'manifest.json'),
     `${JSON.stringify(
       {
+        director: director.directorReport(world),
         scenario: spec.scenarioId,
         seed: spec.seed,
         worldSource: res.worldSource,
