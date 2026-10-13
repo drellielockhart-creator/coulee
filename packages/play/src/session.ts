@@ -43,6 +43,7 @@ import {
 } from './observation.ts';
 import { type RoutePreview, routePreviewOf } from './route.ts';
 import { type SessionSpec, sessionContent, sessionSim } from './source.ts';
+import { regardOf } from './view.ts';
 export interface LogStep {
   type: 'command';
   command: Command;
@@ -388,6 +389,18 @@ export class PlaySession {
             .map((x) => claimText(x));
           detail = {
             person,
+            ...(target === undefined
+              ? {}
+              : {
+                  regard: regardOf(
+                    this.sim.world,
+                    this.sim.content,
+                    this.playerId,
+                    target,
+                    mode === 'god',
+                    this.knowledge,
+                  ),
+                }),
             opinion,
             base: record?.base,
             volatile: record?.volatile,
@@ -907,6 +920,19 @@ export class PlaySession {
         .map((e: Event) =>
           eventView(e, session.playerId, 'fair', { world: session.sim.world, content: session.sim.content }),
         );
+    // Older archives may contain the former exact-label and check-label disclosures.
+    const privateLabels = new Set(
+      session.knowledge
+        .filter((event) => event.kind === 'social.label_changed' && !event.summary.startsWith('You now think'))
+        .map((event) => event.id),
+    );
+    session.known = session.known.filter((id) => !privateLabels.has(id));
+    session.knowledge = session.knowledge
+      .filter((event) => !privateLabels.has(event.id))
+      .map((event) => ({
+        ...event,
+        explain: knownExplain(event.explain ?? undefined, session.playerId, 'fair'),
+      }));
     session.entries = saved.entries;
     session.metrics = saved.metrics;
     session.money = saved.money ?? [];

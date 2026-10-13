@@ -6,21 +6,22 @@
  *   (`perspective === actorId`), the god/debug view (`perspective === null`), or the
  *   omniscient epilogue.
  * - Any other viewer sees: no memories (they are private); of the actor's opinions, only
- *   the one toward the viewer, as a LABEL ('Friend', 'Enemy'...) with numbers zeroed
+ *   the one toward the viewer, with the true label withheld and numbers zeroed
  *   (`numbersKnown: false`) and only the reasons the viewer was present for (the reason
- *   cites a memory of an event the viewer also remembers); structural relationships
+ *   cites a memory of an event the viewer also remembers, in the viewer's words); structural relationships
  *   (public facts) stay visible.
  * - Defense provenance (`viaDefense`) is shown only to the omniscient epilogue (04 §3.6).
  */
 import { displayName } from '../actor.ts';
 import type { ContentBundle } from '../content.ts';
+import type { Explain } from '../explain.ts';
 import type { ActorId, EventId } from '../ids.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
 import type { World } from '../world.ts';
 import { memoriesOf, relationshipsOf } from './api.ts';
 import { isZeroDims } from './model.ts';
 import { opinionOf, reasonContribution, reasonStrength } from './opinion.ts';
-import type { Opinion } from './state.ts';
+import type { Opinion, OpinionDims } from './state.ts';
 
 export interface OpinionReasonView {
   label: string;
@@ -73,7 +74,17 @@ export interface RelationshipView {
   label: string;
 }
 
+/** The viewer's fallible reading; truth is present only in god observations. */
+export interface RegardView {
+  band: 'hostile' | 'cool' | 'civil' | 'friendly' | 'warm';
+  phrase: string;
+  reasons: string[];
+  explain: Explain | null;
+  truth?: { opinion: OpinionDims; base: OpinionDims; volatile: OpinionDims; reasons: OpinionReasonView[] };
+}
+
 export interface SocialActorView {
+  regard?: RegardView;
   reliefObligations?: ReliefObligationView[];
   opinions: OpinionView[];
   memories: MemoryView[];
@@ -104,10 +115,15 @@ export function viewSocialActor(
   const opinions: OpinionView[] = [];
 
   // Events the viewer remembers: reasons citing memories of those events are "known".
+  const viewerSummaries = new Map<number, string>();
   let viewerEvents: Set<number> | null = null;
   if (!full && viewer !== null) {
     viewerEvents = new Set<number>();
-    for (const m of memoriesOf(world, viewer)) if (m.eventId !== null) viewerEvents.add(m.eventId as number);
+    for (const m of memoriesOf(world, viewer)) {
+      if (m.eventId === null) continue;
+      viewerEvents.add(m.eventId as number);
+      viewerSummaries.set(m.eventId as number, m.summary);
+    }
   }
   const eventOfCite = (op: Opinion, i: number): EventId | null => {
     const c = op.reasons[i]?.cites;
@@ -128,12 +144,12 @@ export function viewSocialActor(
       if (!r) continue;
       if (!full) {
         const ev = eventOfCite(op, i);
-        if (ev === null || !viewerEvents?.has(ev as number)) continue;
+        if (r.viaDefense !== undefined || ev === null || !viewerEvents?.has(ev as number)) continue;
       }
       // A Reason whose weight has faded to nothing explains nothing: hide it.
       if (full && isZeroDims(reasonContribution(world, actorId, op.targetId, r))) continue;
       const view: OpinionReasonView = {
-        label: r.label,
+        label: full ? r.label : (viewerSummaries.get(eventOfCite(op, i) as number) ?? ''),
         ...(full ? r.delta : { affection: 0, respect: 0, trust: 0, fear: 0 }),
         since: r.since,
       };
@@ -160,7 +176,7 @@ export function viewSocialActor(
           respect: 0,
           trust: 0,
           fear: 0,
-          label: op.label,
+          label: '',
           reasons,
           numbersKnown: false,
         };

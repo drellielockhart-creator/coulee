@@ -24,12 +24,14 @@ export function OpinionsTab(props: { actor: ActorView }) {
   const a = props.actor;
   /** Rung 3: tap an opinion's axes to read what each one means (touch has no hover). */
   const [explained, setExplained] = useState<number | null>(null);
-  const ops = [...a.social.opinions].sort(
-    (x, y) =>
-      (y.targetId === vm.playerId ? 1 : 0) - (x.targetId === vm.playerId ? 1 : 0) ||
-      Math.abs(y.affection) + Math.abs(y.trust) - (Math.abs(x.affection) + Math.abs(x.trust)) ||
-      x.targetId - y.targetId,
-  );
+  const ops = a.social.opinions
+    .filter((o) => o.numbersKnown !== false)
+    .sort(
+      (x, y) =>
+        (y.targetId === vm.playerId ? 1 : 0) - (x.targetId === vm.playerId ? 1 : 0) ||
+        Math.abs(y.affection) + Math.abs(y.trust) - (Math.abs(x.affection) + Math.abs(x.trust)) ||
+        x.targetId - y.targetId,
+    );
   return (
     <div className="opinions">
       {a.social.relationships.length > 0 ? (
@@ -66,7 +68,11 @@ export function OpinionsTab(props: { actor: ActorView }) {
       ) : null}
       <SectionHead>Opinions</SectionHead>
       {ops.length === 0 ? (
-        <Empty>No settled opinions yet. Folk need time together, or something to talk about.</Empty>
+        <Empty>
+          {a.social.regard && !a.social.regard.truth
+            ? 'Their private feelings are their own; you can only read their manner.'
+            : 'No settled opinions yet. Folk need time together, or something to talk about.'}
+        </Empty>
       ) : (
         ops.map((o) => (
           <article key={o.targetId} className="opinion">

@@ -11,6 +11,7 @@ import { MapView } from './components/MapView.tsx';
 import { ActorPeek, PlaceCard, StackChooser } from './components/Peek.tsx';
 import { DigestCard, PlayPanel } from './components/PlayPanel.tsx';
 import { Chronicle, People, Surroundings } from './components/Reading.tsx';
+import { Regard } from './components/Regard.tsx';
 import { Settings } from './components/Settings.tsx';
 import { Drawer, Sheet } from './components/Sheet.tsx';
 import { Storefront } from './components/Storefront.tsx';
@@ -525,6 +526,7 @@ export function Dossier({ actor, summary = true }: { actor: ActorView; summary?:
           {actor.age} · {actor.occupation} · {actor.activity.verb} · {placeName(vm, actor.placeId)}
         </p>
       ) : null}
+      <Regard regard={actor.social.regard} />
       <Tabs tabs={TABS} value={ui.dossierTab} onChange={ui.setTab} label="Dossier tabs" />
       <div className="tab-content" role="tabpanel" aria-label={TABS.find((t) => t.id === ui.dossierTab)?.label}>
         {ui.dossierTab === 'mind' ? (

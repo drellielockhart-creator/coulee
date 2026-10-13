@@ -57,7 +57,7 @@ export function fallbackText(kind: string): string {
   return `${upperFirst(module)}: ${what.replaceAll('_', ' ')}`.trim();
 }
 
-export function describeEvent(world: World, content: ContentBundle, pc: ActorId, e: Event): Described {
+export function describeEvent(world: World, content: ContentBundle, pc: ActorId, e: Event, god = false): Described {
   const actorName = (id: number | null | undefined) => {
     const a = id === null || id === undefined ? undefined : world.actors[id];
     return a ? `${a.name.given} ${a.name.family}`.trim() : 'someone';
@@ -291,6 +291,7 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
       const d = e.data;
       if (d.holderId === pc)
         return out(`You now think of ${actorName(d.targetId)} as ${d.to.toLowerCase() || 'an acquaintance'}`);
+      if (!god && d.holderId !== pc) return out(`${actorName(d.holderId)}’s manner has changed`, true);
       if (d.targetId === pc)
         return out(`${actorName(d.holderId)} now thinks of you as ${d.to.toLowerCase() || 'an acquaintance'}`);
       return out(

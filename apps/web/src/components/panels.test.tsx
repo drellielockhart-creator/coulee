@@ -93,6 +93,45 @@ const render = (node: React.ReactNode, snapshot = vm) =>
 afterEach(() => useUi.setState({ dossierTab: 'mind', selectedActor: null, panel: 'none', godViewLog: [] }));
 
 describe('empty module snapshots', () => {
+  it('shows inspect impressions in every Character tab, without hidden opinion bars', () => {
+    const other: ActorView = {
+      ...actor,
+      id: 2 as never,
+      isPlayer: false,
+      social: {
+        ...actor.social,
+        regard: {
+          band: 'friendly',
+          phrase: 'is well disposed toward you',
+          reasons: ['Brought Ada a little something'],
+          explain: null,
+        },
+        opinions: [
+          {
+            targetId: actor.id,
+            targetName: actor.name,
+            label: 'Friend',
+            affection: 0,
+            respect: 0,
+            trust: 0,
+            fear: 0,
+            numbersKnown: false,
+            reasons: [],
+          },
+        ],
+      },
+    };
+    for (const dossierTab of ['mind', 'needs', 'opinions', 'known', 'pack'] as const) {
+      useUi.setState({ dossierTab });
+      const html = render(<Dossier actor={other} />);
+      expect(html).toContain('Seems to feel about you');
+      expect(html).toContain('friendly — is well disposed toward you');
+      expect(html).toContain('Brought Ada a little something');
+      expect(html).not.toMatch(/Friend|affection 0|Unafraid|True regard/);
+    }
+    const html = render(<OpinionsTab actor={other} />);
+    expect(html).not.toMatch(/Friend|Unafraid|affection 0/);
+  });
   it('renders all dossier tabs without data or catalog entries', () => {
     expect(render(<MindTab actor={actor} />)).toContain('No thoughts are pressing');
     expect(render(<NeedsTab actor={actor} />)).toContain('No needs defined');
