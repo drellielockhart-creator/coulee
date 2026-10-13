@@ -1,7 +1,7 @@
-# Coulee M1 parallel build contract
+# Coulee module ownership and contracts
 
-**Status:** M0 foundation landed. About ten module agents now build in parallel, each with **exclusive file ownership**.
-**Canon, in order:** `design-docs/00-vision-and-pillars.md`, then `design-docs/adr/0001` to `0003`, then this file, then design docs 01–12. Docs 01–07 predate the TypeScript decision, so ignore their Rust/Godot specifics. In 04, "Persona" for rumor identities is now **Figure**.
+**Status (2026-10-12):** M1–M3 town slice, survival, fae 1a/1b, headless/web PlaySession and M4 UI are integrated; town v2 and county generator v3 are built. Relief, charm refusal costs and M5 slice 1 are in progress. Each module retains **exclusive file ownership**; original acceptance lists remain targets, not blanket completion claims.
+**Canon, in order:** `design-docs/00-vision-and-pillars.md`, then `design-docs/adr/0001` to `0003`, then this file, then design docs 01–13 (13 owns fae omens, magic and charms). Docs 01–07 predate the TypeScript decision, so ignore their Rust/Godot specifics. In 04, "Persona" for rumor identities is now **Figure**.
 
 Read `CLAUDE.md` first: it has the invariants and the commands.
 
@@ -15,7 +15,7 @@ Read `CLAUDE.md` first: it has the invariants and the commands.
 3. **Contracts are additive.** You may add fields, event kinds, commands, API functions, and optional parameters.
    - You may **not** rename, remove, or change the meaning of an exported type, field, or function that another module or the web reads. That includes your own `view.ts` shapes.
    - If you must break something, keep the old shape working and report it.
-4. **Other modules are stubs while you work.** Every cross-module call must behave sensibly when the callee returns its stub value (`[]`, `null`, `0`, a no-op). Never crash on a stub. Put your behavior behind your own API, not inside someone else's.
+4. **Handle empty or absent module data.** The town modules are integrated; tests and legacy saves may still supply empty values (`[]`, `null`, `0`, a no-op). Put your behavior behind your own API, not inside someone else's.
 5. **Determinism:**
    - No `Math.random`, `Date`, timers, or transcendental `Math` in `packages/core/src`. `check-invariants` enforces this.
    - Randomness comes only from `ctx.rng(stream, mixKey(...entities, SALT))`. Pick a module-specific salt constant per decision.
@@ -23,16 +23,16 @@ Read `CLAUDE.md` first: it has the invariants and the commands.
    - Accumulated state is **integers**. Scales: needs 0..1000, opinions −100..100, credence 0..100, money in cents, time in game-minutes, per-mille for fractions.
    - The determinism test in `packages/cli/test/determinism.test.ts` must keep passing, including JSON save/load mid-run and the all-integers check.
 6. **P1 legibility:** every check or arbitration that changes state attaches an `Explain` to the event it emits. Use `knowledge` (`'public'|'participants'|'self'|'omniscient'`) to say who may see the math. View functions honor `ViewOptions.perspective` and `omniscient`.
-7. **P2:** no player-only rule paths. The player actor differs only in that its urges come from Commands (`controller: 'player'`). Never branch rules on `controller`.
+7. **P2:** no player-only rule paths or rules branching on `controller`. Agency is actor policy (`commanded` or `psyche`) plus standing orders; every consequential executor uses `psyche/api.ts authorizeAct` (13 §2.2), alongside `needs/api.ts canAct`.
 8. **No hardcoded peoples** (ADR invariant 4). Read people *fields* (`concealed`, `cold_iron_sensitive`...), never compare against `'shadow_faekin'`.
 9. **Do not copy D&D text.** Use mechanics shapes only.
 10. **Tests:**
     - Unit tests go next to your code (`packages/core/src/<module>/*.test.ts`). Core tests may not import `@coulee/content` (Node).
     - Integration tests that need real content go in **`packages/cli/test/<module-id>.test.ts`**, which you own. Use `packages/cli/test/helpers.ts` (`baseContent()`, `simFor()`, `actorByKey()`).
-11. **Not in this wave:** `packages/play` (ADR 0002 headless play) and `packages/worldgen` (ADR 0003). Don't create them. Do keep their constraints in mind:
+11. **Shared play/worldgen contracts:** `packages/play` (ADR 0002) and `packages/worldgen` (ADR 0003) exist and have their own owners below:
     - every player action must be a `Command`;
     - observations come from the view model, with `perspective` gating;
-    - worldgen will emit the same shapes as scenario TOML.
+    - town worldgen emits the same shapes as scenario TOML; county graphs are generator output, not yet a playable region.
 
 ---
 
@@ -53,6 +53,8 @@ packages/core/src/
   belief/                                                 module:belief
   provisions/ items/                                      module:provisions
   chronicle/                                              module:chronicle
+  fae/                                                    module:fae
+  region/                                                 module:region (proposed; not present yet)
 packages/content/src/
   loader.ts index.ts *-cli.ts schema/{common,bundle,index,rules}.ts   foundation
   schema/needs-activities.ts   module:needs-activities
@@ -61,8 +63,11 @@ packages/content/src/
   schema/belief.ts             module:belief
   schema/items.ts              module:provisions
   schema/chronicle.ts          module:chronicle
+  schema/fae.ts                module:fae
   schema/world.ts schema/scenario.ts   module:content-world
 packages/cli/                  foundation (except test/<module-id>.test.ts: that module)
+packages/play/                 module:play (pure shared session and host queries)
+packages/worldgen/             module:worldgen (town + county/ layers and graph)
 content/base/skills/           foundation
 content/base/...               see each module
 apps/web/                      module:web (except apps/web/public/assets/**)
@@ -93,12 +98,13 @@ One step = one game-hour (T1). Before the systems run, the loop:
 | 1 | `needsSystem` | needs-activities | last hour's activity (labor, asleep) | `world.needs`, band conditions |
 | 2 | `psycheSystem` | psyche | proposals from every module + `core.urge` commands | `world.psyche` (thoughts, `chosen`, anxiety, defenses) |
 | 3 | `activitySystem` | needs-activities | `psyche.chosenUrge`, schedules, places | `world.activity`, **`ActorCore.placeId`**, occupancy |
-| 4 | `socialSystem` | social | `activity.venues`, `psyche.chosenUrge` | `world.social`; calls `belief.transmit`, `needs.satisfyNeed` |
-| 5 | `beliefSystem` | belief | beliefs, grudges, misfortune | `world.belief` |
-| 6 | `provisionsSystem` | provisions | activity, items, temperature | `world.items`, `world.provisions`; calls `needs.feed` |
-| 7 | `chronicleSystem` | chronicle | event log since cursor | `world.chronicle` |
+| 4 | `faeSystem` | fae | committed locations, canonical episodes, charm stores | `world.fae`; items/needs/social/belief effects through APIs |
+| 5 | `socialSystem` | social | `activity.venues`, `psyche.chosenUrge` | `world.social`; calls `belief.transmit`, `needs.satisfyNeed` |
+| 6 | `beliefSystem` | belief | beliefs, grudges, misfortune | `world.belief` |
+| 7 | `provisionsSystem` | provisions | activity, items, temperature | `world.items`, `world.provisions`; calls `needs.feed` |
+| 8 | `chronicleSystem` | chronicle | event log since cursor | `world.chronicle` |
 
-Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last events at the next hour. Module inits run in the same order, with items before provisions, after core creates places, households, and actors (`sim/init.ts`).
+Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last events at the next hour. Module init order is explicit in `sim/init.ts` (items before provisions; fae last), after core creates places, households and actors.
 
 ### 1.3 Data flow
 
@@ -144,17 +150,23 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 | anyone | `items/api.ts` (provisions) | `stacksAt`, `stacksDeep`, `affordanceAt`, `weightG`, `bulkTenths`, `moveStack`, `consumeStack` (jobs query **affordances**, never item ids; 03 §3.2) |
 | web, cli | `chronicle/api.ts renderChronicleMarkdown / chronicleEntries` | chronicle.md and the UI feed |
 | web | `provisions/api.ts readinessOf` | The P8 planner query (11 §1.7: the UI asks, the core answers) |
-| social | `provisions/api.ts transferCash` | Integration (2026-10-11): lend/borrow/repay move real cents (purse first, then household cash); the ledger records what actually moved |
+| social | `provisions/api.ts transferCash` | Loans/repayments debit real cents (purse first, then household cash), credit the payee’s purse and record only the actual transfer on the debt ledger |
 | social, provisions | `belief/api.ts isShunning` | Rung 3 consequences: shunners withhold every non-hostile interaction (`shun_volition_penalty`); a shunning storekeeper charges 150% and refuses credit |
 | belief | `social/api.ts addOpinionReason`, `reasonsOf` | A formed belief about a person (and a projection) adds one Reason citing `{kind:'belief', id, propId}`, sized by the predicate's valence and weighted by credence |
 | psyche | `social/api.ts addDefenseReason`, `acquaintancesOf` | Rationalization leaves "Had it coming" (`{kind:'defense', eventId, strength}`, fades like the bucket); the mind's acquaintances come from social, not from its tables |
 | needs | `provisions/api.ts airTempF` | One weather hook for exposure and spoilage |
+| every executor | `psyche/api.ts authorizeAct`, `needs/api.ts canAct` | Actor-wide authorization and incapacity checks; consequential replies become social pending requests |
+| social, play | `social/api.ts interactionAvailability / requestTerms` | Shared zero-time social preflight and explicit terms for pending requests |
+| belief, social | `fae/api.ts effectiveFi / charmTransferred / noteItemInteraction` | Protected-site-safe FI for tells and charm custody/interaction notifications; fae owns magical truth |
+| provisions planner | `fae/forecast.ts forecastCharms / forecastHems` | Knowledge-gated charm projection; verified hems use the ordinary storage kernel |
+| web, cli | `packages/play` | Shared Commands, fair/god observations, interrupts, replay/save/fork and storefront/food-ledger queries |
+| cli, play source | `packages/worldgen` | Versioned town records installed by `townContent`; county v3 returns layers/graph/hashes/QA and ford-town context |
 
 **Mutation rights on shared core data:**
 - `ActorCore.placeId`: activity only.
 - `ActorCore.sheet.conditions`: each module toggles only the condition ids it owns (listed per module), via `setCondition()`.
-- `ActorCore.alive`: no one in this wave (death is a later foundation feature; report if you need it).
-- Everything else on `ActorCore`, `Household`, and `Place` is read-only after init.
+- `ActorCore.alive`: needs survival owns death (`needs/survival-social.ts`); provisions handles estates/succession through APIs.
+- Survival aftermath owns household-head succession and kin adoption (`ActorCore.householdId`); moves still go through activity. Other shared fields are read-only after init unless an owning API explicitly handles the change.
 - **Decision (integration, 2026-10-11): acquired traits stay in psyche state.** Habitual defenses grant Suspicious/Zealot into `psyche.byActor[id].acquired`; psyche never appends to `ActorCore.traits` (the authored sheet). Anything that weighs traits reads `psyche/api.ts effectiveTraits(world, id)` (innate ∪ acquired): psyche's own thought weighting and social's `trait:` volition driver do.
 
 ### 1.5 Content pipeline
@@ -169,10 +181,11 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 
 ### 1.6 Commands, urges, events (core contracts)
 
-- `Urge` (`core/src/urge.ts`): `{kind:'activity', activityId, placeId?} | {kind:'interaction', interactionId, targetId?, topic?} | {kind:'defense', defense, targetId?}`.
+- `Urge` (`core/src/urge.ts`): `{kind:'activity', activityId, placeId?, itemId?} | {kind:'interaction', interactionId, targetId?, topic?, itemId?, terms?} | {kind:'defense', defense, targetId?}`; item `Terms` are loan/sale/gift data.
 - `UrgeProposal`: `{urge, voice: 'id'|'superego'|'command', intensity 0..1000, label, source, reasons: ExplainTerm[], drive?, norm?, speaker?}`.
 - `ChosenUrge`: `{urge, voice, thoughtId?, compromise, at, explain}`, stored at `world.psyche.byActor[id].chosen`.
 - Commands:
+  - Commands carry an issuer for agency checks; `core.standing_orders` changes actor policy at zero time.
   - `core.urge {urge}` is the universal "I want to do X". It enters psyche as a `'command'` proposal.
   - Module commands like `provisions.buy` are handled by their owner's system via `commandsFor(ctx.commands, 'provisions.')`.
 - Events: `ctx.emit({kind, data, roles?, visibility?, place?, importance?, causes?, explain?, t?})`.
@@ -189,25 +202,26 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 **Owned paths (exclusive):**
 - `packages/core/src/needs/**`, `packages/core/src/activity/**`
 - `packages/content/src/schema/needs-activities.ts`
-- `content/base/needs/**`, `content/base/activities/**`
-- `packages/cli/test/needs-activities.test.ts`
+- `content/base/needs/**`, `content/base/activities/**` except fae-owned `activities/charms.toml`
+- `packages/cli/test/needs-activities.test.ts`, `survival.test.ts`, `survival-wave4.test.ts`
 
-**Implements (stubs → real):**
+**Implements:**
 - `needs/system.ts needsSystem`: decay by `decay_per_hour` × `labor_pct[labor]` × `asleep_pct`, plus the current activity's `needs` deltas, clamped 0..1000. Then update `bands`, emit `needs.band_changed`, and toggle band conditions.
-- `needs/api.ts`: `feed(kcal)` (define the kcal→hunger-points conversion: baseline 2,400 kcal/day per 05 §6.1, ×1.5 heavy labor), `drink(ml)` if you add thirst, and `proposeNeedUrges`.
+- `needs/api.ts`: `feed(kcal)`, `drink(ml)`, `proposeNeedUrges`, `canAct` and survival queries; the shared integer hourly ledger applies labor and physiology, including protein/fat debt.
 - `activity/system.ts activitySystem`: apply the `chosenUrge` activity unless `lockedUntil`; else the schedule (`scheduledBlock`); else idle at home.
   - Resolve the place (`home | workplace | venue` by `venue_tags`, deterministic choice | `anywhere`).
   - Move the actor (T1: instant within a site is fine for M1; `travel` is available for multi-hour moves).
   - Emit `activity.started` / `activity.moved`, then `recomputeOccupancy()`.
+- Survival owns deprivation/Fortitude checks, Vigor/Wounds, collapse/death, aid and fae-time stasis; aftermath calls social/provisions APIs for grief, funerals, adoption and estates.
 - `activity/api.ts proposeActivityUrges`: Superego duty from the schedule. Add the Sabbath (`attend_church` on Sunday mornings for the pious via schedule or urge) and market-day behavior (05 §4.6).
 
 **Content:** flesh out `needs.toml` per the 10 §3.4 registry, keeping the 0..1000 scale: hunger, thirst, rest, warmth, company, standing, security, faith. Also flesh out `activities.toml` (sleep, work, meals at table, cook, keep house, tend stock, attend church, tavern, visit kin, market, fetch water, chop wood...). Occupation **schedules** are written by content-world against your `OccupationSchema`.
 
 **May read:** everything; `psyche/api.chosenUrge`; `content.occupations`; `world.places`/`households`.
 
-**Event kinds:** `needs.band_changed`, `needs.fed` (+ yours). `activity.started`, `activity.moved` (+ `activity.arrived` if you add travel).
+**Event kinds:** `needs.band_changed`, `needs.fed`, `needs.drank`, survival/collapse/death/aid/stasis events; `activity.started`, `activity.moved` and observance/attendance/rota/gathering events. The module event unions are authoritative.
 
-**Conditions owned:** every `condition` id declared in `needs.toml` bands (`hungry`, `starving`, `exhausted`...).
+**Conditions owned:** need-band conditions (`hungry`, `starving`, `exhausted`...) and survival harm/collapse conditions declared in `content/base/needs/`.
 
 **Viewmodel parts:** `NeedsActorView` (`needs/view.ts`), `ActivityActorView` and `ActivityPlaceView` (`activity/view.ts`). Fill `name`/`verb`/`travelingTo`/`arriveAt` truthfully; the renderer interpolates with them.
 
@@ -222,7 +236,7 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 **Acceptance:**
 - In Iron Ford, seed 42, 14 days: every adult is at their workplace during most scheduled work hours on workdays, asleep at home at night, and most church-going actors are at the church on Sunday morning. Assert the fractions in `packages/cli/test/needs-activities.test.ts`.
 - Needs stay in 0..1000 under a fast-check property over random activity sequences. Sleeping raises rest; heavy labor drains hunger faster than rest-labor (asserted).
-- With psyche still a stub, behavior comes from schedules alone. With a `core.urge` command `{kind:'activity', activityId:'drink_at_tavern'}` for an actor, that actor ends up at the tavern within the hour once psyche honors commands. Test the activity side by setting `world.psyche.byActor[id].chosen` directly.
+- With no chosen urge, authorized behavior follows schedules. With a `core.urge` command `{kind:'activity', activityId:'drink_at_tavern'}` for an actor, that actor ends up at the tavern within the hour through psyche arbitration. Test the activity side by setting `world.psyche.byActor[id].chosen` directly.
 - Occupancy equals the set of actors whose `placeId` is that place, for every hour (property).
 - `needs_*_mean` columns appear in stats.csv. Determinism tests pass.
 
@@ -237,7 +251,7 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 - `packages/cli/test/psyche.test.ts`
 
 **Implements:**
-- `psyche/system.ts psycheSystem`: gather proposals from the five `propose*Urges` APIs plus `core.urge` commands (voice `'command'`), as in §1.4. Then:
+- `psyche/system.ts psycheSystem`: gather proposals from the module `propose*Urges` APIs (including fae) plus `core.urge` commands (voice `'command'`), as in §1.4. Then:
   - Build Thoughts: trait `voice_pct` and `urge_bias` multipliers; decay; cap per tier.
   - Arbitrate (10 §5.2 scoring; ties broken by total order). The output is `ChosenUrge` with an `Explain` of kind `'arbitration'`, knowledge `'self'`, and children = candidates with scores.
   - **A `'command'` proposal always wins** (10 §5.5) and books anxiety from the overridden voices.
@@ -246,7 +260,7 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
   - Defenses (10 §7): emit `psyche.defense`.
     - Displacement/projection set `chosen` to a `{kind:'defense', defense, targetId}` urge that social executes.
     - Projection also calls `belief.formProjection`.
-- `psyche/api.ts`: `addThought` (real), `addAnxiety` (keep), and anything social/belief need (e.g. `anxietyOf`).
+- `psyche/api.ts`: thoughts/anxiety, effective traits, actor agency/standing orders and `authorizeAct`; autonomous urges remain advisory for commanded actors unless authorized.
 - Persona/Shadow minimal fields (10 §8.1–8.2). You may restructure `persona` into a struct, but **keep `PsycheActorView.persona: string | null`** for the web (add new fields alongside).
 
 **Content:** traits with psyche weights (04 §3.2 examples; 10 §3), defenses (10 §7.2; the 7 in `DEFENSE_IDS` for M1), drives/norms if you implement them.
@@ -280,7 +294,7 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 **Owned paths:**
 - `packages/core/src/social/**`
 - `packages/content/src/schema/social.ts`
-- `content/base/interactions/**`, `content/base/social/**` (new domains, e.g. compatibility weights)
+- `content/base/interactions/**`, `content/base/social/**` except the fae-owned records listed under module:fae
 - `packages/cli/test/social.test.ts`
 
 **Implements:**
@@ -318,7 +332,7 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 - Iron Ford, 60 days, seed 42: ≥ 3 interactions per actor-day on average (04 §11.2 budget). Every `social.interaction` with a check carries an Explain. At least one opinion pair drifts by ≥ 20 affection over the run.
 - Encounter selection cost is O(n·k), not O(n²): assert via a counter on a synthetic 300-actor pool, or a code comment plus a test with a capped sample.
 - Opinion values equal base + Σ weighted reasons + volatile (property). They're clamped, and never written directly.
-- Gossip interactions call `belief.transmit` exactly once each (spy test). With the belief stub, they still resolve as `told: false`.
+- Gossip interactions call `belief.transmit` exactly once each; an empty belief graph resolves as `told: false`.
 - Determinism tests pass.
 
 ---
@@ -328,7 +342,7 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 **Owned paths:**
 - `packages/core/src/belief/**`
 - `packages/content/src/schema/belief.ts`
-- `content/base/beliefs/**`
+- `content/base/beliefs/**` except fae-owned `beliefs/charms.toml`
 - `packages/cli/test/belief.test.ts`
 
 **Implements:**
@@ -444,7 +458,7 @@ The user's standing directive (00 P8, restated 2026-10-10): **the player has to 
 ## module:content-items
 
 **Owned paths:**
-- `content/base/items/**` (you may delete or replace `_seed_examples.toml`)
+- `content/base/items/**` except fae-owned `items/fae.toml`
 - `packages/cli/test/content-items.test.ts`
 
 **Task:** transcribe the whole 03 §6 Starter Catalog (6.1–6.14; services in 6.15 are not items) into `content/base/items/<section>.toml` per `packages/content/src/schema/items.ts`, **in your own words where copy is concerned**. The catalog copy in 03 is original to this project, so you may keep it.
@@ -530,6 +544,7 @@ The user's standing directive (00 P8, restated 2026-10-10): **the player has to 
 - `content/base/peoples/**`, `content/base/names/**`, `content/base/occupations/**`, `content/base/places/**`, `content/base/scenarios/**`, `content/base/cultures/**` (new, per 12 §13)
 - `packages/content/src/schema/world.ts`, `packages/content/src/schema/scenario.ts`
 - `packages/cli/test/content-world.test.ts`
+- The charm fixture `scenarios/charm_at_iron_ford.toml` is fae-owned.
 
 **Task:**
 1. **Peoples** per ADR 0001 "Peoples" and **12-peoples.md §10 and §13 "Divergences"**:
@@ -602,7 +617,7 @@ The user's standing directive (00 P8, restated 2026-10-10): **the player has to 
 **Acceptance:**
 - `just web-build` succeeds; `just screens` produces `runs/screens/desktop.png` and `phone.png` showing the site view, a dossier, and the provisions panel with no page errors.
 - At phone width (390 px) there is no horizontal scroll and every control is ≥ 44 px.
-- The UI renders correctly when every module is still a stub (empty thoughts, empty readiness).
+- The UI renders correctly with empty thoughts and readiness.
 - Speeds work; pause works; `+1h` steps.
 - Every interactive player action goes through `ToWorker` `command` messages (grep test or code review note).
 - `just check` passes (the web typecheck is part of it).
@@ -614,6 +629,8 @@ The user's standing directive (00 P8, restated 2026-10-10): **the player has to 
 **Owned paths:**
 - `tools/blender/**`
 - `apps/web/public/assets/**` (`models/<id>.glb`, `previews/<id>.png`)
+
+**Art direction:** existing Blender models are placeholders. Replacement art and styling follow Ellie's 2026-10-12 watercolor direction in `00`, retaining overhead/phone legibility.
 
 **Implements:** Blender 5.2 headless bpy scripts generating **flat-shaded low-poly** glb models with vertex colors from the shared palette (`tools/blender/palette.py`), plus 256 px preview PNGs. `just assets` rebuilds everything deterministically (no random without fixed seeds).
 
@@ -657,15 +674,15 @@ Keep each glb small (< 50 KB typical).
   why: provisions starvation deaths (P8 acceptance 5)
 ```
 
-## module:fae (wave 3, slice 1a)
+## module:fae (slices 1a and 1b integrated)
 
-Owner: `packages/core/src/fae/**`, `packages/content/src/schema/fae.ts`, `content/base/fae/**`, `packages/cli/test/fae.test.ts`. Slice 1a contracts and acceptance are design-docs/13 §8.1; no charms, workings or Tally ship in this slice. Schedule: activity → fae → social. Fae owns episodes, canonical snapshots, thinning, signatures and open questions. It consumes belief and psyche through their APIs. Agency and authorization remain psyche-owned; pending loan requests remain social-owned. Additive consumers: place descriptions/worldgen, play Commands/observations, chronicle omen prose. Foundation owns the fae stream, composition, unions and optional canonical-time `rngAt` (present on real sim contexts; optional for legacy module fixtures).
+Owner: `packages/core/src/fae/**`, `packages/content/src/schema/fae.ts`, `content/base/fae/**`, `packages/cli/test/fae.test.ts` and `fae-fix.test.ts`. Slice 1a contracts and acceptance are design-docs/13 §8.1; charms are added by 1b below. Workings and Tally remain ahead. Schedule: activity → fae → social. Fae owns episodes, canonical snapshots, thinning, signatures and open questions. It consumes belief and psyche through their APIs. Agency and authorization remain psyche-owned; pending loan requests remain social-owned. Additive consumers: place descriptions/worldgen, play Commands/observations, chronicle omen prose. Foundation owns the fae stream, composition, unions and optional canonical-time `rngAt` (present on real sim contexts; optional for legacy module fixtures).
 
-## module:fae (wave 5, slice 1b: charms)
+### Slice 1b: charms
 
 Adds to the slice 1a ownership: `content/base/fae/{charms,quirks}.toml`, `content/base/interactions/fae.toml` (fae-owned interactions, executed by social), `content/base/items/fae.toml` (fae-section items), `content/base/beliefs/charms.toml` (item predicates and `stock_short`), `content/base/activities/charms.toml`, `content/base/social/talk-charms.toml`, the fixture `content/base/scenarios/charm_at_iron_ford.toml`, `packages/cli/test/fae-charms.test.ts`, `packages/cli/test/fae-signs-r2.test.ts` and `scripts/fae1b-batch.ts`. Design: design-docs/13 §5, §6, §8.2.
 
-World slice, one owner per record: `world.fae.{charms, drawCases, known, counts, ablation}` (fae); `world.social.{objectLoans, rotas}` (social); misfortunes stay belief's; stacks provisions'. Every fae slice field is optional and created on first use, so worlds without charms keep their hash.
+World slice, one owner per record: `world.fae.{charms, drawCases, known, counts, ablation}` (fae); `world.social.{objectLoans, rotas}` (social); misfortunes stay belief's; stacks provisions'. Charm-specific fae fields are optional and initialized on use; adding 1b preserves legacy worlds without charms.
 
 Contracts (all additive):
 - **foundation:** `Urge` gains `itemId?` (activity, interaction) and `terms?` (interaction; `Terms` loan/sale/gift); `sameUrge`, `urgeLabel` and psyche `urgeKey` compare them field by field.
@@ -676,7 +693,39 @@ Contracts (all additive):
 - **psyche:** `externalProposals` includes `proposeFaeUrges`; standing capability `tie_the_sack_nightly` (act `tie_charm`).
 - **chronicle:** fact class `charm`; pattern `charm` (levels 1–3, closing, `charm.truth`, written again only when the pounds drawn have changed); template slots `charm claim keeper keeper_short source lb resolution lent_to blame`; `when.stage` = `arrived | again | still` (a reopened story has no arrival; under the same keeper it is no news); `ChronicleState.charmMemo?` (per-charm last Truth pounds and last keeper, kept past closed-thread eviction).
 - **play:** charm actions, `charms` on the fair observation (`fae.charmView`), fae Command results as `detail`, refused charm Commands roll back at zero cost.
-- **fae API:** `charmView`, `forecastCharms`/`forecastHems`, `charmKeepWeight`, `charmTransferred`, `grantLook`, `restitutionOwed`, `restitutionMade`, `noteItemInteraction`, `loanTerms`, `tieWindow`; checkShortfall/countStock in `fae/discovery.ts`.
+- **fae API and forecast adapters:** `charmView`, `forecastCharms`/`forecastHems` (in `fae/forecast.ts`), `charmKeepWeight`, `charmTransferred`, `grantLook`, `restitutionOwed`, `restitutionMade`, `noteItemInteraction`, `loanTerms`, `tieWindow`; checkShortfall/countStock in `fae/discovery.ts`.
+
+---
+
+## module:play
+
+**Owned paths:** `packages/play/**`; integration coverage in `packages/cli/test/play*.test.ts` (CLI transport remains foundation-owned; web integration remains web-owned).
+
+**Implements:** pure `PlaySession`, source/PC creation, stable actions and validation, fair/god observations and durable known-event/Explain archives, shared interrupts, replay/save/load/fork and telemetry; storefront, trade preview and food-ledger host queries.
+
+**Contract:** CLI and web submit the same core Commands and advance through the same session; queries/settings and refusals cost zero time, other current actions use hourly steps. Shells own IO, storage and wall time; fair observations never expose remote minds or hidden charm truth.
+
+**Acceptance:** ADR 0002; replay each command boundary and saved continuation; web command logs replay headlessly to the same hash. Headless play is done; regional actions await M5.
+
+---
+
+## module:worldgen
+
+**Owned paths:** `packages/worldgen/**`, `packages/cli/test/worldgen*.test.ts`, `packages/cli/test/county.test.ts` and their fixtures. CLI commands remain foundation-owned; authored content and world/scenario schemas remain content-world-owned.
+
+**Implements:** independently versioned town v2 and county v3. Town layers emit ordinary scenario/site/place records and disposable 30-day QA; county layers emit terrain, hydrology, ecology, fae field, named settlements/features and routes with hashes/QA, SVG export and ford-town context.
+
+**Contract:** versioned recipes and independent world/sim seeds reproduce output; `townContent` installs records without mutating the bundle; `countyTownContext` supplies ford-town context, not a region runtime. No generator-specific sim rules or silent seed retries.
+
+**Acceptance:** ADR 0003; town seeds 1–50, county seeds 1–64 in both presets, earlier-layer hash stability and TOML round trips. Census, pre-roll, non-town layouts, county reservoir and playable-county acceptance remain ahead.
+
+---
+
+## module:region (proposed M5 ownership; no runtime yet)
+
+**Proposed owned paths:** `packages/core/src/region/**` for registry, graph, census/LOD and regional weather, per `docs/impl/M5-PLAN.md`. Foundation owns composition/IDs/scoped init/save migrations; needs-activities owns journey execution in `activity/travel*.ts`; content-world owns new region schemas/fixtures.
+
+**Proposed contract:** `region/api.ts` supplies site/graph lookups, processing selections and environment queries; activity alone relocates actors, and existing modules retain their minds, beliefs, stores and fae truth. Register additive contracts before implementation. M5 slice 1 is in progress; census/LOD and county release follow later plan slices.
 
 ## M5 slice 1 additive contracts (2026-10-12)
 

@@ -69,10 +69,15 @@ Notes:
 - **Art.** These are the showcase for the watercolor art direction (00 decisions log, 2026-10-12): washes for sky gradients, painted stars and clouds.
 
 ## Deferred from reviews and playtests
-- **Psyche and provisions performance.** About 12–15 ms per game-hour on desktop against a budget under 5 for phones. The determinism review lists the remaining hotspots.
-- **Persecution ladder.** It rarely climbs past rung 1 in a seed-42 year.
-- **Rumor mutation.** Mutations aren't narrated as such; the chronicle shows variants as separate rumors.
-- **Captive chainmen.** The two confined chainmen have no food source; decide on a narrative fix such as fae food.
-- **Social memory size.** Social memories dominate save size, so consolidate more aggressively.
-- **Web PlaySession.** The web is a spectator UI today. Adopt PlaySession for a PC (UI parity, ADR 0002) when the Outfitter/M4 UI lands.
-- **Low-severity review findings.** See the review JSON in the session scratch notes; fold them in as each area is touched.
+
+_Status checked 2026-10-12; the feature queue above is Ellie's unprioritized queue._
+
+- **Performance.** Wave 4 cut Iron Ford from 39.8 to 17.1 ms/game-hour on desktop; the <5 ms/hour phone gate remains unmet. Readiness projections are the largest remaining cost (`docs/impl/perf/2026-10-11-wave4.md`); real device measurements are pending.
+- **Persecution ladder.** Rungs 0–3 exist; rungs 4–6 and hunts remain M8 work. Validate escalation pacing with injected-misfortune and fair-play fixtures.
+- **Rumor mutation prose.** Lineage/mutation and real belief transfer are built; Chronicle variants still lack explicit narration of how the telling changed.
+- **Long-run social/save growth.** Memory caps, weekly consolidation, packed saves and Explain interning exist. County-scale retention/compaction and save-budget evidence remain ahead; fae 1b's generated seed 2 grew 6.7%, mostly social state (`playtests/2026-10-12-fae1b/report.md`).
+- **Listener-heard dialogue repeats.** Speaker cooldown retention is fixed, but 30-day repeats remain 32.8% in Iron Ford and 38.5% in generated town 7; listener memory/ambient talk pacing remain (`docs/impl/reviews/2026-10-12-w5-social-fixes.md`).
+- **Fae charm spread/rota.** Slice 1b is implemented; broad spread and a year-long rota remain partial. Refusal costs are in progress under Ellie's 2026-10-12 ruling; remeasure after they land.
+- **County name qualifiers.** Names are unique in v3, but qualifiers can stack (e.g. “West Upper Silver Mills”).
+
+Winter relief (M4 #3) and M5 slice 1 are active work, not deferred features. The M5 plan is `docs/impl/M5-PLAN.md`; its recommendations remain proposals pending the decisions in `08`.
