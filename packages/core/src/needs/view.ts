@@ -65,7 +65,7 @@ export function viewNeedsActor(
     };
     const actor = world.actors[actorId];
     if (opts.includeExplain && n && actor?.alive) {
-      const air = ambientTemperatureF(calendarAt(world.time));
+      const air = ambientTemperatureF(calendarAt(world.time), world);
       const ledger = hourlyLedger(
         world,
         content,
@@ -146,7 +146,7 @@ export function survivalWarnings(world: World, content: ContentBundle, actorId: 
   const s = n.survival;
   if (!actor.alive) return [`Died of ${s?.death?.cause ?? 'unknown causes'}.`];
   if (s?.collapsed) return ['You have collapsed. You cannot act; someone must bring water, food and shelter.'];
-  const air = ambientTemperatureF(calendarAt(world.time));
+  const air = ambientTemperatureF(calendarAt(world.time), world);
   const warnings: string[] = [];
   for (const key of Object.keys(content.survival_rules ?? {}).sort()) {
     const rule = content.survival_rules[key];
@@ -265,7 +265,7 @@ export function collapseForecast(
   const toZero = value === 0 ? 0 : Math.ceil(value / Math.max(1, -delta));
   const vigor = s?.vigor ?? maxVigor(world, content, actorId);
   const mod = abilityMod(actor?.sheet.abilities.con ?? 10);
-  const air = ambientTemperatureF(calendarAt(world.time));
+  const air = ambientTemperatureF(calendarAt(world.time), world);
   const heat =
     rule.heat_above_f === undefined ||
     ((actor ? world.needs.placeTempF?.[actor.placeId] : undefined) ?? air) >= rule.heat_above_f;

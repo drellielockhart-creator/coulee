@@ -1,3 +1,4 @@
+import { walking } from '../activity/api.ts';
 import { provisionCalendar as calendarAt } from './calendar.ts';
 /** Shared meal kernel: runtime and readiness both consume this exact inventory/preparation model. */
 
@@ -142,7 +143,7 @@ export function dailyKcalParts(
     points *= valueFactor;
     for (const trait of a.traits) points *= (hunger.trait_pct[trait] ?? 100) / 100;
     points *= physiology;
-    const air = airTempF({ ...cal, hour });
+    const air = airTempF({ ...cal, hour }, world);
     let weather = 100;
     for (const clause of hunger.temperature_pct)
       if (
@@ -360,7 +361,7 @@ export function kitchenOf(
       for (let offset = start; offset < end; ) {
         const t = now + offset,
           length = Math.min(end - offset, 60 - (t % 60));
-        const air = airTempF(calendarAt(asGameMinute(t)));
+        const air = airTempF(calendarAt(asGameMinute(t)), world);
         const hourly = hearth.burn_base + Math.floor((hearth.burn_per_10f * Math.max(0, hearth.ref_f - air)) / 10);
         fuel += Math.ceil((hourly * length) / 60);
         offset += length;
@@ -520,6 +521,12 @@ export function recipesFor(
       if (kitchen.fireCost(fire) + (fire > 0 && kitchen.fireCredit === 0 ? 10 : 0) > fuel) missing.push('fire supply');
       if (waterMl > water) missing.push('water');
       if (minutes > budget) missing.push(`time (${minutes} minutes)`);
+      if (
+        'actorId' in holder &&
+        walking(world, holder.actorId) &&
+        path.some((p) => p.minutes > 0 || p.fire_minutes > 0)
+      )
+        missing.push('stop to prepare');
       if (cold && path.some((p) => p.fire_minutes > 0 || p.minutes > 30)) missing.push('cold meal');
       // Nutrition follows the final units yielded by the preparation chain.
       const kcal = Math.round(
@@ -613,6 +620,7 @@ export function serveMeal(
   caregiver?: ActorId,
   opts?: MealOptions,
 ): MealResult {
+  if ('actorId' in holder && walking(world, holder.actorId)) cold = true;
   const content = ctx.content;
   const trace = passMemo?.explain !== false;
   const cookIds =

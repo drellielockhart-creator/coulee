@@ -75,6 +75,7 @@ export const ScenarioSchema = z.strictObject({
   name: z.string().min(1),
   description: z.string().default(''),
   site: ref(),
+  region: ref().optional(),
   /** Start date 'YYYY-MM-DD' (the epoch is 1855-04-01; later starts fast-forward the clock). */
   start: z
     .string()

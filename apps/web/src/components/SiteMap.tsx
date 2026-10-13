@@ -74,8 +74,9 @@ export function SiteMap({ speed }: { speed: Speed }) {
   }, [selectedActor, selectedPlace]);
   return (
     <section className="site-map" aria-label={`${site?.name ?? vm.scenario.name} site view`}>
-      <div className="site-host" ref={host} />
-      <fieldset className="map-tools" aria-label="Camera controls">
+      <div className="site-host" ref={host} hidden={!site} />
+      {!site ? <p role="status">On the road. Open Act for your route, supplies, and Stop or Camp.</p> : null}
+      <fieldset className="map-tools" aria-label="Camera controls" hidden={!site}>
         <button type="button" onClick={() => renderer.current?.frameTown()}>
           Fit
         </button>

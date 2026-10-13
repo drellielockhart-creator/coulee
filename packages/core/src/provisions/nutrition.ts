@@ -33,7 +33,7 @@ export function nutritionTargets(content: ContentBundle) {
 
 export function nutritionHour(world: World, ctx: SimContext): void {
   const hunger = Object.values(ctx.content.needs).find((d) => d.intake?.unit === 'kcal');
-  const air = airTempF(ctx.cal);
+  const air = airTempF(ctx.cal, world);
   for (const actor of rowsOf(world.actors)) {
     const n = world.provisions.nutrition[actor.id];
     if (!n || !actor.alive) continue;

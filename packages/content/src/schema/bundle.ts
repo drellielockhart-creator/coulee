@@ -12,6 +12,7 @@ import { deriveCharmClaims, faeDomains, faeRefs } from './fae.ts';
 import { itemsDomains, itemsRefs } from './items.ts';
 import { needsActivitiesDomains, needsActivitiesRefs } from './needs-activities.ts';
 import { psycheDomains, psycheRefs } from './psyche.ts';
+import { regionDomains, regionRefs } from './region.ts';
 import { rulesDomains, rulesRefs } from './rules.ts';
 import { scenarioDomains, scenarioRefs } from './scenario.ts';
 import { socialDomains, socialRefs } from './social.ts';
@@ -21,6 +22,7 @@ export const DOMAINS = {
   ...faeDomains,
   ...rulesDomains,
   ...worldDomains,
+  ...regionDomains,
   ...needsActivitiesDomains,
   ...psycheDomains,
   ...socialDomains,
@@ -53,6 +55,7 @@ export type ContentBundle = ContentTables & { meta: BundleMeta };
 export const REF_CHECKS: ReadonlyArray<(b: ContentBundle) => Issue[]> = [
   rulesRefs,
   worldRefs,
+  regionRefs,
   needsActivitiesRefs,
   psycheRefs,
   socialRefs,

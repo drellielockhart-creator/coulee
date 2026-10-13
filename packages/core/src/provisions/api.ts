@@ -51,6 +51,7 @@ import {
 } from './meals.ts';
 import { planReadiness } from './planner.ts';
 import { agePct, MONOTONY, SHOPPING, shoppingDays } from './rules.ts';
+import { tripReadiness } from './trip.ts';
 
 /** The spoilage kernel the planner uses, for hosts that explain "spoils first" (P1/P8). Read-only. */
 export { minutesUntil, type SpoilFactors, shelfMinutes, spoilageFactors } from './spoilage.ts';
@@ -62,6 +63,7 @@ export { airTempF, isRaining, storageTempF, tempBand } from './temperature.ts';
  * tradeoffs". Computed for an actor's carried kit or a household's pantry.
  */
 export interface Readiness {
+  trip?: import('./trip.ts').TripReadiness | string;
   /** Food on hand, kcal (usable given available prep). */
   kcalOnHand: number;
   /** Daily need at current labor and rations, kcal. */
@@ -95,8 +97,11 @@ export function readinessOf(
   holder: ReadinessHolder,
   now: number,
   horizonDays?: number,
+  itinerary?: { actorId: ActorId; order: import('../activity/api.ts').TravelOrder },
 ): Readiness {
-  return planReadiness(world, content, holder, now, horizonDays);
+  const result = planReadiness(world, content, holder, now, horizonDays);
+  if (itinerary) result.trip = tripReadiness(world, content, itinerary.actorId, itinerary.order);
+  return result;
 }
 
 /** Price in cents of one unit at a store (03 §8.1 markup; opinion-adjusted later). */
@@ -168,7 +173,7 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
   // something different. It is a low-pressure wish (it rarely beats a duty) and names the foods.
   const nutrition = world.provisions.nutrition[actorId];
   if (nutrition && nutrition.monotony >= MONOTONY.thinOnset && yearsBetween(actor.born, ctx.now) >= SHOPPING.minAge) {
-    const store = bestStore(world, ctx);
+    const store = bestStore(world, ctx, actorId);
     const commerce = Object.values(ctx.content.activities)
       .filter((a) => a.tags.includes('commerce'))
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0];
@@ -219,7 +224,7 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
       larder < daily * shoppingDays(ctx.cal.month).trigger
     ) {
       const intensity = urgent ? 950 : 800;
-      const store = bestStore(world, ctx);
+      const store = bestStore(world, ctx, actorId);
       const activity = Object.values(ctx.content.activities)
         .filter((a) => a.tags.includes('commerce'))
         .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0];
@@ -239,9 +244,15 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
 }
 
 /** The store with the most food on its shelves (kcal), ties to the lowest place id: where a household goes to buy. */
-export function bestStore(world: World, ctx: Pick<SimContext, 'content'>) {
+export function bestStore(world: World, ctx: Pick<SimContext, 'content'>, actorId?: ActorId) {
   let best: { store: (typeof world.provisions.stores)[number]; kcal: number } | undefined;
   for (const store of rowsOf(world.provisions.stores)) {
+    if (
+      world.region &&
+      actorId !== undefined &&
+      world.places[store.placeId]?.siteId !== world.places[world.actors[actorId]?.placeId ?? 0]?.siteId
+    )
+      continue;
     let kcal = 0;
     for (const { stack } of stacksDeep(world, atPlace(store.placeId)))
       kcal += (ctx.content.items[stack.defId]?.food?.kcal ?? 0) * stack.qty;
@@ -651,7 +662,7 @@ export function foodSeekingUrge(world: World, ctx: SimContext, actorId: ActorId)
   }
   if (yearsBetween(actor.born, ctx.now) < SHOPPING.minAge) return null;
   const activity = Object.values(ctx.content.activities).find((a) => a.tags.includes('commerce'));
-  const store = bestStore(world, ctx);
+  const store = bestStore(world, ctx, actorId);
   if (!activity || !store || !storeOpen(world, ctx.content, store.placeId, ctx.now)) return null;
   return { kind: 'activity', activityId: activity.id, placeId: store.placeId };
 }
@@ -887,4 +898,38 @@ export function applyRations(
   const n = world.provisions.nutrition[actorId];
   if (n) n.rationPct = rationPct;
   return null;
+}
+
+export { type TripReadiness, tripReadiness } from './trip.ts';
+
+/** Road preparations stay at the stopping point; they cannot follow a moving traveler. */
+export function roadPreparationPending(world: World, id: ActorId): boolean {
+  const place = world.region?.transit[id];
+  return place !== undefined && awaitingMeal(world, id, place);
+}
+
+/** Leaving a private roadside camp extinguishes its paid fire, without refunding fuel. */
+export function leaveRoadCamp(world: World, ctx: SimContext, id: ActorId): void {
+  const place = world.region?.transit[id];
+  const fire = place === undefined ? undefined : world.provisions.fires[place];
+  if (place === undefined || !fire?.lit) return;
+  fire.lit = false;
+  fire.fuelMinutes = 0;
+  fire.until = ctx.now;
+  ctx.emit({
+    kind: 'provisions.fire',
+    data: { placeId: place, lit: false, fuelMinutes: 0, ignition: 'Leaving roadside camp' },
+    place,
+    roles: [{ actor: id, role: 'agent' }],
+    visibility: 'private',
+    explain: {
+      kind: 'formula',
+      label: 'Extinguish roadside fire before walking',
+      subjects: [id],
+      knowledge: 'self',
+      terms: [{ source: 'fuel', label: 'Remaining fire minutes', value: 0 }],
+      total: 0,
+      outcome: 'Extinguished; spent fuel is not returned',
+    },
+  });
 }

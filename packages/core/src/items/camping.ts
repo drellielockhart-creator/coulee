@@ -25,7 +25,9 @@ export function campContext(
   const actor = world.actors[actorId];
   const place = actor && world.places[actor.placeId];
   if (!actor || !place) return { afield: false, bedding: false };
-  const afield = OPEN_GROUND.includes(place.kind) && world.households[actor.householdId]?.homePlaceId !== place.id;
+  const afield =
+    (OPEN_GROUND.includes(place.kind) || world.region?.transit[actorId] === place.id) &&
+    world.households[actor.householdId]?.homePlaceId !== place.id;
   return { afield, bedding: afield && affordanceAt(world, content, carriedBy(actorId), 'insulate') > 0 };
 }
 
@@ -60,9 +62,11 @@ export function campThermal(
     ground = Math.max(ground, stackAffordance(content, stack, 'ground'));
   }
   const cal = calendarAt(world.time);
-  const gust = rng(world.meta.seed, 'weather', cal.dayIndex, mixKey(0x77696e64, cal.hour)).int(3, 12);
+  const gust = world.region?.definition.fixed_weather
+    ? 0
+    : rng(world.meta.seed, 'weather', cal.dayIndex, mixKey(0x77696e64, cal.hour)).int(3, 12);
   const wind = Math.max(0, gust - Math.floor(shelter / 2));
-  const wet = isRaining(world.meta.seed, cal) ? Math.max(0, 10 - Math.floor(shelter / 2) - ground) : 0;
+  const wet = isRaining(world.meta.seed, cal, world) ? Math.max(0, 10 - Math.floor(shelter / 2) - ground) : 0;
   const fire = world.provisions.fires[actor.placeId];
   const warmth = resting && fire?.lit && (fire.until ?? 0) > world.time ? 20 : 0;
   return {

@@ -11,6 +11,7 @@ export * from './fae.ts';
 export * from './items.ts';
 export * from './needs-activities.ts';
 export * from './psyche.ts';
+export * from './region.ts';
 export * from './rules.ts';
 export * from './scenario.ts';
 export * from './social.ts';

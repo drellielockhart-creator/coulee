@@ -8,13 +8,13 @@ import type { CalendarInfo } from '../time.ts';
 import type { World } from '../world.ts';
 
 /** Outdoor air, °F: provisions owns the weather hook (one source of temperature for spoilage and exposure). */
-export function ambientTemperatureF(cal: CalendarInfo): number {
-  return airTempF(cal);
+export function ambientTemperatureF(cal: CalendarInfo, world?: World): number {
+  return airTempF(cal, world);
 }
 
 /** One fuel debit per place per hour, independent of how many actors sleep there. */
 export function heatPlaces(world: World, ctx: SimContext): Record<number, number> {
-  const air = ambientTemperatureF(ctx.cal);
+  const air = ambientTemperatureF(ctx.cal, world);
   const temperatures: Record<number, number> = {};
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   const homes: Record<number, number> = {};

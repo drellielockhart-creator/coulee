@@ -1,0 +1,13 @@
+[[region]]
+id = "iron_ford_neighbors"
+name = "The Iron Ford neighborhood"
+version = 1
+nodes = [
+  { id="iron_ford", site="iron_ford", entrance="dunleavys_tavern", name="Iron Ford" },
+  { id="cedar_farm", site="cedar_farm", entrance="cedar_farm_gate", name="Cedar Farm" },
+]
+edges = [
+  { id="cedar_road", a="iron_ford", b="cedar_farm", name="Cedar Ridge Road", distance_ft=60000, cost_minutes={ab=250,ba=240}, capability="walk", available_months=[1,2,3,4,5,6,7,8,9,10,11,12], climb_ft=320, descent_ft=160 },
+]
+walking_minutes_per_day = 480
+fixed_weather = {temperature_f=55, raining=false}

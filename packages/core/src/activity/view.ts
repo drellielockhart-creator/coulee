@@ -48,11 +48,17 @@ export function viewActivityActor(
       arriveAt: null,
       observed: false,
     };
+  const journey = world.activity.journeys?.[actorId];
   const def = a?.activityId ? content.activities[a.activityId] : undefined;
   return {
     activityId: a?.activityId ?? null,
     name: def?.name ?? 'Idle',
-    verb: a?.activityId === 'walk' && !a.travel ? 'at leisure' : (def?.verb ?? 'idling'),
+    verb:
+      journey && journey.status !== 'arrived'
+        ? `${journey.status} on the road`
+        : a?.activityId === 'walk' && !a.travel
+          ? 'at leisure'
+          : (def?.verb ?? 'idling'),
     placeId: a?.placeId ?? (world.actors[actorId]?.placeId as PlaceId),
     since: a?.since ?? 0,
     source: own ? (a?.source ?? 'init') : 'observed',

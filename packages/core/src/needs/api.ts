@@ -223,7 +223,7 @@ export function litHearthAt(world: World, placeId: import('../ids.ts').PlaceId):
 /** Readiness advances the same hourly physiology and heating rules in its private world. */
 export function projectWaterHour(world: World, ctx: SimContext): void {
   const temperatures = heatPlaces(world, ctx),
-    air = ambientTemperatureF(ctx.cal);
+    air = ambientTemperatureF(ctx.cal, world);
   if (!ctx.content.needs.thirst) return;
   for (const actor of rowsOf(world.actors)) {
     const n = world.needs.byActor[actor.id];
@@ -255,3 +255,5 @@ export function remainsAt(
       : [];
   });
 }
+
+export { needsSystem as itineraryNeedsHour } from './system.ts';

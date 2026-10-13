@@ -1,5 +1,6 @@
 import {
   type ActorId,
+  activity,
   belief,
   type Command,
   type ContentBundle,
@@ -221,7 +222,17 @@ export class PlaySession {
     } else if (command.kind === 'activity.observe') {
       const o = this.observe(mode),
         d = command.data;
-      if (d.query === 'explain') {
+      if (d.query === 'route') {
+        const edgeIds = activity.routeTo(this.sim.world, this.playerId, d.target ?? '');
+        detail = edgeIds
+          ? provisions.tripReadiness(this.sim.world, this.sim.content, this.playerId, {
+              destinationNodeId: d.target ?? '',
+              edgeIds,
+              pace: 'walk',
+              campPolicy: 'ask',
+            })
+          : 'No known route from here';
+      } else if (d.query === 'explain') {
         const retained = this.sim.world.log.events.find((e) => e.id === Number(d.target));
         const event =
           mode === 'god'

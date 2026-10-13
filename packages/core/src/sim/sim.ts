@@ -8,6 +8,7 @@
  *   4. Advance world.time by 60.
  */
 
+import { finishJourneys, prepareJourneys } from '../activity/api.ts';
 import type { Command } from '../command.ts';
 import type { ContentBundle } from '../content.ts';
 import { appendEvent, type Event, type EventInput, trimLog } from '../events/index.ts';
@@ -112,6 +113,7 @@ export function step(sim: Sim, commands: readonly Command[] = []): void {
       data: { command },
     });
   }
+  prepareJourneys(world, ctx);
   const wrap = sim.wrapSystem;
   for (const sys of HOURLY_SYSTEMS) {
     const admitted = ctx.commands.filter(
@@ -120,6 +122,7 @@ export function step(sim: Sim, commands: readonly Command[] = []): void {
     const systemCtx = { ...ctx, commands: admitted };
     if (wrap) wrap(sys.id, () => sys.run(world, systemCtx));
     else sys.run(world, systemCtx);
+    if (sys.id === 'provisions') finishJourneys(world, systemCtx);
   }
   // The chronicle (last system) has sifted everything up to lastId: older events may leave memory.
   if (ctx.isNewDay) trimLog(world.log, ctx.now);

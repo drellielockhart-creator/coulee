@@ -1,3 +1,5 @@
+import { idsOf } from '../ids.ts';
+import { initRegion } from '../region/api.ts';
 /**
  * World creation from a scenario. FOUNDATION-OWNED (module inits are called in order).
  */
@@ -77,31 +79,11 @@ export function createWorld(content: ContentBundle, opts: CreateWorldOptions): W
     chronicle: createChronicleState(),
   };
 
-  // Canonical definition order: content hashes ignore object insertion order.
-  for (const key of Object.keys(content.places).sort()) {
-    const def = content.places[key];
-    if (!def) continue;
-    if (def.site !== scenario.site) continue;
-    const id = asPlaceId(nextId(world.counters, 'place'));
-    const site = content.sites[def.site];
-    world.places[id] = {
-      id,
-      description: def.description,
-      defId: def.id,
-      siteId: def.site,
-      name: def.name,
-      kind: def.kind,
-      tags: [...def.tags],
-      x: def.x,
-      y: def.y,
-      w: def.w,
-      h: def.h,
-      rotation: def.rotation,
-      capacity: def.capacity,
-      model: def.model ?? null,
-      faeIntensity: def.fae_intensity ?? site?.fae_intensity ?? 0,
-    };
-    world.index.placeByDef[def.id] = id;
+  installSite(world, content, scenario.site);
+  if (scenario.region) {
+    const region = content.regions[scenario.region];
+    if (!region) throw new Error(`Unknown region ${scenario.region}`);
+    for (const site of [...new Set(region.nodes.map((n) => n.site))].sort()) installSite(world, content, site);
   }
   const placeOf = (defId: string): PlaceId => {
     const id = world.index.placeByDef[defId];
@@ -186,9 +168,71 @@ export function createWorld(content: ContentBundle, opts: CreateWorldOptions): W
   };
   for (const init of MODULE_INITS) init(world, ctx);
 
+  if (scenario.region) initRegion(world, content, scenario.region, installTransitPlaces(world));
+
   ctx.emit({
     kind: 'core.world_created',
     data: { scenarioId: scenario.id, seed, actorCount: scenario.actors.length },
   });
   return world;
+}
+
+/** Scoped, idempotent geometry installation. Population is reserved and initialized once at creation
+ * for this two-site hourly slice; later materialization must use scoped owning module APIs. */
+export function installSite(world: World, content: ContentBundle, siteId: string): void {
+  if (!content.sites[siteId]) throw new Error(`Unknown site ${siteId}`);
+  // Canonical definition order: content hashes ignore object insertion order.
+  for (const key of Object.keys(content.places).sort()) {
+    const def = content.places[key];
+    if (!def) continue;
+    if (def.site !== siteId) continue;
+    if (world.index.placeByDef[def.id] !== undefined) continue;
+    const id = asPlaceId(nextId(world.counters, 'place'));
+    const site = content.sites[def.site];
+    world.places[id] = {
+      id,
+      description: def.description,
+      defId: def.id,
+      siteId: def.site,
+      name: def.name,
+      kind: def.kind,
+      tags: [...def.tags],
+      x: def.x,
+      y: def.y,
+      w: def.w,
+      h: def.h,
+      rotation: def.rotation,
+      capacity: def.capacity,
+      model: def.model ?? null,
+      faeIntensity: def.fae_intensity ?? site?.fae_intensity ?? 0,
+    };
+    world.index.placeByDef[def.id] = id;
+  }
+}
+
+/** Reserve private road addresses in actor-id order, once; region owns the resulting registry. */
+function installTransitPlaces(world: World) {
+  const transit: import('../ids.ts').Table<import('../ids.ts').ActorId, PlaceId> = {};
+  for (const id of idsOf<import('../ids.ts').ActorId>(world.actors)) {
+    const pid = asPlaceId(nextId(world.counters, 'place'));
+    world.places[pid] = {
+      id: pid,
+      defId: `transit_${id}`,
+      siteId: `transit_${id}`,
+      name: 'On the road',
+      description: 'Open road; only your carried supplies are at hand.',
+      kind: 'road',
+      tags: ['outdoor'],
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+      rotation: 0,
+      capacity: 0,
+      model: null,
+      faeIntensity: 0,
+    };
+    transit[id] = pid;
+  }
+  return transit;
 }

@@ -358,7 +358,13 @@ function answer(query: Extract<ToWorker, { type: 'query' }>['query']): QueryResu
     case 'readiness': {
       // Another household's larder is not hers to know in fair play (P1); God view sees all.
       const h = query.holder;
-      const mine = 'actorId' in h ? h.actorId === pc : sim.world.actors[pc]?.householdId === h.householdId;
+      const mine =
+        'actorId' in h
+          ? h.actorId === pc
+          : sim.world.actors[pc]?.householdId === h.householdId &&
+            (!sim.world.region ||
+              sim.world.places[sim.world.households[h.householdId]?.homePlaceId ?? 0]?.siteId ===
+                sim.world.places[sim.world.actors[pc]?.placeId ?? 0]?.siteId);
       return {
         kind: 'readiness',
         readiness:
@@ -383,7 +389,12 @@ function answer(query: Extract<ToWorker, { type: 'query' }>['query']): QueryResu
       // Her own kit and household are hers to know; anyone else's only in God view (P1).
       const holder = query.holder ?? { actorId: pc };
       const mine =
-        'actorId' in holder ? holder.actorId === pc : sim.world.actors[pc]?.householdId === holder.householdId;
+        'actorId' in holder
+          ? holder.actorId === pc
+          : sim.world.actors[pc]?.householdId === holder.householdId &&
+            (!sim.world.region ||
+              sim.world.places[sim.world.households[holder.householdId]?.homePlaceId ?? 0]?.siteId ===
+                sim.world.places[sim.world.actors[pc]?.placeId ?? 0]?.siteId);
       return {
         kind: 'ledger',
         ledger: mine || mode === 'god' ? foodLedger(sim.world, sim.content, pc, holder) : null,

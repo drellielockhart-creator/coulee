@@ -4,7 +4,7 @@ import { type ActorId, idsOf } from '../ids.ts';
 import { inventoryIndex, loadReport, movementDelay } from '../items/api.ts';
 import { canAct, rousedBy } from '../needs/api.ts';
 import { admitSleep } from '../provisions/api.ts';
-import { chosenUrge } from '../psyche/api.ts';
+import { authorizeAct, chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { interactionAvailability } from '../social/api.ts';
 import { addHours } from '../time.ts';
@@ -14,8 +14,10 @@ import { blockActive, observanceActive, routineFor } from './calendar.ts';
 import { requiredRow } from './definitions.ts';
 import { activityExplain } from './explain.ts';
 import { type ActivitySource, recomputeOccupancy } from './state.ts';
+import { advanceJourneys, onJourney } from './travel.ts';
 
 export function activitySystem(world: World, ctx: SimContext): void {
+  advanceJourneys(world, ctx);
   // Accepted conversations reserve both participants for this hour, before anyone moves.
   const invited = new Set<ActorId>();
   for (const cmd of ctx.commands) {
@@ -36,6 +38,29 @@ export function activitySystem(world: World, ctx: SimContext): void {
     const actor = requiredRow(world.actors, id);
     const state = world.activity.byActor[id];
     if (!actor.alive || !state) continue;
+    if (onJourney(world, id)) {
+      const cmd = ctx.commands.find(
+        (c) => c.actorId === id && c.kind === 'core.urge' && c.data.urge.kind === 'activity',
+      );
+      if (
+        canAct(world, id) &&
+        cmd &&
+        authorizeAct(world, id, { kind: cmd.kind }, { kind: 'command', issuer: cmd.issuer ?? { kind: 'player' } }).ok &&
+        world.activity.journeys?.[id]?.status === 'stopped' &&
+        cmd?.kind === 'core.urge' &&
+        cmd.data.urge.kind === 'activity' &&
+        resolveActivityPlace(world, ctx, id, cmd.data.urge.activityId, cmd.data.urge.placeId) === actor.placeId
+      ) {
+        state.activityId = cmd.data.urge.activityId;
+        state.since = ctx.now;
+        const j = world.activity.journeys?.[id];
+        if (j && ctx.content.activities[state.activityId]?.asleep) {
+          j.status = 'camp';
+          j.campUntil = ctx.now + 480;
+        }
+      }
+      continue;
+    }
     if (!canAct(world, id)) {
       state.activityId = 'incapacitated';
       state.travel = null;
