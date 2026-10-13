@@ -374,15 +374,15 @@ async function regionLoop(page: Page, vp: Viewport, errors: string[]): Promise<v
     assert(target, 'known destination hit area');
     await page.touchscreen.tap(target.x + target.width / 2, target.y + target.height / 2);
   } else await destination.click();
-  const card = page.getByTestId('route-card');
+  const card = page.getByTestId('route-preview');
   await card.waitFor();
   await page.waitForFunction(() =>
-    /Route to Cedar Farm:/.test(document.querySelector('[data-testid="route-preview"]')?.textContent ?? ''),
+    /Cedar Farm/.test(document.querySelector('[data-testid="route-preview"]')?.textContent ?? ''),
   );
   assert.equal(await clock(page), 0, 'the map route query costs no time');
   await capture(page, `${vp.name}-region-route`, errors);
-  await card.getByRole('button', { name: 'Depart for Cedar Farm', exact: true }).click();
-  await outcomeFor(page, 'Depart for Cedar Farm');
+  await card.getByRole('button', { name: 'Go to Cedar Farm', exact: true }).click();
+  await outcomeFor(page, /Cedar Farm/);
   await closeSheet(page);
   await clearDispatches(page);
   await stepHour(page);
