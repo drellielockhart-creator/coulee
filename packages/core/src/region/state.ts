@@ -51,6 +51,13 @@ export interface CensusState {
     key: string;
     memory: import('../social/state.ts').MemoryInput;
     hydratedMemoryId: import('../ids.ts').MemoryId | null;
+    /** Present only for producer-snapshotted coarse memories. Original memory remains immutable. */
+    decay?: {
+      policy: import('../social/api.ts').MemoryDecayPolicy;
+      throughDay: number;
+      salience: number;
+      forgottenAt: number | null;
+    };
   }>;
 }
 export type RegionTier = 'T0' | 'T1' | 'T2';
