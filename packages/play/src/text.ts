@@ -1,4 +1,4 @@
-import { asActorId, asItemId, type Command, type Explain, TICKS_PER_SECOND, timeView } from '@coulee/core';
+import { asActorId, asItemId, type Command, type Explain, explainLine, TICKS_PER_SECOND, timeView } from '@coulee/core';
 import type { AvailableAction } from './actions.ts';
 import { claimText, obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
