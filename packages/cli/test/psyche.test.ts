@@ -191,7 +191,9 @@ describe('psyche: hunger against duty (10 §4.2, §5.2)', () => {
       advanceTo(sim, 9);
       const { p, eat } = hungry(sim, 'johann_brenner', (q) => {
         q.superego = 100;
-        q.idAppetite = 30;
+        // Isolate strong conscience from appetite; incidental money-debt duty
+        // varies now that neighbors can contribute food to relief offices.
+        q.idAppetite = 0;
         q.norms.duty = 100;
       });
       expect(eat).toBeDefined();

@@ -28,7 +28,7 @@ import type { SimContext } from '../sim/context.ts';
 import { inheritMoneyLedger } from '../social/api.ts';
 import type { Urge, UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
-import { cashOf, larderKcal } from './economy.ts';
+import { cashOf, creditLimitFor, larderKcal } from './economy.ts';
 import { accessibleStack, awaitingMeal, holderOfActor, holderStacks, mealExplain, serveMeal } from './meals.ts';
 import { serviceAt, storeOpen } from './services.ts';
 
@@ -168,7 +168,7 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
   // something different. It is a low-pressure wish (it rarely beats a duty) and names the foods.
   const nutrition = world.provisions.nutrition[actorId];
   if (nutrition && nutrition.monotony >= MONOTONY.thinOnset && yearsBetween(actor.born, ctx.now) >= SHOPPING.minAge) {
-    const store = bestStore(world, ctx);
+    const store = bestIntentStore(world, ctx, actorId);
     const commerce = Object.values(ctx.content.activities)
       .filter((a) => a.tags.includes('commerce'))
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0];
@@ -208,18 +208,26 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
     ctx.cal.hour < SHOPPING.closeHour &&
     !ctx.cal.isSabbath
   ) {
-    const daily = membersOf(world, { householdId: household.id }).reduce(
-      (n, id) => n + dailyKcal(world, ctx.content, id, ctx.now),
-      0,
-    );
-    const larder = larderKcal(world, ctx, household.id);
+    const pass = decisionPass(world, ctx);
+    let supply = pass.households.get(household.id);
+    if (!supply) {
+      supply = {
+        daily: membersOf(world, { householdId: household.id }).reduce(
+          (n, id) => n + dailyKcal(world, ctx.content, id, ctx.now),
+          0,
+        ),
+        larder: larderKcal(world, ctx, household.id),
+      };
+      pass.households.set(household.id, supply);
+    }
+    const { daily, larder } = supply;
     const urgent = larder < daily * SHOPPING.urgentDays;
     if (
       (household.headId === actorId || !canAct(world, household.headId) || urgent) &&
       larder < daily * shoppingDays(ctx.cal.month).trigger
     ) {
       const intensity = urgent ? 950 : 800;
-      const store = bestStore(world, ctx);
+      const store = bestIntentStore(world, ctx, actorId);
       const activity = Object.values(ctx.content.activities)
         .filter((a) => a.tags.includes('commerce'))
         .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0];
@@ -239,12 +247,36 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
 }
 
 /** The store with the most food on its shelves (kcal), ties to the lowest place id: where a household goes to buy. */
-export function bestStore(world: World, ctx: Pick<SimContext, 'content'>) {
+export function bestStore(world: World, ctx: Pick<SimContext, 'content'>, buyerId?: ActorId) {
+  return rankStores(world, ctx, buyerId);
+}
+
+// Psyche's inventory pass is read-only. All actors see the same stock, while
+// cash, credit, and the keeper's judgment remain personal and are checked afresh.
+function bestIntentStore(world: World, ctx: SimContext, buyerId: ActorId) {
+  return rankStores(world, ctx, buyerId, decisionPass(world, ctx).stockKcal);
+}
+function rankStores(
+  world: World,
+  ctx: Pick<SimContext, 'content'>,
+  buyerId?: ActorId,
+  stockKcal?: Map<PlaceId, number>,
+) {
   let best: { store: (typeof world.provisions.stores)[number]; kcal: number } | undefined;
   for (const store of rowsOf(world.provisions.stores)) {
-    let kcal = 0;
-    for (const { stack } of stacksDeep(world, atPlace(store.placeId)))
-      kcal += (ctx.content.items[stack.defId]?.food?.kcal ?? 0) * stack.qty;
+    if (
+      buyerId !== undefined &&
+      cashOf(world, buyerId) <= 0 &&
+      creditLimitFor(world, ctx.content, store.placeId, buyerId) <= (store.tabs[buyerId] ?? 0)
+    )
+      continue;
+    let kcal = stockKcal?.get(store.placeId);
+    if (kcal === undefined) {
+      kcal = 0;
+      for (const { stack } of stacksDeep(world, atPlace(store.placeId)))
+        kcal += (ctx.content.items[stack.defId]?.food?.kcal ?? 0) * stack.qty;
+      stockKcal?.set(store.placeId, kcal);
+    }
     if (!best || kcal > best.kcal) best = { store, kcal };
   }
   return best?.store;
@@ -363,16 +395,17 @@ export function drinkWater(
   ml: number,
   index?: InventoryIndex,
 ): boolean {
+  const available = waterAvailable(world, ctx.content, { actorId }, index);
+  const home = homeWaterHolder(world, actorId);
   if (
     !canAct(world, actorId) ||
     !Number.isSafeInteger(ml) ||
     ml <= 0 ||
-    ml > drinkingWater(world, ctx.content, actorId, index)
+    ml > available + (home ? (world.provisions.households[home.householdId]?.waterMl ?? 0) : 0)
   )
     return false;
-  const carried = Math.min(ml, waterAvailable(world, ctx.content, { actorId }, index));
+  const carried = Math.min(ml, available);
   drawWater(world, ctx.content, { actorId }, carried, index);
-  const home = homeWaterHolder(world, actorId);
   if (home && carried < ml) drawWater(world, ctx.content, home, ml - carried, index);
   drink(world, ctx, actorId, ml, { label: 'Drink accessible water' });
   return true;
@@ -589,15 +622,27 @@ export { admitSleep, boardMeal, serviceAt, settleBeds, storeOpen } from './servi
 /** Decision-time inventory/kitchens, scoped to this immutable proposal pass. The next hourly
  * context gets a new index; no memo enters a save or survives inventory mutations into a pass. */
 type DecisionContext = SimContext & {
-  provisionsDecisionPass?: { index: InventoryIndex; kitchens: Map<string, Kitchen> };
+  provisionsDecisionPass?: {
+    index: InventoryIndex;
+    kitchens: Map<string, Kitchen>;
+    stockKcal: Map<PlaceId, number>;
+    households: Map<HouseholdId, { daily: number; larder: number }>;
+    usableFood: Map<string, boolean>;
+  };
 };
-function decisionKitchen(world: World, ctx: SimContext, holder: ReadinessHolder): Kitchen {
+function decisionPass(world: World, ctx: SimContext) {
   const context = ctx as DecisionContext;
-  let pass = context.provisionsDecisionPass;
-  if (!pass) {
-    pass = { index: inventoryIndex(world), kitchens: new Map() };
-    context.provisionsDecisionPass = pass;
-  }
+  context.provisionsDecisionPass ??= {
+    index: inventoryIndex(world),
+    kitchens: new Map(),
+    stockKcal: new Map(),
+    households: new Map(),
+    usableFood: new Map(),
+  };
+  return context.provisionsDecisionPass;
+}
+function decisionKitchen(world: World, ctx: SimContext, holder: ReadinessHolder): Kitchen {
+  const pass = decisionPass(world, ctx);
   const key = 'householdId' in holder ? `h${holder.householdId}` : `a${holder.actorId}`;
   let kitchen = pass.kitchens.get(key);
   if (!kitchen) {
@@ -612,8 +657,12 @@ export function foodSeekingUrge(world: World, ctx: SimContext, actorId: ActorId)
   const actor = world.actors[actorId];
   if (!actor?.alive) return null;
   const usable = (holder: ReadinessHolder) => {
+    const memo = decisionPass(world, ctx).usableFood;
+    const key = 'householdId' in holder ? `h${holder.householdId}` : `a${holder.actorId}`;
+    const cached = memo.get(key);
+    if (cached !== undefined) return cached;
     const kitchen = decisionKitchen(world, ctx, holder);
-    return kitchen.stacks.some(
+    const result = kitchen.stacks.some(
       (stack) =>
         foodServings(ctx.content, stack) > 0 &&
         (ctx.content.items[stack.defId]?.food?.kcal ?? 0) > 0 &&
@@ -621,6 +670,8 @@ export function foodSeekingUrge(world: World, ctx: SimContext, actorId: ActorId)
           (r) => r.kcal > 0 && r.missing.length === 0,
         ),
     );
+    memo.set(key, result);
+    return result;
   };
   // The household's own plate, or one here, is the meal. A bought plate left at another place
   // does not hold her "at table" while she goes hungry: with food in her pack she eats that.
@@ -651,7 +702,7 @@ export function foodSeekingUrge(world: World, ctx: SimContext, actorId: ActorId)
   }
   if (yearsBetween(actor.born, ctx.now) < SHOPPING.minAge) return null;
   const activity = Object.values(ctx.content.activities).find((a) => a.tags.includes('commerce'));
-  const store = bestStore(world, ctx);
+  const store = bestIntentStore(world, ctx, actorId);
   if (!activity || !store || !storeOpen(world, ctx.content, store.placeId, ctx.now)) return null;
   return { kind: 'activity', activityId: activity.id, placeId: store.placeId };
 }
@@ -888,3 +939,6 @@ export function applyRations(
   if (n) n.rationPct = rationPct;
   return null;
 }
+
+export { creditLimitFor } from './economy.ts';
+export { type FoodParcel, householdFoodDays, type ReliefPlanningMemo, reliefParcel } from './relief.ts';

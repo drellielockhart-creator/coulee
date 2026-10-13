@@ -5,6 +5,33 @@ import type { EventOf } from '../events/base.ts';
 import type { ActorId, ItemId, MemoryId, PlaceId } from '../ids.ts';
 
 export type SocialEvent =
+  | EventOf<
+      'social.want_known',
+      {
+        householdId: import('../ids.ts').HouseholdId;
+        observerId: ActorId;
+        propId: import('../ids.ts').PropId;
+        daysOfFoodTenths: number;
+        rationPct: number;
+        channel: string;
+      }
+    >
+  | EventOf<
+      'social.relief',
+      {
+        giverId: ActorId;
+        recipientId: ActorId;
+        itemId: ItemId;
+        qty: number;
+        officeId?: string;
+        collection: boolean;
+        favors: number;
+      }
+    >
+  | EventOf<
+      'social.theft',
+      { actorId: ActorId; victimId: ActorId; itemId: ItemId; qty: number; success: boolean; detected: boolean }
+    >
   | EventOf<'social.act_refused', { actorId: ActorId; reason: string }>
   | EventOf<
       'social.requested',

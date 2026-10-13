@@ -1,3 +1,4 @@
+import { reliefHour } from './relief.ts';
 /**
  * Social system: runs FOURTH each hour (after activity). OWNER: module:social.
  *
@@ -63,6 +64,7 @@ interface HourState {
 
 export function socialSystem(world: World, ctx: SimContext): void {
   requestsHour(world, ctx);
+  reliefHour(world, ctx);
   if (ctx.isNewDay) {
     dailySocial(world, ctx);
     world.social.daily = emptyDaily();
@@ -259,6 +261,26 @@ function runUrge(
 ): void {
   const t = tuningOf(ctx.content);
   const urge = chosen.urge;
+  if (
+    urge.kind === 'interaction' &&
+    ctx.content.interactions[urge.interactionId]?.theft &&
+    urge.targetId !== undefined
+  ) {
+    const def = ctx.content.interactions[urge.interactionId];
+    if (!def) return;
+    take(id, urge.targetId);
+    resolveInteraction(world, ctx, {
+      def,
+      initiatorId: id,
+      targetId: urge.targetId,
+      placeId: venue.placeId,
+      present: venue.pool.filter((x) => x !== id),
+      mode: 'urge',
+      via: 'urge',
+      ...(urge.itemId !== undefined ? { itemId: urge.itemId } : {}),
+    });
+    return;
+  }
   const others = venue.pool.filter((x) => x !== id && free(x));
   if (others.length === 0) return;
   const presentTarget = (tid: ActorId | undefined): ActorId | null =>

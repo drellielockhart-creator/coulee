@@ -43,8 +43,9 @@ describe('procedural ford towns', () => {
     (seed) => {
       const t = town(seed);
       // Pre-county cc3307c layouts: optional region context must not move existing towns. The fae
-      // reservoir (slice 1b, its own random stream) is not layout: it is left out of the pin.
-      const { fae_reservoir: _reservoir, ...layout } = t.scenario;
+      // reservoir and relief policy seeds are not layout: leave them out of the pin.
+      const { fae_reservoir: _reservoir, relief_offices: offices, ...layout } = t.scenario;
+      expect(offices).toEqual([]); // generated offices are inferred from ordinary occupations/ties
       expect(sha256(JSON.stringify({ scenario: layout, site: t.site, places: t.places }))).toBe(layoutHashes[seed - 1]);
       expect(ScenarioSchema.parse(t.scenario)).toEqual(t.scenario);
       expect(SiteSchema.parse(t.site)).toEqual(t.site);

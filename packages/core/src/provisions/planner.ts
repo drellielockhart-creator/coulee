@@ -45,6 +45,7 @@ export function planReadiness(
   holder: Holder,
   now: number,
   horizonDays = 366,
+  details = true,
 ): Readiness {
   const members = membersOf(world, holder);
   const stacks = holderStacks(world, holder);
@@ -61,7 +62,7 @@ export function planReadiness(
   };
   // Charm rows show whatever the plan (13 §5.7): with no projection they cover no hours.
   const charmRows = (hems: import('../fae/hem.ts').HemSet | undefined): Readiness =>
-    world.fae?.charms
+    details && world.fae?.charms
       ? (() => {
           const rows = forecastCharms(
             world,
@@ -74,7 +75,7 @@ export function planReadiness(
         })()
       : result;
   if (!members.length || result.kcalPerDay === 0) return charmRows(undefined);
-  const storedWater = waterAvailable(world, content, holder);
+  const storedWater = details ? waterAvailable(world, content, holder) : 0;
   const thirst = content.needs.thirst;
   // A day's drinking: 16 waking hours and 8 asleep at the thirst need's rates (light labor).
   const dailyDrinking =
@@ -101,7 +102,7 @@ export function planReadiness(
         missing: [...new Set(recipes.flatMap((r) => r.missing))],
       });
     else result.kcalOnHand += Math.round(Math.max(...usable.map((r) => r.kcal)) * foodServings(content, stack));
-    const factors = spoilageFactors(world, content, stack, calendarAt(asGameMinute(now)));
+    const factors = details ? spoilageFactors(world, content, stack, calendarAt(asGameMinute(now))) : null;
     const minutes = factors ? minutesUntil(stack, food, factors.combinedPct, 1000) : null;
     if (minutes !== null) {
       const days = Math.floor((minutes * 10) / 1440);
@@ -191,7 +192,7 @@ export function planReadiness(
     const h = world.provisions.households[holder.householdId];
     if (h) projection.provisions.households[holder.householdId] = { ...h };
   }
-  const fuelStart = holderSupply(world, content, holder, 'fire');
+  const fuelStart = details ? holderSupply(world, content, holder, 'fire') : 0;
   let fuelDay = 0,
     foodHours = 0,
     windowKcal = pendingKcal,
@@ -239,7 +240,7 @@ export function planReadiness(
         if (state && (state.lockedUntil ?? 0) <= t)
           state.activityId = scheduledBlock(projection, ctx, id, cal)?.activity ?? null;
       }
-      const fuelBefore = hour < 24 ? holderSupply(projection, content, holder, 'fire') : 0;
+      const fuelBefore = details && hour < 24 ? holderSupply(projection, content, holder, 'fire') : 0;
       projectWaterHour(projection, ctx);
       nutritionHour(projection, ctx);
       storageHour(projection, ctx, placement, hems);
@@ -256,7 +257,7 @@ export function planReadiness(
         if (!members.some((id) => awaitingMeal(projection, id)))
           serveMeal(projection, ctx, holder, members, meal.share_pct, meal.cold, undefined, pass);
       }
-      if (hour < 24) fuelDay += Math.max(0, fuelBefore - holderSupply(projection, content, holder, 'fire'));
+      if (details && hour < 24) fuelDay += Math.max(0, fuelBefore - holderSupply(projection, content, holder, 'fire'));
       // A cold noon piece may fail while the two hot meals still cover 80% of the ration.
       // Judge a complete 24-hour window, including preparation completions, against the
       // documented daily 50% threshold. A partial day is never mistaken for exhaustion.
@@ -269,6 +270,10 @@ export function planReadiness(
       }
     }
   });
+  result.daysOfFoodTenths = Math.round((foodHours * 10) / 24);
+  // Internal decisions need only the projected horizon, not the seven-day
+  // readout and conditional charm descriptions. Meal/storage rules above are identical.
+  if (!details) return result;
   if (targets.length) result.kcalPerDay = Math.round(targets.reduce((n, t) => n + t, 0) / targets.length);
   // Water carried, with the salt the projected meals add (P8: salt meat costs water).
   const saltPerDay = Math.round(
@@ -287,7 +292,6 @@ export function planReadiness(
       `Salt meat asks about ${saltPerDay} ml more water a day as you would eat it; boiling it draws the salt (a kettle and pot water).`,
     );
   needLegibility(world, content, members, now, rationPct, result);
-  result.daysOfFoodTenths = Math.round((foodHours * 10) / 24);
   if (world.fae?.charms && hems) {
     const rows = forecastCharms(world, content, members, stacks, hems);
     if (rows.length) result.charms = rows;

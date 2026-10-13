@@ -74,6 +74,7 @@ export interface RelationshipView {
 }
 
 export interface SocialActorView {
+  reliefObligations?: ReliefObligationView[];
   opinions: OpinionView[];
   memories: MemoryView[];
   relationships: RelationshipView[];
@@ -193,7 +194,8 @@ export function viewSocialActor(
             : r.kind;
       return { otherId: other, otherName: name(other), label };
     });
-  return { opinions, memories, relationships };
+  const relief = reliefObligations(world, _content, actorId, opts);
+  return { opinions, memories, relationships, ...(relief.length ? { reliefObligations: relief } : {}) };
 }
 
 /** stats.csv columns (the same keys every day). */
@@ -229,4 +231,36 @@ export function socialDailyStats(world: World, _content: ContentBundle): Record<
     social_enemy_pairs: enemies,
     social_relationships: world.social.relationships.length,
   };
+}
+
+export interface ReliefObligationView {
+  officeId: string;
+  name: string;
+  keeperId: ActorId;
+  favors: number;
+}
+/** Institutional counterparties survive a change of keeper; a household sees only its own account. */
+export function reliefObligations(
+  world: World,
+  content: ContentBundle,
+  actorId: ActorId,
+  opts: Pick<ViewOptions, 'perspective' | 'omniscient'>,
+): ReliefObligationView[] {
+  const householdId = world.actors[actorId]?.householdId;
+  const viewerHousehold = opts.perspective === null ? undefined : world.actors[opts.perspective]?.householdId;
+  if (householdId === undefined || (!opts.omniscient && opts.perspective !== null && viewerHousehold !== householdId))
+    return [];
+  return (world.social.relief?.offices ?? []).flatMap((office) => {
+    const favors = office.favors[householdId] ?? 0;
+    return favors > 0
+      ? [
+          {
+            officeId: office.id,
+            name: content.reliefOffices[office.ruleId]?.name ?? office.ruleId,
+            keeperId: office.keeperId,
+            favors,
+          },
+        ]
+      : [];
+  });
 }

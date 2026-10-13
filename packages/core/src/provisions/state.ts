@@ -89,6 +89,7 @@ export interface HouseholdProvisions {
 }
 
 export interface Store {
+  creditRefusals?: Table<ActorId, number>;
   placeId: PlaceId;
   /** Household that owns and keeps the till, if any. */
   ownerHouseholdId: HouseholdId | null;
@@ -285,12 +286,11 @@ export function initProvisionsState(world: World, ctx: InitContext): void {
   for (const s of ctx.scenario.stocks) {
     const pid = world.index.placeByDef[s.place];
     if (pid === undefined) continue;
-    let owner: HouseholdId | null = null;
+    let owner: HouseholdId | null = s.keeper === undefined ? null : (world.index.householdByKey[s.keeper] ?? null);
     for (const hid of idsOf<HouseholdId>(world.households)) {
       if (owner === null && world.households[hid]?.homePlaceId === pid) owner = hid;
     }
-    // A store nobody lives at or works in may be kept by a named household (its accounts, its credit).
-    if (owner === null && s.keeper !== undefined) owner = world.index.householdByKey[s.keeper] ?? null;
+    // An explicit keeper owns the business even when lodgers share the premises.
     if (owner === null) {
       const roles = ctx.content.domesticRules?.daily?.business_owner_roles ?? [];
       const keeper = rowsOf(world.actors).find(

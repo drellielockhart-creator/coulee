@@ -42,17 +42,52 @@ export const shortage: PatternDef = {
   balladLevel: 4,
   suppressSingles: true,
   closingLevel: 2,
+  // The public face requires independent observers or ordinary tellings of the same want.
   publicFrom: 2,
+  townLevel(facts, th, dc, p) {
+    const hid = Number(th.tags.household ?? 0);
+    const households = new Set(
+      ofKind(facts, 'known')
+        .map((f) => dc.world.actors[f.a as ActorId]?.householdId)
+        .filter((h) => h !== undefined && h !== hid),
+    );
+    return households.size >= 3 ? this.level(facts, th, dc, p, 'all') : 0;
+  },
   publicActors(th) {
     return th.actorIds.slice(0, 1);
   },
 
   accept(f: Fact, dc: DetectCtx): Accept[] {
+    if (f.cls === 'belief' || f.cls === 'transmit') {
+      const prop = dc.world.belief.props[f.prop];
+      const subject = prop?.args[0];
+      if (
+        prop?.pred === 'in_want' &&
+        subject?.kind === 'household' &&
+        (f.cls === 'transmit' ? f.success === true : f.weight >= 50)
+      ) {
+        const hid = subject.id;
+        return [
+          accept(`h${hid}`, tfOf(f, 'known', { a: f.cls === 'transmit' ? f.target : f.agent }), {
+            households: [hid],
+            tags: { household: String(hid) },
+          }),
+        ];
+      }
+    }
     if (f.cls === 'shortage') {
       const hid = f.households[0] ?? 0;
       if (!hid) return [];
       const ration = (f.ev.data as unknown as { rationPct?: number }).rationPct ?? 100;
       return [
+        ...(f.ev.kind === 'social.want_known'
+          ? [
+              accept(`h${hid}`, tfOf(f, 'known', { a: f.ev.data.observerId }), {
+                households: [hid],
+                tags: { household: String(hid) },
+              }),
+            ]
+          : []),
         accept(`h${hid}`, tfOf(f, 'short', { x: String(ration) }), {
           actors: f.actors,
           households: [hid],

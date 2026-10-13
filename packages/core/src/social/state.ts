@@ -145,6 +145,7 @@ export interface SocialDaily {
 }
 
 export interface SocialState {
+  relief?: import('./relief.ts').ReliefState;
   pendingRequests?: import('./requests.ts').PendingRequest[];
   /** Object loans (13 §6.1 step 6), oldest first. Absent until the first. */
   objectLoans?: import('./objects.ts').ObjectLoan[];

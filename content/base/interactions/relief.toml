@@ -1,0 +1,61 @@
+[[interaction]]
+id = "give_relief"
+name = "Give food in relief"
+label = "Bring food"
+relief = "give"
+urge_only = true
+requires = { min_age = 16 }
+cooldown_hours = 24
+tags = ["relief", "friendly"]
+memory = { kind = "help", emotion = "gratitude", intensity = 45 }
+success.ledger = { favors = 1 }
+success.target_opinion = { affection = 8, trust = 5 }
+success.target_memory = "{initiator} brought food when we were in want"
+success.initiator_memory = "Brought food to {target}"
+failure.target_memory = "{initiator} offered food, but nothing changed hands"
+failure.initiator_memory = "Could not give {target} food"
+
+[[interaction]]
+id = "ask_relief"
+name = "Ask for poor relief"
+label = "Ask for food"
+relief = "ask"
+urge_only = true
+requires = { min_age = 16, target_min_age = 16 }
+cooldown_hours = 48
+tags = ["relief"]
+memory = { kind = "help", emotion = "gratitude", intensity = 45 }
+success.ledger = { favors = -1 }
+success.initiator_opinion = { affection = 8, trust = 5 }
+success.initiator_memory = "{target} gave us food when I asked"
+success.target_memory = "Gave food to {initiator}"
+failure.memory_kind = "rejection"
+failure.initiator_opinion = { affection = -5 }
+failure.initiator_memory = "{target} turned me away in want"
+failure.target_memory = "Had no relief for {initiator}"
+
+[[interaction]]
+id = "collect_relief"
+name = "Contribute to the poor pantry"
+label = "Contribute food"
+relief = "collect"
+urge_only = true
+requires = { min_age = 16 }
+cooldown_hours = 168
+tags = ["relief", "friendly"]
+memory = { kind = "help", emotion = "gratitude", intensity = 30 }
+success.target_opinion = { respect = 3 }
+success.target_memory = "{initiator} contributed food to the poor pantry"
+success.initiator_memory = "Left a contribution with {target}"
+
+[[interaction]]
+id = "steal_goods"
+name = "Steal goods"
+label = "Take goods"
+theft = true
+urge_only = true
+requires = { min_age = 12 }
+cooldown_hours = 24
+visibility = "private"
+tags = ["theft"]
+memory = { kind = "theft", emotion = "fear", intensity = 45 }

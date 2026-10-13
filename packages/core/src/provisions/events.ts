@@ -6,6 +6,10 @@ import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 
 export type ProvisionsEvent =
   | EventOf<
+      'provisions.credit_extended' | 'provisions.credit_refused',
+      { keeperId: ActorId; buyerId: ActorId; placeId: PlaceId; limitCents: number }
+    >
+  | EventOf<
       'provisions.production',
       { actorId: ActorId; activityId: string; yields: Array<{ defId: string; qty: number }> }
     >

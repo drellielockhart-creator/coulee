@@ -10,7 +10,11 @@ import { recomputeOccupancy } from './state.ts';
 import { activitySystem } from './system.ts';
 import { activityDef, advance, fixture } from './test-fixture.ts';
 
-vi.mock('../social/api.ts', () => ({ areKin: () => false }));
+vi.mock('../social/api.ts', () => ({
+  areKin: () => false,
+  prepareReliefTravel: () => {},
+  reliefReservations: () => [],
+}));
 
 function observance(fields: Partial<ObservanceDef> = {}): ObservanceDef {
   return {

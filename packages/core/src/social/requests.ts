@@ -7,6 +7,7 @@ import { dayText } from './availability.ts';
 import { resolveInteraction } from './interact.ts';
 import { formatCents } from './model.ts';
 import { opinionRecord } from './opinion.ts';
+import { officeOf } from './relief.ts';
 import { tuningOf } from './tuning.ts';
 export interface PendingRequest {
   id: string;
@@ -58,14 +59,22 @@ export function requestTerms(
   response: NonNullable<PendingRequest['response']>,
   now: number,
   /** An item request's terms (13 §6.1: a loan's day of return), when the act is about a thing. */
-  item?: { terms?: import('../urge.ts').Terms },
+  item?: { targetId?: ActorId; terms?: import('../urge.ts').Terms },
 ): RequestTerms {
   const a = world.actors[initiatorId];
   const name = a ? `${a.name.given} ${a.name.family}`.trim() : 'Someone';
   const him = a?.sex === 'male' ? 'him' : a?.sex === 'female' ? 'her' : 'them';
   const he = a?.sex === 'male' ? 'he' : a?.sex === 'female' ? 'she' : 'they';
   const cents = Math.abs(def.success.ledger.cents);
-  const favors = Math.abs(def.success.ledger.favors);
+  const office = def.relief
+    ? officeOf(world, def.relief === 'ask' ? (item?.targetId ?? initiatorId) : initiatorId)
+    : undefined;
+  const favors =
+    office && def.relief !== 'collect'
+      ? (content.reliefOffices[office.ruleId]?.favors ?? 1)
+      : Math.abs(def.success.ledger.favors);
+  const kindness = favors === 1 ? 'one favor' : `${favors} favors`;
+  const creditor = office ? (content.reliefOffices[office.ruleId]?.name ?? 'the relief office') : 'the donor';
   const money = formatCents(cents);
   const overdueDays = content.chroniclePatterns?.debt?.params.overdue_days ?? 30;
   const dueT = cents > 0 ? now + overdueDays * 1440 : null;
@@ -106,6 +115,13 @@ export function requestTerms(
         ? `${name} offers you a gift. Take it and you owe ${him} a kindness in return (${favors || 1} favor).`
         : `${name} offers to ${def.label.toLowerCase()} ${hour} (${def.name}). Accept and you will owe ${him} ${favors === 1 ? 'a favor' : `${favors} favors`}, to be returned in kind.`;
   }
+  if (def.relief)
+    ask =
+      def.relief === 'ask'
+        ? `${name} asks for food from your surplus or office pantry. Say yes and a real food parcel leaves your stores; the recipient owes ${kindness} to ${creditor}.`
+        : def.relief === 'collect'
+          ? `${name} offers food for the relief pantry, without a personal debt.`
+          : `${name} offers a food parcel. Accept and your household owes ${kindness} to ${creditor}.`;
   return { text: `${ask} Answer yes or no within the hour; silence means no.`, cents, favors, dueT };
 }
 
