@@ -200,9 +200,11 @@ describe('fae slice 1b: draws and conservation (13 §1 rule 3, §5.2, §5.8)', (
       itemId: c2.itemId,
     });
     tieTonight(opened, 'edwin_fenn');
+    // Open just before resolution: otherwise the autonomous keeper can legitimately tie it again.
+    const openedDawn = toDawn(opened);
     const inside = required(items.stacksDeep(opened.world, { kind: 'container', itemId: c2.itemId })[0]).stack;
     inside.qty -= 2; // someone took a scoop before cockcrow
-    expect(dawnDraw(opened.world, toDawn(opened), c2)).toEqual({ kind: 'idle', reason: 'opened before cockcrow' });
+    expect(dawnDraw(opened.world, openedDawn, c2)).toEqual({ kind: 'idle', reason: 'opened before cockcrow' });
     const ironed = fixture();
     const c3 = giveSack(ironed, 'edwin_fenn');
     const ctx = makeContext(ironed.world, ironed.content, []);

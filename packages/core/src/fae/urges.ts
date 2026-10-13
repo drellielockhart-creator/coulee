@@ -17,9 +17,10 @@ import { yearsBetween } from '../time.ts';
 import type { Terms, UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { restitutionOwed } from './arc.ts';
-import { charmDefOf, charmIds, feetBetween, type Holding, holdingOf, keeperOf, knowledgeOf } from './charms.ts';
+import { charmDefOf, charmIds, feetBetween, type Holding, holdingOf, knowledgeOf } from './charms.ts';
 import {
   actorArg,
+  believedKeeper,
   believesDraws,
   bestClaimCredence,
   credence,
@@ -197,7 +198,7 @@ function keeperUrges(world: World, ctx: SimContext, actorId: ActorId, c: CharmSt
   // Restitution (13 §6.6): an honest keeper who believes it drew from a household repays it.
   if (!borrowing && normStrength(world, actorId, 'honesty') >= 50)
     for (const hid of believesDraws(world, actorId, c, 50)) {
-      if (restitutionOwed(world, item, hid) <= 0 || hid === a.householdId) continue;
+      if (restitutionOwed(world, item, hid, actorId) <= 0 || hid === a.householdId) continue;
       const hon = normStrength(world, actorId, 'honesty');
       const intensity = 150 + hon * 5 - (c.attachment[actorId] ?? 0) * 2;
       const there = presentOf(world, ctx, a.placeId, hid);
@@ -339,12 +340,12 @@ function keeperUrges(world: World, ctx: SimContext, actorId: ActorId, c: CharmSt
   return out;
 }
 
-function outsiderUrges(world: World, ctx: SimContext, actorId: ActorId, c: CharmState, h: Holding): UrgeProposal[] {
+function outsiderUrges(world: World, ctx: SimContext, actorId: ActorId, c: CharmState, _h: Holding): UrgeProposal[] {
   const out: UrgeProposal[] = [];
   const a = world.actors[actorId];
   if (!a) return out;
   const item = c.itemId;
-  const keeper = keeperOf(world, c);
+  const keeper = believedKeeper(world, actorId, item);
   const k = keeper !== null ? world.actors[keeper] : undefined;
   const keeperHere = !!k && k.placeId === a.placeId && !isAsleep(world, ctx, k.id);
   const day = ctx.cal.hour >= 9 && ctx.cal.hour < 19;
@@ -353,11 +354,11 @@ function outsiderUrges(world: World, ctx: SimContext, actorId: ActorId, c: Charm
   const scholar = Math.max(a.sheet.skills.spellcraft ?? 0, a.sheet.skills.lore_fae ?? 0);
   const known = knowledgeOf(world, actorId, item);
   // Study (13 §6.1 inspect/study): the honest or curious who can read such things, given a look.
-  if (scholar >= 1 && !known?.effects && h.placeId !== null) {
+  if (scholar >= 1 && !known?.effects) {
     const heard = bestClaimCredence(world, ctx.content, actorId, c);
     if (heard >= 40) {
       const intensity = 150 + honesty * 3 + scholar * 20;
-      if ((c.access?.[actorId] ?? -1) >= ctx.now && a.placeId === h.placeId)
+      if ((c.access?.[actorId] ?? -1) >= ctx.now && keeperHere)
         out.push(
           proposal(
             { kind: 'activity', activityId: 'study_charm', placeId: a.placeId, itemId: item },
@@ -384,7 +385,7 @@ function outsiderUrges(world: World, ctx: SimContext, actorId: ActorId, c: Charm
             { norm: 'honesty' },
           ),
         );
-      else if (day && keeperHome !== undefined && k?.placeId === keeperHome && heard >= 60)
+      else if (day && keeperHome !== undefined && heard >= 60)
         out.push(
           proposal(
             { kind: 'activity', activityId: 'visit_kin', placeId: keeperHome },
@@ -494,7 +495,7 @@ function outsiderUrges(world: World, ctx: SimContext, actorId: ActorId, c: Charm
         : { kind: 'interaction', interactionId: 'ask_to_see', targetId: keeper, itemId: item };
     if (urge.kind === 'interaction' && feasible(world, ctx, urge.interactionId, actorId, keeper, item, urge.terms))
       out.push(proposal(urge, 'id', intensity, label, reasons, voice));
-  } else if (day && keeperHome !== undefined && k.placeId === keeperHome && d >= 30 && !openLoanOf(world, item))
+  } else if (day && keeperHome !== undefined && d >= 30)
     out.push(
       proposal(
         { kind: 'activity', activityId: 'visit_kin', placeId: keeperHome },

@@ -132,6 +132,13 @@ export function unitsInside(world: World, itemId: ItemId, defs: readonly string[
   return n;
 }
 
+/** Snapshot of material contents, also catches fractional use in older saves. */
+export function tiedContents(world: World, itemId: ItemId): string {
+  return stacksDeep(world, { kind: 'container', itemId })
+    .map(({ stack: s }) => `${s.id}:${s.qty}:${s.partial}:${s.foodPartialPm ?? 0}`)
+    .join('|');
+}
+
 export function knowledgeOf(world: World, actorId: ActorId, itemId: ItemId): CharmKnowledge | undefined {
   return world.fae.known?.[actorId]?.[itemId];
 }

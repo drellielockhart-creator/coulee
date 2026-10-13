@@ -171,7 +171,14 @@ function audience(view: View): number {
 }
 
 /** How it ended, from the world as it now stands (13 §6.6). */
-function resolutionOf(dc: DetectCtx, th: ChronicleThread, facts: readonly ThreadFact[]): string {
+function resolutionOf(dc: DetectCtx, th: ChronicleThread, facts: readonly ThreadFact[], view: View = 'all'): string {
+  if (view !== 'all') {
+    const disposal = [...facts].reverse().find((f) => f.k === 'disp');
+    if (disposal && ['buried', 'destroyed', 'returned'].includes(disposal.x)) return disposal.x;
+    if (count(facts, 'rest') > 0) return 'restitution';
+    if (count(facts, 'ret') >= 2 && count(facts, 'breach') === 0) return 'shared';
+    return 'quiet';
+  }
   const itemId = th.data.item ?? 0;
   const c = dc.world.fae?.charms?.[itemId as never];
   if (c?.disposed) return c.disposed.kind;
@@ -298,9 +305,11 @@ function lastTruthLb(dc: DetectCtx, th: ChronicleThread): number | undefined {
 function writeTruth(dc: DetectCtx, th: ChronicleThread, final: boolean): void {
   const itemId = th.data.item ?? 0;
   const src = sourceWords(dc, itemId);
+  memoOf(dc, itemId);
   // A Truth that would only repeat the last one (a thread reopened with nothing newly drawn) is
   // not written again.
   if (lastTruthLb(dc, th) === src.lb) {
+    delete th.data.truth_pending;
     th.truthDone = final || th.truthDone;
     th.data.truth_t = dc.ctx.now as number;
     th.data.truth_lb = src.lb;
@@ -333,7 +342,12 @@ function writeTruth(dc: DetectCtx, th: ChronicleThread, final: boolean): void {
     },
   });
   const e = writeEntry(dc, draft);
-  if (e) th.entryIds.push(e.id);
+  if (!e) {
+    th.data.truth_pending = final ? 2 : 1;
+    return;
+  }
+  delete th.data.truth_pending;
+  th.entryIds.push(e.id);
   th.truthDone = final || th.truthDone;
   th.data.truth_t = dc.ctx.now as number;
   th.data.truth_lb = src.lb;
@@ -416,7 +430,10 @@ export const charm: PatternDef = {
     // short does not know why. Revealed facts stay with the one who learned them.
     // A keeper's conscience over a refusal is inner: the story knows it only omnisciently.
     const hidden = k === 'drew' || k === 'short' || k === 'refuse';
-    const tf = tfOf(f, k, hidden ? { pub: 0, by: [] } : {});
+    const tf = tfOf(f, k, {
+      ...(hidden ? { pub: 0, by: [] } : {}),
+      ...(k === 'disp' ? { x: String(f.bind.disposal ?? '') } : {}),
+    });
     return [accept(key, tf, { actors: [f.agent, f.target].filter((x) => x > 0), tags: { item: String(itemId) } })];
   },
 
@@ -439,7 +456,7 @@ export const charm: PatternDef = {
     const itemId = th.data.item ?? 0;
     const keeper = keeperOfThread(facts);
     const loan = [...facts].reverse().find((f) => f.k === 'loan');
-    const resolution = resolutionOf(dc, th, facts);
+    const resolution = resolutionOf(dc, th, facts, view);
     const out: Bindings = {
       charm: itemSubjectName(dc.world, dc.content, itemId),
       claim: claimWords(dc, itemId) || 'keeps a family in bread',
@@ -474,6 +491,7 @@ export const charm: PatternDef = {
   daily(dc: DetectCtx): Accept[] {
     for (const th of dc.world.chronicle.threads) {
       if (th.pattern !== 'charm') continue;
+      if (th.data.truth_pending) writeTruth(dc, th, th.data.truth_pending === 2);
       refusalLines(dc, th);
       const since = (th.data.truth_t ?? th.openedAt) as number;
       if ((dc.ctx.now as number) - since >= TRUTH_EVERY * DAY && (th.data.uses ?? 0) + th.facts.length > 3)
@@ -496,6 +514,6 @@ export const charm: PatternDef = {
       writeTruth(dc, th, true);
     }
     if (close && th.data.keeper_id) memoOf(dc, th.data.item ?? 0).keeperId = th.data.keeper_id;
-    return close;
+    return close && th.truthDone;
   },
 };

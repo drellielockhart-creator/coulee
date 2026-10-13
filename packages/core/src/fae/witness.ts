@@ -150,7 +150,8 @@ export function charmDaily(world: World, ctx: SimContext): void {
         else c.attachment[a] = v;
       }
     }
-    if (stack && !c.inert && def.iron.sour_per_day > 0 && ironOn(world, ctx.content, stack, def).suppressed) {
+    const iron = stack ? ironOn(world, ctx.content, stack, def) : undefined;
+    if (iron?.suppressed && !iron.ironLined && !c.inert && def.iron.sour_per_day > 0) {
       c.vigor = Math.max(0, c.vigor - def.iron.sour_per_day);
       if (c.vigor === 0) c.inert = true;
     }

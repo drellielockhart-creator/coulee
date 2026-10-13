@@ -74,8 +74,8 @@ export interface CharmState {
   boundTo: ActorId | null;
   /** Who keeps it as the town would say: the finder, the borrower while lent, a buyer. */
   custodianId: ActorId | null;
-  /** Tied shut tonight: when, by whom, and the units inside then (fewer at dawn = opened). */
-  tie: { at: number; by: ActorId; units: number } | null;
+  /** Tied shut tonight: material snapshot and access revision survive save/load. */
+  tie: { at: number; by: ActorId; units: number; revision?: number; contents?: string } | null;
   lastUseAt: number | null;
   /** Day index of the last dawn this charm drew. */
   lastDrawDay: number;
@@ -140,6 +140,11 @@ export interface CharmState {
 export interface DrawCase {
   id: string;
   itemId: ItemId;
+  /** Physical bins under this household case, with separate material accounting. */
+  bins?: Record<
+    string,
+    { source: DrawCase['source']; placeId: PlaceId; undiscovered: number; discovered: number; lastAt: number }
+  >;
   source: { kind: 'household'; id: HouseholdId } | { kind: 'place'; id: PlaceId };
   /** The household that would miss it (the store's or mill's owner, or the household itself). */
   householdId: HouseholdId | null;
@@ -169,9 +174,20 @@ export interface CharmKnowledge {
   observed?: number;
   /** Source households learned (traced draw cases), by household id. */
   sources?: number[];
+  /** Outstanding units learned by this actor; private later draws never alter this report. */
+  losses?: Record<number, number>;
 }
 
+/** Recorded protection forfeits, scoped to the counterparty (01 §4.5). */
+export interface Forfeit {
+  kind: 'trespass' | 'bargain' | 'hospitality' | 'tribute' | 'unclaimed' | 'hunt_road';
+  counterparty: string;
+  until: number;
+}
 export interface FaeState {
+  /** Explicit fae actors; ancestry alone never makes a mortal a Fair Folk actor. */
+  faeActors?: Record<number, boolean>;
+  forfeits?: Record<number, Forfeit[]>;
   episodes: Record<string, Episode>;
   drift?: Record<number, number>;
   snowSeason?: number;

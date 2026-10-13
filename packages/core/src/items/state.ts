@@ -49,6 +49,9 @@ export interface ItemStack {
   foodPartialPm?: number;
   /** Stored potable water in liquid containers, ml. */
   waterMl: number;
+  /** Charm-container access revision and time; stored with items so planner copies stay isolated. */
+  contentsRevision?: number;
+  contentsAccessedAt?: number;
   /** Opening state and frozen storage state; optional for older saves. */
   opened?: boolean;
   frozen?: boolean;

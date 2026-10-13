@@ -25,7 +25,7 @@ const SALT_TRACE = 0x7ace;
 const EVIDENCE_EVERY = 7 * 1440;
 const SALT_BACK = 0xbac7;
 
-function sourceLoc(dc: DrawCase): ItemLocation {
+function sourceLoc(dc: Pick<DrawCase, 'source'>): ItemLocation {
   return dc.source.kind === 'household' ? pantryOf(dc.source.id) : { kind: 'place', placeId: dc.source.id };
 }
 function unitsAt(world: World, loc: ItemLocation, def: string): number {
@@ -40,7 +40,12 @@ export function casesOf(world: World, hid: HouseholdId, placeId?: PlaceId): Draw
     .map((k) => world.fae.drawCases?.[k])
     .filter(
       (dc): dc is DrawCase =>
-        !!dc && dc.householdId === hid && !dc.accepted && (placeId === undefined || dc.placeId === placeId),
+        !!dc &&
+        dc.householdId === hid &&
+        !dc.accepted &&
+        (placeId === undefined ||
+          dc.placeId === placeId ||
+          Object.values(dc.bins ?? {}).some((b) => b.placeId === placeId)),
     );
 }
 
@@ -62,8 +67,13 @@ export function checkShortfall(
   let found = 0;
   for (const dc of casesOf(world, householdId, placeId)) {
     if (dc.undiscovered <= 0) continue;
-    const stock = unitsAt(world, sourceLoc(dc), dc.def);
-    const missingPct = Math.floor((dc.undiscovered * 100) / Math.max(1, stock + dc.undiscovered));
+    const bins = Object.values(dc.bins ?? {}).filter((b) => placeId === undefined || b.placeId === placeId);
+    const missing = dc.bins ? bins.reduce((n, b) => n + b.undiscovered, 0) : dc.undiscovered;
+    if (missing <= 0) continue;
+    const stock = dc.bins
+      ? bins.reduce((n, b) => n + unitsAt(world, sourceLoc(b), dc.def), 0)
+      : unitsAt(world, sourceLoc(dc), dc.def);
+    const missingPct = Math.floor((missing * 100) / Math.max(1, stock + missing));
     const dcValue = Math.max(5, 15 - 2 * Math.floor(missingPct / 10));
     const skill = ['perception', 'trade_milling', 'bargain'].sort(
       (x, y) => (a.sheet.skills[y] ?? 0) - (a.sheet.skills[x] ?? 0) || (x < y ? -1 : 1),
@@ -89,12 +99,23 @@ export function checkShortfall(
       ),
     );
     if (!res.success) continue;
-    const units = dc.undiscovered;
+    const units = missing;
+    for (const bin of bins) {
+      bin.discovered += bin.undiscovered;
+      bin.undiscovered = 0;
+    }
     dc.tracedBy ??= {};
     const first = dc.misfortuneId === null;
     dc.discovered += units;
-    dc.undiscovered = 0;
+    dc.undiscovered -= units;
     found += units;
+    // Witnesses who already connected the loss to this charm learn the new count, too.
+    for (const id of [actorId, ...(world.households[householdId]?.memberIds ?? [])]) {
+      const known = world.fae.known?.[id]?.[dc.itemId];
+      if (!known?.sources?.includes(householdId)) continue;
+      known.losses ??= {};
+      known.losses[householdId] = Math.max(0, dc.discovered - (dc.restituted ?? 0));
+    }
     if (first) {
       dc.misfortuneId = reportMisfortune(world, ctx, {
         kindId: 'stock_short',
@@ -214,6 +235,8 @@ export function traceBack(world: World, ctx: SimContext, dc: DrawCase, actorId: 
     });
   const k = knownRecord(world, actorId, dc.itemId);
   k.sources = [...new Set([...(k.sources ?? []), dc.householdId])];
+  k.losses ??= {};
+  k.losses[dc.householdId] = Math.max(0, dc.discovered - (dc.restituted ?? 0));
   const keeperName = keeper !== null ? world.actors[keeper] : undefined;
   ctx.emit({
     kind: 'fae.charm_revealed',
@@ -269,33 +292,36 @@ export function discoveryHour(world: World, ctx: SimContext): void {
     const dc = world.fae.drawCases[key];
     if (!dc || dc.accepted || dc.undiscovered <= 0 || dc.householdId === null) continue;
     const hid = dc.householdId;
-    const here = (world.activity.occupancy[dc.placeId] ?? []).filter((x) => {
-      const a = world.actors[x];
-      return a?.alive && a.householdId === hid && !isAsleep(world, ctx, x);
-    });
-    if (!here.length) continue;
-    if (dc.traceUntil > ctx.now) {
-      // One look per draw: whoever of the household first comes to the bin after it.
-      const day = Math.floor(dc.lastAt / 1440);
-      const x = here[0] as ActorId;
-      if (dc.traceRolls[0] !== day) {
-        dc.traceRolls[0] = day;
+    for (const bin of Object.values(dc.bins ?? { legacy: dc })) {
+      if (bin.undiscovered <= 0) continue;
+      const here = (world.activity.occupancy[bin.placeId] ?? []).filter((x) => {
         const a = world.actors[x];
-        if (a) {
-          const r = skillCheck(
-            ctx.content,
-            a,
-            { label: 'Something not right at the bin', skill: 'perception', dc: 18, knowledge: 'self' },
-            ctx.rng('checks', mixKey(hashString32(dc.id), x, SALT_TRACE, day)),
-          );
-          if (r.success) checkShortfall(world, ctx, hid, x, 'trace', dc.placeId);
+        return a?.alive && a.householdId === hid && !isAsleep(world, ctx, x);
+      });
+      if (!here.length) continue;
+      if (dc.traceUntil > ctx.now) {
+        // One look per draw: whoever of the household first comes to the bin after it.
+        const day = Math.floor(dc.lastAt / 1440);
+        const x = here[0] as ActorId;
+        if (dc.traceRolls[0] !== day) {
+          dc.traceRolls[0] = day;
+          const a = world.actors[x];
+          if (a) {
+            const r = skillCheck(
+              ctx.content,
+              a,
+              { label: 'Something not right at the bin', skill: 'perception', dc: 18, knowledge: 'self' },
+              ctx.rng('checks', mixKey(hashString32(dc.id), x, SALT_TRACE, day)),
+            );
+            if (r.success) checkShortfall(world, ctx, hid, x, 'trace', bin.placeId);
+          }
         }
       }
-    }
-    if (meal && dc.undiscovered > 0) {
-      const need = Math.max(1, world.households[hid]?.memberIds.length ?? 1);
-      if (unitsAt(world, sourceLoc(dc), dc.def) < need)
-        checkShortfall(world, ctx, hid, here[0] as ActorId, 'shortage', dc.placeId);
+      if (meal && dc.undiscovered > 0) {
+        const need = Math.max(1, world.households[hid]?.memberIds.length ?? 1);
+        if (unitsAt(world, sourceLoc(bin), dc.def) < need)
+          checkShortfall(world, ctx, hid, here[0] as ActorId, 'shortage', bin.placeId);
+      }
     }
   }
 }

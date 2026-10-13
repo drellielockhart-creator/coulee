@@ -6,7 +6,7 @@
 import type { ActorId, HouseholdId, ItemId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
-import { learn } from './charms.ts';
+import { knownRecord, learn } from './charms.ts';
 import { credence, householdArg, itemArg } from './desire.ts';
 import { guiltEased } from './refusal.ts';
 
@@ -35,7 +35,11 @@ export function grantLook(world: World, ctx: SimContext, actorId: ActorId, itemI
 }
 
 /** Units its draws took from a household's stores (its own and its business's), less what was repaid. */
-export function restitutionOwed(world: World, itemId: ItemId, householdId: HouseholdId): number {
+export function restitutionOwed(world: World, itemId: ItemId, householdId: HouseholdId, actorId?: ActorId): number {
+  if (actorId !== undefined) {
+    if (credence(world, actorId, 'draws_from', [itemArg(itemId), householdArg(householdId)]) < 50) return 0;
+    return world.fae.known?.[actorId]?.[itemId]?.losses?.[householdId] ?? 0;
+  }
   let n = 0;
   for (const key of Object.keys(world.fae.drawCases ?? {}).sort()) {
     const dc = world.fae.drawCases?.[key];
@@ -56,9 +60,14 @@ export function restitutionMade(
   itemId: ItemId,
   householdId: HouseholdId,
   units: number,
-  _by: ActorId,
+  by: ActorId,
   receiver: ActorId,
 ): void {
+  for (const id of [by, receiver]) {
+    const known = world.fae.known?.[id]?.[itemId];
+    if (known?.losses?.[householdId] !== undefined)
+      known.losses[householdId] = Math.max(0, (known.losses[householdId] ?? 0) - units);
+  }
   let left = units;
   const informed = credence(world, receiver, 'draws_from', [itemArg(itemId), householdArg(householdId)]) >= 60;
   for (const key of Object.keys(world.fae.drawCases ?? {}).sort()) {
@@ -91,6 +100,11 @@ export function noteItemInteraction(
     c.asked[initiatorId] = ctx.now;
   }
   if (act === 'tell') {
+    const reported = world.fae.known?.[initiatorId]?.[itemId]?.losses;
+    if (reported) {
+      const listener = knownRecord(world, targetId, itemId);
+      listener.losses = { ...listener.losses, ...reported };
+    }
     const hid = world.actors[targetId]?.householdId;
     if (hid === undefined) return;
     c.told ??= {};

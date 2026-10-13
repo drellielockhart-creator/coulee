@@ -15,7 +15,7 @@ import { type ExplainTerm, term } from '../explain.ts';
 import type { ActorId, HouseholdId, ItemId, PropId } from '../ids.ts';
 import { asItemId, rowsOf } from '../ids.ts';
 import type { World } from '../world.ts';
-import { charmDefOf, claimPredicateOf, keeperOf } from './charms.ts';
+import { charmDefOf, claimPredicateOf } from './charms.ts';
 import type { CharmState } from './state.ts';
 
 export const itemArg = (id: ItemId | number): PropArg => ({ kind: 'item', id: asItemId(id) });
@@ -66,6 +66,20 @@ export function believesDraws(world: World, actorId: ActorId, c: CharmState, min
   return out;
 }
 
+/** Strongest believed keeper; ties break by actor id, never by physical custody. */
+export function believedKeeper(world: World, actorId: ActorId, itemId: ItemId): ActorId | null {
+  let best: ActorId | null = null;
+  let strength = 49;
+  for (const a of rowsOf(world.actors)) {
+    const cr = credence(world, actorId, 'has', [actorArg(a.id), itemArg(itemId)]);
+    if (cr > strength) {
+      best = a.id;
+      strength = cr;
+    }
+  }
+  return best;
+}
+
 export interface Desire {
   d: number;
   terms: ExplainTerm[];
@@ -98,7 +112,7 @@ export function desireOf(world: World, content: ContentBundle, actorId: ActorId,
   if (short) u = Math.min(100, u * 3);
   const att = c.attachment[actorId] ?? 0;
   const allure = Math.floor((def.allure * known) / 100);
-  const keeper = keeperOf(world, c);
+  const keeper = believedKeeper(world, actorId, c.itemId);
   const keeperOther = keeper !== null && world.actors[keeper]?.householdId !== a.householdId;
   const seenHas =
     keeperOther && keeper !== null ? credence(world, actorId, 'has', [actorArg(keeper), itemArg(c.itemId)]) : 0;

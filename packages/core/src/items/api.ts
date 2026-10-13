@@ -201,8 +201,25 @@ export function tryMerge(world: World, content: ContentBundle, stack: ItemStack)
   return stack.id;
 }
 
+/** Contents were accessed: persist it on each enclosing container, including nested storage. */
+export function accessContents(world: World, stack: ItemStack): void {
+  let loc = stack.location;
+  const seen = new Set<number>();
+  while (loc.kind === 'container' && !seen.has(loc.itemId)) {
+    seen.add(loc.itemId);
+    const parent = world.items.stacks[loc.itemId];
+    if (!parent) break;
+    if (world.fae?.charms?.[parent.id]) {
+      parent.contentsRevision = (parent.contentsRevision ?? 0) + 1;
+      parent.contentsAccessedAt = world.time;
+    }
+    loc = parent.location;
+  }
+}
+
 /** Remove a stack, hoisting any contents to the container's own location so nothing is orphaned. */
 function removeStack(world: World, stack: ItemStack): void {
+  accessContents(world, stack);
   invalidateInventory(world);
   for (const s of rowsOf(world.items.stacks)) {
     if (s.location.kind === 'container' && s.location.itemId === stack.id) s.location = stack.location;
@@ -225,6 +242,7 @@ export function createStack(
   const id = newStack(world, defId, qty, location, ctx.now);
   const s = world.items.stacks[id];
   if (!s) return id;
+  accessContents(world, s);
   if (init.spoilage !== undefined) s.spoilage = init.spoilage;
   if (init.condition !== undefined) s.condition = init.condition;
   if (init.wetness !== undefined) s.wetness = init.wetness;
@@ -259,6 +277,8 @@ export function moveStack(world: World, ctx: SimContext, itemId: ItemId, qty: nu
       throw new Error('moveStack: container cycle');
     }
   }
+  accessContents(world, s);
+  accessContents(world, { ...s, location: to });
   const from = s.location;
   let movedId: ItemId = s.id;
   if (n >= s.qty) {
@@ -299,6 +319,7 @@ export function consumeStack(world: World, ctx: SimContext, itemId: ItemId, qty:
   if (!s) return 0;
   const used = Math.max(0, Math.min(Math.floor(qty), s.qty));
   if (used === 0) return 0;
+  accessContents(world, s);
   s.qty -= used;
   s.partial = 0;
   s.foodPartialPm = 0;
@@ -358,6 +379,7 @@ export function consumeStackSupply(
   if (!sup || sup.kind !== kind || stack.condition <= 0) return 0;
   const take = Math.min(stackSupplyUnits(content, stack, kind), Math.max(0, Math.round(units)));
   if (!take) return 0;
+  accessContents(world, stack);
   const efficiency = kind === 'fire' && stack.wetness > 20 ? 50 : 100;
   const used = stack.partial + Math.ceil((take * 100) / efficiency);
   stack.qty -= Math.floor(used / sup.units);
