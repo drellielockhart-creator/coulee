@@ -3,6 +3,13 @@ import { type ActorId, idsOf, type PlaceId, type Table } from '../ids.ts';
 import { airTempF, isRaining } from '../provisions/api.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
+import { ensureCensus } from './census.ts';
+import { ensureLod, selectRegionTiers } from './lod.ts';
+
+export * from './census.ts';
+export * from './evidence.ts';
+export * from './lod.ts';
+export { regionSystem } from './system.ts';
 /** Called once after scoped site/population installation. No arrival reseeds stocks or actors. */
 export function initRegion(
   world: World,
@@ -26,6 +33,10 @@ export function initRegion(
     };
   }
   for (const id of idsOf<ActorId>(world.actors)) world.region.knownNodes[id] = definition.nodes.map((n) => n.id).sort();
+  ensureCensus(world);
+  const focusKey = content.scenarios[world.meta.scenarioId]?.player;
+  ensureLod(world, world.meta.playerId ?? (focusKey ? (world.index.actorByKey[focusKey] ?? null) : null));
+  selectRegionTiers(world);
 }
 export function nodeAt(world: World, actorId: ActorId): string | null {
   const site = world.places[world.actors[actorId]?.placeId ?? 0]?.siteId;
