@@ -11,7 +11,7 @@ These answers unblock M4 provisions/Outfitter, M5a worldgen, M5 travel, M6 comba
 1. **Readiness:** should practical judgments be skill-gated and fallible while supplies arithmetic is always correct?
 2. **Provisions difficulty:** use a Period-default Larder dial and an optional gentle spring, or one fixed severity?
 3. **World/device target:** approve Standard (~720 sq mi/~800 named) on the proposed phone floor, and put the county seat on-map or off-map?
-4. **Combat:** approve tenth-second actions, auto-pause/auto-Tactical, and the proposed possibility of a fatal level-1 musket hit?
+4. ~~**Combat:**~~ **Answered 2026-10-13 via item 15.** approve tenth-second actions, auto-pause/auto-Tactical, and the proposed possibility of a fatal level-1 musket hit?
 5. ~~**PC agency**~~ **Answered 2026-10-11:** high agency via a flexible agency mode (00 decisions log).
 6. **Concealment/prejudice:** use folkloric + psychological framing and restrained human/fantasy priors; should identity-only persecution stop at rung 3 or 4?
 7. **Worldgen setting constraints:** which Native-nations option and consultation budget, and how much real river geography must generation preserve?
@@ -21,16 +21,16 @@ These answers unblock M4 provisions/Outfitter, M5a worldgen, M5 travel, M6 comba
 
 **New from the r2 playtests (2026-10-11)**, from [the r2 triage](../docs/impl/PLAYTEST-TRIAGE-2026-10-11-r2.md):
 
-11. **Sub-hour actions.** Every Command costs a full game-hour today, so a 2-minute walk, one purchase or a settings change all take 60 minutes.
+11. ~~**Sub-hour actions.**~~ **Answered 2026-10-13: minute budget** (00 decisions log). Every Command costs a full game-hour today, so a 2-minute walk, one purchase or a settings change all take 60 minutes.
     - Editorial Rec: give each hour a minute budget. Short acts (a walk under about 15 minutes, a purchase line, a chat, a settings change) chain within the hour, while the sim still ticks hourly.
     - Settings changes cost nothing.
     - This needs an ADR 0002 amendment.
-12. **Newcomer income.** The PC can't earn; "work" pays only employed actors.
+12. ~~**Newcomer income.**~~ **Answered 2026-10-13: day labor + piece rates.** The PC can't earn; "work" pays only employed actors.
     - Editorial Rec: day labor and hiring on through ordinary social and economy rules (ask an employer; daily or weekly wages to the purse), plus piece rates for wood, fish and furs at the store.
     - P8 pressure stays on logistics.
-13. **Others' opinions of you.** Players can't see how anyone feels about them.
+13. ~~**Others' opinions of you.**~~ **Answered 2026-10-13: coarse band + visible reasons.** Players can't see how anyone feels about them.
     - Editorial Rec: a perception-gated "seems to feel about you" line on `inspect`, with the visible reasons (what you did to them) and a coarse band, never the number.
-14. **M5 travel defaults** ([M5 plan §7](../docs/impl/M5-PLAN.md)). Slice 1 proceeds on these defaults; override any of them:
+14. **M5 travel defaults** (not overridden as of 2026-10-13; in force) ([M5 plan §7](../docs/impl/M5-PLAN.md)). Slice 1 proceeds on these defaults; override any of them:
     - hourly travel boundaries, with sub-minute pathing and combat in M6;
     - an 800 sq mi Standard county with a 3–4k census, about 800 named at first;
     - history pre-roll deferred;
@@ -38,7 +38,7 @@ These answers unblock M4 provisions/Outfitter, M5a worldgen, M5 travel, M6 comba
     - no adjacent-county simulation; the county seat is off-map;
     - fae time-slip forward only, capped at 144 h, noncombat;
     - if phone performance misses by 3× or more, come back with options rather than silently shrinking the population.
-15. **M6 combat** ([M6 plan §7](../docs/impl/M6-PLAN.md); this refines Q04 above). Recommended defaults:
+15. ~~**M6 combat**~~ **Answered 2026-10-13: all defaults approved (also answers item 4).** ([M6 plan §7](../docs/impl/M6-PLAN.md); this refines Q04 above). Recommended defaults:
     - **Clock and pausing:** a tenth-second tactical clock with auto-pause and auto-Tactical.
     - **Lethality:** a level-1 musket hit can kill. There's an explicit Dying/stabilization state and no secret protagonist protection, and you see lethality distributions before final tuning.
     - **Health:** keep today's Vigor baseline; class and Hit Dice migration waits for M7.

@@ -217,6 +217,17 @@ Every doc uses these terms with these meanings.
       - **The keeper:** an honest keeper accrues duty-guilt with each refusal (scaled by honesty) until they lend, so they end up running a rota. A dishonest keeper feels little and hoards.
       - **Refused neighbors:** opinion falls and covetousness rises, gossip spreads ("sits on plenty while others go short"), and desperation acts follow, so a hoarder ends in a feud or a theft.
       - Refusal becomes a story, not a stall.
+- **2026-10-13 (Ellie; 08 items 11–13 and 15):**
+  - **Sub-hour actions: a minute budget per hour.** Short acts (a walk under about 15 minutes, a purchase line, a chat) chain within the hour, while the sim still ticks hourly. Settings changes cost no time. This amends ADR 0002.
+  - **Newcomer income: day labor and piece rates.** Hiring on goes through the ordinary social and economy rules (ask an employer; daily or weekly wages to the purse). The store pays piece rates for wood, fish and furs. P8 pressure stays on logistics.
+  - **Others' opinions of you:** a perception-gated "seems to feel about you" line on `inspect`, with a coarse band and the visible reasons, never the number.
+  - **M6 combat defaults approved** (Q04 and the M6 plan §7):
+    - a tenth-second tactical clock with auto-pause and auto-Tactical;
+    - a level-1 musket hit can kill, with an explicit Dying/stabilization state, no protagonist protection, and lethality distributions shown before final tuning;
+    - Vigor stays until M7;
+    - a three-gun retained-charge misfire subset;
+    - a minimal inquiry/arrest/hearing loop.
+  - Item 14 (M5 travel defaults) was not overridden, so slice 2 proceeds on them.
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.
