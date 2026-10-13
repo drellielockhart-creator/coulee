@@ -1,3 +1,4 @@
+import { isDailyProcessing, processesActor } from '../region/processing.ts';
 import { reliefHour } from './relief.ts';
 /**
  * Social system: runs FOURTH each hour (after activity). OWNER: module:social.
@@ -73,14 +74,18 @@ function socialHour(world: World, ctx: SimContext): void {
   reliefHour(world, ctx);
   if (ctx.isNewDay) {
     dailySocial(world, ctx);
-    world.social.daily = emptyDaily();
+    if (!isDailyProcessing(world)) world.social.daily = emptyDaily();
   }
   const t = tuningOf(ctx.content);
   const awake = (id: ActorId): boolean => {
     const a = world.actors[id];
     // An infant is carried about, not talked with (and does not answer back).
     return (
-      a?.alive === true && canAct(world, id) && ageYears(a, ctx.now) >= t.min_social_age && !isAsleep(world, ctx, id)
+      processesActor(world, id) &&
+      a?.alive === true &&
+      canAct(world, id) &&
+      ageYears(a, ctx.now) >= t.min_social_age &&
+      !isAsleep(world, ctx, id)
     );
   };
   const hs: HourState = { participations: new Map(), initiations: new Map(), poolOf: new Map() };
@@ -452,11 +457,12 @@ function dailySocial(world: World, ctx: SimContext): void {
   if (ctx.cal.weekday === 'sun') repointReasons(world, consolidateMemories(world, content));
   dailyOpinionUpkeep(world, content);
   pruneCooldowns(world, ctx.now);
-  pruneTalk(world, ctx.now);
+  if (!isDailyProcessing(world)) pruneTalk(world, ctx.now);
   dailyStrife(world, ctx);
   for (const from of Object.keys(world.social.opinions)
     .map(Number)
     .sort((a, b) => a - b) as ActorId[]) {
+    if (!processesActor(world, from)) continue;
     const table = world.social.opinions[from] ?? {};
     for (const k of Object.keys(table)
       .map(Number)

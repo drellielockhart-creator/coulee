@@ -91,3 +91,5 @@ export function environmentAt(world: World, at = world.time) {
   const cal = calendarAt(asGameMinute(at));
   return { temperatureF: airTempF(cal, world), raining: isRaining(world.meta.seed, cal, world) };
 }
+
+export { settleDailySites } from './coarse.ts';

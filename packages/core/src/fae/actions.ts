@@ -9,10 +9,11 @@ import { skillCheck } from '../checks.ts';
 import type { Command } from '../command.ts';
 import type { Explain } from '../explain.ts';
 import type { ActorId, HouseholdId, ItemId } from '../ids.ts';
-import { asItemId, idsOf } from '../ids.ts';
+import { asItemId } from '../ids.ts';
 import { atPlace, carriedBy, consumeStack, deleteStack, moveStack, pantryOf, stacksDeep } from '../items/api.ts';
 import { purchase, storeOpen } from '../provisions/api.ts';
 import { authorizeAct, type Basis, chosenUrge, commandBasis } from '../psyche/api.ts';
+import { processingActorIds } from '../region/processing.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { attemptTheft } from '../social/api.ts';
@@ -450,7 +451,7 @@ function tendCharm(world: World, ctx: SimContext, actorId: ActorId, c: CharmStat
 
 /** After the activity pass: act on chosen fae activities; run the stock count. */
 export function actionsHour(world: World, ctx: SimContext): void {
-  for (const id of idsOf<ActorId>(world.actors)) {
+  for (const id of processingActorIds(world)) {
     const st = world.activity.byActor[id];
     const actId = st?.activityId;
     if (!actId || !world.actors[id]?.alive) continue;

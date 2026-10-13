@@ -1,15 +1,18 @@
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { ensureCensus } from './census.ts';
+import { updateProcessingOwners } from './coarse.ts';
 import { decayCensusEvidence, hydrateCensusEvidence } from './evidence.ts';
 import { selectRegionTiers } from './lod.ts';
 
-/** Region boundary hook. Metadata and already-resolved evidence only: never duplicates an hourly executor.
+/** Region boundary hook: select owners, settle due physical intervals, and hydrate resolved evidence.
  * Runs after journey settlement at each completed boundary, including tactical frames. */
 export function regionSystem(world: World, ctx: SimContext): void {
   if (!world.region) return;
   ensureCensus(world);
   selectRegionTiers(world);
+  updateProcessingOwners(world, ctx);
+  ensureCensus(world);
   decayCensusEvidence(world);
   const pending = new Set(
     (world.region.census?.evidence ?? [])

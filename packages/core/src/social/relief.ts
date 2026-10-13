@@ -24,6 +24,7 @@ import {
   reliefParcel,
 } from '../provisions/api.ts';
 import { authorizeAct, type Basis, chosenUrge, effectiveTraits } from '../psyche/api.ts';
+import { processesActor, processingActors, processingHouseholds } from '../region/processing.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { UrgeProposal } from '../urge.ts';
@@ -93,7 +94,7 @@ function initOffices(world: World, ctx: SimContext): void {
           const id = world.index.actorByKey[s.keeper];
           return id === undefined ? [] : [id];
         })
-      : rowsOf(world.actors)
+      : processingActors(world)
           .filter((a) => ctx.content.occupations[a.occupationId]?.roles.includes(rule.role))
           .map((a) => a.id);
     for (const keeperId of keepers) {
@@ -105,7 +106,7 @@ function initOffices(world: World, ctx: SimContext): void {
             const h = world.index.householdByKey[k];
             return h === undefined ? [] : [h];
           })
-        : rowsOf(world.households)
+        : processingHouseholds(world)
             .filter(
               (h) =>
                 h.id === keeper.householdId ||
@@ -195,7 +196,7 @@ export function reliefHour(world: World, ctx: SimContext): void {
     if (ctx.cal.isSabbath && ctx.cal.hour === 10) {
       for (const office of st.offices) {
         if (!ctx.content.reliefOffices[office.ruleId]?.attendance_membership) continue;
-        for (const a of rowsOf(world.actors))
+        for (const a of processingActors(world))
           if (
             a.alive &&
             a.placeId === office.placeId &&
@@ -207,9 +208,11 @@ export function reliefHour(world: World, ctx: SimContext): void {
       }
     }
     if (ctx.cal.hour === 7) {
-      for (const [id, o] of Object.entries(st.offers)) if (ctx.now - o.at > 2 * 1440) delete st.offers[Number(id)];
-      for (const [k, t] of Object.entries(st.attempts)) if (t < ctx.now - 7 * 1440) delete st.attempts[k];
-      for (const h of rowsOf(world.households)) {
+      for (const [id, o] of Object.entries(st.offers))
+        if (processesActor(world, Number(id)) && ctx.now - o.at > 2 * 1440) delete st.offers[Number(id)];
+      for (const [k, t] of Object.entries(st.attempts))
+        if (processesActor(world, Number(k.split(':')[0])) && t < ctx.now - 7 * 1440) delete st.attempts[k];
+      for (const h of processingHouseholds(world)) {
         const alive = h.memberIds.filter((id) => world.actors[id]?.alive);
         if (!alive.length) continue;
         const poor = cashOf(world, h.headId) <= rule.want_cash_cents;
@@ -229,8 +232,8 @@ export function reliefHour(world: World, ctx: SimContext): void {
         for (const id of alive) notice(world, ctx, id, h.id, 'the household table');
       }
     }
-    const actors = rowsOf(world.actors).filter((a) => a.alive && canAct(world, a.id) && !isAsleep(world, ctx, a.id));
-    for (const h of rowsOf(world.households)) {
+    const actors = processingActors(world).filter((a) => a.alive && canAct(world, a.id) && !isAsleep(world, ctx, a.id));
+    for (const h of processingHouseholds(world)) {
       const want = st.wants[h.id];
       if (!want) continue;
       for (const a of actors) {
@@ -375,7 +378,7 @@ export function reliefUrges(world: World, ctx: SimContext, id: ActorId): UrgePro
     knowsWant(world, ctx.content, id, a.householdId) &&
     (world.households[a.householdId]?.headId === id || !canAct(world, world.households[a.householdId]?.headId ?? id))
   ) {
-    const candidates = rowsOf(world.actors)
+    const candidates = processingActors(world)
       .filter(
         (b) =>
           b.alive &&
@@ -615,6 +618,7 @@ export function prepareReliefTravel(world: World, ctx: SimContext): void {
       a = world.actors[id],
       b = world.actors[offer.targetId];
     const chosen = chosenUrge(world, id);
+    if (!processesActor(world, id)) continue;
     if (
       !a ||
       !b ||
@@ -643,7 +647,7 @@ export function prepareReliefTravel(world: World, ctx: SimContext): void {
 /** A chosen relief conversation reserves its present participants just like a Command. */
 export function reliefReservations(world: World, ctx: SimContext): ActorId[] {
   const out: ActorId[] = [];
-  for (const a of rowsOf(world.actors)) {
+  for (const a of processingActors(world)) {
     const c = chosenUrge(world, a.id),
       u = c?.urge;
     if (
@@ -682,7 +686,7 @@ function collecting(world: World, ctx: SimContext, office: ReliefOffice): boolea
       0,
     );
   let knownNeed = 0;
-  for (const h of rowsOf(world.households))
+  for (const h of processingHouseholds(world))
     if ((!rule?.members_only || office.members.includes(h.id)) && knowsWant(world, ctx.content, office.keeperId, h.id))
       knownNeed += daily(h.id);
   // Keep a modest reserve even before want is reported. Collect for known want,

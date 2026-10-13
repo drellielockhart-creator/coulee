@@ -1,5 +1,6 @@
 import { walking } from '../activity/api.ts';
 import { accessContents } from '../items/api.ts';
+import { processesPlace } from '../region/processing.ts';
 import { provisionCalendar as calendarAt } from './calendar.ts';
 /** Shared meal kernel: runtime and readiness both consume this exact inventory/preparation model. */
 
@@ -1266,12 +1267,13 @@ function thirstFromSalt(world: World, ctx: SimContext, id: ActorId, ml: number, 
   });
 }
 export function preparationHour(world: World, ctx: SimContext): void {
-  for (const fire of rowsOf(world.provisions.fires))
+  for (const fire of rowsOf(world.provisions.fires).filter((f) => processesPlace(world, f.placeId)))
     if ((fire.until ?? 0) <= ctx.now) {
       fire.lit = false;
       fire.fuelMinutes = 0;
     }
-  for (const meal of world.provisions.pendingMeals ?? []) if (meal.completesAt <= ctx.now) finishMeal(world, ctx, meal);
+  for (const meal of world.provisions.pendingMeals ?? [])
+    if (processesPlace(world, meal.placeId) && meal.completesAt <= ctx.now) finishMeal(world, ctx, meal);
   world.provisions.pendingMeals = (world.provisions.pendingMeals ?? []).filter((m) => m.plates.length > 0);
 }
 /** A plate is waiting for them (at `placeId` only, when given: a plate elsewhere does not hold them). */

@@ -3,6 +3,7 @@ import { requiredRow } from '../activity/definitions.ts';
 import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
 import { carriedBy, type InventoryIndex, inventoryIndex, pantryOf, stacksDeep } from '../items/api.ts';
 import { airTempF, heatingFuel } from '../provisions/api.ts';
+import { processesPlace, processingActorIds } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { CalendarInfo } from '../time.ts';
 import type { World } from '../world.ts';
@@ -23,10 +24,10 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
     homes[h.homePlaceId] ??= hid;
   }
   const occupied = new Set<number>();
-  for (const aid of idsOf<ActorId>(world.actors))
+  for (const aid of processingActorIds(world))
     if (world.actors[aid]?.alive && !world.activity.byActor[aid]?.travel)
       occupied.add(requiredRow(world.actors, aid).placeId);
-  for (const pid of idsOf<PlaceId>(world.places)) {
+  for (const pid of idsOf<PlaceId>(world.places).filter((id) => processesPlace(world, id))) {
     const place = requiredRow(world.places, pid);
     const hearth = Object.keys(ctx.content.hearths)
       .sort()
@@ -40,7 +41,7 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
     const wanted = hearth.burn_base + Math.floor((hearth.burn_per_10f * Math.max(0, hearth.ref_f - air)) / 10);
     let fuel = 0;
     if (lit && hearth.fuel_from === 'household' && wanted > 0) {
-      const owner = idsOf<ActorId>(world.actors).find((id) => world.activity.byActor[id]?.workplaceId === pid);
+      const owner = processingActorIds(world).find((id) => world.activity.byActor[id]?.workplaceId === pid);
       const hid = homes[pid] ?? (owner !== undefined ? world.actors[owner]?.householdId : undefined);
       if (hid === undefined) lit = false;
       else {
@@ -78,7 +79,7 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
         },
       });
   }
-  world.needs.placeTempF = temperatures;
+  world.needs.placeTempF = world.region ? { ...world.needs.placeTempF, ...temperatures } : temperatures;
   return temperatures;
 }
 

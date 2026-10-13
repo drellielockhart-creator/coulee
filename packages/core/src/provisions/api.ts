@@ -1,5 +1,6 @@
 import { tacticalPinned } from '../activity/api.ts';
 import { authorizeAct, commandBasis, standingOrders } from '../psyche/api.ts';
+import { processesActor } from '../region/processing.ts';
 /**
  * Provisions cross-module API. OWNER: module:provisions.
  */
@@ -616,6 +617,7 @@ function fetchOrdered(world: World, ctx: SimContext, actorId: ActorId): boolean 
 export function waterHour(world: World, ctx: SimContext): void {
   const index = inventoryIndex(world);
   for (const actor of rowsOf(world.actors)) {
+    if (!processesActor(world, actor.id)) continue;
     if (tacticalPinned(world, actor.id)) continue;
     if (
       !actor.alive ||
@@ -1013,5 +1015,5 @@ export {
 export { householdEconomyDay } from './household.ts';
 export { pieceRate, pieceStock, saleTotal } from './piece-rates.ts';
 export { type FoodParcel, householdFoodDays, type ReliefPlanningMemo, reliefParcel } from './relief.ts';
-export { executeProvisionCommands } from './system.ts';
+export { executeProvisionCommands, provisionsSystem as householdProcessingHour } from './system.ts';
 export * from './tactical.ts';

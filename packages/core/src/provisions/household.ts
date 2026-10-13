@@ -1,4 +1,4 @@
-/** Household-scoped daily ration/domestic kernel; meals and transfers keep their existing owners. */
+/** Household-scoped daily ration/domestic kernel; shared with the regional daily scheduler. */
 
 import { term } from '../explain.ts';
 import type { HouseholdId } from '../ids.ts';
@@ -12,7 +12,7 @@ import { planReadiness } from './planner.ts';
 import { RATION_RESTORE_DAYS, RATION_STEPS } from './rules.ts';
 
 /** Canonical day-start work. Exactly once in regional worlds, including save/load and promotion.
- * Both schedulers must use this entry point; daily ownership is rejected until full T2 is ready. */
+ * Both schedulers must use this entry point; the receipt checks the active household owner before drawing any stock. */
 export function householdEconomyDay(
   world: World,
   ctx: SimContext,
@@ -76,3 +76,6 @@ export function householdEconomyDay(
   h.rationPct = pct;
   h.shortageStep = pct === 100 ? 0 : pct === 90 ? 1 : pct === 75 ? 2 : 3;
 }
+
+/** Owner-scoped physical household pass: meals/preparation/storage, production and transfers. */
+export { provisionsSystem as householdProcessingHour } from './system.ts';

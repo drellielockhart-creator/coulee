@@ -14,6 +14,7 @@ import { credenceOf } from '../belief/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { VALUES } from '../content.ts';
 import type { ActorId } from '../ids.ts';
+import { processesActor } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { calendarAt, type GameMinute } from '../time.ts';
 import type { World } from '../world.ts';
@@ -512,6 +513,7 @@ export function dailyOpinionUpkeep(world: World, content: ContentBundle): void {
   for (const from of Object.keys(world.social.opinions)
     .map(Number)
     .sort((a, b) => a - b) as ActorId[]) {
+    if (!processesActor(world, from)) continue;
     const table = world.social.opinions[from] ?? {};
     for (const k of Object.keys(table)
       .map(Number)
@@ -544,6 +546,7 @@ export function dailyOpinionUpkeep(world: World, content: ContentBundle): void {
 /** Drop expired cooldowns (called daily with the current minute). */
 export function pruneCooldowns(world: World, now: GameMinute): void {
   for (const from of Object.keys(world.social.opinions)) {
+    if (!processesActor(world, Number(from))) continue;
     const table = world.social.opinions[Number(from)] ?? {};
     for (const k of Object.keys(table)) {
       const op = table[Number(k)];

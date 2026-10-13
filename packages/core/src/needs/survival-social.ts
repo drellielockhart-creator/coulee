@@ -14,6 +14,7 @@ import {
   synchronizeStoreTabs,
 } from '../provisions/api.ts';
 import { addAnxiety, addThought, authorizeAct, commandBasis, psycheOf } from '../psyche/api.ts';
+import { processingActorIds } from '../region/processing.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addMemory, addOpinionReason, areKin, isAcquainted, markBereaved, opinionOf } from '../social/api.ts';
@@ -170,7 +171,7 @@ function helpPass(world: World, ctx: SimContext): void {
       s = n?.survival;
     return (s?.collapsed ? 10000 : 0) + (1000 - (n?.values.thirst ?? 1000)) * 2 + (s?.wounds ?? 0) * 100;
   };
-  for (const id of idsOf<ActorId>(world.actors).sort((a, b) => urgency(b) - urgency(a) || a - b)) {
+  for (const id of processingActorIds(world).sort((a, b) => urgency(b) - urgency(a) || a - b)) {
     const s = world.needs.byActor[id]?.survival;
     if (
       !world.actors[id]?.alive ||
@@ -181,7 +182,7 @@ function helpPass(world: World, ctx: SimContext): void {
       continue;
     s.lastAid = ctx.now;
     const householdId = world.actors[id]?.householdId;
-    for (const helper of idsOf<ActorId>(world.actors).sort(
+    for (const helper of processingActorIds(world).sort(
       (a, b) =>
         Number(world.actors[b]?.householdId === householdId) - Number(world.actors[a]?.householdId === householdId) ||
         a - b,
@@ -227,7 +228,7 @@ function reformHousehold(world: World, ctx: SimContext, id: ActorId): ActorId | 
   if (!household) return;
   const survivors = household.memberIds.filter((x) => world.actors[x]?.alive).sort((a, b) => a - b);
   const adults = survivors.filter((x) => yearsBetween(world.actors[x]?.born ?? ctx.now, ctx.now) >= 16);
-  const kin = idsOf<ActorId>(world.actors).find(
+  const kin = processingActorIds(world).find(
     (x) =>
       canAct(world, x) &&
       yearsBetween(world.actors[x]?.born ?? ctx.now, ctx.now) >= 16 &&
@@ -288,18 +289,18 @@ function reformHousehold(world: World, ctx: SimContext, id: ActorId): ActorId | 
 export function aftermathHour(world: World, ctx: SimContext): void {
   const tuning = survivalTuning(ctx.content);
   if (!tuning) return;
-  for (const id of idsOf<ActorId>(world.actors)) {
+  for (const id of processingActorIds(world)) {
     const a = world.actors[id],
       death = world.needs.byActor[id]?.survival?.death;
     if (!a || !death || death.buried) continue;
     if (!death.discovered) {
-      const witnesses = idsOf<ActorId>(world.actors).filter(
+      const witnesses = processingActorIds(world).filter(
         (x) => canAct(world, x) && world.actors[x]?.placeId === death.placeId && !world.activity.byActor[x]?.travel,
       );
       if (!witnesses.length) continue;
       death.discovered = true;
       death.funeralAt = ctx.now + tuning.funeral_delay_hours * 60;
-      const family = idsOf<ActorId>(world.actors).filter(
+      const family = processingActorIds(world).filter(
         (x) => world.actors[x]?.alive && (world.actors[x]?.householdId === a.householdId || areKin(world, x, id)),
       );
       death.mourners = [...new Set([...witnesses, ...family])].sort((x, y) => x - y);
@@ -403,7 +404,7 @@ export function proposeCareUrges(world: World, ctx: SimContext, id: ActorId): im
   if (!canAct(world, id) || !needsHelp(world, id) || !ctx.content.activities.seek_care) return [];
   const actor = world.actors[id];
   if (!actor) return [];
-  const candidates = idsOf<ActorId>(world.actors)
+  const candidates = processingActorIds(world)
     .filter((other) => {
       const b = world.actors[other];
       return (

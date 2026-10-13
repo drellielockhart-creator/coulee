@@ -3,9 +3,10 @@ import { isAsleep, laborOf, minutePhysiologyActivity } from '../activity/api.ts'
 import { requiredRow } from '../activity/definitions.ts';
 import type { ContentBundle } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
-import { type ActorId, idsOf } from '../ids.ts';
+import type { ActorId } from '../ids.ts';
 import { campThermal, type InventoryIndex, inventoryIndex, loadFatigue } from '../items/api.ts';
 import { energyAgePct, nutritionRestLoss } from '../provisions/api.ts';
+import { isDailyProcessing, processingActorIds } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
@@ -269,11 +270,12 @@ export function baselineOf(world: World, content: ContentBundle, id: ActorId, ke
 }
 
 export function needsSystem(world: World, ctx: SimContext): void {
-  const temperatures = world.tactical?.frame?.temperatures ?? heatPlaces(world, ctx);
+  const temperatures =
+    (isDailyProcessing(world) ? undefined : world.tactical?.frame?.temperatures) ?? heatPlaces(world, ctx);
   const air = ambientTemperatureF(ctx.cal, world);
   const keys = Object.keys(ctx.content.needs).sort();
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
-  for (const id of idsOf<ActorId>(world.actors)) {
+  for (const id of processingActorIds(world)) {
     const actor = requiredRow(world.actors, id);
     const n = world.needs.byActor[id];
     if (!actor.alive || !n) continue;

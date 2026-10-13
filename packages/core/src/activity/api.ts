@@ -480,3 +480,5 @@ export function clearMinuteBudget(world: World, actorId: ActorId): void {
   delete world.activity.minuteBudgets[actorId];
   if (Object.keys(world.activity.minuteBudgets).length === 0) delete world.activity.minuteBudgets;
 }
+
+export { activitySystem as regionActivityHour } from './system.ts';

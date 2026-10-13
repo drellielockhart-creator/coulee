@@ -7,6 +7,7 @@ import { canAct, needValue } from '../needs/api.ts';
 import { drinkingWater, leaveRoadCamp, roadPreparationPending } from '../provisions/api.ts';
 import { authorizeAct, type Basis } from '../psyche/api.ts';
 import { nodeAt } from '../region/api.ts';
+import { processesActor } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
@@ -273,6 +274,7 @@ export function prepareJourneys(w: World, ctx: SimContext): void {
   if (!w.region) return;
   for (const command of ctx.commands) applyJourneyCommand(w, ctx, command);
   for (const id of idsOf<ActorId>(w.activity.journeys ?? {})) {
+    if (!processesActor(w, id)) continue;
     if (tacticalPinned(w, id)) continue;
     const j = w.activity.journeys?.[id],
       state = w.activity.byActor[id];
@@ -306,6 +308,7 @@ export function prepareJourneys(w: World, ctx: SimContext): void {
 /** Activity commits distance only after needs and agency have admitted the actor. */
 export function advanceJourneys(w: World, ctx: SimContext): void {
   for (const id of idsOf<ActorId>(w.activity.journeys ?? {})) {
+    if (!processesActor(w, id)) continue;
     if (tacticalPinned(w, id)) continue;
     const j = w.activity.journeys?.[id];
     if (!j || j.status === 'arrived' || !j.interval || j.interval.at !== ctx.now) continue;
@@ -324,6 +327,7 @@ export function advanceJourneys(w: World, ctx: SimContext): void {
 /** Supply kernels finish the road interval before exposing the destination hearth/water. */
 export function finishJourneys(w: World, ctx: SimContext, forecastWarning?: (reason: string) => void): void {
   for (const id of idsOf<ActorId>(w.activity.journeys ?? {})) {
+    if (!processesActor(w, id)) continue;
     if (tacticalPinned(w, id)) continue;
     const j = w.activity.journeys?.[id],
       a = w.actors[id],

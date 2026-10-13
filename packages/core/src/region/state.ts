@@ -62,9 +62,9 @@ export interface CensusState {
 }
 export type RegionTier = 'T0' | 'T1' | 'T2';
 export interface LodRecord {
-  /** Policy result, not a claim that a T2 executor exists yet. */
+  /** Relevance policy result; processing reports the actual interval owner. */
   selected: RegionTier;
-  processing: 'T0' | 'T1';
+  processing: RegionTier;
   belowSince: number | null;
   distanceMinutes: number | null;
   relevance: number;

@@ -26,6 +26,7 @@ import { asItemId } from '../ids.ts';
 import { carriedBy, moveStack, pantryOf, rootOf, stacksDeep } from '../items/api.ts';
 import { cashOf, transferCash } from '../provisions/api.ts';
 import { authorizeAct, chosenUrge, driveWeight, normStrength } from '../psyche/api.ts';
+import { processesHousehold } from '../region/processing.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { yearsBetween } from '../time.ts';
@@ -444,6 +445,7 @@ function closeLoan(
  */
 export function loansHourly(world: World, ctx: SimContext): void {
   for (const loan of loansOf(world)) {
+    if (!processesHousehold(world, loan.borrowerHouseholdId)) continue;
     if (loan.status !== 'open' || ctx.now < loan.dueAt - 720) continue;
     const stack = world.items.stacks[loan.itemId];
     if (!stack) continue;
@@ -503,6 +505,7 @@ export function loansHourly(world: World, ctx: SimContext): void {
  */
 export function loansDaily(world: World, ctx: SimContext): void {
   for (const loan of loansOf(world)) {
+    if (!processesHousehold(world, loan.borrowerHouseholdId)) continue;
     if (loan.status !== 'open' || loan.breachedAt !== null || ctx.now < loan.dueAt + BREACH_GRACE) continue;
     loan.breachedAt = ctx.now;
     const rota = world.social.rotas?.[rotaKey(loan.itemId, loan.lenderHouseholdId, loan.borrowerHouseholdId)];

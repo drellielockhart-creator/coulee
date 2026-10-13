@@ -1,10 +1,11 @@
 import { hashValue } from '../hash.ts';
-import type { ActorId, MemoryId } from '../ids.ts';
+import { type ActorId, type MemoryId, rowsOf } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import { addMemory, decayMemorySnapshot, memoryDecayPolicy } from '../social/api.ts';
 import type { MemoryInput } from '../social/state.ts';
 import type { World } from '../world.ts';
 import { ensureCensus } from './census.ts';
+import { settleDailySites } from './coarse.ts';
 
 /** The producer supplies an already-perceived, resolved cause snapshot and a stable cause key.
  * Never call this merely because an event occurred at a distant site. No event lookup is needed. */
@@ -103,6 +104,8 @@ export function hydrateCensusEvidence(world: World, ctx: SimContext, actorId?: A
 
 /** A visit reuses the full sheet. It cannot reconstruct stocks, settle a debt twice, or revive the dead. */
 export function promoteCensusActor(world: World, ctx: SimContext, actorId: ActorId) {
+  if (world.tactical?.frame && world.tactical.frame.phase !== 'settled') return world.actors[actorId] ?? null;
+  settleDailySites(world, ctx);
   const census = ensureCensus(world);
   const member = census?.members[actorId];
   const actor = world.actors[actorId];
@@ -111,6 +114,17 @@ export function promoteCensusActor(world: World, ctx: SimContext, actorId: Actor
   hydrateCensusEvidence(world, ctx, actorId);
   const tier = world.region?.lod?.actors[actorId];
   if (tier) {
+    // Contact promotes the whole shared site after its unfinished interval is settled.
+    const site = world.places[world.households[actor.householdId]?.homePlaceId ?? 0]?.siteId;
+    if (site && world.region?.processing?.sites) {
+      delete world.region.processing.sites[site];
+      for (const other of rowsOf(world.actors)) {
+        if (world.places[world.households[other.householdId]?.homePlaceId ?? 0]?.siteId !== site) continue;
+        const row = world.region.lod?.actors[other.id];
+        if (row?.processing === 'T2') row.processing = 'T1';
+      }
+    }
+    tier.processing = tier.selected === 'T0' || tier.processing === 'T0' ? 'T0' : 'T1';
     tier.selected = tier.processing;
     tier.belowSince = null;
     if (!tier.reasons.includes('contact')) tier.reasons.push('contact');

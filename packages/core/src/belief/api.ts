@@ -1165,3 +1165,5 @@ export function isShunning(world: World, holderId: ActorId, targetId: ActorId): 
 }
 
 export { grudgeTargetsOf } from './grudges.ts';
+
+export { beliefSystem as regionBeliefHour } from './system.ts';

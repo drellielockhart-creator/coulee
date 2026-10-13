@@ -3,9 +3,10 @@ import { isAsleep } from '../activity/api.ts';
 import { internProp, observe, reportMisfortune } from '../belief/api.ts';
 import { skillCheck } from '../checks.ts';
 import { term } from '../explain.ts';
-import { type ActorId, type EventId, type ItemId, idsOf } from '../ids.ts';
+import type { ActorId, EventId, ItemId } from '../ids.ts';
 import { carriedBy, rootOf } from '../items/api.ts';
 import { canAct } from '../needs/api.ts';
+import { processingActorIds } from '../region/processing.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -110,7 +111,7 @@ function suspectOf(
   loss: CharmTheft,
 ): { id: ActorId; seen: boolean } | null {
   if (loss.witnesses.includes(observer)) return { id: loss.thiefId, seen: true };
-  const candidates = idsOf<ActorId>(world.actors);
+  const candidates = processingActorIds(world);
   let best: { id: ActorId; score: number } | null = null;
   for (const id of candidates) {
     const a = world.actors[id];

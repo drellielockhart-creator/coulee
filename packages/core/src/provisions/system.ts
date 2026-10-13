@@ -3,11 +3,12 @@ import { productionHour } from '../activity/production.ts';
 /** Meals, household economy, nutrition, storage and scheduled supplies; sixth in the hourly schedule. */
 import { commandsFor } from '../command.ts';
 import { commitHems, hemSet } from '../fae/hem.ts';
-import { type ActorId, rowsOf } from '../ids.ts';
+import type { ActorId } from '../ids.ts';
 import { carriedBy, inventoryIndex, moveStack, withInventoryPass } from '../items/api.ts';
 import { rootLocation } from '../items/containers.ts';
 import { canAct, needValue } from '../needs/api.ts';
 import { authorizeAct, chosenUrge, standingOrders } from '../psyche/api.ts';
+import { processingActors } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { autonomousProvisioning } from './agency.ts';
@@ -57,7 +58,7 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForec
   employmentHour(world, ctx);
   productionHour(world, ctx);
   settleBeds(world, ctx);
-  for (const actor of rowsOf(world.actors)) {
+  for (const actor of processingActors(world)) {
     if (tacticalPinned(world, actor.id)) continue;
     const activity = world.activity.byActor[actor.id];
     if (
@@ -87,7 +88,7 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForec
     cap: Record<number, number>;
   }> = [];
   const perPoint = ctx.content.needs.hunger?.intake?.per_point ?? 3;
-  for (const actor of rowsOf(world.actors)) {
+  for (const actor of processingActors(world)) {
     if (tacticalPinned(world, actor.id)) continue;
     if (
       !canAct(world, actor.id) ||

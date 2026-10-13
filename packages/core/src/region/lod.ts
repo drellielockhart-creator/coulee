@@ -68,7 +68,7 @@ export function setRegionRelevance(
   if (lod) lod.relevance[actorId] = { score: score || 0, pinned, reason };
 }
 
-/** Select detail without removing a single sheet. T2 remains an explicit policy-only result until 2b. */
+/** Select relevance without removing sheets. Processing ownership changes at the settled region boundary. */
 export function selectRegionTiers(world: World): void {
   const lod = ensureLod(world);
   if (!lod || !world.region) return;
@@ -125,7 +125,7 @@ export function selectRegionTiers(world: World): void {
       nearby: distance !== null && distance <= LOD_POLICY.radiusMinutes,
       row: {
         selected: 'T1',
-        processing: live ? 'T0' : 'T1',
+        processing: lod.actors[id]?.processing ?? (live ? 'T0' : 'T1'),
         belowSince: lod.actors[id]?.belowSince ?? null,
         distanceMinutes: distance,
         relevance: rel?.score ?? 0,
@@ -151,9 +151,7 @@ export function selectRegionTiers(world: World): void {
     } else {
       c.row.belowSince ??= world.time;
       c.row.selected = world.time - c.row.belowSince >= LOD_POLICY.demotionMinutes ? 'T2' : 'T1';
-      c.row.reasons.push(
-        c.row.selected === 'T2' ? 'below relevance for 24 hours; T1 executor retained' : '24-hour demotion grace',
-      );
+      c.row.reasons.push(c.row.selected === 'T2' ? 'below relevance for 24 hours' : '24-hour demotion grace');
     }
     lod.actors[c.id] = c.row;
   }

@@ -44,6 +44,7 @@ export type { CharmForecastRow } from './forecast.ts';
 export { investigate, investigationEligibility } from './investigate.ts';
 // Refusal costs (wave 6): the keeper's duty-guilt, the refused side's costs, and the theft hook.
 export { charmCovetPressure, charmGuilt, charmRefused, guiltToward } from './refusal.ts';
+export { faeSystem as regionFaeHour } from './system.ts';
 export { tieWindow } from './tend.ts';
 export { auditCharmTheft, recordCharmTheft } from './theft.ts';
 export { loanTerms, nextSundayNoon } from './urges.ts';

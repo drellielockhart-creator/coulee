@@ -1,8 +1,9 @@
 /** Venue trade and board use the same prices and admission rules for every actor. */
 import { hourInBlock } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
-import { type ActorId, type PlaceId, rowsOf } from '../ids.ts';
+import type { ActorId, PlaceId } from '../ids.ts';
 import { authorizeAct, chosenUrge, recordStandingSpend, standingOrders } from '../psyche/api.ts';
+import { processingActors } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
@@ -18,7 +19,7 @@ export function storeOpen(world: World, content: ContentBundle, placeId: PlaceId
 }
 function keeperAt(world: World, content: ContentBundle, placeId: PlaceId) {
   const service = serviceAt(world, content, placeId);
-  return rowsOf(world.actors).find(
+  return processingActors(world).find(
     (a) =>
       a.alive &&
       content.occupations[a.occupationId]?.roles.includes(service?.keeper_role ?? '') &&
@@ -76,7 +77,7 @@ export function admitSleep(world: World, ctx: SimContext, actorId: ActorId, plac
 }
 /** Charge whoever is asleep in a let bed this hour without one paid through now. */
 export function settleBeds(world: World, ctx: SimContext): void {
-  for (const actor of rowsOf(world.actors)) {
+  for (const actor of processingActors(world)) {
     const state = world.activity.byActor[actor.id];
     if (!actor.alive || state?.travel || !ctx.content.activities[state?.activityId ?? '']?.asleep) continue;
     const service = serviceAt(world, ctx.content, actor.placeId);
