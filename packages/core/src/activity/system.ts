@@ -6,7 +6,7 @@ import { canAct, rousedBy } from '../needs/api.ts';
 import { admitSleep } from '../provisions/api.ts';
 import { authorizeAct, chosenUrge } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
-import { interactionAvailability } from '../social/api.ts';
+import { interactionAvailability, prepareReliefTravel, reliefReservations } from '../social/api.ts';
 import { addHours } from '../time.ts';
 import type { World } from '../world.ts';
 import { noteCall, resolveActivityPlace, walkMinutes } from './api.ts';
@@ -19,7 +19,8 @@ import { advanceJourneys, onJourney } from './travel.ts';
 export function activitySystem(world: World, ctx: SimContext): void {
   advanceJourneys(world, ctx);
   // Accepted conversations reserve both participants for this hour, before anyone moves.
-  const invited = new Set<ActorId>();
+  prepareReliefTravel(world, ctx);
+  const invited = new Set<ActorId>(reliefReservations(world, ctx));
   for (const cmd of ctx.commands) {
     if (cmd.kind !== 'core.urge' || cmd.data.urge.kind !== 'interaction' || cmd.data.urge.targetId === undefined)
       continue;

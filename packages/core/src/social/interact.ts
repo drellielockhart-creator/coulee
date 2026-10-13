@@ -43,10 +43,12 @@ import {
   refreshLabel,
   settleDebt,
 } from './opinion.ts';
+import { deliverRelief, reliefDecision } from './relief.ts';
 import { requestTerms, throttleRequest } from './requests.ts';
 import type { MemorySource, OpinionDims, OpinionReason } from './state.ts';
 import { noteStrife, strifeCount, wearinessPermille } from './strife.ts';
 import { composeExchange, referTo, type TalkFacts } from './talk.ts';
+import { attemptTheft } from './theft.ts';
 import { tuningOf, valueView } from './tuning.ts';
 import { areKinBy, makePair, pairTargetOpinion, type RequireMode, requiresFail } from './volition.ts';
 
@@ -269,6 +271,16 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     });
     return { eventId, success: false, told: null, escalatedEventId: null };
   }
+  if (def.theft) {
+    const result = attemptTheft(world, ctx, {
+      actorId: i,
+      victimId: tg,
+      itemId: req.itemId,
+      basis,
+      interactionId: def.id,
+    });
+    return { eventId: result.eventId, success: result.success, told: null, escalatedEventId: null };
+  }
   // An item act is validated before any time is spent, with the reason named (13 §6.2).
   const itemReason = def.item ? itemPreflight(world, def, i, tg, req.itemId, req.terms, ctx.now) : null;
   if (itemReason !== null) {
@@ -297,24 +309,27 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
 
   // A response that undertakes an obligation, relationship or disclosure is an act too.
   const effects = [def.success, def.failure];
-  const response = def.item?.response
-    ? def.item.response
-    : effects.some((e) => e.ledger.cents < 0)
-      ? 'lend'
-      : effects.some((e) => e.ledger.cents > 0)
-        ? 'borrow'
-        : effects.some(
-              (e) =>
-                e.add_relationship === 'courting' ||
-                e.add_relationship === 'spouse' ||
-                e.add_relationship === 'betrothed',
-            )
-          ? 'proposal'
-          : effects.some((e) => e.ledger.favors !== 0)
-            ? 'accept_favor'
-            : def.transmits_rumor && def.rumor_speaker === 'target'
-              ? 'disclose'
-              : null;
+  const response =
+    def.relief === 'ask' || def.relief === 'collect'
+      ? 'lend_item'
+      : def.item?.response
+        ? def.item.response
+        : effects.some((e) => e.ledger.cents < 0)
+          ? 'lend'
+          : effects.some((e) => e.ledger.cents > 0)
+            ? 'borrow'
+            : effects.some(
+                  (e) =>
+                    e.add_relationship === 'courting' ||
+                    e.add_relationship === 'spouse' ||
+                    e.add_relationship === 'betrothed',
+                )
+              ? 'proposal'
+              : effects.some((e) => e.ledger.favors !== 0)
+                ? 'accept_favor'
+                : def.transmits_rumor && def.rumor_speaker === 'target'
+                  ? 'disclose'
+                  : null;
   const targetBasis = accepted ? commandBasis(ctx, tg, ['social.answer_request']) : { kind: 'own' as const };
   const responseAct = {
     kind: response ?? '',
@@ -329,6 +344,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     );
     // Say what is asked and what a yes undertakes (playtest r2), and do not ask again soon.
     const terms = requestTerms(world, content, def, i, response, ctx.now, {
+      targetId: tg,
       ...(req.terms ? { terms: req.terms } : {}),
     });
     if (!pending)
@@ -392,6 +408,15 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     success = decision.yes;
     check.explain = { ...check.explain, children: [...(check.explain.children ?? []), decision.explain] };
   }
+  const relief = def.relief ? reliefDecision(world, ctx, i, tg, def.relief, !!accepted) : null;
+  if (relief) {
+    success = relief.plan !== null;
+    check.explain = {
+      ...check.explain,
+      outcome: success ? 'success' : 'failure',
+      children: [...(check.explain.children ?? []), relief.explain],
+    };
+  }
   // A gift is a thing handed over: nothing fit to give, and the gesture comes to nothing.
   const giving = success && def.success.give_item ? giftStack(world, content, i) : null;
   if (success && def.success.give_item && giving === null) {
@@ -420,6 +445,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     };
   }
   let eff = success ? def.success : def.failure;
+  if (relief?.plan?.office) eff = { ...eff, ledger: { ...eff.ledger, favors: 0 } };
   if (repaying && remaining > 0) {
     const summary = `${iName} paid ${tName} ${formatCents(paid)}; ${formatCents(remaining)} still owed`;
     // Gratitude for settling is earned once, on completion, not for each tiny installment.
@@ -557,6 +583,15 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       ...(giving ? { itemDefId: giving.defId } : {}),
     },
   });
+  if (relief?.plan)
+    deliverRelief(
+      world,
+      ctx,
+      relief.plan,
+      eventId,
+      relief.plan.giver === i ? basis : targetBasis,
+      relief.plan.recipient === i ? basis : targetBasis,
+    );
   if (giving) moveStack(world, ctx, giving.id, 1, carriedBy(tg));
 
   const daily = world.social.daily;

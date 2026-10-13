@@ -126,7 +126,9 @@ describe('fae slice 1b: draws and conservation (13 §1 rule 3, §5.2, §5.8)', (
   it('a tied sack draws whole pounds at dawn from the nearest unwarded flour, under the conservation rule', () => {
     const sim = fixture();
     const c = giveSack(sim, 'edwin_fenn');
-    expect(tieTonight(sim, 'edwin_fenn').ok).toBe(true);
+    tieTonight(sim, 'edwin_fenn');
+    // The autonomous keeper may already have tied it earlier that evening.
+    expect(c.tie?.at).toBeGreaterThan(sim.world.time - 720);
     const ctx = toDawn(sim);
     const stack = required(sim.world.items.stacks[c.itemId]);
     const eff = required(sim.content.charms.never_empty_sack?.effects.find((e) => e.kind === 'draw'));
@@ -616,9 +618,10 @@ describe('fae slice 1b: agency (13 §2.2, §8.2 #13)', () => {
   });
 });
 
-/** The Fenns keep the sack; Edwin at 90 attachment, honest; nothing else is touched. */
+/** Isolate loan demand from the alternative food-relief route. Fed neighbors need not borrow. */
 function keepers(seed: number) {
   const sim = fixture(seed);
+  sim.content = { ...sim.content, reliefRules: {} };
   const c = giveSack(sim, 'edwin_fenn');
   const edwin = actor(sim, 'edwin_fenn');
   c.virtue = 7;
@@ -683,8 +686,13 @@ describe('fae slice 1b: the loan chain (13 §6.1)', () => {
     );
     if (refused) {
       const why = JSON.stringify(refused.explain);
-      expect(why).toContain('Keep it (attachment');
-      expect(why).toContain('Neighborliness');
+      if (why.includes('Keep it (attachment')) expect(why).toContain('Neighborliness');
+      else {
+        // A failed petition roll can stop the request before the keeper's
+        // attachment arbitration. That is a check failure, not a keeper veto.
+        const petition = refused.explain?.children?.find((e) => e.kind === 'check' && e.dc);
+        expect(petition?.total).toBeLessThan(petition?.dc?.total ?? -1000);
+      }
     }
     // Refusal has costs (wave 6): the honest keeper ends up lending, and attachment eases while the
     // sack is out on loan; it remains a preference, not a veto, never gone.

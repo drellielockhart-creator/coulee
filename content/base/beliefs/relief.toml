@@ -1,0 +1,42 @@
+[[predicate]]
+id = "in_want"
+args = ["household"]
+text = "{0} are in want"
+juiciness = 65
+prior = 5
+valence = 0
+
+[[predicate]]
+id = "deserving_relief"
+args = ["actor"]
+text = "{0} deserves help in hard times"
+text_self = "I deserve help in hard times"
+text_you = "you deserve help in hard times"
+juiciness = 15
+prior = 20
+valence = 10
+
+[[predicate]]
+id = "took_goods"
+args = ["actor", "actor"]
+text = "{0} took goods from {1}"
+text_self = "I took goods from {1}"
+text_you = "you took goods from {1}"
+juiciness = 70
+prior = 3
+valence = -45
+charge = true
+act = true
+
+[[misfortune]]
+id = "goods_missing"
+name = "Goods went missing"
+text = "goods went missing from {0.poss} keeping"
+severity = 30
+base_permille_per_household_day = 0
+juiciness = 50
+anxiety = 80
+security_delta = -100
+memory_intensity = 50
+motive_traits = ["greed"]
+aim = "restitution"

@@ -283,6 +283,8 @@ export type InteractionEffect = z.output<typeof EffectSchema>;
 
 export const InteractionSchema = z.strictObject({
   id: id(),
+  relief: z.enum(['give', 'ask', 'collect']).optional(),
+  theft: z.boolean().optional(),
   name: z.string().min(1),
   /** Speech-bubble label (04 §11.1), e.g. "Gossip", "Dun", "Accuse!". */
   label: z.string().min(1),
@@ -802,7 +804,38 @@ export const TalkWordSchema = z.strictObject({
 });
 export type TalkWordDef = z.output<typeof TalkWordSchema>;
 
+export const ReliefRuleSchema = z.strictObject({
+  id: id(),
+  offer_hours: z.array(int().min(0).max(23)).min(1).default([7]),
+  reserve_days: int().min(1).max(14).default(4),
+  parcel_days: int().min(1).max(7).default(2),
+  want_days: int().min(1).max(7).default(2),
+  want_cash_cents: nonNegInt().default(100),
+  credence: int().min(1).max(100).default(50),
+  duty_base: nonNegInt().default(620),
+  theft_hunger: int().min(0).max(1000).default(180),
+  theft_dc: int().min(1).max(30).default(13),
+  detection_dc: int().min(1).max(30).default(12),
+  credit_bonus_cents: nonNegInt().default(1500),
+  credit_respect: int().min(-100).max(100).default(20),
+  credit_min_trust: int().min(-100).max(100).default(-10),
+  starvation_band_permille: int().min(0).max(1000).default(20),
+});
+export const ReliefOfficeSchema = z.strictObject({
+  id: id(),
+  name: z.string(),
+  role: id(),
+  members_only: z.boolean(),
+  attendance_membership: z.boolean().default(false),
+  member_relationship: z.enum(RELATIONSHIP_KINDS).default('congregant_with'),
+  favors: nonNegInt().max(10).default(1),
+  pantry_target_days: int().min(1).max(30).default(7),
+  deserving_credence: int().min(0).max(100).default(40),
+});
+
 export const socialDomains = {
+  reliefRules: defineDomain({ dir: 'social', key: 'relief_rules', schema: ReliefRuleSchema }),
+  reliefOffices: defineDomain({ dir: 'social', key: 'relief_office', schema: ReliefOfficeSchema }),
   interactions: defineDomain({ dir: 'interactions', key: 'interaction', schema: InteractionSchema }),
   memory_kinds: defineDomain({ dir: 'social', key: 'memory_kind', schema: MemoryKindSchema }),
   social_tuning: defineDomain({ dir: 'social', key: 'social_tuning', schema: SocialTuningSchema }),
@@ -812,6 +845,15 @@ export const socialDomains = {
 
 /** Top-level scenario fields owned by social. Actor references are scenario actor keys. */
 export const socialScenarioFields = {
+  relief_offices: z
+    .array(
+      z.strictObject({
+        office: id(),
+        keeper: z.string(),
+        members: z.array(z.string()),
+      }),
+    )
+    .default([]),
   relationships: z
     .array(
       z.strictObject({
@@ -904,6 +946,12 @@ export function socialRefs(b: ContentBundle): Issue[] {
   for (const s of Object.values(b.scenarios ?? {})) {
     const actorKeys: Record<string, true> = {};
     for (const a of s.actors) actorKeys[a.key] = true;
+    const householdKeys = Object.fromEntries(s.households.map((h) => [h.key, true]));
+    for (const o of s.relief_offices ?? []) {
+      checkRefs(issues, `scenarios:${s.id}/relief_offices`, 'office', [o.office], b.reliefOffices, 'relief office');
+      checkRefs(issues, `scenarios:${s.id}/relief_offices`, 'keeper', [o.keeper], actorKeys, 'actor key');
+      checkRefs(issues, `scenarios:${s.id}/relief_offices`, 'members', o.members, householdKeys, 'household key');
+    }
     for (const m of s.memories ?? []) {
       checkRefs(issues, `scenarios:${s.id}/memories`, 'owner/about', [m.owner, m.about], actorKeys, 'actor key');
       if (Object.keys(b.memory_kinds).length > 0)

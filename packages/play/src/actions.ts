@@ -525,7 +525,7 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   if (command.kind === 'core.urge' && command.data.urge.kind === 'interaction') {
     const u = command.data.urge;
     if (u.targetId === undefined) return 'Choose a person';
-    return social.interactionAvailability(w, c, pc, u.targetId, u.interactionId).reason ?? null;
+    return social.interactionAvailability(w, c, pc, u.targetId, u.interactionId, u.itemId).reason ?? null;
   }
   if (command.kind === 'provisions.buy' || command.kind === 'provisions.sell') {
     if (!Number.isSafeInteger(command.data.qty) || command.data.qty <= 0)

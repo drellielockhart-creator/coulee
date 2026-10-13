@@ -1,0 +1,25 @@
+# Relief policy (04 §8): finite stores, a reserve for the donor, and obligations.
+[[relief_rules]]
+id = "poor_relief"
+offer_hours = [7]
+reserve_days = 4
+parcel_days = 2
+want_days = 2
+want_cash_cents = 100
+
+[[relief_office]]
+id = "congregation"
+name = "Congregation poor pantry"
+role = "ordained"
+attendance_membership = true
+members_only = false
+member_relationship = "congregant_with"
+pantry_target_days = 7
+
+[[relief_office]]
+id = "pare_club"
+name = "Club pantry"
+role = "accord_speaker"
+members_only = true
+member_relationship = "neighbor"
+pantry_target_days = 7

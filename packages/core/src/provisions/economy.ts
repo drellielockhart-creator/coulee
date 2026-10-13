@@ -1,7 +1,7 @@
 import { authorizeAct, commandBasis, recordStandingSpend } from '../psyche/api.ts';
 /** Cash, credit and physical goods share one transaction path for commands and errands. */
 
-import { isShunning } from '../belief/api.ts';
+import { formGrudge, isShunning } from '../belief/api.ts';
 import type { ContentBundle, ItemDef } from '../content.ts';
 import { term } from '../explain.ts';
 import type { ActorId, EventId, HouseholdId, PlaceId } from '../ids.ts';
@@ -11,9 +11,9 @@ import { loadReport, MOVE_LIMIT_PCT } from '../items/encumbrance.ts';
 import type { ItemLocation } from '../items/state.ts';
 import { canAct } from '../needs/api.ts';
 import type { SimContext } from '../sim/context.ts';
-import { debtOf, extendCredit } from '../social/api.ts';
+import { addOpinionReason, areKin, debtOf, extendCredit, opinionOf, reliefRules } from '../social/api.ts';
 import type { World } from '../world.ts';
-import { priceAt, readinessOf } from './api.ts';
+import { priceAt } from './api.ts';
 import {
   dailyKcal,
   foodServings,
@@ -25,6 +25,7 @@ import {
   recipesFor,
 } from './meals.ts';
 import { nutritionTargets } from './nutrition.ts';
+import { planReadiness } from './planner.ts';
 import { RATION_RESTORE_DAYS, RATION_STEPS, SHUNNED, shoppingDays, WOODPILE } from './rules.ts';
 import { storeOpen } from './services.ts';
 import type { Store } from './state.ts';
@@ -79,7 +80,50 @@ export function purchase(
   const purse = world.provisions.purses[actorId] ?? 0;
   const cash = purse + (buyer?.cashCents ?? 0);
   const credit =
-    onCredit && !shunned && keeper !== undefined ? Math.max(0, store.creditLimitCents - (store.tabs[actorId] ?? 0)) : 0;
+    onCredit && !shunned && keeper !== undefined
+      ? Math.max(0, creditLimitFor(world, ctx.content, placeId, actorId) - (store.tabs[actorId] ?? 0))
+      : 0;
+  if (
+    onCredit &&
+    cash === 0 &&
+    credit === 0 &&
+    keeper !== undefined &&
+    (store.tabs[actorId] ?? 0) >= store.creditLimitCents &&
+    ctx.now - (store.creditRefusals?.[actorId] ?? -100000) >= 7 * 1440 &&
+    authorizeAct(world, keeper, { kind: 'extend_credit', targetId: actorId }, { kind: 'own' }).ok
+  ) {
+    store.creditRefusals ??= {};
+    store.creditRefusals[actorId] = ctx.now;
+    const op = opinionOf(world, keeper, actorId);
+    ctx.emit({
+      kind: 'provisions.credit_refused',
+      data: {
+        keeperId: keeper,
+        buyerId: actorId,
+        placeId,
+        limitCents: creditLimitFor(world, ctx.content, placeId, actorId),
+      },
+      visibility: 'private',
+      roles: [
+        { actor: keeper, role: 'agent' },
+        { actor: actorId, role: 'target' },
+      ],
+      explain: mealExplain(
+        'No further store credit',
+        [keeper, actorId],
+        0,
+        [term('opinion', 'Keeper trust', op.trust), term('credit', 'Account cents', store.tabs[actorId] ?? 0)],
+        'refused',
+      ),
+    });
+    formGrudge(world, ctx, {
+      holderId: actorId,
+      target: { kind: 'actor', id: keeper },
+      aim: 'restitution',
+      intensity: 20,
+      label: 'Refused further credit when there was no money',
+    });
+  }
   let remaining = price > 0 ? Math.min(wanted, Math.floor((cash + credit) / price)) : wanted;
   // Goods carried away must leave the buyer able to walk: never past the movement limit.
   const unitG = ctx.content.items[defId]?.weight_g ?? 0;
@@ -137,6 +181,40 @@ export function purchase(
   else store.tillCents += cashPaid;
   if (debt) {
     if (keeper !== undefined) {
+      const previous = store.tabs[actorId] ?? 0;
+      if (previous <= store.creditLimitCents && previous + debt > store.creditLimitCents) {
+        ctx.emit({
+          kind: 'provisions.credit_extended',
+          data: {
+            keeperId: keeper,
+            buyerId: actorId,
+            placeId,
+            limitCents: creditLimitFor(world, ctx.content, placeId, actorId),
+          },
+          visibility: 'private',
+          roles: [
+            { actor: keeper, role: 'agent' },
+            { actor: actorId, role: 'target' },
+          ],
+          explain: mealExplain(
+            'Keeper extends the customary tab',
+            [keeper, actorId],
+            creditLimitFor(world, ctx.content, placeId, actorId),
+            [
+              term('opinion', 'Respect', opinionOf(world, keeper, actorId).respect),
+              term('kin', 'Kinship', areKin(world, keeper, actorId) ? 1 : 0),
+            ],
+            'credit extended',
+          ),
+        });
+        addOpinionReason(world, ctx, actorId, keeper, {
+          label: 'Extended credit when the tab was full',
+          cites: { kind: 'other', strength: 1000 },
+          delta: { affection: 6, respect: 2, trust: 5, fear: 0 },
+          since: ctx.now,
+        });
+      }
+
       extendCredit(world, ctx, keeper, actorId, debt);
       store.tabs[actorId] = debtOf(world, keeper, actorId).cents;
     }
@@ -325,7 +403,7 @@ export function householdDay(world: World, ctx: SimContext): void {
     // at full rations the question is "below the first cut?"; on short rations, "back above restore?".
     const firstCut = Math.max(...RATION_STEPS.map((s) => s.belowDays));
     const horizon = (h.rationPct >= 100 ? firstCut : RATION_RESTORE_DAYS) + 1;
-    const readiness = readinessOf(world, ctx.content, { householdId: household.id }, ctx.now, horizon);
+    const readiness = planReadiness(world, ctx.content, { householdId: household.id }, ctx.now, horizon, false);
     const step = RATION_STEPS.find((s) => readiness.daysOfFoodTenths < s.belowDays * 10);
     const pct = step
       ? Math.min(h.rationPct, step.pct)
@@ -591,4 +669,21 @@ export function synchronizeStoreTabs(world: World): void {
       if (cents || store.tabs[actor.id] !== undefined) store.tabs[actor.id] = cents;
     }
   }
+}
+
+/** The keeper's finite discretionary margin, shared by quotes and execution. */
+export function creditLimitFor(world: World, content: ContentBundle, placeId: PlaceId, buyer: ActorId): number {
+  const store = world.provisions.stores[placeId];
+  const keeper = store?.ownerHouseholdId ? world.households[store.ownerHouseholdId]?.headId : undefined;
+  if (!store || keeper === undefined || isShunning(world, keeper, buyer)) return 0;
+  const rule = reliefRules(content),
+    op = opinionOf(world, keeper, buyer);
+  if (!rule) return store.creditLimitCents;
+  const trusted = op.trust >= rule.credit_min_trust;
+  const eligible = trusted && (areKin(world, keeper, buyer) || op.respect >= rule.credit_respect);
+  const margin =
+    eligible && authorizeAct(world, keeper, { kind: 'extend_credit', targetId: buyer }, { kind: 'own' }).ok
+      ? Math.max(0, rule.credit_bonus_cents - (world.actors[keeper]?.values.thrift ?? 0) * 100)
+      : 0;
+  return store.creditLimitCents + margin;
 }

@@ -19,7 +19,6 @@ import {
   stackAffordance,
   stackSupplyUnits,
   stacksDeep,
-  supplyUnits,
 } from '../items/api.ts';
 import { rootLocation, sameLoc } from '../items/containers.ts';
 import { type ItemLocation, type ItemStack, newStack, recordProvenance } from '../items/state.ts';
@@ -255,9 +254,10 @@ export function waterAvailable(world: World, content: ContentBundle, holder: Hol
   }
   const actor = world.actors[holder.actorId];
   if (actor && isWaterSource(world, content, actor.placeId)) return 100_000;
-  return (
-    supplyUnits(world, content, locationOf(holder), 'water', index) +
-    stacksDeep(world, locationOf(holder), index).reduce((n, s) => n + (s.stack.waterMl ?? 0), 0)
+  // Supply and vessel water share the same inventory traversal.
+  return stacksDeep(world, locationOf(holder), index).reduce(
+    (n, { stack }) => n + stackSupplyUnits(content, stack, 'water') + (stack.waterMl ?? 0),
+    0,
   );
 }
 export function drawWater(

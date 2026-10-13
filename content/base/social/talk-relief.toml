@@ -1,0 +1,16 @@
+[[talk]]
+id = "relief_given"
+on_tags = ["relief"]
+outcome = "success"
+lines = [{ by = "initiator", text = "We must see one another through the winter." }]
+
+[[talk]]
+id = "relief_refused"
+on_tags = ["relief"]
+outcome = "failure"
+lines = [{ by = "target", text = "I cannot agree to that today." }]
+
+[[talk]]
+id = "theft_silent"
+on = ["steal_goods"]
+lines = [{ by = "initiator", text = "Nobody need know." }]

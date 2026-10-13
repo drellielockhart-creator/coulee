@@ -319,7 +319,7 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
             item_id: (d.itemId as number | undefined) ?? 0,
           },
         },
-        [d.initiatorId, d.targetId],
+        content.interactions[d.interactionId]?.theft ? ev.roles.map((r) => r.actor) : [d.initiatorId, d.targetId],
       );
     }
     case 'fae.charm_arrived':
@@ -543,6 +543,7 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
         [d.actorId, d.targetId ?? 0],
       );
     }
+    case 'social.want_known':
     case 'provisions.shortage': {
       const d = ev.data;
       const members = householdMembers(world, d.householdId);

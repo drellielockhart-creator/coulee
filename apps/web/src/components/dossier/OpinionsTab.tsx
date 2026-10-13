@@ -52,6 +52,18 @@ export function OpinionsTab(props: { actor: ActorView }) {
           </ul>
         </>
       ) : null}
+      {(a.social.reliefObligations?.length ?? 0) > 0 ? (
+        <>
+          <SectionHead>Relief obligations</SectionHead>
+          <ul className="ties">
+            {a.social.reliefObligations?.map((r) => (
+              <li key={r.officeId}>
+                {r.name}: {r.favors} {r.favors === 1 ? 'favor' : 'favors'} owed in kind
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
       <SectionHead>Opinions</SectionHead>
       {ops.length === 0 ? (
         <Empty>No settled opinions yet. Folk need time together, or something to talk about.</Empty>

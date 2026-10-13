@@ -229,3 +229,5 @@ export {
   openLoanOf,
   rotaOf,
 } from './objects.ts';
+export { knowsWant, officeOf, prepareReliefTravel, reliefOffices, reliefReservations, reliefRules } from './relief.ts';
+export { attemptTheft, desperationUrges, type TheftOutcome, type TheftRequest, theftPreflight } from './theft.ts';

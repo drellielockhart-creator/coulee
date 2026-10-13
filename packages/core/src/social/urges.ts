@@ -23,6 +23,8 @@ import { sampleCandidates } from './encounter.ts';
 import { type MemoryDigest, memoryDigests } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
 import { opinionOf } from './opinion.ts';
+import { reliefUrges } from './relief.ts';
+import { desperationUrges } from './theft.ts';
 import { ageYears, tuningOf } from './tuning.ts';
 import { makePair, requiresFail, volition } from './volition.ts';
 
@@ -120,7 +122,11 @@ export function proposeSocialUrges(world: World, ctx: SimContext, actorId: Actor
   const actor = world.actors[actorId];
   if (!actor?.alive || isAsleep(world, ctx, actorId)) return [];
   const t = tuningOf(ctx.content);
-  const out: UrgeProposal[] = [...dueDebtDuties(world, ctx, actorId)];
+  const out: UrgeProposal[] = [
+    ...dueDebtDuties(world, ctx, actorId),
+    ...reliefUrges(world, ctx, actorId),
+    ...desperationUrges(world, ctx, actorId),
+  ];
   const company = companyUrge(world, ctx, actorId);
   if (company) out.push(company);
   if (t.max_targeted_urges <= 0) return out;

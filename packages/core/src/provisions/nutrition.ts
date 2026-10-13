@@ -61,7 +61,7 @@ function nutritionDay(
       on: boolean,
       label: string,
       value: number,
-      terms: ExplainTerm[] = [],
+      terms: ExplainTerm[] | (() => ExplainTerm[]) = [],
       reason?: string,
     ) => {
       if (hasCondition(actor, id) === on) return;
@@ -71,7 +71,13 @@ function nutritionDay(
         data: { actorId: actor.id, condition: id, on, ...(reason ? { reason } : {}) },
         roles: [{ actor: actor.id, role: 'subject' }],
         visibility: 'private',
-        explain: mealExplain(label, [actor.id], value, terms, on ? 'on' : 'off'),
+        explain: mealExplain(
+          label,
+          [actor.id],
+          value,
+          typeof terms === 'function' ? terms() : terms,
+          on ? 'on' : 'off',
+        ),
       });
     };
     const wasDrunk = n.intoxication >= ALCOHOL.drunkOn || hasCondition(actor, 'drunk');
@@ -81,7 +87,7 @@ function nutritionDay(
       n.intoxication >= (hasCondition(actor, 'drunk') ? ALCOHOL.drunkOff : ALCOHOL.drunkOn),
       'Alcohol in the bloodstream',
       n.intoxication,
-      [
+      () => [
         term('alcohol', 'Intoxication points', n.intoxication),
         term('threshold', 'On threshold', ALCOHOL.drunkOn),
         term('threshold', 'Recovery threshold', ALCOHOL.drunkOff),
@@ -94,7 +100,7 @@ function nutritionDay(
       n.hungoverUntil !== null && ctx.now < n.hungoverUntil,
       'Morning after drinking',
       n.intoxication,
-      [
+      () => [
         term('time', 'Current game minute', ctx.now),
         term('time', 'Hangover ends at minute', n.hungoverUntil ?? ctx.now),
         term('alcohol', 'Recovery below intoxication', ALCOHOL.drunkOff),

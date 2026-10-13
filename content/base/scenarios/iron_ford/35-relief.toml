@@ -1,0 +1,10 @@
+# The pantry is an office, not every goblin's automatic entitlement.
+[[relief_offices]]
+office = "pare_club"
+keeper = "demelza_pascoe"
+members = ["pascoe"]
+
+[[relief_offices]]
+office = "congregation"
+keeper = "anders_tveit"
+members = ["tveit", "kvale", "haugen", "moe"]

@@ -9,6 +9,7 @@
 import { type ActorId, type ContentBundle, social, timeView, type World } from '@coulee/core';
 
 export interface Obligation {
+  institutionId?: string;
   creditorId: number;
   creditor: string;
   /** Money owed (cents); 0 for a favor. */
@@ -58,6 +59,22 @@ const thingOf = (world: World, content: ContentBundle | undefined, itemId: numbe
 export function obligationsOf(world: World, content: ContentBundle, pc: ActorId): Obligation[] {
   const graceDays = content.chroniclePatterns?.debt?.params.overdue_days ?? 30;
   const out: Obligation[] = [];
+  for (const row of social.reliefObligations(world, content, pc, { perspective: pc, omniscient: false })) {
+    out.push({
+      creditorId: row.keeperId,
+      creditor: row.name,
+      cents: 0,
+      since: world.time,
+      dueT: world.time,
+      dueDate: 'in kind',
+      daysLeft: 0,
+      overdue: false,
+      kind: 'favor',
+      favors: row.favors,
+      institutionId: row.officeId,
+    });
+  }
+
   for (const r of world.social.relationships) {
     if (r.kind !== 'creditor' || r.b !== pc || !r.amountCents || r.amountCents <= 0) continue;
     const dueT = r.since + graceDays * DAY;
@@ -107,7 +124,11 @@ export function obligationsOf(world: World, content: ContentBundle, pc: ActorId)
       thing: thingOf(world, content, l.itemId),
     });
   }
-  return out.sort((a, b) => a.dueT - b.dueT || a.creditorId - b.creditorId || (a.kind === 'favor' ? 1 : -1));
+  return out.sort((a, b) => {
+    const ak = `${a.kind}:${a.institutionId ?? ''}:${a.thing ?? ''}`;
+    const bk = `${b.kind}:${b.institutionId ?? ''}:${b.thing ?? ''}`;
+    return a.dueT - b.dueT || a.creditorId - b.creditorId || (ak < bk ? -1 : ak > bk ? 1 : 0);
+  });
 }
 
 /** Money lent and favors done that others still owe her. */

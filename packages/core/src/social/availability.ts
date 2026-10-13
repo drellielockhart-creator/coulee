@@ -1,3 +1,5 @@
+import { officeOf } from './relief.ts';
+import { theftPreflight } from './theft.ts';
 /**
  * Read-only command/menu preflight; shares structural eligibility with social resolution.
  *
@@ -171,12 +173,18 @@ export function interactionAvailability(
   actorId: ActorId,
   targetId: ActorId,
   interactionId: string,
+  itemId?: import('../ids.ts').ItemId,
 ): { ok: boolean; reason?: string } {
   const actor = world.actors[actorId],
     target = world.actors[targetId],
     def = content.interactions[interactionId];
   const no = (reason: string) => ({ ok: false, reason });
   if (!actor || !target || !def) return no('Unknown person or interaction');
+  if (def.theft) {
+    const reason = theftPreflight(world, content, actorId, targetId, itemId);
+    return reason ? no(reason) : { ok: true };
+  }
+  if (def.relief === 'collect' && !officeOf(world, targetId)) return no('That person keeps no relief pantry');
   if (!canAct(world, actorId) || !canAct(world, targetId)) return no('An incapacitated person cannot converse');
   const name = `${target.name.given} ${target.name.family}`.trim();
   if (!target.alive || target.placeId !== actor.placeId) return no(`${name} is not here`);

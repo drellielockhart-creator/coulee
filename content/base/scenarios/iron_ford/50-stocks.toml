@@ -203,6 +203,7 @@ items = [
 
 [[stocks]]
 place = "dunleavys_tavern"
+keeper = "dunleavy"
 markup_pct = 120
 items = [
   { item = "whiskey_quart", qty = 30 },
