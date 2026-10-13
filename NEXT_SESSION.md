@@ -61,7 +61,12 @@ _Updated 2026-10-11, night. The repo is https://github.com/drellielockhart-creat
 |---|---|---|
 | Poor relief | Codex astra: knowing want, neighbor charity, church/club relief offices, credit by opinion, generic desperation theft (api entry), PC parity; M4 acceptance 3 harness; tavern store keeper bug | `../coulee-w6-relief`, branch `wave6/relief` |
 | Charm pressure | Claude Opus (the fae 1b agent): refusal guilt for keepers, resentment/covet/gossip for the refused; rota and batch numbers | `../coulee-w6-charm-pressure`, branch `wave6/charm-pressure` |
-| M5 plan | Codex astra: planning only, writes `docs/impl/M5-PLAN.md` (world model, travel, integration, web, slices, risks) | `../coulee-w6-m5plan`, branch `wave6/m5-plan` |
+| M5 plan | DONE (`docs/impl/M5-PLAN.md`); its §7 defaults are listed as 08 item 14 | merged |
+| M5 slice 1 | Codex astra: walk to a neighboring settlement (region registry, journeys, trip forecast, road observation, web route card) | `../coulee-w6-m5s1`, branch `wave6/m5-slice1` |
+| Fae 1b review | Codex astra: cross-model adversarial review of fae slice 1b (read-only) | `../coulee-w6-review` |
+| M6 plan | Codex astra: planning only, writes `docs/impl/M6-PLAN.md` | `../coulee-w6-m6-plan`, branch `wave6/m6-plan` |
+| Docs sync | Codex sol: 07 status, MODULES, BACKLOG staleness, READMEs, root README | `../coulee-w6-docsync`, branch `wave6/docsync` |
+| Talk repeats | Codex sol: listener memory + ambient chat volume (target ≤15% listener repeats) | `../coulee-w6-talk-repeats`, branch `wave6/talk-repeats` |
 
 ## Next
 1. Merge the relief and charm-pressure branches (both touch social: relief owns theft).
