@@ -1,0 +1,940 @@
+60 min left in this hour (0 spent).
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Michael Dunleavy [talk:chat:28]
+19. Introduce oneself: Michael Dunleavy [talk:introduce:28]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 168; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 1h
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+Money: purse −$0.25, household +$0.00 — Tavern bed: $0.25
+1855-04-01 01:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $49.75; household $0.00. 32°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 758; Rest 723; Thirst 770; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1, asleep), Joel Pike (#2, asleep), Michael Dunleavy (#28, asleep), Nora Dunleavy (#29, asleep), Brigid Dunleavy (#30, asleep, child), Lucius Vance (#38, asleep).
+Self-Command: Held for your order; routine standing orders only — explain 319
+[360] You lie down to sleep — explain 360
+[363] You paid Michael Dunleavy $0.25 (Tavern bed) — explain 363
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+19. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 164; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 1h
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+1855-04-01 02:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — sleeping. Purse $49.75; household $0.00. 32°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 743; Rest 863; Thirst 742; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1, asleep), Joel Pike (#2, asleep), Michael Dunleavy (#28, asleep), Nora Dunleavy (#29, asleep), Brigid Dunleavy (#30, asleep, child), Lucius Vance (#38, asleep).
+Self-Command: Held for your order; routine standing orders only — explain 412
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+19. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 166; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait until 07:00
+60 min left in this hour (0 spent).
+Since last look: 5h passed.
+Skipped 4 minor conversations nearby.
+1855-04-01 07:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — fetching water. Purse $49.75; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 854; Rest 922; Thirst 900; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here. The broom leans bristles upward against the shut door.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28, asleep), Nora Dunleavy (#29), Brigid Dunleavy (#30, asleep, child), Lucius Vance (#38).
+Conscience: The fire wants minding (held for your order; you may: cook)
+Self-Command: Held for your order; routine standing orders only — explain 428
+[420] The broom leans bristles upward against the shut door. — explain 420
+[421] You cannot say what it was. An open question remains; use signs. — explain 421
+[633] Standing order (eat): you ate Pemmican, Dried apples, Hardtack (ship's biscuit): 643 kcal, cold — explain 633
+  Amos Whitcomb: “I once ran a line straight through a bee tree.”
+  Joel Pike: “And the bees?”
+  Amos Whitcomb: “Ran a line straight through me.”
+  Joel Pike: “How do! The name's Joel Pike.”
+  Nora Dunleavy: “Nora Dunleavy. And how do you find the place?”
+  Joel Pike: “Better for having someone to speak to.”
+  Nora Dunleavy: “What shall it profit a man, Mr. Whitcomb, if he gain the whole world?”
+  Amos Whitcomb: “I've been asking myself the same, lately.”
+  Lucius Vance: “I once sold a man his own farm back to him, at twice the price, and he thanked me.”
+  Joel Pike: “How did he thank you?”
+  Lucius Vance: “In writing, with his lawyer present.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Amos Whitcomb [talk:chat:1]
+19. Chat: Joel Pike [talk:chat:2]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 236; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> meal
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+Money: purse −$0.20, household +$0.00 — Tavern meal: $0.20
+1855-04-01 08:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55; household $0.00. 36°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 812; Rest 845; Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here. The broom leans bristles upward against the shut door.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Appetite: Drink accessible water (held for your order; you may: fetch water at Glover Spring (1 min on foot; drink and fill your vessels))
+Conscience: The table is laid (held for your order; you may: take a meal)
+[694] Michael Dunleavy: Lend a hand ▸ Lucius Vance (it went well)
+[695] Nora Dunleavy: Pray ▸ Amos Whitcomb (it went well)
+[856] You paid Michael Dunleavy $0.20 (Tavern meal) — explain 856
+  Joel Pike: “You've a tongue like a rusty hinge.”
+  Nora Dunleavy: “And you've a mind to match. It never opens.”
+  Michael Dunleavy: “That harness wants mending. Hand me the awl.”
+  Lucius Vance: “Bless you. I've been meaning to get to it for a week.”
+  Nora Dunleavy: “Except the Lord build the house, they labour in vain that build it.”
+  Amos Whitcomb: “Except the Lord keep the city, the watchman waketh but in vain.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Amos Whitcomb [talk:chat:1]
+19. Chat: Joel Pike [talk:chat:2]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 277; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 1h
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+Skipped 4 minor conversations nearby.
+1855-04-01 09:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55; household $0.00. 39°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 1000; Rest 806; Thirst 1000; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here. The broom leans bristles upward against the shut door.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 934
+[1000] You ate Milk, whole, Eggs, Cheese, Swiss, Vinegar, cider, Tea, black: 750 kcal, hot — explain 1000
+  Amos Whitcomb: “I once set a corner stone, and the owner moved it overnight. Six inches.”
+  Lucius Vance: “Six inches?”
+  Amos Whitcomb: “It was the best six inches in the county. I let him keep it.”
+  Michael Dunleavy: “Shall I split a bit of kindling for you?”
+  Amos Whitcomb: “Please do. I've been pretending the box was full.”
+  Nora Dunleavy: “Don't repeat this, Mr. Whitcomb.”
+  Amos Whitcomb: “When have I ever?”
+  Nora Dunleavy: “Every time. But I tell you anyway.”
+  Lucius Vance: “You remember everything, Mr. Pike. I envy it.”
+  Joel Pike: “It's not a gift. It's a haunting.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Amos Whitcomb [talk:chat:1]
+19. Chat: Joel Pike [talk:chat:2]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 277; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> look
+60 min left in this hour (0 spent).
+Since last look: no time passed.
+1855-04-01 09:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55; household $0.00. 39°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 1000; Rest 806; Thirst 1000; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here. The broom leans bristles upward against the shut door.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: The table is laid (held for your order; you may: take a meal)
+Self-Command: Held for your order; routine standing orders only — explain 934
+[964] Nora Dunleavy: Gossip ▸ Amos Whitcomb (it went well)
+[968] Lucius Vance: Compliment ▸ Joel Pike (it went well)
+[1000] You ate Milk, whole, Eggs, Cheese, Swiss, Vinegar, cider, Tea, black: 750 kcal, hot — explain 1000
+  Amos Whitcomb: “I once set a corner stone, and the owner moved it overnight. Six inches.”
+  Lucius Vance: “Six inches?”
+  Amos Whitcomb: “It was the best six inches in the county. I let him keep it.”
+  Michael Dunleavy: “Shall I split a bit of kindling for you?”
+  Amos Whitcomb: “Please do. I've been pretending the box was full.”
+  Nora Dunleavy: “Don't repeat this, Mr. Whitcomb.”
+  Amos Whitcomb: “When have I ever?”
+  Nora Dunleavy: “Every time. But I tell you anyway.”
+  Lucius Vance: “You remember everything, Mr. Pike. I envy it.”
+  Joel Pike: “It's not a gift. It's a haunting.”
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Amos Whitcomb [talk:chat:1]
+19. Chat: Joel Pike [talk:chat:2]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 277; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> fight Michael Dunleavy
+[1088] Fight! ▸ Michael Dunleavy (it went badly) — explain 1088 for how it went
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+Fight! ▸ Michael Dunleavy (it went badly)
+1855-04-01 10:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55; household $0.00. 42°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 971; Rest 767; Thirst 944; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Michael Dunleavy, Brigid Dunleavy are here. The broom leans bristles upward against the shut door.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Michael Dunleavy (#28), Brigid Dunleavy (#30, child).
+Conscience: The Sabbath must be kept (held for your order; you may: attend church)
+  Ellis Wayfarer: “Come on, then!”
+  Michael Dunleavy: “Had enough? Go home and put a steak on that eye.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Michael Dunleavy [talk:chat:28]
+19. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+20. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 193; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> tactical:resume
+Nothing here matches “tactical:resume”; try look, prices, places or actions. No game time spent.
+> tactical:resume
+Nothing here matches “tactical:resume”; try look, prices, places or actions. No game time spent.
+> explain 1088
+Fight: Ellis Wayfarer → Michael Dunleavy: 2 () vs DC 16 -> failure
+  Ellis Wayfarer athletics: 2 (d20 1, Strength +1 +1) -> rolled
+  Resolved: Fight: 1009 (Reality 50 × Self-Command 50% +25, Voices 1000 × 100% +1000, Impulse (±100) -16) -> command — A command holds the hour: the voices are heard, and overruled.
+    Fight: 1009 (Reality 50 × Self-Command 50% +25, Voices 1000 × 100% +1000, Impulse (±100) -16) -> chosen — +1000 Resolved: Fight; R +50 Michael Dunleavy is here
+    Attend church: 505 (Reality 100 × Self-Command 50% +50, Voices 450 × 100% +450, Impulse (±100) +5) -> rejected — +450 The Sabbath must be kept; R +100 The hour for it
+    Take a meal: 6 (Reality 0 × Self-Command 50% +0, Voices 95 × 100% +95, Impulse (±100) -89) -> rejected — +95 The table is laid
+    Insult: -1490 (Reality 50 × Self-Command 50% +25, Voices -1595 × 100% -1595, Impulse (±100) +80) -> rejected — +175 Choler: what Joel Pike did; −400 Benevolence: not insult; −800 Decorum: not insult; −570 Approbativeness: not insult; R +50 Joel Pike is here
+    interaction: commanded; command; issuer player: 1 () -> authorized
+No time passed (1855-04-01 10:00, Dunleavy's Tavern).
+> inspect Michael Dunleavy
+Michael Dunleavy — Human; at home, at leisure.
+You have met (familiarity 40 of 1000). Ties: none. Your opinion: Neutral.
+Seems to feel about you: civil — offers you ordinary courtesy.
+What you know between you: Michael Dunleavy put me down at Dunleavy's Tavern
+Perception: reading their manner: 21 (d20 20, Wisdom +1, Time spent in their company) vs DC 17 -> success
+affection: -1 = base -1 + reasons 0 + immediate 0 (clamped −100..100)
+respect: 3 = base 0 + reasons 3 + immediate 0 (clamped −100..100)
+trust: 0 = base 0 + reasons 0 + immediate 0 (clamped −100..100)
+fear: 4 = base 0 + reasons 4 + immediate 0 (clamped −100..100)
+Saw Michael Dunleavy help Lucius Vance at Dunleavy's Tavern: affection 0, respect 0, trust 0, fear 0
+Put me down in front of everyone: affection 0, respect 3, trust 0, fear 4
+Remembered: Saw Michael Dunleavy help Lucius Vance at Dunleavy's Tavern
+Remembered: Michael Dunleavy put me down at Dunleavy's Tavern
+No time passed (1855-04-01 10:00, Dunleavy's Tavern).
+> inspect Nora Dunleavy
+You cannot inspect “Nora Dunleavy”: it is not here, in your pack, or someone you know. Try look, plan or places. No game time spent.
+> activity:idle_at_home
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+1855-04-01 11:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55; household $0.00. 45°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 942; Rest 728; Thirst 888; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Michael Dunleavy, Brigid Dunleavy are here. You remember: The broom leans bristles upward against the shut door. The question is still open; use signs.
+Asked of you: Michael Dunleavy offers to lend a hand for an hour (Help). Accept and you will owe him a favor, to be returned in kind. Answer now (yes or no); silence lets it lapse this hour.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Michael Dunleavy (#28), Brigid Dunleavy (#30, child).
+Conscience: The Sabbath must be kept (held for your order; you may: attend church)
+1. Yes to Michael Dunleavy's offer (you would owe him a favor) [answer:28:41:600:help:yes]
+2. No to Michael Dunleavy's offer [answer:28:41:600:help:no]
+3. look [look]
+4. Signs & Wonders [signs]
+5. Plan provisions / Kit Sheet [plan]
+6. journal [journal]
+7. Sleep [activity:sleep]
+8. Drink water (500 ml) [drink]
+9. At home [activity:idle_at_home]
+10. Work [activity:work]
+11. Wait 1 hour [wait]
+12. Go to Iron Ford Lutheran Church (1 min) [go:26]
+13. Go to Main Street (1 min) [go:27]
+14. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+15. Go to Trevenna House (1 min) [go:40]
+16. Go to Brenner House (1 min) [go:1]
+17. Go to Brenner's Smithy (1 min) [go:2]
+18. Go to Fenn Farm (1 min) [go:6]
+19. Go to Fenn Fields (1 min) [go:7]
+20. Chat: Michael Dunleavy [talk:chat:28]
+21. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+22. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 194; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> work
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+1855-04-01 12:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $49.55; household $0.00. 47°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 913; Rest 689; Thirst 832; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here. You remember: The broom leans bristles upward against the shut door. The question is still open; use signs.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Brigid Dunleavy (#30, child).
+Conscience: The Sabbath must be kept (held for your order; you may: attend church)
+[1254] You begin working — explain 1254
+[1257] Amos Whitcomb: Chat ▸ Joel Pike (it went well)
+[1258] Michael Dunleavy: Good day ▸ Joel Pike (it went well)
+  Amos Whitcomb: “I've not forgotten what you said at Dunleavy's Tavern.”
+  Joel Pike: “Nor I. Let it lie, Amos.”
+  Michael Dunleavy: “Michael Dunleavy. God save all here.”
+  Joel Pike: “Joel Pike. And you. Come in out of the road.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Amos Whitcomb [talk:chat:1]
+19. Chat: Joel Pike [talk:chat:2]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 242; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> work
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+1855-04-01 13:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — working. Purse $49.55; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.7 kg.
+Vitals: Hunger 993; Rest 566; Thirst 704; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Nora Dunleavy are here. You remember: The broom leans bristles upward against the shut door. The question is still open; use signs.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1), Joel Pike (#2), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: The table is laid (held for your order; you may: take a meal)
+[1362] Joel Pike: Chat ▸ Amos Whitcomb (it went well)
+[1363] Lucius Vance: Chat ▸ Joel Pike (it went well)
+[1545] Standing order (eat): you ate Pemmican, Hardtack (ship's biscuit): 429 kcal, cold — explain 1545
+  Amos Whitcomb: “Amazing grace, how sweet the sound.”
+  Nora Dunleavy: “That saved a wretch like me.”
+  Joel Pike: “How's the work going, Amos?”
+  Amos Whitcomb: “Going. Whether to a good place is another matter.”
+  Lucius Vance: “They're talking of a plank road to the river.”
+  Joel Pike: “Then we'll drown in a better class of mud.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Amos Whitcomb [talk:chat:1]
+19. Chat: Joel Pike [talk:chat:2]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 251; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> activity:idle_at_home
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+1855-04-01 14:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55; household $0.00. 50°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 930; Rest 443; Thirst 900; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Nora Dunleavy are here. You remember: The broom leans bristles upward against the shut door. The question is still open; use signs.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1), Joel Pike (#2), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Appetite: Drink accessible water (held for your order; you may: fetch water at Glover Spring (1 min on foot; drink and fill your vessels))
+Conscience: The table is laid (held for your order; you may: take a meal)
+[1608] Amos Whitcomb: Spin a yarn ▸ Nora Dunleavy (it went well)
+[1609] Joel Pike: Chat ▸ Amos Whitcomb (it went well)
+[1610] Nora Dunleavy: Gossip ▸ Amos Whitcomb (it went well)
+  Amos Whitcomb: “The judge fell asleep on the bench, and the jury, in sympathy, did the same.”
+  Nora Dunleavy: “Who woke first?”
+  Amos Whitcomb: “The prisoner. He said he'd been found not guilty of consciousness.”
+  Joel Pike: “Did you hear that preacher from Prairie du Chien?”
+  Amos Whitcomb: “I did. He preached for three hours, and the cows were quiet for two.”
+  Nora Dunleavy: “Nothing new. Only the same old talk, and I'm tired of the sound of it.”
+  Amos Whitcomb: “Then spare me it, and we'll talk of the weather.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Amos Whitcomb [talk:chat:1]
+19. Chat: Joel Pike [talk:chat:2]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 251; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> activity:idle_at_home
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+To you: Hester Fenn: Good day ▸ you (it went well).
+1855-04-01 15:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55; household $0.00. 50°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 901; Rest 404; Thirst 844; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Hester Fenn, Johann Brenner are here. You remember: The broom leans bristles upward against the shut door. The question is still open; use signs.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1), Hester Fenn (#16), Johann Brenner (#23), Nora Dunleavy (#29), Abigail Hatch (#40).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+[1832] Johann Brenner: Good day ▸ Amos Whitcomb (it went well)
+[1833] Nora Dunleavy: Chat ▸ Amos Whitcomb (it went well)
+[1834] Abigail Hatch: Good day ▸ Nora Dunleavy (it went well)
+  Hester Fenn: “Good day. Hester Fenn, and pleased to know you.”
+  Ellis Wayfarer: “Ellis Wayfarer. Likewise, I'm sure.”
+  Johann Brenner: “Guten Tag! The name's Johann Brenner.”
+  Amos Whitcomb: “Amos Whitcomb. And how do you find the place?”
+  Johann Brenner: “Better for having someone to speak to.”
+  Nora Dunleavy: “Where is my line, Mr. Whitcomb? I've been asking the neighbors and no two agree.”
+  Amos Whitcomb: “Then the neighbors are an excellent instrument. I'll bring a better one.”
+  Abigail Hatch: “I don't think I know your face. Abigail Hatch.”
+  Nora Dunleavy: “Nora Dunleavy. Nor I yours, but that's mended now.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Amos Whitcomb [talk:chat:1]
+19. Chat: Hester Fenn [talk:chat:16]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 237; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> go 14
+58 min left in this hour (2 spent).
+Since last look: 2 min passed.
+You arrive at Hasp Creek (2 min on foot)
+1855-04-01 15:00 | FAIR | Hasp Creek
+Ellis Wayfarer — at leisure. Purse $49.55; household $0.00. 50°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 901; Rest 404; Thirst 844; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+The spring-fed trout creek that drives the mill and runs the length of the village. Spring at Hasp Creek. The wind carries the smell of wet earth. The paths about Hasp Creek are quiet.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: no one else.
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+[1832] Johann Brenner: Good day ▸ Amos Whitcomb (it went well)
+[1833] Nora Dunleavy: Chat ▸ Amos Whitcomb (it went well)
+[1834] Abigail Hatch: Good day ▸ Nora Dunleavy (it went well)
+  Hester Fenn: “Good day. Hester Fenn, and pleased to know you.”
+  Ellis Wayfarer: “Ellis Wayfarer. Likewise, I'm sure.”
+  Johann Brenner: “Guten Tag! The name's Johann Brenner.”
+  Amos Whitcomb: “Amos Whitcomb. And how do you find the place?”
+  Johann Brenner: “Better for having someone to speak to.”
+  Nora Dunleavy: “Where is my line, Mr. Whitcomb? I've been asking the neighbors and no two agree.”
+  Amos Whitcomb: “Then the neighbors are an excellent instrument. I'll bring a better one.”
+  Abigail Hatch: “I don't think I know your face. Abigail Hatch.”
+  Nora Dunleavy: “Nora Dunleavy. Nor I yours, but that's mended now.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Make camp and sleep here [activity:sleep]
+6. Drink from Hasp Creek (raw water, 500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Dunleavy's Tavern (1 min) [go:4]
+11. Go to Ferry Landing (1 min) [go:8]
+12. Go to Iron Ford Lutheran Church (1 min) [go:26]
+13. Go to Main Street (1 min) [go:27]
+14. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+15. Go to Trevenna House (1 min) [go:40]
+16. Go to Brenner House (1 min) [go:1]
+17. Go to Brenner's Smithy (1 min) [go:2]
+18. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+19. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 161; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> activity:fish_creek
+60 min left in this hour (0 spent).
+Since last look: 58 min passed.
+You arrive at Ferry Landing (2 min on foot)
+1855-04-01 16:00 | FAIR | Ferry Landing
+Ellis Wayfarer — fishing. Purse $49.55; household $0.00. 49°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 872; Rest 365; Thirst 788; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Flatboat ferry across the slough; steamboats sound for the wood-yard. Spring at Ferry Landing. The wind carries the smell of wet earth. The paths about Ferry Landing are quiet.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: no one else.
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: Anyone would have done the same.
+[1881] You arrive at Hasp Creek (2 min on foot) — explain 1881
+[1930] You begin fishing — explain 1930
+[1949] You gathered nothing whole yet; found so far: Brook trout, fresh 0.1 (each adds up to a whole unit over longer forays) — explain 1949
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Main Street (1 min) [go:27]
+11. Go to Trevenna House (1 min) [go:40]
+12. Go to Ferryman's House (1 min) [go:9]
+13. Go to Hasp Creek (1 min) [go:14]
+14. Go to Hurd House (1 min) [go:18]
+15. Go to Kvale Ridge Fields (1 min) [go:21]
+16. Go to River Bottoms (1 min) [go:35]
+17. Go to River Road (1 min) [go:36]
+18. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+19. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 157; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> activity:fish_creek
+60 min left in this hour (0 spent).
+Since last look: 1h passed; Rest: steady → Tired.
+You are getting tired
+1855-04-01 17:00 | FAIR | Ferry Landing
+Ellis Wayfarer — fishing. Purse $49.55; household $0.00. 47°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 830; Rest 288 (Tired); Thirst 708; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+You may collapse from exhaustion in about 2.9 days (2.6 days if every save fails) if this continues: rest runs out in about 4 hours at the current rate (-77/h); then 23 hours before the first Fortitude save; a save (DC 15, +1 each time) every 6 hours; each failure costs 1 of your 7 Vigor.
+Flatboat ferry across the slough; steamboats sound for the wood-yard. Spring at Ferry Landing. The wind carries the smell of wet earth. Lemuel Hatch is here.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Lemuel Hatch (#39, working).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: Anyone would have done the same.
+[2038] You gathered nothing whole yet; found so far: Brook trout, fresh 0.3 (each adds up to a whole unit over longer forays) — explain 2038
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Main Street (1 min) [go:27]
+11. Go to Trevenna House (1 min) [go:40]
+12. Go to Ferryman's House (1 min) [go:9]
+13. Go to Hasp Creek (1 min) [go:14]
+14. Go to Hurd House (1 min) [go:18]
+15. Go to Kvale Ridge Fields (1 min) [go:21]
+16. Go to River Bottoms (1 min) [go:35]
+17. Go to River Road (1 min) [go:36]
+18. Chat: Lemuel Hatch [talk:chat:39]
+19. Introduce oneself: Lemuel Hatch [talk:introduce:39]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 164; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> activity:fish_creek
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+1855-04-01 18:00 | FAIR | Ferry Landing
+Ellis Wayfarer — fishing. Purse $49.55; household $0.00. 44°F, dry.
+Food 6.0 days; Medium, 32.0 kg.
+Vitals: Hunger 788; Rest 211 (Tired); Thirst 628; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+You may collapse from exhaustion in about 2.8 days (2.6 days if every save fails) if this continues: rest runs out in about 3 hours at the current rate (-77/h); then 23 hours before the first Fortitude save; a save (DC 15, +1 each time) every 6 hours; each failure costs 1 of your 7 Vigor.
+Flatboat ferry across the slough; steamboats sound for the wood-yard. Spring at Ferry Landing. The wind carries the smell of wet earth. Lemuel Hatch is here.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Lemuel Hatch (#39, working).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The fire wants minding (held for your order; you may: cook)
+[2180] You gathered nothing whole yet (a poor hour: the skill check failed badly); found so far: Brook trout, fresh 0.3 (each adds up to a whole unit over longer forays) — explain 2180
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Main Street (1 min) [go:27]
+11. Go to Trevenna House (1 min) [go:40]
+12. Go to Ferryman's House (1 min) [go:9]
+13. Go to Hasp Creek (1 min) [go:14]
+14. Go to Hurd House (1 min) [go:18]
+15. Go to Kvale Ridge Fields (1 min) [go:21]
+16. Go to River Bottoms (1 min) [go:35]
+17. Go to River Road (1 min) [go:36]
+18. Chat: Lemuel Hatch [talk:chat:39]
+19. Introduce oneself: Lemuel Hatch [talk:introduce:39]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 164; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> activity:fish_creek
+60 min left in this hour (0 spent).
+Since last look: 1h passed.
+1855-04-01 19:00 | FAIR | Ferry Landing
+Ellis Wayfarer — fishing. Purse $49.55; household $0.00. 42°F, dry.
+Food 5.0 days; Medium, 31.3 kg.
+Vitals: Hunger 1000; Rest 134 (Tired); Thirst 900; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+You may collapse from exhaustion in about 2.8 days (2.5 days if every save fails) if this continues: rest runs out in about 2 hours at the current rate (-77/h); then 23 hours before the first Fortitude save; a save (DC 15, +1 each time) every 6 hours; each failure costs 1 of your 7 Vigor.
+Flatboat ferry across the slough; steamboats sound for the wood-yard. Spring at Ferry Landing. The wind carries the smell of wet earth. The paths about Ferry Landing are quiet.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: no one else.
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: The table is laid (held for your order; you may: take a meal)
+[2319] You gathered nothing whole yet (a poor hour: the skill check failed badly); found so far: Brook trout, fresh 0.3 (each adds up to a whole unit over longer forays) — explain 2319
+[2485] Standing order (eat): you ate Pemmican, Hardtack (ship's biscuit): 762 kcal, cold — explain 2485
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Main Street (1 min) [go:27]
+11. Go to Trevenna House (1 min) [go:40]
+12. Go to Ferryman's House (1 min) [go:9]
+13. Go to Hasp Creek (1 min) [go:14]
+14. Go to Hurd House (1 min) [go:18]
+15. Go to Kvale Ridge Fields (1 min) [go:21]
+16. Go to River Bottoms (1 min) [go:35]
+17. Go to River Road (1 min) [go:36]
+18. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+19. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 157; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> dismiss Amos Whitcomb
+Name one person present here. No game time spent.
+> activity:incapacitated
+60 min left in this hour (0 spent).
+Since last look: 1h passed; Rest: Tired → Exhausted.
+You are exhausted now
+1855-04-01 20:00 | FAIR | Ferry Landing
+Ellis Wayfarer — lying helpless. Purse $49.55; household $0.00. 40°F, dry.
+Food 5.0 days; Medium, 31.3 kg.
+Vitals: Hunger 958; Rest 57 (Exhausted); Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Flatboat ferry across the slough; steamboats sound for the wood-yard. Spring at Ferry Landing. The wind carries the smell of wet earth. The paths about Ferry Landing are quiet.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: no one else.
+[2526] You lie down to sleep — explain 2526
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Main Street (1 min) [go:27]
+11. Go to Trevenna House (1 min) [go:40]
+12. Go to Ferryman's House (1 min) [go:9]
+13. Go to Hasp Creek (1 min) [go:14]
+14. Go to Hurd House (1 min) [go:18]
+15. Go to Kvale Ridge Fields (1 min) [go:21]
+16. Go to River Bottoms (1 min) [go:35]
+17. Go to River Road (1 min) [go:36]
+18. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+19. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 157; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> look
+60 min left in this hour (0 spent).
+Since last look: no time passed.
+1855-04-01 20:00 | FAIR | Ferry Landing
+Ellis Wayfarer — lying helpless. Purse $49.55; household $0.00. 40°F, dry.
+Food 5.0 days; Medium, 31.3 kg.
+Vitals: Hunger 958; Rest 57 (Exhausted); Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Flatboat ferry across the slough; steamboats sound for the wood-yard. Spring at Ferry Landing. The wind carries the smell of wet earth. The paths about Ferry Landing are quiet.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: no one else.
+[2490] You are exhausted now — explain 2490
+[2526] You lie down to sleep — explain 2526
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. Rest here awhile [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Main Street (1 min) [go:27]
+11. Go to Trevenna House (1 min) [go:40]
+12. Go to Ferryman's House (1 min) [go:9]
+13. Go to Hasp Creek (1 min) [go:14]
+14. Go to Hurd House (1 min) [go:18]
+15. Go to Kvale Ridge Fields (1 min) [go:21]
+16. Go to River Bottoms (1 min) [go:35]
+17. Go to River Road (1 min) [go:36]
+18. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+19. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 157; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> go 4
+57 min left in this hour (3 spent).
+Since last look: 3 min passed.
+You arrive at Dunleavy's Tavern (3 min on foot)
+1855-04-01 20:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55; household $0.00. 40°F, dry.
+Food 5.0 days; Medium, 31.3 kg.
+Vitals: Hunger 958; Rest 57 (Exhausted); Thirst 820; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Michael Dunleavy, Nora Dunleavy are here. You remember: The broom leans bristles upward against the shut door. The question is still open; use signs.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1, asleep), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, asleep, child), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: Daily round: Family devotions (held for your order; you may: family devotions)
+[2490] You are exhausted now — explain 2490
+[2526] You lie down to sleep — explain 2526
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Michael Dunleavy [talk:chat:28]
+19. Chat: Nora Dunleavy [talk:chat:29]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 227; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 1h
+60 min left in this hour (0 spent).
+Since last look: 57 min passed; Rest: Exhausted → Tired.
+Skipped 1 minor conversation nearby.
+1855-04-01 21:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $49.55; household $0.00. 38°F, dry.
+Food 5.0 days; Medium, 31.3 kg.
+Vitals: Hunger 943; Rest 157 (Tired); Thirst 792; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12. fatigued
+You may collapse from exhaustion in about 2.9 days (2.7 days if every save fails) if this continues: rest runs out in about 5 hours at the current rate (-39/h); then 23 hours before the first Fortitude save; a save (DC 15, +1 each time) every 6 hours; each failure costs 1 of your 7 Vigor.
+Counter open; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days; sold out until then: Eggs, Bread heel, fresh.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here. You remember: The broom leans bristles upward against the shut door. The question is still open; use signs.
+Open sign: The broom leans bristles upward against the shut door. (investigate 4:0:dawn)
+Here: Amos Whitcomb (#1, asleep), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, asleep, child), Lucius Vance (#38).
+Appetite: Weary: a bed would be welcome (held for your order; you may: sleep)
+Conscience: Daily round: Keep house (held for your order; you may: keep house)
+Self-Command: Held for your order; routine standing orders only — explain 2697
+[2686] You arrive at Dunleavy's Tavern (3 min on foot) — explain 2686
+[2687] You are easing from exhausted to tired — explain 2687
+  Michael Dunleavy: “How are you keeping, Lucius?”
+  Lucius Vance: “Can't complain, and wouldn't be listened to if I did.”
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Joel Pike [talk:chat:2]
+19. Chat: Michael Dunleavy [talk:chat:28]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 252; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.

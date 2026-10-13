@@ -1,0 +1,10 @@
+go 33
+inspect Lydia
+inspect Augusta
+go 4
+buy whiskey
+sleep
+wake
+sleep
+buy whiskey
+meal

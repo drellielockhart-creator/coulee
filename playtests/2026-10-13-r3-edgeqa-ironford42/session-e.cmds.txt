@@ -1,0 +1,5 @@
+tactical:attack:1
+tactical:cancel
+tactical:parley
+tactical:resume
+tactical:resume

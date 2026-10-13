@@ -1,0 +1,3 @@
+{"type":"session","format":1,"spec":{"source":"tavern_brawl","seed":7,"pc":{"name":"Ellis Wayfarer","kit":"newcomer","ancestry":"human","lodging":"tavern"}},"contentHash":"d02ed6992c5f6b7419bf84d9502432ef755bc17a4622b703267bb1b1001af452","clockVersion":1,"engineVersion":"m6-slice2","rulesVersion":3,"sourceHash":"122f5b7434076be8"}
+{"type":"command","command":{"kind":"activity.observe","actorId":41,"data":{"query":"look"},"issuer":{"kind":"player"}},"before":"30ed0fba8dd38647","after":"30ed0fba8dd38647","at":0,"end":0,"atMinute":0,"endMinute":0}
+{"type":"command","command":{"kind":"provisions.drink","actorId":41,"data":{"ml":500},"issuer":{"kind":"player"}},"before":"30ed0fba8dd38647","after":"406a94242860e75b","at":0,"end":60,"atMinute":0,"endMinute":0}

@@ -1,0 +1,10 @@
+
+tactical:resume
+tactical:yield
+tactical:resume
+tactical:resume
+tactical:resume
+go 27
+inspect Amos Whitcomb
+tactical:breathe
+wait 1h

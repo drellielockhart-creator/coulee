@@ -1,0 +1,469 @@
+60 min left in this hour (0 spent).
+Since last look: no time passed.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — idling. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. look [look]
+2. Signs & Wonders [signs]
+3. Plan provisions / Kit Sheet [plan]
+4. journal [journal]
+5. Sleep [activity:sleep]
+6. Drink water (500 ml) [drink]
+7. At home [activity:idle_at_home]
+8. Work [activity:work]
+9. Wait 1 hour [wait]
+10. Go to Iron Ford Lutheran Church (1 min) [go:26]
+11. Go to Main Street (1 min) [go:27]
+12. Go to Pratt & Daughter, Outfitters (1 min) [go:33]
+13. Go to Trevenna House (1 min) [go:40]
+14. Go to Brenner House (1 min) [go:1]
+15. Go to Brenner's Smithy (1 min) [go:2]
+16. Go to Fenn Farm (1 min) [go:6]
+17. Go to Fenn Fields (1 min) [go:7]
+18. Chat: Michael Dunleavy [talk:chat:28]
+19. Introduce oneself: Michael Dunleavy [talk:introduce:28]
+20. Eat Hardtack (ship's biscuit) (raw) [eat:345:raw]
+21. Prepare and eat Hardtack (ship's biscuit) (soak) [eat:345:soak]
+Actions 168; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 1h
+Paused at 00:00:00.0.
+Since last look: no time passed.
+Pike and Whitcomb square up beside you. Join, call for peace, or leave through the door.
+Amos Whitcomb squares up to Joel Pike. A nonlethal brawl begins.
+Tactical 00:00:00.0 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. Break up the brawl [tactical:parley]
+3. flee [tactical:flee]
+4. attack Joel Pike (unarmed, nonlethal) [tactical:attack:2]
+5. grapple Joel Pike [tactical:grapple:2]
+6. Authorize one defensive reaction for one minute [tactical:reaction:1]
+7. Resume for up to six seconds [tactical:resume]
+8. Step east [tactical:move:east]
+9. Step south [tactical:move:south]
+10. look [look]
+11. Plan provisions / Kit Sheet [plan]
+12. journal [journal]
+Actions 12; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> inspect Amos Whitcomb
+You cannot inspect “Amos Whitcomb”: it is not here, in your pack, or someone you know. Try look, plan or places. No game time spent.
+> tactical:parley
+Since last look: no time passed.
+Tactical 00:00:00.0 — parley: windup; 4.6s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+[38] Pike and Whitcomb square up beside you. Join, call for peace, or leave through the door.
+[41] Amos Whitcomb squares up to Joel Pike. A nonlethal brawl begins.
+[43] You begin parley. — explain 43
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> tactical:resume
+Paused at 00:00:05.8.
+Since last look: 5.8s passed.
+Your action and recovery are complete.
+Tactical 00:00:05.8 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[338] parley resolves; you recover.
+[339] Amos Whitcomb misses Joel Pike. — explain 339
+[341] Joel Pike misses Amos Whitcomb. — explain 341
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. Break up the brawl [tactical:parley]
+3. flee [tactical:flee]
+4. attack Joel Pike (unarmed, nonlethal) [tactical:attack:2]
+5. grapple Joel Pike [tactical:grapple:2]
+6. Authorize one defensive reaction for one minute [tactical:reaction:1]
+7. Resume for up to six seconds [tactical:resume]
+8. Step east [tactical:move:east]
+9. Step south [tactical:move:south]
+10. look [look]
+11. Plan provisions / Kit Sheet [plan]
+12. journal [journal]
+Actions 12; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> tactical:resume
+Since last look: 6s passed.
+Tactical 00:00:11.8 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[365] Amos Whitcomb lands a nonlethal blow on Joel Pike. — explain 365
+[366] Joel Pike: Suffers a light, nonbleeding bruise.
+[369] Joel Pike misses Amos Whitcomb. — explain 369
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. Break up the brawl [tactical:parley]
+3. flee [tactical:flee]
+4. attack Joel Pike (unarmed, nonlethal) [tactical:attack:2]
+5. grapple Joel Pike [tactical:grapple:2]
+6. Authorize one defensive reaction for one minute [tactical:reaction:1]
+7. Resume for up to six seconds [tactical:resume]
+8. Step east [tactical:move:east]
+9. Step south [tactical:move:south]
+10. look [look]
+11. Plan provisions / Kit Sheet [plan]
+12. journal [journal]
+Actions 12; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> explain 338
+No explanation you know of has that id. No game time spent.
+> tactical:parley
+Since last look: no time passed.
+Tactical 00:00:11.8 — parley: windup; 1.8s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[366] Joel Pike: Suffers a light, nonbleeding bruise.
+[369] Joel Pike misses Amos Whitcomb. — explain 369
+[372] You begin parley. — explain 372
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> tactical:resume
+Paused at 00:00:14.8.
+Since last look: 3s passed.
+Your action and recovery are complete.
+Tactical 00:00:14.8 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[372] You begin parley. — explain 372
+[381] Your call for peace fails to carry. — explain 381
+[382] parley resolves; you recover.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. Break up the brawl [tactical:parley]
+3. Authorize one defensive reaction for one minute [tactical:reaction:1]
+4. Resume for up to six seconds [tactical:resume]
+5. Step west [tactical:move:west]
+6. Step east [tactical:move:east]
+7. Step south [tactical:move:south]
+8. look [look]
+9. Plan provisions / Kit Sheet [plan]
+10. journal [journal]
+Actions 10; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> explain 381
+Break up the brawl: 5 (d20 4, Charisma +1 +1) vs DC 12 -> failure
+Since last look: no time passed.
+Tactical 00:00:14.8 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[381] Your call for peace fails to carry. — explain 381
+[382] parley resolves; you recover.
+[386] Your action and recovery are complete.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. Break up the brawl [tactical:parley]
+3. Authorize one defensive reaction for one minute [tactical:reaction:1]
+4. Resume for up to six seconds [tactical:resume]
+5. Step west [tactical:move:west]
+6. Step east [tactical:move:east]
+7. Step south [tactical:move:south]
+8. look [look]
+9. Plan provisions / Kit Sheet [plan]
+10. journal [journal]
+Actions 10; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> tactical:parley
+Since last look: no time passed.
+Tactical 00:00:14.8 — parley: windup; 1.8s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Joel Pike, Michael Dunleavy are here.
+Here: Amos Whitcomb (#1), Joel Pike (#2), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[382] parley resolves; you recover.
+[386] Your action and recovery are complete.
+[388] You begin parley. — explain 388
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> tactical:resume
+Paused at 00:00:15.8.
+Since last look: 1s passed.
+Amos Whitcomb and Joel Pike: the brawl ends with one fighter crossing the tavern door.
+Tactical 00:00:15.8 — parley: windup; 0.8s remaining.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Michael Dunleavy, Nora Dunleavy are here.
+Here: Amos Whitcomb (#1), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[382] parley resolves; you recover.
+[386] Your action and recovery are complete.
+[388] You begin parley. — explain 388
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. cancel [tactical:cancel]
+2. Resume for up to six seconds [tactical:resume]
+3. look [look]
+4. Plan provisions / Kit Sheet [plan]
+5. journal [journal]
+Actions 5; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> tactical:resume
+Paused at 00:00:17.8.
+Since last look: 2s passed.
+Your action and recovery are complete.
+Tactical 00:00:17.8 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Michael Dunleavy, Nora Dunleavy are here.
+Here: Amos Whitcomb (#1), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[388] You begin parley. — explain 388
+[394] Amos Whitcomb and Joel Pike: the brawl ends with one fighter crossing the tavern door.
+[404] Cancelled before commitment; recovery still has to finish.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. flee [tactical:flee]
+3. attack Amos Whitcomb (unarmed, nonlethal) [tactical:attack:1]
+4. grapple Amos Whitcomb [tactical:grapple:1]
+5. Authorize one defensive reaction for one minute [tactical:reaction:1]
+6. Resume for up to six seconds [tactical:resume]
+7. Step east [tactical:move:east]
+8. Step south [tactical:move:south]
+9. look [look]
+10. Plan provisions / Kit Sheet [plan]
+11. journal [journal]
+Actions 11; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> look
+Since last look: no time passed.
+Tactical 00:00:17.8 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Michael Dunleavy, Nora Dunleavy are here.
+Here: Amos Whitcomb (#1), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[394] Amos Whitcomb and Joel Pike: the brawl ends with one fighter crossing the tavern door.
+[404] Cancelled before commitment; recovery still has to finish.
+[407] Your action and recovery are complete.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. flee [tactical:flee]
+3. attack Amos Whitcomb (unarmed, nonlethal) [tactical:attack:1]
+4. grapple Amos Whitcomb [tactical:grapple:1]
+5. Authorize one defensive reaction for one minute [tactical:reaction:1]
+6. Resume for up to six seconds [tactical:resume]
+7. Step east [tactical:move:east]
+8. Step south [tactical:move:south]
+9. look [look]
+10. Plan provisions / Kit Sheet [plan]
+11. journal [journal]
+Actions 11; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> actions 1
+Since last look: no time passed.
+Tactical 00:00:17.8 — awaiting your order.
+1855-04-01 00:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 33°F, dry.
+Food 6.0 days; Medium, 33.4 kg.
+Vitals: Hunger 800; Rest 800; Thirst 850; Warmth 900
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Michael Dunleavy, Nora Dunleavy are here.
+Here: Amos Whitcomb (#1), Michael Dunleavy (#28), Nora Dunleavy (#29), Brigid Dunleavy (#30, child), Lucius Vance (#38).
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 327
+[394] Amos Whitcomb and Joel Pike: the brawl ends with one fighter crossing the tavern door.
+[404] Cancelled before commitment; recovery still has to finish.
+[407] Your action and recovery are complete.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. look [look]
+2. Plan provisions / Kit Sheet [plan]
+3. journal [journal]
+4. guard [tactical:guard]
+5. flee [tactical:flee]
+6. attack Amos Whitcomb (unarmed, nonlethal) [tactical:attack:1]
+7. grapple Amos Whitcomb [tactical:grapple:1]
+8. Authorize one defensive reaction for one minute [tactical:reaction:1]
+9. Resume for up to six seconds [tactical:resume]
+10. Step east [tactical:move:east]
+11. Step south [tactical:move:south]
+Actions 11; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> wait 1h
+Since last look: 3600s passed.
+Tactical 01:00:17.8 — awaiting your order.
+1855-04-01 01:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 32°F, dry.
+Food 6.0 days; Medium, 32.9 kg.
+Vitals: Hunger 771; Rest 761; Thirst 794; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Michael Dunleavy, Nora Dunleavy are here.
+Here: Amos Whitcomb (#1), Michael Dunleavy (#28, asleep), Nora Dunleavy (#29, asleep), Brigid Dunleavy (#30, asleep, child), Lucius Vance (#38, asleep).
+Appetite: I haven't forgotten, Amos Whitcomb. I won't. (held for your order; you may: insult Amos Whitcomb)
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 501
+[394] Amos Whitcomb and Joel Pike: the brawl ends with one fighter crossing the tavern door.
+[404] Cancelled before commitment; recovery still has to finish.
+[407] Your action and recovery are complete.
+1. guard [tactical:guard]
+2. Breathe and return to ordinary time [tactical:breathe]
+3. flee [tactical:flee]
+4. attack Amos Whitcomb (unarmed, nonlethal) [tactical:attack:1]
+5. grapple Amos Whitcomb [tactical:grapple:1]
+6. Authorize one defensive reaction for one minute [tactical:reaction:1]
+7. Resume for up to six seconds [tactical:resume]
+8. Step east [tactical:move:east]
+9. Step south [tactical:move:south]
+10. look [look]
+11. Plan provisions / Kit Sheet [plan]
+12. journal [journal]
+Actions 12; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> journal
+1855-04-01 00:00 Amos Whitcomb and Joel Pike: the brawl ends with one fighter crossing the tavern door.
+1855-04-01 00:00 Sunday, the 1st of April, 1855. The Sabbath under a full moon; the evening service will want no lantern.
+Since last look: no time passed.
+Tactical 01:00:17.8 — awaiting your order.
+1855-04-01 01:00 | FAIR | Dunleavy's Tavern
+Ellis Wayfarer — at home, at leisure. Purse $50.00; household $0.00. 32°F, dry.
+Food 6.0 days; Medium, 32.9 kg.
+Vitals: Hunger 771; Rest 761; Thirst 794; Warmth 1000
+Health: Vigor 7/7; Wounds 0/12.
+Counter closed; hours 6:00–23:00. Freight due Sunday (in 7 days), every 7 days.
+Board: bed $0.25 until noon; meal $0.20 (type meal).
+Tavern, lodging, and the justice of the peace's court. Spring at Dunleavy's Tavern. Last year’s leaves lie against the shaded edges. Amos Whitcomb, Michael Dunleavy, Nora Dunleavy are here.
+Here: Amos Whitcomb (#1), Michael Dunleavy (#28, asleep), Nora Dunleavy (#29, asleep), Brigid Dunleavy (#30, asleep, child), Lucius Vance (#38, asleep).
+Appetite: I haven't forgotten, Amos Whitcomb. I won't. (held for your order; you may: insult Amos Whitcomb)
+Conscience: It is late; the day starts early (held for your order; you may: sleep)
+Self-Command: Held for your order; routine standing orders only — explain 501
+[394] Amos Whitcomb and Joel Pike: the brawl ends with one fighter crossing the tavern door.
+[404] Cancelled before commitment; recovery still has to finish.
+[407] Your action and recovery are complete.
+Kit: Daily need runs 2142–2889 kcal this week: the heavier days carry 10 h of heavy labor (Work 10 h) against 0 h.
+1. guard [tactical:guard]
+2. Breathe and return to ordinary time [tactical:breathe]
+3. flee [tactical:flee]
+4. attack Amos Whitcomb (unarmed, nonlethal) [tactical:attack:1]
+5. grapple Amos Whitcomb [tactical:grapple:1]
+6. Authorize one defensive reaction for one minute [tactical:reaction:1]
+7. Resume for up to six seconds [tactical:resume]
+8. Step east [tactical:move:east]
+9. Step south [tactical:move:south]
+10. look [look]
+11. Plan provisions / Kit Sheet [plan]
+12. journal [journal]
+Actions 12; “actions 1” for full menu pages; “places 1” for destinations; “help” for verbs.
+> inspect:actor:1
+Nothing here matches “inspect:actor:1”; try look, prices, places or actions. No game time spent.
+> actions 2
+Use actions <page> with an available positive page number. No game time spent.
+> tactical:breathe
+You take a breath. Ordinary time resumes from this instant.
+No time passed (1855-04-01 01:00, Dunleavy's Tavern).
+> inspect Amos Whitcomb
+Amos Whitcomb — Human; at home, at leisure.
+You have not met. Ties: none. Your opinion: unfamiliar.
+Seems to feel about you: civil — offers you ordinary courtesy.
+Perception: reading their manner: 20 (d20 19, Wisdom +1, Time spent in their company) vs DC 16 -> success
+Remembered: Amos Whitcomb and Joel Pike: the brawl ends with one fighter crossing the tavern door.
+No time passed (1855-04-01 01:00, Dunleavy's Tavern).
+> inspect Joel Pike
+You cannot inspect “Joel Pike”: it is not here, in your pack, or someone you know. Try look, plan or places. No game time spent.
+> inspect me
+Ellis Wayfarer — Human; at home, at leisure at Dunleavy's Tavern; lodging at Dunleavy's Tavern.
+Purse $50.00; household $0.00. Load: Medium, 32.9 kg.
+Body: Hunger 771; Rest 761; Thirst 794; Warmth 1000.
+Standing orders: sleep on, eat on, drink on, warmth on, lodging on; agency commanded; rations 100%.
+You owe no one.
+Ties: none yet; you have met 0 people.
+No time passed (1855-04-01 01:00, Dunleavy's Tavern).

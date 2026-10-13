@@ -1,0 +1,273 @@
+--new start
+help
+route cedar_farm
+inspect me
+introduce Michael Dunleavy
+inspect Michael Dunleavy
+introduce Nora Dunleavy
+introduce Amos Whitcomb
+introduce Joel Pike
+introduce Lucius Vance
+sleep
+wait until morning
+introduce Nora Dunleavy
+introduce Amos Whitcomb
+introduce Joel Pike
+introduce Lucius Vance
+meal
+inspect Amos Whitcomb
+inspect me
+chat Amos Whitcomb
+go Pratt & Daughter, Outfitters
+prices
+introduce Augusta Pratt
+introduce Lydia Pratt
+prices hardtack
+prices pemmican
+prices cheese
+prices dried
+buy hardtack 10
+buy pemmican 3
+buy cheese 4
+inspect Augusta Pratt
+route cedar_farm
+plan
+drink
+fill canteen
+inspect canteen
+route cedar_farm
+travel cedar_farm
+actions 1
+--verify (mid-journey)
+wait 1h
+wait 1h
+plan
+wait 1h
+wait 1h
+wait 1h
+actions 1
+route cedar_farm
+journey:resume
+places
+inspect canteen
+places 1
+inspect kettle
+actions 1
+actions 2
+go Hale farmhouse
+inspect Hale farmhouse
+sleep
+standing lodging off
+sleep
+go Cedar Farm fields
+sleep
+wait until dawn
+explain 3443
+signs
+go Hale farmhouse
+introduce Martha Hale
+introduce Jonas Hale
+actions 1-4
+talk:ask_about:41
+prices
+inspect Martha Hale
+hire Martha Hale daily
+work
+wait until 12:00
+work
+work
+work
+work
+work
+work
+sleep
+wait until dawn
+go Hale farmhouse
+gossip Jonas Hale
+tell_tale Martha Hale
+hire Martha Hale daily
+work
+work
+work
+work
+work
+work
+inspect canteen
+inspect kettle
+inspect me
+explain 7667
+drink
+fill canteen
+fill kettle
+drink
+drink
+look
+fetch water
+fill canteen
+fill kettle
+explain 7731
+explain 7748
+inspect me
+go Hale farmhouse
+drink
+fill canteen
+go Cedar Farm gate
+drink
+inspect Cedar Farm gate
+go Hale farmhouse
+activity:seek_care
+route iron_ford
+travel iron_ford
+journey:resume
+journey:resume
+journey:resume
+journey:resume
+drink
+fetch water
+signs
+go Dunleavy's Tavern
+sleep
+wait until morning
+inspect Michael Dunleavy
+inspect Amos Whitcomb
+inspect Lucius Vance
+inspect Elias Hurd
+meal
+go Pratt & Daughter, Outfitters
+prices hardtack
+prices pemmican
+prices cheese
+prices dried apples
+prices bacon
+prices potatoes
+talk:ask_about:21
+gossip Lydia Pratt
+inspect Augusta Pratt
+signs
+fetch water
+wait until noon
+investigate 33:0:noon
+inspect canteen
+go Pratt & Daughter, Outfitters
+investigate 33:0:noon
+go Dunleavy's Tavern
+sleep
+wait until dawn
+wait until dawn
+go Pratt & Daughter, Outfitters
+investigate 33:2:dawn
+explain 12600
+inspect kettle
+prices hardtack
+prices cheese
+prices pemmican
+prices dried apples
+prices bacon
+prices canteen
+prices jug
+prices bucket
+prices keg
+prices water
+buy Canteen, tin, wool-covered, 2 qt
+buy bacon 4
+fetch water
+fill canteen
+fill kettle
+plan
+drink
+plan
+plan
+route cedar_farm
+travel cedar_farm
+wait 1h
+wait 1h
+wait 1h
+wait 1h
+--verify (mid-journey 2)
+wait 1h
+journey:resume
+journey:resume
+journey:resume
+wait 1h
+go Hale farmhouse
+inspect Martha Hale
+inspect Jonas Hale
+go Cedar Farm fields
+talk:ask_about:42
+gossip Martha Hale
+inspect Martha Hale
+inspect Jonas Hale
+sleep
+wait until dawn
+go Hale farmhouse
+hire Martha Hale daily
+work
+work
+work
+work
+deep_talk Martha Hale
+compliment Jonas Hale
+talk:deep_talk:41
+sleep
+wait until dawn
+route iron_ford
+travel iron_ford
+wait 1h
+wait 1h
+wait 1h
+wait 1h
+inspect Michael Dunleavy
+talk:ask_about:29
+chat Lucius Vance
+go Pratt & Daughter, Outfitters
+prices hardtack
+prices cheese
+prices pemmican
+prices dried apples
+prices bacon
+prices potatoes
+prices canteen
+signs
+look
+introduce Thomas Glover
+introduce Edwin Fenn
+talk:ask_about:11
+gossip Edwin Fenn
+explain 19334
+explain 19427
+go Dunleavy's Tavern
+sleep
+wait until dawn
+journal
+meal
+go Iron Ford Lutheran Church
+look
+actions pages (search church)
+activity:attend_church
+activity:attend_church
+go Huldra's Shelf
+look
+wait 1h
+go Huldra's Shelf
+go Lantern Spring
+go Dunleavy's Tavern
+inspect Michael Dunleavy
+wait until night
+sleep
+wait until morning
+talk:ask_about:1
+inspect Johann Brenner
+go Pratt & Daughter, Outfitters
+prices dried apples
+prices bacon
+prices potatoes
+prices hardtack
+wait until tomorrow
+prices dried apples
+prices bacon
+wait until tomorrow
+wait until morning
+prices dried apples
+prices bacon
+prices potatoes
+--verify (final)

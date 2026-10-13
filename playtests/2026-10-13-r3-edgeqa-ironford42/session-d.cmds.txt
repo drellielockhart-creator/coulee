@@ -1,0 +1,12 @@
+fight Joel Pike
+look
+inspect Joel Pike
+fight Amos Whitcomb
+go 27
+go 4
+tactical:attack:1
+tactical:resume
+tactical:resume
+drink
+wait 1h
+sleep

@@ -1,0 +1,27 @@
+wait 1h
+wait 1h
+wait until 07:00
+meal
+wait 1h
+look
+fight Michael Dunleavy
+tactical:resume
+tactical:resume
+explain 1088
+inspect Michael Dunleavy
+inspect Nora Dunleavy
+activity:idle_at_home
+work
+work
+activity:idle_at_home
+activity:idle_at_home
+go 14
+activity:fish_creek
+activity:fish_creek
+activity:fish_creek
+activity:fish_creek
+dismiss Amos Whitcomb
+activity:incapacitated
+look
+go 4
+wait 1h

@@ -1,0 +1,6 @@
+
+tactical:resume
+tactical:parley
+tactical:resume
+tactical:resume
+tactical:resume

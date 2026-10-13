@@ -1,0 +1,10 @@
+
+tactical:resume
+tactical:flee
+tactical:resume
+tactical:resume
+tactical:resume
+tactical:resume
+wait 1h
+look
+go 4

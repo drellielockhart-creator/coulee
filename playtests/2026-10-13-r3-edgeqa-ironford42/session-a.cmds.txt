@@ -1,0 +1,126 @@
+help
+go 27
+go 33
+go 27
+inspect me
+prices
+go 2
+go 1
+look
+actions 1
+places 1
+go 23
+go 24
+go 19
+go 14
+go 4
+go 27
+go 4
+go 27
+go 4
+go 27
+go 4
+go 27
+look
+go 4
+go 27
+go 4
+go 27
+go 4
+go 27
+go 4
+go 27
+go 4
+go 27
+go 4
+go 27
+go 4
+wait 1h
+wait 1h
+wait until 07:00
+prices
+journal
+buy whiskey
+buy whiskey 2
+sell whiskey 3
+meal
+look
+explain 946
+meal
+hire
+actions 1
+actions 2
+actions 3
+actions 2
+activity:go_to_market
+buy whiskey
+prices
+sell blanket
+go 27
+meal
+wait 1h
+prices wood
+sell blanket
+sell firewood
+sell firewood
+sell firewood
+prices firewood
+inspect place:33
+hire Lydia daily
+inspect Lydia
+inspect Lucius Vance
+inspect me
+inspect Michael Dunleavy
+inspect Joel Pike
+go 16
+go 2
+go 31
+activity:gather_wood
+activity:gather_wood
+activity:gather_wood
+inspect me
+plan
+look
+go 33
+wait until tomorrow
+wait until 07:00
+wait until 07:00
+go 33
+hire Augusta daily
+work
+work
+go 27
+go 33
+work
+inspect me
+buy beans
+buy beans
+buy beans
+buy beans
+buy beans
+buy beans
+buy beans
+buy beans
+buy beans
+buy beans
+buy beans
+work
+buy beans
+buy:beans_dry
+buy:beans_dry
+buy:beans_dry
+buy:beans_dry
+buy:beans_dry
+buy:beans_dry
+buy:beans_dry
+buy:beans_dry
+buy:beans_dry
+buy:beans_dry
+buy:beans_dry
+work
+plan
+inspect beans
+quit
+hire Augusta weekly
+work
+work
