@@ -6,6 +6,7 @@ export const HELP = `Short walks, purchase lines and chats spend minutes within 
 Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects settle once per hour; a partly spent hour uses its dominant activity.
 Out on open ground with bedding, sleep makes camp where you stand; wait follows your lodging order, returning to a nearby paid or own bed when available.
 look | signs | investigate <sign id> | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
+hire <employer> [daily|weekly] | quit | dismiss <worker>
 buy <item> [qty] | sell <item> [qty] | eat <item> [servings] [method] | cook <item> [servings] [method]
 drink | fill <canteen/kettle> | empty <canteen/kettle> | fetch water | meal | sleep | wake | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
 Springs, creeks, rivers and fords are water: drink raw there and fill your vessels (a litre weighs a kilo: a fill stops where you could no longer walk, and empty pours a vessel out); fetch water walks to the nearest.
@@ -159,6 +160,7 @@ ${o.epilogue ?? ''}`;
     ...(o.tactical ? [o.tactical.timeline] : []),
     `${o.time.stamp} | ${o.mode.toUpperCase()} | ${o.place.name}`,
     `${o.self.name} — ${doing(o)}. Purse $${(o.self.provisions.purseCents / 100).toFixed(2)}; household $${(o.self.provisions.householdCents / 100).toFixed(2)}. ${o.weather.temperatureF}°F, ${o.weather.description.toLowerCase()}.`,
+    ...(o.self.provisions.employment ? [employmentText(o.self.provisions.employment)] : []),
     `Food ${(r.daysOfFoodTenths / 10).toFixed(1)} days${pantryNote(o)}; ${o.self.inventory.loadBand}, ${(o.self.inventory.totalWeightG / 1000).toFixed(1)} kg.`,
     `Vitals: ${o.self.needs.list
       .filter((n) => n.kind === 'physical' && (n.id !== 'drink' || n.band))
@@ -672,6 +674,18 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
       data: { itemId: asItemId(thing.id), qty: 1, intoItemId: asItemId(into.id) },
     };
   }
+  if (verb === 'hire' || verb === 'dismiss') {
+    const pay = words.at(-1) === 'weekly' ? 'weekly' : 'daily';
+    const target = tail.replace(/^(on with|on|with) /, '').replace(/ (daily|weekly)$/, '');
+    const q = normalized(target);
+    const exact = o.present.filter((p) => normalized(p.name) === q || String(p.id) === q);
+    const matches = exact.length ? exact : o.present.filter((p) => normalized(p.name).includes(q));
+    if (matches.length !== 1 || !matches[0]) return 'Name one person present here';
+    return verb === 'hire'
+      ? { kind: 'provisions.hire_on', actorId: pc, data: { employerId: matches[0].id, term: pay } }
+      : { kind: 'provisions.dismiss', actorId: pc, data: { workerId: matches[0].id } };
+  }
+  if (verb === 'quit') return { kind: 'provisions.quit', actorId: pc, data: {} };
   // Social verbs: "chat Amos", "talk to Amos", "talk introduce Amos", "ask about Amos",
   // "ask_about Amos Whitcomb", "help Joel Pike". A full name beats a partial one.
   let socialVerb =
@@ -936,4 +950,9 @@ export function renderDetail(detail: unknown): string {
 /** What is owed between her and others, as journal lines (playtest r2: favors never showed). */
 export function obligationLines(o: Observation): string[] {
   return [...o.self.obligations.map((d) => obligationText(d)), ...(o.self.claims ?? []).map((c) => claimText(c))];
+}
+
+function employmentText(e: NonNullable<Observation['self']['provisions']['employment']>): string {
+  const terms = `${e.employer}: $${(e.dailyCents / 100).toFixed(2)} per ${e.hours}h day, paid ${e.pay}; ${e.fromHour}:00–${e.toHour}:00 at ${e.workplace}`;
+  return `Employment ${e.ended ? `ended (${e.ended})` : terms}. Earned and unpaid $${(e.earnedCents / 100).toFixed(2)}.`;
 }

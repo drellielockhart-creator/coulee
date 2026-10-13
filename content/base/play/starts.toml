@@ -14,3 +14,20 @@ inventory = [
   { item = "pemmican", qty = 3 },
   { item = "dried_apples", qty = 2 },
 ]
+
+[[start]]
+id = "greenhorn"
+name = "Greenhorn: a traveling pack and three dollars"
+ancestry = "human"
+occupation = "hired_hand"
+purse_cents = 300
+inventory = [
+  { item = "knapsack_army", qty = 1 },
+  { item = "blanket_wool_3pt", qty = 1 },
+  { item = "camp_kettle_pair", qty = 1 },
+  { item = "canteen_tin_wool", qty = 1 },
+  { item = "firewood_armload", qty = 2 },
+  { item = "hardtack", qty = 4 },
+  { item = "pemmican", qty = 3 },
+  { item = "dried_apples", qty = 2 },
+]

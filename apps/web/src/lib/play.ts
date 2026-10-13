@@ -37,6 +37,10 @@ export function groupOf(a: AvailableAction, catalog: ActionCatalog): ActGroup {
     case 'talk':
     case 'answer':
       return 'talk';
+    case 'hire':
+    case 'quit':
+    case 'dismiss':
+      return 'work';
     case 'buy':
     case 'sell':
     case 'prices':

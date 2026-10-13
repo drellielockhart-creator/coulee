@@ -1,0 +1,104 @@
+# Extra short-term hands; existing employees remain on their ordinary schedules.
+[[hiring_rule]]
+id = "store_hands"
+workplace_tag = "store"
+employer_occupations = ["storekeeper"]
+months = [1,2,3,4,5,6,7,8,9,10,11,12]
+hands = 1
+daily_cents = 60
+from_hour = 7
+to_hour = 18
+hours = 8
+dc = 10
+
+[[hiring_rule]]
+id = "mill_hands"
+workplace_tag = "mill"
+employer_occupations = ["miller"]
+months = [4,5,6,7,8,9,10,11]
+hands = 2
+daily_cents = 75
+from_hour = 6
+to_hour = 18
+hours = 8
+dc = 10
+
+[[hiring_rule]]
+id = "planting_hands"
+workplace_tag = "farm"
+employer_occupations = ["farmer", "hall_reader"]
+months = [4,5]
+hands = 2
+daily_cents = 50
+from_hour = 6
+to_hour = 18
+hours = 8
+dc = 10
+
+[[hiring_rule]]
+id = "harvest_hands"
+workplace_tag = "farm"
+employer_occupations = ["farmer", "hall_reader"]
+months = [8,9,10]
+hands = 3
+daily_cents = 75
+from_hour = 6
+to_hour = 18
+hours = 8
+dc = 10
+
+[[hiring_rule]]
+id = "landing_hands"
+workplace_tag = "landing"
+employer_occupations = ["ferryman"]
+months = [4,5,6,7,8,9,10,11]
+hands = 2
+daily_cents = 60
+from_hour = 6
+to_hour = 18
+hours = 8
+dc = 10
+
+# Rate per physical catalog unit, capped below every county retail quote.
+# Shelves are the demand ledger: local sales reopen demand, time alone does not.
+[[piece_rate]]
+id = "wood"
+item = "firewood_armload"
+store_tag = "store"
+buy_cents = 3
+capacity = 120
+
+[[piece_rate]]
+id = "fish"
+item = "trout_fresh"
+store_tag = "store"
+buy_cents = 4
+capacity = 40
+
+[[piece_rate]]
+id = "pelts"
+item = "rabbit_pelt"
+store_tag = "store"
+buy_cents = 8
+capacity = 30
+
+[[piece_rate]]
+id = "game"
+item = "rabbit_fresh"
+store_tag = "store"
+buy_cents = 3
+capacity = 30
+
+[[piece_rate]]
+id = "venison"
+item = "venison_fresh"
+store_tag = "store"
+buy_cents = 3
+capacity = 60
+
+[[piece_rate]]
+id = "morels"
+item = "morels_fresh"
+store_tag = "store"
+buy_cents = 6
+capacity = 30

@@ -7,6 +7,7 @@ import type { ContentBundle, ScheduleBlock } from '../content.ts';
 import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
 import { canAct } from '../needs/api.ts';
 import { authorizeAct } from '../psyche/api.ts';
+import { activeEmployment, employmentDayMinutes } from '../provisions/api.ts';
 import { mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { areKin, familiarityOf, isEstranged, opinionLabel, opinionOf } from '../social/api.ts';
@@ -17,6 +18,12 @@ import { blockActive, monthMatches, type Routine, routineFor } from './calendar.
 import { requiredRow } from './definitions.ts';
 import { type ActorActivity, recomputeOccupancy } from './state.ts';
 import { onJourney } from './travel.ts';
+
+/** Employment owns terms; activity owns where ordinary work happens. */
+export function setWorkplace(world: World, actorId: ActorId, placeId: PlaceId | null): void {
+  const state = world.activity.byActor[actorId];
+  if (state) state.workplaceId = placeId;
+}
 
 export function currentActivity(world: World, actorId: ActorId): ActorActivity | undefined {
   return world.activity.byActor[actorId];
@@ -88,12 +95,27 @@ export function scheduledBlock(
   if (!actor) return null;
   const occ = ctx.content.occupations[actor.occupationId];
   if (!occ) return null;
+  const contract = activeEmployment(world, actorId);
+  if (
+    contract &&
+    cal.weekday !== 'sun' &&
+    cal.hour >= contract.fromHour &&
+    cal.hour < contract.toHour &&
+    cal.hour !== 12
+  )
+    return {
+      from: contract.fromHour,
+      to: contract.toHour,
+      activity: employmentDayMinutes(world, actorId, cal.dayIndex) >= contract.hours * 60 ? 'idle_at_home' : 'work',
+      duty: 550,
+    };
   for (const b of occ.schedule) {
     if (b.days && !b.days.includes(cal.weekday)) continue;
     if (b.seasons && !b.seasons.includes(cal.season)) continue;
     if (!monthMatches(cal.month, b.months)) continue;
     if (!blockActive(b, cal)) continue;
     const activity = ctx.content.activities[b.activity];
+    if (contract && activity?.tags.includes('labor')) continue;
     if (
       activity &&
       monthMatches(cal.month, activity.months) &&

@@ -449,7 +449,33 @@ export const NutritionRuleSchema = z.strictObject({
   fresh_target: posInt().default(10),
   fresh_reference_servings: posInt().default(5),
 });
+/** Ordinary business demand: seasonal extra hands and a quoted working day. */
+export const HiringRuleSchema = z
+  .strictObject({
+    id: id(),
+    workplace_tag: id(),
+    employer_occupations: z.array(ref()).min(1),
+    months: z.array(int().min(1).max(12)).min(1),
+    hands: posInt(),
+    daily_cents: posInt(),
+    from_hour: int().min(0).max(23),
+    to_hour: int().min(1).max(24),
+    hours: posInt().max(12),
+    dc: int().default(10),
+  })
+  .refine((r) => r.to_hour > r.from_hour && r.hours <= r.to_hour - r.from_hour, 'Hours must fit the working day');
+export const PieceRateSchema = z.strictObject({
+  id: id(),
+  item: ref(),
+  store_tag: id(),
+  buy_cents: posInt(),
+  /** Existing stock counts against demand; marginal price falls to one cent at capacity. */
+  capacity: posInt(),
+});
+
 export const itemsDomains = {
+  hiringRules: defineDomain({ dir: 'provisions', key: 'hiring_rule', schema: HiringRuleSchema }),
+  pieceRates: defineDomain({ dir: 'provisions', key: 'piece_rate', schema: PieceRateSchema }),
   domesticRules: defineDomain({ dir: 'provisions', key: 'domestic_rule', schema: DomesticRuleSchema }),
   nutritionRules: defineDomain({ dir: 'provisions', key: 'nutrition_rule', schema: NutritionRuleSchema }),
   venueServices: defineDomain({ dir: 'provisions', key: 'venue_service', schema: VenueServiceSchema }),
@@ -537,6 +563,17 @@ export function itemsRefs(b: ContentBundle): Issue[] {
       b.items,
       'item',
     );
+  for (const rule of Object.values(b.hiringRules))
+    checkRefs(
+      issues,
+      `hiringRules:${rule.id}`,
+      'employer_occupations',
+      rule.employer_occupations,
+      b.occupations,
+      'occupation',
+    );
+  for (const rate of Object.values(b.pieceRates))
+    checkRefs(issues, `pieceRates:${rate.id}`, 'item', [rate.item], b.items, 'item');
   const seedRefs = (where: string, stacks: readonly StackSeed[]) => {
     checkRefs(
       issues,

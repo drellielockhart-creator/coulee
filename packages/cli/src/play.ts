@@ -24,6 +24,7 @@ export interface PlayOptions {
   log?: string;
   session?: string;
   new?: boolean;
+  kit?: string;
   look?: boolean;
   fork?: string;
   verify?: boolean;
@@ -50,6 +51,7 @@ export async function playCLI(o: PlayOptions, command?: string): Promise<void> {
       )
     : PlaySession.create(content, {
         source: o.scenario,
+        pc: { kit: o.kit ?? 'newcomer' },
         seed: Number(o.seed),
         ...(o.worldSeed === undefined ? {} : { worldSeed: Number(o.worldSeed) }),
       });
@@ -81,7 +83,7 @@ export async function playCLI(o: PlayOptions, command?: string): Promise<void> {
       if (!o.jsonl) {
         transcript.push(`> ${line}`);
         const [verb, ...args] = line.trim().split(/\s+/);
-        if (verb === 'quit' || verb === 'exit') break;
+        if (verb === 'exit') break;
         if (verb === 'help') {
           print(HELP);
           continue;

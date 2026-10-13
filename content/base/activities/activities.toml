@@ -520,7 +520,7 @@ min_hours = 4
 tags = ["labor", "chore", "wild_production"]
 tool = { affordance = "snare", full_tenths = 10, bare_pct = 0 }
 check = { skill = "trapping", dc = 14 }
-yields = [{ item = "rabbit_fresh", tenths_per_hour = 3, to = "actor" }]
+yields = [{ item = "rabbit_fresh", tenths_per_hour = 3, to = "actor" }, { item = "rabbit_pelt", tenths_per_hour = 3, to = "actor" }]
 
 [[activity]]
 id = "gather_wood"

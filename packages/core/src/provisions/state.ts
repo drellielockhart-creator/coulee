@@ -180,8 +180,22 @@ export interface ProvisionsSettings {
   autoRations: boolean;
   /** Households gather their own firewood. */
   householdWood: boolean;
-  /** Weekly wages (occupation wage_cents_per_day x 6) are paid into household cash. */
+  /** Earned wages move employer cash into workers’ purses on the agreed payday. */
   wages: boolean;
+}
+
+export interface EmploymentContract {
+  employerId: ActorId;
+  workplaceId: PlaceId;
+  previousWorkplaceId: PlaceId | null;
+  dailyCents: number;
+  hours: number;
+  fromHour: number;
+  toHour: number;
+  pay: 'daily' | 'weekly';
+  startedAt: number;
+  endsAt: number;
+  ended?: 'quit' | 'dismissed' | 'term_end';
 }
 
 export interface ProvisionsState {
@@ -207,6 +221,15 @@ export interface ProvisionsState {
 
   /** Signed cumulative money crossing the county boundary; freight currently pays outward. */
   externalCashCents?: number;
+  /** Last signed term per worker; ended terms suppress legacy workplace wage inference. */
+  contracts?: Record<number, EmploymentContract>;
+  hiringAttempts?: Record<string, number>;
+  /** Ended jobs retain their named debtor when a worker hires on elsewhere. */
+  wageArrears?: Array<{
+    workerId: ActorId;
+    employerId: ActorId;
+    account: { payerId: HouseholdId; earnedCents: number; carry: number; day: number; minutes: number };
+  }>;
   employment?: Record<
     number,
     { payerId: HouseholdId; earnedCents: number; carry: number; day: number; minutes: number }
