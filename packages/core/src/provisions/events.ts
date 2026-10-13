@@ -6,6 +6,26 @@ import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 
 export type ProvisionsEvent =
   | EventOf<
+      'provisions.hiring',
+      {
+        workerId: ActorId;
+        employerId: ActorId;
+        accepted: boolean;
+        reason: string;
+        workplaceId?: PlaceId;
+        dailyCents?: number;
+        hours?: number;
+        fromHour?: number;
+        toHour?: number;
+        endsAt?: number;
+        pay?: 'daily' | 'weekly';
+      }
+    >
+  | EventOf<
+      'provisions.employment_ended',
+      { workerId: ActorId; employerId: ActorId; reason: 'quit' | 'dismissed' | 'term_end' }
+    >
+  | EventOf<
       'provisions.credit_extended' | 'provisions.credit_refused',
       { keeperId: ActorId; buyerId: ActorId; placeId: PlaceId; limitCents: number }
     >

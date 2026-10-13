@@ -35,6 +35,16 @@ export function activitySystem(world: World, ctx: SimContext): void {
   // A fae Command (investigate a sign, tie or study a charm) is done where the actor stands this
   // hour: a standing order must not walk them off before fae resolves it (r2 playtest #7).
   for (const cmd of ctx.commands) if (cmd.kind.startsWith('fae.') && cmd.kind !== 'fae.signs') invited.add(cmd.actorId);
+  // Hiring is a short conversation: reserve both people before their routines move them.
+  for (const cmd of ctx.commands) {
+    if (
+      cmd.kind === 'provisions.hire_on' &&
+      interactionAvailability(world, ctx.content, cmd.actorId, cmd.data.employerId, 'chat').ok
+    ) {
+      invited.add(cmd.actorId);
+      invited.add(cmd.data.employerId);
+    }
+  }
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   for (const id of idsOf<ActorId>(world.actors)) {
     if (tacticalPinned(world, id)) continue;
@@ -189,7 +199,12 @@ export function activitySystem(world: World, ctx: SimContext): void {
     if (changed) {
       state.activityId = activityId;
       state.since = ctx.now;
-      state.lockedUntil = addHours(ctx.now, def.min_hours);
+      // This hour already belongs to the hiring conversation. Do not create an idle lock
+      // that would make its later provisions executor reject its own reservation.
+      state.lockedUntil =
+        conversation && ctx.commands.some((c) => c.kind === 'provisions.hire_on' && c.actorId === id)
+          ? ctx.now
+          : addHours(ctx.now, def.min_hours);
       state.source = source;
       if (def.at === 'kin') noteCall(world, id, placeId);
       ctx.emit({

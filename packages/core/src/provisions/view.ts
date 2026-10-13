@@ -25,6 +25,18 @@ export interface NutritionView {
 }
 
 export interface ProvisionsActorView {
+  employment?: {
+    employer: string;
+    workplace: string;
+    dailyCents: number;
+    hours: number;
+    fromHour: number;
+    toHour: number;
+    endsAt: number;
+    pay: 'daily' | 'weekly';
+    earnedCents: number;
+    ended?: string;
+  };
   purseCents: number;
   nutrition: NutritionView;
   readiness: Readiness;
@@ -76,7 +88,29 @@ export function viewProvisionsActor(
   const hist = n?.history ?? [];
   const avg = (f: (d: (typeof hist)[number]) => number) =>
     hist.length === 0 ? 0 : Math.round(hist.reduce((s, d) => s + f(d), 0) / hist.length);
+  const contract = known ? world.provisions.contracts?.[actorId] : undefined;
+  const employer = contract ? world.actors[contract.employerId] : undefined;
   return {
+    ...(contract
+      ? {
+          employment: {
+            employer: employer ? `${employer.name.given} ${employer.name.family}`.trim() : 'Former employer',
+            workplace: world.places[contract.workplaceId]?.name ?? 'Workplace',
+            dailyCents: contract.dailyCents,
+            hours: contract.hours,
+            fromHour: contract.fromHour,
+            toHour: contract.toHour,
+            endsAt: contract.endsAt,
+            pay: contract.pay,
+            earnedCents:
+              (world.provisions.employment?.[actorId]?.earnedCents ?? 0) +
+              (world.provisions.wageArrears ?? [])
+                .filter((c) => c.workerId === actorId)
+                .reduce((n, c) => n + c.account.earnedCents, 0),
+            ...(contract.ended ? { ended: contract.ended } : {}),
+          },
+        }
+      : {}),
     purseCents: known ? (world.provisions.purses[actorId] ?? 0) : 0,
     nutrition: {
       kcalToday: n?.today.kcal ?? 0,

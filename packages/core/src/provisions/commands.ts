@@ -3,9 +3,12 @@
  * NPCs do the same things through urges/activities — no player-only rule paths.
  */
 import type { CommandOf } from '../command.ts';
-import type { HouseholdId, ItemId, PlaceId } from '../ids.ts';
+import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 
 export type ProvisionsCommand =
+  | CommandOf<'provisions.hire_on', { employerId: ActorId; term: 'daily' | 'weekly' }>
+  | CommandOf<'provisions.quit', Record<string, never>>
+  | CommandOf<'provisions.dismiss', { workerId: ActorId }>
   | CommandOf<'provisions.board_meal', Record<string, never>>
   | CommandOf<'provisions.refill', { itemId: ItemId; ml?: number }>
   | CommandOf<'provisions.empty', { itemId: ItemId }>

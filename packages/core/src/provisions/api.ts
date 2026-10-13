@@ -31,6 +31,7 @@ import type { Urge, UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { cashOf, creditLimitFor, larderKcal } from './economy.ts';
 import { accessibleStack, awaitingMeal, holderOfActor, holderStacks, mealExplain, serveMeal } from './meals.ts';
+import { pieceRate, pieceStock, saleTotal } from './piece-rates.ts';
 import { serviceAt, storeOpen } from './services.ts';
 
 /** Money outside the store (loans, repayments): see economy.ts. */
@@ -308,8 +309,14 @@ export {
   recipesFor,
 } from './meals.ts';
 
-/** Stores buy intact goods at base value, capped by the current retail price. */
-export function saleQuote(world: World, content: ContentBundle, placeId: PlaceId, itemId: ItemId): number | null {
+/** First marginal bid: piece-rate demand or ordinary buyback, always below county retail. */
+export function saleQuote(
+  world: World,
+  content: ContentBundle,
+  placeId: PlaceId,
+  itemId: ItemId,
+  stocked?: number,
+): number | null {
   const stack = world.items.stacks[itemId];
   if (
     !stack ||
@@ -327,11 +334,15 @@ export function saleQuote(world: World, content: ContentBundle, placeId: PlaceId
     ...rowsOf(world.provisions.stores).map((store) => priceAt(world, content, store.placeId, stack.defId) ?? retail),
   );
   if (lowestRetail <= 0) return null;
+  const rate = pieceRate(world, content, placeId, stack.defId);
+  if (!rate && Object.values(content.pieceRates ?? {}).some((r) => r.item === stack.defId)) return null;
+  const stock = rate ? (stocked ?? pieceStock(world, placeId, stack.defId)) : 0;
+  if (rate && stock >= rate.capacity) return null;
   const pct = content.domesticRules?.daily?.buyback_pct ?? 65;
-  return Math.max(
-    0,
-    Math.min(retail - 1, lowestRetail - 1, Math.floor(((content.items[stack.defId]?.value_cents ?? 0) * pct) / 100)),
-  );
+  const bid = rate
+    ? Math.max(1, Math.floor((rate.buy_cents * (rate.capacity - stock)) / rate.capacity))
+    : Math.floor(((content.items[stack.defId]?.value_cents ?? 0) * pct) / 100);
+  return Math.max(0, Math.min(retail - 1, lowestRetail - 1, bid));
 }
 export function sell(
   world: World,
@@ -362,7 +373,8 @@ export function sell(
   const root = rootOf(world, stack);
   if (root.kind !== 'actor' || root.actorId !== actorId) return false;
   const owner = store.ownerHouseholdId === null ? undefined : world.provisions.households[store.ownerHouseholdId];
-  const cost = price * qty;
+  const cost = saleTotal(world, ctx.content, placeId, itemId, qty);
+  if (cost === null || cost <= 0) return false;
   if ((owner?.cashCents ?? store.tillCents) < cost) return false;
   moveStack(world, ctx, itemId, qty, atPlace(placeId));
   if (owner) owner.cashCents -= cost;
@@ -375,15 +387,13 @@ export function sell(
     visibility: 'private',
     explain: {
       kind: 'formula',
-      label: 'Store buys intact goods',
+      label: 'Store buys goods at marginal piece rates / resale spread',
       subjects: [actorId],
       knowledge: 'participants',
-      terms: [
-        term('price', 'Unit cents (used-goods spread, below county retail)', price),
-        term('item', 'Quantity', qty),
-      ],
+      terms: [term('price', 'First-unit bid (below county retail)', price), term('item', 'Quantity', qty)],
       total: cost,
       outcome: 'sold',
+      note: 'Piece-rate batches sum the bid for each unit as it fills the shelves; other goods use the resale spread.',
     },
   });
   return true;
@@ -990,6 +1000,15 @@ export function leaveRoadCamp(world: World, ctx: SimContext, id: ActorId): void 
   });
 }
 export { creditLimitFor } from './economy.ts';
+export {
+  activeEmployment,
+  dismissWorker,
+  employmentDayMinutes,
+  hireOn,
+  hiringAvailability,
+  hiringOffer,
+  quitWork,
+} from './hiring.ts';
+export { pieceRate, pieceStock, saleTotal } from './piece-rates.ts';
 export { type FoodParcel, householdFoodDays, type ReliefPlanningMemo, reliefParcel } from './relief.ts';
-
 export * from './tactical.ts';

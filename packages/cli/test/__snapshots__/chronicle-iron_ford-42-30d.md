@@ -34,31 +34,31 @@ Correspondents mention Brenner House. Three tools lie with their handles pointin
 
 > *The Almanac.* Among this week's observations, at Iron Ford Sentinel Print Shop: The broom leans bristles upward against the shut door.
 
-**A Debt Pressed** Report comes to us that Mrs. A. Pratt has begun to dun Mr. H. Bell for $3.80. Such matters are best settled before the neighbors discover them, which in this case they have.
+**A Debt Pressed** A correspondent informs us that Mrs. A. Pratt has begun to dun Mr. H. Bell for $3.80. Such matters are best settled before the neighbors discover them, which in this case they have.
 
-*Monday, the 9th of April, 1855, under the last quarter.*
+*Monday, the 9th of April, 1855; the last quarter.*
 
 *Tuesday, the 10th of April, 1855. The last quarter.*
 
-**A Brawl at Dunleavy's Tavern** Mr. M. Dunleavy sought a fight with Mr. J. Brenner at Dunleavy's Tavern on Tuesday of an evening and found one. The result was not what Mr. M. Dunleavy had planned.
+**A Brawl at Dunleavy's Tavern** A scuffle at Dunleavy's Tavern on Tuesday of an evening: Mr. M. Dunleavy swung, and Mr. J. Brenner did not stay where he was put. Honors were not even.
 
-*Wednesday, the 11th of April, 1855; the last quarter.*
+*Wednesday, the 11th of April, 1855, under the last quarter.*
 
-**A Fight at Dunleavy's Tavern** It grieves us to say that Mrs. N. Dunleavy and Mrs. I. Tveit came to blows at Dunleavy's Tavern on Wednesday of an evening. Mrs. N. Dunleavy had the better of it. Neighbors parted them; the damage was chiefly to dignity.
+**A Fight at Dunleavy's Tavern** A fight took place at Dunleavy's Tavern on Wednesday of an evening between Mrs. N. Dunleavy and Mrs. I. Tveit. The affair was brief, the language long, and Mrs. N. Dunleavy left the field.
 
-*Thursday, the 12th of April, 1855, under the waning crescent.*
+*Thursday, the 12th of April, 1855; the waning crescent.*
 
 Several persons at Penhallow Diggings report the following: A second footfall sounds from inside the ledge.
 
-*Friday, the 13th of April, 1855; the waning crescent.*
+*Friday, the 13th of April, 1855, under the waning crescent.*
 
-*Saturday, the 14th of April, 1855. The waning crescent.*
+*Saturday, the 14th of April, 1855; the waning crescent.*
 
 > *The Almanac.* Six matters of note this week. Posted at the store: cornmeal at 3¢ the lb, potatoes at 1¢ the lb and dry beans at 4¢ the lb. Divine service drew eighteen to Iron Ford Lutheran Church, eight to Trevenna House and seven to Kvale Ridge Church. Market drew seven to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on one day, the glass near 55 at noon.
 
 **A Good Neighbor** Mrs. M. Brenner has been busy with kindnesses this month; four are known to the village. The county could stand a dozen like.
 
-**A Fight at Dunleavy's Tavern** Blows were exchanged at Dunleavy's Tavern on Saturday of an evening: Mr. J. Pike against Mr. E. Hurd. Two chairs and a good deal of patience were lost.
+**A Fight at Dunleavy's Tavern** Mr. J. Pike and Mr. E. Hurd settled a difference with their fists at Dunleavy's Tavern on Saturday of an evening. Mr. J. Pike was the settler.
 
 ## Week 3: April 15 to 21, 1855
 
@@ -76,11 +76,11 @@ A curious report reaches us from Glover Farm: The kindling is laid crosswise, sm
 
 **Ill Luck** It is reported that Captain Hurd's root cellar went to rot. The superstitious have not been slow to remark that it is not the first such thing this season.
 
-*Thursday, the 19th of April, 1855, under the waxing crescent. Rain in the afternoon.*
+*Thursday, the 19th of April, 1855. The waxing crescent. Rain in the afternoon.*
 
-**Peace Made** A quarrel of some standing between Mr. B. Pascoe and Mr. Josiah Trevenna was ended on Thursday in the afternoon. The village is divided between relief and disappointment.
+The difference between Mr. B. Pascoe and Mr. Josiah Trevenna was mended at Penhallow Diggings on Thursday in the afternoon, or mended enough to share a bench.
 
-*Friday, the 20th of April, 1855. The waxing crescent.*
+*Friday, the 20th of April, 1855, under the waxing crescent.*
 
 *Saturday, the 21st of April, 1855; the waxing crescent.*
 
@@ -92,13 +92,13 @@ A curious report reaches us from Glover Farm: The kindling is laid crosswise, sm
 
 ## Week 4: April 22 to 28, 1855
 
-*Sunday, the 22nd of April, 1855. Sabbath, under the waxing crescent; work laid by.*
+*Sunday, the 22nd of April, 1855. The Sabbath; a waxing crescent, and the ford quiet.*
 
 **A Good Neighbor** Mrs. D. Pascoe has been busy with kindnesses this month; four are known to the village. The county could stand a dozen like.
 
-**A Brawl at Brenner House** We regret to state that Mr. Jory Trevenna struck at Mr. J. Brenner at Brenner House on Sunday in the afternoon and was handled roughly for the trouble.
+**A Brawl at Brenner House** It pains us to record that Mr. Jory Trevenna struck at Mr. J. Brenner at Brenner House on Sunday in the afternoon and was handled roughly for the trouble.
 
-*Monday, the 23rd of April, 1855, under the first quarter. Rain from the morning on.*
+*Monday, the 23rd of April, 1855. The first quarter. Rain from the morning on.*
 
 > *The Almanac.* A traveler notes Glover Farm. The cream saucer stands beneath the bench, quite dry.
 
@@ -112,7 +112,7 @@ Our readers may judge the account from Penhallow Diggings. Three taps come from 
 
 **Sickness Abroad** A grave misfortune: a fever took hold of Brigid in the Dunleavys' house. The doctor has been sent for; the minister, we hope, need not be.
 
-*Friday, the 27th of April, 1855, under the waxing gibbous.*
+*Friday, the 27th of April, 1855. The waxing gibbous.*
 
 **A Heavy Loss** A heavy loss is reported: someone has been at the Pascoes' smokehouse. Neighbors are asked to remember it when the subscription paper comes round.
 
@@ -120,11 +120,11 @@ Our readers may judge the account from Penhallow Diggings. Three taps come from 
 
 > *The Almanac.* Six matters of note this week. Posted at the store: potatoes at 1¢ the lb, cornmeal at 3¢ the lb and dry beans at 4¢ the lb. Divine service drew sixteen to Iron Ford Lutheran Church, eight to Trevenna House and seven to Kvale Ridge Church. Market drew seven to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on one day, the glass near 60 at noon.
 
-**A Debt Pressed** We learn that Mrs. A. Pratt has begun to dun Mr. E. Fenn for $2.93. Such matters are best settled before the neighbors discover them, which in this case they have.
+**A Debt Pressed** We are informed that Mrs. A. Pratt has begun to dun Mr. E. Fenn for $2.93. Such matters are best settled before the neighbors discover them, which in this case they have.
 
 ## Week 5: April 29 to May 5, 1855
 
-*Sunday, the 29th of April, 1855. The Sabbath; a waxing gibbous, and the ford quiet.*
+*Sunday, the 29th of April, 1855. Sabbath, under the waxing gibbous; work laid by.*
 
 **All Over the Ford** The story that "the Tveits' best cow sickened and died" is now all over the ford. Whether true or not, it has reached those who matter least to refute it and most to repeat it.
 
@@ -132,7 +132,7 @@ Our readers may judge the account from Penhallow Diggings. Three taps come from 
 
 > *The Almanac.* Entered beside Glover Farm in the weekly register: A neat plait has appeared in the loose straw by the door.
 
-*Monday, the 30th of April, 1855. Full moon, and bright enough to read a letter by.*
+*Monday, the 30th of April, 1855. The full moon. The bluffs stand out white and the dogs are restless.*
 
 ---
 
@@ -166,13 +166,13 @@ Our readers may judge the account from Penhallow Diggings. Three taps come from 
 
 **April 8.** Ingrid Tveit had stopped trusting her own reasons, and went on giving them. Nine defenses in four days, and the village was told it was nerves.
 
-**April 8.** Johann Brenner was coming apart at a seam nobody could see. Twenty defenses in six days, and the relief wearing thin. The village took it for ill temper.
+**April 8.** A mind at its seams: displacement again and again, and between them nothing to put in its place. Johann Brenner was not well, and said otherwise.
 
-**April 8.** Rationalization, and the others in turn: the mind has a drawer of such things, and Hester Fenn had been through them all in seven days.
+**April 8.** Hester Fenn was coming apart at a seam nobody could see. Eleven defenses in seven days, and the relief wearing thin. The village took it for ill temper.
 
 **April 8.** Hester Fenn could not bear a thing in her own heart and found it, quite sincerely, in Captain Hurd. She would have been astonished to hear it called a defense.
 
-**April 9.** There was a meal and someone willing to help Jory Trevenna take it. Sometimes care is that plain.
+**April 9.** Jory Trevenna needed help at the table, and Bartholomew Pascoe gave it.
 
 **April 9.** A mind at its seams: displacement again and again, and between them nothing to put in its place. Minnie Fenn was not well, and said otherwise.
 
@@ -198,7 +198,7 @@ Our readers may judge the account from Penhallow Diggings. Three taps come from 
 
 **April 19.** Repression, and the others in turn: the mind has a drawer of such things, and Pastor Tveit had been through them all in three weeks.
 
-**April 20.** Bartholomew Pascoe was coming apart at a seam nobody could see. Three defenses in nine days, and the relief wearing thin. The village took it for ill temper.
+**April 20.** A mind at its seams: rationalization again and again, and between them nothing to put in its place. Bartholomew Pascoe was not well, and said otherwise.
 
 **April 21.** Behind the doors this week: 786 meals eaten, 77 cold, about 2411 calories to the head. The town lived mostly on cornmeal, potatoes and fine milled flour. Spoiled and wasted: clabber and whole milk.
 
@@ -208,7 +208,7 @@ Our readers may judge the account from Penhallow Diggings. Three taps come from 
 
 **April 24.** Brigid Dunleavy went short at table long enough that it began to show: want of food. She ate last and least, and told nobody, and the household told nobody either.
 
-**April 25.** Captain Trevenna had a name for it, kept to Captain Trevenna: not charity, but a debt to someone long dead.
+**April 25.** Of the twenty-two good turns Captain Trevenna did in three weeks, not one was mentioned at the store. That was the point of them.
 
 **April 26.** Michael Dunleavy formed a grudge against an unknown hand, and set its aim at their hurt. It was not mentioned. It was merely the way Michael Dunleavy walked past the gate afterward.
 
@@ -224,13 +224,13 @@ Our readers may judge the account from Penhallow Diggings. Three taps come from 
 
 ### Week 5
 
-**April 29.** Abigail Hatch had stopped trusting her own reasons, and went on giving them. Eight defenses in two weeks, and the village was told it was nerves.
+**April 29.** A mind at its seams: repression again and again, and between them nothing to put in its place. Abigail Hatch was not well, and said otherwise.
 
-**April 29.** It passed through six mouths in eight days, and grew a little in each. Nobody lied, exactly. Everybody improved it.
+**April 29.** The story needed no malice; it needed only six people each willing to be the one who knew. The truth, whatever it was, was never consulted.
 
 **April 29.** The louder Edwin Fenn spoke against it, the more it was plain to anyone who listened closely what he was afraid of.
 
-**April 30.** Konrad Strauss was coming apart at a seam nobody could see. Four defenses in four days, and the relief wearing thin. The village took it for ill temper.
+**April 30.** Rationalization, and the others in turn: the mind has a drawer of such things, and Konrad Strauss had been through them all in four days.
 
 **April 30.** The louder Pastor Tveit spoke against it, the more it was plain to anyone who listened closely what he was afraid of.
 

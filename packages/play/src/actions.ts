@@ -145,6 +145,26 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
         actorId: pc,
         data: { targetId: other.id },
       });
+  const employment = provisions.activeEmployment(w, pc);
+  if (employment)
+    add('quit', 'Quit paid work (earned wages remain due)', { kind: 'provisions.quit', actorId: pc, data: {} });
+  for (const other of Object.values(w.actors)) {
+    if (other.id === pc || other.placeId !== a.placeId) continue;
+    const offer = provisions.hiringOffer(w, c, other.id);
+    if (offer && !provisions.hiringAvailability(w, c, pc, other.id))
+      for (const term of ['daily', 'weekly'] as const)
+        add(
+          `hire:${other.id}:${term}`,
+          `Hire on with ${other.name.given} ${other.name.family} (${term}; ${money(offer.rule.daily_cents)}/${offer.rule.hours}h day, ${offer.rule.from_hour}:00–${offer.rule.to_hour}:00 at ${w.places[offer.workplaceId]?.name})`,
+          { kind: 'provisions.hire_on', actorId: pc, data: { employerId: other.id, term } },
+        );
+    if (provisions.activeEmployment(w, other.id)?.employerId === pc)
+      add(`dismiss:${other.id}`, `Dismiss ${other.name.given} ${other.name.family}`, {
+        kind: 'provisions.dismiss',
+        actorId: pc,
+        data: { workerId: other.id },
+      });
+  }
   const state = activity.currentActivity(w, pc);
   // A sleeper can always be woken by an order (core: activity wakes on a command).
   const asleep = !!c.activities[state?.activityId ?? '']?.asleep;
@@ -174,6 +194,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     const own = new Set(
       (c.occupations[a.occupationId]?.schedule ?? []).flatMap((b) => [b.activity, b.fallback ?? b.activity]),
     );
+    if (employment) own.add('work');
     // Away from lodgings on open ground, ordinary sleep is a camp bed on the spot (never a walk
     // back to a paid one), resting is resting here, and the camp activities are on offer.
     const camp = items.campContext(w, c, pc);
@@ -331,6 +352,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       root.kind === 'actor' &&
       root.actorId === pc &&
       quote !== null &&
+      quote > 0 &&
       quote <= (owner?.cashCents ?? store.tillCents)
     )
       add(`sell:${s.id}`, `Sell ${c.items[s.defId]?.name} ($${(quote / 100).toFixed(2)})`, {
@@ -482,6 +504,16 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
       command.data.ml <= provisions.drinkingWater(w, c, pc)
       ? null
       : 'Not enough accessible water';
+  if (command.kind === 'provisions.hire_on')
+    return command.data.term === 'daily' || command.data.term === 'weekly'
+      ? provisions.hiringAvailability(w, c, pc, command.data.employerId)
+      : 'Choose daily or weekly hiring';
+  if (command.kind === 'provisions.quit')
+    return provisions.activeEmployment(w, pc) ? null : 'No active hired term to quit';
+  if (command.kind === 'provisions.dismiss')
+    return provisions.activeEmployment(w, command.data.workerId)?.employerId === pc
+      ? null
+      : 'This person is not hired by you';
   if (command.kind === 'provisions.set_rations')
     return Number.isInteger(command.data.rationPct) &&
       command.data.rationPct >= 10 &&
@@ -550,8 +582,10 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     if (quote === null) return `The store does not buy ${name}`;
     const cash =
       shop.ownerHouseholdId == null ? shop.tillCents : (w.provisions.households[shop.ownerHouseholdId]?.cashCents ?? 0);
-    if (quote * d.qty > cash)
-      return `The store has only ${money(Math.max(0, cash))} to pay out just now; ${d.qty} ${name} would be ${money(quote * d.qty)}`;
+    const total = provisions.saleTotal(w, c, d.placeId, d.itemId, d.qty);
+    if (total === null || total <= 0) return `The store has no demand for that many ${name}`;
+    if (total > cash)
+      return `The store has only ${money(Math.max(0, cash))} to pay out just now; ${d.qty} ${name} would be ${money(total)}`;
     return null;
   }
   if (command.kind === 'provisions.buy') {

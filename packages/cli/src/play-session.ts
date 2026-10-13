@@ -80,7 +80,7 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
         ...(o.worldSeed === undefined ? {} : { worldSeed: Number(o.worldSeed) }),
         pc: {
           name: 'Ellis Wayfarer',
-          kit: 'newcomer',
+          kit: o.kit ?? 'newcomer',
           ancestry: content.playStarts.newcomer?.ancestry,
           lodging: 'tavern',
         },

@@ -248,6 +248,7 @@ cli
 
 cli
   .command('play [command]', 'Play a newcomer headlessly (fair knowledge by default)')
+  .option('--kit <id>', 'Starting kit (newcomer or greenhorn)', { default: 'newcomer' })
   .option('--text', 'Readable text REPL (default)')
   .option('--compact', 'Omit unchanged session status/menu lines')
   .option('--jsonl', 'One JSON Command in, one JSON observation out')

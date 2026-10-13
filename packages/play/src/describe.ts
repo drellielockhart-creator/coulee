@@ -4,6 +4,10 @@
  * function of the event plus the world's names, so headless play and any other front end can use
  * the same sentences. Nothing leaks an event kind: unknown kinds still get a readable fallback.
  */
+import { social } from '@coulee/core';
+
+const dayText = social.dayText;
+
 import type { ActorId, ContentBundle, Event, World } from '@coulee/core';
 
 export interface Described {
@@ -332,6 +336,18 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
         `${Who(d.buyerId)} ${d.buyerId === pc ? 'bought' : 'buys'} ${d.qty} ${itemName(d.defId)} for ${cents(d.priceCents)}${d.onCredit ? ', partly on account' : ''}${d.toPantry && d.buyerId === pc ? ', for the household pantry at your lodgings (not your pack)' : ''}`,
       );
     }
+    case 'provisions.hiring': {
+      const d = e.data;
+      return out(
+        d.accepted
+          ? `${actorName(d.employerId)} hires ${d.workerId === pc ? 'you' : actorName(d.workerId)} at ${cents(d.dailyCents ?? 0)} per ${d.hours}-hour day, paid ${d.pay}; work ${d.fromHour}:00–${d.toHour}:00 at ${world.places[d.workplaceId ?? 0]?.name ?? 'the workplace'}, until ${dayText(d.endsAt ?? 0)}`
+          : `${actorName(d.employerId)} refuses paid work: ${d.reason}`,
+      );
+    }
+    case 'provisions.employment_ended':
+      return out(
+        `${Who(e.data.workerId)} ${e.data.workerId === pc ? 'leave' : 'leaves'} paid work (${e.data.reason}); earned wages remain payable`,
+      );
     case 'provisions.sale': {
       const d = e.data;
       return out(

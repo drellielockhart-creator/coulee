@@ -25,6 +25,7 @@ import {
 import { householdDay, purchase, shoppingHour } from './economy.ts';
 import { employmentHour } from './employment.ts';
 import { devicesHour, storageHour } from './environment.ts';
+import { dismissWorker, hireOn, quitWork } from './hiring.ts';
 import {
   accessibleStack,
   awaitingMeal,
@@ -90,6 +91,15 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForec
       continue;
     }
     switch (cmd.kind) {
+      case 'provisions.hire_on':
+        hireOn(world, ctx, actor.id, cmd.data.employerId, cmd.data.term);
+        break;
+      case 'provisions.quit':
+        if (!quitWork(world, ctx, actor.id)) reject('No active hired term to quit');
+        break;
+      case 'provisions.dismiss':
+        if (!dismissWorker(world, ctx, actor.id, cmd.data.workerId)) reject('No hired worker under your authority');
+        break;
       case 'provisions.board_meal':
         if (boardMeal(world, ctx, actor.id)) ate.add(actor.id);
         else reject('No meal available: closed, insufficient cash, or kitchen supplies exhausted');

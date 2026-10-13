@@ -26,3 +26,14 @@ bulk = 0.5
 unit = "lb"
 supply = { kind = "tobacco", units = 16 }
 tags = ["wet_ruin"]
+
+[[item]]
+id = "rabbit_pelt"
+name = "Rabbit pelt"
+section = "trade_goods"
+unit = "pelt"
+weight_g = 150
+bulk = 0.2
+value_cents = 12
+materials = [{ material = "fur", pct = 100 }]
+tags = ["raw_good", "pelt"]
