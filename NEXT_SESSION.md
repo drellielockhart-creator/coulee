@@ -66,9 +66,7 @@ _Updated 2026-10-11, night. The repo is https://github.com/drellielockhart-creat
 - **Docs sync and root README.**
 - The default test timeout is now 180 s for loaded machines.
 
-**Still running when this was written:** perf wave 2 (Codex astra, hash-identical) in `../coulee-w6-perf2`, branch `wave6/perf2`. When it finishes:
-1. Verify its final hashes against `main` on fresh seeds.
-2. Commit the branch and merge it.
+**Perf wave 2:** merged (Iron Ford 24.8 → 22.6 ms/h, hash-identical, verified on fresh seeds after the merge). Readiness is still 34% of samples: the next perf target.
 
 ## Next
 1. **Ellie's decisions:** 08 items 11–15 (D1–D3, M5 defaults, M6 defaults including Q04).
