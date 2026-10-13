@@ -1351,3 +1351,100 @@ fieldset {
     scroll-behavior: auto;
   }
 }
+
+/* Region geometry comes only from the fair observation; labels keep a phone-sized hit area. */
+.map-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.map-switch {
+  display: flex;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--paper);
+}
+.map-switch button[aria-pressed="true"] {
+  border-color: var(--rubric);
+  font-weight: bold;
+}
+.region-surface {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  user-select: none;
+  overflow: hidden;
+}
+.region-road {
+  stroke: #796c58;
+  stroke-width: 5px;
+  stroke-linecap: round;
+}
+.region-progress {
+  stroke: #415f55;
+  stroke-width: 6px;
+}
+.region-road-name,
+.region-traveler text {
+  font-size: 13px;
+  paint-order: stroke;
+  stroke: #e6dac4;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  fill: var(--ink);
+}
+.region-traveler {
+  color: #415f55;
+  pointer-events: none;
+}
+.region-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  max-width: 144px;
+  min-height: 44px;
+  padding: 6px 9px;
+  background: var(--paper);
+  white-space: normal;
+  line-height: 1.2;
+  touch-action: none;
+}
+.region-node.current {
+  border: 2px solid #415f55;
+}
+.region-map .region-node small {
+  display: block;
+  font-size: 11px;
+}
+.region-node[aria-disabled="true"] {
+  cursor: grab;
+}
+.region-caption,
+.region-status,
+.region-empty,
+.region-reports {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  pointer-events: none;
+  margin: 0;
+  font-size: 13px;
+}
+.region-caption {
+  top: 12px;
+}
+.region-status,
+.region-empty {
+  top: 62%;
+}
+.region-reports {
+  top: 72%;
+  pointer-events: auto;
+  max-height: 18%;
+  overflow: auto;
+}
+.region-reports summary {
+  min-height: 44px;
+}

@@ -687,12 +687,13 @@ function Ending({ o }: { o: PlayObservation }) {
 
 /** No client routing or supply math: all controls use the fair session's offered Commands. */
 function TravelCard({ o, runner }: { o: PlayObservation; runner: ReturnType<typeof useRunner> }) {
-  const [preview, setPreview] = useState<string>('');
+  const ui = useUi();
+  const preview = ui.routePreview?.at === o.time.t ? ui.routePreview : null;
   const routes = o.actions.filter((a) => a.id.startsWith('route:'));
   const controls = o.actions.filter((a) => a.id.startsWith('travel:') || a.id.startsWith('journey:'));
   if (!o.region) return null;
   return (
-    <section aria-label="Regional travel">
+    <section aria-label="Regional travel" data-testid="route-card">
       <h3>Walk to the neighbors</h3>
       {o.region.location.kind === 'edge' ? (
         <p>
@@ -704,12 +705,13 @@ function TravelCard({ o, runner }: { o: PlayObservation; runner: ReturnType<type
         Destination{' '}
         <select
           aria-label="Destination"
-          defaultValue=""
+          value={preview ? `route:${preview.nodeId}` : ''}
+          disabled={runner.busy}
           onChange={async (e) => {
             const a = routes.find((a) => a.id === e.target.value);
             if (a) {
               const result = await runner.run(a);
-              setPreview(result.text ?? '');
+              ui.showRoute(a.id.slice('route:'.length), result.text ?? result.reason ?? '', result.t);
             }
           }}
         >
@@ -721,7 +723,11 @@ function TravelCard({ o, runner }: { o: PlayObservation; runner: ReturnType<type
           ))}
         </select>
       </label>
-      {preview ? <pre className="reading">{preview}</pre> : null}
+      {preview ? (
+        <pre className="reading" data-testid="route-preview">
+          {preview.text}
+        </pre>
+      ) : null}
       <div>
         {controls.map((a) => (
           <button type="button" key={a.id} disabled={runner.busy} onClick={() => runner.run(a)}>
