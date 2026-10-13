@@ -164,7 +164,9 @@ export interface SocialState {
   /**
    * Talk lines said between each pair this week ("a-b" with a < b -> line id -> game minute)
    * and in each room these few hours ("p<placeId>"), so a pair does not hear the same words twice
-   * in seven days, nor a room the same joke twice in an evening (talk.ts). Absent until the first.
+   * in seven days, nor a room the same joke twice in an evening (talk.ts). Speaker histories
+   * use "s<actorId>"; bounded listener text hashes use "h<actorId>" (30 days, at most 1024).
+   * Absent until the first exchange; old saves need no migration.
    */
   talk?: Record<string, Record<string, number>>;
 }

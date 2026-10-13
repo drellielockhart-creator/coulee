@@ -782,6 +782,8 @@ export const TalkLineSchema = z.strictObject({
   part: z.enum(['act', 'said']).default('act'),
   outcome: z.enum(['success', 'failure', 'any']).default('any'),
   when: TalkWhenSchema,
+  /** `repeat_aware`: a listener's response, eligible only after hearing repeated words. */
+  tags: z.array(id()).optional(),
   /** Relative weight among the lines that fit (scaled up by how many conditions it names). */
   weight: int().min(1).max(100).default(10),
   lines: z.array(TalkTurnSchema).min(1).max(3),
