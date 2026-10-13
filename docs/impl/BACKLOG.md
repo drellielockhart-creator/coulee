@@ -68,6 +68,16 @@ Notes:
   - Who believes what is cultural (P7 psyche plus peoples data), and an astrology "skill" can read it.
 - **Art.** These are the showcase for the watercolor art direction (00 decisions log, 2026-10-12): washes for sky gradients, painted stars and clouds.
 
+### The storyteller: a RimWorld-style Director (Ellie, 2026-10-13)
+Ellie: "something resembling a storyteller in RimWorld … that exists on a meta level to drive the storyline forward."
+
+This is the Director from `design-docs/05` §8: a tension model, a pacing cycle, plausibility-bounded nudges, threads, Chekhov's guns, a Ledger and seven folklore personalities. It's designed but not built. **The implementation proposal is [`DIRECTOR-PLAN.md`](DIRECTOR-PLAN.md):**
+- bias hooks that the owning modules consult, with no puppetry and no visible dice touched;
+- era-calibrated exogenous pressures as the "incident deck";
+- slices D0 (measure pacing only) → D1 (safe nudges, the Almanac) → D2 (minds and mercy) → D3 (arrivals, witch mode, posses).
+
+D0 is cheap and useful now, as pacing analytics for playtests. The open decisions are C55, 05 Q8 and the foresight rule.
+
 ## Deferred from reviews and playtests
 
 _Status checked 2026-10-12; the feature queue above is Ellie's unprioritized queue._
