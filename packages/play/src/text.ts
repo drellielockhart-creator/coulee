@@ -2,9 +2,9 @@ import { asActorId, asItemId, type Command, type Explain, explainLine, TICKS_PER
 import type { AvailableAction } from './actions.ts';
 import { claimText, obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
-export const HELP = `Short walks, purchase lines and chats spend minutes within the hour; long acts finish the hour. Settings (standing, agency, rations) and queries take no time. Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on, or give any order (wake, drink, go) to get up.
+export const HELP = `Short walks, purchase lines and chats spend minutes within the hour; long acts finish the hour. Settings (standing, agency, rations) and queries take no time. Needs follow the minutes actually spent on each activity; rest recovers some Rest. Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on, or give any order (wake, drink, go) to get up.
 Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects settle once per hour; a partly spent hour uses its dominant activity.
-Out on open ground with bedding, sleep makes camp where you stand; wait follows your lodging order, returning to a nearby paid or own bed when available.
+With lodging off, or home at another site, sleep camps where you stand. Out on open ground with bedding, sleep makes camp where you stand; wait follows your lodging order, returning to a nearby paid or own bed when available.
 look | signs | investigate <sign id> | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
 hire <employer> [daily|weekly] | quit | dismiss <worker>
 buy <item> [qty] | sell <item> [qty] | eat <item> [servings] [method] | cook <item> [servings] [method]
@@ -574,7 +574,7 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
   if (verb === 'sleep' && o.region?.location.kind === 'edge')
     return o.actions.find((a) => a.id === 'journey:camp')?.command ?? 'Camp is unavailable';
   if (['sleep', 'rest', 'work'].includes(verb)) {
-    const activityId = { sleep: 'sleep', rest: 'idle_at_home', work: 'work' }[verb as 'sleep' | 'rest' | 'work'];
+    const activityId = { sleep: 'sleep', rest: 'rest', work: 'work' }[verb as 'sleep' | 'rest' | 'work'];
     const offered = o.actions.find((a) => a.id === `activity:${activityId}`);
     // Not on offer (a locked hour, not her trade): the game says why, with no internal ids.
     return offered?.command ?? { kind: 'core.urge', actorId: pc, data: { urge: { kind: 'activity', activityId } } };

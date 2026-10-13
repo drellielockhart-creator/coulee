@@ -3,10 +3,10 @@ import { tacticalPinned } from './tactical.ts';
 /** Execute the chosen activity, falling back to the content calendar. */
 
 import { type ActorId, idsOf } from '../ids.ts';
-import { inventoryIndex, loadReport, movementDelay } from '../items/api.ts';
+import { campSleepActivity, inventoryIndex, loadReport, movementDelay } from '../items/api.ts';
 import { canAct, rousedBy } from '../needs/api.ts';
 import { admitSleep } from '../provisions/api.ts';
-import { authorizeAct, chosenUrge } from '../psyche/api.ts';
+import { authorizeAct, chosenUrge, standingOrders } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { interactionAvailability, prepareReliefTravel, reliefReservations } from '../social/api.ts';
 import { addHours } from '../time.ts';
@@ -85,6 +85,7 @@ export function activitySystem(world: World, ctx: SimContext): void {
     const load = loadReport(world, ctx.content, id, inventory);
     if (state.travel && load.band.speedPct === 0) continue;
     if (state.travel) {
+      state.hourlyWalk = { at: ctx.now, minutes: Math.min(60, Math.max(0, state.travel.arrive - ctx.now)) };
       if (ctx.now + 60 < state.travel.arrive) continue;
       const arrivedAt = state.travel.arrive;
       const from = actor.placeId;
@@ -160,7 +161,21 @@ export function activitySystem(world: World, ctx: SimContext): void {
       source = 'schedule';
     }
     if (!activityId || placeId === null) continue;
-    if (ctx.content.activities[activityId]?.asleep && !admitSleep(world, ctx, id, placeId)) {
+    const selected = ctx.content.activities[activityId];
+    const home = world.households[actor.householdId]?.homePlaceId;
+    if (
+      selected?.asleep &&
+      selected.at === 'home' &&
+      (!standingOrders(world, id).lodging || world.places[home ?? 0]?.siteId !== world.places[actor.placeId]?.siteId)
+    ) {
+      activityId = campSleepActivity(ctx.content) ?? activityId;
+      placeId = actor.placeId;
+    }
+    if (
+      ctx.content.activities[activityId]?.asleep &&
+      !ctx.content.activities[activityId]?.tags.includes('camp') &&
+      !admitSleep(world, ctx, id, placeId)
+    ) {
       activityId = 'idle_at_home';
     }
     const def = requiredRow(ctx.content.activities, activityId);
@@ -179,8 +194,13 @@ export function activitySystem(world: World, ctx: SimContext): void {
         if (extra === null) continue;
         walked += extra;
       }
-      if (walked > 60) {
-        state.travel = { from, to: placeId, arrive: (ctx.now + walked) as import('../time.ts').GameMinute };
+      state.hourlyWalk = { at: ctx.now, minutes: Math.min(minuteBudget(world, id).remaining, walked) };
+      if (walked > minuteBudget(world, id).remaining) {
+        state.travel = {
+          from,
+          to: placeId,
+          arrive: (ctx.now + minuteBudget(world, id).spent + walked) as import('../time.ts').GameMinute,
+        };
         state.activityId = activityId;
         state.source = source;
         state.since = ctx.now;

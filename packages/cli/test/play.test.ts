@@ -188,7 +188,8 @@ describe('headless sessions', () => {
         const rest = o.self.needs.list.find((n) => n.id === 'rest')?.value ?? 1000;
         const thirst = o.self.needs.list.find((n) => n.id === 'thirst')?.value ?? 1000;
         const hunger = o.self.needs.list.find((n) => n.id === 'hunger')?.value ?? 1000;
-        if (unlocked && rest < 420) {
+        // Exercise an explicit bedtime even when the sustainable Rest economy never drops below 420.
+        if (unlocked && (rest < 420 || (!slept && o.time.t % 1440 >= 21 * 60))) {
           run(required(available('activity:sleep')));
           slept = true;
           continue;

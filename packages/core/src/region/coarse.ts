@@ -130,9 +130,9 @@ export function settleDailySites(world: World, boundary: SimContext): void {
           emit: (event) => boundary.emit({ ...event, t: event.t ?? now }),
         };
         withDailySites(world, due, () => {
-          itineraryNeedsHour(world, ctx);
           regionPsycheHour(world, ctx);
           regionActivityHour(world, ctx);
+          itineraryNeedsHour(world, ctx);
           regionFaeHour(world, ctx);
           // Named social encounters use the same consent, memories and opinion ledgers.
           regionSocialHour(world, ctx);

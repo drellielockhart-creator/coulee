@@ -42,6 +42,8 @@ export interface ActorNeeds {
   /** Unmet points at zero; repaid from later credits. Optional for older saves. */
   debt?: Record<NeedId, number>;
   debtBands?: Record<NeedId, string>;
+  /** Energy charged in the last hourly settlement, including unmet expenditure. */
+  hourlyKcalBurned?: number;
   /** Net change of each need over the last simulated hour (the dossier's trend arrow). */
   hourly?: Record<NeedId, number>;
 }

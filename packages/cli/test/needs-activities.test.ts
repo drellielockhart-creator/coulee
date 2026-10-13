@@ -117,12 +117,12 @@ describe('needs-activities in Iron Ford', () => {
     sim.content = { ...sim.content, survival_tuning: {} };
     attendance(sim, () => {
       const ctx = makeContext(sim.world, sim.content, []);
-      needs.needsSystem(sim.world, ctx);
       for (const id of idsOf(sim.world.actors)) {
         const p = sim.world.psyche.byActor[id];
         if (p) p.chosen = null;
       }
       activity.activitySystem(sim.world, ctx);
+      needs.needsSystem(sim.world, ctx);
       sim.world.time = (sim.world.time + 60) as typeof sim.world.time;
     });
   });

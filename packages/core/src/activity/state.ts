@@ -21,12 +21,14 @@ export interface ActorActivity {
   source: ActivitySource;
   /** In transit between places (T1 movement), else null. */
   travel: { from: PlaceId; to: PlaceId; arrive: GameMinute } | null;
+  /** Walking actually performed inside the last hourly interval (including a commute). */
+  hourlyWalk?: { at: GameMinute; minutes: number };
   /** Resolved workplace for `at = 'workplace'` activities. */
   workplaceId: PlaceId | null;
 }
 
 export interface MinuteBudget {
-  /** Activity awaiting lagged physiology when the first short order opened this hour. */
+  /** Legacy saved posture fields; current settlement uses activities and spent. */
   startActivity?: string | null;
   accountedActivity?: string | null;
   spent: number;

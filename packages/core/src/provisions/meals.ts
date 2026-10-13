@@ -5,7 +5,7 @@ import { provisionCalendar as calendarAt } from './calendar.ts';
 /** Shared meal kernel: runtime and readiness both consume this exact inventory/preparation model. */
 
 import type { PrepDef } from '@coulee/content/schema';
-import { reservePreparation } from '../activity/api.ts';
+import { isAsleep, reservePreparation } from '../activity/api.ts';
 import { skillCheck } from '../checks.ts';
 import type { ContentBundle, ItemDef } from '../content.ts';
 import { type Explain, intValue, term } from '../explain.ts';
@@ -731,6 +731,7 @@ export function serveMeal(
       (id) =>
         passMemo?.hypothetical ||
         (canAct(world, id) &&
+          !isAsleep(world, ctx, id) &&
           (caregiver !== undefined ||
             authorizeAct(
               world,
@@ -1201,7 +1202,7 @@ function finishMeal(world: World, ctx: SimContext, meal: PendingMeal): void {
       canAct(world, helper) &&
       world.actors[helper]?.placeId === meal.placeId &&
       authorizeAct(world, helper, { kind: 'aid' }, meal.caregiverBasis ?? { kind: 'own' }).ok;
-    if (actor.placeId !== meal.placeId || (!canAct(world, plate.id) && !assisted)) {
+    if (actor.placeId !== meal.placeId || ((!canAct(world, plate.id) || isAsleep(world, ctx, plate.id)) && !assisted)) {
       if (ctx.now < meal.completesAt + 1440) remaining.push(plate);
       continue;
     }
@@ -1270,14 +1271,14 @@ function thirstFromSalt(world: World, ctx: SimContext, id: ActorId, ml: number, 
     ],
   });
 }
-export function preparationHour(world: World, ctx: SimContext): void {
+export function preparationHour(world: World, ctx: SimContext, through: number = ctx.now): void {
   for (const fire of rowsOf(world.provisions.fires).filter((f) => processesPlace(world, f.placeId)))
     if ((fire.until ?? 0) <= ctx.now) {
       fire.lit = false;
       fire.fuelMinutes = 0;
     }
   for (const meal of world.provisions.pendingMeals ?? [])
-    if (processesPlace(world, meal.placeId) && meal.completesAt <= ctx.now) finishMeal(world, ctx, meal);
+    if (processesPlace(world, meal.placeId) && meal.completesAt <= through) finishMeal(world, ctx, meal);
   world.provisions.pendingMeals = (world.provisions.pendingMeals ?? []).filter((m) => m.plates.length > 0);
 }
 /** A plate is waiting for them (at `placeId` only, when given: a plate elsewhere does not hold them). */

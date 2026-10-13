@@ -148,7 +148,10 @@ describe('M5 walk to the neighbor', () => {
   });
   it('CLI road Appetite offers the carried-water drink command when there is no nearby source', () => {
     const session = PlaySession.create(content, { source: 'iron_ford_neighbors', seed: 42 });
-    for (const line of ['travel Cedar Farm', 'wait 3h']) {
+    const vitals = sessionSimOf(session).world.needs.byActor[session.playerId];
+    if (vitals) vitals.values.thirst = 600;
+    // Keep the need unmet so the test exercises a present thirst urge, not an already-satisfied one.
+    for (const line of ['standing drink off', 'travel Cedar Farm', 'wait 3h']) {
       const command = parseText(line, session.observe());
       if (typeof command === 'string') throw new Error(command);
       expect(session.act(command).ok).toBe(true);

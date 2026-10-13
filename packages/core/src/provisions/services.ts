@@ -79,7 +79,13 @@ export function admitSleep(world: World, ctx: SimContext, actorId: ActorId, plac
 export function settleBeds(world: World, ctx: SimContext): void {
   for (const actor of processingActors(world)) {
     const state = world.activity.byActor[actor.id];
-    if (!actor.alive || state?.travel || !ctx.content.activities[state?.activityId ?? '']?.asleep) continue;
+    if (
+      !actor.alive ||
+      state?.travel ||
+      !ctx.content.activities[state?.activityId ?? '']?.asleep ||
+      ctx.content.activities[state?.activityId ?? '']?.tags.includes('camp')
+    )
+      continue;
     const service = serviceAt(world, ctx.content, actor.placeId);
     if (service?.bed_cents === undefined) continue;
     const keeper = keeperAt(world, ctx.content, actor.placeId);

@@ -54,7 +54,7 @@ function roundTrip(s: PlaySession) {
   expect(result.ok, result.reason).toBe(true);
 }
 
-it('noon chopping still charges lagged hunger and rest after a short walk', () => {
+it('noon chopping charges immediately; a subsequent short walk adds only its own minutes', () => {
   const reference = noon();
   const walked = reference.fork(),
     idle = reference.fork();
@@ -66,26 +66,28 @@ it('noon chopping still charges lagged hunger and rest after a short walk', () =
   reference.advance(60);
   walked.advance(60);
   idle.advance(60);
-  expect(values(walked)).toEqual(values(reference));
+  expect(Math.abs(required(values(walked).rest) - required(values(reference).rest))).toBeLessThanOrEqual(2);
   expect(values(walked).hunger).toBeLessThan(required(values(idle).hunger));
   expect(values(walked).rest).toBeLessThan(required(values(idle).rest));
 });
 
-it('interleaved zero-effect round trips preserve needs across work and sleep transitions', () => {
+it('round trips replace a few minutes of work or sleep instead of preserving a lagged charge', () => {
   const reference = noon();
   const walked = reference.fork();
+  const differences: number[] = [];
   for (const next of ['chop_wood', 'idle_at_home', 'chop_wood', 'sleep']) {
     roundTrip(walked);
+    const beforeReference = required(values(reference).rest);
+    const beforeWalked = required(values(walked).rest);
     order(reference, next);
     order(walked, next);
-    expect(values(walked)).toEqual(values(reference));
-    expect(sessionSimOf(walked).world.needs.byActor[walked.playerId]?.hourly).toEqual(
-      sessionSimOf(reference).world.needs.byActor[reference.playerId]?.hourly,
-    );
+    const difference =
+      required(values(walked).rest) - beforeWalked - (required(values(reference).rest) - beforeReference);
+    differences.push(difference);
+    expect(Math.abs(difference)).toBeLessThanOrEqual(15);
   }
-  reference.advance(60);
-  walked.advance(60);
-  expect(values(walked)).toEqual(values(reference));
+  expect(differences[0]).toBeGreaterThan(0); // Walking replaces heavier chopping minutes.
+  expect(differences[3]).toBeLessThan(0); // Walking replaces restorative sleeping minutes.
   expect(findNonIntegers(sessionSimOf(walked).world)).toEqual([]);
 });
 
