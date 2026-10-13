@@ -1,5 +1,5 @@
 /** Paid labor is a claim on an employer's existing cash, never a money source. */
-import { currentActivity, tacticalPinned } from '../activity/api.ts';
+import { currentActivity, minuteBudget, tacticalPinned } from '../activity/api.ts';
 import { term } from '../explain.ts';
 import { type ActorId, type HouseholdId, rowsOf } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -59,7 +59,7 @@ export function employmentHour(world: World, ctx: SimContext): void {
     const activity = state?.activityId ? ctx.content.activities[state.activityId] : undefined;
     if (tacticalPinned(world, actor.id)) continue;
     if (state?.travel || state?.workplaceId !== actor.placeId || !activity?.tags.includes('labor')) continue;
-    const minutes = Math.min(60, 480 - account.minutes);
+    const minutes = Math.min(minuteBudget(world, actor.id).remaining, 480 - account.minutes);
     const numerator = minutes * (ctx.content.occupations[actor.occupationId]?.wage_cents_per_day ?? 0) + account.carry;
     account.earnedCents += Math.floor(numerator / 480);
     account.carry = numerator % 480;

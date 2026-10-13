@@ -225,7 +225,13 @@ it('sleep on open ground with bedding makes camp there: no walk, no paid bed', (
   expect(after.self.provisions.purseCents).toBe(purse);
   const log = JSON.parse(s.save()).world.log.events as Event[];
   expect(
-    log.some((e) => e.id > started && e.kind === 'provisions.cash_transfer' && e.data.reason === 'Tavern bed'),
+    log.some(
+      (e) =>
+        e.id > started &&
+        e.kind === 'provisions.cash_transfer' &&
+        e.data.fromId === s.playerId &&
+        e.data.reason === 'Tavern bed',
+    ),
   ).toBe(false);
 });
 

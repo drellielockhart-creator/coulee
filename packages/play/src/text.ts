@@ -2,8 +2,8 @@ import { asActorId, asItemId, type Command, explainLine, TICKS_PER_SECOND, timeV
 import type { AvailableAction } from './actions.ts';
 import { claimText, obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
-export const HELP = `One action = one game-hour; queries take no time, nor do settings (standing, agency, rations). Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on, or give any order (wake, drink, go) to get up.
-Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects use the previous hour's activity.
+export const HELP = `Short walks, purchase lines and chats spend minutes within the hour; long acts finish the hour. Settings (standing, agency, rations) and queries take no time. Sleep keeps you in bed at least 4 hours (8 when you camp); wait to sleep on, or give any order (wake, drink, go) to get up.
+Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects settle once per hour; a partly spent hour uses its dominant activity.
 Out on open ground with bedding, sleep makes camp where you stand; wait follows your lodging order, returning to a nearby paid or own bed when available.
 look | signs | investigate <sign id> | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
 buy <item> [qty] | sell <item> [qty] | eat <item> [servings] [method] | cook <item> [servings] [method]
@@ -142,7 +142,8 @@ ${o.epilogue ?? ''}`;
   const changes = o.changes;
   const addressed = changes.addressed ?? [];
   const lines = [
-    `Since last look: ${changes.elapsedTicks ? `${changes.elapsedTicks / TICKS_PER_SECOND}s passed` : changes.elapsed ? `${changes.elapsed / 60}h passed` : 'no time passed'}${changes.needs.length ? '; ' + changes.needs.join('; ') : ''}.`,
+    ...(o.tactical ? [] : [`${o.minuteBudget.remaining} min left in this hour (${o.minuteBudget.spent} spent).`]),
+    `Since last look: ${changes.elapsedTicks ? `${changes.elapsedTicks / TICKS_PER_SECOND}s passed` : changes.elapsed ? (changes.elapsed % 60 ? `${changes.elapsed} min passed` : `${changes.elapsed / 60}h passed`) : 'no time passed'}${changes.needs.length ? '; ' + changes.needs.join('; ') : ''}.`,
     ...changes.money.map((m) => `Money: purse ${cash(m.purse)}, household ${cash(m.household)} — ${m.reason}`),
     ...(changes.skipped
       ? [`Skipped ${changes.skipped} minor conversation${changes.skipped === 1 ? '' : 's'} nearby.`]

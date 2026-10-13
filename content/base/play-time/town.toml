@@ -1,0 +1,4 @@
+[[timing]]
+id = "town"
+walk_limit_minutes = 15
+purchase_minutes = 5

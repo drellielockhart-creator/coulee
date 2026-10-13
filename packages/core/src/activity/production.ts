@@ -6,11 +6,14 @@ import { affordanceAt, carriedBy, createStack, pantryOf } from '../items/api.ts'
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
+import { minuteBudget } from './api.ts';
 import { monthMatches } from './calendar.ts';
 import { tacticalPinned } from './tactical.ts';
 
 export function productionHour(world: World, ctx: SimContext): void {
   for (const actor of rowsOf(world.actors)) {
+    const minutes = minuteBudget(world, actor.id).remaining;
+    if (minutes === 0) continue;
     const state = world.activity.byActor[actor.id];
     const activity = state?.activityId ? ctx.content.activities[state.activityId] : undefined;
     if (tacticalPinned(world, actor.id)) continue;
@@ -49,7 +52,9 @@ export function productionHour(world: World, ctx: SimContext): void {
     for (const line of activity.yields) {
       if (!ctx.content.items[line.item] || !season || !suitable || !monthMatches(ctx.cal.month, line.months)) continue;
       const key = `${actor.id}:${activity.id}:${line.item}`;
-      const amount = (world.provisions.productionCarry[key] ?? 0) + line.tenths_per_hour * toolPct * checkPct;
+      const amount =
+        (world.provisions.productionCarry[key] ?? 0) +
+        Math.floor((line.tenths_per_hour * toolPct * checkPct * minutes) / 60);
       const qty = Math.floor(amount / 100000);
       world.provisions.productionCarry[key] = amount % 100000;
       if (qty > 0) {

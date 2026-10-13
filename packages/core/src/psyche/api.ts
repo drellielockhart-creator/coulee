@@ -8,6 +8,7 @@ import type { World } from '../world.ts';
 import { addToPools, anxietyBand, BAND_LABELS, composure, drainPools, type Pool } from './anxiety.ts';
 import { presentedTraits as presented } from './mind.ts';
 import type { ActorPsyche } from './state.ts';
+import { psycheHour } from './system.ts';
 import { fillLine, mergeCandidate, proposalCandidate } from './thoughts.ts';
 
 /** This hour's arbitration result for an actor (read by activity and social). */
@@ -173,3 +174,9 @@ export {
   standingOrders,
 } from './agency.ts';
 export * from './tactical.ts';
+
+/** Score a short explicit order with the ordinary Ego arbitration, without an hourly pass. */
+export function arbitrateShortCommand(world: World, ctx: SimContext, actorId: ActorId, minutes: number): void {
+  if (!ctx.commands.some((c) => c.actorId === actorId && c.kind === 'core.urge')) return;
+  psycheHour(world, ctx, actorId, undefined, minutes);
+}

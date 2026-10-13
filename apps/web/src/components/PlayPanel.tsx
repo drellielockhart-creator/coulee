@@ -3,7 +3,7 @@
  *
  * Everything here is read from the session's fair observation and every button sends one of the
  * session's own offered actions (ADR 0002 UI parity): the same ids and Commands the headless
- * REPL numbers. A refused order says why and costs no time; an accepted one takes its hour at
+ * REPL numbers. A refused order says why and costs no time; an accepted one spends its time at
  * once, and the "since your last order" digest says what came of it, in plain words.
  */
 
@@ -299,7 +299,9 @@ function MoveList({ actions, o, runner }: { actions: AvailableAction[]; o: PlayO
   const order = ['In town', 'Farms & fields', 'Roads & the river', 'Out in the country'];
   return (
     <div className="move">
-      <p className="hint">You are at {o.place.name}. A walk across town takes minutes; the hour is yours either way.</p>
+      <p className="hint">
+        You are at {o.place.name}. {o.minuteBudget?.remaining ?? 60} minutes remain in this hour.
+      </p>
       <label className="field search">
         <span className="visually-hidden">Find a place</span>
         <input type="search" placeholder="Find a place" value={q} onChange={(e) => setQ(e.target.value)} />

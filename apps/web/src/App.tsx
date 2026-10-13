@@ -473,10 +473,12 @@ function digestLine(play: PlayState): string {
 function Clock(props: { vm: ViewModel; chosen: Speed; effective: Speed; alerted: boolean }) {
   const frac = useProgress((s) => s.frac);
   const { vm } = props;
-  const minute = displayMinute(vm.time.minute, frac);
+  const budget = useSimCtx().play?.observation.minuteBudget;
+  const minute = Math.max(budget?.spent ?? 0, displayMinute(vm.time.minute, frac));
   return (
     <span className="clock" data-testid="clock" data-time={vm.time.t}>
       {String(vm.time.hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}{' '}
+      {budget && <span> · {budget.remaining} min left </span>}
       <span className="clock-policy" aria-hidden="true">
         {clockGlyph(props.chosen, props.effective, props.alerted)}
       </span>
@@ -503,7 +505,7 @@ function StatusLine(props: { play: PlayState; effective: Speed; chosen: Speed; a
         : last && last.elapsedMinutes > 0
           ? `${last.label}: done${last.warning ? `, but ${last.warning}` : ''}`
           : secs === null
-            ? 'Each order takes its hour at once; the clock waits for you'
+            ? 'Short orders spend minutes; the clock waits for you'
             : `Next hour in ~${secs} s`;
   return (
     <span className="orders" role="status" data-testid="status-line">

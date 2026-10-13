@@ -38,6 +38,28 @@ export function hourlyLedger(
   trace = true,
   intervalPart = false,
 ): HourlyLedger {
+  const accounted = world.activity.minuteBudgets?.[id]?.accountedActivity;
+  const current = world.activity.byActor[id];
+  if (accounted && current && current.activityId !== accounted) {
+    return hourlyLedger(
+      {
+        ...world,
+        activity: {
+          ...world.activity,
+          byActor: { ...world.activity.byActor, [id]: { ...current, activityId: accounted } },
+        },
+      },
+      content,
+      id,
+      key,
+      air,
+      placeTempF,
+      before,
+      inventory,
+      trace,
+      intervalPart,
+    );
+  }
   const interval = world.activity.journeys?.[id]?.interval;
   if (!intervalPart && interval?.at === world.time && interval.movingMinutes > 0 && interval.movingMinutes < 60) {
     const state = world.activity.byActor[id];

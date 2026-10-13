@@ -25,7 +25,16 @@ export interface ActorActivity {
   workplaceId: PlaceId | null;
 }
 
+export interface MinuteBudget {
+  accountedActivity?: string;
+  spent: number;
+  activities: Record<string, number>;
+}
+
 export interface ActivityState {
+  /** Created only by short orders; integer minutes within the current hourly tick. */
+  minuteBudgets?: Record<number, MinuteBudget>;
+
   tacticalPositions?: Record<number, import('../tactical/state.ts').Position>;
   journeys?: import('./travel.ts').Journeys;
   byActor: Table<ActorId, ActorActivity>;

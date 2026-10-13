@@ -10,7 +10,7 @@ import type { SimContext } from '../sim/context.ts';
 import { interactionAvailability, prepareReliefTravel, reliefReservations } from '../social/api.ts';
 import { addHours } from '../time.ts';
 import type { World } from '../world.ts';
-import { noteCall, resolveActivityPlace, walkMinutes } from './api.ts';
+import { minuteBudget, noteCall, resolveActivityPlace, walkMinutes } from './api.ts';
 import { blockActive, observanceActive, routineFor } from './calendar.ts';
 import { requiredRow } from './definitions.ts';
 import { activityExplain } from './explain.ts';
@@ -41,6 +41,8 @@ export function activitySystem(world: World, ctx: SimContext): void {
     const actor = requiredRow(world.actors, id);
     const state = world.activity.byActor[id];
     if (!actor.alive || !state) continue;
+    // Short orders already occupied this entire hour; do not add another walk or activity.
+    if (minuteBudget(world, id).remaining === 0) continue;
     if (onJourney(world, id)) {
       const cmd = ctx.commands.find(
         (c) => c.actorId === id && c.kind === 'core.urge' && c.data.urge.kind === 'activity',

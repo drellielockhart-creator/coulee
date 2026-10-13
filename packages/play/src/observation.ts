@@ -184,6 +184,7 @@ export function observation(
     epilogue: epilogue ?? null,
     mode,
     time: timeView(w.time),
+    minuteBudget: activity.minuteBudget(w, pc),
     scenario: w.meta.scenarioId,
     signs: fae.signs(w, pc),
     /** Fae charms as the character knows them (fair: own charms, found ones, believed keepers). */

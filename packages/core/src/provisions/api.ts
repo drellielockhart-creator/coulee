@@ -991,5 +991,5 @@ export function leaveRoadCamp(world: World, ctx: SimContext, id: ActorId): void 
 }
 export { creditLimitFor } from './economy.ts';
 export { type FoodParcel, householdFoodDays, type ReliefPlanningMemo, reliefParcel } from './relief.ts';
-
+export { executeProvisionCommands } from './system.ts';
 export * from './tactical.ts';
