@@ -1,3 +1,4 @@
+import { tacticalPinned } from '../activity/api.ts';
 /** Actor policy, independent of controller. Missing fields preserve legacy psyche saves/hashes. */
 
 import { walkMinutes } from '../activity/api.ts';
@@ -109,6 +110,14 @@ export function authorizeAct(
   act: Act,
   basis: Basis,
 ): { ok: true } | { ok: false; reason: string } {
+  if (
+    tacticalPinned(world, id) &&
+    !act.kind.startsWith('tactical.') &&
+    act.kind !== 'core.standing_orders' &&
+    act.kind !== 'activity.observe' &&
+    act.kind !== 'activity.wait'
+  )
+    return { ok: false, reason: 'Tactical scene owns this actor; finish or leave the scene first' };
   if (!world.actors[id]?.alive) return { ok: false, reason: 'No living actor' };
   const policy = agencyOf(world, id);
   if (basis.kind === 'own')

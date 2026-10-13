@@ -40,6 +40,8 @@ export interface World {
   meta: WorldMeta;
   /** Start of the next hour to simulate. */
   time: GameMinute;
+  tenth?: number;
+  tactical?: import('./tactical/state.ts').TacticalState;
   counters: { actor: number; household: number; place: number };
   actors: Table<ActorId, ActorCore>;
   households: Table<HouseholdId, Household>;

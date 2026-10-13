@@ -72,6 +72,8 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
   };
   const out = (text: string, routine = false): Described => ({ text, routine });
 
+  if (e.kind === 'tactical.danger' || e.kind === 'tactical.action' || e.kind === 'tactical.breathe')
+    return { text: e.data.text, routine: false };
   switch (e.kind) {
     case 'activity.started': {
       const d = e.data;

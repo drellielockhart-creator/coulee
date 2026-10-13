@@ -141,6 +141,9 @@ export function addressedToPC(content: ContentBundle, pc: ActorId, e: Event): bo
 }
 
 function classify(world: World, content: ContentBundle, pc: ActorId, e: Event): Interrupt {
+  if (e.kind === 'tactical.danger') return { ...background(e), category: 'danger', score: 1000, pause: true };
+  if (e.kind === 'tactical.action' && e.data.actorId === pc && e.data.phase === 'complete')
+    return { ...background(e), category: 'action', score: 800, pause: true };
   if (e.kind === 'activity.journey' && e.data.actorId === pc && (e.data.kind === 'camp' || e.data.kind === 'stopped'))
     return { ...background(e), category: 'arrival', score: 80, pause: true };
   const participant =

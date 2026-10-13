@@ -48,6 +48,7 @@ export interface EventBase {
   id: EventId;
   /** Game minute it happened (defaults to the start of the hour being simulated). */
   t: GameMinute;
+  tenth?: number;
   roles: EventRole[];
   place?: PlaceId;
   visibility: Visibility;

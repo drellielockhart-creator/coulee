@@ -1,4 +1,4 @@
-import { onJourney } from '../activity/api.ts';
+import { onJourney, tacticalPinned } from '../activity/api.ts';
 import { productionHour } from '../activity/production.ts';
 /** Meals, household economy, nutrition, storage and scheduled supplies; sixth in the hourly schedule. */
 import { commandsFor } from '../command.ts';
@@ -57,6 +57,7 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForec
   productionHour(world, ctx);
   settleBeds(world, ctx);
   for (const actor of rowsOf(world.actors)) {
+    if (tacticalPinned(world, actor.id)) continue;
     const activity = world.activity.byActor[actor.id];
     if (
       canAct(world, actor.id) &&
@@ -218,6 +219,7 @@ function provisionsHour(world: World, ctx: SimContext, forecast?: ProvisionForec
   }> = [];
   const perPoint = ctx.content.needs.hunger?.intake?.per_point ?? 3;
   for (const actor of rowsOf(world.actors)) {
+    if (tacticalPinned(world, actor.id)) continue;
     if (
       !canAct(world, actor.id) ||
       awaitingMeal(world, actor.id, actor.placeId) ||

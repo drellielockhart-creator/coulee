@@ -26,6 +26,7 @@ export interface ActorActivity {
 }
 
 export interface ActivityState {
+  tacticalPositions?: Record<number, import('../tactical/state.ts').Position>;
   journeys?: import('./travel.ts').Journeys;
   byActor: Table<ActorId, ActorActivity>;
   /** Place -> actor ids present, ascending. Recomputed every hour after movement. */

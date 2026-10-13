@@ -40,7 +40,7 @@ export function nutritionHour(world: World, ctx: SimContext): void {
     nutritionDay(world, ctx, actor, n);
     // The energy actually spent: this hour's activity at the hunger ledger (the needs pass applies
     // it next hour). Summed per day, it is what malnourishment compares intake against.
-    if (hunger?.intake) {
+    if (hunger?.intake && !world.tactical?.frame?.live.includes(actor.id)) {
       n.today.burnKcal =
         (n.today.burnKcal ?? 0) +
         hourlyExpenditure(world, ctx.content, actor.id, hunger.id, air) * hunger.intake.per_point;

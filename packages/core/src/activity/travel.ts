@@ -11,6 +11,7 @@ import type { SimContext } from '../sim/context.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
 import { recomputeOccupancy } from './state.ts';
+import { tacticalPinned } from './tactical.ts';
 import { type JourneyLeg, type TravelInterval, travelInterval } from './travel-rules.ts';
 export interface TravelOrder {
   destinationNodeId: string;
@@ -272,6 +273,7 @@ export function prepareJourneys(w: World, ctx: SimContext): void {
   if (!w.region) return;
   for (const command of ctx.commands) applyJourneyCommand(w, ctx, command);
   for (const id of idsOf<ActorId>(w.activity.journeys ?? {})) {
+    if (tacticalPinned(w, id)) continue;
     const j = w.activity.journeys?.[id],
       state = w.activity.byActor[id];
     if (!j || !state || j.status === 'arrived') continue;
@@ -304,6 +306,7 @@ export function prepareJourneys(w: World, ctx: SimContext): void {
 /** Activity commits distance only after needs and agency have admitted the actor. */
 export function advanceJourneys(w: World, ctx: SimContext): void {
   for (const id of idsOf<ActorId>(w.activity.journeys ?? {})) {
+    if (tacticalPinned(w, id)) continue;
     const j = w.activity.journeys?.[id];
     if (!j || j.status === 'arrived' || !j.interval || j.interval.at !== ctx.now) continue;
     if (!canAct(w, id) || !authorizeAct(w, id, { kind: 'activity.travel' }, j.basis).ok) {
@@ -321,6 +324,7 @@ export function advanceJourneys(w: World, ctx: SimContext): void {
 /** Supply kernels finish the road interval before exposing the destination hearth/water. */
 export function finishJourneys(w: World, ctx: SimContext, forecastWarning?: (reason: string) => void): void {
   for (const id of idsOf<ActorId>(w.activity.journeys ?? {})) {
+    if (tacticalPinned(w, id)) continue;
     const j = w.activity.journeys?.[id],
       a = w.actors[id],
       s = w.activity.byActor[id];

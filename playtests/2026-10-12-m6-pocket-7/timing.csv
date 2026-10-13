@@ -1,0 +1,9 @@
+sequence,command,start_tick,end_tick,elapsed_ticks,hash
+1,activity.wait,0,0,0,b7564cd2e13e050c
+2,tactical.move,0,0,0,0dc6fb247dbd27df
+3,tactical.cancel,0,0,0,504158f7dd7f544a
+4,tactical.advance,0,55,55,d14bf07582e5a9e2
+5,tactical.move,55,55,0,864ea9bf72a880f1
+6,tactical.advance,55,82,27,e72462bb1302961f
+7,tactical.advance,82,142,60,f4d1cb5269131544
+8,tactical.breathe,142,142,0,595acaa4d1e8d7fa

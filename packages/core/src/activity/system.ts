@@ -1,3 +1,4 @@
+import { tacticalPinned } from './tactical.ts';
 /** Execute the chosen activity, falling back to the content calendar. */
 
 import { type ActorId, idsOf } from '../ids.ts';
@@ -36,6 +37,7 @@ export function activitySystem(world: World, ctx: SimContext): void {
   for (const cmd of ctx.commands) if (cmd.kind.startsWith('fae.') && cmd.kind !== 'fae.signs') invited.add(cmd.actorId);
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   for (const id of idsOf<ActorId>(world.actors)) {
+    if (tacticalPinned(world, id)) continue;
     const actor = requiredRow(world.actors, id);
     const state = world.activity.byActor[id];
     if (!actor.alive || !state) continue;

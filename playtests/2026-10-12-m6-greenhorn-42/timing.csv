@@ -1,0 +1,4 @@
+sequence,command,start_tick,end_tick,elapsed_ticks,hash
+1,activity.wait,0,0,0,1f1026d25dda8f36
+2,tactical.guard,0,0,0,b575219bd79e9e5f
+3,tactical.advance,0,33,33,5da90f8beffa0258
