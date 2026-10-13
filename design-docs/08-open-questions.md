@@ -38,6 +38,12 @@ These answers unblock M4 provisions/Outfitter, M5a worldgen, M5 travel, M6 comba
     - no adjacent-county simulation; the county seat is off-map;
     - fae time-slip forward only, capped at 144 h, noncombat;
     - if phone performance misses by 3× or more, come back with options rather than silently shrinking the population.
+15. **M6 combat** ([M6 plan §7](../docs/impl/M6-PLAN.md); this refines Q04 above). Recommended defaults:
+    - **Clock and pausing:** a tenth-second tactical clock with auto-pause and auto-Tactical.
+    - **Lethality:** a level-1 musket hit can kill. There's an explicit Dying/stabilization state and no secret protagonist protection, and you see lethality distributions before final tuning.
+    - **Health:** keep today's Vigor baseline; class and Hit Dice migration waits for M7.
+    - **Firearms:** a three-gun subset with a retained-charge misfire model, after settling 03's percussion squirrel rifle vs 02's flint-like misfire row.
+    - **Law:** a minimal inquiry/arrest/hearing loop; organized hunts and combat-assist UI come later.
 
 ## Already answered
 
