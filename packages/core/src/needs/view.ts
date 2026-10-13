@@ -34,6 +34,7 @@ export interface NeedsActorView {
   list: NeedView[];
   survival?: {
     vigor: number;
+    nonlethal?: number;
     maxVigor: number;
     wounds: number;
     woundLimit: number;
@@ -96,6 +97,7 @@ export function viewNeedsActor(
     ...(a
       ? {
           survival: {
+            ...(n?.combat ? { nonlethal: n.combat.nonlethal } : {}),
             vigor: s?.vigor ?? maxVigor(world, content, actorId),
             maxVigor: maxVigor(world, content, actorId),
             wounds: s?.wounds ?? 0,

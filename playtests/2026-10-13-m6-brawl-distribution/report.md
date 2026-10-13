@@ -7,12 +7,23 @@ No actor stats, health, AI policy or RNG were modified. Outcome counters are pos
 
 | At least one outcome per brawl | Count | Rate |
 | --- | ---: | ---: |
-| Knockout | 270 | 27.0% |
-| Light nonbleeding bruise | 84 | 8.4% |
+| Knockout | 257 | 25.7% |
+| Light nonbleeding bruise | 83 | 8.3% |
 | Death | 0 | 0.0% |
 
-Knockout/bruise rows can overlap. Endings are exclusive: 519 flight, 270 knockout,
-211 accepted submission; no unfinished trials. Mean time to the ending: 16.7035 seconds.
+Cross-model review rerun (rules version 3): one Composure save per hit, NPCs close distance,
+blocked flight reconsiders, and mutual submission settles. Knockout/bruise rows can overlap.
+
+| Exclusive ending | Count | Rate |
+| --- | ---: | ---: |
+| Flight | 382 | 38.2% |
+| Knockout | 257 | 25.7% |
+| Accepted submission | 361 | 36.1% |
+| Peace | 0 | 0.0% |
+| Unfinished | 0 | 0.0% |
+
+Mean time to the ending: **15.2401 seconds** (previous rules: 16.7035 seconds).
+The previous distribution was 519 flights, 270 knockouts and 211 accepted submissions.
 Nonlethal criticals make light bruises; the current unarmed model contains no lethal accident
 rule. This is a distribution for this fixture and explicit attack policy, not firearm tuning.
 Vigor is unchanged from the pre-M7 rules, and all actors use the same health paths.

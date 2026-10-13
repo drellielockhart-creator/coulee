@@ -6,6 +6,7 @@ import { type ActorId, idsOf } from '../ids.ts';
 import { mixKey } from '../rng.ts';
 import { instantOf } from '../sim/clock.ts';
 import type { SimContext } from '../sim/context.ts';
+import { asGameMinute } from '../time.ts';
 import type { World } from '../world.ts';
 import { survivalOf } from './survival.ts';
 import { die } from './survival-social.ts';
@@ -20,6 +21,7 @@ export interface CombatHealth {
   failures: number;
   nextDying: number | null;
   nextRecovery: number | null;
+  wakeAt?: number | null;
 }
 export function healthOf(w: World, id: ActorId): Readonly<CombatHealth> | undefined {
   return w.needs.byActor[id]?.combat;
@@ -90,6 +92,7 @@ export function applyHit(
     if (h.burden + s.wounds >= con && !h.dying) {
       h.dying = true;
       h.stable = false;
+      h.wakeAt = null;
       h.failures = 0;
       h.nextDying = instantOf(w) + t.dying_ticks;
     }
@@ -134,7 +137,8 @@ export function nextCombatHealthInstant(w: World): number | undefined {
   for (const id of idsOf<ActorId>(w.needs.byActor)) {
     if (!w.actors[id]?.alive) continue;
     const h = healthOf(w, id);
-    for (const at of [h?.nextDying, h?.nextRecovery]) if (at != null && (next === undefined || at < next)) next = at;
+    for (const at of [h?.nextDying, h?.nextRecovery, h?.wakeAt])
+      if (at != null && (next === undefined || at < next)) next = at;
   }
   return next;
 }
@@ -146,7 +150,7 @@ export function advanceCombatHealth(w: World, ctx: SimContext): void {
     const h = w.needs.byActor[id]?.combat,
       a = w.actors[id];
     if (!h || !a?.alive) continue;
-    if (h.nextDying !== null && h.nextDying <= now && h.dying) {
+    while (h.nextDying !== null && h.nextDying <= now && h.dying) {
       const at = h.nextDying;
       const roll = resolveCheck(
         {
@@ -157,7 +161,8 @@ export function advanceCombatHealth(w: World, ctx: SimContext): void {
           terms: saveTerms(a, 'fortitude'),
           dc: t.dying_dc,
         },
-        ctx.rng('needs', mixKey(id, at, 0xd1e)),
+        ctx.rngAt?.('needs', asGameMinute(Math.floor(at / 600)), mixKey(id, at, 0xd1e)) ??
+          ctx.rng('needs', mixKey(id, at, 0xd1e)),
       );
       if (!roll.success) h.failures++;
       h.nextDying += t.dying_ticks;
@@ -177,8 +182,21 @@ export function advanceCombatHealth(w: World, ctx: SimContext): void {
       }
     }
     if (h.nextRecovery !== null && h.nextRecovery <= now) {
-      h.nonlethal = Math.max(0, h.nonlethal - 1);
-      h.nextRecovery = h.nonlethal > 0 ? h.nextRecovery + t.nonlethal_recovery_ticks : null;
+      const intervals = 1 + Math.floor((now - h.nextRecovery) / t.nonlethal_recovery_ticks);
+      h.nonlethal = Math.max(0, h.nonlethal - intervals);
+      h.nextRecovery = h.nonlethal > 0 ? h.nextRecovery + intervals * t.nonlethal_recovery_ticks : null;
+    }
+    if (h.stable && h.wakeAt == null) h.wakeAt = now + t.nonlethal_recovery_ticks;
+    if (h.stable && h.wakeAt != null && h.wakeAt <= now) {
+      h.stable = false;
+      h.wakeAt = null;
+      ctx.emit({
+        kind: 'needs.combat_health',
+        data: { actorId: id, text: 'Stable recovery: wakes from injury unconsciousness.' },
+        roles: [{ actor: id, role: 'subject' }],
+        place: a.placeId,
+        visibility: 'witnessed',
+      });
     }
     conditions(w, id);
   }
@@ -202,6 +220,7 @@ export function stabilize(w: World, ctx: SimContext, helper: ActorId, target: Ac
   if (roll.success) {
     h.dying = false;
     h.stable = true;
+    h.wakeAt = instantOf(w) + (ctx.content.combat_rules.brawl?.nonlethal_recovery_ticks ?? 36000);
     h.nextDying = null;
   }
   conditions(w, target);

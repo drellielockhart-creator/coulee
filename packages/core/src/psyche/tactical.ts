@@ -14,17 +14,25 @@ import type { SimContext } from '../sim/context.ts';
 import { addAnxiety, composureOf } from './api.ts';
 
 /** Saved, source-specific fear; only new transitions roll, never observations or resumes. */
-export function brawlFear(w: World, ctx: SimContext, id: ActorId, episode: number, trigger: string): void {
+export function brawlFear(
+  w: World,
+  ctx: SimContext,
+  id: ActorId,
+  episode: number,
+  trigger: string,
+  also: string[] = [],
+): void {
   const p = w.psyche.byActor[id],
     a = w.actors[id];
   if (!p || !a) return;
-  const key = `${w.tactical?.sceneId}:${episode}:${trigger}`;
+  const keys = [trigger, ...also].map((t) => `${w.tactical?.sceneId}:${episode}:${t}`);
   p.combatFear ??= { triggers: [], shaken: false };
-  if (p.combatFear.triggers.includes(key)) return;
-  p.combatFear.triggers.push(key);
+  const fresh = keys.filter((key) => !p.combatFear?.triggers.includes(key));
+  if (!fresh.length) return;
+  p.combatFear.triggers.push(...fresh);
   const roll = resolveCheck(
     {
-      label: `Composure: ${trigger}`,
+      label: `Composure: ${fresh.map((key) => key.slice(key.lastIndexOf(':') + 1)).join(' / ')}`,
       kind: 'save',
       subjects: [id],
       knowledge: 'self',
@@ -51,10 +59,18 @@ export function brawlFear(w: World, ctx: SimContext, id: ActorId, episode: numbe
     explain: roll.explain,
   });
 }
-export function endBrawlFear(w: World, id: ActorId): void {
+export function endBrawlFear(w: World, id: ActorId, endedEpisode?: number): void {
   const p = w.psyche.byActor[id],
     a = w.actors[id];
-  if (p?.combatFear) p.combatFear.shaken = false;
+  if (p?.combatFear && endedEpisode !== undefined) {
+    const prefix = `${w.tactical?.sceneId}:${endedEpisode}:`;
+    p.combatFear.triggers = p.combatFear.triggers.filter((key) => !key.startsWith(prefix));
+    return;
+  }
+  if (p?.combatFear) {
+    p.combatFear.shaken = false;
+    p.combatFear.triggers = [];
+  }
   if (a) setCondition(a, 'combat_shaken', false);
 }
 export function brawlIntent(

@@ -1,4 +1,4 @@
-/** One social handoff per pair/episode, independent of the rolling event window. */
+/** One social handoff per pair/scene, independent of the rolling event window. */
 import type { ActorId, EventId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -20,6 +20,13 @@ export function recordCombatOutcome(
 ): boolean {
   w.social.combatIncidents ??= {};
   if (w.social.combatIncidents[incident.key]) return false;
+  // Keep a bounded recent archive; active-scene deduplication also lives on its episodes.
+  const keys = Object.keys(w.social.combatIncidents).sort(
+    (a, b) =>
+      (w.social.combatIncidents?.[a]?.at ?? 0) - (w.social.combatIncidents?.[b]?.at ?? 0) ||
+      (a < b ? -1 : a > b ? 1 : 0),
+  );
+  for (const key of keys.slice(0, Math.max(0, keys.length - 255))) delete w.social.combatIncidents[key];
   w.social.combatIncidents[incident.key] = { ...incident, at: ctx.now };
   noteStrife(w, ctx, incident.a, incident.b, true, incident.eventId, areKin(w, incident.a, incident.b));
   for (const id of incident.witnesses) {
@@ -45,16 +52,19 @@ export function recordCombatOutcome(
       aboutId: other,
     });
     if (memory && (id === incident.a || id === incident.b)) {
-      const delta = ctx.content.interactions.fight?.success.target_opinion;
+      const delta =
+        id === incident.b
+          ? ctx.content.interactions.fight?.success.target_opinion
+          : ctx.content.interactions.fight?.success.initiator_opinion;
       addOpinionReason(w, ctx, id, other, {
         label: incident.text,
         cites: { kind: 'memory', id: memory },
         since: ctx.now,
         delta: {
-          affection: delta?.affection ?? -10,
-          respect: delta?.respect ?? 3,
+          affection: delta?.affection ?? (id === incident.b ? -10 : 0),
+          respect: delta?.respect ?? (id === incident.b ? 3 : 0),
           trust: delta?.trust ?? 0,
-          fear: delta?.fear ?? 10,
+          fear: delta?.fear ?? (id === incident.b ? 10 : 0),
         },
       });
     }

@@ -13,7 +13,7 @@ import type { Command } from '../command.ts';
 import type { ContentBundle } from '../content.ts';
 import { appendEvent, type Event, type EventInput, trimLog } from '../events/index.ts';
 import { hashValue } from '../hash.ts';
-import { canAct } from '../needs/api.ts';
+import { advanceCombatHealth, canAct } from '../needs/api.ts';
 import { authorizeAct } from '../psyche/api.ts';
 import { rng, type Stream } from '../rng.ts';
 import { type PackedJson, unpackJson } from '../serialization.ts';
@@ -48,7 +48,11 @@ export function restoreSim(
   opts: { allowContentMismatch?: boolean } = {},
 ): Sim {
   const world = unpackJson<World>(saved);
-  if (world.tactical && world.tactical.version !== 1) throw new Error('Unsupported tactical clock version');
+  if (
+    (world.tactical && world.tactical.version !== 1) ||
+    (world.backgroundTactical && world.backgroundTactical.version !== 1)
+  )
+    throw new Error('Unsupported tactical clock version');
   if (!opts.allowContentMismatch && world.meta.contentHash !== content.meta.hash) {
     throw new Error(
       `content hash mismatch: world ${world.meta.contentHash.slice(0, 12)} vs bundle ${content.meta.hash.slice(0, 12)}`,
@@ -80,18 +84,27 @@ export function makeContext(
     rng: (stream: Stream, key: number) => rng(seed, stream, now, key),
     emit: sink
       ? (e: EventInput) => {
-          const id = appendEvent(world.log, world.tactical ? { ...e, tenth: world.tenth ?? 0 } : e, now);
+          const id = appendEvent(
+            world.log,
+            world.tactical || world.backgroundTactical ? { ...e, tenth: world.tenth ?? 0 } : e,
+            now,
+          );
           sink(world.log.events[world.log.events.length - 1] as Event);
           return id;
         }
-      : (e: EventInput) => appendEvent(world.log, world.tactical ? { ...e, tenth: world.tenth ?? 0 } : e, now),
+      : (e: EventInput) =>
+          appendEvent(
+            world.log,
+            world.tactical || world.backgroundTactical ? { ...e, tenth: world.tenth ?? 0 } : e,
+            now,
+          ),
   };
 }
 
 /** Simulate one game-hour. */
 export function step(sim: Sim, commands: readonly Command[] = []): void {
   admitScriptedScene(sim);
-  if (sim.world.tactical) {
+  if (sim.world.tactical || sim.world.backgroundTactical) {
     advanceUntil(sim, instantOf(sim.world) + TICKS_PER_HOUR, commands);
     return;
   }
@@ -101,6 +114,7 @@ export function step(sim: Sim, commands: readonly Command[] = []): void {
 export function stepHourly(sim: Sim, commands: readonly Command[] = [], logCommands = true): void {
   const { world, content } = sim;
   const ctx = makeContext(world, content, commands, sim.sink);
+  advanceCombatHealth(world, ctx);
   announceDay(ctx);
   for (const command of logCommands ? commands : []) {
     ctx.emit({
@@ -124,6 +138,7 @@ export function stepHourly(sim: Sim, commands: readonly Command[] = [], logComma
   // The chronicle (last system) has sifted everything up to lastId: older events may leave memory.
   if (ctx.isNewDay) trimLog(world.log, ctx.now);
   world.time = asGameMinute(world.time + 60);
+  advanceCombatHealth(world, makeContext(world, content, [], sim.sink));
 }
 
 /** Calendar announcement shared by legacy hours and open tactical frames. */

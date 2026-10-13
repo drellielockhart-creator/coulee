@@ -799,7 +799,7 @@ clock/module. Combat tuning is owned in `content/src/schema/combat.ts` and `cont
 fixtures are `tavern_instant` and `tavern_brawl`, with acceptance in `cli/test/brawl.test.ts`.
 `Action` adds melee, grapple/escape, yield/accept, parley, reachable flee, stabilization and
 bounded reaction orders. Optional saved brawl episodes deduplicate the social handoff by
-scene/pair/episode. Explicit commands authorize one action (or the cells of one flee route);
+scene/pair. Explicit commands authorize one action (or the cells of one flee route);
 no commanded retaliation is implied. Commitment revalidates the saved issuer.
 
 Condition owners: tactical owns Grabbed/Held/Pinned and existing Unready; psyche owns
@@ -812,8 +812,16 @@ of an authored door; no coordinate/actor place writes occur in the tactical owne
 
 `psyche.api.brawlFear/brawlIntent/endBrawlFear` owns transition-deduplicated morale and NPC
 choices. `social.api.recordCombatOutcome` owns durable incidents, memories, opinions and
-one `noteStrife` stamp per pair/episode. `chronicle.api.recordFight` persists the witnessed
+one `noteStrife` stamp per pair/scene. `chronicle.api.recordFight` persists the witnessed
 summary synchronously. Play supplies fair menu/parser/interrupt additions; the existing web
-TacticalTimeline renders these same actions. Replay rules version 2 identifies the new
-behavior; version-1 journals are explicitly rejected. Noncombat snapshots remain additive.
+TacticalTimeline renders these same actions. Replay rules version 3 identifies the reviewed
+behavior; version-1 and version-2 journals are explicitly rejected. Noncombat snapshots remain additive.
 See `M6-SLICE2.md` for the outcome distribution, fair transcripts and exact file inventory.
+
+
+M6 slice 2 review adds `World.backgroundTactical`: Breathe removes active tactical state while
+retaining the open clock frame and any remote brawl deadlines. The shared advancement driver
+restores this state only while executing, then parks it again; saves remain plain data.
+Needs owns Stable's `wakeAt` deadline and hourly recovery outside scenes. Fear trigger retention
+ends with each episode; social retains at most 256 incidents, with per-scene episode stamp flags
+preserving pair deduplication beyond archive eviction.

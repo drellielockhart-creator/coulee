@@ -20,7 +20,7 @@ import { announceDay, makeContext, type Sim, stepHourly } from './sim.ts';
 export function admitScriptedScene(sim: Sim): boolean {
   const w = sim.world,
     def = sim.content.scenarios[w.meta.scenarioId]?.tactical_scene;
-  if (!def || w.tactical || w.time < def.at_minute || w.time % 60 !== 0) return false;
+  if (!def || w.tactical || w.backgroundTactical || w.time < def.at_minute || w.time % 60 !== 0) return false;
   const place = w.index.placeByDef[def.place];
   if (!place) return false;
   const ids = idsOf<ActorId>(w.actors).filter(
@@ -39,7 +39,28 @@ export interface AdvanceResult {
   elapsedTicks: number;
   interrupted: boolean;
 }
+/** Keep ordinary orders free of tactical UI state without discarding partial-hour accounting. */
 export function advanceUntil(
+  sim: Sim,
+  target: number,
+  commands: readonly Command[] = [],
+  interrupt?: (events: Event[]) => boolean,
+): AdvanceResult {
+  const w = sim.world;
+  if (!w.tactical && w.backgroundTactical) {
+    w.tactical = w.backgroundTactical;
+    delete w.backgroundTactical;
+  }
+  try {
+    return advanceScene(sim, target, commands, interrupt);
+  } finally {
+    if (w.tactical && !w.tactical.active) {
+      w.backgroundTactical = w.tactical;
+      delete w.tactical;
+    }
+  }
+}
+function advanceScene(
   sim: Sim,
   target: number,
   commands: readonly Command[] = [],
@@ -89,7 +110,7 @@ export function advanceUntil(
         end: now + TICKS_PER_HOUR,
         phase: 'open',
         commands: s.pendingCommands.splice(0),
-        live: s.active ? idsOf<ActorId>(s.participants) : [],
+        live: s.active || s.heap.length ? idsOf<ActorId>(s.participants) : [],
         rates: {},
         activeRates: {},
         carries: {},

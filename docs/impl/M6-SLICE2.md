@@ -11,7 +11,7 @@ existing Vigor; it introduces no firearm executor or protagonist protection.
   Vigor knocks an actor unconscious. Criticals only create light, nonbleeding bruises.
 - Timed Grabbed → Held → Pinned contests, defender-wins-ties checks, escape/release and
   restrained movement. Conditions use the existing deduplicating setter.
-- Source-specific Shaken (−2), deduplicated first-blow/half-stamina/restraint morale,
+- Source-specific Shaken (−2), deduplicated first-blow/half-stamina/restraint morale (at most one save per hit),
   anxiety and private Explains. NPCs choose attack, escape, flight or submission from the
   same health/agency state. Fear never orders a commanded actor to act.
 - Yield stops pending nonlethal blows immediately on commitment; acceptance completes
@@ -28,16 +28,16 @@ existing Vigor; it introduces no firearm executor or protagonist protection.
   threshold injury contribution, burden, Spent/Staggered and explicit Dying. Dying is unconscious,
   checks Fortitude DC 15 every 600 tenths from injury onset, and dies after three accumulated
   failures through the existing `die` path. A 600-tenth Medicine DC 15 action stabilizes.
-  Stable patients remain unconscious; hunger recovery cannot clear combat incapacity.
+  Stable patients wake after one recovery interval (one hour); hunger recovery cannot clear combat incapacity. Dying and nonlethal recovery also advance during ordinary hours.
 - A durable social incident applies memories/opinion reasons and `noteStrife` once per
-  pair/episode, not per punch. Chronicle stores one witnessed summary before log eviction.
+  pair/scene, not per punch or restarted episode. Chronicle stores one witnessed summary before log eviction.
   A quarrel stopped before any attack/grapple contest produces no false fight stamp.
 - Fair headless menus/parser expose attack, grapple, escape, yield, accept, parley (`break up`),
   flee, stabilize, reaction/revoke, and existing move/guard/cancel/resume/breathe. Own health
   appears in the timeline. Public checks show outcomes while private enemy modifiers, Defense,
   initiative and queued intentions remain withheld. The existing 56px web action buttons
   consume this shared menu and interruption policy.
-- Replay headers use engine `m6-slice2`, rules 2 and clock 1. Explicit version-1 journals
+- Replay headers use engine `m6-slice2`, rules 3 and clock 1. Explicit version-1 and version-2 journals
   are rejected; the saved world shape remains additive and clock format 1 stays intact.
 
 `tavern_instant` lets the PC start a conflict. `tavern_brawl` seeds a fight between existing
@@ -53,7 +53,7 @@ bounded/revoked reactions, real flight and saves, fair disclosure/replay, seeded
 checks, Dying deadlines, stabilization and death. Existing tactical/worker parity tests
 remain in the full gate. Golden files are unchanged.
 
-Full gate: **green** (`VITEST_MAX_WORKERS=4 just check`): **83 files / 864 tests** in
+Original implementation gate: **green** (`VITEST_MAX_WORKERS=4 just check`): **83 files / 864 tests** in
 810.16 seconds, plus Biome, all package/script typechecks, invariants (243 files) and
 content validation (112 files). `git diff --check` is clean. Gate transcript:
 `runs/scratch/m6-check-green.log`.
@@ -64,12 +64,12 @@ Counts are brawls with at least one such outcome; bruises and knockouts can over
 
 | Outcome | Brawls | Rate |
 | --- | ---: | ---: |
-| Knockout | 270 | 27.0% |
-| Injury: light nonbleeding bruise | 84 | 8.4% |
+| Knockout | 257 | 25.7% |
+| Injury: light nonbleeding bruise | 83 | 8.3% |
 | Death | 0 | 0.0% |
 
-Exclusive endings: 519 flights, 270 knockouts, 211 accepted submissions, zero unfinished.
-Mean ending time: 16.7035 seconds. Repeating the run produced identical counts. These are
+Review rerun, rules 3: **382 flights, 257 knockouts, 361 accepted submissions, zero unfinished**.
+Mean ending time: **15.2401 seconds**. The previous implementation had 519 flights, 270 knockouts and 211 submissions. These are
 fixture/policy results, not firearm lethality tuning; unarmed accidents are not modeled.
 [Seed rows and executable reproduction](../../playtests/2026-10-13-m6-brawl-distribution/report.md).
 
@@ -172,3 +172,51 @@ phone-performance certification is claimed. Melee in this slice is unarmed.
 - `playtests/2026-10-13-m6-socialite-7/metrics.jsonl`
 - `playtests/2026-10-13-m6-socialite-7/report.md`
 - `playtests/2026-10-13-m6-socialite-7/transcript.txt`
+
+
+## Cross-model review fixes (2026-10-13)
+
+The fair transcripts above are historical rules-2 runs; rules-3 replay deliberately rejects
+them. The new regression coverage reuses reviewer `runs/scratch/rv-a.ts` through `rv-g.ts`.
+The Monte Carlo table and CSV above are the new rules-3 measurements.
+
+| Finding | Fix | Regression in `cli/test/brawl.test.ts` |
+| --- | --- | --- |
+| Blocked flee continuation | Failed continuation calls `decideBrawl` | Exhaustive idle/flight policies, seeds 1–300, including route seed 209 |
+| Simultaneous yields | Mutual submission settles as peace | Both yields wind up together; seeds 65/145/165 in sweep |
+| Fled player trapped | Breathe uses the fled actor's recovery and six quiet seconds | Remote fight, save/resume, ordinary wait; all 600 sweep cases leave Tactical within 6,000 ticks |
+| Attack then parley | Other fighters consult `brawlIntent`; participant menu says Offer peace | Healthy NPC refuses successful Persuade; willing NPC accepts; commanded opponent retains choice |
+| Repeated fight stamps | One pair/scene stamp, including reversed pair order; episode keeps deduplication past archive eviction | Four restarted episodes produce one strife stamp |
+| Step forces yield | NPC takes a reachable closing step, or guards if blocked | Step-away regression; new 1,000-seed ending distribution |
+| Permanent Stable | One-hour wake deadline; existing injury burden and Vigor loss remain | Deadline-minus-one stays unconscious; deadline wakes |
+| Recovery requires Tactical | Ordinary hourly adapter advances all overdue health deadlines | Nonlethal clears; Dying reaches the ordinary death path without scene state |
+| Replay version collision | Rules version 3 | Versions 1 and 2 reject; rules-3 save/replay hashes agree |
+| Retired scene blocks ordinary orders | Breathe parks the clock in additive `World.backgroundTactical`, clears `World.tactical`; the shared driver resumes background work | Partial hour survives Breathe (`tactical.test.ts`), short core advancement and background save hashes match |
+| Symmetric opinions | Target and initiator use their respective content opinion deltas | Only victim gains the authored fear delta |
+| Double morale saves | Combine same-hit transitions in one Composure roll | One save for first blow plus half stamina |
+| Unbounded combat archives | Drop fear triggers as episodes end; keep at most 256 social incidents | Cleared fear; 300 handoffs retain 256 incidents |
+| Main Street shown as home | Flight clears the previous activity to location-neutral idle | Paid flight leaves Main Street with no home activity |
+| Unreadable Explain and bruising | Recursively render visible child checks with signed modifiers/DC; expose own nonlethal in status | God detail has DC; fair detail withholds enemy Defense; status shows bruised 3 |
+
+The background clock retains the open-hour accounting rather than rounding elapsed time.
+NPC fights continue after a bystander leaves; no NPC actions are silently discarded.
+This branch does not contain main's `play/minutes.ts`; clearing `world.tactical` removes its
+scene-presence blocker. Main's authored-scenario opt-out remains an independent policy.
+
+Review revision files (in addition to this document):
+
+- `packages/core/src/tactical/{api,brawl,spatial,state,system,view}.ts`
+- `packages/core/src/needs/{combat,view}.ts`
+- `packages/core/src/psyche/tactical.ts`, `packages/core/src/social/combat.ts`
+- `packages/core/src/activity/tactical.ts`, `packages/core/src/world.ts`
+- `packages/core/src/sim/{advance,sim}.ts`
+- `packages/play/src/{session,tactical,text}.ts`
+- `packages/cli/test/{brawl,tactical}.test.ts`
+- `playtests/2026-10-13-m6-brawl-distribution/{report.md,seeds.csv}`
+
+Validation: **green**, `VITEST_MAX_WORKERS=2 just check`: **83 files / 874 tests** in
+728.41 seconds, plus Biome, all package/script typechecks, invariants (243 files), and
+content validation (112 files). Transcript: `runs/scratch/m6-review-check.log`.
+The final background-scene tests also pass independently. An ordinary-command replay across
+Breathe, save/load and a one-hour wait matches hash `35fdd4aaa938f632` (scratch reproduction:
+`runs/scratch/review-retired-replay.ts`). `git diff --check` is clean. No golden update and no commit.

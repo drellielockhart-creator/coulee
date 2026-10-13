@@ -8,7 +8,10 @@ export function tacticalPosition(w: World, id: ActorId): Position | undefined {
 }
 export function tacticalPinned(w: World, id: ActorId): boolean {
   return (
-    (!!w.tactical?.active && !!w.tactical.participants[id] && !w.tactical.participants[id]?.fled) ||
+    (!!w.tactical &&
+      (w.tactical.active || !!w.tactical.brawls?.some((b) => b.endedAt === undefined && (b.a === id || b.b === id))) &&
+      !!w.tactical.participants[id] &&
+      !w.tactical.participants[id]?.fled) ||
     (w.tactical?.frame?.phase === 'settling' && w.tactical.frame.live.includes(id))
   );
 }
@@ -44,7 +47,7 @@ export function leaveTactical(w: World, id: ActorId, placeId: PlaceId): boolean 
   actor.placeId = placeId;
   state.placeId = placeId;
   state.travel = null;
-  state.activityId = 'idle_at_home';
+  state.activityId = null;
   if (w.activity.tacticalPositions) delete w.activity.tacticalPositions[id];
   recomputeOccupancy(w);
   return true;

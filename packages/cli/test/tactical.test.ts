@@ -1,8 +1,10 @@
 import {
+  type ActorId,
   activity,
   advanceUntil,
   asGameMinute,
   findNonIntegers,
+  idsOf,
   instantOf,
   makeContext,
   psyche,
@@ -230,9 +232,24 @@ describe('M6 pause at a real instant', () => {
     expect(session.act({ kind: 'tactical.breathe', actorId: id, data: {} }).ok).toBe(true);
     expect(instantOf(sim.world)).toBe(60);
     advanceUntil(sim, TICKS_PER_HOUR);
-    expect(sim.world.tactical?.frame?.elapsed[id]).toBe(TICKS_PER_HOUR);
-    expect(sim.world.tactical?.frame?.phase).toBe('settled');
+    expect(sim.world.tactical).toBeUndefined();
+    expect(sim.world.backgroundTactical?.frame?.elapsed[id]).toBe(TICKS_PER_HOUR);
+    expect(sim.world.backgroundTactical?.frame?.phase).toBe('settled');
     expect(sim.world.log.events.filter((e) => e.kind === 'core.day_started')).toHaveLength(1);
+    const retired = sim.world.backgroundTactical;
+    if (!retired) throw Error('no retired clock');
+    expect(
+      tactical.requestEncounter(
+        sim.world,
+        makeContext(sim.world, sim.content, []),
+        'next-scene',
+        retired.placeId,
+        idsOf<ActorId>(retired.participants),
+        'A second encounter.',
+      ),
+    ).toBe(true);
+    expect(sim.world.backgroundTactical).toBeUndefined();
+    expect(sim.world.tactical?.sceneId).toBe('next-scene');
   });
   it('only boundary admission and living colocated IDs; no own-action authorization for commanded sheets', () => {
     const { sim, id } = enter();

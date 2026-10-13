@@ -1,7 +1,6 @@
 import {
   activity,
   advanceUntil,
-  asActorId,
   findNonIntegers,
   instantOf,
   makeContext,
@@ -10,12 +9,14 @@ import {
   restoreSim,
   social,
   stateHash,
+  step,
   tactical,
+  visibleExplain,
 } from '@coulee/core';
-import { PlaySession, parseText, sessionSimOf } from '@coulee/play';
+import { PlaySession, parseText, renderDetail, renderObservation, sessionSimOf } from '@coulee/play';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { activeBrawls, movementReactions } from '../../core/src/tactical/brawl.ts';
+import { activeBrawls, decideBrawl, movementReactions } from '../../core/src/tactical/brawl.ts';
 import { meleeCheck } from '../../core/src/tactical/rules.ts';
 import { baseContent } from './helpers.ts';
 
@@ -228,28 +229,6 @@ describe('M6 a brawl with an ending', () => {
     expect(x.sim.world.tactical?.participants[x.id]?.fled).toBe(true);
     expect(x.sim.world.places[x.sim.world.actors[x.id]?.placeId ?? 0]?.defId).toBe('main_street');
   });
-  it('an NPC can be joined or a brawl broken up without commanding its participants', () => {
-    const x = fixture();
-    const s = x.sim.world.tactical;
-    if (!s) throw Error('no scene');
-    const actors = Object.keys(s.participants)
-      .map((id) => asActorId(Number(id)))
-      .filter((id) => id !== x.id);
-    const a = actors[0],
-      b = actors[1];
-    if (!a || !b) throw Error('no actors');
-    tactical.startAction(x.sim.world, x.ctx(), a, 'attack', { kind: 'own' }, undefined, b);
-    expect(activeBrawls(x.sim.world)).toHaveLength(1);
-    // Joining is an ordinary adjacent attack; its identity remains a separate pair.
-    expect(x.command(x.id, 'attack', x.other)).toBe(true);
-    x.finish();
-    const pc = x.sim.world.actors[x.id];
-    if (!pc) throw Error('no pc');
-    pc.sheet.skills.persuade = 100;
-    expect(x.command(x.id, 'parley')).toBe(true);
-    x.finish();
-    expect(activeBrawls(x.sim.world)).toHaveLength(0);
-  });
   it('fair headless melee saves/replays exactly and never exposes enemy modifiers or initiative', () => {
     const session = PlaySession.create(content, { source: 'tavern_instant', seed: 7 });
     session.advance(60);
@@ -258,8 +237,11 @@ describe('M6 a brawl with an ending', () => {
     expect(session.act(attack.command).ok).toBe(true);
     for (let n = 0; n < 4; n++) session.act(parseText('resume', session.observe()));
     const oldLog = session.commandLog;
-    oldLog[0].rulesVersion = 1;
-    expect(() => PlaySession.replay(content, oldLog)).toThrow('Unsupported replay rules version');
+    expect(oldLog[0].rulesVersion).toBe(3);
+    for (const version of [1, 2]) {
+      oldLog[0].rulesVersion = version;
+      expect(() => PlaySession.replay(content, oldLog)).toThrow('Unsupported replay rules version');
+    }
     const copy = PlaySession.load(content, session.save());
     expect(copy.hash).toBe(session.hash);
     expect(PlaySession.replay(content, session.commandLog).hash).toBe(session.hash);
@@ -330,5 +312,226 @@ describe('M6 a brawl with an ending', () => {
     expect(needs.nextCombatHealthInstant(x.sim.world)).toBeUndefined();
     expect(x.sim.world.log.events.filter((e) => e.kind === 'needs.died' && e.data.actorId === x.id)).toHaveLength(1);
     expect(findNonIntegers(x.sim.world)).toEqual([]);
+  });
+});
+
+describe('M6 cross-model review regressions (rv-a through rv-g)', () => {
+  it.each(['idle', 'flee'] as const)('every tavern brawl ends and the player can leave: %s, seeds 1–300', (policy) => {
+    // rv-a/rv-c; includes mutual-yield seeds 65/145/165, blocked route 209 and idle 39.
+    for (let seed = 1; seed <= 300; seed++) {
+      const session = PlaySession.create(content, { source: 'tavern_brawl', seed });
+      session.advance(60);
+      const sim = sessionSimOf(session),
+        pc = session.playerId,
+        scene = sim.world.tactical;
+      if (!scene) throw Error('no scene');
+      for (let n = 0; n < 600; n++) {
+        const p = scene.participants[pc];
+        if (policy === 'flee' && p && !p.fled && !p.action)
+          advanceUntil(sim, instantOf(sim.world), [{ kind: 'tactical.flee', actorId: pc, data: {} }]);
+        const next = scene.heap[0]?.instant;
+        if (next === undefined) break;
+        advanceUntil(sim, next);
+      }
+      expect(activeBrawls(sim.world), `seed ${seed}, ${policy}`).toHaveLength(0);
+      expect(instantOf(sim.world)).toBeLessThan(6000);
+      advanceUntil(sim, instantOf(sim.world) + 60);
+      expect(session.act({ kind: 'tactical.breathe', actorId: pc, data: {} }).ok, `seed ${seed}`).toBe(true);
+      expect(sim.world.tactical).toBeUndefined();
+      expect(session.observe().tactical).toBeNull();
+    }
+  });
+  it('mutual submission ends in peace even when both yields are already winding up', () => {
+    const x = fixture(65);
+    x.controlled();
+    x.command(x.id, 'attack', x.other);
+    x.finish();
+    expect(x.command(x.id, 'yield')).toBe(true);
+    expect(x.command(x.other, 'yield')).toBe(true);
+    advanceUntil(x.sim, instantOf(x.sim.world) + 30);
+    expect(x.sim.world.tactical?.brawls?.[0]?.outcome).toBe('peace');
+  });
+  it('a fled player can breathe while remote fighters continue, and background saves resume exactly', () => {
+    const session = PlaySession.create(content, { source: 'tavern_brawl', seed: 3 });
+    session.advance(60);
+    const sim = sessionSimOf(session),
+      pc = session.playerId;
+    advanceUntil(sim, 0, [{ kind: 'tactical.flee', actorId: pc, data: {} }]);
+    const scene = sim.world.tactical;
+    if (!scene) throw Error('no scene');
+    for (let n = 0; n < 100 && !scene.participants[pc]?.fled; n++) {
+      const next = scene.heap[0]?.instant;
+      if (next === undefined) throw Error('route stopped');
+      advanceUntil(sim, next);
+    }
+    const p = scene.participants[pc];
+    if (!p?.fled) throw Error('did not flee');
+    advanceUntil(sim, (p.action?.recoverUntil ?? p.readyAt) + 60);
+    expect(activeBrawls(sim.world)).toHaveLength(1);
+    expect(scene.heap.length).toBeGreaterThan(0);
+    expect(session.act({ kind: 'tactical.breathe', actorId: pc, data: {} }).ok).toBe(true);
+    expect(sim.world.tactical).toBeUndefined();
+    expect(sim.world.activity.byActor[pc]?.activityId).toBeNull();
+    const copy = restoreSim(sim.content, JSON.parse(JSON.stringify(sim.world)));
+    advanceUntil(sim, instantOf(sim.world) + 600);
+    advanceUntil(copy, instantOf(copy.world) + 600);
+    expect(stateHash(copy.world)).toBe(stateHash(sim.world));
+    expect(sim.world.backgroundTactical?.brawls?.every((b) => b.endedAt !== undefined)).toBe(true);
+    expect(session.act({ kind: 'activity.wait', actorId: pc, data: { minutes: 60 } }).ok).toBe(true);
+    expect(sim.world.tactical).toBeUndefined();
+  });
+  it('attack then parley is an offer: a healthy NPC refuses even a successful Persuade check', () => {
+    const x = fixture(12);
+    x.controlled();
+    const other = x.sim.world.actors[x.other],
+      pc = x.sim.world.actors[x.id];
+    if (!other || !pc) throw Error('missing actor');
+    other.sheet.abilities.con = 30;
+    pc.sheet.skills.persuade = 100;
+    x.command(x.id, 'attack', x.other);
+    x.finish();
+    psyche.setAgency(x.sim.world, x.other, { ...psyche.agencyOf(x.sim.world, x.other), mode: 'psyche' });
+    expect(x.command(x.id, 'parley')).toBe(true);
+    x.finish();
+    expect(activeBrawls(x.sim.world)).toHaveLength(1);
+    expect(
+      x.sim.world.log.events.some((e) => e.explain?.label === 'Offer peace' && e.explain.outcome === 'success'),
+    ).toBe(true);
+    expect(
+      x.sim.world.log.events.some(
+        (e) => e.kind === 'tactical.morale' && e.data.actorId === x.other && e.explain?.outcome === 'attack',
+      ),
+    ).toBe(true);
+  });
+  it('parley respects a willing NPC and never speaks for a commanded opponent', () => {
+    const x = fixture(12);
+    x.controlled();
+    const pc = x.sim.world.actors[x.id];
+    if (!pc) throw Error('no pc');
+    pc.sheet.skills.persuade = 100;
+    x.command(x.id, 'attack', x.other);
+    x.finish();
+    needs.applyHit(
+      x.sim.world,
+      x.ctx(),
+      x.other,
+      Math.max(0, 4 - (needs.healthOf(x.sim.world, x.other)?.nonlethal ?? 0)),
+    );
+    expect(x.command(x.id, 'parley')).toBe(true);
+    x.finish();
+    expect(activeBrawls(x.sim.world)).toHaveLength(1);
+    psyche.setAgency(x.sim.world, x.other, { ...psyche.agencyOf(x.sim.world, x.other), mode: 'psyche' });
+    expect(x.command(x.id, 'parley')).toBe(true);
+    x.finish();
+    expect(activeBrawls(x.sim.world)).toHaveLength(0);
+  });
+  it('repeat episodes stamp strife once per pair per scene, with directional opinions and bounded archives', () => {
+    const x = fixture(12);
+    x.controlled();
+    const scene = x.sim.world.tactical;
+    if (!scene) throw Error('no scene');
+    const patient = x.sim.world.actors[x.other],
+      health = needs.survivalOf(x.sim.world, content, x.other);
+    if (!patient || !health) throw Error('no patient');
+    patient.sheet.abilities.con = 60;
+    health.vigor = needs.maxVigor(x.sim.world, content, x.other);
+    // rv-f's repeated episodes; explicit mutual yielding avoids relying on the fixed parley bug.
+    for (let n = 0; n < 4; n++) {
+      for (const id of [x.id, x.other]) {
+        const p = scene.participants[id];
+        if (p) p.submitted = false;
+      }
+      expect(x.command(x.id, 'attack', x.other)).toBe(true);
+      x.finish();
+      x.command(x.id, 'yield');
+      x.command(x.other, 'yield');
+      advanceUntil(x.sim, instantOf(x.sim.world) + 30);
+    }
+    expect(social.strifeCount(x.sim.world, content, x.id, x.other, x.sim.world.time)).toBe(1);
+    expect(Object.keys(x.sim.world.social.combatIncidents ?? {})).toHaveLength(1);
+    expect(social.opinionOf(x.sim.world, x.id, x.other).fear).toBe(0);
+    expect(social.opinionOf(x.sim.world, x.other, x.id).fear).toBeGreaterThan(0);
+    const incident = Object.values(x.sim.world.social.combatIncidents ?? {})[0];
+    if (!incident) throw Error('no incident');
+    for (let n = 0; n < 300; n++)
+      social.recordCombatOutcome(x.sim.world, x.ctx(), { ...incident, key: `older:${n}`, witnesses: [] });
+    expect(Object.keys(x.sim.world.social.combatIncidents ?? {})).toHaveLength(256);
+    expect(x.sim.world.psyche.byActor[x.other]?.combatFear?.triggers ?? []).toEqual([]);
+  });
+  it('stepping away makes a healthy NPC close in rather than yield (rv-e)', () => {
+    const x = fixture(12);
+    x.controlled();
+    const target = x.sim.world.actors[x.other];
+    if (!target) throw Error('no target');
+    target.sheet.abilities.con = 30;
+    x.command(x.id, 'attack', x.other);
+    x.finish();
+    const move = x.session.observe().actions.find((a) => a.command.kind === 'tactical.move');
+    if (!move) throw Error('no step');
+    advanceUntil(x.sim, instantOf(x.sim.world), [move.command]);
+    x.finish();
+    psyche.setAgency(x.sim.world, x.other, { ...psyche.agencyOf(x.sim.world, x.other), mode: 'psyche' });
+    decideBrawl(x.sim.world, x.ctx(), x.other);
+    expect(x.sim.world.tactical?.participants[x.other]?.action?.kind).toBe('move');
+    expect(x.sim.world.tactical?.participants[x.other]?.submitted).not.toBe(true);
+  });
+  it('one hit rolls at most one Composure save even across both thresholds; fear is released after the fight', () => {
+    const x = fixture();
+    x.controlled();
+    const actor = x.sim.world.actors[x.id];
+    if (!actor) throw Error('no actor');
+    actor.sheet.abilities.str = 20;
+    actor.sheet.combat = { attack: 100, grappleSize: 0 };
+    x.command(x.id, 'attack', x.other);
+    x.finish();
+    const saves = x.sim.world.log.events.filter(
+      (e) => e.kind === 'tactical.morale' && e.explain?.label.startsWith('Composure'),
+    );
+    expect(saves).toHaveLength(1);
+    psyche.endBrawlFear(x.sim.world, x.other);
+    expect(x.sim.world.psyche.byActor[x.other]?.combatFear?.triggers).toEqual([]);
+  });
+  it('Stable wakes on its deadline; nonlethal and Dying advance in ordinary hours without a tactical clock (rv-g)', () => {
+    const x = fixture();
+    x.controlled();
+    const actor = x.sim.world.actors[x.id];
+    if (!actor) throw Error('no actor');
+    actor.sheet.skills.medicine = 100;
+    for (let n = 0; n < 4; n++) needs.applyHit(x.sim.world, x.ctx(), x.other, 20, { nonlethal: false });
+    needs.stabilize(x.sim.world, x.ctx(), x.id, x.other, 1);
+    const h = needs.healthOf(x.sim.world, x.other);
+    expect(h?.stable).toBe(true);
+    const wake = h?.wakeAt;
+    if (!wake) throw Error('no wake deadline');
+    advanceUntil(x.sim, wake - 1);
+    expect(needs.canAct(x.sim.world, x.other)).toBe(false);
+    advanceUntil(x.sim, wake);
+    expect(h?.stable).toBe(false);
+    expect(needs.combatUnconscious(x.sim.world, x.other)).toBe(false);
+    delete x.sim.world.tactical;
+    delete x.sim.world.backgroundTactical;
+    needs.applyHit(x.sim.world, x.ctx(), x.id, 3);
+    for (let n = 0; n < 3; n++) step(x.sim);
+    expect(needs.healthOf(x.sim.world, x.id)?.nonlethal).toBe(0);
+    for (let n = 0; n < 4; n++) needs.applyHit(x.sim.world, x.ctx(), x.other, 20, { nonlethal: false });
+    step(x.sim);
+    expect(x.sim.world.actors[x.other]?.alive).toBe(false);
+    expect(findNonIntegers(x.sim.world)).toEqual([]);
+  });
+  it('blow details render visible rolls, modifiers, DC and damage children; the status shows bruising', () => {
+    const x = fixture();
+    let result = meleeCheck(x.sim.world, x.ctx(), x.id, x.other, 1);
+    for (let token = 2; !result.hit && token < 30; token++)
+      result = meleeCheck(x.sim.world, x.ctx(), x.id, x.other, token);
+    const full = renderDetail(visibleExplain(result.explain, x.id, true));
+    expect(full).toMatch(/d20 \d+/);
+    expect(full).toMatch(/Strength [+-]\d+/);
+    expect(full).toContain('vs DC');
+    expect(full).toContain('Nonlethal damage');
+    const fair = renderDetail(visibleExplain(result.explain, x.id));
+    expect(fair).toContain('Nonlethal damage');
+    expect(fair).not.toContain('vs DC');
+    needs.applyHit(x.sim.world, x.ctx(), x.id, 3);
+    expect(renderObservation(x.session.observe())).toMatch(/Vigor \d+\/\d+, bruised 3/);
   });
 });

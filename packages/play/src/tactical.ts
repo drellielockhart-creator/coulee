@@ -8,7 +8,13 @@ export function tacticalActions(sim: Sim, pc: ActorId): AvailableAction[] {
       out.push({
         id: `tactical:${verb}`,
         label:
-          verb === 'breathe' ? 'Breathe and return to ordinary time' : verb === 'parley' ? 'Break up the brawl' : verb,
+          verb === 'breathe'
+            ? 'Breathe and return to ordinary time'
+            : verb === 'parley'
+              ? sim.world.tactical?.brawls?.some((b) => b.endedAt === undefined && (b.a === pc || b.b === pc))
+                ? 'Offer peace'
+                : 'Break up the brawl'
+              : verb,
         command,
       });
   }

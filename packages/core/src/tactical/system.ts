@@ -6,10 +6,10 @@ import type { SimContext } from '../sim/context.ts';
 import { heapPop, heapPush } from '../sim/heap.ts';
 import type { World } from '../world.ts';
 import { cancelAction, releaseReservation, startAction } from './api.ts';
-import { brawlCheck, commitBrawl, decideBrawl, settleBrawls } from './brawl.ts';
+import { activeBrawls, brawlCheck, commitBrawl, decideBrawl, settleBrawls } from './brawl.ts';
 export function tacticalSystem(w: World, ctx: SimContext): void {
   const s = w.tactical;
-  if (!s?.active) return;
+  if (!s || (!s.active && !activeBrawls(w).length && !s.heap.length)) return;
   const now = instantOf(w);
   while (s.heap[0] && s.heap[0].instant <= now) {
     const e = heapPop(s.heap);
@@ -57,8 +57,8 @@ export function tacticalSystem(w: World, ctx: SimContext): void {
       });
       // The host applies the shared perception/interrupt policy, never the actor's controller.
       s.pause = { instant: now, eventId };
-      if (a.kind === 'flee' && !a.cancelled && !p.fled) startAction(w, ctx, e.actorId, 'flee', a.basis);
-      else decideBrawl(w, ctx, e.actorId);
+      if (!(a.kind === 'flee' && !a.cancelled && !p.fled && startAction(w, ctx, e.actorId, 'flee', a.basis)))
+        decideBrawl(w, ctx, e.actorId);
     }
   }
   settleBrawls(w, ctx);

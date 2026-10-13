@@ -1,4 +1,4 @@
-import { asActorId, asItemId, type Command, explainLine, TICKS_PER_SECOND, timeView } from '@coulee/core';
+import { asActorId, asItemId, type Command, type Explain, TICKS_PER_SECOND, timeView } from '@coulee/core';
 import type { AvailableAction } from './actions.ts';
 import { claimText, obligationText } from './obligations.ts';
 import type { Observation } from './observation.ts';
@@ -165,7 +165,7 @@ ${o.epilogue ?? ''}`;
       .join('; ')}`,
     ...(o.self.needs.survival
       ? [
-          `Health: Vigor ${o.self.needs.survival.vigor}/${o.self.needs.survival.maxVigor}; Wounds ${o.self.needs.survival.wounds}/${o.self.needs.survival.woundLimit}. ${o.self.needs.survival.conditions.join(', ')}`.trimEnd(),
+          `Health: Vigor ${o.self.needs.survival.vigor}/${o.self.needs.survival.maxVigor}${o.self.needs.survival.nonlethal ? `, bruised ${o.self.needs.survival.nonlethal}` : ''}; Wounds ${o.self.needs.survival.wounds}/${o.self.needs.survival.woundLimit}. ${o.self.needs.survival.conditions.join(', ')}`.trimEnd(),
         ]
       : []),
     ...(o.self.needs.warnings ?? []),
@@ -882,7 +882,7 @@ export function renderDetail(detail: unknown): string {
     return `[${event.id}] ${event.summary}${event.explain ? ` — explain ${event.id} for how it went` : ''}`;
   }
   if (detail && typeof detail === 'object' && 'knowledge' in detail && 'terms' in detail)
-    return explainLine(detail as Parameters<typeof explainLine>[0]);
+    return explainTree(detail as Explain);
   if (Array.isArray(detail) && detail.some((e) => e && typeof e === 'object' && 'signId' in e))
     return detail
       .map(
@@ -937,4 +937,14 @@ export function renderDetail(detail: unknown): string {
 /** What is owed between her and others, as journal lines (playtest r2: favors never showed). */
 export function obligationLines(o: Observation): string[] {
   return [...o.self.obligations.map((d) => obligationText(d)), ...(o.self.claims ?? []).map((c) => claimText(c))];
+}
+
+/** Detail has already passed the perspective gate; preserve all visible sub-decisions. */
+function explainTree(e: Explain, depth = 0): string {
+  const terms = e.terms.map((t) => `${t.label} ${t.value >= 0 ? '+' : ''}${t.value}`).join(', ');
+  const dc = e.dc ? ` vs DC ${e.dc.total}` : '';
+  return [
+    `${'  '.repeat(depth)}${e.label}: ${e.total} (${[e.roll ? `d${e.roll.die} ${e.roll.natural}` : '', terms].filter(Boolean).join(', ')})${dc} -> ${e.outcome}${e.note ? ` — ${e.note}` : ''}`,
+    ...(e.children ?? []).map((child) => explainTree(child, depth + 1)),
+  ].join('\n');
 }

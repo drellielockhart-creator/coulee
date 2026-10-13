@@ -28,11 +28,12 @@ export function tacticalView(w: World, pc: ActorId) {
     conditions: w.actors[pc]?.sheet.conditions ?? [],
     submitted: p.submitted ?? false,
     fled: p.fled ?? false,
-    breathe:
-      s.heap.length === 0 &&
-      activeBrawls(w).length === 0 &&
-      !idsOf<ActorId>(s.participants).some((id) => healthOf(w, id)?.dying) &&
-      now - s.quietSince >= 6 * TICKS_PER_SECOND,
+    breathe: p.fled
+      ? !p.action && now - p.readyAt >= 6 * TICKS_PER_SECOND
+      : s.heap.length === 0 &&
+        activeBrawls(w).length === 0 &&
+        !idsOf<ActorId>(s.participants).some((id) => healthOf(w, id)?.dying) &&
+        now - s.quietSince >= 6 * TICKS_PER_SECOND,
     timeline: `Tactical ${instantText(now)} — ${status}.${p.submitted ? ' You have yielded.' : ''}${p.fled ? ' You have left the brawl.' : ''}${health}`,
     interruptLatched: s.pause !== null,
   };

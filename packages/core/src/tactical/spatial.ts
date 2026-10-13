@@ -17,7 +17,7 @@ export function sceneCells(w: World, content: ContentBundle, placeId: number): C
 export function movementCheck(w: World, c: ContentBundle, id: ActorId, to: Cell): string | null {
   const s = w.tactical,
     from = tacticalPosition(w, id);
-  if (!s?.active || !from) return 'No active tactical scene';
+  if (!s || !from) return 'No active tactical scene';
   if (!Number.isSafeInteger(to.x) || !Number.isSafeInteger(to.y)) return 'Use integer grid cells';
   if (Math.abs(from.x - to.x) + Math.abs(from.y - to.y) !== 1)
     return 'Move one orthogonal cell; walls and corners cannot be crossed';
@@ -47,6 +47,16 @@ export function fleeStep(w: World, c: ContentBundle, id: ActorId): Cell | null {
     s = w.tactical;
   if (!start || !exit || !s) return null;
   if (start.x === exit.x && start.y === exit.y) return start;
+  return pathStep(w, c, id, (cell) => cell.x === exit.x && cell.y === exit.y);
+}
+export function closeStep(w: World, c: ContentBundle, id: ActorId, target: ActorId): Cell | null {
+  const to = tacticalPosition(w, target);
+  return to ? pathStep(w, c, id, (cell) => Math.abs(cell.x - to.x) + Math.abs(cell.y - to.y) === 1) : null;
+}
+function pathStep(w: World, c: ContentBundle, id: ActorId, goal: (cell: Cell) => boolean): Cell | null {
+  const start = tacticalPosition(w, id),
+    s = w.tactical;
+  if (!start || !s) return null;
   const cells = new Set(sceneCells(w, c, s.placeId).map(cellKey));
   const occupied = new Set(
     idsOf<ActorId>(s.participants)
@@ -72,7 +82,7 @@ export function fleeStep(w: World, c: ContentBundle, id: ActorId): Cell | null {
         key = cellKey(cell);
       if (!cells.has(key) || seen.has(key) || occupied.has(key)) continue;
       const first = current.first ?? cell;
-      if (cell.x === exit.x && cell.y === exit.y) return first;
+      if (goal(cell)) return first;
       seen.add(key);
       queue.push({ cell, first });
     }

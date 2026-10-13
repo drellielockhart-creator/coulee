@@ -5,7 +5,7 @@ import { recordFight } from '../chronicle/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { type ActorId, idsOf } from '../ids.ts';
 import { applyHit, canAct, combatUnconscious, healthOf, maxVigor, stabilize } from '../needs/api.ts';
-import { authorizeAct, brawlFear, brawlIntent, endBrawlFear } from '../psyche/api.ts';
+import { brawlFear, brawlIntent, endBrawlFear } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
 import { instantOf } from '../sim/clock.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -13,7 +13,7 @@ import { recordCombatOutcome } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { startAction } from './api.ts';
 import { grappleCheck, meleeCheck } from './rules.ts';
-import { adjacent, fleeStep, sceneExit } from './spatial.ts';
+import { adjacent, closeStep, fleeStep, sceneExit } from './spatial.ts';
 import type { Action, Brawl } from './state.ts';
 
 const name = (w: World, id: ActorId) => (w.actors[id] ? displayName(w.actors[id]) : 'Someone');
@@ -141,11 +141,15 @@ function end(w: World, ctx: SimContext, b: Brawl, outcome: NonNullable<Brawl['ou
     (g) => !((g.holder === b.a && g.target === b.b) || (g.holder === b.b && g.target === b.a)),
   );
   syncGrapples(w);
-  for (const id of [b.a, b.b]) if (!activeBrawls(w, id).length) endBrawlFear(w, id);
+  for (const id of [b.a, b.b]) endBrawlFear(w, id, activeBrawls(w, id).length ? b.id : undefined);
   if (
     b.attempts > 0 &&
+    !s.brawls?.some(
+      (prior) =>
+        prior !== b && prior.stamped && ((prior.a === b.a && prior.b === b.b) || (prior.a === b.b && prior.b === b.a)),
+    ) &&
     recordCombatOutcome(w, ctx, {
-      key: `${s.sceneId}:${b.id}`,
+      key: `${s.sceneId}:${s.enteredAt}:${Math.min(b.a, b.b)}:${Math.max(b.a, b.b)}`,
       a: b.a,
       b: b.b,
       eventId,
@@ -153,8 +157,10 @@ function end(w: World, ctx: SimContext, b: Brawl, outcome: NonNullable<Brawl['ou
       outcome,
       witnesses: b.witnesses,
     })
-  )
+  ) {
+    b.stamped = true;
     recordFight(w, ctx, { actors: [b.a, b.b], witnesses: b.witnesses, eventId, placeId: s.placeId, text });
+  }
 }
 export function settleBrawls(w: World, ctx: SimContext): void {
   for (const b of activeBrawls(w)) {
@@ -166,13 +172,14 @@ export function settleBrawls(w: World, ctx: SimContext): void {
         [b.a, b.b].some((id) => combatUnconscious(w, id) && !healthOf(w, id)?.dying) ? 'knockout' : 'incapacity',
       );
     else if ([b.a, b.b].some((id) => w.tactical?.participants[id]?.fled)) end(w, ctx, b, 'flight');
+    else if ([b.a, b.b].every((id) => w.tactical?.participants[id]?.submitted)) end(w, ctx, b, 'peace');
   }
 }
 /** Starts one owned action after a real trigger, never during a view or a query-sized tick. */
 export function decideBrawl(w: World, ctx: SimContext, id: ActorId): void {
   const s = w.tactical,
     p = s?.participants[id];
-  if (!s?.active || !p || p.action || p.submitted || p.fled || !canAct(w, id)) return;
+  if (!s || !p || p.action || p.submitted || p.fled || !canAct(w, id)) return;
   const b = activeBrawls(w, id)[0];
   if (!b) return;
   const target = b.a === id ? b.b : b.a;
@@ -187,8 +194,8 @@ export function decideBrawl(w: World, ctx: SimContext, id: ActorId): void {
   });
   if (!intent) return;
   if (intent === 'attack' && !adjacent(w, id, target)) {
-    // No implicit pursuit in a nonlethal tavern quarrel. Offer peace instead.
-    startAction(w, ctx, id, 'yield', { kind: 'own' });
+    const step = closeStep(w, ctx.content, id, target);
+    startAction(w, ctx, id, step ? 'move' : 'guard', { kind: 'own' }, step ?? undefined);
   } else startAction(w, ctx, id, intent, { kind: 'own' }, undefined, intent === 'attack' ? target : undefined);
 }
 export function commitBrawl(w: World, ctx: SimContext, id: ActorId, action: Action): void {
@@ -223,9 +230,14 @@ export function commitBrawl(w: World, ctx: SimContext, id: ActorId, action: Acti
       });
       if (result.hit) {
         applyHit(w, ctx, target, result.damage, { nonlethal: true, critical: result.critical });
-        brawlFear(w, ctx, target, b.id, 'first blow');
-        if ((healthOf(w, target)?.nonlethal ?? 0) * 2 >= maxVigor(w, ctx.content, target))
-          brawlFear(w, ctx, target, b.id, 'half stamina');
+        brawlFear(
+          w,
+          ctx,
+          target,
+          b.id,
+          'first blow',
+          (healthOf(w, target)?.nonlethal ?? 0) * 2 >= maxVigor(w, ctx.content, target) ? ['half stamina'] : [],
+        );
       }
     } else {
       const result = grappleCheck(w, ctx, id, target, action.token);
@@ -289,6 +301,7 @@ export function commitBrawl(w: World, ctx: SimContext, id: ActorId, action: Acti
       visibility: 'witnessed',
       importance: 75,
     });
+    settleBrawls(w, ctx);
     for (const b of activeBrawls(w, id)) decideBrawl(w, ctx, b.a === id ? b.b : b.a);
   } else if (action.kind === 'accept' && target !== undefined && s.participants[target]?.submitted) {
     for (const b of activeBrawls(w, id)) if (b.a === target || b.b === target) end(w, ctx, b, 'submission');
@@ -298,7 +311,12 @@ export function commitBrawl(w: World, ctx: SimContext, id: ActorId, action: Acti
     const result = skillCheck(
       ctx.content,
       a,
-      { label: 'Break up the brawl', skill: 'persuade', dc: 12, knowledge: 'self' },
+      {
+        label: activeBrawls(w, id).length ? 'Offer peace' : 'Break up the brawl',
+        skill: 'persuade',
+        dc: 12,
+        knowledge: 'self',
+      },
       ctx.rng('combat', mixKey(id, action.token, now, 0xface)),
     );
     ctx.emit({
@@ -316,13 +334,19 @@ export function commitBrawl(w: World, ctx: SimContext, id: ActorId, action: Acti
     });
     if (result.success)
       for (const b of activeBrawls(w)) {
-        // A request for peace cannot take control of a commanded participant.
+        // The speaker offers peace; every other fighter must independently want to withdraw.
         if (
           [b.a, b.b].every(
             (x) =>
               x === id ||
               s.participants[x]?.submitted ||
-              authorizeAct(w, x, { kind: 'tactical.yield' }, { kind: 'own' }).ok,
+              ['yield', 'flee'].includes(
+                brawlIntent(w, ctx, x, {
+                  hurt: (healthOf(w, x)?.nonlethal ?? 0) * 2 >= maxVigor(w, ctx.content, x),
+                  pinned: restrained(w, x),
+                  canFlee: !!fleeStep(w, ctx.content, x),
+                }) ?? '',
+              ),
           )
         )
           end(w, ctx, b, 'peace');

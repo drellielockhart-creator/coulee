@@ -23,13 +23,25 @@ export function requestEncounter(
   actors: ActorId[],
   text: string,
 ): boolean {
-  if (w.tactical?.active || w.tactical?.sceneId === sceneId || w.time % 60 !== 0 || (w.tenth ?? 0) !== 0) return false;
+  if (
+    (w.backgroundTactical &&
+      (w.backgroundTactical.sceneId === sceneId ||
+        w.backgroundTactical.frame?.phase !== 'settled' ||
+        w.backgroundTactical.heap.length > 0 ||
+        w.backgroundTactical.brawls?.some((b) => b.endedAt === undefined))) ||
+    w.tactical?.active ||
+    w.tactical?.sceneId === sceneId ||
+    w.time % 60 !== 0 ||
+    (w.tenth ?? 0) !== 0
+  )
+    return false;
   const ids = [...new Set(actors)]
     .sort((a, b) => a - b)
     .filter((id) => w.actors[id]?.placeId === placeId && canAct(w, id));
   const cells = sceneCells(w, ctx.content, placeId);
   if (ids.length < 2 || cells.length < ids.length) return false;
   const now = instantOf(w);
+  delete w.backgroundTactical;
   w.tactical = {
     version: 1,
     sceneId,
@@ -102,12 +114,16 @@ export function tacticalCommandCheck(w: World, c: ContentBundle, command: Comman
       ? null
       : 'Advance 1..36000 clock ticks';
   if (cmd.kind === 'tactical.breathe')
-    return s.heap.length ||
-      activeBrawls(w).length ||
-      idsOf<ActorId>(s.participants).some((id) => healthOf(w, id)?.dying) ||
-      instantOf(w) - s.quietSince < 6 * TICKS_PER_SECOND
-      ? 'Wait for six quiet seconds and all recovery to finish'
-      : null;
+    return p.fled
+      ? p.action || instantOf(w) - p.readyAt < 6 * TICKS_PER_SECOND
+        ? 'Wait for six quiet seconds and your recovery to finish'
+        : null
+      : s.heap.length ||
+          activeBrawls(w).length ||
+          idsOf<ActorId>(s.participants).some((id) => healthOf(w, id)?.dying) ||
+          instantOf(w) - s.quietSince < 6 * TICKS_PER_SECOND
+        ? 'Wait for six quiet seconds and all recovery to finish'
+        : null;
   if (
     cmd.kind === 'tactical.reaction' &&
     (!Number.isInteger(cmd.data.count) || cmd.data.count < 0 || cmd.data.count > 3)
@@ -158,7 +174,14 @@ export function startAction(
 ): boolean {
   const s = w.tactical,
     p = s?.participants[id];
-  if (!s?.active || !p || p.action || !canAct(w, id) || !authorizeAct(w, id, { kind: `tactical.${kind}` }, basis).ok)
+  if (
+    !s ||
+    (!s.active && !activeBrawls(w, id).length) ||
+    !p ||
+    p.action ||
+    !canAct(w, id) ||
+    !authorizeAct(w, id, { kind: `tactical.${kind}` }, basis).ok
+  )
     return false;
   if ((s.declarations[id] ?? 0) >= 3) return false;
   if (

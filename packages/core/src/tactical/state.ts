@@ -49,6 +49,7 @@ export interface Brawl {
   b: ActorId;
   startedAt: number;
   attempts: number;
+  stamped?: boolean;
   endedAt?: number;
   outcome?: 'submission' | 'knockout' | 'flight' | 'peace' | 'incapacity';
   witnesses: ActorId[];
