@@ -19,6 +19,7 @@ import {
 } from '@coulee/worldgen';
 import { describe, expect, it } from 'vitest';
 import { streamOrders } from '../../worldgen/src/county/common.ts';
+import { nameCountySettlements } from '../../worldgen/src/county/names.ts';
 import { randomFor } from '../../worldgen/src/layout.ts';
 import { generateTimedCounty, writeGeneratedCounty } from '../src/county-generation.ts';
 import { writeGeneratedTown } from '../src/generation.ts';
@@ -47,6 +48,12 @@ describe('county layers', () => {
         ).toEqual([]);
         expect(findNonIntegers(c)).toEqual([]);
         expect(new Set(c.settlements.map((s) => s.name)).size).toBe(c.settlements.length);
+        const names = [...c.settlements, ...(c.namedFeatures ?? [])].map((v) => v.name);
+        expect(new Set(names).size, `${preset}/${seed}`).toBe(names.length);
+        for (const name of names)
+          expect(
+            (name.match(/\b(North|South|East|West|Upper|Lower|Little|Big|Great|New|Old)\b/g) ?? []).length,
+          ).toBeLessThanOrEqual(1);
         if (preset === 'coulee') {
           const baseline = earlierHashes[String(seed) as keyof typeof earlierHashes];
           for (const layer of ['terrain', 'hydrology', 'ecology', 'fae'] as const)
@@ -99,6 +106,48 @@ describe('county layers', () => {
     if (!first || !second) throw new Error('missing settlements');
     second.name = first.name;
     expect(checkCounty(bad).find((q) => q.check === 'settlement names')?.pass).toBe(false);
+  });
+  it('changes the base after single qualifiers exhaust, including inherited creek qualifiers', () => {
+    const c = structuredClone(county()),
+      original = c.settlements[0];
+    if (!original) throw new Error('missing settlement');
+    const cell = original.cell;
+    Object.assign(c.terrain[cell] as TerrainCell, { bluff: true, cave: true, leadPm: 500 });
+    Object.assign(c.hydrology[cell] ?? {}, { spring: true });
+    Object.assign(c.ecology[cell] ?? {}, { vegetation: 'maple_basswood' });
+    const features = [
+      {
+        id: 'test_creek',
+        kind: 'creek' as const,
+        name: 'Upper Silver Creek',
+        cells: [cell],
+        labelCell: cell,
+        major: true,
+      },
+    ];
+    const settlements = Array.from({ length: 500 }, (_, i) => ({
+      ...original,
+      id: `mill_${i}`,
+      kind: 'mill' as const,
+    }));
+    const rename = () => nameCountySettlements(c.recipe, c.terrain, c.hydrology, c.ecology, settlements, features);
+    rename();
+    const names = settlements.map((s) => s.name);
+    expect(names).toContain('Upper Silver Mills');
+    expect(names.some((name) => name.includes("'s "))).toBe(true);
+    expect(names.some((name) => /^\w+ \w+'s /.test(name))).toBe(true);
+    expect(new Set(names).size).toBe(names.length);
+    for (const name of names)
+      expect((name.match(/\b(North|South|East|West|Upper|Lower|Little)\b/g) ?? []).length).toBeLessThanOrEqual(1);
+    rename();
+    expect(settlements.map((s) => s.name)).toEqual(names);
+    const feature = features[0];
+    if (!feature) throw new Error('missing feature');
+    feature.name = "Pratt's Creek";
+    rename();
+    for (const s of settlements) expect((s.name.match(/'s/g) ?? []).length).toBeLessThanOrEqual(1);
+    c.settlements[0] = { ...original, name: 'West Upper Silver Mills' };
+    expect(checkCounty(c).find((q) => q.check === 'settlement names')?.pass).toBe(false);
   });
   it('reports road sinuosity and bends the reviewed seeds with terrain', () => {
     for (const seed of [7, 42, 63]) {

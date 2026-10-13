@@ -5,10 +5,21 @@ export function checkCounty(c: GeneratedCounty, metrics = countyMetrics(c)): QaR
   const out: QaResult[] = [];
   const check = (name: string, errors: string[]) =>
     out.push({ check: name, pass: errors.length === 0, detail: errors.length ? errors.slice(0, 12).join('; ') : 'ok' });
-  const settlementNames = new Set<string>();
+  const featureNames = new Set<string>();
+  const featureNameErrors: string[] = [];
+  const stacked = (name: string) =>
+    (name.match(/\b(North|South|East|West|Upper|Lower|Little|Big|Great|New|Old)\b/g) ?? []).length > 1;
+  for (const f of c.namedFeatures ?? []) {
+    if (!f.name.trim() || featureNames.has(f.name)) featureNameErrors.push(`repeated or empty name: ${f.name}`);
+    if (stacked(f.name)) featureNameErrors.push(`stacked qualifiers: ${f.name}`);
+    featureNames.add(f.name);
+  }
+  check('named feature names', featureNameErrors);
+  const settlementNames = new Set(featureNames);
   const nameErrors: string[] = [];
   for (const s of c.settlements) {
     if (!s.name.trim() || settlementNames.has(s.name)) nameErrors.push(`repeated or empty name: ${s.name}`);
+    if (stacked(s.name)) nameErrors.push(`stacked qualifiers: ${s.name}`);
     settlementNames.add(s.name);
   }
   check('settlement names', nameErrors);

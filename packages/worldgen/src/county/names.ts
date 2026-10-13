@@ -49,34 +49,68 @@ const localStock = (cell: number, t: TerrainCell[], water: WaterCell[], e: Ecolo
     c.geology === 'dolomite' ? 'Limestone' : 'Sandstone',
   ];
 };
-/** Prefer a local/family name; collisions get geographic qualifiers, never numbers. */
-function uniqueName(bases: string[], suffix: string, compass: string, used: Set<string>): string {
-  for (const qualifier of [
-    '',
-    `${compass} `,
-    'Little ',
-    'Upper ',
-    'Lower ',
-    `Little ${compass} `,
-    `Upper ${compass} `,
-    `Lower ${compass} `,
-  ])
+const QUALIFIER = /^(North|South|East|West|Upper|Lower|Little|Big|Great|New|Old) /;
+// Full founder names distinguish holdings in larger windows without piling on
+// geographic adjectives. These are naming templates, not materialized actors.
+const FOUNDERS = [
+  'John',
+  'William',
+  'James',
+  'Thomas',
+  'George',
+  'Henry',
+  'Charles',
+  'Joseph',
+  'Samuel',
+  'Edward',
+  'David',
+  'Robert',
+  'Andrew',
+  'Peter',
+  'Michael',
+  'Patrick',
+  'Daniel',
+  'Isaac',
+  'Jacob',
+  'Benjamin',
+  'Elias',
+  'Nathan',
+  'Walter',
+  'Silas',
+];
+
+/** Keep an inherited creek qualifier, but never add a second one. After single
+ * qualifiers run out, change the base to a family's holding or local landmark. */
+function uniqueName(bases: string[], suffix: string, compass: string, used: Set<string>, families: string[]): string {
+  const claim = (base: string) => {
+    const name = `${base} ${suffix}`;
+    if (used.has(name)) return undefined;
+    used.add(name);
+    return name;
+  };
+  for (const qualifier of ['', `${compass} `, 'Little ', 'Upper ', 'Lower '])
     for (const base of bases) {
-      const name = `${qualifier}${base} ${suffix}`;
-      if (!used.has(name)) {
-        used.add(name);
-        return name;
-      }
+      if (qualifier && QUALIFIER.test(base)) continue;
+      const name = claim(`${qualifier}${base}`);
+      if (name) return name;
     }
-  // Large windows can exhaust simple names; compound family/landmark names remain finite.
-  for (const a of bases)
-    for (const b of bases)
-      if (a !== b) {
-        const name = `${compass} ${a} ${b} ${suffix}`;
-        if (!used.has(name)) {
-          used.add(name);
-          return name;
-        }
+  for (const family of families) {
+    const name = claim(`${family}'s`);
+    if (name) return name;
+  }
+  const landmarks = [...new Set(bases.map((base) => base.replace(QUALIFIER, '')))].filter(
+    (base) => !families.includes(base) && !base.includes("'s"),
+  );
+  for (const family of families)
+    for (const landmark of landmarks) {
+      const name = claim(`${family}'s ${landmark}`);
+      if (name) return name;
+    }
+  for (const founder of FOUNDERS)
+    for (const family of families)
+      for (const landmark of ['', ...landmarks]) {
+        const name = claim(`${founder} ${family}'s${landmark ? ` ${landmark}` : ''}`);
+        if (name) return name;
       }
   throw new Error(`County names exhausted for ${suffix}`);
 }
@@ -125,7 +159,7 @@ export function countyNamedFeatures(
     const bases = [
       ...new Set([...(outletName ? [outletName] : []), ...localStock(labelCell, t, water, e), ...families]),
     ];
-    const name = uniqueName(bases, 'Creek', direction(labelCell, r), used);
+    const name = uniqueName(bases, 'Creek', direction(labelCell, r), used, families);
     const major = cells.length >= 12 && mouth.order >= 2;
     features.push({ id: `creek_${mouth.cell}`, kind: 'creek', name, cells, labelCell, major });
     if (major && mouth.order >= 3)
@@ -150,7 +184,7 @@ export function nameCountySettlements(
   features: CountyNamedFeature[],
 ) {
   const families = dealtFamilies(r, 'founding-families'),
-    used = new Set<string>();
+    used = new Set(features.map((f) => f.name));
   const creeks = features.filter((f) => f.kind === 'creek');
   for (const [i, s] of settlements.entries()) {
     const family = families[i % families.length] as string;
@@ -193,6 +227,6 @@ export function nameCountySettlements(
         ...families,
       ]),
     ];
-    s.name = uniqueName(bases, suffix, direction(s.cell, r), used);
+    s.name = uniqueName(bases, suffix, direction(s.cell, r), used, families);
   }
 }
