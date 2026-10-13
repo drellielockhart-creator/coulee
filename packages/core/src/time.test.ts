@@ -56,6 +56,10 @@ describe('calendar', () => {
   it('ages', () => {
     expect(yearsBetween(toGameMinute(1803, 5, 1), toGameMinute(1855, 4, 1))).toBe(51);
     expect(yearsBetween(toGameMinute(1803, 3, 1), toGameMinute(1855, 4, 1))).toBe(52);
+    expect(yearsBetween(toGameMinute(1852, 2, 29, 23), toGameMinute(1855, 2, 28))).toBe(2);
+    expect(yearsBetween(toGameMinute(1852, 2, 29, 23), toGameMinute(1855, 3, 1))).toBe(3);
+    expect(yearsBetween(toGameMinute(1852, 2, 29, 23), toGameMinute(1856, 2, 29))).toBe(4);
+    expect(yearsBetween(asGameMinute(-1), asGameMinute(0))).toBe(0);
   });
 });
 

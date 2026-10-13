@@ -133,7 +133,7 @@ function nutritionDay(
       n.scurvy >= (hasCondition(actor, 'scurvy_early') ? SCURVY.earlyOff : SCURVY.earlyOn),
       'Fresh food and scurvy risk',
       n.scurvy,
-      [
+      () => [
         term('food', 'Daily fresh points', day.freshPoints),
         term('food', 'Fresh reference servings', targets.fresh_reference_servings),
         term('food', 'Daily fresh index', fresh),
@@ -148,7 +148,7 @@ function nutritionDay(
       n.scurvy >= (hasCondition(actor, 'scurvy') ? SCURVY.fullOff : SCURVY.fullOn),
       'Established scurvy',
       n.scurvy,
-      [
+      () => [
         term('food', 'Daily fresh index', fresh),
         term('history', 'Low-fresh days', n.lowFreshDays),
         term('threshold', 'On threshold', SCURVY.fullOn),
@@ -197,7 +197,7 @@ function nutritionDay(
       energyLow || fatLow || proteinLow,
       'Rolling nutrition (up to seven days)',
       intakePct,
-      [
+      () => [
         term('history', 'Recent days all eaten well (recovery)', recovered ? 1 : 0),
         term('history', 'Recorded days in rolling week', week.length),
         term('threshold', 'Energy and fat minimum recorded days', MALNOURISHED.minDays),

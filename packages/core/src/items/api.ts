@@ -51,6 +51,8 @@ export interface InventoryIndex {
 // deleted stacks are checked live by stacksDeep, and relocation invalidates below.
 const inventoryPasses = new Map<World, { counter: number; index?: InventoryIndex }>();
 export function withInventoryPass<T>(world: World, run: () => T): T {
+  // Nested callers share the same mutation-aware index; only its owner closes it.
+  if (inventoryPasses.has(world)) return run();
   inventoryPasses.set(world, { counter: -1 });
   try {
     return run();
@@ -220,9 +222,16 @@ export function accessContents(world: World, stack: ItemStack): void {
 /** Remove a stack, hoisting any contents to the container's own location so nothing is orphaned. */
 function removeStack(world: World, stack: ItemStack): void {
   accessContents(world, stack);
-  invalidateInventory(world);
-  for (const s of rowsOf(world.items.stacks)) {
-    if (s.location.kind === 'container' && s.location.itemId === stack.id) s.location = stack.location;
+  const children = inventoryPasses.has(world)
+    ? (inventoryIndex(world).at[`c${stack.id}`] ?? [])
+    : rowsOf(world.items.stacks);
+  for (const s of children) {
+    if (world.items.stacks[s.id] === s && s.location.kind === 'container' && s.location.itemId === stack.id) {
+      // Leaf deletion is already filtered live by every index consumer. Hoisting
+      // contents changes their location, so only that case needs a rebuild.
+      invalidateInventory(world);
+      s.location = stack.location;
+    }
   }
   delete world.items.stacks[stack.id];
 }
