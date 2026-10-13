@@ -217,26 +217,33 @@ export function planReadiness(
   const rationPct = rationOf(world, holder);
   // The projection's own hem state: verified charms only, never written back (13 §5.7).
   const hems = world.fae?.charms ? forecastHems(world, content, members, stacks) : undefined;
+  // Kernels consume the context synchronously. Share callbacks, but retain a fresh
+  // hourly context so a kernel's context-local memo cannot leak into the next hour.
+  let projectionTime = asGameMinute(Math.floor(now / 60) * 60);
+  const commands: SimContext['commands'] = [];
+  const projectionRng: SimContext['rng'] = (stream, key) => rng(world.meta.seed, stream, projectionTime, key);
+  const projectionEmit: SimContext['emit'] = (event) => {
+    if (event.kind === 'provisions.meal') windowKcal += event.data.kcal;
+    // Salt meat lowers Thirst through an event (meals.ts thirstFromSalt).
+    if (event.kind === 'needs.changed' && event.data.needId === thirst?.id && event.data.delta < 0)
+      saltPoints -= event.data.delta;
+    return 0 as never;
+  };
   withProjectionMeals(projection, () =>
     withInventoryPass(projection, () => {
       for (let hour = 0; hour < 24 * horizon; hour++) {
         const t = asGameMinute(Math.floor(now / 60) * 60 + hour * 60),
           cal = calendarAt(t);
+        projectionTime = t;
         const ctx: SimContext = {
           content,
           now: t,
           seed: world.meta.seed,
           cal,
           isNewDay: cal.hour === 0,
-          commands: [],
-          rng: (stream, key) => rng(world.meta.seed, stream, t, key),
-          emit: (event) => {
-            if (event.kind === 'provisions.meal') windowKcal += event.data.kcal;
-            // Salt meat is the only thing that lowers Thirst through an event (meals.ts thirstFromSalt).
-            if (event.kind === 'needs.changed' && event.data.needId === thirst?.id && event.data.delta < 0)
-              saltPoints -= event.data.delta;
-            return 0 as never;
-          },
+          commands,
+          rng: projectionRng,
+          emit: projectionEmit,
         };
         if (ctx.isNewDay && 'householdId' in holder) replenishDomestic(projection, ctx, holder.householdId);
         projection.time = t;

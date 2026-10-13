@@ -10,6 +10,7 @@ import type { ContentBundle, ItemDef } from '../content.ts';
 import { type Explain, intValue, term } from '../explain.ts';
 import { type ActorId, type HouseholdId, type ItemId, type PlaceId, rowsOf } from '../ids.ts';
 import {
+  appendStacksDeep,
   carriedBy,
   consumeStackSupply,
   consumeSupply,
@@ -49,15 +50,20 @@ export const locationOf = (h: Holder): ItemLocation =>
   'actorId' in h ? carriedBy(h.actorId) : pantryOf(h.householdId);
 
 // Only the stationary readiness copy opts in: its membership, locations and scheduled
-// energy inputs do not change. Nothing is cached for live meals or travel projections.
+// energy inputs do not change. Live/travel kitchens cache only content preparation paths.
 const projectionMeals = new Map<
   World,
-  { members: Map<string, ActorId[]>; locations: Map<string, ItemLocation[]>; energy: Map<string, number> }
+  {
+    members: Map<string, ActorId[]>;
+    locations: Map<string, ItemLocation[]>;
+    energy: Map<string, number>;
+    paths: Map<string, PreparationPath[]>;
+  }
 >();
 const holderKey = (h: Holder): string => ('actorId' in h ? `a${h.actorId}` : `h${h.householdId}`);
 export function withProjectionMeals<T>(world: World, run: () => T): T {
   const previous = projectionMeals.get(world);
-  projectionMeals.set(world, { members: new Map(), locations: new Map(), energy: new Map() });
+  projectionMeals.set(world, { members: new Map(), locations: new Map(), energy: new Map(), paths: new Map() });
   try {
     return run();
   } finally {
@@ -84,8 +90,7 @@ export function holderLocations(world: World, holder: Holder): ItemLocation[] {
 }
 export function holderStacks(world: World, holder: Holder, index = inventoryIndex(world)): ItemStack[] {
   const stacks: ItemStack[] = [];
-  for (const loc of holderLocations(world, holder))
-    for (const entry of stacksDeep(world, loc, index)) stacks.push(entry.stack);
+  for (const loc of holderLocations(world, holder)) appendStacksDeep(world, loc, stacks, index);
   return stacks;
 }
 export function holderSupply(
@@ -329,12 +334,18 @@ export function drawWater(
   }
 }
 
+interface PreparationPath extends Pick<Recipe, 'food' | 'defId' | 'steps' | 'units' | 'kcal'> {
+  stages: Array<{ prep: PrepDef; units: number; servings: number }>;
+}
+
 /**
  * What a kitchen or kit offers for preparation: fuel, water, and best cookware affordances (memoized).
  * One meal or one readiness pass builds it once instead of rescanning the inventory per recipe step.
  * Refresh fuel/water after anything consumes them.
  */
 export interface Kitchen {
+  /** Content-only paths, scoped to a kitchen or its stationary projection. */
+  preparationPaths?: Map<string, PreparationPath[]>;
   fuel: number;
   water: number;
   frozen: (stack: ItemStack) => boolean;
@@ -374,6 +385,7 @@ export function kitchenOf(
   const frozen = new Map<ItemId, boolean>();
   const fireCosts = new Map<string, number>();
   const k: Kitchen = {
+    preparationPaths: projectionMeals.get(world)?.paths ?? new Map(),
     frozen: (stack) => {
       let value = frozen.get(stack.id);
       if (value === undefined) {
@@ -498,6 +510,49 @@ function cookingFire(world: World, ctx: SimContext, holder: Holder, kitchen: Kit
   return used;
 }
 
+/** Compile only content structure. Quantities, tools, water, fire, opening and
+ * spoilage remain live checks on every evaluation, including after kitchen.refresh(). */
+function preparationPaths(content: ContentBundle, source: string): PreparationPath[] {
+  const out: PreparationPath[] = [];
+  const original = content.items[source]?.food;
+  const walk = (defId: string, steps: PrepDef[], seen: Set<string>) => {
+    const food = content.items[defId]?.food;
+    if (!food || seen.has(defId)) return;
+    const nextSeen = new Set(seen);
+    nextSeen.add(defId);
+    for (const prep of food.prep) {
+      const path = [...steps, prep];
+      if (prep.yields) {
+        walk(prep.yields, path, nextSeen);
+        continue;
+      }
+      if (prep.kcal_pct <= 0) continue;
+      let stageId = source,
+        units = 1;
+      const stages: PreparationPath['stages'] = [];
+      for (const p of path) {
+        stages.push({ prep: p, units, servings: content.items[stageId]?.food?.servings ?? 1 });
+        if (p.yields) {
+          units *= p.yields_qty;
+          stageId = p.yields;
+        }
+      }
+      out.push({
+        food,
+        defId,
+        steps: path,
+        stages,
+        units,
+        kcal: Math.round(
+          ((food.fae_food ? 0 : food.kcal) * units * prep.kcal_pct) / (100 * (original?.servings ?? food.servings)),
+        ),
+      });
+    }
+  };
+  walk(source, [], new Set());
+  return out;
+}
+
 /** Follow preparation yields to an edible endpoint; no item ids are special-cased, including coffee. */
 export function recipesFor(
   world: World,
@@ -513,86 +568,67 @@ export function recipesFor(
   const fuel = kitchen.fuel;
   const water = kitchen.water;
   const out: Recipe[] = [];
-  const walk = (defId: string, steps: PrepDef[], seen: Set<string>) => {
-    const food = content.items[defId]?.food;
-    if (!food || seen.has(defId)) return;
-    const nextSeen = new Set(seen);
-    nextSeen.add(defId);
-    for (const prep of food.prep) {
-      if (steps.length === 0 && method !== undefined && prep.method !== method) continue;
-      const path = [...steps, prep];
-      if (prep.yields) {
-        walk(prep.yields, path, nextSeen);
-        continue;
-      }
-      if (prep.kcal_pct <= 0) continue;
-      let fire = 0,
-        minutes = 0,
-        activeMinutes = 0,
-        waterMl = 0;
-      const missing: string[] = [];
-      const original = content.items[stack.defId]?.food;
-      let stageId = stack.defId,
-        units = 1;
-      for (const p of path) {
-        const stageFood = content.items[stageId]?.food;
-        const stageServings = (servings * units * (stageFood?.servings ?? 1)) / (original?.servings ?? 1);
-        const batches = Math.ceil(stageServings / p.batch_servings);
-        fire += p.fire_minutes * batches;
-        minutes += p.minutes * batches;
-        activeMinutes += (p.active_minutes ?? p.minutes) * batches;
-        waterMl += Math.ceil(p.water_ml * stageServings);
-        for (const key of p.cookware) if (kitchen.afford(key) <= 0 && !missing.includes(key)) missing.push(key);
-        if (p.yields) {
-          units *= p.yields_qty;
-          stageId = p.yields;
-        }
-      }
-      if (fire > 0 && kitchen.frozen(stack)) {
-        fire = Math.ceil((fire * 150) / 100);
-        minutes = Math.ceil((minutes * 150) / 100);
-      }
-      const opening = content.items[stack.defId]?.food?.opening;
-      if (opening && !stack.opened) {
-        if (kitchen.afford('cut') < opening.cut * 10 && kitchen.afford('pry') < opening.pry * 10)
-          missing.push('opening tool (cut or pry)');
-        minutes += opening.minutes * Math.ceil(servings / Math.max(1, original?.servings ?? 1));
-        activeMinutes += opening.minutes;
-      }
-      if (fire > 0) missing.push(...kitchen.ignition);
-      if (kitchen.fireCost(fire) + (fire > 0 && kitchen.fireCredit === 0 ? 10 : 0) > fuel) missing.push('fire supply');
-      if (waterMl > water) missing.push('water');
-      if (minutes > budget) missing.push(`time (${minutes} minutes)`);
-      if (
-        'actorId' in holder &&
-        walking(world, holder.actorId) &&
-        path.some((p) => p.minutes > 0 || p.fire_minutes > 0)
-      )
-        missing.push('stop to prepare');
-      if (cold && path.some((p) => p.fire_minutes > 0 || p.minutes > 30)) missing.push('cold meal');
-      // Nutrition follows the final units yielded by the preparation chain.
-      const kcal = Math.round(
-        ((food.fae_food ? 0 : food.kcal) * units * prep.kcal_pct) / (100 * (original?.servings ?? food.servings)),
-      );
-      out.push({
-        food,
-        defId,
-        steps: path,
-        missing,
-        fire,
-        water: waterMl,
-        minutes,
-        activeMinutes,
-        morale:
-          food.morale +
-          prep.morale +
-          (stack.spoilage >= (original?.spoilage.turning_pm ?? food.spoilage.turning_pm) ? TURNING_MORALE : 0),
-        kcal,
-        units,
-      });
+  let paths = kitchen.preparationPaths?.get(stack.defId);
+  if (!paths) {
+    paths = preparationPaths(content, stack.defId);
+    kitchen.preparationPaths?.set(stack.defId, paths);
+  }
+  for (const compiled of paths) {
+    const { food, defId, steps: path } = compiled;
+    if (method !== undefined && path[0]?.method !== method) continue;
+    const prep = path[path.length - 1];
+    if (!prep) continue;
+    let fire = 0,
+      minutes = 0,
+      activeMinutes = 0,
+      waterMl = 0;
+    const missing: string[] = [];
+    const original = content.items[stack.defId]?.food;
+    for (const stage of compiled.stages) {
+      const p = stage.prep;
+      const stageServings = (servings * stage.units * stage.servings) / (original?.servings ?? 1);
+      const batches = Math.ceil(stageServings / p.batch_servings);
+      fire += p.fire_minutes * batches;
+      minutes += p.minutes * batches;
+      activeMinutes += (p.active_minutes ?? p.minutes) * batches;
+      waterMl += Math.ceil(p.water_ml * stageServings);
+      for (const key of p.cookware) if (kitchen.afford(key) <= 0 && !missing.includes(key)) missing.push(key);
     }
-  };
-  walk(stack.defId, [], new Set());
+    if (fire > 0 && kitchen.frozen(stack)) {
+      fire = Math.ceil((fire * 150) / 100);
+      minutes = Math.ceil((minutes * 150) / 100);
+    }
+    const opening = content.items[stack.defId]?.food?.opening;
+    if (opening && !stack.opened) {
+      if (kitchen.afford('cut') < opening.cut * 10 && kitchen.afford('pry') < opening.pry * 10)
+        missing.push('opening tool (cut or pry)');
+      minutes += opening.minutes * Math.ceil(servings / Math.max(1, original?.servings ?? 1));
+      activeMinutes += opening.minutes;
+    }
+    if (fire > 0) missing.push(...kitchen.ignition);
+    if (kitchen.fireCost(fire) + (fire > 0 && kitchen.fireCredit === 0 ? 10 : 0) > fuel) missing.push('fire supply');
+    if (waterMl > water) missing.push('water');
+    if (minutes > budget) missing.push(`time (${minutes} minutes)`);
+    if ('actorId' in holder && walking(world, holder.actorId) && path.some((p) => p.minutes > 0 || p.fire_minutes > 0))
+      missing.push('stop to prepare');
+    if (cold && path.some((p) => p.fire_minutes > 0 || p.minutes > 30)) missing.push('cold meal');
+    out.push({
+      food,
+      defId,
+      steps: [...path],
+      missing,
+      fire,
+      water: waterMl,
+      minutes,
+      activeMinutes,
+      morale:
+        food.morale +
+        prep.morale +
+        (stack.spoilage >= (original?.spoilage.turning_pm ?? food.spoilage.turning_pm) ? TURNING_MORALE : 0),
+      kcal: compiled.kcal,
+      units: compiled.units,
+    });
+  }
   return out;
 }
 
