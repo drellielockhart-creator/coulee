@@ -1,6 +1,6 @@
 # Next session: how to pick up
 
-_Updated 2026-10-11, night. The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
+_Updated 2026-10-13, afternoon. The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
 
 ## Where things stand
 
@@ -66,23 +66,35 @@ _Updated 2026-10-11, night. The repo is https://github.com/drellielockhart-creat
 - **Docs sync and root README.**
 - The default test timeout is now 180 s for loaded machines.
 
-**Perf wave 2:** merged (Iron Ford 24.8 → 22.6 ms/h, hash-identical, verified on fresh seeds after the merge). Readiness is still 34% of samples: the next perf target.
+**Perf wave 2:** merged (Iron Ford 24.8 → 22.6 ms/h, hash-identical).
+
+## Waves 7–8 (2026-10-13; `main` green, 935 tests)
+- **Ellie's 2026-10-13 decisions** (00 log; 08 items 11–15): a minute budget; day labor and piece rates; an opinion band with reasons; all M6 defaults approved. Also for the Director: reads the unconscious (C55), misattribution yes (05 Q8), and a foresight setting.
+- **Wave 7:**
+  - social loans need funds and need (5.3 → 1.96/day);
+  - perf 3 (hash-identical);
+  - the web route card;
+  - county names (one qualifier);
+  - M5 slice 2a (census, tiers, hydration).
+- **Wave 8:**
+  - the **minute budget** plus Claude-review fixes (lagged physiology, locks, one exchange per pair per hour, `short_act` opt-in);
+  - **income** (hiring on, piece rates);
+  - the **opinion line** on `inspect`;
+  - **M6 slice 2 brawls** plus review fixes (no stalls over seeds 1–300, 0 deaths over 1,000 seeds, rulesVersion 3);
+  - **M5 2b–2d**: lifecycle hooks, ownership filters, coarse T2 runs. The fidelity gates fail (rest 47 pp, thirst 31 pp) and the speedup is unmeasured at 2 T2 actors.
+- **The storyteller:** Ellie wants a RimWorld-style one. It's the 05 §8 Director, with the plan in `docs/impl/DIRECTOR-PLAN.md`.
+  - **D0** (measure only) is on `wave9/director-d0`.
+  - Baseline: 96% dead-air hours, about 160–186 entirely quiet days a year, and τ flat at about 140/1000 with no peaks (`docs/impl/director/2026-10-13-d0-baseline.md`).
+  - A slimming pass is running before merge (2.25 → <0.5 ms/h; 3.3 MB → <150 KB slice).
+- **Merge practice learned today:** never merge in `main`'s checkout while `just check` runs there. Use an integration worktree (`wave8/int-*`), run `just bundle` in fresh worktrees before web tests, then fast-forward `main`.
 
 ## Next
-1. **Ellie's decisions:** 08 items 11–15 (D1–D3, M5 defaults, M6 defaults including Q04).
-2. **Social tuning:** borrow/lend fires about 5 times a day in Iron Ford (1,933 a year) against about 1.3 a day in generated towns. Find out why and tune.
-3. **Web follow-ups:**
-   - the desktop Act panel shows the route preview twice;
-   - the route preview is raw monospace text: make it a formatted card;
-   - the region map is schematic until a county is playable (M5 slice 3).
-4. **M5 slice 2** (census, T1/T2 LOD), then slice 3 (start in a generated county). Two-site frames cost about 50 ms per game-hour on desktop today.
-5. **M6 slice 2** (melee, brawls, surrender) once Ellie confirms Q04.
-6. **r3 persona playtests** on the current build (CLI plus web), with per-agent helper dirs.
-7. **Small:** stacked county name qualifiers.
-
-**Machine note (2026-10-12 night):** two watcher processes (`while pgrep -f "codex exec" …; systemctl poweroff`) were set up to power the machine off after Codex finishes. Their `pgrep -f` also matches the other watcher's own command line, so they may never fire.
-
-The parking lot is `docs/impl/BACKLOG.md`. Ellie asked for vehicles and river trade there.
+1. **In flight (Codex):** D0 slimming (`../coulee-w9-d0`); M5 2e fidelity fix plus a county-scale T2 benchmark (`../coulee-w8-m5s2e`).
+2. **Director D1** (safe nudges N4/N6/N8/N9, the Almanac, the bias hooks with the visible-dice invariant); then exogenous era pressures (DIRECTOR-PLAN §4).
+3. **r3 persona playtests** on the current build: minute budget, income, opinions, brawls, route card. Include the Director's dead-air metric per run.
+4. **M6 slice 3** (firearms, located injuries, bleeding, treatment).
+5. **Web:** a stray "▪" under the Go heading; the region map stays schematic until M5 slice 3.
+6. **Perf:** the phone gate (<5 ms/h) is still far off (Iron Ford ~22 ms/h).
 
 ## Useful commands
 
