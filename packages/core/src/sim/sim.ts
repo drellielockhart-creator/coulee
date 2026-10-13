@@ -15,6 +15,7 @@ import { appendEvent, type Event, type EventInput, trimLog } from '../events/ind
 import { hashValue } from '../hash.ts';
 import { canAct } from '../needs/api.ts';
 import { authorizeAct } from '../psyche/api.ts';
+import { regionSystem, validateRegionState } from '../region/api.ts';
 import { rng, type Stream } from '../rng.ts';
 import { type PackedJson, unpackJson } from '../serialization.ts';
 import { asGameMinute, calendarAt, MINUTES_PER_DAY, minuteOfDay } from '../time.ts';
@@ -49,6 +50,7 @@ export function restoreSim(
 ): Sim {
   const world = unpackJson<World>(saved);
   if (world.tactical && world.tactical.version !== 1) throw new Error('Unsupported tactical clock version');
+  validateRegionState(world);
   if (!opts.allowContentMismatch && world.meta.contentHash !== content.meta.hash) {
     throw new Error(
       `content hash mismatch: world ${world.meta.contentHash.slice(0, 12)} vs bundle ${content.meta.hash.slice(0, 12)}`,
@@ -124,6 +126,7 @@ export function stepHourly(sim: Sim, commands: readonly Command[] = [], logComma
   // The chronicle (last system) has sifted everything up to lastId: older events may leave memory.
   if (ctx.isNewDay) trimLog(world.log, ctx.now);
   world.time = asGameMinute(world.time + 60);
+  regionSystem(world, makeContext(world, content, [], sim.sink));
 }
 
 /** Calendar announcement shared by legacy hours and open tactical frames. */

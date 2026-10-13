@@ -213,3 +213,116 @@ source change. The successful complete gate took 926 seconds in Vitest. Log:
 
 Touched files: `core/src/region/{api,state,census,evidence,lod,system}.ts`,
 `cli/test/region.test.ts` (paths under `packages/`), and this plan.
+
+## Slice 2b status — wave 8, 2026-10-13
+
+**Mergeable subset: production lifecycle plus a shared daily household ration/domestic-supply
+kernel. Coarse T2 is NOT enabled; slice 2 remains incomplete.**
+
+- `stepHourly` now calls the region boundary with a fresh context after advancing time;
+  tactical advancement calls it only after the frame is settled. Arrival observations and
+  interrupts therefore see the completed boundary. Evidence hydration uses the boundary's
+  timestamp/sink and cannot run during an unfinished tactical frame.
+- Play creation explicitly admits the PC to the census and sets the observation focus.
+  `setRegionFocus` refreshes the census and tier selection immediately; it does not change agency.
+  Restore rejects unsupported region/census/LOD/processing versions without mutating valid saves.
+  Old regional saves acquire missing optional state during ordinary advancement.
+- `region.processingBuckets` gives disjoint hourly/daily actor and household selections.
+  **Every retained sheet and household is still hourly-owned, including policy-selected T2.**
+  Daily ownership requests fail before mutation. This is a closed gate, not a partially active
+  approximation. The other hourly systems still enumerate their existing tables.
+- `provisions.householdEconomyDay` extracts the existing daily ration decision and domestic
+  water/fuel work unchanged, using the existing P8 readiness projection and actual provisions
+  APIs/stores. The ordinary daily economy pass calls this shared entry point through the hourly
+  household bucket. Regional receipts retain the latest processed day per household, reject
+  backward replay, and survive promotion and save/load. Repeated calls cannot replenish supplies
+  or reconsider rations. Non-regional worlds allocate no receipt state and keep the old behavior.
+  Freight, wages, purchases and every meal remain in their existing executors.
+
+Small ownership exception beyond the explicitly granted hooks: `provisions/{api,economy,household}.ts`
+extracts and exposes the existing household kernel and adds its ownership check. It changes no
+ration formula, agency decision, meal planner or employment logic. This avoids a second economy
+implementation in region. No social/belief/activity/tactical-owner files are changed.
+
+### Verification and measurement
+
+The region suite has 16 passing tests, including automatic boundary hydration/48-hour flushing,
+arrival focus, partial tactical frame save/restore, disjoint processing buckets, guarded daily
+household execution, preserved inventory/debt/grudge/death facts, version rejection and replay.
+Its five-day comparison now actually selects distant actors T2 while pinning the control T1;
+it also verifies a saved continuation. It still compares **retained hourly processing**.
+
+A separate **50-seed × three-day** two-site long-road comparison gives **0 percentage-point
+outcome-band differences** for the fallback: every needs, social (including interactions/opinions),
+belief, provisions/cash and inventory slice is exactly equal to a fully pinned T1 control.
+Two distant actors per seed select T2; **zero actors process as T2**. Thus the requested coarse
+approximation comparison is **unmeasured**, not passed. Harness/results:
+`runs/scratch/m5-outcomes{.ts,.json,.log}` (gitignored).
+
+Same-process 30-day `iron_ford_neighbors`, seed 42: **16.91 → 16.04 ms/h** (before then after),
+**14.94 → 15.26 ms/h** (after then before; numbers presented before → after). These order effects
+support no speedup claim. Both versions emit **85,270 events**. Removing census/LOD/processing
+metadata yields the same complete remaining-world hash **`3d1e236af7c30f23`** in all four runs.
+Plain JSON size is 14,099,120 → 14,100,069 bytes; this is not a packed/compressed save measurement.
+The harness uses the pre-edit hourly loop, provisions system and economy from this worktree's
+HEAD for the baseline, alongside the current implementation in one process; each run starts
+fresh and simulates 720 hours after separate 24-hour warmups. Artifacts and harness:
+`runs/scratch/m5-benchmark{.ts,.json,.log}` and `m5-baseline*.ts` (gitignored).
+
+Fair Explorer/Socialite transcript: `runs/scratch/m5-2b-fair/`, authored recipe
+`iron_ford_neighbors`, seed 42, content hash prefix `b31e5543049f`; no god mode or world edits.
+Ten commands travel to Cedar Farm, camp, meet Jonas, and return after one objective day.
+`just run play --session runs/scratch/m5-2b-fair --verify` confirms replay/save equality at
+hash **`29c6805429a31c79`**. Excerpt:
+
+```text
+> travel cedar farm
+> wait 5 hours
+You arrive at Cedar Farm gate (360 min on foot)
+> introduce jonas
+Jonas Hale: “Jonas Hale. Pleased to meet you.”
+> chat jonas
+Jonas Hale: “Middling, and no use complaining. Yourself?”
+> travel iron ford
+> wait 8 hours
+Wait stopped at 00:00 on Monday the 2nd ... You arrive at Dunleavy's Tavern (300 min on foot).
+... sold out until then: Eggs, Bread heel, fresh.
+```
+
+The excerpt omits the recorded field/camp/wait/farmhouse commands; the complete command log,
+transcript and telemetry are in that directory. Food fell 6.0 → 5.0 displayed days, the purse
+stayed $50.00, and there were no wounds. Arrival interruptions and ordinary conversations worked.
+The outward loaded trip took six hours despite the shorter graph cost: existing load rounding,
+not this slice's LOD behavior. No new progression blocker was observed; one day is insufficient
+for the required multi-day Explorer/Socialite/edge-case release pass. This transcript demonstrates
+lifecycle and ordinary absent-site consequences, not a coarse T2 simulation.
+
+### Precisely remaining before enabling T2
+
+1. Shared household-scoped meal/preparation/storage kernels and their six-hour environmental
+   schedule, including water/fire/fuel/cookware, pending plates, devices and fae hems. The current
+   daily economy kernel handles only domestic replenishment and ration policy.
+2. Scoped activity/production, wage/purchase/transfer and needs/survival executors consuming the
+   same interval partition. Pin mixed households, ongoing preparation, travelers, cross-household
+   trades and tactical participants until their transfer rules are defined. Current all-world
+   executors must not run over any future daily-owned records.
+3. Social/psyche daily named-mind effects, settlement belief compartments, producer-side evidence
+   and canonical delayed-memory decay. Existing named debts and grudges stay authoritative in
+   their current slices; no summary recreates them. Existing hydration receipts are now wired,
+   but summarized physical deltas/promotion catch-up do not yet exist.
+4. Actual coarse T2 versus T0/T1 outcome-band gates (≤5 percentage points across 50 seeds),
+   Standard 3–4k census and phone timing/heap/save gates. No coarse-T2 performance claim follows
+   from the retained-executor comparisons. Generated never-materialized census remains deferred.
+
+Touched files (all formatter writes restricted to these files):
+`packages/core/src/region/{api,census,lod,processing,state,system}.ts`,
+`packages/core/src/provisions/{api,economy,household}.ts`,
+`packages/core/src/sim/{sim,advance}.ts`, `packages/play/src/source.ts`,
+`packages/cli/test/region.test.ts`, and `docs/impl/M5-PLAN.md`.
+No commits or golden updates.
+
+Final gate: **`VITEST_MAX_WORKERS=2 just check` green: 82 files / 855 tests**, lint,
+all package/script typechecks, 241 invariant-checked files and 110 content files validated.
+Vitest took 1152.46 seconds on the shared host. Iron Ford's golden passed unchanged.
+`just bundle` was run before the gate for the worker tests' generated content import.
+Complete gate log: `runs/scratch/m5-check.log` (gitignored).
