@@ -413,12 +413,20 @@ it('what she has heard lists on a look, not on every turn; an infant is not offe
   const s = create();
   const o: Observation = JSON.parse(JSON.stringify(s.observe()));
   o.self.belief.beliefs = [
-    { id: 1, text: 'Somebody is of the hidden folk', credence: 70, evidenceCount: 1, voiced: false, conceal: false },
+    {
+      id: 1,
+      text: 'Somebody is of the hidden folk',
+      account: 'Heard from Nora Dunleavy that Somebody is of the hidden folk',
+      credence: 70,
+      evidenceCount: 1,
+      voiced: false,
+      conceal: false,
+    },
   ];
   o.changes.elapsed = 0;
-  expect(renderObservation(o)).toContain('Heard: Somebody is of the hidden folk');
+  expect(renderObservation(o)).toContain('Heard from Nora Dunleavy that Somebody is of the hidden folk');
   o.changes.elapsed = 60;
-  expect(renderObservation(o)).not.toContain('Heard: Somebody');
+  expect(renderObservation(o)).not.toContain('Heard from Nora');
   const brigid = required(s.observe().present.find((p) => p.name === 'Brigid Dunleavy'));
   expect(s.observe().actions.some((a) => a.id === `talk:chat:${brigid.id}`)).toBe(false);
 });

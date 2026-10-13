@@ -523,6 +523,9 @@ describe('social: strife wears out, and a household quarrel ruptures (review: Br
   const fight = (sim: Sim, a: ActorId, b: ActorId) => {
     const def = content.interactions.fight;
     if (!def) throw new Error('fight');
+    const placeId = sim.world.actors[a]?.placeId;
+    if (placeId === undefined) throw new Error('fighter');
+    gather(sim.world, [a, b], placeId);
     return social.resolveInteraction(sim.world, makeContext(sim.world, sim.content, []), {
       def,
       initiatorId: a,
@@ -605,6 +608,9 @@ describe('social: strife wears out, and a household quarrel ruptures (review: Br
     const insult = content.interactions.insult;
     if (!insult) throw new Error('insult');
     const rec = () => sim.world.social.opinions[b]?.[a];
+    const placeId = sim.world.actors[a]?.placeId;
+    if (placeId === undefined) throw new Error('fighter');
+    gather(sim.world, [a, b], placeId);
     // Simulate a retaliation just now: the cooldown is set on the target's record of the initiator.
     social.bumpFamiliarity(sim.world, content, a, b);
     const r = rec();

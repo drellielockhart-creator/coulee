@@ -91,7 +91,7 @@ function socialHour(world: World, ctx: SimContext): void {
   const hs: HourState = { participations: new Map(), initiations: new Map(), poolOf: new Map() };
   const pools: Array<{ placeId: PlaceId; pool: ActorId[]; present: Set<number> }> = [];
   for (const v of venues(world)) {
-    const pool = v.actorIds.filter(awake);
+    const pool = v.actorIds.filter((id) => awake(id) && world.actors[id]?.placeId === v.placeId);
     if (pool.length === 0) continue;
     const entry = { placeId: v.placeId, pool, present: new Set<number>(pool) };
     pools.push(entry);

@@ -98,7 +98,10 @@ export function regardOf(
   const record = god ? world.social.opinions[target]?.[viewer] : undefined;
   return {
     band: BANDS[band] ?? 'civil',
-    phrase: WORDS[band]?.[variant] ?? 'offers you ordinary courtesy',
+    phrase:
+      !god && !check.success
+        ? `hard to read; seems ${BANDS[band] ?? 'civil'}`
+        : (WORDS[band]?.[variant] ?? 'offers you ordinary courtesy'),
     reasons,
     explain: {
       ...check.explain,
@@ -138,6 +141,7 @@ export function playViewModel(
   const god = opts.omniscient || opts.perspective === null;
   if (viewer === null) return vm;
   for (const actor of vm.actors) {
+    if (!god) actor.social = impressionSocial(actor.social);
     if (actor.id === viewer) continue;
     actor.social = {
       ...actor.social,
@@ -146,4 +150,27 @@ export function playViewModel(
     };
   }
   return vm;
+}
+
+/** Fair play exposes feelings as impressions, including the viewer's own opinions. */
+export function impressionSocial(view: social.SocialActorView): social.SocialActorView {
+  return {
+    ...view,
+    opinions: view.opinions.map((o) => ({
+      ...o,
+      label: o.numbersKnown === false ? '' : feelingBand(o.affection, o.trust),
+      affection: 0,
+      respect: 0,
+      trust: 0,
+      fear: 0,
+      reasons: [],
+      numbersKnown: false,
+      familiarity: undefined,
+    })),
+  };
+}
+
+export function feelingBand(affection: number, trust: number): string {
+  const score = Math.round((affection + trust) / 2);
+  return score <= -40 ? 'hostile' : score < -10 ? 'cool' : score < 10 ? 'civil' : score < 40 ? 'friendly' : 'warm';
 }

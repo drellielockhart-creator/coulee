@@ -19,8 +19,12 @@ export function ActorPeek({ actor }: { actor: ActorView }) {
   return (
     <div className="peek" data-testid="peek">
       <p className="peek-line">
-        {own ? 'You' : ofYou ? `Of you: ${opinionBand(ofYou.affection)}` : 'Of you: not yet known'} ·{' '}
-        {actor.activity.verb} · {placeName(vm, actor.placeId)}
+        {own
+          ? 'You'
+          : ofYou
+            ? `Of you: ${ofYou.numbersKnown === false ? ofYou.label || 'not yet known' : opinionBand(ofYou.affection)}`
+            : 'Of you: not yet known'}{' '}
+        · {actor.activity.verb} · {placeName(vm, actor.placeId)}
       </p>
       <div className="peek-actions">
         {own ? (

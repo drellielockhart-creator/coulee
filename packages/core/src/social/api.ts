@@ -28,6 +28,7 @@ export { resolveInteraction } from './interact.ts';
 export { decayOneDay, encodeSalience, memoryDigest } from './memory.ts';
 export {
   bumpFamiliarity,
+  hasMet,
   isAcquainted,
   opinionLabel,
   opinionOf,

@@ -1,4 +1,5 @@
 /** One social handoff per pair/scene, independent of the rolling event window. */
+import { displayName } from '../actor.ts';
 import type { ActorId, EventId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -29,6 +30,10 @@ export function recordCombatOutcome(
   for (const key of keys.slice(0, Math.max(0, keys.length - 255))) delete w.social.combatIncidents[key];
   w.social.combatIncidents[incident.key] = { ...incident, at: ctx.now };
   noteStrife(w, ctx, incident.a, incident.b, true, incident.eventId, areKin(w, incident.a, incident.b));
+  const name = (id: ActorId) => {
+    const actor = w.actors[id];
+    return actor ? displayName(actor) : 'someone';
+  };
   for (const id of incident.witnesses) {
     const other = id === incident.a ? incident.b : incident.a;
     const memory = addMemory(w, ctx, {
@@ -48,7 +53,10 @@ export function recordCombatOutcome(
       confidence: 1000,
       rehearsals: 0,
       pinned: false,
-      summary: incident.text,
+      summary:
+        id === incident.a || id === incident.b
+          ? `Came to blows with ${name(other)}`
+          : `Saw ${name(incident.a)} fight ${name(incident.b)}`,
       aboutId: other,
     });
     if (memory && (id === incident.a || id === incident.b)) {
@@ -57,7 +65,7 @@ export function recordCombatOutcome(
           ? ctx.content.interactions.fight?.success.target_opinion
           : ctx.content.interactions.fight?.success.initiator_opinion;
       addOpinionReason(w, ctx, id, other, {
-        label: incident.text,
+        label: id === incident.b ? 'Came to blows with me' : 'We came to blows',
         cites: { kind: 'memory', id: memory },
         since: ctx.now,
         delta: {

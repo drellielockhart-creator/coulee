@@ -25,7 +25,7 @@ export function OpinionsTab(props: { actor: ActorView }) {
   /** Rung 3: tap an opinion's axes to read what each one means (touch has no hover). */
   const [explained, setExplained] = useState<number | null>(null);
   const ops = a.social.opinions
-    .filter((o) => o.numbersKnown !== false)
+    .filter((o) => o.numbersKnown !== false || a.id === vm.playerId)
     .sort(
       (x, y) =>
         (y.targetId === vm.playerId ? 1 : 0) - (x.targetId === vm.playerId ? 1 : 0) ||
@@ -82,23 +82,28 @@ export function OpinionsTab(props: { actor: ActorView }) {
               </button>
               {o.label ? <span className="chip">{o.label}</span> : null}
             </header>
-            <button
-              type="button"
-              className="axes"
-              aria-expanded={explained === o.targetId}
-              aria-label={`Opinion of ${o.targetName}: tap for what each line means`}
-              onClick={() => setExplained(explained === o.targetId ? null : o.targetId)}
-            >
-              {AXES.map((ax) => (
-                <span key={ax} className="axis">
-                  <span className="k">{ax[0]?.toUpperCase() + ax.slice(1)}</span>
-                  <Bar value={o[ax]} min={-100} max={100} diverging label={`${ax} ${o[ax]}`} />
-                  <span className="axis-v">
-                    {signed(o[ax])} <span className="band">{ax === 'fear' ? fearBand(o[ax]) : opinionBand(o[ax])}</span>
+            {o.numbersKnown === false ? (
+              <p>Your impression: seems {o.label || 'unfamiliar'}.</p>
+            ) : (
+              <button
+                type="button"
+                className="axes"
+                aria-expanded={explained === o.targetId}
+                aria-label={`Opinion of ${o.targetName}: tap for what each line means`}
+                onClick={() => setExplained(explained === o.targetId ? null : o.targetId)}
+              >
+                {AXES.map((ax) => (
+                  <span key={ax} className="axis">
+                    <span className="k">{ax[0]?.toUpperCase() + ax.slice(1)}</span>
+                    <Bar value={o[ax]} min={-100} max={100} diverging label={`${ax} ${o[ax]}`} />
+                    <span className="axis-v">
+                      {signed(o[ax])}{' '}
+                      <span className="band">{ax === 'fear' ? fearBand(o[ax]) : opinionBand(o[ax])}</span>
+                    </span>
                   </span>
-                </span>
-              ))}
-            </button>
+                ))}
+              </button>
+            )}
             {explained === o.targetId ? (
               <ul className="axis-meaning" role="note">
                 {AXES.map((ax) => (

@@ -23,7 +23,7 @@ export function KnownTab(props: { actor: ActorView }) {
             .sort((x, y) => y.credence - x.credence || x.id - y.id)
             .map((x) => (
               <li key={x.id}>
-                <q>{x.text}</q>
+                <q>{x.account ?? x.text}</q>
                 <div className="meta">
                   <Bar value={x.credence} max={100} label={`credence ${x.credence}`} />
                   <span>

@@ -76,11 +76,12 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
   };
   const out = (text: string, routine = false): Described => ({ text, routine });
 
+  if (e.kind === 'tactical.submission')
+    return out(`${Who(e.data.actorId)} ${e.data.actorId === pc ? 'yield' : 'yields'}; nonlethal blows have stopped.`);
   if (e.kind === 'needs.combat_health') return out(`${Who(e.data.actorId)}: ${e.data.text}`);
   if (
     e.kind === 'tactical.blow' ||
     e.kind === 'tactical.grapple' ||
-    e.kind === 'tactical.submission' ||
     e.kind === 'tactical.outcome' ||
     e.kind === 'tactical.morale' ||
     e.kind === 'tactical.danger' ||
@@ -321,16 +322,28 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
     case 'social.reconciled':
       return out(`${actorName(e.data.aId)} and ${actorName(e.data.bId)} are speaking again`);
     case 'belief.formed':
-      return out(`Heard: ${e.data.text}`);
+      return out(`You believe that ${e.data.text}`);
     case 'belief.transmitted':
-      return out(`${e.data.listenerId === pc ? 'Heard' : 'Told'}: ${e.data.text ?? 'a rumor'}`);
+      return out(
+        e.data.listenerId === pc
+          ? `Heard from ${actorName(e.data.speakerId)} that ${e.data.text ?? 'something happened'}${e.data.accepted ? '' : ' (you doubt it)'}`
+          : `Told ${who(e.data.listenerId)} that ${e.data.text ?? 'something happened'}`,
+      );
     case 'belief.tell':
-      return out(`You notice something not quite right about ${actorName(e.data.targetId)}`);
+      return out(
+        e.data.targetId === pc
+          ? 'You try to conceal an unusual reaction'
+          : `${e.roles.find((r) => r.role === 'witness')?.actor === pc ? 'You notice' : 'Someone notices'} something unusual about ${actorName(e.data.targetId)}; it could have an ordinary cause`,
+      );
     case 'belief.evidence':
     case 'belief.decayed':
       return out('Something you have heard seems more or less certain than it did', true);
     case 'belief.revealed':
-      return out(`It comes out about ${actorName(e.data.actorId)}`);
+      return out(
+        god
+          ? `It comes out about ${actorName(e.data.actorId)}`
+          : `The talk about ${actorName(e.data.actorId)} has become public`,
+      );
     case 'belief.grudge_formed':
       return out(`${actorName(e.data.holderId)} has begun to hold a grudge against ${e.data.target}`);
     case 'belief.escalation':

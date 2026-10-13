@@ -219,6 +219,7 @@ failure.initiator_memory = "{target} put me down at {place}"
 failure.witness_memory = "{target} put {initiator} down at {place}"
 failure.target_reason = "Came at me with fists at {place}"
 failure.initiator_reason = "Put me down in front of everyone"
+failure.memory_agent = "target"
 
 # ---- Persecution steps (04 §9.2, §9.4). Proposed only by belief when a process is ready for its
 # next rung and this actor is the Catalyst; belief then advances the ladder when it happens.
