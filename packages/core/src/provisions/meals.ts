@@ -7,7 +7,7 @@ import type { PrepDef } from '@coulee/content/schema';
 import { reservePreparation } from '../activity/api.ts';
 import { skillCheck } from '../checks.ts';
 import type { ContentBundle, ItemDef } from '../content.ts';
-import { type Explain, term } from '../explain.ts';
+import { type Explain, intValue, term } from '../explain.ts';
 import { type ActorId, type HouseholdId, type ItemId, type PlaceId, rowsOf } from '../ids.ts';
 import {
   carriedBy,
@@ -48,8 +48,30 @@ export type Holder = { actorId: ActorId } | { householdId: HouseholdId };
 export const locationOf = (h: Holder): ItemLocation =>
   'actorId' in h ? carriedBy(h.actorId) : pantryOf(h.householdId);
 
+// Only the stationary readiness copy opts in: its membership, locations and scheduled
+// energy inputs do not change. Nothing is cached for live meals or travel projections.
+const projectionMeals = new Map<
+  World,
+  { members: Map<string, ActorId[]>; locations: Map<string, ItemLocation[]>; energy: Map<string, number> }
+>();
+const holderKey = (h: Holder): string => ('actorId' in h ? `a${h.actorId}` : `h${h.householdId}`);
+export function withProjectionMeals<T>(world: World, run: () => T): T {
+  const previous = projectionMeals.get(world);
+  projectionMeals.set(world, { members: new Map(), locations: new Map(), energy: new Map() });
+  try {
+    return run();
+  } finally {
+    if (previous) projectionMeals.set(world, previous);
+    else projectionMeals.delete(world);
+  }
+}
+
 /** A lone householder's carried kit is part of the larder while they are home. */
 export function holderLocations(world: World, holder: Holder): ItemLocation[] {
+  const memo = projectionMeals.get(world)?.locations;
+  const key = memo ? holderKey(holder) : '';
+  const cached = memo?.get(key);
+  if (cached) return cached;
   const locations = [locationOf(holder)];
   if ('householdId' in holder) {
     const members = membersOf(world, holder);
@@ -57,10 +79,14 @@ export function holderLocations(world: World, holder: Holder): ItemLocation[] {
     if (id !== undefined && world.actors[id]?.placeId === world.households[holder.householdId]?.homePlaceId)
       locations.push(carriedBy(id));
   }
+  memo?.set(key, locations);
   return locations;
 }
 export function holderStacks(world: World, holder: Holder, index = inventoryIndex(world)): ItemStack[] {
-  return holderLocations(world, holder).flatMap((loc) => stacksDeep(world, loc, index).map((s) => s.stack));
+  const stacks: ItemStack[] = [];
+  for (const loc of holderLocations(world, holder))
+    for (const entry of stacksDeep(world, loc, index)) stacks.push(entry.stack);
+  return stacks;
 }
 export function holderSupply(
   world: World,
@@ -74,7 +100,13 @@ export function holderSupply(
 
 /** The schedule's full day burn, avoiding the noon-labor/overnight-labor estimate discontinuity. */
 export function dailyKcal(world: World, content: ContentBundle, id: ActorId, now: number): number {
-  return dailyKcalParts(world, content, id, now, false).kcal;
+  const memo = projectionMeals.get(world)?.energy;
+  const key = memo ? `${Math.floor(now / 1440)}:${id}` : '';
+  const cached = memo?.get(key);
+  if (cached !== undefined) return cached;
+  const kcal = dailyKcalParts(world, content, id, now, false).kcal;
+  memo?.set(key, kcal);
+  return kcal;
 }
 
 /** Hours and energy of one scheduled day by labor class (P1: why the daily need is what it is). */
@@ -128,6 +160,7 @@ export function dailyKcalParts(
     parts.personPct = Math.round(person * 100);
   }
   let total = 0;
+  const hourlyCal = { ...cal };
   for (let hour = 0; hour < 24; hour++) {
     const block = schedule.find(
       (b) =>
@@ -143,7 +176,8 @@ export function dailyKcalParts(
     points *= valueFactor;
     for (const trait of a.traits) points *= (hunger.trait_pct[trait] ?? 100) / 100;
     points *= physiology;
-    const air = airTempF({ ...cal, hour }, world);
+    hourlyCal.hour = hour;
+    const air = airTempF(hourlyCal, world);
     let weather = 100;
     for (const clause of hunger.temperature_pct)
       if (
@@ -192,13 +226,20 @@ export function dailyNeedExplain(world: World, content: ContentBundle, id: Actor
 }
 
 export function membersOf(world: World, holder: Holder): ActorId[] {
-  return 'actorId' in holder
-    ? world.actors[holder.actorId]?.alive
-      ? [holder.actorId]
-      : []
-    : rowsOf(world.actors)
-        .filter((a) => a.alive && a.householdId === holder.householdId)
-        .map((a) => a.id);
+  const memo = projectionMeals.get(world)?.members;
+  const key = memo ? holderKey(holder) : '';
+  const cached = memo?.get(key);
+  if (cached) return cached;
+  const members =
+    'actorId' in holder
+      ? world.actors[holder.actorId]?.alive
+        ? [holder.actorId]
+        : []
+      : rowsOf(world.actors)
+          .filter((a) => a.alive && a.householdId === holder.householdId)
+          .map((a) => a.id);
+  memo?.set(key, members);
+  return members;
 }
 export function rationOf(world: World, holder: Holder): number {
   return 'actorId' in holder
@@ -574,6 +615,18 @@ export function mealExplain(
 }
 
 type Plate = PendingPlate;
+const FOOD_PREFERENCES = [
+  ['time', 'Preparation time preference'],
+  ['nutrition', 'Fat deficit preference'],
+  ['nutrition', 'Protein deficit preference'],
+  ['spoilage', 'Spoils-first preference'],
+  ['nutrition', 'Fresh-food preference'],
+  ['morale', 'Food morale preference'],
+  ['variety', 'Variety preference'],
+  ['weight', 'Pack-weight preference'],
+  ['cost', 'Thrift preference'],
+  ['policy', 'Reserved trail rations'],
+] as const;
 /** Inventory and energy estimates live only for a provisions/projection pass. */
 export interface MealPass {
   /** Private projections discard explanations; live meals always retain them. */
@@ -732,44 +785,33 @@ export function serveMeal(
     const paths = trials.filter((r) => !r.missing.length);
     if (food.group !== 'sweet' && paths.some((r) => r.kcal > SIDE_KCAL_MAX)) mainAvailable = true;
     const prepMinutes = paths.length ? Math.min(...paths.map((r) => r.minutes)) : timeLeft + 1;
-    const terms = [
-      term('time', 'Preparation time preference', -prepMinutes * (policy.weights.preparation_time ?? 2)),
-      term(
-        'nutrition',
-        'Fat deficit preference',
-        fatNeed ? Math.floor((food.fat_g * 9 * 100) / Math.max(1, food.kcal)) * 20 : 0,
-      ),
-      term(
-        'nutrition',
-        'Protein deficit preference',
-        proteinNeed ? Math.floor((food.protein_g * 100) / Math.max(1, food.kcal)) * 20 : 0,
-      ),
-      term('spoilage', 'Spoils-first preference', urgency * policy.weights.spoils_first),
-      term(
-        'nutrition',
-        'Fresh-food preference',
-        plates.some((p) => {
-          const n = world.provisions.nutrition[p.id];
-          return !n || n.today.freshPoints < targets.fresh_target * targets.fresh_reference_servings || n.scurvy >= 500;
-        })
-          ? food.fresh * policy.weights.fresh_need
-          : 0,
-      ),
-      term('morale', 'Food morale preference', food.morale * policy.weights.morale),
-      term('variety', 'Variety preference', variety * policy.weights.variety),
-      term(
-        'weight',
-        'Pack-weight preference',
-        Math.floor(def.weight_g / food.servings / 10) * policy.weights.lightness,
-      ),
-      term('cost', 'Thrift preference', -def.value_cents * policy.weights.thrift),
-      term('policy', 'Reserved trail rations', reserved),
+    // The projection needs the same rounded score, but discards the named terms.
+    const values = [
+      -prepMinutes * (policy.weights.preparation_time ?? 2),
+      fatNeed ? Math.floor((food.fat_g * 9 * 100) / Math.max(1, food.kcal)) * 20 : 0,
+      proteinNeed ? Math.floor((food.protein_g * 100) / Math.max(1, food.kcal)) * 20 : 0,
+      urgency * policy.weights.spoils_first,
+      plates.some((p) => {
+        const n = world.provisions.nutrition[p.id];
+        return !n || n.today.freshPoints < targets.fresh_target * targets.fresh_reference_servings || n.scurvy >= 500;
+      })
+        ? food.fresh * policy.weights.fresh_need
+        : 0,
+      food.morale * policy.weights.morale,
+      variety * policy.weights.variety,
+      Math.floor(def.weight_g / food.servings / 10) * policy.weights.lightness,
+      -def.value_cents * policy.weights.thrift,
+      reserved,
     ];
     scores.set(
       stack.id,
-      terms.reduce((n, t) => n + t.value, 0),
+      values.reduce((n, value) => n + intValue(value), 0),
     );
-    if (trace) scoreTerms.set(stack.id, terms);
+    if (trace)
+      scoreTerms.set(
+        stack.id,
+        FOOD_PREFERENCES.map(([source, label], i) => term(source, label, values[i] ?? 0)),
+      );
   }
   candidates.sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0) || a.id - b.id);
   const sides = new Set<ItemId>();

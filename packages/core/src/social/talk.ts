@@ -545,26 +545,48 @@ function placeKey(placeId: PlaceId | null): string | null {
   return placeId === null ? null : `p${placeId}`;
 }
 
+// Derived index only: talk records remain the save data. This module owns every write;
+// restored/replaced records get new identities and are indexed on first use. Refreshing
+// the earliest entry may leave an early expiry bound, which only causes an extra scan.
+// Bound retention across worlds without relying on GC-dependent collections (ADR 0001).
+const talkExpiry = new Map<Record<string, number>, { count: number; next: number }>();
+function expireTalk(rec: Record<string, number>, now: number, keep: number) {
+  const index = { count: 0, next: Number.POSITIVE_INFINITY };
+  for (const id of Object.keys(rec)) {
+    const expires = (rec[id] ?? 0) + keep;
+    if (now >= expires) delete rec[id];
+    else {
+      index.count++;
+      index.next = Math.min(index.next, expires);
+    }
+  }
+  if (!talkExpiry.has(rec) && talkExpiry.size >= 512) talkExpiry.clear();
+  talkExpiry.set(rec, index);
+  return index;
+}
+
 function remember(world: World, key: string, ids: readonly string[], now: number): void {
   world.social.talk ??= {};
   const rec = world.social.talk[key] ?? {};
+  const keep = retention(key);
+  let index = talkExpiry.get(rec);
+  // Index before insertion without expiring: a refreshed key must keep its original
+  // insertion/eviction semantics, including at the exact retention boundary.
+  index ??= expireTalk(rec, Number.NEGATIVE_INFINITY, keep);
   for (const id of ids) {
+    if (rec[id] === undefined) index.count++;
     delete rec[id];
     rec[id] = now;
   }
+  if (ids.length) index.next = Math.min(index.next, now + keep);
   // Pair/speaker/room cooldowns retain their full live windows. Listener hashes also have
   // a hard count cap; under exceptional load the oldest remembered words are forgotten first.
-  const keep = retention(key);
-  const hashes = Object.keys(rec).filter((id) => {
-    if (now - (rec[id] ?? 0) < keep) return true;
-    delete rec[id];
-    return false;
-  });
-  if (key.startsWith('h')) {
-    if (hashes.length > MAX_HEARD) {
-      hashes.sort((a, b) => (rec[a] ?? 0) - (rec[b] ?? 0) || Number(a) - Number(b));
-      for (const hash of hashes.slice(0, hashes.length - MAX_HEARD)) delete rec[hash];
-    }
+  if (now >= index.next) index = expireTalk(rec, now, keep);
+  if (key.startsWith('h') && index.count > MAX_HEARD) {
+    const hashes = Object.keys(rec);
+    hashes.sort((a, b) => (rec[a] ?? 0) - (rec[b] ?? 0) || Number(a) - Number(b));
+    for (const hash of hashes.slice(0, hashes.length - MAX_HEARD)) delete rec[hash];
+    index.count = MAX_HEARD;
   }
   world.social.talk[key] = rec;
 }
@@ -575,9 +597,7 @@ export function pruneTalk(world: World, now: number): void {
   if (!talk) return;
   for (const k of Object.keys(talk)) {
     const rec = talk[k] ?? {};
-    const keep = retention(k);
-    for (const id of Object.keys(rec)) if (now - (rec[id] ?? 0) >= keep) delete rec[id];
-    if (Object.keys(rec).length === 0) delete talk[k];
+    if (expireTalk(rec, now, retention(k)).count === 0) delete talk[k];
   }
 }
 

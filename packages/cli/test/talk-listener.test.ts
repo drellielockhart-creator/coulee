@@ -186,4 +186,22 @@ describe('listener text memory', () => {
     expect(b).toEqual(a);
     expect(restored.world.social.talk).toEqual(f.sim.world.social.talk);
   });
+
+  it('keeps expiry and cap decisions identical with a warm index and a freshly loaded record', () => {
+    const f = fixture([line('a', 'The bridge is muddy.'), line('b', 'The hens got out.')]);
+    f.sim.world.social.talk = {
+      [`h${f.t}`]: Object.fromEntries(Array.from({ length: 1024 }, (_, n) => [String(n), 0])),
+    };
+    const def = f.content.interactions.chat;
+    if (!def) throw new Error('missing chat');
+    const req = { def, initiatorId: f.i, targetId: f.t, placeId: null, success: true, part: 'act' as const };
+    for (const now of [0, 0, 60, 1440, 30 * 1440 - 1, 30 * 1440, 31 * 1440, 62 * 1440]) {
+      f.sim.world.time = asGameMinute(now);
+      const restored = restoreSim(f.content, JSON.parse(JSON.stringify(packJson(f.sim.world))));
+      const live = f.say();
+      const loaded = composeExchange(restored.world, makeContext(restored.world, f.content, []), req);
+      expect(loaded).toEqual(live);
+      expect(restored.world.social.talk).toEqual(f.sim.world.social.talk);
+    }
+  });
 });

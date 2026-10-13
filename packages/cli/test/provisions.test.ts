@@ -76,6 +76,33 @@ describe('provisions acceptance', () => {
     expect(allStacks(world).map((s) => s.id)).toEqual([first, split, fresh]);
   });
 
+  it('nested inventory passes track leaf deletion, container hoisting, and moves without stale locations', () => {
+    const world = fixture(content);
+    const bag = add(world, 'oilcloth_bag', 1, true);
+    const food = newStack(world, 'flour', 1, { kind: 'container', itemId: bag }, world.time);
+    const leaf = add(world, 'dried_apples', 1, true);
+    const atActor = () => stacksDeep(world, carriedBy(A)).map(({ stack, depth }) => [stack.id, depth]);
+    withInventoryPass(world, () => {
+      expect(atActor()).toEqual([
+        [bag, 0],
+        [food, 1],
+        [leaf, 0],
+      ]);
+      withInventoryPass(world, () => deleteStack(world, leaf));
+      expect(atActor()).toEqual([
+        [bag, 0],
+        [food, 1],
+      ]);
+      withInventoryPass(world, () => deleteStack(world, bag));
+      expect(atActor()).toEqual([[food, 0]]);
+      withInventoryPass(world, () =>
+        moveStack(world, context(world, content), food, 1, { kind: 'household', householdId: H }),
+      );
+      expect(atActor()).toEqual([]);
+      expect(stacksDeep(world, { kind: 'household', householdId: H }).map(({ stack }) => stack.id)).toEqual([food]);
+    });
+  });
+
   it('1: equal energy with fresh sides prevents scurvy while a salt-pork/flour diet crosses the threshold', () => {
     const lean = fixture(content),
       varied = fixture(content);
@@ -220,6 +247,21 @@ describe('provisions acceptance', () => {
       goodDays++;
     }
     expect(r.daysOfFoodTenths).toBe(goodDays * 10);
+  });
+
+  it('readiness isolates existing nutrition history and fires across repeated projections', () => {
+    const w = fixture(content);
+    add(w, 'hardtack', 30);
+    add(w, 'dried_apples', 10);
+    advanceOwned(w, content, 48, provisionsSystem);
+    const nutrition = mustGet(w.provisions.nutrition, A, 'nutrition');
+    expect(nutrition.history.length).toBeGreaterThan(0);
+    w.provisions.fires[P] = { placeId: P, lit: true, fuelMinutes: 120, until: w.time + 120 };
+    const before = hashValue(w);
+    const plan = readinessOf(w, content, { householdId: H }, w.time, 4);
+    expect(hashValue(w)).toBe(before);
+    expect(readinessOf(w, content, { householdId: H }, w.time, 4)).toEqual(plan);
+    expect(hashValue(w)).toBe(before);
   });
 
   it('5: shortages cut rations; cash transfers balance and credit obeys the limit', () => {

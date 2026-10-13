@@ -277,8 +277,9 @@ export function formatStamp(t: GameMinute): string {
 
 /** Whole years between two instants (for ages). */
 export function yearsBetween(from: GameMinute, to: GameMinute): number {
-  const a = calendarAt(from);
-  const b = calendarAt(to);
+  // Ages use civil dates only; moon, daylight and time of day cannot affect them.
+  const a = civilFromDays(EPOCH_DAYS + dayIndex(from));
+  const b = civilFromDays(EPOCH_DAYS + dayIndex(to));
   let y = b.year - a.year;
   if (b.month < a.month || (b.month === a.month && b.day < a.day)) y -= 1;
   return y;

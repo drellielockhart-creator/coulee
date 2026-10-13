@@ -21,6 +21,7 @@ import { hasCondition } from '../actor.ts';
 import type { DefenseId, InteractionDef } from '../content.ts';
 import type { Explain } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
+import { withInventoryPass } from '../items/api.ts';
 import { canAct, needValue } from '../needs/api.ts';
 import { authorizeAct, chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
@@ -63,6 +64,10 @@ interface HourState {
 }
 
 export function socialSystem(world: World, ctx: SimContext): void {
+  withInventoryPass(world, () => socialHour(world, ctx));
+}
+
+function socialHour(world: World, ctx: SimContext): void {
   requestsHour(world, ctx);
   reliefHour(world, ctx);
   if (ctx.isNewDay) {
