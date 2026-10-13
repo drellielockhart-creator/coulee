@@ -56,6 +56,10 @@ function holdingPlace(dc: DetectCtx, itemId: number): number {
 function kindOf(dc: DetectCtx, f: Fact): string | null {
   if (f.cls === 'charm') {
     switch (f.sub) {
+      case 'charm_stolen':
+        return 'stolen';
+      case 'charm_missing':
+        return 'missing';
       case 'charm_arrived':
         return 'arr';
       case 'charm_used':
@@ -102,10 +106,11 @@ function levelOf(facts: ThreadFact[], th: ChronicleThread, dc: DetectCtx, view: 
   const households = new Set(covet.map((f) => householdOfActor(dc, f.a)).filter((h) => h > 0));
   const owns = view === 'all' ? (th.data.owns ?? 0) : 0;
   if (covet.length >= 3 && (households.size >= 2 || owns >= 2)) level = 2;
-  const transfer = count(facts, 'force') >= 1 || count(facts, 'loan') >= 2;
+  const transfer = count(facts, 'stolen') >= 1 || count(facts, 'force') >= 1 || count(facts, 'loan') >= 2;
   const split = view === 'all' && (th.data.split ?? 0) > 0;
   const blamed = view === 'all' && (th.data.blamed ?? 0) >= 2 && count(facts, 'short') >= 1;
-  const publicQuarrel = view !== 'all' && (count(facts, 'breach') >= 1 || count(facts, 'tell') >= 1);
+  const publicQuarrel =
+    view !== 'all' && (count(facts, 'missing') >= 1 || count(facts, 'breach') >= 1 || count(facts, 'tell') >= 1);
   if (level >= 2 && transfer && (split || blamed || publicQuarrel)) level = 3;
   return level;
 }
@@ -176,12 +181,16 @@ function resolutionOf(dc: DetectCtx, th: ChronicleThread, facts: readonly Thread
     const disposal = [...facts].reverse().find((f) => f.k === 'disp');
     if (disposal && ['buried', 'destroyed', 'returned'].includes(disposal.x)) return disposal.x;
     if (count(facts, 'rest') > 0) return 'restitution';
+    const lastTransfer = [...facts].reverse().find((f) => ['missing', 'stolen', 'loan', 'ret'].includes(f.k));
+    if (lastTransfer?.k === 'missing' || lastTransfer?.k === 'stolen') return 'stolen';
     if (count(facts, 'ret') >= 2 && count(facts, 'breach') === 0) return 'shared';
     return 'quiet';
   }
   const itemId = th.data.item ?? 0;
   const c = dc.world.fae?.charms?.[itemId as never];
   if (c?.disposed) return c.disposed.kind;
+  const theft = c?.thefts?.[c.thefts.length - 1];
+  if (theft && c?.custodianId === theft.thiefId) return 'stolen';
   if (count(facts, 'rest') > 0 || (th.data.rest ?? 0) > 0) return 'restitution';
   const cases = Object.values(dc.world.fae?.drawCases ?? {}).filter((x) => x.itemId === itemId);
   if (cases.some((x) => x.accepted)) return 'accepted';
@@ -200,6 +209,7 @@ function resolutionOf(dc: DetectCtx, th: ChronicleThread, facts: readonly Thread
 }
 
 const RESOLUTION_WORDS: Record<string, string> = {
+  stolen: 'taken from its keeper without leave',
   destroyed: 'burned at the forge',
   buried: 'buried with iron on it',
   returned: 'given back to the Good Neighbors',
@@ -212,7 +222,9 @@ const RESOLUTION_WORDS: Record<string, string> = {
 };
 
 function keeperOfThread(facts: readonly ThreadFact[]): number {
-  const last = [...facts].reverse().find((f) => f.k === 'use' || f.k === 'arr' || f.k === 'loan' || f.k === 'ret');
+  const last = [...facts]
+    .reverse()
+    .find((f) => f.k === 'use' || f.k === 'arr' || f.k === 'loan' || f.k === 'ret' || f.k === 'stolen');
   if (!last) return 0;
   return last.k === 'loan' ? last.b || last.a : last.a;
 }
@@ -404,9 +416,47 @@ function writeRefusalLine(dc: DetectCtx, th: ChronicleThread, key: string, keepe
   if (e) th.entryIds.push(e.id);
 }
 
+/** The paper names the loss; only the epilogue names the hidden taker. Retry budgeted drafts. */
+function theftLines(dc: DetectCtx, th: ChronicleThread): void {
+  for (const f of th.facts) {
+    const truth = f.k === 'stolen';
+    if (!truth && f.k !== 'missing') continue;
+    const marker = `theft_${f.e}_${truth ? 'truth' : 'paper'}`;
+    if (th.data[marker]) continue;
+    const draft = newDraft({
+      key: truth ? 'charm.theft_truth' : 'charm.stolen',
+      importance: 70,
+      terms: [],
+      valence: -30,
+      t: f.t,
+      tEnd: f.t,
+      actorIds: truth ? [f.a, f.b].filter((x) => x > 0) : [f.a],
+      placeIds: [],
+      sources: [f.e],
+      pattern: 'charm',
+      kind: 'pattern',
+      level: 151,
+      threadId: th.id,
+      topics: ['charm'],
+      voice: truth ? 'epilogue' : 'paper',
+      basis: truth ? 'omniscient' : 'public',
+      bind: {
+        charm: itemSubjectName(dc.world, dc.content, th.data.item ?? 0),
+        asker: truth ? nameOf(dc, f.a) : '',
+        keeper: truth ? nameOf(dc, f.b) : '',
+      },
+    });
+    const e = writeEntry(dc, draft);
+    if (e) {
+      th.entryIds.push(e.id);
+      th.data[marker] = 1;
+    }
+  }
+}
+
 export const charm: PatternDef = {
   id: 'charm',
-  entryKeys: ['charm.refused', 'charm.relented'],
+  entryKeys: ['charm.refused', 'charm.relented', 'charm.stolen', 'charm.theft_truth'],
   topic: 'charm',
   importance: 55,
   balladLevel: 3,
@@ -493,6 +543,7 @@ export const charm: PatternDef = {
       if (th.pattern !== 'charm') continue;
       if (th.data.truth_pending) writeTruth(dc, th, th.data.truth_pending === 2);
       refusalLines(dc, th);
+      theftLines(dc, th);
       const since = (th.data.truth_t ?? th.openedAt) as number;
       if ((dc.ctx.now as number) - since >= TRUTH_EVERY * DAY && (th.data.uses ?? 0) + th.facts.length > 3)
         writeTruth(dc, th, false);
@@ -503,7 +554,7 @@ export const charm: PatternDef = {
   stale(th: ChronicleThread, dc: DetectCtx): boolean {
     const now = dc.ctx.now as number;
     const disposed = th.facts.some((f) => f.k === 'disp');
-    const unsettled = ['force', 'short', 'breach', 'loan', 'ret', 'covet', 'arr', 'disp'];
+    const unsettled = ['stolen', 'missing', 'force', 'short', 'breach', 'loan', 'ret', 'covet', 'arr', 'disp'];
     const last = Math.max(th.openedAt as number, ...th.facts.filter((f) => unsettled.includes(f.k)).map((f) => f.t));
     const openLoan = (dc.world.social.objectLoans ?? []).some(
       (l) => l.itemId === (th.data.item ?? 0) && l.status === 'open',

@@ -19,6 +19,7 @@ import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { charmDefOf, keeperOf, knownRecord } from './charms.ts';
 import type { DrawCase } from './state.ts';
+import { checkCharmLoss } from './theft.ts';
 
 const SALT_COUNT = 0xc0a7;
 const SALT_TRACE = 0x7ace;
@@ -261,7 +262,8 @@ export function traceBack(world: World, ctx: SimContext, dc: DrawCase, actorId: 
 export function countStock(world: World, ctx: SimContext, actorId: ActorId): number {
   const a = world.actors[actorId];
   if (!a) return 0;
-  const found = checkShortfall(world, ctx, a.householdId, actorId, 'count', a.placeId);
+  const found =
+    checkShortfall(world, ctx, a.householdId, actorId, 'count', a.placeId) + checkCharmLoss(world, ctx, actorId);
   world.fae.counts ??= {};
   world.fae.counts[a.householdId] = ctx.now;
   if (!found)

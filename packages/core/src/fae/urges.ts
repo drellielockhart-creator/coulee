@@ -12,7 +12,7 @@ import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 import { pantryOf, stacksDeep } from '../items/api.ts';
 import { driveWeight, normStrength } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
-import { itemPreflight, loanUrges, openLoanOf } from '../social/api.ts';
+import { itemPreflight, loanUrges, openLoanOf, theftPreflight } from '../social/api.ts';
 import { yearsBetween } from '../time.ts';
 import type { Terms, UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -29,7 +29,7 @@ import {
   itemArg,
 } from './desire.ts';
 import { drawEffectOf } from './draws.ts';
-import { charmGuilt, refusedHousehold } from './refusal.ts';
+import { charmCovetPressure, charmGuilt, refusedHousehold } from './refusal.ts';
 import type { CharmState } from './state.ts';
 import { offeringBlocked, tieWindow } from './tend.ts';
 
@@ -462,10 +462,47 @@ function outsiderUrges(world: World, ctx: SimContext, actorId: ActorId, c: Charm
   // Covet (13 §5.6): desire, voiced by hunger or greed; conscience speaks against theft and the Devil.
   const d = c.desire[actorId] ?? 0;
   if (d < 20 || keeper === null || !k || k.householdId === a.householdId) return out;
-  // Desperation theft is not proposed here: a generic theft act in module:social (wave 6 relief)
-  // can read `charmCovetPressure` (fae/refusal.ts) for a refused, short household (the hook).
   // Its own house does not covet what it has lent out: getting it back is the loan's business.
   if (openLoanOf(world, item)?.lenderHouseholdId === a.householdId) return out;
+  // A refusal's asking cooldown does not suppress desperation. Reality and the keeper used
+  // here remain the actor's beliefs; preflight supplies only the local physical opportunity.
+  const pressure = charmCovetPressure(world, actorId, item);
+  if (pressure >= 250 && theftPreflight(world, ctx.content, actorId, keeper, item) === null) {
+    const quiet = (world.households[k.householdId]?.memberIds ?? []).every(
+      (id) => !world.actors[id]?.alive || world.actors[id]?.placeId !== a.placeId || isAsleep(world, ctx, id),
+    );
+    const opportunity = quiet ? 200 : 0;
+    const intensity = Math.min(990, pressure + d * 5 + opportunity - honesty * 3);
+    if (intensity >= 200) {
+      out.push(
+        proposal(
+          { kind: 'activity', activityId: 'steal_charm', placeId: a.placeId, itemId: item },
+          'id',
+          intensity,
+          'Take the sack; they will never lend it',
+          [
+            term('fae', 'Covet pressure: desire, refusals and need', pressure),
+            term('fae', 'Desire to possess it', d * 5),
+            term('place', quiet ? 'Their household is away or asleep' : 'Their household is watchful', opportunity),
+            term('psyche', 'Honesty restrains the wish', -honesty * 3),
+          ],
+          { drive: householdShort(world, a.householdId) ? 'hunger' : 'greed' },
+        ),
+      );
+      // Self-Command weighs this honest alternative in the ordinary Ego arbitration. The
+      // proposal carries no executor privilege: even desperation stays held for a Command.
+      out.push(
+        proposal(
+          { kind: 'activity', activityId: 'idle_at_home', placeId: a.placeId },
+          'superego',
+          150 + honesty * 7,
+          'Leave it; wanting it does not make it yours',
+          [term('norm', 'Taking another household’s sack is wrong', 150 + honesty * 7)],
+          { norm: 'honesty' },
+        ),
+      );
+    }
+  }
   if ((c.asked?.[actorId] ?? -1e9) > ctx.now - 3 * 1440) return out;
   const piety = normStrength(world, actorId, 'piety');
   const devilish = Math.max(

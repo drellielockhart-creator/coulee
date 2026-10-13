@@ -90,6 +90,7 @@ failure.witness_memory = "Heard {initiator} ask {target} for the sack back, and 
 
 [[interaction]]
 id = "take"
+theft = true
 name = "Take it"
 label = "Take it"
 description = "Lift it while nobody is looking. Sleight of Hand against the keeper's notice; a witnessed taking is theft."

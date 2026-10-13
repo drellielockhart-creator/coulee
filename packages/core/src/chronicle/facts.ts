@@ -322,6 +322,8 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
         content.interactions[d.interactionId]?.theft ? ev.roles.map((r) => r.actor) : [d.initiatorId, d.targetId],
       );
     }
+    case 'fae.charm_stolen':
+    case 'fae.charm_missing':
     case 'fae.charm_arrived':
     case 'fae.charm_used':
     case 'fae.charm_drew':
@@ -335,7 +337,7 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
       const d = ev.data as Record<string, unknown>;
       const num = (k: string) => (typeof d[k] === 'number' ? (d[k] as number) : 0);
       const agent = num('finderId') || num('actorId') || num('keeperId') || num('lenderId') || num('borrowerId');
-      const target = num('borrowerId') && num('lenderId') ? num('borrowerId') : num('askerId');
+      const target = num('borrowerId') && num('lenderId') ? num('borrowerId') : num('askerId') || num('victimId');
       return base(
         {
           cls: 'charm',
@@ -352,7 +354,7 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
             disposal: typeof d.kind === 'string' && ev.kind === 'fae.charm_disposed' ? (d.kind as string) : '',
           },
         },
-        [agent, target].filter((x) => x > 0),
+        ev.kind === 'fae.charm_stolen' ? ev.roles.map((r) => r.actor) : [agent, target].filter((x) => x > 0),
       );
     }
     case 'social.rupture': {

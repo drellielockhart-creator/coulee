@@ -9,7 +9,7 @@
  *
  * Arms: baseline · no-witnesses (prevent disclosure) · no-shortage (pantries above horizon) ·
  * reveal (draws_from at 70 for every adult on day 4, or at the first draw case after it) ·
- * honor-loans (maximal loan duty). `--scenario` runs another scenario (e.g. iron_ford) to
+ * honor-loans (maximal loan duty); hoarder (a disclosed, attached keeper after three refusals). `--scenario` runs another scenario (e.g. iron_ford) to
  * confirm charm code is idle without charms.
  */
 import { spawn } from 'node:child_process';
@@ -19,20 +19,25 @@ import { fileURLToPath } from 'node:url';
 import { loadContentOrThrow } from '../packages/content/src/index.ts';
 import { ensureBelief } from '../packages/core/src/belief/evidence.ts';
 import { setConservationProbe } from '../packages/core/src/fae/charms.ts';
+import { charmRefused } from '../packages/core/src/fae/refusal.ts';
 import {
   type ActorId,
+  asGameMinute,
+  belief,
   createSim,
   type Event,
   findNonIntegers,
+  items,
   makeContext,
   type PropId,
+  type Sim,
   stateHash,
   step,
   type World,
 } from '../packages/core/src/index.ts';
 
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..');
-const ARMS = ['baseline', 'no-witnesses', 'no-shortage', 'reveal', 'honor-loans'] as const;
+const ARMS = ['hoarder', 'baseline', 'no-witnesses', 'no-shortage', 'reveal', 'honor-loans'] as const;
 type Arm = (typeof ARMS)[number];
 
 function arg(name: string, dflt: string): string {
@@ -58,6 +63,12 @@ export interface SeedResult {
   /** Covet acts (asked to see, begged, took), and outsiders who ever wanted it (D ≥ 20). */
   covetActs: number;
   coveted: number;
+  theftAttempts: number;
+  theftSuccesses: number;
+  theftDiscoveries: number;
+  accusationsRight: number;
+  accusationsWrong: number;
+  /** Wrong/right counts are spoken charge transmissions linked to a discovered charm loss. */
   loans: number;
   returned: number;
   breaches: number;
@@ -124,10 +135,56 @@ function topUp(world: World): void {
   world.items.counters.item = next;
 }
 
+/** A disclosed hoarder already turned three neighbors away: initial conditions, no stage triggers. */
+export function prepareHoarder(sim: Sim): void {
+  const w = sim.world;
+  w.time = asGameMinute(600);
+  const c = Object.values(w.fae.charms ?? {}).find((c) => c.defId === 'never_empty_sack');
+  const keeper = w.index.actorByKey.edwin_fenn;
+  const a = keeper === undefined ? undefined : w.actors[keeper];
+  if (!c || keeper === undefined || !a) throw new Error('hoarder arm needs the charm fixture');
+  const ctx = makeContext(w, sim.content, []);
+  items.moveStack(w, ctx, c.itemId, 1, items.pantryOf(a.householdId));
+  c.reservoir = null;
+  c.boundTo = keeper;
+  c.custodianId = keeper;
+  c.found = { at: w.time, by: keeper, placeId: a.placeId };
+  c.attachment[keeper] = 100;
+  const p = w.psyche.byActor[keeper];
+  if (p) {
+    p.norms.honesty = 0;
+    p.norms.neighborliness = 0;
+  }
+  for (const key of ['johanne_moe', 'kristoffer_moe', 'tobias_glover']) {
+    const id = w.index.actorByKey[key];
+    const actor = id === undefined ? undefined : w.actors[id];
+    if (id === undefined || !actor) continue;
+    actor.placeId = w.households[a.householdId]?.homePlaceId ?? a.placeId;
+    const mind = w.psyche.byActor[id];
+    if (mind) mind.norms.honesty = 25;
+    // Intern the known possession and observed output through the ordinary belief API.
+    const has = belief.internProp(w, 'has', [
+      { kind: 'actor', id: keeper },
+      { kind: 'item', id: c.itemId },
+    ]);
+    ensureBelief(w, ctx, id, has).credence = 80;
+    const claim = sim.content.charms?.[c.defId]?.claims.find(
+      (claim) => claim.group === 'output' && claim.from === undefined,
+    );
+    if (claim) {
+      const prop = belief.internProp(w, `claim.${c.defId}.${claim.id}`, [{ kind: 'item', id: c.itemId }]);
+      ensureBelief(w, ctx, id, prop).credence = 80;
+    }
+    for (let n = 0; n < 3; n++) charmRefused(w, ctx, keeper, id, c.itemId, 'decided');
+    c.desire[id] = 80;
+  }
+}
+
 export function runSeed(seed: number, arm: Arm, days: number, scenarioId = 'charm_at_iron_ford'): SeedResult {
   const content = loadContentOrThrow(['base']);
   const sim = createSim(content, { scenarioId, seed });
   const w = sim.world;
+  if (arm === 'hoarder') prepareHoarder(sim);
   if (arm === 'no-witnesses') w.fae.ablation = { noWitnesses: true };
   if (arm === 'honor-loans') w.fae.ablation = { loanDuty: 1000 };
   if (arm === 'no-shortage') topUp(w);
@@ -153,6 +210,11 @@ export function runSeed(seed: number, arm: Arm, days: number, scenarioId = 'char
     talked: 0,
     covetActs: 0,
     coveted: 0,
+    theftAttempts: 0,
+    theftSuccesses: 0,
+    theftDiscoveries: 0,
+    accusationsRight: 0,
+    accusationsWrong: 0,
     loans: 0,
     returned: 0,
     breaches: 0,
@@ -179,6 +241,29 @@ export function runSeed(seed: number, arm: Arm, days: number, scenarioId = 'char
   let seen = 0;
   const onEvent = (e: Event) => {
     switch (e.kind) {
+      case 'social.theft':
+        if (w.fae.charms?.[e.data.itemId]) {
+          out.theftAttempts++;
+          if (e.data.success) out.theftSuccesses++;
+        }
+        break;
+      case 'fae.charm_missing':
+        out.theftDiscoveries++;
+        break;
+      case 'belief.transmitted': {
+        const prop = w.belief.props[e.data.propId];
+        if (prop?.pred !== 'took_goods' || prop.args[0]?.kind !== 'actor' || prop.args[1]?.kind !== 'actor') break;
+        const accused = prop.args[0].id;
+        const victim = prop.args[1].id;
+        const losses = Object.values(w.fae.charms ?? {}).flatMap((c) => c.thefts ?? []);
+        const loss = losses
+          .filter((l) => l.victimId === victim && l.discoveredAt !== null && l.discoveredAt <= e.t)
+          .sort((a, b) => b.at - a.at || a.eventId - b.eventId)[0];
+        if (!loss) break;
+        if (accused === loss.thiefId) out.accusationsRight++;
+        else out.accusationsWrong++;
+        break;
+      }
       case 'fae.charm_arrived':
         out.foundDay ??= Math.floor(e.t / 1440);
         out.finderHousehold ??= w.households[w.actors[e.data.finderId]?.householdId as never]?.name ?? null;
@@ -418,6 +503,12 @@ export function summarize(rows: SeedResult[]): Record<string, number | string> {
     talked: Math.round((sum((r) => r.talked) * 10) / n) / 10,
     coveted: Math.round((sum((r) => r.coveted) * 10) / n) / 10,
     covetActs: sum((r) => r.covetActs),
+    theftAttempts: sum((r) => r.theftAttempts ?? 0),
+    theftSuccesses: sum((r) => r.theftSuccesses ?? 0),
+    theftDiscoveries: sum((r) => r.theftDiscoveries ?? 0),
+    accusationsRight: sum((r) => r.accusationsRight ?? 0),
+    accusationsWrong: sum((r) => r.accusationsWrong ?? 0),
+    stolenClosures: rows.filter((r) => r.closures.includes('stolen')).length,
     loans: sum((r) => r.loans),
     returned: sum((r) => r.returned),
     breaches: sum((r) => r.breaches),

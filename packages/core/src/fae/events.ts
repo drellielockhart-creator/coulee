@@ -3,6 +3,11 @@ import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 /** How a charm left the story (13 §6.6). */
 export type CharmDisposal = 'buried' | 'destroyed' | 'returned';
 export type FaeEvent =
+  | EventOf<'fae.charm_stolen', { itemId: ItemId; actorId: ActorId; victimId: ActorId; text: string }>
+  | EventOf<
+      'fae.charm_missing',
+      { itemId: ItemId; actorId: ActorId; householdId: HouseholdId; misfortuneId: number | null; text: string }
+    >
   | EventOf<'fae.charm_fizzled', { itemId: ItemId; reason: string }>
   | EventOf<'fae.refused', { actorId: ActorId; signId: string; reason: string }>
   | EventOf<

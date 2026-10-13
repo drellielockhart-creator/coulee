@@ -130,7 +130,24 @@ export interface CharmState {
   /** Duty-guilt per keeper for turning neighbors away (0..600; decays slowly; lending relieves it). */
   guilt?: Record<number, number>;
   /** Per asker: times turned away, when last, and how many grudges it has founded so far. */
-  refusals?: Record<number, { n: number; last: number; grudges: number }>;
+  refusals?: Record<number, { n: number; last: number; grudges: number; by?: ActorId }>;
+  /** Private truth of each taking; discovery and accusations never read the thief as evidence. */
+  thefts?: CharmTheft[];
+}
+
+export interface CharmTheft {
+  at: number;
+  thiefId: ActorId;
+  victimId: ActorId;
+  householdId: HouseholdId;
+  placeId: PlaceId;
+  eventId: import('../ids.ts').EventId;
+  witnesses: ActorId[];
+  discoveredAt: number | null;
+  misfortuneId: number | null;
+  lastCheckDay: number;
+  /** Refused askers remembered by this keeper before the loss (not later keepers' refusals). */
+  refused: ActorId[];
 }
 
 /**

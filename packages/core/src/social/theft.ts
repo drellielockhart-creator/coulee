@@ -1,8 +1,10 @@
 /** Generic theft, reusable for any physical goods. Knowledge follows detection, not truth. */
 
+import { isAsleep } from '../activity/api.ts';
 import { formGrudge, internProp, observe, reportMisfortune } from '../belief/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { term } from '../explain.ts';
+import { auditCharmTheft, recordCharmTheft } from '../fae/api.ts';
 import { type ActorId, type EventId, type ItemId, mustGet, rowsOf } from '../ids.ts';
 import { atPlace, carriedBy, moveStack, pantryOf, rootOf, stacksDeep } from '../items/api.ts';
 import { canAct, needValue } from '../needs/api.ts';
@@ -117,7 +119,7 @@ export function attemptTheft(world: World, ctx: SimContext, req: TheftRequest): 
   const rule = reliefRules(ctx.content);
   const dc = rule?.theft_dc ?? 13;
   const witnesses = rowsOf(world.actors).filter(
-    (o) => o.id !== actorId && o.alive && o.placeId === a.placeId && canAct(world, o.id),
+    (o) => o.id !== actorId && o.alive && o.placeId === a.placeId && canAct(world, o.id) && !isAsleep(world, ctx, o.id),
   );
   const detected = witnesses.length > 0 && spot + skill < (rule?.detection_dc ?? 12) + Math.min(5, witnesses.length);
   const success = roll + skill >= dc;
@@ -200,7 +202,9 @@ export function attemptTheft(world: World, ctx: SimContext, req: TheftRequest): 
   world.social.totals.interactions += 1;
   world.social.daily.interactions += 1;
   world.social.daily.checks += 1;
-  const movedId = success ? moveStack(world, ctx, itemId, amount, carriedBy(actorId)) : null;
+  const movedId = success
+    ? auditCharmTheft(world, itemId, actorId, () => moveStack(world, ctx, itemId, amount, carriedBy(actorId)))
+    : null;
   const cost = 30 + Math.floor(normStrength(world, actorId, 'duty') / 5);
   addAnxiety(world, ctx, actorId, cost, 'moral');
   addThought(world, ctx, actorId, {
@@ -212,7 +216,18 @@ export function attemptTheft(world: World, ctx: SimContext, req: TheftRequest): 
     norm: 'duty',
     reasons: [term('norm', 'Moral cost of theft', cost)],
   });
-  if (success)
+  // Charms keep the physical loss private until an ordinary check discovers it.
+  const charmLoss =
+    success &&
+    movedId !== null &&
+    recordCharmTheft(world, ctx, {
+      itemId: movedId,
+      actorId,
+      victimId,
+      eventId,
+      witnesses: detected ? witnesses.map((o) => o.id) : [],
+    });
+  if (success && !charmLoss)
     reportMisfortune(world, ctx, {
       kindId: 'goods_missing',
       householdId: v.householdId,
