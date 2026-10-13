@@ -1,4 +1,5 @@
 import type { ContentBundle, InteractionDef } from '../content.ts';
+import { charmRefused } from '../fae/api.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import { authorizationExplain, authorizeAct, type Basis } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -181,6 +182,9 @@ export function requestsHour(world: World, ctx: SimContext): void {
     else continue;
     if (r.status === 'refused' || r.status === 'no answer')
       throttleRequest(world, ctx.content, r.from, r.to, ctx.content.interactions[r.interactionId], ctx.now, true);
+    // A commanded keeper who says no (or lets it lapse) still bears the refusal's costs (fae, wave 6).
+    if ((r.status === 'refused' || r.status === 'no answer') && r.response === 'lend_item' && r.itemId !== undefined)
+      charmRefused(world, ctx, r.to, r.from, r.itemId, r.status === 'refused' ? 'answered' : 'lapsed');
     ctx.emit({
       kind: 'social.request_answered',
       data: { requestId: r.id, actorId: r.to, status: r.status },

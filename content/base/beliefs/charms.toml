@@ -96,3 +96,14 @@ memory_intensity = 40
 motive_traits = ["greed"]
 aim = "restitution"
 description = "A discovered discrepancy in stores (13 §5.2): milder than a theft; reported once per draw case."
+
+# Refusal costs (wave 6; design-docs/00 decisions 2026-10-12): a neighbor turned away when they
+# asked says so. It is a social fact about the keeper, never the charm's hidden working.
+[[predicate]]
+id = "hoards"
+args = ["household", "item"]
+text = "{0} keep {1} to themselves while others go short"
+description = "Turned away when they asked: the keeping household sits on plenty while others go short."
+juiciness = 60
+valence = -35
+prior = 5

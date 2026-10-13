@@ -172,6 +172,9 @@ export const TEMPLATE_SLOTS = [
   'resolution',
   'lent_to',
   'blame',
+  // wave 6 refusal costs: the neighbor the keeper turned away
+  'asker',
+  'asker_short',
 ] as const;
 export type TemplateSlot = (typeof TEMPLATE_SLOTS)[number];
 

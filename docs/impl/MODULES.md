@@ -684,3 +684,25 @@ Contracts (all additive):
 - **activity:** optional `journeys`, directed leg progress in feet and integer fractional carry, shared interval preparation/commit/finalization, validated travel/stop/resume/turn-back/camp Commands. Only activity relocates actors. Foundation installs site geometry idempotently; fixture population is allocated once before module initialization in canonical scenario order.
 - **provisions:** `tripReadiness` projects the same travel itinerary and needs/provisions kernels on a private copy; carried-only road supply and stopped preparation. No changes to credit, relief or charity policy.
 - **foundation/play/web:** additive composition hooks before needs and after provisions, filtered region observation, zero-time route queries and offered travel Commands. Existing system order and absent-region state remain unchanged. No T0, census or LOD claim in slice 1.
+
+### module:fae, wave 6: refusal costs (design-docs/00 decisions, 2026-10-12)
+
+A keeper at the attachment cap may refuse, but refusal has costs on both sides (`fae/refusal.ts`).
+Contracts (all additive):
+- **fae API:**
+  - `charmRefused(world, ctx, keeperId, askerId, itemId, how)`;
+  - `charmGuilt`, `guiltToward`;
+  - `charmCovetPressure(world, actorId, itemId)`, the hook a generic desperation-theft act (module:social, wave 6 relief) can read; theft itself is not built here.
+- **`CharmState`:** `guilt?` (per keeper, 0..600, decays about 4% a day, halved by lending to a household turned away) and `refusals?` (per asker: count, last, grudges founded).
+- **Event `fae.turned_away`:** inner; an Explain of the guilt formula, knowledge `self`.
+- **social:**
+  - a failed `beg_loan` (the holder's decision or a failed persuasion) and a commanded keeper's refused or lapsed `lend_item` request both call `charmRefused`;
+  - `holderDecision` adds the pro term "Guilt over turning neighbors away" (`guiltToward`).
+- **belief content:** predicate `hoards(household, item)` ("…keep it to themselves while others go short", juiciness 60), observed by the refused.
+- **Grudges:** three refusals of the same asker found an `apology` grudge; five found a `humiliation` grudge (existing strife lines).
+- **social `opinion.ts`:** reason merges fold `-0` (a pre-existing `findNonIntegers` hit, seed 42, day 60).
+- **Chronicle:**
+  - `fae.turned_away` becomes a hidden `refuse` fact in the charm story (omniscient only);
+  - the epilogue writes `charm.refused` (a third refusal of the same asker) and `charm.relented` (the keeper lends at last to a household once turned away), each once;
+  - new template slots `asker` and `asker_short`;
+  - `PatternDef.entryKeys?`: extra entry keys a pattern writes, which the template-coverage test accepts.

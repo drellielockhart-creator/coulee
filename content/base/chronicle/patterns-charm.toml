@@ -148,3 +148,20 @@ voice = "epilogue"
 text = [
   "The truth of it: {charm} never made a pound of flour. It took {source}.{blame}",
 ]
+
+# ---- refusal costs (wave 6): the epilogue tells the conscience --------------------------
+[[template]]
+id = "charm_refused"
+on = "charm.refused"
+voice = "epilogue"
+text = [
+  "{^keeper} turned {asker} away a third time. It sat on {keeper_short}'s conscience, and {asker_short} began to say the sack was kept from people who went short.",
+]
+
+[[template]]
+id = "charm_relented"
+on = "charm.relented"
+voice = "epilogue"
+text = [
+  "In the end {keeper} lent {charm} to {asker}, whom {keeper_short} had turned away, and slept the better for it.",
+]

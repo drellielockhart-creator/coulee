@@ -78,4 +78,9 @@ export type FaeEvent =
     >
   /** A count that found nothing amiss (private to the counter). */
   | EventOf<'fae.stock_counted', { householdId: HouseholdId; actorId: ActorId; placeId: PlaceId; text: string }>
-  | EventOf<'fae.charm_refused', { actorId: ActorId; itemId: ItemId | null; command: string; reason: string }>;
+  | EventOf<'fae.charm_refused', { actorId: ActorId; itemId: ItemId | null; command: string; reason: string }>
+  /** A keeper turned a neighbor away (wave 6): the keeper's duty-guilt (inner) and the count so far. */
+  | EventOf<
+      'fae.turned_away',
+      { itemId: ItemId; keeperId: ActorId; askerId: ActorId; guilt: number; refusals: number; text: string }
+    >;

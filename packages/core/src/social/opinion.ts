@@ -231,7 +231,8 @@ function mergeDuplicate(world: World, from: ActorId, to: ActorId, op: Opinion): 
       const [older, newer] = b.since <= a.since ? [b, a] : [a, b];
       const s = Math.max(1, reasonStrength(world, from, to, newer));
       const sum = addDims(reasonContribution(world, from, to, a), reasonContribution(world, from, to, b));
-      const scale = (v: number) => clampInt(Math.round((v * 1000) / s), -100, 100);
+      // `+ 0` folds a negative zero (a small negative contribution rounds to -0; findNonIntegers flags it).
+      const scale = (v: number) => clampInt(Math.round((v * 1000) / s), -100, 100) + 0;
       const n = (Number(COUNT_RE.exec(a.label)?.[1] ?? 1) || 1) + (Number(COUNT_RE.exec(b.label)?.[1] ?? 1) || 1);
       const first = older.since;
       const merged: OpinionReason = {
@@ -309,10 +310,10 @@ export function enforceReasonCap(
       bucketIdx >= 0 ? reasonContribution(world, from, to, op.reasons[bucketIdx] as OpinionReason) : ZERO_DIMS;
     const sum = addDims(prev, folded);
     const delta: OpinionDims = {
-      affection: clampInt(sum.affection, -100, 100),
-      respect: clampInt(sum.respect, -100, 100),
-      trust: clampInt(sum.trust, -100, 100),
-      fear: clampInt(sum.fear, -100, 100),
+      affection: clampInt(sum.affection, -100, 100) + 0,
+      respect: clampInt(sum.respect, -100, 100) + 0,
+      trust: clampInt(sum.trust, -100, 100) + 0,
+      fear: clampInt(sum.fear, -100, 100) + 0,
     };
     const bucket: OpinionReason = {
       label,

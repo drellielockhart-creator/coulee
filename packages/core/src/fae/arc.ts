@@ -8,6 +8,7 @@ import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
 import { learn } from './charms.ts';
 import { credence, householdArg, itemArg } from './desire.ts';
+import { guiltEased } from './refusal.ts';
 
 /** charm_keep weight: 5 × the actor's attachment (13 §5.6). 0 for a non-charm. */
 export function charmKeepWeight(world: World, actorId: ActorId, itemId: ItemId): number {
@@ -18,6 +19,8 @@ export function charmKeepWeight(world: World, actorId: ActorId, itemId: ItemId):
 export function charmTransferred(world: World, _ctx: SimContext, itemId: ItemId, toActorId: ActorId): void {
   const c = world.fae.charms?.[itemId];
   if (!c) return;
+  // Lending to a household once turned away eases the giver's conscience (refusal costs, wave 6).
+  guiltEased(world, c, c.custodianId, toActorId);
   c.custodianId = toActorId;
   c.tie = null;
 }

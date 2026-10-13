@@ -328,20 +328,21 @@ export function factOf(world: World, content: ContentBundle, ev: Event, vocab: C
     case 'fae.charm_revealed':
     case 'fae.charm_disposed':
     case 'fae.shortfall':
+    case 'fae.turned_away':
     case 'social.loan_opened':
     case 'social.loan_closed':
     case 'social.loan_breached': {
       const d = ev.data as Record<string, unknown>;
       const num = (k: string) => (typeof d[k] === 'number' ? (d[k] as number) : 0);
       const agent = num('finderId') || num('actorId') || num('keeperId') || num('lenderId') || num('borrowerId');
-      const target = num('borrowerId') && num('lenderId') ? num('borrowerId') : 0;
+      const target = num('borrowerId') && num('lenderId') ? num('borrowerId') : num('askerId');
       return base(
         {
           cls: 'charm',
           sub: ev.kind.slice(ev.kind.indexOf('.') + 1),
           agent,
           target,
-          weight: num('qty') || num('units'),
+          weight: num('qty') || num('units') || num('refusals'),
           valence: ev.kind === 'social.loan_breached' || ev.kind === 'fae.shortfall' ? -30 : 0,
           base: ev.importance ?? 20,
           bind: {

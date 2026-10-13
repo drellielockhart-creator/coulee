@@ -220,6 +220,14 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
       return out(e.data.text);
     case 'fae.charm_refused':
       return out(e.data.reason);
+    case 'fae.turned_away':
+      // Inner: only the keeper's own conscience is told (the refused hear it in the talk itself).
+      return out(
+        e.data.keeperId === pc
+          ? `You turned ${actorName(e.data.askerId)} away; it sits on your conscience.`
+          : `${actorName(e.data.keeperId)} turns ${actorName(e.data.askerId)} away`,
+        e.data.keeperId !== pc,
+      );
     case 'fae.shortfall':
       return out(e.data.text);
     case 'fae.stock_counted':
