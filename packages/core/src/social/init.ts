@@ -13,10 +13,9 @@ import { type ActorId, idsOf, mustGet } from '../ids.ts';
 import type { InitContext } from '../sim/context.ts';
 import { asGameMinute, MINUTES_PER_DAY } from '../time.ts';
 import type { World } from '../world.ts';
-import { decayOneDay, encodeSalience, insertMemory, isNegativeKind, memoryFloor, memoryTauDays } from './memory.ts';
+import { ageSeededMemory, encodeSalience, ensureMemoryOwner, insertMemory, isNegativeKind } from './memory.ts';
 import { isZeroDims } from './model.ts';
 import { addReason, adjustLedger, ensureOpinion, opinionLabel, opinionOf, refreshBase } from './opinion.ts';
-import { tuningOf } from './tuning.ts';
 
 /** Backstory decay is simulated day by day, at most this many days. */
 const MAX_BACKSTORY_DAYS = 3650;
@@ -27,7 +26,7 @@ export function initSocialState(world: World, ctx: InitContext): void {
   for (const id of idsOf<ActorId>(world.actors)) {
     mustGet(world.actors, id, 'actor');
     world.social.opinions[id] ??= {};
-    world.social.memoriesByOwner[id] ??= [];
+    ensureMemoryOwner(world, id);
   }
   // Structural edges first, so every base sees all of them.
   for (const r of ctx.scenario.relationships) {
@@ -73,7 +72,6 @@ export function initSocialState(world: World, ctx: InitContext): void {
       ctx.now,
     );
   }
-  const t = tuningOf(content);
   for (const s of ctx.scenario.memories ?? []) {
     const owner = key(s.owner);
     const about = key(s.about);
@@ -101,13 +99,7 @@ export function initSocialState(world: World, ctx: InitContext): void {
       aboutId: about,
       did: false,
     });
-    const m = world.social.memories[id];
-    if (m) {
-      const tau = memoryTauDays(world, content, m);
-      const floor = memoryFloor(content, m);
-      for (let d = 0; d < days && m.salience > floor; d++) m.salience = decayOneDay(m.salience, tau, floor);
-      if (m.salience < t.forget_below) m.salience = t.forget_below;
-    }
+    ageSeededMemory(world, content, id, days);
     ensureOpinion(world, content, owner, about);
     const delta = { affection: s.affection, respect: s.respect, trust: s.trust, fear: s.fear };
     if (!isZeroDims(delta)) {

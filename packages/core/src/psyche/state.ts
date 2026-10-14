@@ -138,6 +138,12 @@ export interface ActorPsyche {
   acquired: TraitId[];
   /** How the last arbitration went: 'plain' | 'compromise' | 'sublimation' | 'impulse' | 'command'. */
   lastMode: string;
+  /**
+   * Cadence (cadence.ts): the hour of the last pass, its situation signature (32-bit), the
+   * last full pass's decision slack (base-score lead over noise and compromise reach) and that
+   * full pass's hour. Absent = the next hour is a full pass.
+   */
+  pace?: { at: GameMinute; sig: number; slack: number; full: GameMinute };
 }
 
 export interface PsycheState {
@@ -152,6 +158,8 @@ export interface PsycheState {
     commands?: number;
   };
   byActor: Table<ActorId, ActorPsyche>;
+  /** Cadence: the last event id the previous hourly pass had seen (cadence.ts). */
+  seenEventId?: number;
 }
 
 export function createPsycheState(): PsycheState {

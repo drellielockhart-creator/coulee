@@ -83,43 +83,49 @@ export type MemorySource =
   | { kind: 'inferred' }
   | { kind: 'dreamt' };
 
+/**
+ * Readonly outside social/memory.ts, the single write path (it keeps the derived digests exact).
+ */
 export interface Memory {
-  id: MemoryId;
-  ownerId: ActorId;
+  readonly id: MemoryId;
+  readonly ownerId: ActorId;
   /** Ground-truth event, or null for confabulations / lies received. */
-  eventId: EventId | null;
+  readonly eventId: EventId | null;
   /** MEMORY_KINDS from the interactions schema ('insult', 'help', 'misfortune'...). */
-  kind: string;
-  at: GameMinute;
-  placeId: PlaceId | null;
-  roles: Array<{ who: ActorId; role: EventRoleKind; conf: number }>;
-  source: MemorySource;
-  emotion: string;
-  intensity: number;
+  readonly kind: string;
+  readonly at: GameMinute;
+  readonly placeId: PlaceId | null;
+  readonly roles: Array<{ who: ActorId; role: EventRoleKind; conf: number }>;
+  readonly source: MemorySource;
+  readonly emotion: string;
+  readonly intensity: number;
   /** Current salience 0..1000 (decayed daily, 04 §4.3). */
-  salience: number;
-  confidence: number;
-  rehearsals: number;
+  readonly salience: number;
+  readonly confidence: number;
+  readonly rehearsals: number;
   /** PC-observed: never silently rewritten (04 §4.4). */
-  pinned: boolean;
+  readonly pinned: boolean;
   /** One-line gist for UI/chronicle: "Gussie Pratt dunned me at the store". */
-  summary: string;
+  readonly summary: string;
   /** The other party the memory is about (the doer, or whom the owner did it to), or null. */
-  aboutId: ActorId | null;
+  readonly aboutId: ActorId | null;
   /** True if the owner was the doer ("I insulted him"), false if done to/seen by the owner. */
-  did: boolean;
+  readonly did: boolean;
   /** Instances folded into this memory (1, or more for a consolidated Summary memory). */
-  count: number;
+  readonly count: number;
   /** Earliest instance (== at unless consolidated). */
-  since: GameMinute;
+  readonly since: GameMinute;
 }
 
 /**
  * What callers pass to `addMemory`. The social-only bookkeeping fields are optional: when
  * absent they are derived from `roles` (aboutId = first other actor; did = owner is agent).
  */
-export type MemoryInput = Omit<Memory, 'id' | 'aboutId' | 'did' | 'count' | 'since'> &
-  Partial<Pick<Memory, 'aboutId' | 'did' | 'count' | 'since'>>;
+export type MemoryInput = {
+  -readonly [K in Exclude<keyof Memory, 'id' | 'aboutId' | 'did' | 'count' | 'since'>]: Memory[K];
+} & {
+  -readonly [K in 'aboutId' | 'did' | 'count' | 'since']?: Memory[K];
+};
 
 export interface Relationship {
   endedAt?: GameMinute;
@@ -169,9 +175,10 @@ export interface SocialState {
   counters: { memory: number };
   /** opinions[holder][target] */
   opinions: Table<ActorId, Table<ActorId, Opinion>>;
-  memories: Table<MemoryId, Memory>;
-  /** Owner -> memory ids, oldest first. */
-  memoriesByOwner: Table<ActorId, MemoryId[]>;
+  /** Written only by social/memory.ts (readonly elsewhere; check-invariants enforces it). */
+  memories: Readonly<Table<MemoryId, Memory>>;
+  /** Owner -> memory ids, oldest first. Written only by social/memory.ts. */
+  memoriesByOwner: Readonly<Table<ActorId, readonly MemoryId[]>>;
   /** Insertion order. */
   relationships: Relationship[];
   daily: SocialDaily;

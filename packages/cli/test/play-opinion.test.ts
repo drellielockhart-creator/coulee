@@ -10,6 +10,8 @@ import {
   sessionSimOf,
 } from '@coulee/play';
 import { describe, expect, it } from 'vitest';
+import { replaceOwnerMemories } from '../../core/src/social/memory.ts';
+import type { Memory } from '../../core/src/social/state.ts';
 import { baseContent } from './helpers.ts';
 
 const opts = (perspective: ViewOptions['perspective'], omniscient = false): ViewOptions => ({
@@ -82,7 +84,7 @@ describe('inspect: another person’s regard', () => {
     const f = fixture();
     const id = asMemoryId(987);
     const eventId = asEventId(45678);
-    f.sim.world.social.memories[id] = {
+    const row: Memory = {
       kind: 'help',
       at: asGameMinute(0),
       since: asGameMinute(0),
@@ -103,7 +105,7 @@ describe('inspect: another person’s regard', () => {
       summary: 'SECRET gratitude',
       source: { kind: 'witnessed' },
     };
-    f.sim.world.social.memoriesByOwner[f.other] = [id];
+    replaceOwnerMemories(f.sim.world, f.other, [row]);
     f.incoming.reasons.push({
       label: 'SECRET private interpretation of aid',
       cites: { kind: 'memory', id },
@@ -160,7 +162,7 @@ describe('inspect: another person’s regard', () => {
       [100, f.other, 'SECRET private interpretation'],
       [101, f.pc, 'Brought a gift to my neighbor'],
     ] as const) {
-      f.sim.world.social.memories[id] = {
+      const row: Memory = {
         id: asMemoryId(id),
         ownerId,
         eventId,
@@ -184,7 +186,7 @@ describe('inspect: another person’s regard', () => {
         did: ownerId === f.pc,
         count: 1,
       };
-      f.sim.world.social.memoriesByOwner[ownerId] = [asMemoryId(id)];
+      replaceOwnerMemories(f.sim.world, ownerId, [row]);
     }
     f.incoming.reasons.push({
       label: 'SECRET private gift motive',

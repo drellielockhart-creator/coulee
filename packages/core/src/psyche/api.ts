@@ -11,6 +11,12 @@ import type { ActorPsyche } from './state.ts';
 import { psycheHour } from './system.ts';
 import { fillLine, mergeCandidate, proposalCandidate } from './thoughts.ts';
 
+/** Forget the cadence pace record (cadence.ts): any outside write makes the next hour a full pass. */
+function unpace(world: World, id: ActorId): void {
+  const p = world.psyche.byActor[id];
+  if (p?.pace) delete p.pace;
+}
+
 /** This hour's arbitration result for an actor (read by activity and social). */
 export function chosenUrge(world: World, actorId: ActorId): ChosenUrge | null {
   return world.psyche.byActor[actorId]?.chosen ?? null;
@@ -32,6 +38,7 @@ export function addThought(world: World, ctx: SimContext, actorId: ActorId, prop
   const p = world.psyche.byActor[actorId];
   const actor = world.actors[actorId];
   if (!p || !actor?.alive) return null;
+  unpace(world, actorId);
   const cand = proposalCandidate(proposal, 'added');
   if (proposal.voice !== 'command') cand.decayPerHour = 150;
   cand.line = fillLine(proposal.label, {});
@@ -72,6 +79,7 @@ export function addThought(world: World, ctx: SimContext, actorId: ActorId, prop
 export function addAnxiety(world: World, _ctx: SimContext, actorId: ActorId, delta: number, pool?: Pool): number {
   const p = world.psyche.byActor[actorId];
   if (!p) return 0;
+  unpace(world, actorId);
   const d = Math.round(delta);
   if (d > 0) addToPools(p, { [pool ?? 'real']: d });
   else if (d < 0) drainPools(p, -d, pool);
@@ -86,6 +94,7 @@ export function addAnxiety(world: World, _ctx: SimContext, actorId: ActorId, del
 export function defenseActLanded(world: World, ctx: SimContext, actorId: ActorId, defense: string): number {
   const p = world.psyche.byActor[actorId];
   if (!p || defense !== 'displacement' || !p.displaced) return 0;
+  unpace(world, actorId);
   const d = p.displaced;
   p.displaced = null;
   if (d.until !== undefined && d.until < ctx.now) return 0;
@@ -188,6 +197,7 @@ export { psycheSystem as regionPsycheHour } from './system.ts';
 export function discardActivityThoughts(world: World, actorId: ActorId, activityId: string): void {
   const state = world.psyche.byActor[actorId];
   if (!state) return;
+  unpace(world, actorId);
   state.thoughts = state.thoughts.filter((t) => t.urge.kind !== 'activity' || t.urge.activityId !== activityId);
   if (state.chosen?.urge.kind === 'activity' && state.chosen.urge.activityId === activityId) state.chosen = null;
 }
