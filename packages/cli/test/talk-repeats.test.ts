@@ -1,5 +1,5 @@
 /** Thirty-day listener repeats in both authored and generated populations (wave 6 target). */
-import type { Event } from '@coulee/core';
+import { type Event, social } from '@coulee/core';
 import { describe, expect, it } from 'vitest';
 import { runScenario } from '../src/harness.ts';
 import { baseContent } from './helpers.ts';
@@ -14,10 +14,12 @@ describe('30-day listener repetition budget', () => {
       const seen = new Map<number, Map<string, number>>();
       let exchanges = 0;
       let repeated = 0;
+      const content = baseContent();
       const sink = (e: Event) => {
         if (e.kind !== 'social.interaction' && e.kind !== 'belief.transmitted') return;
-        const d = e.data;
-        if (!d.lines?.length) return;
+        // An act's words are stored by reference: render them as a listener hears them.
+        const d = social.talkWords(content, e.data);
+        if (!d?.lines.length) return;
         const parties =
           e.kind === 'social.interaction'
             ? [e.data.initiatorId, e.data.targetId]
@@ -35,7 +37,7 @@ describe('30-day listener repetition budget', () => {
         exchanges++;
         repeated += Number(again);
       };
-      runScenario(baseContent(), { ...spec, hours: 30 * 24 }, { sink });
+      runScenario(content, { ...spec, hours: 30 * 24 }, { sink });
       expect(exchanges).toBeGreaterThan(3000);
       expect(repeated / exchanges).toBeLessThanOrEqual(0.15);
     },

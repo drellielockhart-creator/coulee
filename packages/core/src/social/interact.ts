@@ -48,7 +48,7 @@ import { deliverRelief, reliefDecision } from './relief.ts';
 import { requestTerms, throttleRequest } from './requests.ts';
 import type { MemorySource, OpinionDims, OpinionReason } from './state.ts';
 import { noteStrife, strifeCount, wearinessPermille } from './strife.ts';
-import { composeExchange, referTo, type TalkFacts } from './talk.ts';
+import { chooseExchange, composeExchange, referTo, type TalkFacts } from './talk.ts';
 import { attemptTheft } from './theft.ts';
 import { tuningOf, valueView } from './tuning.ts';
 import { areKinBy, makePair, pairTargetOpinion, type RequireMode, requiresFail } from './volition.ts';
@@ -569,7 +569,8 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
     },
   };
   if (plan) actFacts.rumor = rumorKind(ctx, world, plan.propId);
-  const exchange = composeExchange(world, ctx, {
+  // The act's words are chosen now and rendered only when read (views: `renderTalk`).
+  const exchange = chooseExchange(world, ctx, {
     def,
     initiatorId: i,
     targetId: tg,
@@ -603,7 +604,7 @@ export function resolveInteraction(world: World, ctx: SimContext, req: Interacti
       success,
       label: bubble,
       ...(req.viaDefense !== undefined ? { viaDefense: req.viaDefense } : {}),
-      ...(exchange ? { line: exchange.line, lines: exchange.lines } : {}),
+      ...(exchange ? { talk: exchange.talk } : {}),
       ...(def.transmits_rumor && success ? { told: plan !== null } : {}),
       ...(req.itemId !== undefined ? { itemId: req.itemId } : {}),
       ...(atWork ? { atWork: true } : {}),

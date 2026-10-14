@@ -15,13 +15,21 @@ import type { Relationship } from './state.ts';
 interface PairIndex {
   length: number;
   byPair: Map<number, Map<number, Relationship[]>>;
+  /** Every relationship of one actor (either end), in relationship-list order. */
+  byActor: Map<number, Relationship[]>;
 }
 const EMPTY: readonly Relationship[] = [];
 const indexes = new Map<readonly Relationship[], PairIndex>();
 
 function build(list: readonly Relationship[]): PairIndex {
   const byPair = new Map<number, Map<number, Relationship[]>>();
+  const byActor = new Map<number, Relationship[]>();
   for (const r of list) {
+    for (const end of r.a === r.b ? [r.a] : [r.a, r.b]) {
+      const mine = byActor.get(end);
+      if (mine) mine.push(r);
+      else byActor.set(end, [r]);
+    }
     const lo = Math.min(r.a, r.b),
       hi = Math.max(r.a, r.b);
     let inner = byPair.get(lo);
@@ -33,11 +41,10 @@ function build(list: readonly Relationship[]): PairIndex {
     if (rows) rows.push(r);
     else inner.set(hi, [r]);
   }
-  return { length: list.length, byPair };
+  return { length: list.length, byPair, byActor };
 }
 
-/** Every relationship between `a` and `b` (either direction), in relationship-list order. */
-export function relationsBetween(world: World, a: ActorId, b: ActorId): readonly Relationship[] {
+function indexOf(world: World): PairIndex {
   const list = world.social.relationships;
   let index = indexes.get(list);
   if (!index || index.length !== list.length) {
@@ -45,5 +52,15 @@ export function relationsBetween(world: World, a: ActorId, b: ActorId): readonly
     index = build(list);
     indexes.set(list, index);
   }
-  return index.byPair.get(Math.min(a, b))?.get(Math.max(a, b)) ?? EMPTY;
+  return index;
+}
+
+/** Every relationship between `a` and `b` (either direction), in relationship-list order. */
+export function relationsBetween(world: World, a: ActorId, b: ActorId): readonly Relationship[] {
+  return indexOf(world).byPair.get(Math.min(a, b))?.get(Math.max(a, b)) ?? EMPTY;
+}
+
+/** Every relationship `a` has (either end), in relationship-list order. */
+export function relationsOf(world: World, a: ActorId): readonly Relationship[] {
+  return indexOf(world).byActor.get(a) ?? EMPTY;
 }

@@ -25,10 +25,11 @@ import { needValue } from '../needs/api.ts';
 import { airTempF, bestStore, isRaining, priceAt } from '../provisions/api.ts';
 import { anxietyOf } from '../psyche/api.ts';
 import type { Rng } from '../rng.ts';
-import { hashString32, mixKey } from '../rng.ts';
+import { hashString32, mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
+import type { TalkRef } from './events.ts';
 import { formatCents } from './model.ts';
 import { opinionRecord, owedCents } from './opinion.ts';
 import { relationsBetween } from './pairs.ts';
@@ -128,16 +129,85 @@ function indexOf(content: ContentBundle, scenarioId: string): TalkIndex {
 
 type Mood = string;
 
-/** Per-hour facts shared by every exchange that hour (weather, observances, prices, news). */
-interface HourFacts {
-  key: string;
-  weather: 'rain' | 'snow' | 'dry';
-  temp: 'freezing' | 'cold' | 'mild' | 'warm' | 'hot';
-  part: 'morning' | 'midday' | 'afternoon' | 'evening' | 'night';
-  observances: string[];
-  price: { item: string; price: string; store: string } | null;
-  /** The town's misfortunes of the last fortnight, latest first (a speaker names one they know of). */
-  misfortunes: Array<{ propId: PropId; text: string; householdId: number }>;
+/** Per-hour facts shared by every exchange that hour (weather, observances, prices, news).
+ * The store price and the town's misfortunes are read only when a line asks for them. */
+class HourFacts {
+  readonly key: string;
+  readonly weather: 'rain' | 'snow' | 'dry';
+  readonly temp: 'freezing' | 'cold' | 'mild' | 'warm' | 'hot';
+  readonly part: 'morning' | 'midday' | 'afternoon' | 'evening' | 'night';
+  readonly observances: string[];
+  private readonly world: World;
+  private readonly ctx: SimContext;
+  private priceMemo: { item: string; price: string; store: string } | null | undefined;
+  /** Pools filtered by this hour's conditions (Scene.hourPool). */
+  readonly pools = new Map<string, readonly TalkLine[]>();
+  private misfortuneMemo: Array<{ propId: PropId; text: string; householdId: number }> | undefined;
+  constructor(world: World, ctx: SimContext, key: string) {
+    this.world = world;
+    this.ctx = ctx;
+    this.key = key;
+    const cal = ctx.cal;
+    const f = airTempF(cal, world);
+    const wet = isRaining(world.meta.seed, cal, world);
+    const h = cal.hour;
+    this.observances = Object.keys(ctx.content.observances ?? {})
+      .sort()
+      .filter((id) => {
+        const def = ctx.content.observances[id];
+        return def !== undefined && observanceActive(def, cal);
+      });
+    this.weather = wet ? (f <= 32 ? 'snow' : 'rain') : 'dry';
+    this.temp = f <= 32 ? 'freezing' : f < 50 ? 'cold' : f < 70 ? 'mild' : f < 85 ? 'warm' : 'hot';
+    this.part =
+      h >= 5 && h < 11
+        ? 'morning'
+        : h < 14 && h >= 11
+          ? 'midday'
+          : h >= 14 && h < 18
+            ? 'afternoon'
+            : h >= 18 && h < 22
+              ? 'evening'
+              : 'night';
+  }
+  /** A staple's price at the store the town shops at (provisions' bestStore: the most food on its
+   * shelves, not the first store by place id, which named the tavern; group D's r2 note). The item
+   * rotates with the day so the talk of prices does not fix on flour. */
+  get price(): { item: string; price: string; store: string } | null {
+    if (this.priceMemo !== undefined) return this.priceMemo;
+    const { world, ctx } = this;
+    let price: { item: string; price: string; store: string } | null = null;
+    const store = bestStore(world, ctx);
+    if (store) {
+      const item = STAPLES[ctx.cal.dayIndex % STAPLES.length] as string;
+      const cents = priceAt(world, ctx.content, store.placeId, item);
+      const def = ctx.content.items[item];
+      if (cents !== null && cents > 0 && def) {
+        const unit = def.unit === 'each' ? 'apiece' : `the ${def.unit === 'lb' ? 'pound' : def.unit}`;
+        const name = def.name.toLowerCase().replace(/^([^,]+), ([^,]+)$/, '$2 $1');
+        price = {
+          item: name,
+          price: `${formatPrice(cents)} ${unit}`,
+          store: world.places[store.placeId]?.name ?? 'the store',
+        };
+      }
+    }
+    this.priceMemo = price;
+    return price;
+  }
+  /** The town's misfortunes of the last fortnight, in words, latest first (a speaker names one they know of). */
+  get misfortunes(): Array<{ propId: PropId; text: string; householdId: number }> {
+    if (this.misfortuneMemo) return this.misfortuneMemo;
+    const { world, ctx } = this;
+    const out: Array<{ propId: PropId; text: string; householdId: number }> = [];
+    for (const m of rowsOf(world.belief.misfortunes).sort((a, b) => b.at - a.at || b.id - a.id)) {
+      if (ctx.now - m.at > 14 * 1440 || m.at > ctx.now) continue;
+      const text = misfortuneWords(world, ctx.content, m.id);
+      if (text) out.push({ propId: m.propId, text, householdId: m.householdId });
+    }
+    this.misfortuneMemo = out;
+    return out;
+  }
 }
 
 let hourCache: { world: World; facts: HourFacts } | null = null;
@@ -147,60 +217,7 @@ const STAPLES = ['flour', 'salt_pork', 'coffee_green', 'cornmeal', 'potatoes', '
 function hourFacts(world: World, ctx: SimContext): HourFacts {
   const key = `${world.meta.seed}:${ctx.now}`;
   if (hourCache && hourCache.world === world && hourCache.facts.key === key) return hourCache.facts;
-  const cal = ctx.cal;
-  const f = airTempF(cal, world);
-  const wet = isRaining(world.meta.seed, cal, world);
-  const h = cal.hour;
-  const observances = Object.keys(ctx.content.observances ?? {})
-    .sort()
-    .filter((id) => {
-      const def = ctx.content.observances[id];
-      return def !== undefined && observanceActive(def, cal);
-    });
-  // A staple's price at the store the town shops at (provisions' bestStore: the most food on its
-  // shelves, not the first store by place id, which named the tavern; group D's r2 note). The item
-  // rotates with the day so the talk of prices does not fix on flour.
-  let price: HourFacts['price'] = null;
-  const store = bestStore(world, ctx);
-  if (store) {
-    const item = STAPLES[cal.dayIndex % STAPLES.length] as string;
-    const cents = priceAt(world, ctx.content, store.placeId, item);
-    const def = ctx.content.items[item];
-    if (cents !== null && cents > 0 && def) {
-      const unit = def.unit === 'each' ? 'apiece' : `the ${def.unit === 'lb' ? 'pound' : def.unit}`;
-      const name = def.name.toLowerCase().replace(/^([^,]+), ([^,]+)$/, '$2 $1');
-      price = {
-        item: name,
-        price: `${formatPrice(cents)} ${unit}`,
-        store: world.places[store.placeId]?.name ?? 'the store',
-      };
-    }
-  }
-  // The town's misfortunes of the last fortnight, in words, latest first.
-  const misfortunes: HourFacts['misfortunes'] = [];
-  for (const m of rowsOf(world.belief.misfortunes).sort((a, b) => b.at - a.at || b.id - a.id)) {
-    if (ctx.now - m.at > 14 * 1440 || m.at > ctx.now) continue;
-    const text = misfortuneWords(world, ctx.content, m.id);
-    if (text) misfortunes.push({ propId: m.propId, text, householdId: m.householdId });
-  }
-  const facts: HourFacts = {
-    key,
-    weather: wet ? (f <= 32 ? 'snow' : 'rain') : 'dry',
-    temp: f <= 32 ? 'freezing' : f < 50 ? 'cold' : f < 70 ? 'mild' : f < 85 ? 'warm' : 'hot',
-    part:
-      h >= 5 && h < 11
-        ? 'morning'
-        : h < 14 && h >= 11
-          ? 'midday'
-          : h >= 14 && h < 18
-            ? 'afternoon'
-            : h >= 18 && h < 22
-              ? 'evening'
-              : 'night',
-    observances,
-    price,
-    misfortunes,
-  };
+  const facts = new HourFacts(world, ctx, key);
   hourCache = { world, facts };
   return facts;
 }
@@ -283,13 +300,26 @@ const WHEN_ORDER = [
 ] as const;
 type WhenKey = (typeof WHEN_ORDER)[number];
 type WhoBlock = NonNullable<When['initiator']>;
-/** The conditions a `when` sets, in canonical order. Content-only, cached per object (bounded). */
-const whenKeyCache = new Map<When, readonly WhenKey[]>();
-function whenKeys(w: When): readonly WhenKey[] {
+/** Conditions that read only the hour (weather, calendar, the store's price): shared by every
+ * exchange in it, so a pool is filtered by them once an hour (`hourPool`). */
+const HOUR_KEYS: ReadonlySet<WhenKey> = new Set<WhenKey>([
+  'weather',
+  'temp',
+  'season',
+  'part',
+  'sabbath',
+  'observance',
+  'price',
+]);
+/** The conditions a `when` sets, in canonical order, split into hour-level and the rest.
+ * Content-only, cached per object (bounded). */
+const whenKeyCache = new Map<When, { all: readonly WhenKey[]; hour: readonly WhenKey[]; pair: readonly WhenKey[] }>();
+function whenSplit(w: When): { all: readonly WhenKey[]; hour: readonly WhenKey[]; pair: readonly WhenKey[] } {
   let keys = whenKeyCache.get(w);
   if (!keys) {
     if (whenKeyCache.size >= 8192) whenKeyCache.clear();
-    keys = WHEN_ORDER.filter((k) => w[k] !== undefined);
+    const all = WHEN_ORDER.filter((k) => w[k] !== undefined);
+    keys = { all, hour: all.filter((k) => HOUR_KEYS.has(k)), pair: all.filter((k) => !HOUR_KEYS.has(k)) };
     whenKeyCache.set(w, keys);
   }
   return keys;
@@ -426,8 +456,26 @@ class Scene {
   /** Does a line's `when` hold here? Only the conditions the line sets are visited, in the
    * canonical order below (hot path: every candidate line of every exchange). */
   matches(w: When): boolean {
-    for (const key of whenKeys(w)) if (!this.holds(w, key)) return false;
+    for (const key of whenSplit(w).all) if (!this.holds(w, key)) return false;
     return true;
+  }
+  /** `matches` for a line already known to pass its hour-level conditions (`hourPool`). */
+  matchesPair(w: When): boolean {
+    for (const key of whenSplit(w).pair) if (!this.holds(w, key)) return false;
+    return true;
+  }
+  /** A pool's lines whose hour-level conditions hold this hour (same order; memoized per hour). */
+  hourPool(key: string, lines: readonly TalkLine[]): readonly TalkLine[] {
+    const memo = this.hour.pools;
+    let out = memo.get(key);
+    if (!out) {
+      out = lines.filter((l) => {
+        for (const k of whenSplit(l.when).hour) if (!this.holds(l.when, k)) return false;
+        return true;
+      });
+      memo.set(key, out);
+    }
+    return out;
   }
   private holds(w: When, key: WhenKey): boolean {
     switch (key) {
@@ -530,52 +578,73 @@ class Scene {
     const a = this.world.actors[id];
     return a !== undefined && whoMatches(who, a, this.cultureByKey.get(a.key) ?? null, this.ctx.now);
   }
-  /** Slots every line may use. Per-turn slots ({you}) are added when the turn is filled. */
-  slots(line: TalkLine): Record<string, string> {
-    return this.once(`slots:${line.when.remembers ?? ''}:${line.when.target_remembers ?? ''}`, () =>
-      this.makeSlots(line),
-    );
-  }
   address(speaker: ActorId, listener: ActorId): string {
     return this.once(`address:${speaker}`, () => addressOf(this, speaker, listener));
   }
-  private makeSlots(line: TalkLine): Record<string, string> {
+  /**
+   * One world slot of `line` as the turn's speaker (`by`) would say it, or undefined when the
+   * scene has no such value (no price, no misfortune, no debt). Facts slots are not read here:
+   * they take precedence and are captured by the caller. Read only for slots a chosen turn uses.
+   */
+  worldSlot(name: string, line: TalkLine, by: 'initiator' | 'target'): string | undefined {
     const w = this.world;
-    const content = this.ctx.content;
-    const place = this.placeId !== null ? w.places[this.placeId] : undefined;
-    const siteId = place?.siteId ?? content.scenarios[w.meta.scenarioId]?.site;
-    const site = siteId ? content.sites[siteId] : undefined;
-    const out: Record<string, string> = {
-      place: place?.name.replace(/^The /, 'the ') ?? 'here',
-      town: site?.name ?? 'the village',
-      // A creek with a name is named ("Hasp Creek"); otherwise it is just the creek.
-      creek: site?.landmarks?.creek ?? 'the creek',
-      main_street: site?.landmarks?.main_street ?? 'the main street',
-      weekday: WEEKDAYS[this.ctx.cal.weekday] ?? '',
-      season: this.ctx.cal.season,
-      initiator: nameOf(w, this.i),
-      target: nameOf(w, this.t),
-      initiator_given: givenOf(w, this.i),
-      target_given: givenOf(w, this.t),
-    };
-    const h = this.hour;
-    if (h.price) {
-      out.price_item = h.price.item;
-      out.price = h.price.price;
-      out.store = h.price.store.replace(/^The /, 'the ');
+    switch (name) {
+      case 'you':
+        return by === 'initiator' ? this.address(this.i, this.t) : this.address(this.t, this.i);
+      case 'place': {
+        const place = this.placeId !== null ? w.places[this.placeId] : undefined;
+        return place?.name.replace(/^The /, 'the ') ?? 'here';
+      }
+      case 'town':
+        return this.site()?.name ?? 'the village';
+      case 'creek':
+        // A creek with a name is named ("Hasp Creek"); otherwise it is just the creek.
+        return this.site()?.landmarks?.creek ?? 'the creek';
+      case 'main_street':
+        return this.site()?.landmarks?.main_street ?? 'the main street';
+      case 'weekday':
+        return WEEKDAYS[this.ctx.cal.weekday] ?? '';
+      case 'season':
+        return this.ctx.cal.season;
+      case 'initiator':
+        return nameOf(w, this.i);
+      case 'target':
+        return nameOf(w, this.t);
+      case 'initiator_given':
+        return givenOf(w, this.i);
+      case 'target_given':
+        return givenOf(w, this.t);
+      case 'price_item':
+        return this.hour.price?.item;
+      case 'price':
+        return this.hour.price?.price;
+      case 'store':
+        return this.hour.price?.store.replace(/^The /, 'the ');
+      case 'misfortune':
+        return this.misfortune() ?? undefined;
+      case 'owed': {
+        const owed = this.owed();
+        return owed ? formatCents(owed.cents) : undefined;
+      }
+      case 'memory_place': {
+        const rk = line.when.remembers ?? line.when.target_remembers;
+        if (rk === undefined) return undefined;
+        const [owner, other] = line.when.remembers !== undefined ? [this.i, this.t] : [this.t, this.i];
+        const p = this.remembered(owner, other, rk);
+        const placeName = p !== false && p !== null ? w.places[p]?.name : undefined;
+        return placeName ? `at ${placeName.replace(/^The /, 'the ')}` : 'that day';
+      }
+      default:
+        return undefined;
     }
-    const mis = this.misfortune();
-    if (mis) out.misfortune = mis;
-    const owed = this.owed();
-    if (owed) out.owed = formatCents(owed.cents);
-    const rk = line.when.remembers ?? line.when.target_remembers;
-    if (rk !== undefined) {
-      const [owner, other] = line.when.remembers !== undefined ? [this.i, this.t] : [this.t, this.i];
-      const p = this.remembered(owner, other, rk);
-      const name = p !== false && p !== null ? w.places[p]?.name : undefined;
-      out.memory_place = name ? `at ${name.replace(/^The /, 'the ')}` : 'that day';
-    }
-    return { ...out, ...(this.facts.slots ?? {}) };
+  }
+  private site() {
+    return this.once('site', () => {
+      const content = this.ctx.content;
+      const place = this.placeId !== null ? this.world.places[this.placeId] : undefined;
+      const siteId = place?.siteId ?? content.scenarios[this.world.meta.scenarioId]?.site;
+      return siteId ? content.sites[siteId] : undefined;
+    });
   }
 }
 
@@ -634,32 +703,138 @@ function spokenTitle(title: string): string {
   return title === 'Rev.' ? 'Reverend' : title === 'Dr.' ? 'Doctor' : title;
 }
 
-// ---- expansion ----
+// ---- expansion: templates compiled once; choices drawn without building the words ----
 
-function cultureOf(world: World, idx: TalkIndex, id: ActorId): string | null {
-  const a = world.actors[id];
-  return a ? (idx.cultureByKey.get(a.key) ?? null) : null;
+/**
+ * A compiled template. `#word#` is a word of idiom (a per-culture pick, itself a template),
+ * `{a|b}` alternatives, `{slot}`/`{^slot}` a value from the scene or the act. Choosing a line
+ * walks the template with the line's seed and records only a skeleton (world slots stay
+ * `{name}`), so the words themselves are built only when someone reads them (`renderTalk`).
+ */
+type Token =
+  | { k: 0; s: string }
+  | { k: 1; id: string }
+  | { k: 2; opts: Token[][] }
+  | { k: 3; name: string; cap: boolean };
+
+const WORD_AT = /#([a-z][a-z0-9_]*)#/y;
+const SLOT_BODY = /^(\^?)([a-z][a-z0-9_]*)$/;
+const NO_TOKENS: readonly Token[] = [];
+
+function compile(text: string, wordsOnly: boolean): Token[] {
+  const out: Token[] = [];
+  let lit = '';
+  const flush = () => {
+    if (lit) out.push({ k: 0, s: lit });
+    lit = '';
+  };
+  let i = 0;
+  while (i < text.length) {
+    const c = text.charAt(i);
+    if (c === '#') {
+      WORD_AT.lastIndex = i;
+      const m = WORD_AT.exec(text);
+      if (m) {
+        flush();
+        out.push({ k: 1, id: m[1] as string });
+        i += m[0].length;
+        continue;
+      }
+    } else if (c === '{' && !wordsOnly) {
+      const end = text.indexOf('}', i + 1);
+      const open = text.indexOf('{', i + 1);
+      if (end > i && (open < 0 || open > end)) {
+        const body = text.slice(i + 1, end);
+        const slot = body.includes('|') ? null : SLOT_BODY.exec(body);
+        if (body.includes('|') || slot) {
+          flush();
+          out.push(
+            slot
+              ? { k: 3, name: slot[2] as string, cap: slot[1] === '^' }
+              : { k: 2, opts: body.split('|').map((b) => compile(b, false)) },
+          );
+          i = end + 1;
+          continue;
+        }
+      }
+    }
+    lit += c;
+    i++;
+  }
+  flush();
+  return out;
 }
 
-function expandWords(text: string, idx: TalkIndex, culture: string | null, r: Rng, depth = 0): string {
-  if (depth > 3) return text;
-  return text.replace(/#([a-z][a-z0-9_]*)#/g, (_m, id: string) => {
-    const w = idx.words[id];
-    if (!w) return '';
-    const list = (culture !== null ? w.by_culture[culture] : undefined) ?? w.words;
-    return expandWords(r.pick(list) ?? '', idx, culture, r, depth + 1);
-  });
+// Content strings are finite; act values with words ('#hedge_sure#') are few. Bounded anyway.
+const compiledTemplates = new Map<string, readonly Token[]>();
+const compiledValues = new Map<string, readonly Token[]>();
+function compiled(text: string, wordsOnly: boolean): readonly Token[] {
+  const cache = wordsOnly ? compiledValues : compiledTemplates;
+  let tokens = cache.get(text);
+  if (!tokens) {
+    if (cache.size >= 16384) cache.clear();
+    tokens = compile(text, wordsOnly);
+    cache.set(text, tokens);
+  }
+  return tokens;
 }
 
-function expandAlternatives(text: string, r: Rng): string {
-  return text.replace(/\{([^{}]*\|[^{}]*)\}/g, (_m, body: string) => r.pick(body.split('|')) ?? '');
+/** One walk of one turn: in skeleton mode `world` is null and world slots stay `{name}`. */
+interface Walk {
+  words: Record<string, TalkWord>;
+  culture: string | null;
+  facts: Record<string, string> | undefined;
+  world: ((name: string) => string | undefined) | null;
+  out: string;
+  /** Skeleton mode: world slots the turn uses, and facts slots it uses. */
+  used: string[];
+  usedFacts: string[];
 }
 
-function fillSlots(text: string, slots: Record<string, string>): string {
-  return text.replace(/\{(\^?)([a-z][a-z0-9_]*)\}/g, (_m, cap: string, name: string) => {
-    const v = slots[name] ?? '';
-    return cap && v ? v.charAt(0).toUpperCase() + v.slice(1) : v;
-  });
+function capAt(w: Walk, at: number): void {
+  if (w.out.length > at) w.out = w.out.slice(0, at) + w.out.charAt(at).toUpperCase() + w.out.slice(at + 1);
+}
+
+function walk(tokens: readonly Token[], w: Walk, r: Rng, depth: number): void {
+  for (const tok of tokens) {
+    switch (tok.k) {
+      case 0:
+        w.out += tok.s;
+        break;
+      case 1: {
+        if (depth > 3) break;
+        const def = w.words[tok.id];
+        if (!def) break;
+        const list = (w.culture !== null ? def.by_culture[w.culture] : undefined) ?? def.words;
+        walk(compiled(r.pick(list) ?? '', false), w, r, depth + 1);
+        break;
+      }
+      case 2:
+        walk(r.pick(tok.opts) ?? NO_TOKENS, w, r, depth);
+        break;
+      case 3: {
+        const at = w.out.length;
+        const fact = w.facts?.[tok.name];
+        if (fact !== undefined) {
+          if (w.world === null && !w.usedFacts.includes(tok.name)) w.usedFacts.push(tok.name);
+          if (fact.includes('#')) walk(compiled(fact, true), w, r, depth);
+          else w.out += fact;
+        } else if (w.world !== null) {
+          w.out += w.world(tok.name) ?? '';
+        } else {
+          if (!w.used.includes(tok.name)) w.used.push(tok.name);
+          w.out += `{${tok.name}}`;
+        }
+        if (tok.cap) capAt(w, at);
+        break;
+      }
+    }
+  }
+}
+
+/** The draws of one turn of a chosen line: counter-based on the line's seed, nothing else. */
+function turnRng(seed: number, n: number): Rng {
+  return rng(seed, 'social', 0, n);
 }
 
 function tidy(s: string): string {
@@ -767,11 +942,90 @@ export interface ComposeRequest {
   facts?: TalkFacts;
 }
 
+/** One chosen turn: the line, its turn index, the line's seed, who says it, and in which scope. */
+interface TurnPlan {
+  line: TalkLine;
+  n: number;
+  seed: number;
+  by: 'initiator' | 'target';
+  who: ActorId;
+  s: number;
+  /** Listener-memory identity of the turn: a hash of its skeleton (words and alternatives
+   * chosen, act values filled, world slots as `{name}`). */
+  sig: number;
+  used: string[];
+  usedFacts: string[];
+}
+
+interface Plan {
+  turns: TurnPlan[];
+  ids: string[];
+  /** Scope 0: the exchange's scene; scope 1: the repeat-aware reply's (speaker and listener). */
+  scenes: Scene[];
+}
+
+/** Does any turn of a line draw words or alternatives (so another draw may say it otherwise)? */
+const choiceCache = new Map<TalkLine, boolean>();
+function hasChoices(line: TalkLine): boolean {
+  let v = choiceCache.get(line);
+  if (v === undefined) {
+    if (choiceCache.size >= 16384) choiceCache.clear();
+    v = line.lines.some((x) => /[#|]/.test(x.text));
+    choiceCache.set(line, v);
+  }
+  return v;
+}
+
+/** The skeleton plan of a line's turns (no words built); blank turns are dropped. */
+function planLine(line: TalkLine, scene: Scene, idx: TalkIndex, seed: number, s: number): TurnPlan[] {
+  const out: TurnPlan[] = [];
+  for (let n = 0; n < line.lines.length; n++) {
+    const turn = line.lines[n] as TalkLine['lines'][number];
+    const who = turn.by === 'initiator' ? scene.i : scene.t;
+    const w: Walk = {
+      words: idx.words,
+      culture: cultureOf(scene.world, idx, who),
+      facts: scene.facts.slots,
+      world: null,
+      out: '',
+      used: [],
+      usedFacts: [],
+    };
+    walk(compiled(turn.text, false), w, turnRng(seed, n), 0);
+    if (blank(w, scene, line, turn.by)) continue;
+    out.push({
+      line,
+      n,
+      seed,
+      by: turn.by,
+      who,
+      s,
+      sig: hashString32(w.out),
+      used: w.used,
+      usedFacts: w.usedFacts,
+    });
+  }
+  return out;
+}
+
+/** A turn that would say nothing (only spaces and commas once its slots are filled). */
+function blank(w: Walk, scene: Scene, line: TalkLine, by: 'initiator' | 'target'): boolean {
+  if (w.used.length === 0) return !/[^\s,]/.test(w.out);
+  if (/[^\s,]/.test(w.out.replace(/\{[a-z][a-z0-9_]*\}/g, ''))) return false;
+  return !w.used.some((name) => /[^\s,]/.test(scene.worldSlot(name, line, by) ?? ''));
+}
+
+function cultureOf(world: World, idx: TalkIndex, id: ActorId): string | null {
+  const a = world.actors[id];
+  return a ? (idx.cultureByKey.get(a.key) ?? null) : null;
+}
+
 /**
- * Compose the words of an exchange, or null when no line fits (content validation makes sure
- * every interaction has `act` lines for each outcome). Records the lines used for the pair.
+ * Choose an exchange's lines (and record them for the pair, room, speakers and listeners)
+ * without building its words. Null when no line fits (content validation makes sure every
+ * interaction has `act` lines for each outcome).
  */
-export function composeExchange(world: World, ctx: SimContext, req: ComposeRequest): Exchange | null {
+function chooseLines(world: World, ctx: SimContext, req: ComposeRequest): Plan | null {
   const idx = indexOf(ctx.content, world.meta.scenarioId);
   const pool = (req.part === 'said' ? idx.said : idx.act).get(req.def.id);
   if (!pool || pool.length === 0) return null;
@@ -780,7 +1034,9 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   const scene = new Scene(world, ctx, i, t, req.placeId, req.facts ?? {});
   scene.cultureByKey = idx.cultureByKey;
   const outcome = req.success ? 'success' : 'failure';
-  const fits = basePool(idx, req.part, req.def.id, outcome, pool).filter((l) => scene.matches(l.when));
+  const fits = scene
+    .hourPool(`${req.part}|${req.def.id}|${outcome}`, basePool(idx, req.part, req.def.id, outcome, pool))
+    .filter((l) => scene.matchesPair(l.when));
   if (fits.length === 0) return null;
   const pk = pairKey(i, t);
   const room = placeKey(req.placeId);
@@ -791,7 +1047,7 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   const within = (rec: Record<string, number> | undefined, id: string, span: number): boolean =>
     rec?.[id] !== undefined && ctx.now - (rec[id] ?? 0) < span;
   const r = ctx.rng('social', mixKey(i, t, hashString32(req.def.id), SALT_TALK, req.part === 'said' ? 1 : 0));
-  // Cooldowns are preferences, not barriers to unheard text. Child-specific lines have first
+  // Cooldowns are preferences, not barriers to unheard words. Child-specific lines have first
   // choice, then ordinary lines whose conditions fit: a tiny child pool must not trap a child
   // into hearing the same reply hundreds of times while suitable general lines go unused.
   const child = scene.child(i) || scene.child(t);
@@ -803,27 +1059,32 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   const tiers: TalkLine[][] = Array.from({ length: 6 }, () => []);
   for (const l of fits) tiers[priority(l)]?.push(l);
 
-  const lastHeard = (turn: TalkTurn): number => {
-    const listener = turn.speakerId === i ? t : i;
-    const at = world.social.talk?.[listenerKey(listener)]?.[String(hashString32(turn.text))];
+  const listeners = [world.social.talk?.[listenerKey(t)], world.social.talk?.[listenerKey(i)]];
+  const lastHeard = (turn: TurnPlan): number => {
+    const at = listeners[turn.who === i ? 0 : 1]?.[String(turn.sig)];
     return at !== undefined && ctx.now - at < HEARD ? at : -1;
   };
-  let chosen: { line: TalkLine; turns: TalkTurn[]; repeats: number; last: number } | undefined;
-  // Try each eligible template once, then two more renderings of templates with alternatives.
-  // Rejection checks the final text, including replies shared by different template ids.
+  let chosen: { line: TalkLine; turns: TurnPlan[]; repeats: number; last: number } | undefined;
+  // Try each eligible template once, then two more draws of templates with alternatives.
+  // Rejection checks each turn's skeleton, including replies shared by different template ids.
   search: for (let pass = 0; pass < 3; pass++) {
     for (const tier of tiers) {
-      const candidates = pass === 0 ? [...tier] : tier.filter((l) => l.lines.some((x) => /[#|]/.test(x.text)));
+      const candidates = pass === 0 ? [...tier] : tier.filter(hasChoices);
       while (candidates.length > 0) {
         const line = r.weighted(candidates, (l) => idx.weights.get(l) ?? l.weight);
         if (!line) break;
         candidates.splice(candidates.indexOf(line), 1);
-        // Candidate expansion uses its own counter-based stream, unaffected by skipped lines.
-        const turns = render(line, scene, idx, r.fork(mixKey(hashString32(line.id), pass)));
+        // Candidate draws use their own counter-based seed, unaffected by skipped lines.
+        const seed = r.fork(mixKey(hashString32(line.id), pass)).u32();
+        const turns = planLine(line, scene, idx, seed, 0);
         if (turns.length === 0) continue;
-        const times = turns.map(lastHeard);
-        const repeats = times.filter((at) => at >= 0).length;
-        const last = Math.max(...times);
+        let repeats = 0;
+        let last = -1;
+        for (const turn of turns) {
+          const at = lastHeard(turn);
+          if (at >= 0) repeats++;
+          if (at > last) last = at;
+        }
         if (!chosen || repeats < chosen.repeats || (repeats === chosen.repeats && last < chosen.last))
           chosen = { line, turns, repeats, last };
         if (repeats === 0) break search;
@@ -833,10 +1094,11 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   if (!chosen) return null;
   const { line, turns } = chosen;
   const ids = [line.id];
+  const scenes = [scene];
   if (chosen.repeats > 0) {
     const repeated = turns.find((turn) => lastHeard(turn) >= 0);
     if (repeated) {
-      const speaker = repeated.speakerId;
+      const speaker = repeated.who;
       const listener = speaker === i ? t : i;
       // Repeat-aware content is written as the target's response, whichever side repeated.
       const replyScene = new Scene(world, ctx, speaker, listener, req.placeId, req.facts ?? {});
@@ -851,20 +1113,17 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
         const reply = r.weighted(replies, (l) => l.weight);
         if (!reply) break;
         replies.splice(replies.indexOf(reply), 1);
-        const response = render(reply, replyScene, idx, r.fork(hashString32(reply.id)));
+        const response = planLine(reply, replyScene, idx, r.fork(hashString32(reply.id)).u32(), 1);
         // The acknowledgement itself should not become a new repeated stock response.
-        if (
-          response.length !== 1 ||
-          response[0]?.speakerId !== listener ||
-          response.some((turn) => lastHeard(turn) >= 0)
-        )
+        if (response.length !== 1 || response[0]?.who !== listener || response.some((turn) => lastHeard(turn) >= 0))
           continue;
         const repeatedAt = turns.indexOf(repeated);
-        const at = turns.findIndex((turn, n) => n > repeatedAt && turn.speakerId === listener);
-        if (at >= 0) turns[at] = response[0] as TalkTurn;
-        else if (turns.length < 3) turns.push(response[0] as TalkTurn);
+        const at = turns.findIndex((turn, n) => n > repeatedAt && turn.who === listener);
+        if (at >= 0) turns[at] = response[0] as TurnPlan;
+        else if (turns.length < 3) turns.push(response[0] as TurnPlan);
         else continue;
         ids.push(reply.id);
+        scenes.push(replyScene);
         break;
       }
     }
@@ -874,31 +1133,123 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   remember(world, speakerKey(i), ids, ctx.now);
   remember(world, speakerKey(t), ids, ctx.now);
   for (const turn of turns) {
-    const listener = turn.speakerId === i ? t : i;
-    remember(world, listenerKey(listener), [String(hashString32(turn.text))], ctx.now);
+    const listener = turn.who === i ? t : i;
+    remember(world, listenerKey(listener), [String(turn.sig)], ctx.now);
+  }
+  return { turns, ids, scenes };
+}
+
+/** A turn's words: the same walk as its skeleton, with every slot filled. */
+function turnText(
+  text: string,
+  seed: number,
+  n: number,
+  words: Record<string, TalkWord>,
+  culture: string | null,
+  facts: Record<string, string> | undefined,
+  world: (name: string) => string | undefined,
+): string {
+  const w: Walk = { words, culture, facts, world, out: '', used: [], usedFacts: [] };
+  walk(compiled(text, false), w, turnRng(seed, n), 0);
+  return tidy(w.out);
+}
+
+function exchangeOf(lines: TalkTurn[]): { line: string; lines: TalkTurn[] } {
+  return { line: lines.map((x) => `${x.speaker}: “${x.text}”`).join(' '), lines };
+}
+
+/**
+ * Compose the words of an exchange now (the private `said` part, and tests), or null when no
+ * line fits. Records the lines used for the pair. The same choice as `chooseExchange`; its words
+ * are exactly what `renderTalk` gives for that choice's reference.
+ */
+export function composeExchange(world: World, ctx: SimContext, req: ComposeRequest): Exchange | null {
+  const plan = chooseLines(world, ctx, req);
+  if (!plan) return null;
+  const idx = indexOf(ctx.content, world.meta.scenarioId);
+  const lines: TalkTurn[] = [];
+  for (const turn of plan.turns) {
+    const scene = plan.scenes[turn.s] as Scene;
+    const text = turnText(
+      turn.line.lines[turn.n]?.text ?? '',
+      turn.seed,
+      turn.n,
+      idx.words,
+      cultureOf(world, idx, turn.who),
+      scene.facts.slots,
+      (name) => scene.worldSlot(name, turn.line, turn.by),
+    );
+    if (text) lines.push({ speaker: nameOf(world, turn.who), speakerId: turn.who, text });
+  }
+  return { ...exchangeOf(lines), ids: plan.ids };
+}
+
+/**
+ * Choose an exchange (recording it like `composeExchange`) but keep only a reference to its
+ * words: the chosen turns and seeds, and the slot values those turns use, captured now. Nobody
+ * pays for the words until a view reads them (`renderTalk`).
+ */
+export function chooseExchange(
+  world: World,
+  ctx: SimContext,
+  req: ComposeRequest,
+): { ids: string[]; talk: TalkRef } | null {
+  const plan = chooseLines(world, ctx, req);
+  if (!plan) return null;
+  const idx = indexOf(ctx.content, world.meta.scenarioId);
+  const scopes: TalkRef['scopes'] = plan.scenes.map((scene) => {
+    const ci = cultureOf(world, idx, scene.i);
+    const ct = cultureOf(world, idx, scene.t);
+    return {
+      slots: {},
+      ni: nameOf(world, scene.i),
+      nt: nameOf(world, scene.t),
+      ...(ci !== null ? { ci } : {}),
+      ...(ct !== null ? { ct } : {}),
+    };
+  });
+  for (const turn of plan.turns) {
+    const scope = scopes[turn.s] as TalkRef['scopes'][number];
+    const scene = plan.scenes[turn.s] as Scene;
+    for (const name of turn.used) {
+      const key = name === 'you' ? `you:${turn.by}` : name;
+      if (scope.slots[key] === undefined) scope.slots[key] = scene.worldSlot(name, turn.line, turn.by) ?? '';
+    }
+    for (const name of turn.usedFacts) {
+      const v = scene.facts.slots?.[name];
+      if (v !== undefined) {
+        scope.facts ??= {};
+        scope.facts[name] = v;
+      }
+    }
   }
   return {
-    line: turns.map((x) => `${x.speaker}: “${x.text}”`).join(' '),
-    lines: turns,
-    ids,
+    ids: plan.ids,
+    talk: {
+      turns: plan.turns.map((x) => ({ line: x.line.id, n: x.n, seed: x.seed, who: x.who, by: x.by, s: x.s })),
+      scopes,
+    },
   };
 }
 
-function render(line: TalkLine, scene: Scene, idx: TalkIndex, r: Rng): TalkTurn[] {
-  const base = scene.slots(line);
-  const turns: TalkTurn[] = [];
-  for (const turn of line.lines) {
-    const speaker = turn.by === 'initiator' ? scene.i : scene.t;
-    const listener = speaker === scene.i ? scene.t : scene.i;
-    const culture = cultureOf(scene.world, idx, speaker);
-    const slots: Record<string, string> = { you: scene.address(speaker, listener) };
-    for (const k in base) {
-      const v = base[k] as string;
-      slots[k] = v.includes('#') ? expandWords(v, idx, culture, r) : v;
-    }
-    const words = expandWords(turn.text, idx, culture, r);
-    const text = tidy(fillSlots(expandAlternatives(words, r), slots));
-    if (text) turns.push({ speaker: nameOf(scene.world, speaker), speakerId: speaker, text });
+/** The words of a talk reference: exactly the text chosen when it was said, from content alone. */
+export function renderTalk(content: ContentBundle, ref: TalkRef): { line: string; lines: TalkTurn[] } {
+  const words = content.talk_words ?? {};
+  const lines: TalkTurn[] = [];
+  for (const turn of ref.turns) {
+    const scope = ref.scopes[turn.s];
+    const text = content.talk_lines?.[turn.line]?.lines[turn.n]?.text;
+    if (!scope || text === undefined) continue;
+    const said = turnText(
+      text,
+      turn.seed,
+      turn.n,
+      words,
+      (turn.by === 'initiator' ? scope.ci : scope.ct) ?? null,
+      scope.facts,
+      (name) => scope.slots[name === 'you' ? `you:${turn.by}` : name],
+    );
+    if (said) lines.push({ speaker: turn.by === 'initiator' ? scope.ni : scope.nt, speakerId: turn.who, text: said });
   }
-  return turns;
+  return exchangeOf(lines);
 }

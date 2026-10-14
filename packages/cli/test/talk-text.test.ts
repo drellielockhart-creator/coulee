@@ -5,7 +5,7 @@
  * a fortnight of Iron Ford does not say one line over and over.
  */
 import { crossCheck } from '@coulee/content/schema';
-import { createSim, runHours } from '@coulee/core';
+import { createSim, runHours, social } from '@coulee/core';
 import { describe, expect, it } from 'vitest';
 import { collectingSink } from '../src/harness.ts';
 import { baseContent } from './helpers.ts';
@@ -83,7 +83,8 @@ describe('a fortnight of Iron Ford (seed 42)', () => {
   type Turn = { speakerId: number; text: string };
   const exchanges = events.flatMap((e) => {
     const d = (e as unknown as { data?: Record<string, unknown> }).data;
-    const ls = d?.lines as Turn[] | undefined;
+    // An act's words are stored by reference (rendered on read); a telling's are on the event.
+    const ls = (d ? social.talkWords(content, d)?.lines : undefined) as Turn[] | undefined;
     return ls?.length ? [{ kind: e.kind, d: d as Record<string, unknown>, lines: ls }] : [];
   });
 

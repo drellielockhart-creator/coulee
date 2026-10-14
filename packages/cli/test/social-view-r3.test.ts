@@ -161,7 +161,9 @@ describe('r3 group B social view regressions', () => {
     expect(gift?.kind).toBe('social.interaction');
     if (gift?.kind === 'social.interaction') {
       expect(sim.content.items[gift.data.itemDefId ?? '']?.food).toBeDefined();
-      expect(gift.data.line).not.toMatch(/eggs|ribbon|tobacco|lettuce|dry wood/i);
+      const said = social.talkWords(sim.content, gift.data)?.line ?? '';
+      expect(said.length).toBeGreaterThan(0);
+      expect(said).not.toMatch(/eggs|ribbon|tobacco|lettuce|dry wood/i);
     }
     expect(PlaySession.replay(baseContent(), s.commandLog).save()).toBe(s.save());
   });
