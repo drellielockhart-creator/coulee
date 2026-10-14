@@ -2,7 +2,7 @@
 import { requiredRow } from '../activity/definitions.ts';
 import { type ActorId, idsOf, type PlaceId, sortedKeys } from '../ids.ts';
 import { carriedBy, type InventoryIndex, inventoryIndex, pantryOf, stacksDeep } from '../items/api.ts';
-import { airTempF, heatingFuel } from '../provisions/api.ts';
+import { airTempF, hearthBurn, heatingFuel } from '../provisions/api.ts';
 import { fixedDerivation, processesPlace, processingActorIds } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { CalendarInfo } from '../time.ts';
@@ -55,7 +55,7 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
       continue;
     }
     let lit = air < hearth.when_below_f && (!hearth.occupied_only || occupied.has(pid));
-    const wanted = hearth.burn_base + Math.floor((hearth.burn_per_10f * Math.max(0, hearth.ref_f - air)) / 10);
+    const wanted = hearthBurn(hearth, air);
     let fuel = 0;
     if (lit && hearth.fuel_from === 'household' && wanted > 0) {
       const owner = workplaceOwners.get(pid);
