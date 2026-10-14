@@ -44,7 +44,7 @@ export interface Pair {
     targetOpinion?: OpinionDims;
     digest?: MemoryDigest;
     /** Shared lazy batch for a read-only proposal pass. */
-    digests?: () => Map<ActorId, MemoryDigest>;
+    digests?: () => ReadonlyMap<ActorId, MemoryDigest>;
     rumor?: boolean;
     grudge?: number;
     kin?: boolean;

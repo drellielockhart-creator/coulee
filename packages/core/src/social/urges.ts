@@ -222,7 +222,7 @@ export function proposeSocialUrges(world: World, ctx: SimContext, actorId: Actor
     0,
   );
   const found: Array<UrgeProposal & { _t: number; _i: string }> = [];
-  let digests: Map<ActorId, MemoryDigest> | undefined;
+  let digests: ReadonlyMap<ActorId, MemoryDigest> | undefined;
   const getDigests = () => (digests ??= memoryDigests(world, ctx.content, actorId));
   for (const c of sample.candidates) {
     const pair = makePair(world, ctx, actorId, c.id, actor.placeId, here.length - 1);

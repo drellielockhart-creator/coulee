@@ -321,7 +321,7 @@ describe('social: encounter selection is O(n·k)', () => {
       const act = w.activity.byActor[template.id];
       if (act) w.activity.byActor[id] = structuredClone(act);
       w.social.opinions[id] = {};
-      w.social.memoriesByOwner[id] = [];
+      // A clone starts with no memories (memory.ts creates the owner's list on the first one).
       ids.push(id);
     }
     w.counters.actor = next;
