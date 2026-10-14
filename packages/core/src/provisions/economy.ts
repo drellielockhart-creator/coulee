@@ -403,29 +403,34 @@ export function householdDay(world: World, ctx: SimContext): void {
       continue;
     store.lastRestockDay = ctx.cal.dayIndex;
     const owner = store.ownerHouseholdId === null ? undefined : world.provisions.households[store.ownerHouseholdId];
+    const stocked = new Map<string, number>();
+    for (const { stack } of stacksDeep(world, atPlace(store.placeId)))
+      stocked.set(stack.defId, (stocked.get(stack.defId) ?? 0) + stack.qty);
     for (const line of restock.lines) {
-      const have = stacksDeep(world, atPlace(store.placeId))
-        .filter((s) => s.stack.defId === line.item)
-        .reduce((n, s) => n + s.stack.qty, 0);
-      let qty = Math.max(0, Math.min(line.target_qty - have, line.max_delivery ?? line.target_qty));
+      const have = stocked.get(line.item) ?? 0;
+      // Scenario shelves are the authored ceiling; freight never builds a second inventory.
+      const ceiling = Math.min(line.target_qty, store.targets[line.item] ?? line.target_qty);
+      const room = Math.max(0, ceiling - have);
+      let qty = Math.min(room, line.max_delivery ?? ceiling);
       const owed = store.freightOwed?.[line.item] ?? 0;
       if (restock.river_closed_months.includes(ctx.cal.month)) {
         if (!qty) continue;
         // A reduced load is whole units: the hundredths a shipment cannot carry ride to the next one
         // (a 15% load of 4 kettles is 0.6, then 1.2 owed: one arrives on the second freight).
         const scaled = qty * restock.river_closed_pct + owed;
-        qty = Math.floor(scaled / 100);
+        qty = Math.min(room, Math.floor(scaled / 100));
         setFreightOwed(store, line.item, scaled % 100);
       } else if (owed) setFreightOwed(store, line.item, 0); // open water: full loads, nothing owed
       if (!qty) continue;
       const cost = Math.round(((ctx.content.items[line.item]?.value_cents ?? 0) * restock.wholesale_pct) / 100) * qty;
       const cash = owner?.cashCents ?? store.tillCents;
-      const pay = Math.min(cash, cost);
+      const pay = Math.min(Math.max(0, cash - (restock.cash_reserve_cents ?? 0)), cost);
       if (owner) owner.cashCents -= pay;
       else store.tillCents -= pay;
       store.wholesaleDebtCents += cost - pay;
       world.provisions.externalCashCents = (world.provisions.externalCashCents ?? 0) - pay;
       createStack(world, ctx, line.item, qty, atPlace(store.placeId));
+      stocked.set(line.item, have + qty);
       ctx.emit({
         kind: 'provisions.restock',
         data: {

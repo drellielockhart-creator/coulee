@@ -355,6 +355,7 @@ schedule = [
 
 [[occupation]]
 id = "housewife"
+work_at_home = true
 name = "Housewife"
 description = "Keeps house in town: cooking, washing, sewing, small trade."
 # Taking in sewing or washing now and then.

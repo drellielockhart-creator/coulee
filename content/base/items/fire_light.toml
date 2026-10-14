@@ -10,7 +10,7 @@ copy = "Split oak and dry ash. One armload keeps a cook-fire going about an hour
 unit = "armload"
 weight_g = 9072
 bulk = 20
-value_cents = 2
+value_cents = 5
 tags = ["flammable"]
 materials = [{ material = "wood", pct = 100 }]
 supply = { kind = "fire", units = 60 }

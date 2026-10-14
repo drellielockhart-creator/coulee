@@ -790,7 +790,10 @@ export function serveMeal(
   const batches: PendingMeal['batches'] = [];
   const kitchen = kitchenOf(world, content, holder, ctx.now, passMemo?.inventory);
   const candidates = kitchen.stacks.filter(
-    (s) => foodServings(content, s) > 0 && (!explicit || s.id === explicit.itemId),
+    (s) =>
+      (!s.forSale || explicit?.itemId === s.id) &&
+      foodServings(content, s) > 0 &&
+      (!explicit || s.id === explicit.itemId),
   );
   const targets = nutritionTargets(content);
   const hasStaple = candidates.some((s) => {

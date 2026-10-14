@@ -318,6 +318,7 @@ export function moveStack(world: World, ctx: SimContext, itemId: ItemId, qty: nu
     const rest = newStack(world, s.defId, n, to, s.createdAt);
     const moved = world.items.stacks[rest];
     if (moved) {
+      if (s.forSale) moved.forSale = true;
       moved.condition = s.condition;
       moved.wetness = s.wetness;
       moved.spoilage = s.spoilage;
@@ -489,4 +490,18 @@ export function regionalInventories(world: World, sites: ReadonlySet<string>) {
       invalidateInventory(world);
     },
   };
+}
+
+/** Reserve an accessible carried stack for trade without moving it. */
+export function markForSale(world: World, actorId: ActorId, itemId: ItemId, forSale: boolean): boolean {
+  const stack = world.items.stacks[itemId];
+  if (
+    !stack ||
+    rootOf(world, stack).kind !== 'actor' ||
+    !stacksDeep(world, carriedBy(actorId)).some(({ stack: s }) => s.id === itemId)
+  )
+    return false;
+  if (forSale) stack.forSale = true;
+  else delete stack.forSale;
+  return true;
 }

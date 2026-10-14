@@ -115,7 +115,18 @@ export function viewPsycheActor(
   }
   const tierOf = (d: string) => content.defenses?.[d as keyof typeof content.defenses]?.tier;
   const thoughts: ThoughtView[] = [];
+  const lastMeal = world.provisions?.nutrition?.[actorId]?.lastMealAt;
   for (const t of p.thoughts) {
+    // A completed meal is no longer a pending duty in the actor's current impressions.
+    if (
+      lastMeal != null &&
+      world.time - lastMeal < 180 &&
+      t.voice === 'superego' &&
+      t.source === 'activity' &&
+      t.urge.kind === 'activity' &&
+      t.urge.activityId === 'take_meal'
+    )
+      continue;
     // A masked thought looks like an ordinary one (10 §4.3); only Insight adds the label.
     const masked = t.maskedBy !== undefined && canSeeDefense(opts, actorId, p, tierOf(t.maskedBy));
     const period =

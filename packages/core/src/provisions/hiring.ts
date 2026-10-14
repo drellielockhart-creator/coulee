@@ -1,13 +1,13 @@
 /** Hiring is a conversation between ordinary actors, backed by a finite business demand. */
 
-import { currentActivity, setWorkplace } from '../activity/api.ts';
+import { currentActivity, endWorkShift, setWorkplace } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { term } from '../explain.ts';
 import { type ActorId, rowsOf } from '../ids.ts';
-import { authorizeAct, commandBasis } from '../psyche/api.ts';
+import { authorizeAct, commandBasis, discardActivityThoughts } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { interactionAvailability, opinionOf, reasonContribution, reasonsOf } from '../social/api.ts';
-import { calendarAt, yearsBetween } from '../time.ts';
+import { asGameMinute, calendarAt, yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
 import { cashOf } from './economy.ts';
 import { employerHousehold, settleWages } from './employment.ts';
@@ -20,7 +20,7 @@ export function activeEmployment(world: World, id: ActorId): EmploymentContract 
 
 /** Minutes already credited on this workday, for the shared activity scheduler. */
 export function employmentDayMinutes(world: World, id: ActorId, day: number): number {
-  const account = world.provisions.employment?.[id];
+  const account = world.provisions?.employment?.[id];
   return account?.day === day ? account.minutes : 0;
 }
 
@@ -60,7 +60,25 @@ export function hiringAvailability(
   if (!worker || yearsBetween(worker.born, world.time) < 16) return 'Hiring on requires an adult worker';
   if (activeEmployment(world, workerId) || employerHousehold(world, workerId) !== null)
     return 'Already employed; quit before hiring on elsewhere';
-  if (!hiringOffer(world, content, employerId)) return 'This employer has no seasonal hiring business';
+  const previous = world.provisions.contracts?.[workerId];
+  if (
+    world.provisions.employmentDepartures?.[`${workerId}:${employerId}`] === Math.floor(world.time / 1440) ||
+    (previous?.employerId === employerId &&
+      previous.ended !== 'term_end' &&
+      previous.endedAt !== undefined &&
+      Math.floor(previous.endedAt / 1440) === Math.floor(world.time / 1440))
+  )
+    return 'You left this employer today; ask again tomorrow';
+  if (!hiringOffer(world, content, employerId)) {
+    const captain = rowsOf(world.actors).find(
+      (a) =>
+        currentActivity(world, a.id)?.workplaceId === currentActivity(world, employerId)?.workplaceId &&
+        hiringOffer(world, content, a.id),
+    );
+    return captain
+      ? `Ask ${captain.name.given} ${captain.name.family} about hiring here`
+      : 'This person has no extra hands to hire this season';
+  }
   return interactionAvailability(world, content, workerId, employerId, 'chat').reason ?? null;
 }
 
@@ -140,7 +158,8 @@ export function hireOn(
   let contract: EmploymentContract | undefined;
   if (accepted && offer) {
     const { rule, workplaceId } = offer;
-    const day = ctx.cal.dayIndex + (ctx.cal.weekday === 'sun' || ctx.cal.hour >= rule.to_hour - 1 ? 1 : 0);
+    let day = ctx.cal.dayIndex + (ctx.cal.hour >= rule.to_hour - 1 ? 1 : 0);
+    if (calendarAt(asGameMinute(day * 1440)).weekday === 'sun') day++;
     contract = {
       employerId,
       workplaceId,
@@ -156,7 +175,12 @@ export function hireOn(
     const previousAccount = world.provisions.employment?.[workerId];
     if (previous && previousAccount && previousAccount.earnedCents > 0) {
       world.provisions.wageArrears ??= [];
-      world.provisions.wageArrears.push({ workerId, employerId: previous.employerId, account: { ...previousAccount } });
+      world.provisions.wageArrears.push({
+        workerId,
+        employerId: previous.employerId,
+        pay: previous.pay,
+        account: { ...previousAccount },
+      });
     }
     world.provisions.contracts ??= {};
     world.provisions.contracts[workerId] = contract;
@@ -232,7 +256,14 @@ export function endEmployment(
   const contract = world.provisions.contracts?.[workerId];
   if (!contract || contract.ended) return false;
   contract.ended = reason;
-  settleWages(world, ctx, workerId);
+  contract.endedAt = ctx.now;
+  if (reason !== 'term_end') {
+    world.provisions.employmentDepartures ??= {};
+    world.provisions.employmentDepartures[`${workerId}:${contract.employerId}`] = ctx.cal.dayIndex;
+  }
+  if (contract.pay === 'daily' || ctx.cal.weekday === 'sat') settleWages(world, ctx, workerId);
+  discardActivityThoughts(world, workerId, 'work');
+  endWorkShift(world, workerId);
   setWorkplace(world, workerId, contract.previousWorkplaceId);
   ctx.emit({
     kind: 'provisions.employment_ended',
@@ -272,4 +303,26 @@ export function dismissWorker(world: World, ctx: SimContext, employerId: ActorId
     ).ok &&
     endEmployment(world, ctx, workerId, 'dismissed')
   );
+}
+
+/** Generic work requires a real trade workplace or a current signed employer. */
+export function workAvailability(world: World, content: ContentBundle, actorId: ActorId): string | null {
+  const contract = activeEmployment(world, actorId);
+  const actor = world.actors[actorId],
+    occupation = content.occupations[actor?.occupationId ?? ''];
+  const ownWork = occupation?.work_at_home || occupation?.confined;
+  const signed = world.provisions?.contracts?.[actorId];
+  if (signed && !contract && signed.previousWorkplaceId === null && !ownWork)
+    return 'You have no employer; hire on before working';
+  const workplace = currentActivity(world, actorId)?.workplaceId;
+  if (!contract && workplace == null && !ownWork && (!world.provisions || employerHousehold(world, actorId) === null))
+    return 'You have no employer or trade workplace; hire on before working';
+  if (!contract) return null;
+  const cal = calendarAt(world.time);
+  if (cal.weekday === 'sun') return 'Sunday is unpaid: no hired shift today; paid work resumes Monday';
+  if (cal.hour < contract.fromHour || cal.hour >= contract.toHour)
+    return `Your paid shift runs ${contract.fromHour}:00–${contract.toHour}:00`;
+  if (employmentDayMinutes(world, actorId, cal.dayIndex) >= contract.hours * 60)
+    return 'Your paid hours for today are complete';
+  return content.activities.work ? null : 'No work activity is available';
 }

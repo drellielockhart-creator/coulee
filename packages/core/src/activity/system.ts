@@ -5,7 +5,7 @@ import { tacticalPinned } from './tactical.ts';
 import { type ActorId, idsOf } from '../ids.ts';
 import { campSleepActivity, inventoryIndex, loadReport, movementDelay } from '../items/api.ts';
 import { canAct, rousedBy } from '../needs/api.ts';
-import { admitSleep } from '../provisions/api.ts';
+import { activeEmployment, admitSleep, workAvailability } from '../provisions/api.ts';
 import { authorizeAct, chosenUrge, standingOrders } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
 import { interactionAvailability, prepareReliefTravel, reliefReservations } from '../social/api.ts';
@@ -56,7 +56,11 @@ export function activitySystem(world: World, ctx: SimContext): void {
     if (minuteBudget(world, id).remaining === 0) continue;
     if (onJourney(world, id)) {
       const cmd = ctx.commands.find(
-        (c) => c.actorId === id && c.kind === 'core.urge' && c.data.urge.kind === 'activity',
+        (c) =>
+          c.actorId === id &&
+          c.kind === 'core.urge' &&
+          c.data.urge.kind === 'activity' &&
+          authorizeAct(world, id, { kind: 'work' }, { kind: 'command', issuer: c.issuer ?? { kind: 'player' } }).ok,
       );
       if (
         canAct(world, id) &&
@@ -110,6 +114,30 @@ export function activitySystem(world: World, ctx: SimContext): void {
         },
       });
     }
+    const workOrder = ctx.commands.find(
+      (c) =>
+        c.actorId === id &&
+        c.kind === 'core.urge' &&
+        c.data.urge.kind === 'activity' &&
+        authorizeAct(world, id, { kind: 'work' }, { kind: 'command', issuer: c.issuer ?? { kind: 'player' } }).ok,
+    );
+    if (workOrder?.kind === 'core.urge' && workOrder.data.urge.kind === 'activity') {
+      const contract = activeEmployment(world, id);
+      if (workOrder.data.urge.activityId === 'work' && contract && !workAvailability(world, ctx.content, id))
+        state.workShift = {
+          until: ctx.cal.dayIndex * 1440 + contract.toHour * 60,
+          issuer: workOrder.issuer ?? { kind: 'player' },
+        };
+      else delete state.workShift;
+    }
+    if (state.workShift && (ctx.now >= state.workShift.until || workAvailability(world, ctx.content, id))) {
+      delete state.workShift;
+      if (state.activityId === 'work') state.lockedUntil = null;
+    }
+    const continuingWork =
+      state.workShift &&
+      !workOrder &&
+      authorizeAct(world, id, { kind: 'work' }, { kind: 'command', issuer: state.workShift.issuer }).ok;
     const chosen = chosenUrge(world, id);
     // Any order wakes a sleeper (to drink, to go), and so does a need in a rousing band (Parched,
     // Starving) when the standing orders choose something else. Other locks (travel, work) hold.
@@ -136,25 +164,36 @@ export function activitySystem(world: World, ctx: SimContext): void {
       ? workingHere
         ? (state.activityId ?? 'idle_at_home')
         : 'idle_at_home'
-      : urge?.kind === 'activity'
-        ? urge.activityId
-        : routine?.activityId;
+      : continuingWork
+        ? 'work'
+        : urge?.kind === 'activity'
+          ? urge.activityId
+          : routine?.activityId;
     let source: ActivitySource = conversation
       ? 'command'
-      : urge?.kind === 'activity'
-        ? chosen?.voice === 'command'
-          ? 'command'
-          : 'urge'
-        : 'schedule';
+      : continuingWork
+        ? 'command'
+        : urge?.kind === 'activity'
+          ? chosen?.voice === 'command'
+            ? 'command'
+            : 'urge'
+          : 'schedule';
     let placeId = activityId
       ? resolveActivityPlace(
           world,
           ctx,
           id,
           activityId,
-          conversation ? actor.placeId : urge?.kind === 'activity' ? urge.placeId : undefined,
+          conversation
+            ? actor.placeId
+            : continuingWork
+              ? (state.workplaceId ?? undefined)
+              : urge?.kind === 'activity'
+                ? urge.placeId
+                : undefined,
         )
       : null;
+    if (activityId === 'work' && workAvailability(world, ctx.content, id)) activityId = 'idle_at_home';
     if (placeId === null || !activityId || !ctx.content.activities[activityId]) {
       activityId = routine?.activityId;
       placeId = activityId ? resolveActivityPlace(world, ctx, id, activityId) : null;
@@ -179,7 +218,21 @@ export function activitySystem(world: World, ctx: SimContext): void {
       activityId = 'idle_at_home';
     }
     const def = requiredRow(ctx.content.activities, activityId);
-    const rawExplain = source !== 'schedule' && chosen ? chosen.explain : routine?.explain;
+    const rawExplain = continuingWork
+      ? {
+          kind: 'choice' as const,
+          label: 'Continue the ordered paid shift',
+          subjects: [id],
+          knowledge: 'self' as const,
+          terms: [
+            { source: 'command' as const, label: 'Shift closing minute', value: state.workShift?.until ?? ctx.now },
+          ],
+          total: Math.max(0, (state.workShift?.until ?? ctx.now) - ctx.now),
+          outcome: 'work',
+        }
+      : source !== 'schedule' && chosen
+        ? chosen.explain
+        : routine?.explain;
     const explain = rawExplain ? activityExplain(rawExplain) : undefined;
     const from = actor.placeId;
     const changed = state.activityId !== activityId || state.placeId !== placeId;

@@ -6,7 +6,7 @@ import { grudgeTargetsOf } from '../belief/grudges.ts';
 import type { ContentBundle, ScheduleBlock } from '../content.ts';
 import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
 import { canAct } from '../needs/api.ts';
-import { activeEmployment, employmentDayMinutes } from '../provisions/api.ts';
+import { activeEmployment, employmentDayMinutes, workAvailability } from '../provisions/api.ts';
 import { authorizeAct, standingOrders } from '../psyche/api.ts';
 import { mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -23,6 +23,17 @@ import { onJourney } from './travel.ts';
 export function setWorkplace(world: World, actorId: ActorId, placeId: PlaceId | null): void {
   const state = world.activity.byActor[actorId];
   if (state) state.workplaceId = placeId;
+}
+
+/** Cancel a paid shift and its labor posture when the employment ends. */
+export function endWorkShift(world: World, actorId: ActorId): void {
+  const state = world.activity.byActor[actorId];
+  if (!state) return;
+  delete state.workShift;
+  if (state.activityId === 'work') {
+    state.activityId = 'idle_at_home';
+    state.lockedUntil = null;
+  }
 }
 
 export function currentActivity(world: World, actorId: ActorId): ActorActivity | undefined {
@@ -110,6 +121,7 @@ export function scheduledBlock(
       duty: 550,
     };
   for (const b of occ.schedule) {
+    if (b.activity === 'work' && workAvailability(world, ctx.content, actorId)) continue;
     if (b.days && !b.days.includes(cal.weekday)) continue;
     if (b.seasons && !b.seasons.includes(cal.season)) continue;
     if (!monthMatches(cal.month, b.months)) continue;
@@ -394,7 +406,8 @@ export function shortActBlock(world: World, content: ContentBundle, actorId: Act
   if (
     state?.lockedUntil != null &&
     state.lockedUntil > world.time &&
-    !content.activities[state.activityId ?? '']?.asleep
+    !content.activities[state.activityId ?? '']?.asleep &&
+    !content.activities[state.activityId ?? '']?.tags.includes('commerce')
   )
     return `You are still ${content.activities[state.activityId ?? '']?.verb ?? 'busy'}; wait until this activity finishes`;
   return null;
@@ -423,6 +436,7 @@ export function shortAct(world: World, ctx: SimContext, actorId: ActorId, minute
   if (to !== undefined) {
     actor.placeId = to;
     state.placeId = to;
+    delete state.workShift;
   }
   state.activityId = 'idle_at_home';
   state.source = 'command';

@@ -66,7 +66,7 @@ export function employmentHour(world: World, ctx: SimContext): void {
   const accounts = world.provisions.employment;
   if (ctx.isNewDay && world.provisions.wageArrears) {
     for (const claim of world.provisions.wageArrears)
-      if (processesActor(world, claim.workerId))
+      if (processesActor(world, claim.workerId) && (claim.pay !== 'weekly' || ctx.cal.weekday === 'sat'))
         settleWages(world, ctx, claim.workerId, claim.account, claim.employerId);
     world.provisions.wageArrears = world.provisions.wageArrears.filter((claim) => claim.account.earnedCents > 0);
   }
@@ -95,7 +95,8 @@ export function employmentHour(world: World, ctx: SimContext): void {
     if (contract && !contract.ended && (ctx.now >= contract.endsAt || !world.actors[contract.employerId]?.alive))
       endEmployment(world, ctx, actor.id, 'term_end');
     // An ended or dismissed worker still owns their claim if the employer was short of cash.
-    if (contract?.ended && ctx.isNewDay) settleWages(world, ctx, actor.id);
+    if (contract?.ended && ctx.isNewDay && (contract.pay === 'daily' || ctx.cal.weekday === 'sat'))
+      settleWages(world, ctx, actor.id);
     const payerId = employerHousehold(world, actor.id);
     if (payerId === null) continue;
     accounts[actor.id] ??= { payerId, earnedCents: 0, carry: 0, day: ctx.cal.dayIndex, minutes: 0 };

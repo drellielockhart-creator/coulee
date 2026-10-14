@@ -21,7 +21,6 @@ import {
   rowsOf,
   runHours,
   type Sim,
-  social,
   stateHash,
   step,
 } from '@coulee/core';
@@ -45,6 +44,7 @@ import { makeDetectCtx } from '../../core/src/chronicle/system.ts';
 import { charmCommand, offeringErrands } from '../../core/src/fae/actions.ts';
 import { ensureCharm, knownRecord, setConservationProbe } from '../../core/src/fae/charms.ts';
 import { culpabilityDaily } from '../../core/src/fae/culpability.ts';
+import { claimProp, evaluateDesire } from '../../core/src/fae/desire.ts';
 import { checkShortfall, countStock } from '../../core/src/fae/discovery.ts';
 import { dawnDraw, findDrawSource, isDawnHour } from '../../core/src/fae/draws.ts';
 import { forecastCharms, forecastHems } from '../../core/src/fae/forecast.ts';
@@ -630,22 +630,19 @@ function keepers(seed: number) {
   c.virtue = 7;
   c.attachment[edwin] = 90;
   required(sim.world.psyche.byActor[edwin]).norms.honesty = 70;
-  // Isolate loan demand from the chance that an unrelated conversation spreads the news.
-  // These neighbors have heard the claim and know who keeps the sack; borrowing and return
-  // still require their ordinary autonomous choices, checks, meetings and custody rules.
+  // Seed an informed, honest neighbor's interest; loan acceptance should not depend on
+  // town food/cash balance creating that interest by chance (wave 10 D).
+  const neighbor = actor(sim, 'johanne_moe');
+  required(sim.world.psyche.byActor[neighbor]).norms.honesty = 70;
+  knownRecord(sim.world, neighbor, c.itemId).observed = sim.world.time;
+  const keptBy = internProp(sim.world, 'has', [
+    { kind: 'actor', id: edwin },
+    { kind: 'item', id: c.itemId },
+  ]);
   const ctx = makeContext(sim.world, sim.content, []);
-  for (const key of ['gussie_pratt', 'nora_dunleavy', 'johann_brenner']) {
-    const neighbor = actor(sim, key);
-    social.bumpFamiliarity(sim.world, sim.content, neighbor, edwin);
-    for (const prop of [
-      internProp(sim.world, 'has', [
-        { kind: 'actor', id: edwin },
-        { kind: 'item', id: c.itemId },
-      ]),
-      internProp(sim.world, 'claim.never_empty_sack.feeds', [{ kind: 'item', id: c.itemId }]),
-    ])
-      ensureBelief(sim.world, ctx, neighbor, prop).credence = 80;
-  }
+  ensureBelief(sim.world, ctx, neighbor, keptBy).credence = 90;
+  ensureBelief(sim.world, ctx, neighbor, claimProp(sim.world, c, 'feeds')).credence = 90;
+  evaluateDesire(sim.world, sim.content, neighbor, c);
   return { sim, c, edwin };
 }
 
@@ -654,33 +651,31 @@ describe('fae slice 1b: the loan chain (13 §6.1)', () => {
     let passed: string | null = null;
     for (let seed = 1; seed <= 10 && !passed; seed++) {
       const { sim } = keepers(seed);
-      for (let hour = 0; hour < 24 * 45 && !passed; hour++) {
-        step(sim);
-        const loans = sim.world.social.objectLoans ?? [];
-        const onTime = loans.find((l) => l.status === 'returned' && (l.closedAt ?? 0) <= l.dueAt + 1440);
-        if (!onTime) continue;
-        const remembers = (who: ActorId, kinds: string[]) =>
-          (sim.world.social.memoriesByOwner[who] ?? []).some((id) =>
-            kinds.includes(sim.world.social.memories[id]?.kind ?? ''),
-          );
-        const lenderSide = required(sim.world.households[onTime.lenderHouseholdId]).memberIds.some((m) =>
-          remembers(m, ['loan', 'kindness', 'repayment']),
-        );
-        const borrowerSide = required(sim.world.households[onTime.borrowerHouseholdId]).memberIds.some((m) =>
-          remembers(m, ['loan', 'kindness', 'repayment']),
-        );
-        const witness = rowsOf(sim.world.actors).some(
-          (a) =>
-            a.householdId !== onTime.lenderHouseholdId &&
-            a.householdId !== onTime.borrowerHouseholdId &&
-            (sim.world.social.memoriesByOwner[a.id] ?? []).some((id) =>
-              /flour sack/.test(sim.world.social.memories[id]?.summary ?? ''),
-            ),
-        );
-        const opened = sim.world.log.events.find((e) => e.kind === 'social.loan_opened' && e.data.loanId === onTime.id);
-        if (lenderSide && borrowerSide && witness && opened) passed = `seed ${seed}`;
-      }
+      runHours(sim, 24 * 45);
       expect(sim.world.log.events.some((e) => e.kind === 'core.command')).toBe(false);
+      const loans = sim.world.social.objectLoans ?? [];
+      const onTime = loans.find((l) => l.status === 'returned' && (l.closedAt ?? 0) <= l.dueAt + 1440);
+      if (!onTime) continue;
+      const remembers = (who: ActorId, kinds: string[]) =>
+        (sim.world.social.memoriesByOwner[who] ?? []).some((id) =>
+          kinds.includes(sim.world.social.memories[id]?.kind ?? ''),
+        );
+      const lenderSide = required(sim.world.households[onTime.lenderHouseholdId]).memberIds.some((m) =>
+        remembers(m, ['loan', 'kindness', 'repayment']),
+      );
+      const borrowerSide = required(sim.world.households[onTime.borrowerHouseholdId]).memberIds.some((m) =>
+        remembers(m, ['loan', 'kindness', 'repayment']),
+      );
+      const witness = rowsOf(sim.world.actors).some(
+        (a) =>
+          a.householdId !== onTime.lenderHouseholdId &&
+          a.householdId !== onTime.borrowerHouseholdId &&
+          (sim.world.social.memoriesByOwner[a.id] ?? []).some((id) =>
+            /flour sack/.test(sim.world.social.memories[id]?.summary ?? ''),
+          ),
+      );
+      const opened = sim.world.log.events.find((e) => e.kind === 'social.loan_opened' && e.data.loanId === onTime.id);
+      if (lenderSide && borrowerSide && witness && opened) passed = `seed ${seed}`;
     }
     expect(passed).not.toBeNull();
   }, 240000);

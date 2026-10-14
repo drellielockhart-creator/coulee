@@ -1,5 +1,5 @@
 import { tacticalPinned } from '../activity/api.ts';
-import { authorizeAct, commandBasis, standingOrders } from '../psyche/api.ts';
+import { authorizeAct, type Basis, commandBasis, standingOrders } from '../psyche/api.ts';
 import { processesActor } from '../region/processing.ts';
 /**
  * Provisions cross-module API. OWNER: module:provisions.
@@ -330,20 +330,30 @@ export function saleQuote(
     stacksAt(world, { kind: 'container', itemId }).length
   )
     return null;
-  const retail = priceAt(world, content, placeId, stack.defId);
+  return saleBid(world, content, placeId, stack.defId, stocked);
+}
+/** Posted marginal bid, using the same stock and county resale ceiling as a sale. */
+export function saleBid(
+  world: World,
+  content: ContentBundle,
+  placeId: PlaceId,
+  defId: string,
+  stocked?: number,
+): number | null {
+  const retail = priceAt(world, content, placeId, defId);
   if (retail === null) return null;
   const lowestRetail = Math.min(
-    ...rowsOf(world.provisions.stores).map((store) => priceAt(world, content, store.placeId, stack.defId) ?? retail),
+    ...rowsOf(world.provisions.stores).map((store) => priceAt(world, content, store.placeId, defId) ?? retail),
   );
   if (lowestRetail <= 0) return null;
-  const rate = pieceRate(world, content, placeId, stack.defId);
-  if (!rate && Object.values(content.pieceRates ?? {}).some((r) => r.item === stack.defId)) return null;
-  const stock = rate ? (stocked ?? pieceStock(world, placeId, stack.defId)) : 0;
+  const rate = pieceRate(world, content, placeId, defId);
+  if (!rate && Object.values(content.pieceRates ?? {}).some((r) => r.item === defId)) return null;
+  const stock = rate ? (stocked ?? pieceStock(world, placeId, defId)) : 0;
   if (rate && stock >= rate.capacity) return null;
   const pct = content.domesticRules?.daily?.buyback_pct ?? 65;
   const bid = rate
-    ? Math.max(1, Math.floor((rate.buy_cents * (rate.capacity - stock)) / rate.capacity))
-    : Math.floor(((content.items[stack.defId]?.value_cents ?? 0) * pct) / 100);
+    ? Math.max(1, Math.ceil((rate.buy_cents * (rate.capacity - stock)) / rate.capacity))
+    : Math.floor(((content.items[defId]?.value_cents ?? 0) * pct) / 100);
   return Math.max(0, Math.min(retail - 1, lowestRetail - 1, bid));
 }
 /** Same-goods counter sale across separate stacks, preserving wetness and preparation state. */
@@ -396,6 +406,31 @@ export function sellAcrossStacks(
   return true;
 }
 
+/** Business buying funds use its cashbox and proprietor's purse, like employer payments. */
+export function storeCash(world: World, placeId: PlaceId, sellerId?: ActorId): number {
+  const store = world.provisions.stores[placeId];
+  if (!store) return 0;
+  if (store.ownerHouseholdId === null) return Math.max(0, store.tillCents);
+  const head = world.households[store.ownerHouseholdId]?.headId;
+  return (
+    Math.max(0, world.provisions.households[store.ownerHouseholdId]?.cashCents ?? 0) +
+    (head === undefined || head === sellerId ? 0 : Math.max(0, world.provisions.purses[head] ?? 0))
+  );
+}
+export function storeBidRefusal(world: World, placeId: PlaceId, sellerId: ActorId, basis?: Basis): string | null {
+  const store = world.provisions.stores[placeId];
+  const head = store?.ownerHouseholdId == null ? undefined : world.households[store.ownerHouseholdId]?.headId;
+  if (head === undefined) return null; // Legacy ownerless businesses use their authored till.
+  return authorizeAct(
+    world,
+    head,
+    { kind: 'transfer' },
+    head === sellerId ? (basis ?? { kind: 'command', issuer: { kind: 'player' } }) : { kind: 'own' },
+  ).ok
+    ? null
+    : 'No one can agree to that purchase just now';
+}
+
 export function sell(
   world: World,
   ctx: SimContext,
@@ -427,20 +462,32 @@ export function sell(
   const owner = store.ownerHouseholdId === null ? undefined : world.provisions.households[store.ownerHouseholdId];
   const cost = saleTotal(world, ctx.content, placeId, itemId, qty);
   if (cost === null || cost <= 0) return false;
-  if ((owner?.cashCents ?? store.tillCents) < cost) return false;
-  moveStack(world, ctx, itemId, qty, atPlace(placeId));
-  if (owner) owner.cashCents -= cost;
+  if (
+    storeCash(world, placeId, actorId) < cost ||
+    storeBidRefusal(world, placeId, actorId, commandBasis(ctx, actorId, ['provisions.sell']))
+  )
+    return false;
+  const head = store.ownerHouseholdId === null ? undefined : world.households[store.ownerHouseholdId]?.headId;
+  const pursePaid = head === undefined || head === actorId ? 0 : Math.min(world.provisions.purses[head] ?? 0, cost);
+  const moved = moveStack(world, ctx, itemId, qty, atPlace(placeId));
+  const sold = world.items.stacks[moved];
+  if (sold) delete sold.forSale;
+  if (head !== undefined && pursePaid) world.provisions.purses[head] = (world.provisions.purses[head] ?? 0) - pursePaid;
+  if (owner) owner.cashCents -= cost - pursePaid;
   else store.tillCents -= cost;
   world.provisions.purses[actorId] = (world.provisions.purses[actorId] ?? 0) + cost;
   ctx.emit({
     kind: 'provisions.sale',
     data: { sellerId: actorId, placeId, defId: stack.defId, qty, priceCents: cost },
-    roles: [{ actor: actorId, role: 'agent' }],
+    roles: [
+      { actor: actorId, role: 'agent' },
+      ...(head !== undefined && head !== actorId ? [{ actor: head, role: 'target' as const }] : []),
+    ],
     visibility: 'private',
     explain: {
       kind: 'formula',
       label: 'Store buys goods at marginal piece rates / resale spread',
-      subjects: [actorId],
+      subjects: [actorId, ...(head !== undefined && head !== actorId ? [head] : [])],
       knowledge: 'participants',
       terms: [term('price', 'First-unit bid (below county retail)', price), term('item', 'Quantity', qty)],
       total: cost,
@@ -697,7 +744,7 @@ export function waterHour(world: World, ctx: SimContext, onlyActor?: ActorId): v
 }
 
 export { nutritionRestLoss } from './nutrition.ts';
-export { admitSleep, boardMeal, serviceAt, settleBeds, storeOpen } from './services.ts';
+export { admitSleep, boardMeal, boardMealAvailability, serviceAt, settleBeds, storeOpen } from './services.ts';
 
 /** Decision-time inventory/kitchens, scoped to this immutable proposal pass. The next hourly
  * context gets a new index; no memo enters a save or survives inventory mutations into a pass. */
@@ -744,6 +791,7 @@ export function foodSeekingUrge(world: World, ctx: SimContext, actorId: ActorId)
     const kitchen = decisionKitchen(world, ctx, holder);
     const result = kitchen.stacks.some(
       (stack) =>
+        !stack.forSale &&
         foodServings(ctx.content, stack) > 0 &&
         (ctx.content.items[stack.defId]?.food?.kcal ?? 0) > 0 &&
         recipesFor(world, ctx.content, holder, stack, 1, false, undefined, undefined, kitchen).some(
@@ -899,6 +947,7 @@ function usableCareFood(world: World, content: ContentBundle, holder: ReadinessH
   const kitchen = kitchenOf(world, content, holder, world.time);
   return holderStacks(world, holder).some(
     (stack) =>
+      !stack.forSale &&
       foodServings(content, stack) > 0 &&
       recipesFor(world, content, holder, stack, 1, false, undefined, undefined, kitchen).some(
         (r) => r.kcal > 0 && r.missing.length === 0,
@@ -1062,6 +1111,7 @@ export {
   hiringAvailability,
   hiringOffer,
   quitWork,
+  workAvailability,
 } from './hiring.ts';
 /** Shared household day kernel for region scheduling; retains real stores and ration policy. */
 export { householdEconomyDay } from './household.ts';

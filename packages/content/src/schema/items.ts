@@ -380,6 +380,8 @@ export type RationPolicyDef = z.output<typeof RationPolicySchema>;
  * credit. The river closes the supply line in winter.
  */
 export const RestockSchema = z.strictObject({
+  /** Cash retained for local piece purchases; unpaid freight remains wholesale debt. */
+  cash_reserve_cents: int().min(0).optional(),
   id: id(),
   /** Place id of the store. */
   place: ref(),

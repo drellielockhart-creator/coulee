@@ -144,6 +144,17 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
     }).stock ?? [],
   );
   for (const line of stock) inspect(`catalog:${line.defId}`, line.name);
+  for (const s of carried) {
+    add(
+      `sale_mark:${s.id}:${s.forSale ? 'off' : 'on'}`,
+      `${s.forSale ? 'Use as provisions' : 'Mark for sale'}: ${c.items[s.defId]?.name ?? s.defId}`,
+      {
+        kind: 'provisions.mark_for_sale',
+        actorId: pc,
+        data: { itemId: s.id, forSale: !s.forSale },
+      },
+    );
+  }
   add('prices', 'Prices / local stock', {
     kind: 'activity.observe',
     actorId: pc,
@@ -175,7 +186,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       for (const term of ['daily', 'weekly'] as const)
         add(
           `hire:${other.id}:${term}`,
-          `Hire on with ${other.name.given} ${other.name.family} (${term}; ${money(offer.rule.daily_cents)}/${offer.rule.hours}h day, ${offer.rule.from_hour}:00–${offer.rule.to_hour}:00 at ${w.places[offer.workplaceId]?.name})`,
+          `Hire on with ${other.name.given} ${other.name.family} (${term}; ${money(offer.rule.daily_cents)}/${offer.rule.hours}h day, ${offer.rule.from_hour}:00–${offer.rule.to_hour}:00 at ${w.places[offer.workplaceId]?.name}; Sunday unpaid, weekly payday Saturday)`,
           { kind: 'provisions.hire_on', actorId: pc, data: { employerId: other.id, term } },
         );
     if (provisions.activeEmployment(w, other.id)?.employerId === pc)
@@ -224,6 +235,7 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       // Charm chores carry their item: they are offered as charm actions, never bare.
       if (def.tags.includes('charm') || ['incapacitated', 'walk', 'travel_on_foot'].includes(def.id)) continue;
       if (def.id === 'wake' && !asleep) continue;
+      if (def.id === 'work' && provisions.workAvailability(w, c, pc)) continue;
       if (
         def.asleep &&
         def.at === 'home' &&
@@ -378,7 +390,6 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
         );
       }
     const quote = provisions.saleQuote(w, c, a.placeId, s.id);
-    const owner = store?.ownerHouseholdId == null ? undefined : w.provisions.households[store.ownerHouseholdId];
     if (
       store &&
       provisions.storeOpen(w, c, a.placeId) &&
@@ -387,7 +398,8 @@ export function availableActions(sim: Sim, pc: ActorId): AvailableAction[] {
       canTrade &&
       quote !== null &&
       quote > 0 &&
-      quote <= (owner?.cashCents ?? store.tillCents)
+      quote <= provisions.storeCash(w, a.placeId, pc) &&
+      !provisions.storeBidRefusal(w, a.placeId, pc)
     )
       add(`sell:${s.id}`, `Sell ${c.items[s.defId]?.name} ($${(quote / 100).toFixed(2)})`, {
         kind: 'provisions.sell',
@@ -484,6 +496,14 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   if (!authorization.ok) return authorization.reason;
   if (!needs.canAct(w, pc) && !['activity.wait', 'tactical.advance', 'tactical.breathe'].includes(command.kind))
     return 'You have collapsed and need help';
+  if (
+    command.kind === 'core.urge' &&
+    command.data.urge.kind === 'activity' &&
+    command.data.urge.activityId === 'work'
+  ) {
+    const refused = provisions.workAvailability(w, c, pc);
+    if (refused) return refused;
+  }
   if (command.kind.startsWith('tactical.')) return tactical.tacticalCommandCheck(w, c, command);
   if (
     w.tactical?.active &&
@@ -500,6 +520,13 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
   if (command.kind === 'provisions.buy' || command.kind === 'provisions.sell') {
     const blocked = activity.shortActBlock(w, c, pc);
     if (blocked) return blocked;
+    if (command.kind === 'provisions.sell') {
+      const refused = provisions.storeBidRefusal(w, command.data.placeId, pc, {
+        kind: 'command',
+        issuer: command.issuer ?? { kind: 'player' },
+      });
+      if (refused) return refused;
+    }
   }
   if (command.kind === 'core.urge' && command.data.urge.kind === 'activity') {
     const u = command.data.urge;
@@ -554,6 +581,16 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
       command.data.ml <= provisions.drinkingWater(w, c, pc)
       ? null
       : 'Not enough accessible water';
+  if (command.kind === 'provisions.mark_for_sale') {
+    const stack = w.items.stacks[command.data.itemId];
+    return stack &&
+      provisions.accessibleStack(w, pc, stack) &&
+      items.rootOf(w, stack).kind === 'actor' &&
+      typeof command.data.forSale === 'boolean'
+      ? null
+      : 'You are not carrying that';
+  }
+  if (command.kind === 'provisions.board_meal') return provisions.boardMealAvailability(w, c, pc);
   if (command.kind === 'provisions.hire_on')
     return command.data.term === 'daily' || command.data.term === 'weekly'
       ? provisions.hiringAvailability(w, c, pc, command.data.employerId)
@@ -634,8 +671,7 @@ export function validateCommand(sim: Sim, pc: ActorId, command: Command, actions
     if (stack.partial || stack.foodPartialPm) return `Partly used ${name} cannot be sold`;
     const quote = provisions.saleQuote(w, c, d.placeId, d.itemId);
     if (quote === null) return `The store does not buy ${name}`;
-    const cash =
-      shop.ownerHouseholdId == null ? shop.tillCents : (w.provisions.households[shop.ownerHouseholdId]?.cashCents ?? 0);
+    const cash = provisions.storeCash(w, d.placeId, pc);
     const total = provisions.saleTotal(w, c, d.placeId, d.itemId, d.qty);
     if (total === null || total <= 0) return `The store has no demand for that many ${name}`;
     if (total > cash)

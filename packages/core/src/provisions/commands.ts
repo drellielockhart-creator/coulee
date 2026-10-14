@@ -6,6 +6,7 @@ import type { CommandOf } from '../command.ts';
 import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
 
 export type ProvisionsCommand =
+  | CommandOf<'provisions.mark_for_sale', { itemId: ItemId; forSale: boolean }>
   | CommandOf<'provisions.hire_on', { employerId: ActorId; term: 'daily' | 'weekly' }>
   | CommandOf<'provisions.quit', Record<string, never>>
   | CommandOf<'provisions.dismiss', { workerId: ActorId }>

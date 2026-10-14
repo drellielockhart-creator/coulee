@@ -10,6 +10,7 @@
 
 [[restock]]
 id = "pratt_wholesale"
+cash_reserve_cents = 500
 place = "pratt_daughter_outfitters"
 every_days = 3
 wholesale_pct = 70
@@ -25,7 +26,7 @@ lines = [
   { item = "hardtack", target_qty = 120 },
   { item = "flour", target_qty = 1500, max_delivery = 450 },
   { item = "cornmeal", target_qty = 1000, max_delivery = 300 },
-  { item = "potatoes", target_qty = 500, max_delivery = 200 },
+  { item = "potatoes", target_qty = 200, max_delivery = 200 },
   { item = "salt_pork", target_qty = 400, max_delivery = 120 },
   { item = "beans_dry", target_qty = 300, max_delivery = 80 },
   { item = "coffee_green", target_qty = 60 },
