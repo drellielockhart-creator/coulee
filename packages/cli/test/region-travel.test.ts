@@ -146,12 +146,34 @@ describe('M5 walk to the neighbor', () => {
       expect(session.observe().place.description).toContain('Cedar Ridge Road');
     }
   });
-  it('CLI road offers carried water without a stale Appetite at satisfied thirst', () => {
+  // Wave 10 A and E each edited this road-water case; the merge kept both setups in one test.
+  // A: an unmet thirst on the road offers the carried-water drink. E: at satisfied thirst there is
+  // no stale Appetite, but the menu still offers drinking from the carried water.
+  it('CLI road Appetite offers the carried-water drink command when there is no nearby source', () => {
     const session = PlaySession.create(content, { source: 'iron_ford_neighbors', seed: 42 });
     const vitals = sessionSimOf(session).world.needs.byActor[session.playerId];
     if (vitals) vitals.values.thirst = 600;
     // Keep the need unmet so the test exercises a present thirst urge, not an already-satisfied one.
     for (const line of ['standing drink off', 'travel Cedar Farm', 'wait 3h']) {
+      const command = parseText(line, session.observe());
+      if (typeof command === 'string') throw new Error(command);
+      expect(session.act(command).ok).toBe(true);
+    }
+    const sim = sessionSimOf(session),
+      observation = session.observe();
+    expect(provisions.nearestWaterSource(sim.world, sim.content, session.playerId)).toBe(null);
+    const text = renderObservation(observation);
+    expect(text).toContain('Appetite: Drink from carried water');
+    expect(text).toContain('you may: drink)');
+    expect(text).not.toContain('you may: fetch water');
+    const command = parseText('drink', observation);
+    if (typeof command === 'string') throw new Error(command);
+    expect(command.kind).toBe('provisions.drink');
+    expect(session.act(command).ok).toBe(true);
+  });
+  it('CLI road offers carried water without a stale Appetite at satisfied thirst', () => {
+    const session = PlaySession.create(content, { source: 'iron_ford_neighbors', seed: 42 });
+    for (const line of ['travel Cedar Farm', 'wait 3h']) {
       const command = parseText(line, session.observe());
       if (typeof command === 'string') throw new Error(command);
       expect(session.act(command).ok).toBe(true);

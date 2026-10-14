@@ -520,6 +520,12 @@ export class PlaySession {
           (e.kind === 'provisions.hiring' && e.data.workerId === this.playerId && !e.data.accepted),
       );
       if (executionSave && failed && 'reason' in failed.data && typeof failed.data.reason === 'string') {
+        // A refused hire still names who declined (wave 10 D5), though the refusal spends nothing (E2).
+        const employer =
+          failed.kind === 'provisions.hiring' ? this.sim.world.actors[failed.data.employerId] : undefined;
+        const reason = employer
+          ? `${employer.name.given} ${employer.name.family} declines to hire you: ${failed.data.reason}`
+          : failed.data.reason;
         const restored = PlaySession.load(this.base, executionSave);
         this.sim = restored.sim;
         this.known = restored.known;
@@ -527,7 +533,7 @@ export class PlaySession {
         this.metrics = restored.metrics;
         this.money = restored.money;
         this.changes = restored.changes;
-        return this.fail(failed.data.reason, mode);
+        return this.fail(reason, mode);
       }
       const rejected = recent.find(
         (e) =>

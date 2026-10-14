@@ -22,6 +22,28 @@ function ask(s: PlaySession, text: string) {
 function value(s: PlaySession, key = 'rest') {
   return needs.needValue(sessionSimOf(s).world, s.playerId, key);
 }
+/**
+ * Wave 10 D refuses generic work without an employer or trade workplace. These physiology
+ * repros give the PC a trade workplace where she stands (as A1 M6 does), not a hired shift:
+ * a hired term would add Sunday, shift-hour and daily-hour limits the repros do not test.
+ */
+function tradeHere(s: PlaySession) {
+  const w = sessionSimOf(s).world;
+  activity.setWorkplace(w, s.playerId, required(w.actors[s.playerId]).placeId);
+}
+/** Replay a command log, re-applying the trade-workplace premise before the same command. */
+function replayWithTrade(log: PlaySession['commandLog'], tradeAt: number) {
+  const [, ...steps] = log;
+  const r = create();
+  steps.forEach((entry, i) => {
+    if (i === tradeAt) tradeHere(r);
+    if (entry.type !== 'command') throw new Error('Unexpected replay entry');
+    expect(r.hash, `before replay step ${i}`).toBe(entry.before);
+    expect(r.act(entry.command).ok).toBe(true);
+    expect(r.hash, `after replay step ${i}`).toBe(entry.after);
+  });
+  return r;
+}
 function prepare(s: PlaySession, hour = 10) {
   const sim = sessionSimOf(s),
     w = sim.world,
@@ -37,10 +59,19 @@ function prepare(s: PlaySession, hour = 10) {
 it('A1 H1: idle, work, work, idle charges the activity just performed; sleep and wake have no lag', () => {
   const s = create();
   const sim = prepare(s);
+  tradeHere(s);
   const deltas = [];
-  for (const command of ['activity:idle_at_home', 'work', 'work', 'activity:idle_at_home', 'sleep', 'wake']) {
+  // Wave 10 E: waking is a one-minute short act, so the waking hour is wake + idle for the rest.
+  for (const commands of [
+    ['activity:idle_at_home'],
+    ['work'],
+    ['work'],
+    ['activity:idle_at_home'],
+    ['sleep'],
+    ['wake', 'activity:idle_at_home'],
+  ]) {
     const before = value(s);
-    ask(s, command);
+    for (const command of commands) ask(s, command);
     deltas.push(value(s) - before);
   }
   expect(deltas[0]).toBe(-21);
@@ -103,6 +134,7 @@ it('A2: rest recovers immediately after work without sending the actor home', ()
   const s = create();
   prepare(s);
   ask(s, "go Haugen's Grist Mill");
+  tradeHere(s);
   ask(s, 'work');
   const before = value(s),
     place = s.observe().place.id;
@@ -190,6 +222,8 @@ it.each([7, 8])(
     ask(s, 'sleep');
     while (s.observe().time.t < 360) ask(s, 'wait 1h');
     ask(s, 'wake');
+    const tradeAt = s.commandLog.length - 1;
+    tradeHere(s);
     for (let i = 0; i < 10; i++) ask(s, 'work');
     expect(value(s)).toBeGreaterThanOrEqual(300);
     for (let i = 0; i < 6; i++) ask(s, 'activity:idle_at_home');
@@ -202,6 +236,6 @@ it.each([7, 8])(
     expect(value(s)).toBe(1000);
     expect(value(s, 'hunger')).toBeGreaterThan(300);
     expect(w.needs.byActor[s.playerId]?.survival?.collapsed).not.toBe(true);
-    expect(PlaySession.replay(baseContent(), s.commandLog).hash).toBe(s.hash);
+    expect(replayWithTrade(s.commandLog, tradeAt).hash).toBe(s.hash);
   },
 );

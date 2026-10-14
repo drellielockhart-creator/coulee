@@ -244,8 +244,14 @@ describe('wave 10 economy commands', () => {
     if (!household) throw new Error('Missing farm');
     household.cashCents = 0;
     w.provisions.purses[employer] = 0;
-    const result = ok(s, 'hire Edwin Fenn daily');
-    expect(renderObservation(result.observation)).toContain('Edwin Fenn declines to hire you');
+    // Wave 10 E: a refused short-act hire restores the state and spends nothing; the refusal
+    // still names the employer who declined (D5).
+    const hash = s.hash;
+    const result = ask(s, 'hire Edwin Fenn daily');
+    expect(result.ok).toBe(false);
+    expect(result.reason).toContain('Edwin Fenn declines to hire you');
+    expect(result.reason).toContain('Cannot fund that term');
+    expect(s.hash).toBe(hash);
   });
 
   it('D6 work availability', () => {

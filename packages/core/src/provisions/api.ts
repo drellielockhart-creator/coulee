@@ -380,8 +380,15 @@ export function saleBundleCheck(
   let remaining = qty;
   for (const id of itemIds) {
     const amount = Math.min(remaining, copy.items.stacks[id]?.qty ?? 0);
-    if (amount > 0 && !sell(copy, projected, actorId, placeId, id, amount))
+    if (amount > 0 && !sell(copy, projected, actorId, placeId, id, amount)) {
+      // Name the business refusals (wave 10 D) that a single-stack sale would name.
+      const refused = storeBidRefusal(copy, placeId, actorId, commandBasis(ctx, actorId, ['provisions.sell']));
+      if (refused) return refused;
+      const total = saleTotal(copy, ctx.content, placeId, id, amount);
+      if (total !== null && total > storeCash(copy, placeId, actorId))
+        return 'The store lacks the cash to buy that many of these goods just now';
       return 'Store cannot buy that quantity of these goods (check demand, condition and available cash)';
+    }
     remaining -= amount;
     if (!remaining) return null;
   }

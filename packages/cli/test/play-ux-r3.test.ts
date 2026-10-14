@@ -40,7 +40,9 @@ function farm(s: PlaySession) {
 describe('r3 E1 dialogue', () => {
   it('Socialite introduce/ask/go/introduce/chat shows only this command’s new exchanges', () => {
     const s = create('gen:town', 7);
-    morning(s, 9);
+    // The playtest began at 09:00; under wave 10 needs/schedules the Kvales leave for the 10:00
+    // Sunday service, so the same chain starts an hour earlier to cross 08:00→09:00 with Johanne home.
+    morning(s, 8);
     ask(s, 'go 22'); // Rowe/Whitlock Mercantile, as in the command log.
     const seen = new Set<number>();
     for (const line of [
@@ -330,9 +332,14 @@ describe('r3 E8 small usability', () => {
     wood.qty = 1;
     wood.wetness = 20; // Old carried wood was exposed in the playtest's rain; new wood differs.
     items.createStack(sim.world, makeContext(sim.world, sim.content, []), wood.defId, 1, items.carriedBy(s.playerId));
+    // Wave 10 D3: Pratt's posts a real piece bid for wood (3 cents an armload), paid from her cash.
+    const bid = s.observe().store.bids?.find((b) => b.defId === wood.defId)?.cents;
+    expect(bid).toBe(3);
+    const cash = provisions.countyCash(sim.world);
     const r = ask(s, 'sell firewood 2');
     expect(r.elapsedMinutes).toBe(5);
-    expect(r.observation.changes.money.reduce((sum, m) => sum + m.purse, 0)).toBe(2);
+    expect(r.observation.changes.money.reduce((sum, m) => sum + m.purse, 0)).toBe(2 * (bid ?? 0));
+    expect(provisions.countyCash(sim.world)).toBe(cash);
     expect(
       items.stacksDeep(sim.world, items.carriedBy(s.playerId)).some(({ stack }) => stack.defId === wood.defId),
     ).toBe(false);
@@ -340,6 +347,34 @@ describe('r3 E8 small usability', () => {
       .stacksAt(sim.world, items.atPlace(sim.world.actors[s.playerId]?.placeId ?? (0 as never)))
       .filter((stack) => stack.defId === wood.defId);
     expect(sold.some((stack) => stack.wetness === 20)).toBe(true);
+  });
+  it('a cross-stack wood sale respects the store’s buying cash and spends nothing when refused', () => {
+    const s = create(),
+      sim = sessionSimOf(s);
+    morning(s);
+    ask(s, 'go Pratt');
+    const wood = items
+      .stacksDeep(sim.world, items.carriedBy(s.playerId))
+      .find(({ stack }) => stack.defId === 'firewood_armload')?.stack;
+    if (!wood) throw new Error('No carried wood');
+    wood.qty = 1;
+    wood.wetness = 20;
+    items.createStack(sim.world, makeContext(sim.world, sim.content, []), wood.defId, 1, items.carriedBy(s.playerId));
+    const place = sim.world.actors[s.playerId]?.placeId ?? (0 as never);
+    const store = sim.world.provisions.stores[place];
+    if (store?.ownerHouseholdId == null) throw new Error('Missing store owner');
+    const head = sim.world.households[store.ownerHouseholdId]?.headId;
+    const owner = sim.world.provisions.households[store.ownerHouseholdId];
+    if (!owner || head === undefined) throw new Error('Missing cashbox');
+    owner.cashCents = 4; // One armload's bid, not two.
+    sim.world.provisions.purses[head] = 0;
+    const hash = s.hash;
+    const command = parseText('sell firewood 2', s.observe());
+    if (typeof command === 'string') throw new Error(command);
+    const r = s.act(command);
+    expect(r.ok).toBe(false);
+    expect(r.reason).toContain('lacks the cash');
+    expect(s.hash).toBe(hash);
   });
   it('prices has one horn-arrow entry and inspect cornmeal reads the counter’s catalog before buying', () => {
     const s = create();

@@ -115,7 +115,10 @@ export function employmentHour(world: World, ctx: SimContext): void {
       contract &&
       (contract.ended ||
         state.activityId !== 'work' ||
-        ctx.now <= contract.startedAt ||
+        ctx.now < contract.startedAt ||
+        // A full-hour signing spends the hour; a sub-hour signing (short act) leaves the rest
+        // of the hour workable, and the minute ledger below pays only those minutes.
+        (ctx.now === contract.startedAt && minuteBudget(world, actor.id).spent === 0) ||
         ctx.cal.weekday === 'sun' ||
         ctx.cal.hour < contract.fromHour ||
         ctx.cal.hour >= contract.toHour)

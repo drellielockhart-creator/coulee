@@ -144,7 +144,13 @@ describe('r3 group B social view regressions', () => {
       .split('\n')
       .map((s) => JSON.parse(s));
     const s = PlaySession.create(baseContent(), { source: 'gen:town', seed: 7 });
-    for (const row of lines.slice(1, 21)) expect(s.act(row.command).ok).toBe(true);
+    // The recorded night had Loveday Rowe introduce herself at 06:00. Under the merged wave 10
+    // needs and routines she spends that hour elsewhere in talk, so the PC introduces herself
+    // before the logged ask_about (B: overhearing is not meeting).
+    for (const [i, row] of lines.slice(1, 21).entries()) {
+      if (i === 19) expect(text(s, 'talk:introduce:4').ok).toBe(true);
+      expect(s.act(row.command).ok).toBe(true);
+    }
     const result = text(s, 'talk:gift:24');
     expect(result.ok, result.reason).toBe(true);
     expect(result.warning).toBeUndefined();

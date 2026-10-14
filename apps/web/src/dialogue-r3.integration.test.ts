@@ -8,7 +8,8 @@ afterEach(() => vi.unstubAllGlobals());
 it('Socialite short chat chains replace the web dialogue with the newest command’s lines', async () => {
   const base = loadContentOrThrow(['base']);
   const session = PlaySession.create(base, { source: 'gen:town', seed: 7 });
-  while (session.observe().time.t < 540) session.advance(60);
+  // As in play-ux-r3: start at 08:00 so the chain crosses into 09:00 before the Kvales leave for church.
+  while (session.observe().time.t < 480) session.advance(60);
   const messages: FromWorker[] = [];
   const self = {
     onmessage: null as ((e: { data: ToWorker }) => Promise<void>) | null,
