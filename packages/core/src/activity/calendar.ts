@@ -2,7 +2,7 @@
 import type { ObservanceBlock, ObservanceDef, SunAnchor, Who } from '@coulee/content/schema';
 import { type ScheduleBlock, VALUES } from '../content.ts';
 import type { Explain } from '../explain.ts';
-import { type ActorId, type HouseholdId, idsOf } from '../ids.ts';
+import { type ActorId, type HouseholdId, idsOf, sortedKeys } from '../ids.ts';
 import { airTempF } from '../provisions/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -103,7 +103,7 @@ export function ensureCalendar(world: World, ctx: SimContext): void {
     rotas: {} as Record<string, ActorId>,
   };
   world.activity.calendar = calendar;
-  for (const key of Object.keys(ctx.content.observances).sort()) {
+  for (const key of sortedKeys(ctx.content.observances)) {
     const def = requiredRow(ctx.content.observances, key);
     if (!observanceActive(def, ctx.cal)) continue;
     if (def.announce)
@@ -210,7 +210,30 @@ function validActivity(
     ? alt.id
     : null;
 }
+/**
+ * One actor's proposal gathering (psyche: its Mind, then every module's urges) reads the routine
+ * more than once against unchanged state; inside `withRoutineMemo` it is derived once. The memo
+ * lives only for that synchronous call and only for that world, context and actor.
+ */
+let routineScope: { world: World; ctx: SimContext; id: ActorId; value?: Routine | null } | null = null;
+export function withRoutineMemo<T>(world: World, ctx: SimContext, id: ActorId, run: () => T): T {
+  const outer = routineScope;
+  routineScope = { world, ctx, id };
+  try {
+    return run();
+  } finally {
+    routineScope = outer;
+  }
+}
 export function routineFor(world: World, ctx: SimContext, id: ActorId): Routine | null {
+  const scope = routineScope;
+  if (scope && scope.world === world && scope.ctx === ctx && scope.id === id) {
+    if (scope.value === undefined) scope.value = computeRoutine(world, ctx, id);
+    return scope.value;
+  }
+  return computeRoutine(world, ctx, id);
+}
+function computeRoutine(world: World, ctx: SimContext, id: ActorId): Routine | null {
   ensureCalendar(world, ctx);
   const actor = world.actors[id];
   if (!actor?.alive) return null;
@@ -222,7 +245,7 @@ export function routineFor(world: World, ctx: SimContext, id: ActorId): Routine 
   let norm: string | undefined;
   let speaker: string | undefined;
   let observanceId: string | undefined;
-  for (const key of Object.keys(ctx.content.observances).sort()) {
+  for (const key of sortedKeys(ctx.content.observances)) {
     const def = requiredRow(ctx.content.observances, key);
     if (!observanceActive(def, ctx.cal)) continue;
     const workplace = world.activity.byActor[id]?.workplaceId;

@@ -20,6 +20,7 @@ import {
   owedFavors,
   refreshBase,
 } from './opinion.ts';
+import { relationsBetween } from './pairs.ts';
 import type { Memory, MemoryInput, OpinionReason, Relationship } from './state.ts';
 import { tuningOf } from './tuning.ts';
 import { areKinBy } from './volition.ts';
@@ -142,9 +143,7 @@ export function relationshipsOf(world: World, actorId: ActorId): Relationship[] 
 const KIN: ReadonlySet<string> = new Set(['parent', 'sibling', 'spouse', 'cousin', 'in_law', 'betrothed']);
 /** Kin by structural edge (the period default set; `areKinBy` reads social_tuning.kin_kinds). */
 export function areKin(world: World, a: ActorId, b: ActorId): boolean {
-  return world.social.relationships.some(
-    (r) => KIN.has(r.kind) && ((r.a === a && r.b === b) || (r.a === b && r.b === a)),
-  );
+  return relationsBetween(world, a, b).some((r) => KIN.has(r.kind));
 }
 export { areKinBy };
 

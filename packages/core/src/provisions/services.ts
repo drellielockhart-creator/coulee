@@ -1,9 +1,9 @@
 /** Venue trade and board use the same prices and admission rules for every actor. */
 import { hourInBlock } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
-import type { ActorId, PlaceId } from '../ids.ts';
+import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
 import { authorizeAct, chosenUrge, recordStandingSpend, standingOrders } from '../psyche/api.ts';
-import { processingActors } from '../region/processing.ts';
+import { processesActor, processingActors } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
@@ -19,12 +19,19 @@ export function storeOpen(world: World, content: ContentBundle, placeId: PlaceId
 }
 function keeperAt(world: World, content: ContentBundle, placeId: PlaceId) {
   const service = serviceAt(world, content, placeId);
-  return processingActors(world).find(
-    (a) =>
-      a.alive &&
+  // The first processing actor (ascending id) who keeps this house: test the cheap row facts
+  // before ownership, without materializing the processing-actor list.
+  for (const id of idsOf<ActorId>(world.actors)) {
+    const a = world.actors[id];
+    if (
+      a?.alive &&
+      world.households[a.householdId]?.homePlaceId === placeId &&
       content.occupations[a.occupationId]?.roles.includes(service?.keeper_role ?? '') &&
-      world.households[a.householdId]?.homePlaceId === placeId,
-  );
+      processesActor(world, id)
+    )
+      return a;
+  }
+  return undefined;
 }
 function reject(_world: World, ctx: SimContext, actorId: ActorId, reason: string): false {
   ctx.emit({

@@ -1,5 +1,5 @@
 import { authorizeAct, commandBasis, recordStandingSpend } from '../psyche/api.ts';
-import { isDailyProcessing, processesPlace, processingActors, processingHouseholds } from '../region/processing.ts';
+import { isDailyProcessing, processesActor, processesPlace, processingHouseholds } from '../region/processing.ts';
 /** Cash, credit and physical goods share one transaction path for commands and errands. */
 
 import { formGrudge, isShunning } from '../belief/api.ts';
@@ -619,9 +619,17 @@ export function synchronizeStoreTabs(world: World): void {
     if (!processesPlace(world, store.placeId)) continue;
     const keeper = store.ownerHouseholdId === null ? undefined : world.households[store.ownerHouseholdId]?.headId;
     if (keeper === undefined) continue;
-    for (const actor of processingActors(world)) {
-      const cents = debtOf(world, keeper, actor.id).cents;
-      if (cents || store.tabs[actor.id] !== undefined) store.tabs[actor.id] = cents;
+    // Only a debtor the keeper's ledger names, or one already on the tab, can change: owed
+    // cents come from the keeper's opinion record. Scanning those instead of every actor keeps
+    // this per-interaction sync O(ledger) (county scale). Integer tab keys order themselves.
+    const ledger = world.social.opinions[keeper] ?? {};
+    const ids = new Set<number>();
+    for (const id in ledger) if ((ledger[Number(id) as ActorId]?.obligation.cents ?? 0) > 0) ids.add(Number(id));
+    for (const id in store.tabs) ids.add(Number(id));
+    for (const id of ids) {
+      if (world.actors[id] === undefined || !processesActor(world, id)) continue;
+      const cents = debtOf(world, keeper, id as ActorId).cents;
+      if (cents || store.tabs[id] !== undefined) store.tabs[id] = cents;
     }
   }
 }

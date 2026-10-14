@@ -46,6 +46,10 @@ export interface InventoryIndex {
   /** Ascending snapshot; consumers must check deletions against the live table. */
   all?: ItemStack[];
   deep?: Map<string, Array<{ stack: ItemStack; depth: number }>>;
+  /** Direct contents by container item id (the same lists as `at['c<id>']`, numeric keys). */
+  contents?: Map<number, ItemStack[]>;
+  /** Internal: prototype-chain depth of `at` after incremental extension (lookups only). */
+  chain?: number;
 }
 // Only synchronous provision passes opt in. Counter changes invalidate creation;
 // deleted stacks are checked live by stacksDeep, and relocation invalidates below.
@@ -67,14 +71,56 @@ function invalidateInventory(world: World): void {
 export function inventoryIndex(world: World): InventoryIndex {
   const pass = inventoryPasses.get(world);
   if (pass?.index && pass.counter === world.items.counters.item) return pass.index;
+  // Creation only (no relocation, which drops the index): extend a copy with the new ids, which are
+  // exactly (old counter, counter] and larger than every indexed id, so each list stays ascending.
+  // Callers holding the previous index keep their snapshot unchanged. Deleted stacks are left in
+  // the lists, as between rebuilds: every consumer checks identity against the live table.
+  if (pass?.index && pass.counter < world.items.counters.item) {
+    const old = pass.index;
+    // Copy-on-write by prototype: the new index shadows only the lists it extends (lookups are
+    // plain property reads); the chain is flattened every few generations.
+    const depth = (old.chain ?? 0) + 1;
+    let at: Record<string, ItemStack[]>;
+    if (depth > 8) {
+      at = {};
+      for (const key in old.at) at[key] = old.at[key] as ItemStack[];
+    } else at = Object.create(old.at) as Record<string, ItemStack[]>;
+    const all = old.all ? [...old.all] : undefined;
+    const contents = new Map(old.contents);
+    const copied = new Set<string>();
+    for (let id = pass.counter + 1; id <= world.items.counters.item; id++) {
+      const stack = world.items.stacks[id as ItemId];
+      if (!stack) continue;
+      const key = locKey(stack.location);
+      if (!copied.has(key)) {
+        at[key] = [...(at[key] ?? [])];
+        copied.add(key);
+        if (stack.location.kind === 'container') contents.set(stack.location.itemId, at[key]);
+      }
+      at[key]?.push(stack);
+      all?.push(stack);
+    }
+    const index: InventoryIndex = {
+      at,
+      ...(all ? { all } : {}),
+      deep: new Map(),
+      contents,
+      chain: depth > 8 ? 0 : depth,
+    };
+    pass.counter = world.items.counters.item;
+    pass.index = index;
+    return index;
+  }
   const at: Record<string, ItemStack[]> = {};
+  const contents = new Map<number, ItemStack[]>();
   const all = rowsOf(world.items.stacks);
   for (const stack of all) {
     const key = locKey(stack.location);
     at[key] ??= [];
     at[key].push(stack);
+    if (stack.location.kind === 'container') contents.set(stack.location.itemId, at[key]);
   }
-  const index: InventoryIndex = { at, all, deep: new Map() };
+  const index: InventoryIndex = { at, all, deep: new Map(), contents };
   if (pass) {
     pass.counter = world.items.counters.item;
     pass.index = index;
@@ -118,7 +164,7 @@ function deepSnapshot(
     if (!entry || seen.has(entry.stack.id) || world.items.stacks[entry.stack.id] !== entry.stack) continue;
     seen.add(entry.stack.id);
     out.push(entry);
-    const children = index.at[`c${entry.stack.id}`] ?? [];
+    const children = (index.contents ? index.contents.get(entry.stack.id) : index.at[`c${entry.stack.id}`]) ?? [];
     for (let i = children.length - 1; i >= 0; i--) {
       const stack = children[i];
       if (stack) pending.push({ stack, depth: entry.depth + 1 });

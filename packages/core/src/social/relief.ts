@@ -263,6 +263,11 @@ export function reliefHour(world: World, ctx: SimContext): void {
       let best: { targetId: ActorId; interactionId: string; score: number } | undefined;
       if (st.offers[a.id]) continue;
       for (const b of actors) {
+        // Pure prefilter first (O(actors^2) pairs at county scale): a pair that can neither give
+        // to a known want nor collect for b's office does nothing below, attempted or not.
+        const wantKnown = knowsWant(world, ctx.content, a.id, b.householdId);
+        if (!wantKnown && !(ctx.cal.weekday === 'sun' && officeOf(world, b.id)?.members.includes(a.householdId)))
+          continue;
         if (
           a.id === b.id ||
           ageYears(b, ctx.now) < 16 ||
@@ -271,7 +276,7 @@ export function reliefHour(world: World, ctx: SimContext): void {
           continue;
         const key = `${a.id}:${b.id}`;
         if ((st.attempts[key] ?? -100000) > ctx.now - 24 * 60) continue;
-        if (knowsWant(world, ctx.content, a.id, b.householdId)) {
+        if (wantKnown) {
           const score = charityScore(world, a.id, b.id, ctx.content);
           if (
             score > 300 &&

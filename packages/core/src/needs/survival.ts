@@ -3,7 +3,7 @@ import { abilityMod, setCondition } from '../actor.ts';
 import { resolveCheck, saveTerms } from '../checks.ts';
 import type { ContentBundle } from '../content.ts';
 import { type Explain, term } from '../explain.ts';
-import type { ActorId } from '../ids.ts';
+import { type ActorId, sortedKeys } from '../ids.ts';
 import { processingActorIds } from '../region/processing.ts';
 import { mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -66,8 +66,7 @@ export function survivalExplain(id: ActorId, label: string, total: number, outco
 export function survivalHour(world: World, ctx: SimContext): void {
   const tuning = survivalTuning(ctx.content);
   if (!tuning) return;
-  const rules = Object.keys(ctx.content.survival_rules)
-    .sort()
+  const rules = sortedKeys(ctx.content.survival_rules)
     .map((k) => ctx.content.survival_rules[k])
     .filter((r) => r !== undefined);
   for (const id of processingActorIds(world)) {

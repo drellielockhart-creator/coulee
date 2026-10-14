@@ -1,6 +1,6 @@
 /** T0 interval settlement uses the ordinary need mutation kernel and saved integer carries. */
 
-import { type ActorId, idsOf } from '../ids.ts';
+import { type ActorId, idsOf, sortedKeys } from '../ids.ts';
 import { inventoryIndex } from '../items/api.ts';
 import { instantOf, TICKS_PER_HOUR } from '../sim/clock.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -46,7 +46,7 @@ export function prepareTacticalNeeds(w: World, ctx: SimContext, actors?: ActorId
       ...w,
       activity: { ...w.activity, byActor: { ...w.activity.byActor, [id]: { ...activity, activityId: 'walk' } } },
     };
-    for (const key of Object.keys(ctx.content.needs).sort()) {
+    for (const key of sortedKeys(ctx.content.needs)) {
       const rest = f.rates[id],
         active = f.activeRates[id];
       if (rest)

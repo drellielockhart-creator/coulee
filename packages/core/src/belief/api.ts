@@ -20,6 +20,7 @@ import {
   type PropId,
   type RumorId,
   rowsOf,
+  sortedKeys,
 } from '../ids.ts';
 import { addAnxiety } from '../psyche/api.ts';
 import { mixKey } from '../rng.ts';
@@ -29,6 +30,7 @@ import { yearsBetween } from '../time.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { applyEvidence, colorOpinion, ensureBelief, formula, noveltyQ8 } from './evidence.ts';
+import { grudgesHeldBy } from './grudges.ts';
 import { clamp, sigmoidPermille, view3 } from './intmath.ts';
 import { indexedBelief } from './lookup.ts';
 import { targetLabel } from './misfortune.ts';
@@ -246,7 +248,7 @@ export interface TellWords {
 /** Map venues to authored channels. */
 export function channelForPlace(world: World, content: ContentBundle, placeId: PlaceId | null): Channel {
   const tags = placeId === null ? [] : (world.places[placeId]?.tags ?? []);
-  for (const key of Object.keys(content.rumorChannels).sort()) {
+  for (const key of sortedKeys(content.rumorChannels)) {
     const c = content.rumorChannels[key];
     if (c?.venue_tags.some((tag) => tags.includes(tag))) return c.id;
   }
@@ -916,16 +918,12 @@ export function formProjection(
   pf?: number,
 ): void {
   if (!world.actors[holderId] || !world.actors[targetId]) return;
-  const drives = Object.keys(ctx.content.drives ?? {})
-    .sort()
-    .filter((d) => ctx.content.drives[d]?.shadow_traits.includes(traitId));
+  const drives = sortedKeys(ctx.content.drives).filter((d) => ctx.content.drives[d]?.shadow_traits.includes(traitId));
   const pred =
-    Object.keys(ctx.content.predicates)
-      .sort()
-      .find((key) => {
-        const projects = ctx.content.predicates[key]?.projects ?? [];
-        return projects.includes(traitId) || drives.some((d) => projects.includes(d));
-      }) ?? 'has_trait';
+    sortedKeys(ctx.content.predicates).find((key) => {
+      const projects = ctx.content.predicates[key]?.projects ?? [];
+      return projects.includes(traitId) || drives.some((d) => projects.includes(d));
+    }) ?? 'has_trait';
   if (!ctx.content.predicates[pred]) return;
   const args: PropArg[] = [{ kind: 'actor', id: targetId }];
   if (ctx.content.predicates[pred]?.args.length === 2) args.push({ kind: 'text', value: traitId });
@@ -987,6 +985,19 @@ export function suspicionOf(world: World, observerId: ActorId, targetId: ActorId
   return suspicion;
 }
 
+/** `suspicionOf` for every target at once, ascending target id (only targets with any suspicion). */
+function suspicionsHeld(world: World, observerId: ActorId): Map<ActorId, number> {
+  const byTarget = new Map<ActorId, number>();
+  for (const id of world.belief.beliefsByHolder[observerId] ?? []) {
+    const b = world.belief.beliefs[id];
+    const p = b && world.belief.props[b.propId];
+    const arg = p?.args[0];
+    if (p?.suspicious && arg?.kind === 'actor')
+      byTarget.set(arg.id as ActorId, Math.max(byTarget.get(arg.id as ActorId) ?? 0, b?.credence ?? 0));
+  }
+  return new Map([...byTarget].sort((x, y) => x[0] - y[0]));
+}
+
 export function proposeBeliefUrges(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
   const out: UrgeProposal[] = [];
   const me = world.actors[actorId];
@@ -1040,8 +1051,8 @@ export function proposeBeliefUrges(world: World, ctx: SimContext, actorId: Actor
       reasons: [{ source: 'belief', label: 'Community pressure', value: p.heat }],
     });
   }
-  for (const g of rowsOf(world.belief.grudges)) {
-    if (g.holderId !== actorId || g.target.kind !== 'actor') continue;
+  for (const g of grudgesHeldBy(world, actorId)) {
+    if (g.target.kind !== 'actor') continue;
     const def = ctx.content.grudgeAims[g.aim];
     if (g.intensity < (def?.min_intensity ?? 40)) continue;
     const fear = opinionOf(world, actorId, g.target.id).fear;
@@ -1068,9 +1079,13 @@ export function proposeBeliefUrges(world: World, ctx: SimContext, actorId: Actor
   }
   const actor = world.actors[actorId];
   if (actor) {
-    for (const target of rowsOf(world.actors)) {
-      if (target.id === actorId || target.placeId !== actor.placeId) continue;
-      const suspicion = suspicionOf(world, actorId, target.id);
+    // Only actors this holder suspects (credence >= 40) can matter: visit them in ascending id
+    // order (the order a full actor scan gives) instead of scanning every actor per actor-hour.
+    const suspected = suspicionsHeld(world, actorId);
+    for (const id of suspected.keys()) {
+      const target = world.actors[id];
+      if (!target || target.id === actorId || target.placeId !== actor.placeId) continue;
+      const suspicion = suspected.get(id) ?? 0;
       if (suspicion < 40) continue;
       const fear = opinionOf(world, actorId, target.id).fear;
       if (fear >= 40 && ctx.content.activities.idle_at_home) {

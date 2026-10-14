@@ -13,7 +13,7 @@ import { isAsleep, occupants } from '../activity/api.ts';
 import { shortName } from '../actor.ts';
 import type { ActivityDef, InteractionDef } from '../content.ts';
 import { term } from '../explain.ts';
-import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
+import { type ActorId, idsOf, type PlaceId, sortedKeys } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
 import { autonomous } from '../psyche/api.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -33,8 +33,7 @@ const SALT_URGE = 0x0e6e;
 let urgeDefsCache: { content: unknown; defs: InteractionDef[] } | null = null;
 function urgeDefs(ctx: SimContext): InteractionDef[] {
   if (urgeDefsCache && urgeDefsCache.content === ctx.content) return urgeDefsCache.defs;
-  const defs = Object.keys(ctx.content.interactions)
-    .sort()
+  const defs = sortedKeys(ctx.content.interactions)
     .map((k) => ctx.content.interactions[k] as InteractionDef)
     .filter((d) => d?.urge !== undefined);
   urgeDefsCache = { content: ctx.content, defs };
@@ -92,9 +91,9 @@ function companyUrge(world: World, ctx: SimContext, actorId: ActorId): UrgePropo
  */
 function dueDebtDuties(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
   if (autonomous(world, actorId)) return [];
-  const repay = Object.keys(ctx.content.interactions)
-    .sort()
-    .find((k) => ctx.content.interactions[k]?.success.settle === 'initiator_debt');
+  const repay = sortedKeys(ctx.content.interactions).find(
+    (k) => ctx.content.interactions[k]?.success.settle === 'initiator_debt',
+  );
   if (repay === undefined) return [];
   const graceMinutes = (ctx.content.chroniclePatterns?.debt?.params.overdue_days ?? 30) * 1440;
   const out: UrgeProposal[] = [];

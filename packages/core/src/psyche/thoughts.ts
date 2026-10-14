@@ -14,7 +14,7 @@ import type { Command } from '../command.ts';
 import type { ExplainTerm } from '../explain.ts';
 import { sumTerms } from '../explain.ts';
 import { proposeFaeUrges } from '../fae/urges.ts';
-import { type ActorId, asThoughtId, type ThoughtId } from '../ids.ts';
+import { type ActorId, asThoughtId, sortedKeys, type ThoughtId } from '../ids.ts';
 import { proposeNeedUrges } from '../needs/api.ts';
 import { proposeProvisionUrges } from '../provisions/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
@@ -186,7 +186,7 @@ export function ruleCandidates(m: Mind, external: readonly UrgeProposal[]): Cand
   // Scoped to gathering: defenses later in the hour can change opinions.
   const opinions = new Map<ActorId, OpinionDims>();
   const out: Candidate[] = [];
-  for (const id of Object.keys(m.content.thoughts ?? {}).sort()) {
+  for (const id of sortedKeys(m.content.thoughts)) {
     const rule = m.content.thoughts[id];
     if (!rule) continue;
     // Drive/norm coverage does not depend on the candidate. Avoid target scans and
@@ -349,7 +349,7 @@ export function prohibitionCandidates(m: Mind, thoughts: readonly Thought[]): Ca
   if (wanted.size === 0) return [];
   const options = [...wanted.entries()].sort((a, b) => b[1].support - a[1].support || cmpStr(a[0], b[0]));
   const out: Candidate[] = [];
-  for (const nid of Object.keys(m.content.norms ?? {}).sort()) {
+  for (const nid of sortedKeys(m.content.norms)) {
     const norm = m.content.norms[nid];
     if (!norm) continue;
     norm.forbids.forEach((f, i) => {

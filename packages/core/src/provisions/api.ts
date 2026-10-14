@@ -1,11 +1,11 @@
 import { tacticalPinned } from '../activity/api.ts';
 import { authorizeAct, type Basis, commandBasis, standingOrders } from '../psyche/api.ts';
-import { processesActor } from '../region/processing.ts';
+import { fixedDerivation, processesActor } from '../region/processing.ts';
 /**
  * Provisions cross-module API. OWNER: module:provisions.
  */
 
-import { isAsleep, onJourney, reservePreparation, walkMinutes } from '../activity/api.ts';
+import { isAsleep, onJourney, reservePreparation, venueCandidates, walkMinutes } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { term } from '../explain.ts';
 import type { ActorId, HouseholdId, ItemId, PlaceId } from '../ids.ts';
@@ -694,8 +694,17 @@ export function nearestWaterSource(
   if (isWaterSource(world, content, actor.placeId)) return { placeId: actor.placeId, minutes: 0 };
   const site = world.places[actor.placeId]?.siteId;
   let best: { placeId: PlaceId; minutes: number } | null = null;
-  for (const place of rowsOf(world.places)) {
-    if (place.siteId !== site || !isWaterSource(world, content, place.id)) continue;
+  // Only places carrying a water-source tag can qualify (isWaterSource reads tags): take them from
+  // the venue index, in ascending id order as the full place scan visited them.
+  let tags: readonly string[] = ['water'];
+  for (const key in content.needs) {
+    const need = content.needs[key];
+    if (need?.intake?.unit === 'ml' && need.sources?.length) tags = need.sources;
+  }
+  const candidates = venueCandidates(world, site, tags).sort((a, b) => a - b);
+  for (const id of candidates) {
+    const place = world.places[id];
+    if (!place || place.siteId !== site || !isWaterSource(world, content, place.id)) continue;
     const minutes = walkMinutes(world, content, actor.placeId, place.id);
     if (minutes <= maxMinutes && (!best || minutes < best.minutes)) best = { placeId: place.id, minutes };
   }
@@ -721,7 +730,7 @@ function fetchOrdered(world: World, ctx: SimContext, actorId: ActorId): boolean 
 /** Ordinary sipping and filling at an accessible source, also used in readiness projections. */
 export function waterHour(world: World, ctx: SimContext, onlyActor?: ActorId): void {
   const index = inventoryIndex(world);
-  for (const actor of rowsOf(world.actors)) {
+  for (const actor of fixedDerivation(world, 'actors:rows', () => rowsOf(world.actors))) {
     if (onlyActor !== undefined && actor.id !== onlyActor) continue;
     if (!processesActor(world, actor.id)) continue;
     if (tacticalPinned(world, actor.id)) continue;

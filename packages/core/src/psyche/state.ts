@@ -9,7 +9,7 @@
 import type { DefenseId, TraitId } from '../content.ts';
 import { DEFENSES, VALUES } from '../content.ts';
 import type { ExplainTerm } from '../explain.ts';
-import { type ActorId, type EventId, idsOf, mustGet, type Table, type ThoughtId } from '../ids.ts';
+import { type ActorId, type EventId, idsOf, mustGet, sortedKeys, type Table, type ThoughtId } from '../ids.ts';
 import type { InitContext } from '../sim/context.ts';
 import type { GameMinute } from '../time.ts';
 import type { ChosenUrge, ModuleId, Urge, Voice } from '../urge.ts';
@@ -229,16 +229,14 @@ export function refreshShadowList(p: ActorPsyche): void {
  */
 export function initPsycheState(world: World, ctx: InitContext): void {
   world.psyche.standingCapabilities = Object.fromEntries(
-    Object.keys(ctx.content.standingCapabilities ?? {})
-      .sort()
-      .flatMap((id) => {
-        const d = ctx.content.standingCapabilities[id];
-        return d ? [[id, { ...d, item_tags: [...d.item_tags] }]] : [];
-      }),
+    sortedKeys(ctx.content.standingCapabilities).flatMap((id) => {
+      const d = ctx.content.standingCapabilities[id];
+      return d ? [[id, { ...d, item_tags: [...d.item_tags] }]] : [];
+    }),
   );
   const seeds = new Map(ctx.scenario.actors.map((a) => [a.key, a]));
-  const driveIds = Object.keys(ctx.content.drives ?? {}).sort();
-  const normIds = Object.keys(ctx.content.norms ?? {}).sort();
+  const driveIds = sortedKeys(ctx.content.drives);
+  const normIds = sortedKeys(ctx.content.norms);
   for (const id of idsOf<ActorId>(world.actors)) {
     const actor = mustGet(world.actors, id, 'actor');
     const seed = seeds.get(actor.key);

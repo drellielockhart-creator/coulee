@@ -31,6 +31,7 @@ import { yearsBetween } from '../time.ts';
 import type { World } from '../world.ts';
 import { formatCents } from './model.ts';
 import { opinionRecord, owedCents } from './opinion.ts';
+import { relationsBetween } from './pairs.ts';
 import { whenSpecificity, whoMatches } from './talk-who.ts';
 import { areKinBy } from './volition.ts';
 
@@ -81,6 +82,18 @@ interface TalkIndex {
   words: Record<string, TalkWord>;
   weights: Map<TalkLine, number>;
   cultureByKey: Map<string, string>;
+  /** Content-only prefilter of each pool: ordinary (not repeat-aware) lines for one outcome. */
+  base: Map<string, TalkLine[]>;
+}
+
+function basePool(idx: TalkIndex, part: string, iid: string, outcome: string, pool: TalkLine[]): TalkLine[] {
+  const key = `${part}|${iid}|${outcome}`;
+  let lines = idx.base.get(key);
+  if (!lines) {
+    lines = pool.filter((l) => !l.tags?.includes('repeat_aware') && (l.outcome === 'any' || l.outcome === outcome));
+    idx.base.set(key, lines);
+  }
+  return lines;
 }
 
 let indexCache: { content: ContentBundle; scenarioId: string; idx: TalkIndex } | null = null;
@@ -106,7 +119,7 @@ function indexOf(content: ContentBundle, scenarioId: string): TalkIndex {
   const cultureByKey = new Map<string, string>();
   for (const a of content.scenarios[scenarioId]?.actors ?? []) if (a.culture) cultureByKey.set(a.key, a.culture);
   const weights = new Map(lines.map((l) => [l, l.weight * (1 + 2 * whenSpecificity(l.when))]));
-  const idx: TalkIndex = { act, said, words: content.talk_words ?? {}, cultureByKey, weights };
+  const idx: TalkIndex = { act, said, words: content.talk_words ?? {}, cultureByKey, weights, base: new Map() };
   indexCache = { content, scenarioId, idx };
   return idx;
 }
@@ -236,6 +249,52 @@ function labelOf(world: World, from: ActorId, to: ActorId): string {
   return rec.label ? rec.label.toLowerCase() : 'acquaintance';
 }
 
+/** The `when` conditions in their canonical evaluation order. */
+const WHEN_ORDER = [
+  'weather',
+  'temp',
+  'season',
+  'part',
+  'sabbath',
+  'observance',
+  'venue',
+  'label',
+  'target_label',
+  'kin',
+  'household',
+  'courting',
+  'mood',
+  'target_mood',
+  'remembers',
+  'target_remembers',
+  'owes',
+  'misfortune',
+  'price',
+  'told',
+  'stale',
+  'rumor',
+  'heard',
+  'secondhand',
+  'about',
+  'child',
+  'target_child',
+  'initiator',
+  'target',
+] as const;
+type WhenKey = (typeof WHEN_ORDER)[number];
+type WhoBlock = NonNullable<When['initiator']>;
+/** The conditions a `when` sets, in canonical order. Content-only, cached per object (bounded). */
+const whenKeyCache = new Map<When, readonly WhenKey[]>();
+function whenKeys(w: When): readonly WhenKey[] {
+  let keys = whenKeyCache.get(w);
+  if (!keys) {
+    if (whenKeyCache.size >= 8192) whenKeyCache.clear();
+    keys = WHEN_ORDER.filter((k) => w[k] !== undefined);
+    whenKeyCache.set(w, keys);
+  }
+  return keys;
+}
+
 class Scene {
   private memo = new Map<string, unknown>();
   readonly world: World;
@@ -260,10 +319,28 @@ class Scene {
     this.memo.set(key, v);
     return v;
   }
+  // Hot path (every candidate line of every exchange): plain lazy fields, no closures or string keys.
+  private hourMemo: HourFacts | undefined;
+  private labelI: string | undefined;
+  private labelT: string | undefined;
+  private kinMemo: boolean | undefined;
+  private courtingMemo: boolean | undefined;
+  private moodI: string | undefined;
+  private moodT: string | undefined;
   get hour(): HourFacts {
-    return this.once('hour', () => hourFacts(this.world, this.ctx));
+    this.hourMemo ??= hourFacts(this.world, this.ctx);
+    return this.hourMemo;
   }
   label(from: ActorId, to: ActorId): string {
+    // Callers always pass the pair (i, t) or (t, i); memoized by the speaking side as before.
+    if (from === this.i) {
+      this.labelI ??= labelOf(this.world, from, to);
+      return this.labelI;
+    }
+    if (from === this.t) {
+      this.labelT ??= labelOf(this.world, from, to);
+      return this.labelT;
+    }
     return this.once(`label:${from}`, () => labelOf(this.world, from, to));
   }
   close(): boolean {
@@ -279,24 +356,41 @@ class Scene {
     });
   }
   kin(): boolean {
-    return this.once('kin', () => areKinBy(this.world, this.ctx.content, this.i, this.t));
+    this.kinMemo ??= areKinBy(this.world, this.ctx.content, this.i, this.t);
+    return this.kinMemo;
   }
   courting(): boolean {
-    return this.once('courting', () =>
-      this.world.social.relationships.some(
-        (r) =>
-          (r.kind === 'courting' || r.kind === 'betrothed') &&
-          ((r.a === this.i && r.b === this.t) || (r.a === this.t && r.b === this.i)),
-      ),
+    this.courtingMemo ??= relationsBetween(this.world, this.i, this.t).some(
+      (r) => r.kind === 'courting' || r.kind === 'betrothed',
     );
+    return this.courtingMemo;
   }
+  private childI: boolean | undefined;
+  private childT: boolean | undefined;
   child(id: ActorId): boolean {
-    return this.once(`child:${id}`, () => {
-      const a = this.world.actors[id];
-      return a !== undefined && yearsBetween(a.born, this.ctx.now) < CHILD_AGE;
-    });
+    if (id === this.i) {
+      this.childI ??= this.isChild(id);
+      return this.childI;
+    }
+    if (id === this.t) {
+      this.childT ??= this.isChild(id);
+      return this.childT;
+    }
+    return this.once(`child:${id}`, () => this.isChild(id));
+  }
+  private isChild(id: ActorId): boolean {
+    const a = this.world.actors[id];
+    return a !== undefined && yearsBetween(a.born, this.ctx.now) < CHILD_AGE;
   }
   mood(id: ActorId): string {
+    if (id === this.i) {
+      this.moodI ??= moodOf(this.world, this.ctx, id);
+      return this.moodI;
+    }
+    if (id === this.t) {
+      this.moodT ??= moodOf(this.world, this.ctx, id);
+      return this.moodT;
+    }
     return this.once(`mood:${id}`, () => moodOf(this.world, this.ctx, id));
   }
   /** The place of the most salient memory `owner` has of `other` doing `kind` (salience ≥ 200). */
@@ -329,44 +423,106 @@ class Scene {
       return byInit > 0 ? { by: 'initiator' as const, cents: byInit } : null;
     });
   }
-  /** Does a line's `when` hold here? */
+  /** Does a line's `when` hold here? Only the conditions the line sets are visited, in the
+   * canonical order below (hot path: every candidate line of every exchange). */
   matches(w: When): boolean {
-    const h = (): HourFacts => this.hour;
-    if (w.weather !== undefined && h().weather !== w.weather) return false;
-    if (w.temp !== undefined && h().temp !== w.temp) return false;
-    if (w.season !== undefined && this.ctx.cal.season !== w.season) return false;
-    if (w.part !== undefined && h().part !== w.part) return false;
-    if (w.sabbath !== undefined && this.ctx.cal.isSabbath !== w.sabbath) return false;
-    if (w.observance !== undefined && !h().observances.includes(w.observance)) return false;
-    if (w.venue !== undefined) {
-      const tags = this.placeId !== null ? (this.world.places[this.placeId]?.tags ?? []) : [];
-      if (!tags.includes(w.venue)) return false;
+    for (const key of whenKeys(w)) if (!this.holds(w, key)) return false;
+    return true;
+  }
+  private holds(w: When, key: WhenKey): boolean {
+    switch (key) {
+      case 'weather':
+        if (this.hour.weather !== w.weather) return false;
+        break;
+      case 'temp':
+        if (this.hour.temp !== w.temp) return false;
+        break;
+      case 'season':
+        if (this.ctx.cal.season !== w.season) return false;
+        break;
+      case 'part':
+        if (this.hour.part !== w.part) return false;
+        break;
+      case 'sabbath':
+        if (this.ctx.cal.isSabbath !== w.sabbath) return false;
+        break;
+      case 'observance':
+        if (!this.hour.observances.includes(w.observance as string)) return false;
+        break;
+      case 'venue': {
+        const tags = this.placeId !== null ? (this.world.places[this.placeId]?.tags ?? []) : [];
+        if (!tags.includes(w.venue as string)) return false;
+        break;
+      }
+      case 'label':
+        if (this.label(this.i, this.t) !== w.label) return false;
+        break;
+      case 'target_label':
+        if (this.label(this.t, this.i) !== w.target_label) return false;
+        break;
+      case 'kin':
+        if (this.kin() !== w.kin) return false;
+        break;
+      case 'household': {
+        const same = this.world.actors[this.i]?.householdId === this.world.actors[this.t]?.householdId;
+        if (same !== w.household) return false;
+        break;
+      }
+      case 'courting':
+        if (this.courting() !== w.courting) return false;
+        break;
+      case 'mood':
+        if (this.mood(this.i) !== w.mood) return false;
+        break;
+      case 'target_mood':
+        if (this.mood(this.t) !== w.target_mood) return false;
+        break;
+      case 'remembers':
+        if (this.remembered(this.i, this.t, w.remembers as string) === false) return false;
+        break;
+      case 'target_remembers':
+        if (this.remembered(this.t, this.i, w.target_remembers as string) === false) return false;
+        break;
+      case 'owes':
+        if (this.owed()?.by !== w.owes) return false;
+        break;
+      case 'misfortune':
+        if ((this.misfortune() !== null) !== w.misfortune) return false;
+        break;
+      case 'price':
+        if ((this.hour.price !== null) !== w.price) return false;
+        break;
+      case 'told':
+        if ((this.facts.told ?? false) !== w.told) return false;
+        break;
+      case 'stale':
+        if ((this.facts.stale ?? false) !== w.stale) return false;
+        break;
+      case 'rumor':
+        if (this.facts.rumor !== w.rumor) return false;
+        break;
+      case 'heard':
+        if (this.facts.heard !== w.heard) return false;
+        break;
+      case 'secondhand':
+        if ((this.facts.secondhand ?? false) !== w.secondhand) return false;
+        break;
+      case 'about':
+        if (this.facts.about !== w.about) return false;
+        break;
+      case 'child':
+        if (this.child(this.i) !== w.child) return false;
+        break;
+      case 'target_child':
+        if (this.child(this.t) !== w.target_child) return false;
+        break;
+      case 'initiator':
+        if (!this.isWho(this.i, w.initiator as WhoBlock)) return false;
+        break;
+      case 'target':
+        if (!this.isWho(this.t, w.target as WhoBlock)) return false;
+        break;
     }
-    if (w.label !== undefined && this.label(this.i, this.t) !== w.label) return false;
-    if (w.target_label !== undefined && this.label(this.t, this.i) !== w.target_label) return false;
-    if (w.kin !== undefined && this.kin() !== w.kin) return false;
-    if (w.household !== undefined) {
-      const same = this.world.actors[this.i]?.householdId === this.world.actors[this.t]?.householdId;
-      if (same !== w.household) return false;
-    }
-    if (w.courting !== undefined && this.courting() !== w.courting) return false;
-    if (w.mood !== undefined && this.mood(this.i) !== w.mood) return false;
-    if (w.target_mood !== undefined && this.mood(this.t) !== w.target_mood) return false;
-    if (w.remembers !== undefined && this.remembered(this.i, this.t, w.remembers) === false) return false;
-    if (w.target_remembers !== undefined && this.remembered(this.t, this.i, w.target_remembers) === false) return false;
-    if (w.owes !== undefined && this.owed()?.by !== w.owes) return false;
-    if (w.misfortune !== undefined && (this.misfortune() !== null) !== w.misfortune) return false;
-    if (w.price !== undefined && (h().price !== null) !== w.price) return false;
-    if (w.told !== undefined && (this.facts.told ?? false) !== w.told) return false;
-    if (w.stale !== undefined && (this.facts.stale ?? false) !== w.stale) return false;
-    if (w.rumor !== undefined && this.facts.rumor !== w.rumor) return false;
-    if (w.heard !== undefined && this.facts.heard !== w.heard) return false;
-    if (w.secondhand !== undefined && (this.facts.secondhand ?? false) !== w.secondhand) return false;
-    if (w.about !== undefined && this.facts.about !== w.about) return false;
-    if (w.child !== undefined && this.child(this.i) !== w.child) return false;
-    if (w.target_child !== undefined && this.child(this.t) !== w.target_child) return false;
-    if (w.initiator !== undefined && !this.isWho(this.i, w.initiator)) return false;
-    if (w.target !== undefined && !this.isWho(this.t, w.target)) return false;
     return true;
   }
   /** Does this speaker fit a line's `initiator` / `target` block (a teller, a kind of person)? */
@@ -624,9 +780,7 @@ export function composeExchange(world: World, ctx: SimContext, req: ComposeReque
   const scene = new Scene(world, ctx, i, t, req.placeId, req.facts ?? {});
   scene.cultureByKey = idx.cultureByKey;
   const outcome = req.success ? 'success' : 'failure';
-  const fits = pool.filter(
-    (l) => !l.tags?.includes('repeat_aware') && (l.outcome === 'any' || l.outcome === outcome) && scene.matches(l.when),
-  );
+  const fits = basePool(idx, req.part, req.def.id, outcome, pool).filter((l) => scene.matches(l.when));
   if (fits.length === 0) return null;
   const pk = pairKey(i, t);
   const room = placeKey(req.placeId);
@@ -738,7 +892,10 @@ function render(line: TalkLine, scene: Scene, idx: TalkIndex, r: Rng): TalkTurn[
     const listener = speaker === scene.i ? scene.t : scene.i;
     const culture = cultureOf(scene.world, idx, speaker);
     const slots: Record<string, string> = { you: scene.address(speaker, listener) };
-    for (const [k, v] of Object.entries(base)) slots[k] = v.includes('#') ? expandWords(v, idx, culture, r) : v;
+    for (const k in base) {
+      const v = base[k] as string;
+      slots[k] = v.includes('#') ? expandWords(v, idx, culture, r) : v;
+    }
     const words = expandWords(turn.text, idx, culture, r);
     const text = tidy(fillSlots(expandAlternatives(words, r), slots));
     if (text) turns.push({ speaker: nameOf(scene.world, speaker), speakerId: speaker, text });

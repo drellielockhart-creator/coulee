@@ -1,6 +1,7 @@
 import { hourInBlock, isAsleep } from '../activity/api.ts';
 import { resolveCheck, type SaveId, saveTerms, skillCheck } from '../checks.ts';
 import { effectiveFi } from '../fae/api.ts';
+import { sortedKeys } from '../ids.ts';
 import { processingActors } from '../region/processing.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
@@ -10,7 +11,7 @@ import type { World } from '../world.ts';
 import { internProp, observe } from './api.ts';
 
 export function processTells(world: World, ctx: SimContext): void {
-  for (const key of Object.keys(ctx.content.suspicionTells).sort()) {
+  for (const key of sortedKeys(ctx.content.suspicionTells)) {
     const tell = ctx.content.suspicionTells[key];
     const pred = tell && ctx.content.predicates[tell.predicate];
     if (

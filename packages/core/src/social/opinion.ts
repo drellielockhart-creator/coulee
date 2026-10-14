@@ -31,6 +31,7 @@ import {
   weightDims,
   ZERO_DIMS,
 } from './model.ts';
+import { relationsBetween } from './pairs.ts';
 import type { Opinion, OpinionDims, OpinionReason } from './state.ts';
 import { tuningOf, valueView } from './tuning.ts';
 
@@ -52,7 +53,7 @@ export function hasMet(world: World, from: ActorId, to: ActorId): boolean {
   return (
     op.familiarity > 0 ||
     world.actors[from]?.householdId === world.actors[to]?.householdId ||
-    world.social.relationships.some((r) => (r.a === from && r.b === to) || (r.a === to && r.b === from)) ||
+    relationsBetween(world, from, to).length > 0 ||
     op.reasons.some((r) => r.cites.kind === 'seed') ||
     (world.social.memoriesByOwner[from] ?? []).some((id) => {
       const m = world.social.memories[id];
@@ -66,10 +67,7 @@ export function hasMet(world: World, from: ActorId, to: ActorId): boolean {
 }
 
 function hasEdge(world: World, a: ActorId, b: ActorId, kind: string): boolean {
-  for (const r of world.social.relationships) {
-    if (r.kind === kind && ((r.a === a && r.b === b) || (r.a === b && r.b === a))) return true;
-  }
-  return false;
+  return relationsBetween(world, a, b).some((r) => r.kind === kind);
 }
 
 /** Weight 0..1000 of a reason held by `from` about `to` (04 §6.2). */
@@ -159,7 +157,7 @@ export function computeBase(world: World, content: ContentBundle, from: ActorId,
   const t = tuningOf(content);
   let base: OpinionDims = { ...ZERO_DIMS, affection: compatibility(world, content, from, to) };
   let kin = false;
-  for (const r of world.social.relationships) {
+  for (const r of relationsBetween(world, from, to)) {
     const fwd = r.a === from && r.b === to;
     const back = r.a === to && r.b === from;
     if (!fwd && !back) continue;
@@ -185,10 +183,7 @@ export function refreshBase(world: World, content: ContentBundle, a: ActorId, b:
 function evictable(world: World, from: ActorId, op: Opinion): boolean {
   if (op.reasons.length > 0) return false;
   if (op.obligation.cents !== 0 || op.obligation.favors !== 0) return false;
-  for (const r of world.social.relationships) {
-    if ((r.a === from && r.b === op.targetId) || (r.b === from && r.a === op.targetId)) return false;
-  }
-  return true;
+  return relationsBetween(world, from, op.targetId).length === 0;
 }
 
 /**

@@ -2,7 +2,7 @@ import { isDailyProcessing, processesPlace, processingActorIds } from '../region
 import { tacticalPinned } from './tactical.ts';
 /** Execute the chosen activity, falling back to the content calendar. */
 
-import { type ActorId, idsOf } from '../ids.ts';
+import { type ActorId, idsOf, sortedKeys } from '../ids.ts';
 import { campSleepActivity, inventoryIndex, loadReport, movementDelay } from '../items/api.ts';
 import { canAct, rousedBy } from '../needs/api.ts';
 import { activeEmployment, admitSleep, workAvailability } from '../provisions/api.ts';
@@ -295,7 +295,7 @@ export function activitySystem(world: World, ctx: SimContext): void {
   }
   recomputeOccupancy(world);
   // One announcement per place at a gathering's opening hour; occupants are already sorted.
-  for (const key of Object.keys(ctx.content.observances).sort()) {
+  for (const key of sortedKeys(ctx.content.observances)) {
     const def = requiredRow(ctx.content.observances, key);
     if (!observanceActive(def, ctx.cal)) continue;
     for (const b of def.blocks) {

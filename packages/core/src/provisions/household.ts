@@ -35,7 +35,10 @@ export function householdEconomyDay(
   // The ration decision only compares against its thresholds, so project only as far as can matter:
   // at full rations the question is "below the first cut?"; on short rations, "back above restore?".
   const firstCut = Math.max(...RATION_STEPS.map((s) => s.belowDays));
-  const horizon = (h.rationPct >= 100 ? firstCut : RATION_RESTORE_DAYS) + 1;
+  // At full rations no event carries the figure and every cut is `days < firstCut`, so a
+  // firstCut-day projection decides identically. Restoring keeps the extra day: the
+  // "Full rations restored" Explain prints the projected days.
+  const horizon = h.rationPct >= 100 ? firstCut : RATION_RESTORE_DAYS + 1;
   const readiness = planReadiness(world, ctx.content, { householdId }, ctx.now, horizon, false);
   const step = RATION_STEPS.find((s) => readiness.daysOfFoodTenths < s.belowDays * 10);
   const pct = step

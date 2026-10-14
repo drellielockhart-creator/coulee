@@ -276,11 +276,50 @@ export function formatStamp(t: GameMinute): string {
 }
 
 /** Whole years between two instants (for ages). */
+/** Civil date packed as year*10000 + month*100 + day. Pure, so memoized (bounded; not world state). */
+const packedCivil = new Map<number, number>();
+function civilPacked(days: number): number {
+  let v = packedCivil.get(days);
+  if (v === undefined) {
+    const { year, month, day } = civilFromDays(days);
+    v = year * 10_000 + month * 100 + day;
+    if (packedCivil.size >= 65_536) packedCivil.clear();
+    packedCivil.set(days, v);
+  }
+  return v;
+}
+
+/**
+ * The latest birth day index of someone at least `years` old on `to` (civil ages, as
+ * `yearsBetween`). Age never increases with a later birth day, so `dayIndex(born) <= result` is
+ * exactly `yearsBetween(born, to) >= years`: an arithmetic test for scans over many people.
+ */
+let lastBirthKey = '',
+  lastBirthDay = 0;
+export function latestBirthDay(years: number, to: GameMinute): number {
+  const key = `${years}:${dayIndex(to)}`;
+  if (key === lastBirthKey) return lastBirthDay;
+  let d = dayIndex(to) - years * 366 - 2;
+  while (yearsBetween(asGameMinute((d + 1) * MINUTES_PER_DAY), to) >= years) d++;
+  lastBirthKey = key;
+  lastBirthDay = d;
+  return d;
+}
+
+let ageToDay = Number.NaN,
+  ageToPacked = 0;
 export function yearsBetween(from: GameMinute, to: GameMinute): number {
   // Ages use civil dates only; moon, daylight and time of day cannot affect them.
-  const a = civilFromDays(EPOCH_DAYS + dayIndex(from));
-  const b = civilFromDays(EPOCH_DAYS + dayIndex(to));
-  let y = b.year - a.year;
-  if (b.month < a.month || (b.month === a.month && b.day < a.day)) y -= 1;
+  // Hot path (ages are read every actor-hour): packed civil dates compare month/day directly.
+  // Most calls repeat "today" as `to`: a one-slot cache skips that Map lookup.
+  const toDay = EPOCH_DAYS + dayIndex(to);
+  if (toDay !== ageToDay) {
+    ageToDay = toDay;
+    ageToPacked = civilPacked(toDay);
+  }
+  const b = ageToPacked;
+  const a = civilPacked(EPOCH_DAYS + dayIndex(from));
+  let y = Math.floor(b / 10_000) - Math.floor(a / 10_000);
+  if (b % 10_000 < a % 10_000) y -= 1;
   return y;
 }
