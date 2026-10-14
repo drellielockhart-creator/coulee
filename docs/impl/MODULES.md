@@ -850,3 +850,19 @@ God observations and CLI manifests expose analytics; fair observations expose no
 **Acceptance:** `just check`; unchanged Iron Ford golden; stripped-world hashes against
 pre-D0 at Iron Ford 42 (30/365d), generated towns 7/19 (90d), neighbors 42 (30d);
 year-run baseline for Iron Ford and generated towns 7/19, measured Director ms/hour.
+
+### M5 slice 2f — dormant settlement ownership (2026-10-13)
+
+Region adds optional saved `dormant` policy/cursors/facts, `T3`, a `dormant`
+processing bucket, `configureDormancy`, `settleDormantSites`, `wakeDormantSite`
+and perspective-gated `dormantNews`. T2 keeps its 2e hourly decision kernel.
+The existing 2d owner filters also exclude dormant sites. Only region chooses owners.
+
+Owner APIs provide elapsed memory/opinion/thought/need upkeep; real pantry
+preparation/spoilage, exceptional famine survival, existing debt settlement, local
+routine placement and scheduled productive yields. Items lends independent sites
+temporary inventory tables, reconciled after an aggregate pass; these are not saved.
+Foundation's scoped population hook installs a persistent child without reseeding
+any existing sheet or inventory; birth IDs occupy a separate deterministic band.
+Region facts and hydration receipts outlive the event-log window. No player-only
+rules, legacy-world policy fields, or statistical T2 executor are introduced.

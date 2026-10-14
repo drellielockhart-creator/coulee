@@ -10,8 +10,8 @@ import { minuteBudget } from './api.ts';
 import { monthMatches } from './calendar.ts';
 import { tacticalPinned } from './tactical.ts';
 
-export function productionHour(world: World, ctx: SimContext): void {
-  for (const actor of processingActors(world)) {
+export function productionHour(world: World, ctx: SimContext, actors = processingActors(world)): void {
+  for (const actor of actors) {
     const minutes = minuteBudget(world, actor.id).remaining;
     if (minutes === 0) continue;
     const state = world.activity.byActor[actor.id];

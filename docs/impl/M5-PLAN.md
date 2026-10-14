@@ -781,3 +781,378 @@ balance and fair repeated-return playtests; actual phone/worker/save/resume meas
 Do not reinstate the four-deliberation shortcut or call this county-feasible on the strength
 of a 10.62% relative saving. Slice 2's fidelity gate passes for this fixture, while its
 absolute scale/heap/save and broader release gates remain open.
+
+## Slice 2f: dormant T3
+
+Design first, 2026-10-13. Prototype for Ellie's county decision in 00; T2 keeps the
+validated 2e executor and the county population is unchanged. **Explicit opt-in only:
+the whole-town livelihood fidelity and county cost gates below fail.**
+
+**Selection and ownership.** T3 is a separate, whole-settlement processing owner.
+Default entry distance is over 24 directed travel hours, exit distance 20 hours,
+with a 24-hour dwell before entry. Policy is saved and configurable, never selected
+from device speed. Any relevant or pinned resident, planned destination, journey,
+active tactical scene or unresolved cross-site dependency prevents dormancy. Existing
+2d eligibility exclusions remain conservative. T0 is the occupied site; eligible near
+settlements remain T1/T2. Disabling T3 settles its outstanding interval first.
+
+**State.** Identities, sheets, household membership, inventory, obligations, property,
+deaths and other durable facts persist. Named minds are frozen with an explicit
+processed-through timestamp, not replaced by a statistical T2 mind. Settlement
+records retain canonical aggregate cursors, dated news/trace facts, accounting totals
+and hydration receipts independently of the rolling event log. Existing materialized
+sheets are retained in this first implementation; dormant state is not a claim of
+compressed census-only saves.
+
+**Aggregate clock and rates.** Resolve on canonical calendar-month boundaries and
+settle the unfinished prefix on promotion. Demographic opportunities use canonical
+person/time keys, never arrival time or sequential RNG. Births, deaths, marriages,
+moves, debt/default, harvest/pantry changes and feuds are durable facts; rumors are
+settlement news, not universal knowledge. Era-plausible demographic priors must be
+identified as assumptions separately from simulated rates: current T1/T2 has no
+fertility or background mortality engine, so demographic parity cannot be claimed.
+Use ordinary production, food definitions, spoilage and monetary ledgers through
+owner APIs. Calibrate livelihood and grudge rates against generated-town year runs;
+report seed coverage and measured failures rather than fitting away discrepancies.
+
+**Promotion.** Settle aggregate facts in canonical site/time order, then apply lazy
+elapsed-time owner decay and hydrate involved people's memories/beliefs once. Integer
+rounding, clamps and memory floors use owner kernels. Pantries are actual stacks;
+aggregate consumption is final and is never replayed by the T2 executor. The T2
+cursor begins at the promotion boundary. News remains knowledge-gated. Repeated
+promotion and JSON restore retain receipts. Approach order cannot reroll committed
+facts; different subsequent active simulation is allowed to diverge.
+
+**Gates, declared before measurement.** Identity and reversed contact order: 50 seeds;
+mid-dormancy JSON restore; repeat promotion unchanged; integer state. Compare 60-day
+T3 then promotion against T2: population within 5% (minimum one person), deaths within
+2% of initial population (minimum one), household cash within 25% of opening cash,
+pantry kcal within 25% of opening kcal, live grudges within 20% (minimum one).
+These deliberately coarse bands are acceptance proposals, not measured results.
+Report observed distributions and failures, including zero-event controls. Run the
+2e 2,840-person fixture with saved T3 policy, retaining its 900-minute far roads
+(and explicitly configure the entry radius below those roads for that reproduction).
+Report actual owner counts, warmup, monthly cost, heap before serialization, packed
+and gzip World sizes. Radius/cap frontier includes 150/250/400 hourly targets, noting
+whole-site rounding and dependency pins; derive the remaining microseconds per
+T0/T1 actor-hour needed for a 5 ms/h total budget. No phone or release claim follows
+from a relative speedup.
+
+### Implemented policy and execution
+
+T3 requires an explicit host call to `configureDormancy`; unconfigured regional and
+single-site worlds keep their existing owners and acquire no dormant state. The enabled
+policy defaults to a 24-hour entry distance. Automatic admission is withheld because
+the whole-town livelihood gate fails. Saved policy
+also controls the 20-hour exit distance, dwell, hourly radius/cap and aggregate
+opportunity rates. Whole-site dependency exclusions and relevance override distance.
+Newborns inherit their settlement's dormant ownership, so a birth does not spuriously
+wake 200 neighbors. Promotion settles **all** outstanding dormant sites before allocating
+memories or handing one site back to T2/T1. Event hours are ordered across settlements;
+finishing one whole settlement first was rejected by the partial-day restore test.
+The aggregate saves entry affection/trust and existing-grudge dispositions for local
+acquaintances. These frozen inputs keep a visit that hydrates a neighbor's minds from
+changing that still-dormant settlement's later marriage, debt or feud opportunities.
+They are not a substitute T2 social executor. Opportunity-rate changes must follow a
+flush of the outstanding interval; callers must not apply new rates retroactively.
+
+The monthly outer batch uses canonical daily food/demographic opportunities and
+six-hour storage-temperature bins. Food accounting uses one scheduled day's energy
+at noon and the existing meal/preparation kernel, including fractional servings,
+protein/fat/freshness, fuel, cookware and water; it is an aggregate maintenance model,
+not a claim of T1 meal-time/need parity. Preparation completes at its original dated
+completion, and the saved half-open cursor prevents replay of that meal after promotion.
+Production uses only existing content's productive schedule slots and yield/check
+kernel. There is **no invented farm harvest** where authored activities have no yields.
+Produced and consumed kcal are accounting totals; actual item stacks remain authoritative.
+Famine runs the existing deprivation/Fortitude/care executor over the exceptional day's
+checks, with canonical RNG hours and consequences dated at the completed day boundary.
+It does not run hourly psyche, encounters, belief diffusion or provisioning decisions.
+
+Minds remain in their owning slices. Hydration uses the existing integer memory/opinion
+upkeep (bounded at the 1,001-step fixed point of 0..1000 monotone decay), exact elapsed
+linear thought decay, and owner need deltas for unattended wants. Standing and other
+baseline/recovery wants use the bounded integer recurrence to its fixed point, rather
+than multiplying a single hourly delta by elapsed time. Maintained rest,
+thirst and warmth are frozen assumptions; aggregate meals settle hunger. This is **not
+an exact closed-form solution of all physiology**, and needs-equivalence is not claimed.
+Durable facts carry cause keys, dates, chance inputs/draws, notice/absence/ledger trace
+addresses and hydration receipts. Witness memories and debt/quarrel beliefs use owner
+APIs; their caps still apply. Settlement news appears only while present, or through an
+explicit omniscient API. Knowing a road does not reveal births or debts at its far end.
+
+Births install full, persistent sheets through a scoped foundation hook, with content
+name pools and canonical world-seed/cause IDs in a separate numeric band; collisions
+fail explicitly. Existing sheets, inventories and minds are not reinitialized. This is
+a maternal identity/template bridge, **not a validated inheritance/fertility model**.
+Marriages require adult courtship eligibility, mutual affection and agency. Moves are
+limited to joining a spouse's household **within the same settlement**; cross-settlement
+migration still needs the transfer/travel contract excluded by 2d. Existing affordable
+debts can be repaid through the money/ledger APIs. An insolvency/default fact preserves
+an unpaid claim; it does not forgive it or mint money. New lending, aggregate markets,
+wholesale freight and wage negotiation are not implemented in T3.
+
+Temporary, disjoint settlement inventory tables keep the ordinary food kernels from
+reindexing the whole county after every created stack. They share authoritative objects
+and counters and reconcile new/deleted stacks once at the end; they are never saved.
+The first unscoped monthly benchmark took 377.426 seconds. Scoping reduced subsequent
+runs to roughly 15–16 seconds. The monthly component remains material and is included
+separately below, rather than being hidden behind a three-day timing window.
+
+### Calibration: three generated towns, a full year each at T1 and T2
+
+Tracked reproduction: `packages/cli/test/bench/region-dormant-calibration.ts <output> T1`
+and the same command with `T2`, using `node --import tsx`. Seeds 7/42/131, 365 days.
+T2 calibration deliberately forces the unchanged daily owner kernel over the generated
+town; it omits the global Chronicle/LOD admission loop. It is an owner-rate calibration,
+not proof that all these towns naturally qualify for T2. Monthly snapshots retain food,
+cash, population and grudge observations, plus 14-day intake/burn samples. Pantry totals
+below include stores and carried food as well as household pantries.
+
+| Seed | Initial population → T1 / T2 year end | Deaths T1 / T2 | Household cash cents T1 / T2 | Pantry kcal T1 / T2 | Positive-intensity grudges, initial → T1 / T2 |
+| --- | --- | --- | --- | --- | --- |
+| 7 | 24 → 24 / 24 | 0 / 0 | 0 / 0 | 8,863,076 / 8,051,422 | 2 → 76 / 59 |
+| 42 | 27 → 27 / 27 | 0 / 0 | 0 / 174 | 8,789,515 / 8,222,007 | 2 → 94 / 73 |
+| 131 | 28 → 28 / 28 | 0 / 0 | 54 / 0 | 8,695,189 / 7,914,461 | 2 → 79 / 100 |
+
+Mean sampled daily intake is 2,415–2,435 kcal at T1 and 2,384–2,431 at T2;
+full-day burn is 2,205–2,216 and 2,168–2,190 respectively. T3 retains the owner
+schedule/physiology energy calculation rather than adding a fitted calorie multiplier.
+The mean T2 net grudge-stock growth is 2.835 per initial resident-year; the first T3
+prior rounds this to **2.8 feud opportunities per eligible adult-year**, targeting
+existing local acquaintances. This is a stock-growth proxy, not a directly measured
+formation hazard; the 60-day grudge distribution gate below remains decisive.
+
+Birth/background-death rates cannot be estimated from T1/T2: those processes are absent.
+The initial demographic priors are 190 births per 1,000 eligible women aged 20–44/year,
+20 background deaths per 1,000 people/year, 20 marriage opportunities per 1,000 eligible
+adults/year and 30 household-move opportunities per 1,000 eligible adults/year. They
+are recorded model assumptions, not measured Wisconsin rates. Births are spaced at
+least 300 days per mother. The birth prior is loosely anchored to the historical 1850
+estimate of 194 births per 1,000 women aged 15–49 in the historical series
+([Historical Statistics, Ab40–51](https://hsus.cambridge.org/HSUSWeb/toc/treeTablePathIdAb40-51.html));
+the death prior lies between contemporary aggregate comparisons in the
+[1850 Census mortality discussion](https://www2.census.gov/prod2/decennial/documents/1850c-04.pdf).
+The different age coverage and historical population coverage prevent treating either
+as a fitted county rate. Marriage/move priors are provisional. No rule branches on a
+literal people ID. Canonical person/day draws use the census stream; visits cannot
+reroll committed history. Future active simulation after an earlier visit can diverge.
+
+
+### Gate results: determinism, persistence and 60-day promotion
+
+The eight integration tests in `packages/cli/test/region-dormant.test.ts` cover forced
+birth/marriage and full child slices, retained T3 ownership after a birth, 50-seed
+reversed settlement contact, partial-day restore, 50-seed differing hydration times, repeat settlement/promotion, frozen
+minds, disjoint owners, pin promotion, the 20–24-hour hysteresis band, invalid cursor
+rejection, unconfigured-world T2 preservation and distant news privacy. The 50-seed comparison hashes the **complete World**,
+not just names. Contact permutations are compared at the same canonical time; this is
+not a promise that visiting earlier and running an active settlement for weeks produces
+the same future as leaving it dormant.
+
+| Gate | Observed result |
+| --- | --- |
+| 50 seeds, two settlements, reversed contact after 60 days | 50/50 complete-state hashes identical; identities retained |
+| 50 seeds, hydrate minds early versus only at final contact | Identical saved state except observation-time band-change log ordering; future marriage facts identical |
+| Save/restore at day 31 + 14 hours, continue to day 61 | Identical to uninterrupted settlement, including event IDs |
+| Repeated settlement and repeated promotion at the same boundary | Complete-state hash unchanged; no second meal or fact hydration |
+| Integer state | Zero violations in the identity and fidelity fixtures |
+| Hourly exclusion / ownership | Dormant minds and household stacks untouched across eight hourly steps; owners disjoint |
+| Entry/exit safeguards | Pinned site wakes; 1,300-minute distance retains T3; 1,200 minutes exits; invalid future cursor rejected |
+
+Promotion reproduction: `node --import tsx packages/cli/test/bench/region-dormant-fidelity.ts
+<output> 50 ample` (omit `ample` for the ordinary short-pantry fixture). Seeds 1–50,
+60 elapsed days, then promotion. This isolates one remote two-adult farm's owner;
+it does not simulate the occupied Iron Ford actors. The T2 control is the unchanged
+2e daily executor. This is a small settlement/control gate, **not** representative
+dense-town, winter, cross-settlement market or migration validation.
+
+| Ample-pantry metric | T2 mean | T3 mean | Largest paired gap | Declared band | Failures / 50 |
+| --- | ---: | ---: | ---: | --- | ---: |
+| Living population | 2.00 | 2.02 | 1 | 5%, minimum 1 person | 0 |
+| Deaths among original residents | 0.00 | 0.02 | 1 | 2% of opening population, minimum 1 | 0 |
+| Household cash, cents | 2,500 | 2,500 | 0 | 625 cents (25% opening) | 0 |
+| Pantry kcal | 676,719 | 701,556 | 99,254 | 259,000 kcal (25% opening) | 0 |
+| Positive-intensity grudges | 0.68 | 0.80 | 4 | 20% of T2 count, minimum 1 | **13** |
+
+**The paired grudge-distribution gate FAILS.** Matching an average does not establish
+seed-level fidelity, and its declared band was not widened after measurement. Counts
+include positive-intensity grudges held by deceased original residents, matching the
+calibration stock measure; they are not a count of living hostile people. Children and
+background deaths are T3-only processes, so small population differences are expected.
+This control does not measure inheritance quality or demographic lifetime balance.
+
+The original short pantry opens with 129,500 kcal versus 1,036,000 in the ample variant.
+By day 60 both T2 and T3 have zero original survivors and empty pantries for all 50 seeds:
+a useful famine consistency check, **not** evidence of sustainable balance. Cash means
+are 2,454 versus 2,500 cents, maximum gap 250 within the 625-cent band. Grudge means are
+0.68 versus 0.76, maximum gap four, again 13/50 failures. Population, original-resident
+death, cash and pantry bands pass all 50 pairs in both variants. Mean isolated owner
+cost is 0.9083 vs 0.00477 ms/game-hour with ample food, and 0.5541 vs 0.00482 with the
+short pantry; these tiny-fixture component timings must not be extrapolated to county
+throughput. Both runs have zero integer-state violations.
+
+Legacy hashes were captured before implementation and compared afterward. No golden
+or snapshot was refreshed:
+
+| World | Seed | Hours | Baseline = final hash |
+| --- | ---: | ---: | --- |
+| Iron Ford | 42 | 240 | `f2557fd17adff297` |
+| gen:town | 7 | 72 | `4b030f0160601229` |
+| gen:town | 42 | 72 | `54baf667e53299a1` |
+| gen:town | 131 | 72 | `6640fdceed29a42e` |
+
+Raw artifacts: `runs/scratch/t3-gate-final-{ample,short}.json`, `t3-town-final.json`,
+`t3-legacy.json`,
+`t3-calibration.json`, `t3-calibration-t2.json`, `t3-final-focused.log`. These are
+local, gitignored measurements; the reproducible harnesses and this report are tracked.
+
+
+### Whole-town livelihood gate: FAIL — do not enable automatically
+
+The same three generated towns used for year calibration were compared for 60 days
+under forced isolated T2 and T3 owners, then T3 was promoted. This bypasses LOD admission
+and the occupied-site/Chronicle loop, exactly as the T2 year calibration does; it tests
+the entire settlement's livelihood rather than just a two-person household. Reproduce
+with `node --import tsx packages/cli/test/bench/region-dormant-town-fidelity.ts <output>`.
+All fidelity harnesses share `region-dormant-bands.ts` and return exit code **1** when
+any declared band fails. These expected manual failures are separate from `just check`.
+
+| Seed | Living population T2 / T3 | Deaths T2 / T3 | Household cash cents T2 / T3 | All food kcal T2 / T3 | Grudges T2 / T3 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 7 | 24 / 0 | 0 / 24 | 2,341 / 10,115 | 9,300,436 / 3,103,480 | 6 / 7 |
+| 42 | 27 / 0 | 0 / 27 | 4,623 / 12,877 | 9,087,286 / 3,103,480 | 7 / 9 |
+| 131 | 28 / 2 | 0 / 28 | 4,753 / 13,385 | 9,238,141 / 3,103,480 | 8 / 5 |
+
+Population, mortality, cash and pantry bands fail **3/3** towns; grudge counts fail
+**2/3**. Zero integer errors. Seed 131's surviving population consists of two births;
+all original residents died. T3 preserves their identities and deaths, but this is a
+severe livelihood-model failure, not plausible demographic noise or successful catch-up.
+The food total includes merchant stocks: remaining settlement kcal do not imply that
+households can obtain or prepare them. T3 lacks the buying, restocking and responsive
+livelihood routines that sustain these towns at T2. Scheduled production alone does not
+reproduce the calibrated household economy. Matching the tiny farm fixture's famine
+must not be used to conceal this discrepancy.
+
+Consequently **this implementation is an opt-in prototype, not a validated county
+simulation**. `configureDormancy` enables the saved policy explicitly; mere distance
+does not activate T3 in existing or newly loaded worlds. The next livelihood slice
+needs a deterministic aggregate supply/trade contract through provisions, retaining
+finite stock, prices, affordability/credit, preparation resources and actual seasonal
+production. It must close these town bands before automatic enablement. Substituting
+unexplained food/cash corrections, widening bands after seeing these results, or
+silently falling back to an hourly T2 town would hide the problem.
+
+
+### Scale frontier: unchanged 2,840-person county, T3 explicitly on
+
+Reproduction: `node --expose-gc --import tsx
+packages/cli/test/bench/region-dormant-scale.ts <output> <cap> [seed=41]`.
+Same 2e fixture: fourteen settlements × 100 two-adult households plus 40 Iron Ford
+actors. Node v26.11.1, shared/contended desktop-proxy host; fresh process for each row,
+48-hour warmup including the full demotion grace, then 24 measured full-world hours.
+Keep the original 300-minute near and 900-minute far roads. For this synthetic county,
+configure entry **600 minutes**, exit **480**, zero extra T3 dwell and hourly radius
+**360 minutes**. The default >24-hour policy would not make its 15-hour spokes dormant.
+All actor identities and the complete county remain present.
+
+The additional monthly column measures only T3: first flush the unfinished warmup
+prefix, then advance the dormant owner exactly **30 further days** while active sites
+are frozen. Divide this component by 720 hours. It is not a full-month county run,
+and excludes contact-time mind hydration. The combined estimate sums separately
+measured components; it is not a measured month-long throughput claim. The short
+farm larders also make famine checks part of this component workload.
+
+| Requested T1 soft cap (6 h radius) | Actual T0 / T1 / T2 / T3 | Full-world ms/h, measured day | 30-day T3 batch, seconds | T3 amortized ms/h | Combined component estimate ms/h |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 150 | 40 / 200 / 200 / 2400 | 262.34 | 13.956 | 19.38 | 281.72 |
+| 250 | 40 / 400 / 0 / 2400 | 258.24 | 14.196 | 19.72 | 277.95 |
+| 400 | 40 / 400 / 0 / 2400 | 258.00 | 13.887 | 19.29 | 277.29 |
+| 400, seed 42 check | 40 / 600 / 0 / 2,200 | 364.79 | 12.769 | 17.74 | 382.53 |
+
+The cap is soft: a settlement cannot split its pantry/encounter ownership. Requested
+150 becomes 200 T1; 250 and 400 both become 400. Seed 42 keeps another 200 residents
+hourly under the eligibility exclusions. Radius/cap settings do not override relevant
+people or unresolved dependencies. At cap 150 the unchanged T2 boundary accounts for
+108.67 ms/h; caps 250/400 have about 2 ms/h outside scheduled hourly systems. This is
+why moving one near settlement from T1 to the faithful T2 batch does not buy speed.
+The older 2e benchmark reported roughly 1,607 ms/h with distant T2; these new rows are
+unpaired measurements, not a controlled percentage-speedup experiment.
+
+| Requested cap / seed | Post-GC process heap, MB | Packed World, MB | Gzip World, MB | Heap immediately after monthly pass, MB |
+| --- | ---: | ---: | ---: | ---: |
+| 150 / 41 | 492.37 | 59.35 | 12.41 | 1062.89 |
+| 250 / 41 | 491.99 | 59.35 | 12.36 | 1081.76 |
+| 400 / 41 | 490.71 | 59.35 | 12.36 | 1096.52 |
+| 400 / 42 | 530.21 | 64.36 | 13.48 | 1135.11 |
+
+Heap is measured before serialization and includes the content/runtime process; it
+still exceeds the 120 MB worker proxy by roughly fourfold. The after-pass column is
+**not** an observed high-water mark. Packed/gzip sizes are day-three World snapshots,
+not complete PlaySession/generated-content saves or a long-run retention result.
+Their 12.36–13.48 MB compressed size fits the 15 MB World-only ceiling in this window;
+phone/browser resume, worker yields and full save sizes remain unmeasured. The batch
+can block for roughly fourteen seconds. These measurements do not establish release
+readiness even though most identities are dormant.
+
+### Required hourly cost for the 5 ms/game-hour proxy
+
+Let `R` be T2 + T3 + global overhead in ms/game-hour. The necessary active-actor
+budget is **(5 − R) / (40 + actual T1)** ms/actor-hour. The measured T3 component alone
+is 17.7–19.7 ms/h, so **no nonnegative T0/T1 cost meets 5 ms/h with today's residual**.
+T3 livelihood/kernel work must also become cheaper; cap 150 additionally retains the
+expensive faithful T2 settlement.
+
+| Requested T1 cap | Ideal ceiling with exactly that cap and all other work free | Ceiling using actual whole-site T1 count and all other work free | Conditional target with 1 ms/h reserved for all other work |
+| --- | ---: | ---: | ---: |
+| 150 | 26.3 µs/actor-hour (190 actors) | 20.8 µs (240 actors) | 16.7 µs |
+| 250 | 17.2 µs (290 actors) | 11.4 µs (440 actors) | 9.1 µs |
+| 400 | 11.4 µs (440 actors) | 11.4 µs (440 actors) | 9.1 µs |
+| 400, seed 42 exclusions | — | 7.8 µs (640 actors) | 6.25 µs |
+
+The final column is an engineering allocation, **not achieved residual performance**.
+The scheduled-system quotient is currently roughly 0.58–0.64 ms per hourly actor at
+seed 41, including shared work. Even the zero-overhead ceilings therefore imply
+roughly a 30–50× reduction of that quotient, plus a separate reduction of T3/T2/global
+cost. Count caps alone cannot meet the proxy.
+
+An instrumented monthly component sampled 12,981 ms under `settleDormantSites` during
+a 13,984 ms batch. Meal/recipe/member/kitchen work dominates; named samples include
+`membersOf` 7.94%, `kitchenOf` 4.99%, `idsOf` 4.38%, `deepSnapshot` 4.32%,
+`appendStacksDeep` 2.93%, and `usableCareFood` 2.57%. Transpiler/native frames carry
+substantial unattributed cost, so this is diagnostic evidence rather than precise
+production-browser attribution. GC outside the T3 call tree is excluded. Raw profile:
+`runs/scratch/t3-monthly.cpuprofile`; summary: `t3-profile-summary.json`; reproduction
+scratch adapter: `t3-profile.ts`. Uninstrumented frontier artifacts:
+`runs/scratch/t3-frontier-release-{150,250,400,400-seed42}.json`.
+
+### Files and handoff
+
+Core implementation: `region/{dormant-state,dormant,events,state,processing,coarse,lod,
+system,census,evidence,view,api}.ts`; `sim/population.ts`; `events/index.ts`.
+Owner adapters: `activity/dormant.ts`, `needs/dormant.ts`, `provisions/dormant.ts`,
+`psyche/dormant.ts`, `social/dormant.ts` and their `api.ts` exports;
+`activity/production.ts` accepts an optional actor subset; `items/api.ts` supplies
+the temporary settlement inventory facade. No content, dependencies or golden files
+changed. Exported contracts and view shapes are additive; `MODULES.md` records them.
+
+Validation/reproduction: `packages/cli/test/region-dormant.test.ts`;
+`packages/cli/test/bench/region-dormant-{bands,calibration,fidelity,town-fidelity,scale}.ts`;
+existing `bench/region-scale.ts` now reports T3 counts. Measurement artifacts stay under
+`runs/scratch/`, outside version control. Work remains on `wave10/m5-t3`; no commits.
+
+Open acceptance work is substantive: aggregate household supply/trade and demographic
+calibration beyond three towns, failed paired grudge distributions, full physiology
+fidelity rather than maintained-rest/thirst/warmth assumptions, inter-settlement moves,
+bounded worker execution, and heap/save compaction. The next hourly speedup has the
+microsecond targets above, but it cannot by itself close the county budget. Keep the
+prototype explicitly enabled only in experiments until the livelihood gate closes.
+
+**Final repository gate GREEN:** `VITEST_MAX_WORKERS=2 just check` completed with
+89 test files / **953 tests**, all package/script typechecks, 269 invariant-checked
+core files and 115 validated content files; Vitest duration 761.96 seconds. The Iron
+Ford golden passed unchanged. Log: `runs/scratch/t3-check-complete.log`. Final manual
+harness/report additions also passed the CLI typecheck and repository Biome check
+(458 files); `git diff --check` is clean. Direct legacy comparisons were repeated on
+the final runtime (`t3-legacy-final.log`), with all four hashes unchanged. This green
+software gate does **not** override the explicitly failed fidelity and scale gates.

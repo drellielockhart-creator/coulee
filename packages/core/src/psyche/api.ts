@@ -181,4 +181,5 @@ export function arbitrateShortCommand(world: World, ctx: SimContext, actorId: Ac
   psycheHour(world, ctx, actorId, undefined, minutes);
 }
 
+export { dormantThoughtDecay } from './dormant.ts';
 export { psycheSystem as regionPsycheHour } from './system.ts';

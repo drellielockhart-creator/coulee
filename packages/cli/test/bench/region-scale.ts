@@ -69,7 +69,7 @@ for (let pair = 0; pair < pairs; pair++) {
     // Absolute post-GC process heap, before serialization. A per-iteration delta can
     // subtract the preceding world's still-live heap and falsely suggest a tiny T2 world.
     const heapMB = process.memoryUsage().heapUsed / 1e6;
-    const counts = { T0: 0, T1: 0, T2: 0 };
+    const counts = { T0: 0, T1: 0, T2: 0, T3: 0 };
     for (const a of Object.values(required(required(sim.world.region).lod).actors)) counts[a.processing]++;
     const packed = JSON.stringify(packJson(sim.world));
     const totalProfile = [...profileCosts.values()].reduce((a, b) => a + b, 0);

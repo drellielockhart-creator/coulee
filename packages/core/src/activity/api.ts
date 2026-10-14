@@ -482,3 +482,19 @@ export function clearMinuteBudget(world: World, actorId: ActorId): void {
 }
 
 export { activitySystem as regionActivityHour } from './system.ts';
+
+/** Resume a settled local routine after dormancy; no travel/short-act time is fabricated. */
+export function resumeDormantActor(world: World, actorId: ActorId, now: import('../time.ts').GameMinute): void {
+  const actor = world.actors[actorId];
+  const state = world.activity.byActor[actorId];
+  const home = actor && world.households[actor.householdId]?.homePlaceId;
+  if (!actor || !state || home === undefined) return;
+  actor.placeId = home;
+  state.placeId = home;
+  state.activityId = 'idle_at_home';
+  state.since = now;
+  state.lockedUntil = null;
+  state.travel = null;
+  if (world.activity.minuteBudgets) delete world.activity.minuteBudgets[actorId];
+}
+export { dormantProduction } from './dormant.ts';

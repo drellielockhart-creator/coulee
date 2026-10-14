@@ -122,7 +122,8 @@ export function selectRegionTiers(world: World): void {
     candidates.push({
       id,
       live,
-      nearby: distance !== null && distance <= LOD_POLICY.radiusMinutes,
+      nearby:
+        distance !== null && distance <= (world.region.dormant?.policy.hourlyRadiusMinutes ?? LOD_POLICY.radiusMinutes),
       row: {
         selected: 'T1',
         processing: lod.actors[id]?.processing ?? (live ? 'T0' : 'T1'),
@@ -142,7 +143,10 @@ export function selectRegionTiers(world: World): void {
   );
   let selectedHourly = candidates.filter((c) => c.row.pinned && !c.live).length;
   for (const c of candidates) {
-    const wanted = c.row.pinned || ((c.nearby || c.row.relevance > 0) && selectedHourly < LOD_POLICY.hourlySoftCap);
+    const wanted =
+      c.row.pinned ||
+      ((c.nearby || c.row.relevance > 0) &&
+        selectedHourly < (world.region.dormant?.policy.hourlySoftCap ?? LOD_POLICY.hourlySoftCap));
     if (c.live || wanted) {
       c.row.selected = c.live ? 'T0' : 'T1';
       c.row.belowSince = null;
