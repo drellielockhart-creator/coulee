@@ -143,8 +143,10 @@ export function boardMeal(world: World, ctx: SimContext, actorId: ActorId): bool
   const actor = world.actors[actorId];
   if (!actor?.alive) return false;
   const service = serviceAt(world, ctx.content, actor.placeId);
+  // No meal service, no host scan (keeperAt walks every actor).
+  if (service?.meal_cents === undefined) return false;
   const keeper = keeperAt(world, ctx.content, actor.placeId);
-  if (!keeper || service?.meal_cents === undefined || !storeOpen(world, ctx.content, actor.placeId)) return false;
+  if (!keeper || !storeOpen(world, ctx.content, actor.placeId)) return false;
   if (world.provisions.nutrition[actorId]?.lastMealAt === ctx.now) return false;
   // The host household uses its ordinary scheduled meals, not a second boarding portion.
   if (keeper.householdId === actor.householdId || cashOf(world, actorId) < service.meal_cents) return false;

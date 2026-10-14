@@ -98,6 +98,16 @@ export const SHOPPING = {
   winterDays: 90,
   reserveCents: 100,
   reservePct: 15,
+  /**
+   * A household whose return to full rations was refused (household.ts `rationRestore`: the P8
+   * forecast at full rations fell short of RATION_RESTORE_DAYS) tops up toward a larder the same
+   * forecast would make last this many days at full rations, though its larder is above the
+   * trigger: otherwise the 21-day trigger and the 28-day target leave it on short rations with no
+   * errand that could restore them (2026-10-14). Kcal only: fat and fresh keep their own horizon.
+   */
+  restoreTopUpDays: 32,
+  /** The top-up never asks for more than this many days of full-ration need (raw kcal). */
+  restoreTopUpCapDays: 60,
 } as const;
 
 /** A storekeeper who shuns a customer (04 §9.2 rung 3): this percent of the shelf price, and no credit. */

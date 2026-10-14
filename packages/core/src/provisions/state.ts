@@ -102,6 +102,15 @@ export interface HouseholdProvisions {
     kcalPerDay: number;
     members: number;
   };
+  /**
+   * Why short rations stayed cut (2026-10-14): on `day` the forecast at the cut ration reached the
+   * restore threshold, but the forecast at full rations gave only `fullDaysTenths` days (tenths),
+   * from a larder of `larderKcal` (absent in saves before the top-up rule). It is kept while that
+   * decision's standing forecast stands, and cleared by the next day-start decision that actually
+   * forecasts, if it restores, cuts or stays below the threshold; and by a ration command. It sets
+   * the readout and the top-up errand (household.ts `restoreTopUpKcal`).
+   */
+  rationRestore?: { day: number; fullDaysTenths: number; larderKcal?: number };
 }
 
 export interface Store {

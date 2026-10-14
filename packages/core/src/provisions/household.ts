@@ -9,7 +9,7 @@ import type { World } from '../world.ts';
 import { larderKcal, replenishDomestic } from './economy.ts';
 import { mealExplain, membersOf } from './meals.ts';
 import { planReadiness } from './planner.ts';
-import { RATION_LEASE, RATION_RESTORE_DAYS, RATION_STEPS, SHORTAGE_NOTICE_DAYS } from './rules.ts';
+import { RATION_LEASE, RATION_RESTORE_DAYS, RATION_STEPS, SHOPPING, SHORTAGE_NOTICE_DAYS } from './rules.ts';
 
 /** Canonical day-start work. Exactly once in regional worlds, including save/load and promotion.
  * Both schedulers must use this entry point; the receipt checks the active household owner before drawing any stock. */
@@ -41,6 +41,7 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
   ) {
     // No decision is made today, so no forecast can stand for one.
     delete h.rationLease;
+    delete h.rationRestore;
     return;
   }
   // The ration decision only compares against its thresholds: at full rations the question is
@@ -67,11 +68,24 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
   const horizon = before >= 100 ? RATION_LEASE.horizonDays : RATION_RESTORE_DAYS + 1;
   const readiness = planReadiness(world, ctx.content, { householdId }, ctx.now, horizon, false);
   const step = RATION_STEPS.find((s) => readiness.daysOfFoodTenths < s.belowDays * 10);
-  const pct = step
-    ? Math.min(h.rationPct, step.pct)
-    : readiness.daysOfFoodTenths >= RATION_RESTORE_DAYS * 10
-      ? 100
-      : h.rationPct;
+  delete h.rationRestore;
+  let pct = step ? Math.min(h.rationPct, step.pct) : h.rationPct;
+  // A return to full rations is judged at full rations (Ellie, 2026-10-14): the larder must last
+  // the restore threshold eating full plates, or the household would be cut again within days.
+  // The forecast at the cut ration lasts at least as long, so it gates the second projection.
+  let restoreDaysTenths: number | undefined;
+  if (!step && before < 100 && readiness.daysOfFoodTenths >= RATION_RESTORE_DAYS * 10) {
+    const full = planReadiness(world, ctx.content, { householdId }, ctx.now, RATION_RESTORE_DAYS + 1, false, 100);
+    if (full.daysOfFoodTenths >= RATION_RESTORE_DAYS * 10) {
+      pct = 100;
+      restoreDaysTenths = full.daysOfFoodTenths;
+    } else
+      h.rationRestore = {
+        day,
+        fullDaysTenths: full.daysOfFoodTenths,
+        larderKcal: larderKcal(world, ctx, householdId),
+      };
+  }
   if (
     pct < h.rationPct ||
     (readiness.daysOfFoodTenths < SHORTAGE_NOTICE_DAYS * 10 && h.lastShortageDay !== ctx.cal.dayIndex)
@@ -101,14 +115,18 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
         'Full rations restored',
         members,
         pct,
-        [term('food', 'Days of food tenths', readiness.daysOfFoodTenths)],
+        [
+          term('food', 'Days of food at the cut ration, tenths', readiness.daysOfFoodTenths),
+          term('food', 'Days of food at full rations, tenths', restoreDaysTenths ?? 0),
+          term('policy', 'Days at full rations a restore needs', RATION_RESTORE_DAYS),
+        ],
         'restored',
       ),
     });
   h.rationPct = pct;
   h.shortageStep = pct === 100 ? 0 : pct === 90 ? 1 : pct === 75 ? 2 : 3;
-  // Only a forecast made at the ration it leaves in place can stand for it (a restore was judged
-  // at the cut ration). It stands no longer than the next cut, or the daily shortage notice, could
+  // Only a forecast that leaves the ration in place can stand for it (a restore never stands; a
+  // refused restore stands on the cut ration's forecast until the larder gains food). It stands no longer than the next cut, or the daily shortage notice, could
   // fall due even if the larder ran down at the guard's limit (guardPct of plan) every day:
   // D - spare x guardPct / 100 >= next cut + safety.
   const nextCut = Math.max(SHORTAGE_NOTICE_DAYS, ...RATION_STEPS.filter((s) => s.pct < pct).map((s) => s.belowDays));
@@ -132,3 +150,20 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
 
 /** Owner-scoped physical household pass: meals/preparation/storage, production and transfers. */
 export { provisionsSystem as householdProcessingHour } from './system.ts';
+
+/**
+ * A refused return to full rations is a shopping trigger. Its target is the larder (kcal, the
+ * same measure the errand and the buying step use) that the refusing forecast says would last
+ * `SHOPPING.restoreTopUpDays` at full rations: the larder then, scaled by what the P8 forecast
+ * made of it (raw kcal per forecast day), so food it cannot cook or keep is not counted twice.
+ * Capped at `restoreTopUpCapDays` of full-ration need. Undefined when no restore was refused.
+ */
+export function restoreTopUpKcal(world: World, householdId: HouseholdId, dailyKcal: number): number | undefined {
+  const h = world.provisions.households[householdId];
+  const refused = h && h.rationPct < 100 ? h.rationRestore : undefined;
+  if (!refused) return undefined;
+  const cap = dailyKcal * SHOPPING.restoreTopUpCapDays;
+  if (refused.larderKcal === undefined || refused.fullDaysTenths <= 0)
+    return Math.min(cap, dailyKcal * SHOPPING.restoreTopUpDays);
+  return Math.min(cap, Math.ceil((SHOPPING.restoreTopUpDays * refused.larderKcal * 10) / refused.fullDaysTenths));
+}

@@ -15,7 +15,7 @@ import type { SimContext } from '../sim/context.ts';
 import { addOpinionReason, areKin, debtOf, extendCredit, opinionOf, reliefRules } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { priceAt } from './api.ts';
-import { householdEconomyDay } from './household.ts';
+import { householdEconomyDay, restoreTopUpKcal } from './household.ts';
 import {
   dailyKcal,
   foodServings,
@@ -536,14 +536,19 @@ export function shoppingHour(world: World, ctx: SimContext): void {
       historyFat = history.reduce((n, d) => n + d.fatG, 0);
     const lowFat = history.length > 0 && historyFat * 900 < historyEnergy * targets.fat_recovery_pct;
     const lowFresh = members.some((id) => (world.provisions.nutrition[id]?.lowFreshDays ?? 0) > 0);
+    // A refused restore tops up the larder (raw kcal, the measure its target was set in) toward
+    // what the refusing forecast says would restore full rations; kcal only (household.ts).
+    const topUp = restoreTopUpKcal(world, household.id, need);
+    const topUpKcal = topUp === undefined ? 0 : Math.max(0, topUp - larderKcal(world, ctx, household.id));
     const missing: Diet = {
-      kcal: Math.max(0, daily.kcal * horizon.target - stored.kcal),
+      kcal: Math.max(0, daily.kcal * horizon.target - stored.kcal, topUpKcal),
       fatG: Math.max(0, daily.fatG * horizon.target - stored.fatG),
       proteinG: Math.max(0, daily.proteinG * horizon.target - stored.proteinG),
       freshPoints: Math.max(0, daily.freshPoints * horizon.target - stored.freshPoints),
     };
     if (
       stored.kcal >= daily.kcal * horizon.trigger &&
+      topUpKcal === 0 &&
       !lowFat &&
       !lowFresh &&
       stored.fatG >= daily.fatG * horizon.trigger &&
@@ -573,6 +578,7 @@ export function shoppingHour(world: World, ctx: SimContext): void {
       visibility: 'private',
       explain: mealExplain('Balanced provision order', members, missing.kcal, [
         term('time', 'Target days', horizon.target),
+        term('food', 'Top-up toward full rations, kcal', topUpKcal),
         term('need', 'Daily full energy kcal', need),
         term('nutrition', 'Fat target percent', targets.fat_recovery_pct),
         term('nutrition', 'Protein grams per thousand kcal', targets.protein_g_per_1000_kcal),

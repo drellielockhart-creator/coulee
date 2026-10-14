@@ -111,9 +111,18 @@ export function ensureCalendar(world: World, ctx: SimContext): void {
     for (let index = 0; index < def.blocks.length; index++) {
       const b = requiredRow(def.blocks, index);
       const candidates = idsOf<ActorId>(world.actors).filter((id) => eligible(world, ctx, id, b.who));
-      if (b.who.rota)
+      if (b.who.rota) {
+        // Candidates grouped by household once (ascending ids kept), not filtered per household.
+        const byHousehold = new Map<number, ActorId[]>();
+        for (const id of candidates) {
+          const hid = world.actors[id]?.householdId;
+          if (hid === undefined) continue;
+          const list = byHousehold.get(hid);
+          if (list) list.push(id);
+          else byHousehold.set(hid, [id]);
+        }
         for (const hid of idsOf<HouseholdId>(world.households)) {
-          const members = candidates.filter((id) => world.actors[id]?.householdId === hid);
+          const members = byHousehold.get(hid) ?? [];
           const selected = ctx
             .rng('activity', mixKey(hid, ctx.cal.dayIndex, hashString32(key), index, 0x726f7461))
             .pick(members);
@@ -136,6 +145,7 @@ export function ensureCalendar(world: World, ctx: SimContext): void {
             });
           }
         }
+      }
       for (const id of candidates) {
         if (b.who.rota && calendar.rotas[`${key}:${index}:${requiredRow(world.actors, id).householdId}`] !== id)
           continue;

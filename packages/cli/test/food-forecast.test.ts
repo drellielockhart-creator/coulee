@@ -8,10 +8,12 @@ import { describe, expect, it } from 'vitest';
 import { asHouseholdId, type HouseholdId } from '../../core/src/ids.ts';
 import { deleteStack, pantryOf, stacksDeep, withInventoryPass } from '../../core/src/items/api.ts';
 import { newStack } from '../../core/src/items/state.ts';
+import { applyRations, proposeProvisionUrges } from '../../core/src/provisions/api.ts';
+import { restoreTopUpKcal } from '../../core/src/provisions/household.ts';
 import { holderStacks } from '../../core/src/provisions/meals.ts';
 import { planReadiness } from '../../core/src/provisions/planner.ts';
-import { RATION_LEASE, RATION_RESTORE_DAYS, RATION_STEPS } from '../../core/src/provisions/rules.ts';
-import { runHours, type Sim } from '../../core/src/sim/sim.ts';
+import { RATION_LEASE, RATION_RESTORE_DAYS, RATION_STEPS, SHOPPING } from '../../core/src/provisions/rules.ts';
+import { makeContext, runHours, type Sim } from '../../core/src/sim/sim.ts';
 import { simFor } from './helpers.ts';
 
 /** A household of more than one member at a roofed home (a house). */
@@ -109,6 +111,121 @@ describe('food forecast: household ration decisions', () => {
     runHours(sim, 24);
     expect(h.rationPct).toBe(100);
     expect(w.log.events.some((e) => e.kind === 'provisions.rations' && e.data.householdId === hid)).toBe(true);
+  });
+
+  // Ellie, 2026-10-14: short rations go back to full only if the larder lasts the restore
+  // threshold at FULL rations; judged at the cut ration, a restored household was cut again.
+  describe('a return to full rations is judged at full rations', () => {
+    const setup = () => {
+      const sim = simFor({ seed: 42, hours: 24 });
+      const w = sim.world;
+      w.provisions.settings.npcBuying = false;
+      const hid = household(sim);
+      const h = w.provisions.households[hid];
+      if (!h) throw new Error('household');
+      h.rationPct = 75;
+      h.shortageStep = 2;
+      const forecast = (qty: number, ration?: number) => {
+        stockPantry(sim, hid, { hardtack: qty });
+        return withInventoryPass(w, () =>
+          planReadiness(w, sim.content, { householdId: hid }, w.time, RATION_RESTORE_DAYS + 1, false, ration),
+        ).daysOfFoodTenths;
+      };
+      return { sim, w, hid, h, forecast };
+    };
+
+    it('a larder that covers the restore horizon at 75% but not at full rations stays at 75%', () => {
+      const { sim, w, hid, h, forecast } = setup();
+      let qty = 10;
+      while (forecast(qty) < RATION_RESTORE_DAYS * 10 + 5) qty += 5;
+      const full = forecast(qty, 100);
+      expect(full).toBeLessThan(RATION_RESTORE_DAYS * 10 - 5);
+      expect(forecast(qty)).toBeGreaterThanOrEqual(RATION_RESTORE_DAYS * 10);
+      const start = w.log.lastId;
+      runHours(sim, 1); // day 1, hour 0
+      expect(h.rationPct).toBe(75);
+      expect(h.rationRestore).toMatchObject({ day: 1 });
+      expect(h.rationRestore?.fullDaysTenths).toBeLessThan(RATION_RESTORE_DAYS * 10);
+      expect(
+        w.log.events.some((e) => e.id > start && e.kind === 'provisions.rations' && e.data.householdId === hid),
+      ).toBe(false);
+      // The readout says why rations stayed cut, with the full-ration forecast's figure (P1).
+      const r = withInventoryPass(w, () => planReadiness(w, sim.content, { householdId: hid }, w.time, 30, true));
+      expect(r.rations?.pct).toBe(75);
+      expect(
+        r.rations?.explain.terms.some(
+          (t) => t.label === 'Days of food at full rations then, tenths' && t.value === h.rationRestore?.fullDaysTenths,
+        ),
+      ).toBe(true);
+      expect(r.warnings.some((line) => line.includes('Rations stay at 75%') && line.includes('at full rations'))).toBe(
+        true,
+      );
+      // The refused restore is a shopping trigger: in store hours the head is sent to top up,
+      // though the larder is above the ordinary 21-day trigger.
+      runHours(sim, 9);
+      expect(h.rationRestore).toBeDefined();
+      const head = w.households[hid]?.headId;
+      if (head === undefined) throw new Error('head');
+      w.provisions.settings.npcBuying = true;
+      const urges = proposeProvisionUrges(w, makeContext(w, sim.content, []), head);
+      expect(urges.some((u) => u.label.startsWith('Rations stay short until the larder lasts at full rations'))).toBe(
+        true,
+      );
+    });
+
+    it('the top-up target is set in the larder kcal the refusing forecast made too few days of', () => {
+      const { w, hid, h } = setup();
+      const daily = 5000;
+      // A forecast that made 15.0 days of a 60,000 kcal larder: 32 forecast days need 60,000 x 32 / 15 kcal.
+      h.rationRestore = { day: 1, fullDaysTenths: 150, larderKcal: 60_000 };
+      expect(restoreTopUpKcal(w, hid, daily)).toBe(Math.ceil((SHOPPING.restoreTopUpDays * 60_000 * 10) / 150));
+      // Capped at restoreTopUpCapDays of need, and nothing once the household is back on full rations.
+      h.rationRestore = { day: 1, fullDaysTenths: 10, larderKcal: 600_000 };
+      expect(restoreTopUpKcal(w, hid, daily)).toBe(daily * SHOPPING.restoreTopUpCapDays);
+      h.rationPct = 100;
+      expect(restoreTopUpKcal(w, hid, daily)).toBeUndefined();
+    });
+
+    it('a ration the household sets itself clears the standing forecast and the refused restore', () => {
+      const { w, hid, h } = setup();
+      h.rationRestore = { day: 1, fullDaysTenths: 250, larderKcal: 100_000 };
+      h.rationLease = {
+        day: 1,
+        untilDay: 5,
+        pct: 75,
+        daysTenths: 310,
+        larderKcal: 100_000,
+        kcalPerDay: 4000,
+        members: 2,
+      };
+      const head = w.households[hid]?.headId;
+      if (head === undefined) throw new Error('head');
+      expect(applyRations(w, head, hid, 90)).toBeNull();
+      expect(h.rationPct).toBe(90);
+      expect(h.rationRestore).toBeUndefined();
+      expect(h.rationLease).toBeUndefined();
+    });
+
+    it('a larder that covers the restore horizon at full rations is restored and not cut the next day', () => {
+      const { sim, w, hid, h, forecast } = setup();
+      let qty = 10;
+      while (forecast(qty, 100) < RATION_RESTORE_DAYS * 10 + 5) qty += 5;
+      const start = w.log.lastId;
+      runHours(sim, 1); // day 1, hour 0
+      expect(h.rationPct).toBe(100);
+      expect(h.rationRestore).toBeUndefined();
+      const restored = w.log.events.find(
+        (e) => e.id > start && e.kind === 'provisions.rations' && e.data.householdId === hid,
+      );
+      expect(
+        restored?.explain?.terms.find((t) => t.label === 'Days of food at full rations, tenths')?.value,
+      ).toBeGreaterThanOrEqual(RATION_RESTORE_DAYS * 10);
+      runHours(sim, 24); // day 2, hour 0
+      expect(h.rationPct).toBe(100);
+      expect(
+        w.log.events.some((e) => e.id > start && e.kind === 'provisions.shortage' && e.data.householdId === hid),
+      ).toBe(false);
+    });
   });
 
   it('a bedridden member does not make a full larder look empty', () => {

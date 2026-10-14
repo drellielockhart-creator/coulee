@@ -262,7 +262,12 @@ export function executeProvisionCommands(world: World, ctx: SimContext): Set<Act
             break;
           }
           const h = world.provisions.households[hid];
-          if (h) h.rationPct = cmd.data.rationPct;
+          if (h) {
+            // A set ration is the household's own decision: no forecast stands for it.
+            h.rationPct = cmd.data.rationPct;
+            delete h.rationLease;
+            delete h.rationRestore;
+          }
         } else {
           const n = world.provisions.nutrition[actor.id];
           if (n) n.rationPct = cmd.data.rationPct;

@@ -42,10 +42,7 @@ export function prepareTacticalNeeds(w: World, ctx: SimContext, actors?: ActorId
     const before = { ...n.values };
     f.rates[id] = {};
     f.activeRates[id] = {};
-    const activeWorld = {
-      ...w,
-      activity: { ...w.activity, byActor: { ...w.activity.byActor, [id]: { ...activity, activityId: 'walk' } } },
-    };
+    const walking = { ...activity, activityId: 'walk' };
     for (const key of sortedKeys(ctx.content.needs)) {
       const rest = f.rates[id],
         active = f.activeRates[id];
@@ -63,7 +60,7 @@ export function prepareTacticalNeeds(w: World, ctx: SimContext, actors?: ActorId
         ).delta;
       if (active)
         active[key] = hourlyLedger(
-          activeWorld,
+          w,
           ctx.content,
           id,
           key,
@@ -72,6 +69,8 @@ export function prepareTacticalNeeds(w: World, ctx: SimContext, actors?: ActorId
           before,
           inventory,
           false,
+          false,
+          walking,
         ).delta;
     }
   }

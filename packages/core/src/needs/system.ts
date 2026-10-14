@@ -1,5 +1,5 @@
 /** Hourly physiology settles the minutes actually performed in the closing hour. */
-import { isAsleep, laborOf, recomputeOccupancy } from '../activity/api.ts';
+import { type ActorActivity, asleepDoing, laborDoing, recomputeOccupancy } from '../activity/api.ts';
 import { requiredRow } from '../activity/definitions.ts';
 import type { ContentBundle } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
@@ -38,9 +38,15 @@ export function hourlyLedger(
   /** Routine ticks only need the delta; views retain the full explanation by default. */
   trace = true,
   intervalPart = false,
+  /**
+   * The actor's activity row as if it were this one (the walk split, the tactical walking rate).
+   * Read in place of `world.activity.byActor[id]`, so no caller copies the actor table: copying it
+   * once per walker each hour was O(actors²) at county scale.
+   */
+  doing?: ActorActivity,
 ): HourlyLedger {
   const budget = world.activity.minuteBudgets?.[id];
-  const current = world.activity.byActor[id];
+  const current = doing ?? world.activity.byActor[id];
   const walkingMinutes = current?.hourlyWalk?.at === world.time ? current.hourlyWalk.minutes : 0;
   if (!intervalPart && current && ((budget?.spent ?? 0) > 0 || walkingMinutes > 0)) {
     const minutes = { ...budget?.activities };
@@ -53,27 +59,10 @@ export function hourlyLedger(
     for (const activityId of Object.keys(minutes).sort()) {
       const duration = minutes[activityId] ?? 0;
       if (!duration) continue;
-      const part = hourlyLedger(
-        {
-          ...world,
-          activity: {
-            ...world.activity,
-            byActor: {
-              ...world.activity.byActor,
-              [id]: { ...current, activityId },
-            },
-          },
-        },
-        content,
-        id,
-        key,
-        air,
-        placeTempF,
-        before,
-        inventory,
-        trace,
-        true,
-      );
+      const part = hourlyLedger(world, content, id, key, air, placeTempF, before, inventory, trace, true, {
+        ...current,
+        activityId,
+      });
       weighted += part.delta * duration;
       if (trace) {
         terms.push({
@@ -88,24 +77,13 @@ export function hourlyLedger(
   }
   const interval = world.activity.journeys?.[id]?.interval;
   if (!intervalPart && interval?.at === world.time && interval.movingMinutes > 0 && interval.movingMinutes < 60) {
-    const state = world.activity.byActor[id];
+    const state = current;
     if (state) {
       const part = (activityId: string) =>
-        hourlyLedger(
-          {
-            ...world,
-            activity: { ...world.activity, byActor: { ...world.activity.byActor, [id]: { ...state, activityId } } },
-          },
-          content,
-          id,
-          key,
-          air,
-          placeTempF,
-          before,
-          inventory,
-          trace,
-          true,
-        );
+        hourlyLedger(world, content, id, key, air, placeTempF, before, inventory, trace, true, {
+          ...state,
+          activityId,
+        });
       const walk = part('walk'),
         wait = part('idle_at_home');
       const delta = Math.round((walk.delta * interval.movingMinutes + wait.delta * interval.waitingMinutes) / 60);
@@ -133,9 +111,9 @@ export function hourlyLedger(
   const actor = requiredRow(world.actors, id);
   const def = requiredRow(content.needs, key);
   const ctx = { content };
-  const labor = laborOf(world, ctx, id);
-  const asleep = isAsleep(world, ctx, id);
-  const activityId = world.activity.byActor[id]?.activityId;
+  const activityId = current?.activityId;
+  const labor = laborDoing(world, ctx, id, activityId);
+  const asleep = asleepDoing(ctx, activityId);
   const activity = activityId ? content.activities[activityId] : undefined;
   const terms: ExplainTerm[] | undefined = trace ? [] : undefined;
   const calculations: Explain[] | undefined = trace ? [] : undefined;

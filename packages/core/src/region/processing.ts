@@ -98,7 +98,28 @@ export function processesPlace(world: World, id: number): boolean {
 export function processingActorIds(world: World): ActorId[] {
   const scope = scopes.get(world) ?? fixedMemberships.get(world);
   if (scope?.actors) return [...scope.actors];
-  const actors = idsOf<ActorId>(world.actors).filter((id) => processesActor(world, id));
+  let actors: ActorId[];
+  if (!world.region) actors = idsOf<ActorId>(world.actors);
+  else {
+    // `processesActor` per id, with each site's ownership asked once per call (sites cannot
+    // change ownership while this list is built).
+    const fixed = fixedMemberships.get(world);
+    const bySite = new Map<string, boolean>();
+    actors = [];
+    for (const id of idsOf<ActorId>(world.actors)) {
+      let ok = fixed?.actorOk.get(id);
+      if (ok === undefined) {
+        const site = actorSite(world, id);
+        ok = bySite.get(site);
+        if (ok === undefined) {
+          ok = processesSite(world, site);
+          bySite.set(site, ok);
+        }
+        fixed?.actorOk.set(id, ok);
+      }
+      if (ok) actors.push(id);
+    }
+  }
   if (scope) scope.actors = [...actors];
   return actors;
 }
