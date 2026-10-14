@@ -1156,3 +1156,11 @@ harness/report additions also passed the CLI typecheck and repository Biome chec
 (458 files); `git diff --check` is clean. Direct legacy comparisons were repeated on
 the final runtime (`t3-legacy-final.log`), with all four hashes unchanged. This green
 software gate does **not** override the explicitly failed fidelity and scale gates.
+
+
+### Budget framing correction (orchestrator, 2026-10-13)
+The slice 2e and 2f reports compared whole-county cost against "<5 ms/h". That is the **ADR 0001 M2 gate for 30 T1 actors**, not a county budget. The canonical per-tier budgets (ADR 0001; 05 §3.5; 07 §5; 11 §5.4) on a **mid phone** are:
+- T1: 400 actors ≤ 40 ms per game-hour (about 0.1 ms per actor-hour), sliced ≤ 8 ms per frame;
+- T2: ≤ 150 ms per game-*day* (≤ 50 ms on desktop); six-hour sub-steps ≤ 15 ms.
+
+Against those, the 2f county run (about 258 ms/h on desktop with 400 T1 and 2,400 T3) is roughly **20× over**, not 321×. The hourly-sim speedup target is about **≤ 30 µs per T1 actor-hour on desktop** (today about 660 µs). The T3 aggregate step should fit inside the T2 day budget.
