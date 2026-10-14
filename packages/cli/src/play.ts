@@ -14,6 +14,8 @@ import {
 } from '@coulee/play';
 import { sessionCLI } from './play-session.ts';
 export interface PlayOptions {
+  /** `--director <id>`: land_itself (default) or almanac. */
+  director?: string;
   directorPersonality?: string;
   directorForesight?: string;
   compact?: boolean;
@@ -55,7 +57,7 @@ export async function playCLI(o: PlayOptions, command?: string): Promise<void> {
     : PlaySession.create(content, {
         source: o.scenario,
         director: director.directorSettings({
-          personality: o.directorPersonality as 'land_itself',
+          personality: (o.director ?? o.directorPersonality) as director.PersonalityId,
           foresight: o.directorForesight as director.Foresight,
         }),
         pc: { kit: o.kit ?? 'newcomer' },

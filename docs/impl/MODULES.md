@@ -853,6 +853,18 @@ God observations and CLI manifests expose analytics; fair observations expose no
 pre-D0 at Iron Ford 42 (30/365d), generated towns 7/19 (90d), neighbors 42 (30d);
 year-run baseline for Iron Ford and generated towns 7/19, measured Director ms/hour.
 
+### module:director — D1 safe nudges (2026-10-13)
+
+Owner additions: `packages/cli/test/director-d1.test.ts`, `content/base/director/moves.toml` (`directorMoves`).
+**Bias hooks** live as data in optional `World.director.plan` (absent for the Land Itself, so its saves
+and stripped hashes match D0) and are consulted by their owners at decision time, defaulting to no bias:
+`belief.carrierWeight` (N4, gossip topic choice in `planTransmit`, ≤ +50%, held facts only, never a
+kind/charge predicate), `social.optionTilt` (N8: `companyUrge` venue, `activity.callTarget`; ≤ 15% of the
+best), `social.windowPick` (N6: item-loan breach inside [due+12h, due+3d]), `fae.thresholdTilt` (N9: omen
+notice and draw shortfall, DC −2). The generic forms are `director/bias.ts`. Every hook returns nothing when
+the PC takes part in the decision or shares its place (the fair gate); a changed outcome writes an
+omniscient Ledger row in `plan.nudges`. Personalities: `land_itself` (default everywhere) and `almanac`.
+
 ### M5 slice 2f — dormant settlement ownership (2026-10-13)
 
 Region adds optional saved `dormant` policy/cursors/facts, `T3`, a `dormant`

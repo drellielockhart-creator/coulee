@@ -12,6 +12,7 @@
 import { isAsleep, occupants } from '../activity/api.ts';
 import { shortName } from '../actor.ts';
 import type { ActivityDef, InteractionDef } from '../content.ts';
+import { noteNudge, optionTiltFor } from '../director/bias.ts';
 import { term } from '../explain.ts';
 import { type ActorId, idsOf, type PlaceId } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
@@ -51,6 +52,34 @@ function activityFits(world: World, ctx: SimContext, actorId: ActorId, act: Acti
   return true;
 }
 
+type Venue = { activityId: string; placeId: PlaceId; friends: number; tag: string };
+/**
+ * N8 (Director route crossing): a favoured venue whose company score is within 15% of the best
+ * (ties included) is chosen instead. Consulted only when a bias is live for this actor and the
+ * PC cannot see the choice; the urge's own reasons are unchanged (the Ledger explains it).
+ */
+function tiltVenue(world: World, ctx: SimContext, actorId: ActorId, best: Venue): Venue | null {
+  const here = world.actors[actorId]?.placeId;
+  const tilt = optionTiltFor(world, 'company_venue', actorId, 'place', here === undefined ? [] : [here]);
+  if (!tilt) return null;
+  const t = tuningOf(ctx.content);
+  for (const s of t.seek_company) {
+    const act = ctx.content.activities[s.activity];
+    if (!act || !activityFits(world, ctx, actorId, act)) continue;
+    for (const pid of idsOf<PlaceId>(world.places)) {
+      if (pid === best.placeId || !world.places[pid]?.tags.includes(s.tag)) continue;
+      const b = tilt(pid);
+      if (!b) continue;
+      let friends = 0;
+      for (const o of occupants(world, pid)) if (o !== actorId && opinionOf(world, actorId, o).affection > 0) friends++;
+      if (friends * 1000 + floorDiv(best.friends * 1000 * b.amount, 1000) < best.friends * 1000) continue;
+      noteNudge(world, b.bias, actorId, best.placeId, pid);
+      return { activityId: s.activity, placeId: pid, friends, tag: s.tag };
+    }
+  }
+  return null;
+}
+
 function companyUrge(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal | null {
   const t = tuningOf(ctx.content);
   const company = needValue(world, actorId, 'company');
@@ -70,6 +99,7 @@ function companyUrge(world: World, ctx: SimContext, actorId: ActorId): UrgePropo
     }
   }
   if (!best) return null;
+  best = tiltVenue(world, ctx, actorId, best) ?? best;
   const intensity = clampInt(floorDiv((t.company_seek_below - company) * 1000, t.company_seek_below), 50, 900);
   const place = world.places[best.placeId];
   return {

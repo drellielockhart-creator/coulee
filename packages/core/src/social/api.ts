@@ -304,5 +304,12 @@ export function perceivedEvents(
   return seen;
 }
 
+/**
+ * Director hooks (DIRECTOR-PLAN §2), defaulting to no bias. `optionTilt` (N8) for an NPC's
+ * choice among valid places to go, at most 15% of the best option's score; `windowPick` (N6)
+ * for when something lands inside its own window. Both return nothing for a decision the PC
+ * could perceive (fair dice).
+ */
+export { optionTiltFor as optionTilt, windowPickFor as windowPick } from '../director/bias.ts';
 export { dormantMarriage, dormantSocialDecay } from './dormant.ts';
 export { settleDebt as settleRegionalDebt } from './opinion.ts';

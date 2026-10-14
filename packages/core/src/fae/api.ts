@@ -32,6 +32,13 @@ export function episodesAt(world: World, placeId: PlaceId) {
       return e && e.snapshot.placeId === placeId && e.traceEnd >= world.time ? [e] : [];
     });
 }
+
+/**
+ * Director hook N9 (DIRECTOR-PLAN §2), defaulting to no bias: `thresholdTilt(process, key)`,
+ * at most DC −2 on an unseen detect check of a sign or a shortfall. Never consulted for a
+ * concealed attribute, and nothing the PC could perceive.
+ */
+export { thresholdTiltFor as thresholdTilt } from '../director/bias.ts';
 export {
   charmKeepWeight,
   charmTransferred,
@@ -49,3 +56,13 @@ export { tieWindow } from './tend.ts';
 export { auditCharmTheft, recordCharmTheft } from './theft.ts';
 export { loanTerms, nextSundayNoon } from './urges.ts';
 export { type CharmCard, charmView, describe, signs } from './view.ts';
+
+/** Households with an open, not yet discovered draw on their stores (Director N9 targeting; read-only). */
+export function undiscoveredDrawHouseholds(world: World): number[] {
+  const out = new Set<number>();
+  for (const k of Object.keys(world.fae.drawCases ?? {}).sort()) {
+    const dc = world.fae.drawCases?.[k];
+    if (dc && !dc.accepted && dc.undiscovered > 0 && dc.householdId !== null) out.add(dc.householdId);
+  }
+  return [...out].sort((a, b) => a - b);
+}

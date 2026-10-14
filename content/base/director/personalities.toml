@@ -1,5 +1,6 @@
-# D0: only land_itself is selectable. Its pacing thresholds classify the pure sim.
-# Numeric thresholds are initial measurement calibration; no curve spends or acts in D0.
+# D1: land_itself (budget 0, the default everywhere) and almanac are selectable. The Land
+# Itself's thresholds classify the pure sim; the Almanac's seasonal curve paces its own nudges.
+# The other personalities stay dormant until D2/D3.
 
 [[personality]]
 id = "almanac"
@@ -11,6 +12,10 @@ peak_threshold = 700
 peak_hours = 12
 mercy = "on"
 category_multipliers = { balanced = 1000 }
+# Cassandra-like cycles that follow the seasons: rests shorten in winter (hard winters are hard).
+season_relax_days = { spring = 5, summer = 6, autumn = 5, winter = 3 }
+build_days = 3
+top_k = 5
 
 [[personality]]
 id = "hearthside"

@@ -241,7 +241,7 @@ describe('Director D0 is observational', () => {
     const legacy = JSON.parse(JSON.stringify(stripped(a.world)));
     const migrated = restoreSim(a.content, legacy);
     expect(migrated.world.director?.settings).toEqual({ personality: 'land_itself', foresight: 'tiltable' });
-    expect(() => director.directorSettings({ personality: 'almanac' as 'land_itself' })).toThrow('land_itself');
+    expect(() => director.directorSettings({ personality: 'hearthside' as 'land_itself' })).toThrow('almanac');
     expect(Object.keys(baseContent().directorPersonalities)).toHaveLength(7);
     for (const foresight of ['off', 'tiltable', 'full'] as const) {
       const s = createSim(baseContent(), { scenarioId: 'iron_ford', seed: 1, director: { foresight } });

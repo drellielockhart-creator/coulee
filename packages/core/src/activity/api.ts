@@ -4,6 +4,7 @@
 
 import { grudgeTargetsOf } from '../belief/grudges.ts';
 import type { ContentBundle, ScheduleBlock } from '../content.ts';
+import { noteNudge, optionTiltFor, type Tilt } from '../director/bias.ts';
 import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
 import { canAct } from '../needs/api.ts';
 import { activeEmployment, employmentDayMinutes, workAvailability } from '../provisions/api.ts';
@@ -274,7 +275,42 @@ export function callTarget(world: World, actorId: ActorId): ActorId | null {
   if (cands.length === 0) return null;
   const day = dayIndex(world.time);
   const r = rng(world.meta.seed, 'activity', day * MINUTES_PER_DAY, mixKey(actorId, day, SALT_CALL));
-  return r.weighted(cands, (c) => c.weight)?.targetId ?? null;
+  const plain = r.weighted(cands, (c) => c.weight)?.targetId ?? null;
+  return tiltCall(world, actorId, cands, day, plain) ?? plain;
+}
+
+/**
+ * N8 (Director route crossing, `optionTilt`): a favoured household's candidates gain at most 15%
+ * of the best weight, and the same day's roll is read again. Only with a live bias for this
+ * caller, out of the PC's sight; the Ledger records a changed call.
+ */
+function tiltCall(
+  world: World,
+  actorId: ActorId,
+  cands: CallChoice[],
+  day: number,
+  plain: ActorId | null,
+): ActorId | null {
+  const here = world.actors[actorId]?.placeId;
+  const tilt = optionTiltFor(world, 'call_target', actorId, 'household', here === undefined ? [] : [here]);
+  if (!tilt) return null;
+  const top = Math.max(0, ...cands.map((c) => c.weight));
+  const found: Tilt['bias'][] = [];
+  const tilted = cands.map((c) => {
+    const t = tilt(world.actors[c.targetId]?.householdId ?? -1);
+    if (!t) return c;
+    found.push(t.bias);
+    return { targetId: c.targetId, weight: c.weight + Math.floor((top * t.amount) / 1000) };
+  });
+  const bias = found[0];
+  if (bias === undefined) return null;
+  const r = rng(world.meta.seed, 'activity', day * MINUTES_PER_DAY, mixKey(actorId, day, SALT_CALL));
+  const pick = r.weighted(tilted, (c) => c.weight)?.targetId ?? null;
+  // The tilt may only move the call onto a favoured household, never reshuffle the others.
+  const favoured = (id: ActorId | null) => id !== null && tilt(world.actors[id]?.householdId ?? -1) !== null;
+  if (pick === plain || !favoured(pick) || favoured(plain)) return null;
+  noteNudge(world, bias, actorId, plain ?? 'nobody', pick ?? 'nobody');
+  return pick;
 }
 
 /** Call candidates with their weights (ascending ids); exported for the dossier and tests. */

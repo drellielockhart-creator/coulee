@@ -11,6 +11,7 @@
 import { isAsleep } from '../activity/api.ts';
 import { formGrudge, internProp, observe } from '../belief/api.ts';
 import type { InteractionDef } from '../content.ts';
+import { noteNudge, windowPickFor } from '../director/bias.ts';
 import type { Explain } from '../explain.ts';
 import { term } from '../explain.ts';
 import {
@@ -506,7 +507,21 @@ export function loansHourly(world: World, ctx: SimContext): void {
 export function loansDaily(world: World, ctx: SimContext): void {
   for (const loan of loansOf(world)) {
     if (!processesHousehold(world, loan.borrowerHouseholdId)) continue;
-    if (loan.status !== 'open' || loan.breachedAt !== null || ctx.now < loan.dueAt + BREACH_GRACE) continue;
+    if (loan.status !== 'open' || loan.breachedAt !== null) continue;
+    // N6 (Director timing): the breach lands inside its own window, [due + 12 h, due + 3 days].
+    const fallback = loan.dueAt + BREACH_GRACE;
+    const pick = windowPickFor(
+      world,
+      'loan_breach',
+      loan.borrowerId,
+      [loan.borrowerId, loan.lenderId],
+      [],
+      [loan.dueAt + 720, loan.dueAt + BREACH_GRACE + 2880],
+      fallback,
+    );
+    if (pick.bias && ctx.now >= fallback !== ctx.now >= pick.at)
+      noteNudge(world, pick.bias, loan.borrowerId, fallback, pick.at);
+    if (ctx.now < pick.at) continue;
     loan.breachedAt = ctx.now;
     const rota = world.social.rotas?.[rotaKey(loan.itemId, loan.lenderHouseholdId, loan.borrowerHouseholdId)];
     if (rota) rota.breaches += 1;

@@ -9,6 +9,9 @@ import { abilityMod } from '../actor.ts';
 // close an import cycle through the sifting code.
 import { argForm, householdForms, itemSubjectName } from '../chronicle/names.ts';
 import type { ContentBundle, PredicateId } from '../content.ts';
+import { favours, liveBiases, noteNudge } from '../director/bias.ts';
+import type { Bias } from '../director/state.ts';
+import { term } from '../explain.ts';
 import {
   type ActorId,
   asPropId,
@@ -211,6 +214,41 @@ export interface TransmitPlan {
   mutationRoll: number;
   /** Novelty to the teller, per mille (rumor saturation). */
   freshness: number;
+  /** N4 carrier weight applied to the chosen topic (Director; omniscient in the Explain). */
+  director?: { biasId: number; pm: number; flipped: boolean; plainBeliefId: number | null };
+}
+
+/** N4's plausibility envelope: at most +50% on a topic score the carrier already rates worth telling. */
+export const CARRIER_WEIGHT_MAX_PM = 500;
+
+/**
+ * Director hook N4 (05 §8.3): `carrierWeight(rumor, carrier)` for the carrier's own topic
+ * selection. Only facts the carrier already holds can be weighted (the caller iterates the
+ * carrier's beliefs), never a kind/people predicate or a charge, and never a telling the PC
+ * could perceive. Returns a lookup by prop, or null (no bias: the default).
+ */
+export function carrierWeight(
+  world: World,
+  content: ContentBundle,
+  speakerId: ActorId,
+  listenerId: ActorId,
+  placeId: PlaceId | null,
+): ((propId: PropId) => { pm: number; bias: Bias } | null) | null {
+  const live = liveBiases(world, {
+    hook: 'carrier',
+    process: 'gossip',
+    subject: speakerId,
+    actors: [speakerId, listenerId],
+    places: placeId === null ? [] : [placeId],
+  });
+  if (live.length === 0) return null;
+  return (propId) => {
+    const prop = world.belief.props[propId];
+    const pred = prop ? content.predicates[prop.pred] : undefined;
+    if (!pred || pred.kind_of !== undefined || pred.charge) return null;
+    const b = live.find((x) => favours(world, x, propId, 'key'));
+    return b ? { pm: Math.min(CARRIER_WEIGHT_MAX_PM, Math.max(0, b.amount)), bias: b } : null;
+  };
 }
 
 /** How a telling landed: what social's talk lines need to voice it. */
@@ -374,6 +412,13 @@ export function planTransmit(world: World, ctx: SimContext, req: TransmitRequest
   let selected: Belief | undefined;
   let score = -1;
   let freshness = 1000;
+  // N4: a deliberate or forced telling is the teller's (or PC's) own choice, never weighted.
+  const weigh =
+    req.topic === undefined && !req.deliberate
+      ? carrierWeight(world, ctx.content, speaker.id, listener.id, req.placeId)
+      : null;
+  let plain: { b: Belief; score: number } | null = null;
+  let tilt: { pm: number; bias: Bias } | null = null;
   for (const id of world.belief.beliefsByHolder[speaker.id] ?? []) {
     const b = world.belief.beliefs[id];
     if (!b) continue;
@@ -423,10 +468,18 @@ export function planTransmit(world: World, ctx: SimContext, req: TransmitRequest
         : Math.max(unheard ? NEWS_TO_A_STRANGER : 0, freshnessOf(world, ctx.now, b, listener.id).pm);
     next = Math.floor((next * fresh) / 1000);
     if (req.topic === undefined && next < WORTH_TELLING && req.asked !== true) continue;
-    if (next > score || (next === score && b.id < (selected?.id ?? b.id))) {
+    let weighted = next;
+    let w: { pm: number; bias: Bias } | null = null;
+    if (weigh) {
+      w = next >= WORTH_TELLING ? weigh(b.propId) : null;
+      if (w) weighted = next + Math.floor((next * w.pm) / 1000);
+      if (!plain || next > plain.score || (next === plain.score && b.id < plain.b.id)) plain = { b, score: next };
+    }
+    if (weighted > score || (weighted === score && b.id < (selected?.id ?? b.id))) {
       selected = b;
-      score = next;
+      score = weighted;
       freshness = fresh;
+      tilt = w;
     }
   }
   if (!selected) return null;
@@ -590,6 +643,46 @@ export function planTransmit(world: World, ctx: SimContext, req: TransmitRequest
     mutRate,
     mutationRoll,
     freshness,
+    ...(tilt ? { director: carrierEffect(ctx, req, speaker.id, listener.id, selected, tilt, plain) } : {}),
+  };
+}
+
+function tellTerms(plan: TransmitPlan) {
+  return [
+    term('belief', 'Topic score', plan.score),
+    term('belief', 'Freshness per mille', plan.freshness),
+    term('belief', 'Tell probability per mille', plan.req.deliberate ? 1000 : plan.probability),
+    term('belief', 'Mutation probability per mille', plan.mutRate),
+  ];
+}
+/** The N4 term on an off-screen telling (the fair-dice gate keeps it out of the PC's view). */
+function directorCarrierTerm(plan: TransmitPlan) {
+  return term('director', 'Director carrier weight (N4), per mille on the topic score', plan.director?.pm ?? 0);
+}
+
+/** Would the unweighted pick have told the same thing (same topic, and the talk still turned)? */
+function carrierEffect(
+  ctx: SimContext,
+  req: TransmitRequest,
+  speakerId: ActorId,
+  listenerId: ActorId,
+  selected: Belief,
+  tilt: { pm: number; bias: Bias },
+  plain: { b: Belief; score: number } | null,
+): NonNullable<TransmitPlan['director']> {
+  let plainTold = false;
+  if (plain) {
+    const p = sigmoidPermille(Math.floor(((plain.score - 500) * 1024) / 1000));
+    const r = ctx
+      .rng('gossip', mixKey(speakerId, listenerId, plain.b.id, req.interactionEventId ?? 0, 701))
+      .int(1, 1000);
+    plainTold = r <= p;
+  }
+  return {
+    biasId: tilt.bias.id,
+    pm: tilt.pm,
+    flipped: plain?.b.id !== selected.id || !plainTold,
+    plainBeliefId: plainTold && plain ? plain.b.id : null,
   };
 }
 
@@ -615,6 +708,11 @@ export function commitTransmit(
   const sourceProp = selected ? world.belief.props[selected.propId] : undefined;
   const pred = sourceProp ? ctx.content.predicates[sourceProp.pred] : undefined;
   if (!speaker || !listener || !selected || !rumor || !pred) return empty;
+  const nudged = plan.director;
+  if (nudged?.flipped) {
+    const b = world.director?.plan?.biases.find((x) => x.id === nudged.biasId);
+    if (b) noteNudge(world, b, speaker.id, nudged.plainBeliefId ?? 'nothing told', selected.id);
+  }
   const channel = ctx.content.rumorChannels[req.channel];
   const propId = plan.propId;
   const mutation = plan.mutation;
@@ -705,6 +803,7 @@ export function commitTransmit(
         },
         'participants',
       ),
+      ...(plan.director ? { terms: [...tellTerms(plan), directorCarrierTerm(plan)] } : {}),
       roll: { die: 1000, natural: plan.roll },
       ...(req.deliberate ? { note: 'Told on purpose: no roll for whether the talk turned that way.' } : {}),
       children: [

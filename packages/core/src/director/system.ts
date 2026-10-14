@@ -9,6 +9,7 @@ import { perceivedEvents } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { EMA_ALPHA_Q16, emaQ16 } from './fixed.ts';
 import { assess } from './ledger.ts';
+import { personalityOf, planDay, seasonalPacing } from './plan.ts';
 import { createDirectorState, type DirectorState, type MonthlyMetrics } from './state.ts';
 import { measureTension } from './tension.ts';
 import { rankThreads, updateThreads } from './threads.ts';
@@ -104,7 +105,10 @@ export function directorSystem(world: World, ctx: SimContext): void {
       st.focus !== null &&
       Object.values(t.actors).includes(st.focus),
   );
-  pacingStep(st, ctx.now, curve, threatResolved);
+  const personality = personalityOf(ctx.content, st);
+  if (personality && personality.budget_per_day > 0 && personality.curve === 'seasonal')
+    seasonalPacing(st, ctx, personality);
+  else pacingStep(st, ctx.now, curve, threatResolved);
   st.events.push({
     id: asEventId(++st.event_seq),
     t: ctx.now,
@@ -169,8 +173,12 @@ export function directorSystem(world: World, ctx: SimContext): void {
         subjects: st.focus === null ? [] : [st.focus],
         terms: [],
         total: 0,
-        outcome: 'No nudge; land_itself has zero budget.',
+        outcome:
+          st.plan === undefined && !(personality && personality.budget_per_day > 0)
+            ? 'No nudge; land_itself has zero budget.'
+            : `Planned under ${st.settings.personality}`,
       },
     });
+    planDay(world, ctx);
   }
 }

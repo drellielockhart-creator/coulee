@@ -2,8 +2,11 @@ import type { Explain } from '../explain.ts';
 import type { ActorId, PlaceId } from '../ids.ts';
 import type { DirectorEvent } from './events.ts';
 export type Foresight = 'off' | 'tiltable' | 'full';
+/** D1: the Land Itself (budget 0, the regression default) and the Almanac are selectable. */
+export type PersonalityId = 'land_itself' | 'almanac';
+export const SELECTABLE_PERSONALITIES: readonly PersonalityId[] = ['land_itself', 'almanac'];
 export interface DirectorSettings {
-  personality: 'land_itself';
+  personality: PersonalityId;
   foresight: Foresight;
 }
 export type Pacing = 'RELAX' | 'BUILD' | 'PEAK' | 'FADE';
@@ -54,6 +57,76 @@ export interface LedgerRecord {
   foresight: Foresight;
   knowledge: 'omniscient';
   explain: Explain;
+}
+/** D1 nudges through bias hooks (DIRECTOR-PLAN §2). */
+export type NudgeId = 'N4' | 'N6' | 'N8' | 'N9';
+export type HookKind = 'carrier' | 'window' | 'option' | 'threshold';
+/**
+ * A published bias: data the owning module's own rule consults at the moment it decides.
+ * `subject` is whose decision is tilted (null: anyone); `key` what it favours (a prop, a
+ * household, a place; null with `toward_pc`: the PC's place or household at that moment).
+ */
+export interface Bias {
+  id: number;
+  /** The move's group (the first bias's id): one cost for all its participants. */
+  group?: number;
+  nudge: NudgeId;
+  hook: HookKind;
+  process: string;
+  subject: number | null;
+  key: number | null;
+  toward_pc: boolean;
+  /** Per mille (carrier, option), DC points (threshold) or minutes (window; signed). */
+  amount: number;
+  thread: number;
+  move: string;
+  tau: number;
+  cost: number;
+  placed_at: number;
+  expires: number;
+  charged: boolean;
+  effects: number;
+  last_effect?: string;
+}
+export interface NudgeRecord {
+  t: number;
+  nudge: NudgeId | 'mercy_wanted';
+  bias: number | null;
+  process: string;
+  target: number | null;
+  before: number | string;
+  after: number | string;
+  rationale: { threadId: number | null; tension: number; move: string; pacing: Pacing };
+  cost: number;
+  foresaw: boolean;
+  knowledge: 'omniscient';
+}
+export interface NudgeTotals {
+  placed: number;
+  effects: number;
+  charged: number;
+  cost: number;
+  expired_unused: number;
+}
+/** Planner state; absent for the Land Itself so its saves and hashes match D0. */
+export interface PlanState {
+  budget: number;
+  reserved: number;
+  next_bias: number;
+  biases: Bias[];
+  nudges: NudgeRecord[];
+  nudges_compacted: number;
+  totals: Record<string, NudgeTotals>;
+  cycle: {
+    target: number | null;
+    build_started: number | null;
+    seen_at_start: number;
+    peaks: number;
+    fizzles: number;
+    builds: number;
+  };
+  spiral_days: number;
+  mercy_wanted: number;
 }
 export interface MonthlyMetrics {
   hours: number;
@@ -117,11 +190,13 @@ export interface DirectorState {
   pattern_recency: Record<string, { id: number; at: number; previous_at: number | null }>;
   recent_resolutions: Array<{ pattern: string; at: number; count?: number }>;
   top_threads: Thread[];
+  plan?: PlanState;
 }
 export function directorSettings(input: Partial<DirectorSettings> = {}): DirectorSettings {
   const personality = input.personality ?? 'land_itself';
   const foresight = input.foresight ?? 'tiltable';
-  if (personality !== 'land_itself') throw new Error('D0 supports only director.personality=land_itself');
+  if (!SELECTABLE_PERSONALITIES.includes(personality))
+    throw new Error(`director.personality must be one of ${SELECTABLE_PERSONALITIES.join(', ')} (others arrive in D2)`);
   if (!['off', 'tiltable', 'full'].includes(foresight)) throw new Error('Invalid director.foresight');
   return { personality, foresight };
 }
