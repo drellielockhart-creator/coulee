@@ -152,6 +152,14 @@ function disposalWish(
   };
 }
 
+/** The fetch-for-return duty: 500 at half a day before the due time, +10 an hour to the due time,
+ * then +50 an hour overdue, capped at 950. Integer. */
+export function fetchDuty(now: number, dueAt: number): number {
+  const before = Math.min(12, Math.max(0, Math.floor((now - (dueAt - 720)) / 60)));
+  const overdue = Math.max(0, Math.floor((now - dueAt) / 60));
+  return Math.min(950, 500 + before * 10 + overdue * 50);
+}
+
 function keeperUrges(world: World, ctx: SimContext, actorId: ActorId, c: CharmState, h: Holding): UrgeProposal[] {
   const out: UrgeProposal[] = [];
   const a = world.actors[actorId];
@@ -169,13 +177,17 @@ function keeperUrges(world: World, ctx: SimContext, actorId: ActorId, c: CharmSt
   // Take it out of the house when it has to go somewhere: back to its lender, or to be got rid of.
   if (atHome && inPantry(world, a, item) && (due || dispose)) {
     const why = due ? 'It is due back; take it along' : (dispose?.label ?? '');
+    // The duty presses harder as the day nears and more after it passes (review wave 13: a fixed
+    // 500 lost to chores for eleven days and the loan breached): +10 an hour over the last half
+    // day, then +50 an hour overdue, to at most 950.
+    const pressing = due && loan ? fetchDuty(ctx.now, loan.dueAt) : 0;
     out.push(
       proposal(
         { kind: 'activity', activityId: 'fetch_charm', placeId: a.placeId, itemId: item },
         'superego',
-        due ? 500 : (dispose?.intensity ?? 0),
+        due ? pressing : (dispose?.intensity ?? 0),
         why,
-        [term('fae', why, 1)],
+        due ? [term('fae', why, 500), term('fae', 'The day is near or past', pressing - 500)] : [term('fae', why, 1)],
         {
           norm: due ? 'duty' : (dispose?.norm ?? 'piety'),
         },

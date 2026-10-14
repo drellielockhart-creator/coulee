@@ -59,7 +59,7 @@ describe('call candidates', () => {
         if (known.has(c.targetId)) continue;
         strangerHouseholds.add(w.actors[c.targetId as ActorId]?.householdId ?? -1);
       }
-      // Nearest three, plus at most three newcomer households.
+      // Nearest three, plus at most three isolated or new households.
       expect(strangerHouseholds.size).toBeLessThanOrEqual(6);
     }
   });

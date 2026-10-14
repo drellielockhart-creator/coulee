@@ -204,4 +204,24 @@ describe('listener text memory', () => {
       expect(restored.world.social.talk).toEqual(f.sim.world.social.talk);
     }
   });
+
+  it('news in a world slot is new when its value is: a new price is not "heard before"', () => {
+    const lines = [
+      line('price', 'I hear {price_item} is {price}.', { when: { price: true } }),
+      line('response', 'I have heard that before.', {
+        tags: ['repeat_aware'],
+        lines: [{ by: 'target', text: 'I have heard that before.' }],
+      }),
+    ];
+    const f = fixture(lines);
+    f.sim.world.time = asGameMinute(12 * 60);
+    const first = f.say();
+    expect(first?.ids).toEqual(['price']);
+    // The same price the same hour is heard before; the next day's staple is news.
+    expect(f.say()?.ids).toEqual(['price', 'response']);
+    f.sim.world.time = asGameMinute(36 * 60);
+    const next = f.say();
+    expect(next?.ids).toEqual(['price']);
+    expect(next?.lines[0]?.text).not.toBe(first?.lines[0]?.text);
+  });
 });

@@ -282,10 +282,12 @@ export interface CallChoice {
 /**
  * Whom a 'kin' activity (Pay a call) goes to see today. Candidates are people of 14 or more in
  * other households whom the caller knows or is kin to, plus strangers in the nearest three
- * households of the caller's site and in up to three households there that are new to it (whose
- * grown members have each met fewer than four outsiders). Weight = max(0, Affection + 20) + 30
- * if kin + familiarity/20 + 20 for a newcomer household, halved per call on that household in
- * the last 14 days and for another site. Enemies, the Cowed, the
+ * households of the caller's site and in up to three households there that are isolated or new
+ * (whose grown members have each met fewer than four outsiders). Weight = max(0, Affection + 20)
+ * + 30 if kin + familiarity/20 + 20 for an isolated or new household, halved per call on that
+ * household in the last 14 days and for another site. In a region, only people whose home is on
+ * the caller's current site are candidates (a call cannot be paid elsewhere; see
+ * resolveActivityPlace), so the day's roll is never spent on an unreachable door. Enemies, the Cowed, the
  * estranged and the targets of the caller's grudges are never called on. The pick is a
  * weighted roll on the 'activity' stream keyed by (caller, day), so it is stable all day and
  * calls rotate across days. Null when there is nobody to call on.
@@ -363,14 +365,17 @@ export function settleDirectorChoices(
 /**
  * The neighbourly allowance (perf wave 13: callers no longer weigh every adult in the county):
  * besides the people they know and their kin, a caller may call on strangers in the nearest few
- * households of their own site, and on the households there that are new to it. Bounded per call.
+ * households of their own site, and on the nearest few households there that are isolated or new
+ * (newly arrived, or cut off long enough to have met almost nobody; people check on them).
+ * Bounded: a caller adds at most 3 + 3 stranger households, and the rule only chooses whom an
+ * already-made call goes to, so an isolated hamlet draws no more calls than its callers make.
  */
 const NEIGHBOUR_HOUSEHOLDS = 3;
-const NEWCOMER_HOUSEHOLDS = 3;
-/** A household whose grown members have each met fewer people outside it than this is new here. */
-const NEWCOMER_MET = 4;
-/** The welcome a newcomer household draws from its neighbours, on top of a stranger's 20. */
-const NEWCOMER_WELCOME = 20;
+const ISOLATED_HOUSEHOLDS = 3;
+/** A household whose grown members have each met fewer people outside it than this is isolated or new. */
+const ISOLATED_MET = 4;
+/** The welcome an isolated or new household draws from its neighbours, on top of a stranger's 20. */
+const ISOLATED_WELCOME = 20;
 
 interface SiteHome {
   hid: HouseholdId;
@@ -386,23 +391,25 @@ interface HomeIndex {
   time: number;
   bySite: Map<string, SiteHome[]>;
   near: Map<HouseholdId, HouseholdId[]>;
-  newcomers: Map<string, SiteHome[]>;
+  isolated: Map<string, SiteHome[]>;
 }
 const homeIndexes = new Map<object, HomeIndex>();
 function homeIndex(world: World): HomeIndex {
   let index = homeIndexes.get(world.households);
   if (!index || index.time !== world.time) {
     const bySite = new Map<string, SiteHome[]>();
+    const grownBy = latestBirthDay(14, world.time);
     for (const h of rowsOfHouseholds(world)) {
       const home = world.places[h.homePlaceId];
-      if (!home) continue;
+      // A house with nobody grown and living in it is nobody's call (and no one's neighbour).
+      if (!home || !h.memberIds.some((m) => grownAlive(world, m, grownBy))) continue;
       const list = bySite.get(home.siteId);
       const row = { hid: h.id, x: home.x, y: home.y };
       if (list) list.push(row);
       else bySite.set(home.siteId, [row]);
     }
     if (!index && homeIndexes.size >= 16) homeIndexes.clear();
-    index = { time: world.time, bySite, near: new Map(), newcomers: new Map() };
+    index = { time: world.time, bySite, near: new Map(), isolated: new Map() };
     homeIndexes.set(world.households, index);
   }
   return index;
@@ -424,14 +431,17 @@ function nearest(homes: readonly SiteHome[], x: number, y: number, own: Househol
   }
   return best.map((b) => b.hid);
 }
-/** Is this household new here: every grown member has met fewer than NEWCOMER_MET outsiders? */
-function isNewcomer(world: World, hid: HouseholdId, grownBy: number): boolean {
+function grownAlive(world: World, id: ActorId, grownBy: number): boolean {
+  const a = world.actors[id];
+  return a?.alive === true && dayIndex(a.born) <= grownBy;
+}
+/** Isolated or new: every grown member has met fewer than ISOLATED_MET people outside it. */
+function isIsolatedOrNew(world: World, hid: HouseholdId, grownBy: number): boolean {
   let grown = 0;
   for (const m of world.households[hid]?.memberIds ?? []) {
-    const a = world.actors[m];
-    if (!a?.alive || dayIndex(a.born) > grownBy) continue;
+    if (!grownAlive(world, m, grownBy)) continue;
     grown++;
-    if (knownOutsideHousehold(world, m, NEWCOMER_MET) >= NEWCOMER_MET) return false;
+    if (knownOutsideHousehold(world, m, ISOLATED_MET) >= ISOLATED_MET) return false;
   }
   return grown > 0;
 }
@@ -446,11 +456,13 @@ export function callCandidates(world: World, actorId: ActorId): CallChoice[] {
   const log = world.activity.calls?.[actorId] ?? [];
   const grownBy = latestBirthDay(14, world.time);
   // Whom the caller could call on: the people they know (an opinion record), their kin, and
-  // the neighbourly allowance on their own site (nearest households, newcomers' households).
+  // the neighbourly allowance on their own site (nearest households, isolated or new ones).
   const ids = new Set<ActorId>(acquaintanceIds(world, actorId));
   for (const id of kinOf(world, actorId)) ids.add(id);
   const welcome = new Set<HouseholdId>();
-  if (origin) {
+  // In a region a call is paid only on the caller's current site (resolveActivityPlace).
+  const here = world.region ? world.places[actor.placeId]?.siteId : undefined;
+  if (origin && (here === undefined || origin.siteId === here)) {
     const index = homeIndex(world);
     const homes = index.bySite.get(origin.siteId) ?? [];
     let near = index.near.get(actor.householdId);
@@ -458,12 +470,12 @@ export function callCandidates(world: World, actorId: ActorId): CallChoice[] {
       near = nearest(homes, origin.x, origin.y, actor.householdId, NEIGHBOUR_HOUSEHOLDS);
       index.near.set(actor.householdId, near);
     }
-    let fresh = index.newcomers.get(origin.siteId);
-    if (!fresh) {
-      fresh = homes.filter((h) => isNewcomer(world, h.hid, grownBy));
-      index.newcomers.set(origin.siteId, fresh);
+    let lonely = index.isolated.get(origin.siteId);
+    if (!lonely) {
+      lonely = homes.filter((h) => isIsolatedOrNew(world, h.hid, grownBy));
+      index.isolated.set(origin.siteId, lonely);
     }
-    for (const hid of nearest(fresh, origin.x, origin.y, actor.householdId, NEWCOMER_HOUSEHOLDS)) welcome.add(hid);
+    for (const hid of nearest(lonely, origin.x, origin.y, actor.householdId, ISOLATED_HOUSEHOLDS)) welcome.add(hid);
     for (const hid of [...near, ...welcome]) for (const id of world.households[hid]?.memberIds ?? []) ids.add(id);
   }
   const out: CallChoice[] = [];
@@ -475,6 +487,7 @@ export function callCandidates(world: World, actorId: ActorId): CallChoice[] {
     if (dayIndex(other.born) > grownBy) continue; // yearsBetween(other.born, now) < 14
     const home = world.households[other.householdId]?.homePlaceId;
     if (home === undefined || !world.places[home]) continue;
+    if (here !== undefined && world.places[home]?.siteId !== here) continue;
     if (grudges.actors.includes(id) || grudges.households.includes(other.householdId)) continue;
     const known = isAcquainted(world, actorId, id);
     const affection = known ? opinionOf(world, actorId, id) : null;
@@ -487,7 +500,7 @@ export function callCandidates(world: World, actorId: ActorId): CallChoice[] {
       Math.max(0, aff + 20) +
       (kin ? 30 : 0) +
       (known ? Math.floor(familiarityOf(world, actorId, id) / 20) : 0) +
-      (welcome.has(other.householdId) ? NEWCOMER_WELCOME : 0);
+      (welcome.has(other.householdId) ? ISOLATED_WELCOME : 0);
     for (const c of log) {
       if (c.householdId === other.householdId && today - c.day < CALL_REPEAT_DAYS)
         w = Math.floor((w * CALL_REPEAT_PCT) / 100);

@@ -976,6 +976,21 @@ function hasChoices(line: TalkLine): boolean {
   return v;
 }
 
+/**
+ * World slots that carry news: a price, a misfortune, a debt, a remembered place. Their values
+ * are part of a turn's listener identity, so the same line with a new price or new trouble is
+ * not "heard before". Address, place and names stay out (the same greeting is the same line).
+ */
+const NEWS_SLOTS: readonly string[] = ['price_item', 'price', 'store', 'misfortune', 'owed', 'memory_place'];
+
+/** A turn's skeleton with its news slots' values appended (the listener-memory identity). */
+function newsOf(w: Walk, scene: Scene, line: TalkLine, by: 'initiator' | 'target'): string {
+  let out = w.out;
+  for (const name of NEWS_SLOTS)
+    if (w.used.includes(name)) out += `\u0000${name}=${scene.worldSlot(name, line, by) ?? ''}`;
+  return out;
+}
+
 /** The skeleton plan of a line's turns (no words built); blank turns are dropped. */
 function planLine(line: TalkLine, scene: Scene, idx: TalkIndex, seed: number, s: number): TurnPlan[] {
   const out: TurnPlan[] = [];
@@ -1000,7 +1015,7 @@ function planLine(line: TalkLine, scene: Scene, idx: TalkIndex, seed: number, s:
       by: turn.by,
       who,
       s,
-      sig: hashString32(w.out),
+      sig: hashString32(newsOf(w, scene, line, turn.by)),
       used: w.used,
       usedFacts: w.usedFacts,
     });
