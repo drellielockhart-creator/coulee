@@ -1,6 +1,6 @@
 # Next session: how to pick up
 
-_Updated 2026-10-13, afternoon. The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
+_Updated 2026-10-13, evening. The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
 
 ## Where things stand
 
@@ -88,13 +88,30 @@ _Updated 2026-10-13, afternoon. The repo is https://github.com/drellielockhart-c
   - A slimming pass is running before merge (2.25 → <0.5 ms/h; 3.3 MB → <150 KB slice).
 - **Merge practice learned today:** never merge in `main`'s checkout while `just check` runs there. Use an integration worktree (`wave8/int-*`), run `just bundle` in fresh worktrees before web tests, then fast-forward `main`.
 
+## Wave 9–10 (2026-10-13, evening; `main` green, 1,027 tests)
+- **Director D0** merged: τ, pacing states, a thread registry, the Ledger and personalities as data. It costs 0.18 ms/h and about 55 KB a year.
+  - Baseline: 96% dead-air hours, and τ flat at about 140 with no peaks (`docs/impl/director/2026-10-13-d0-baseline.md`).
+  - Decisions: it reads the unconscious (C55); misattribution yes; a foresight setting (off/tiltable/full).
+- **r3 playtests** (4 Claude personas) were triaged in `docs/impl/PLAYTEST-TRIAGE-2026-10-13-r3.md`. All five fix groups were merged and reconciled:
+  - **A** needs at the current hour, sustainable Rest, sleep fixes;
+  - **B** fair inspect hides numbers, correct memory roles, hearsay;
+  - **C** brawls in any town, scenes retire;
+  - **D** capped restock, Sabbath pay, wages, piece rates;
+  - **E** fresh dialogue, more short acts, season wording, Cedar Farm well.
+- **M5:**
+  - 2e: T2 fidelity bands pass;
+  - 2f: dormant T3 as an **opt-in prototype**. Generated-town promotion fidelity fails because there is no aggregate shopping or restock.
+- **County scale:** Ellie chose dormant T3 plus a faster hourly sim; no statistical T2 and no smaller county.
+  - The **real budget** is per tier: T1 400 actors ≤ 40 ms/h on a mid phone, about ≤ 30 µs per actor-hour on desktop. Today it is about 660 µs, roughly 20× over. See the correction at the end of M5-PLAN.
+- **Codex quota ran out** at about 18:15 PT on 2026-10-13 and resets on 2026-10-20, unless Ellie uses a banked reset. Use Claude subagents until then. They can edit code but not create report files, so save their final messages (`scratchpad/save-report.py` pattern).
+
 ## Next
-1. **In flight (Codex):** D0 slimming (`../coulee-w9-d0`); M5 2e fidelity fix plus a county-scale T2 benchmark (`../coulee-w8-m5s2e`).
-2. **Director D1** (safe nudges N4/N6/N8/N9, the Almanac, the bias hooks with the visible-dice invariant); then exogenous era pressures (DIRECTOR-PLAN §4).
-3. **r3 persona playtests** on the current build: minute budget, income, opinions, brawls, route card. Include the Director's dead-air metric per run.
-4. **M6 slice 3** (firearms, located injuries, bleeding, treatment).
-5. **Web:** a stray "▪" under the Go heading; the region map stays schematic until M5 slice 3.
-6. **Perf:** the phone gate (<5 ms/h) is still far off (Iron Ford ~22 ms/h).
+1. **In flight:** the hourly-sim perf campaign (Claude) on `wave11/perf4` (`../coulee-w11-perf`): hash-identical structural wins first, with behavior-changing ideas listed separately.
+2. **T3 follow-up:** aggregate shopping, restock and trade so generated towns survive dormancy; grudge fidelity; then enable T3 automatically.
+3. **Director D1:** bias hooks plus N4/N6/N8/N9, the Almanac, the visible-dice invariant; then the era pressures from DIRECTOR-PLAN §4.
+4. **r4 playtests** after the perf and D1 work, with helper scripts confined to each agent's own playtest directory.
+5. **M6 slice 3** (firearms, injuries, bleeding, treatment).
+6. **Open from r3 (deferred):** news crossing between sites (M5 slice 5), empty roads (M5 slice 4 and the Director), gen:town evenings (routine tuning), bacon dominance.
 
 ## Useful commands
 
