@@ -102,6 +102,12 @@ export interface HouseholdProvisions {
     kcalPerDay: number;
     members: number;
   };
+  /**
+   * Why short rations stayed cut (2026-10-14): on `day` the forecast at the cut ration reached the
+   * restore threshold, but the forecast at full rations gave only `fullDaysTenths` days (tenths).
+   * Cleared by the next decision that restores, cuts or does not reach the threshold. Readouts only.
+   */
+  rationRestore?: { day: number; fullDaysTenths: number };
 }
 
 export interface Store {

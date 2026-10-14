@@ -41,6 +41,7 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
   ) {
     // No decision is made today, so no forecast can stand for one.
     delete h.rationLease;
+    delete h.rationRestore;
     return;
   }
   // The ration decision only compares against its thresholds: at full rations the question is
@@ -67,11 +68,19 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
   const horizon = before >= 100 ? RATION_LEASE.horizonDays : RATION_RESTORE_DAYS + 1;
   const readiness = planReadiness(world, ctx.content, { householdId }, ctx.now, horizon, false);
   const step = RATION_STEPS.find((s) => readiness.daysOfFoodTenths < s.belowDays * 10);
-  const pct = step
-    ? Math.min(h.rationPct, step.pct)
-    : readiness.daysOfFoodTenths >= RATION_RESTORE_DAYS * 10
-      ? 100
-      : h.rationPct;
+  delete h.rationRestore;
+  let pct = step ? Math.min(h.rationPct, step.pct) : h.rationPct;
+  // A return to full rations is judged at full rations (Ellie, 2026-10-14): the larder must last
+  // the restore threshold eating full plates, or the household would be cut again within days.
+  // The forecast at the cut ration lasts at least as long, so it gates the second projection.
+  let restoreDaysTenths: number | undefined;
+  if (!step && before < 100 && readiness.daysOfFoodTenths >= RATION_RESTORE_DAYS * 10) {
+    const full = planReadiness(world, ctx.content, { householdId }, ctx.now, RATION_RESTORE_DAYS + 1, false, 100);
+    if (full.daysOfFoodTenths >= RATION_RESTORE_DAYS * 10) {
+      pct = 100;
+      restoreDaysTenths = full.daysOfFoodTenths;
+    } else h.rationRestore = { day, fullDaysTenths: full.daysOfFoodTenths };
+  }
   if (
     pct < h.rationPct ||
     (readiness.daysOfFoodTenths < SHORTAGE_NOTICE_DAYS * 10 && h.lastShortageDay !== ctx.cal.dayIndex)
@@ -101,14 +110,18 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
         'Full rations restored',
         members,
         pct,
-        [term('food', 'Days of food tenths', readiness.daysOfFoodTenths)],
+        [
+          term('food', 'Days of food at the cut ration, tenths', readiness.daysOfFoodTenths),
+          term('food', 'Days of food at full rations, tenths', restoreDaysTenths ?? 0),
+          term('policy', 'Days at full rations a restore needs', RATION_RESTORE_DAYS),
+        ],
         'restored',
       ),
     });
   h.rationPct = pct;
   h.shortageStep = pct === 100 ? 0 : pct === 90 ? 1 : pct === 75 ? 2 : 3;
-  // Only a forecast made at the ration it leaves in place can stand for it (a restore was judged
-  // at the cut ration). It stands no longer than the next cut, or the daily shortage notice, could
+  // Only a forecast that leaves the ration in place can stand for it (a restore never stands; a
+  // refused restore stands on the cut ration's forecast until the larder gains food). It stands no longer than the next cut, or the daily shortage notice, could
   // fall due even if the larder ran down at the guard's limit (guardPct of plan) every day:
   // D - spare x guardPct / 100 >= next cut + safety.
   const nextCut = Math.max(SHORTAGE_NOTICE_DAYS, ...RATION_STEPS.filter((s) => s.pct < pct).map((s) => s.belowDays));

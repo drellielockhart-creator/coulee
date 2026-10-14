@@ -14,6 +14,7 @@ import type { ContentBundle } from '../content.ts';
 import { restoreDirector } from '../director/api.ts';
 import { appendEvent, type Event, type EventInput, trimLog } from '../events/index.ts';
 import { hashValue } from '../hash.ts';
+import { withInventoryPass } from '../items/api.ts';
 import { advanceCombatHealth, canAct } from '../needs/api.ts';
 import { authorizeAct } from '../psyche/api.ts';
 import { regionSystem, validateRegionState } from '../region/api.ts';
@@ -130,15 +131,20 @@ export function stepHourly(sim: Sim, commands: readonly Command[] = [], logComma
   }
   prepareJourneys(world, ctx);
   const wrap = sim.wrapSystem;
-  for (const sys of HOURLY_SYSTEMS) {
-    const admitted = ctx.commands.filter(
-      (c) => c.kind === 'activity.observe' || c.kind === 'activity.wait' || canAct(world, c.actorId),
-    );
-    const systemCtx = { ...ctx, commands: admitted };
-    if (wrap) wrap(sys.id, () => sys.run(world, systemCtx));
-    else sys.run(world, systemCtx);
-    if (sys.id === 'provisions') finishJourneys(world, systemCtx);
-  }
+  // One mutation-aware inventory index serves the whole hour: every stack creation, move and
+  // regional commit goes through items/api, which extends or drops it, so each system reads the
+  // same stacks a fresh index would give (deletions are always checked live).
+  withInventoryPass(world, () => {
+    for (const sys of HOURLY_SYSTEMS) {
+      const admitted = ctx.commands.filter(
+        (c) => c.kind === 'activity.observe' || c.kind === 'activity.wait' || canAct(world, c.actorId),
+      );
+      const systemCtx = { ...ctx, commands: admitted };
+      if (wrap) wrap(sys.id, () => sys.run(world, systemCtx));
+      else sys.run(world, systemCtx);
+      if (sys.id === 'provisions') finishJourneys(world, systemCtx);
+    }
+  });
   // Chronicle has sifted the causal log up to lastId; Director writes only its own journal.
   if (ctx.isNewDay) trimLog(world.log, ctx.now);
   world.time = asGameMinute(world.time + 60);

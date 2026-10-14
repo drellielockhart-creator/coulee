@@ -259,14 +259,29 @@ export function mergeCompatible(a: ItemStack, b: ItemStack, def: ItemDef | undef
 /** If another stack at the same place is interchangeable, fold `stack` into it and return that id. */
 export function tryMerge(world: World, content: ContentBundle, stack: ItemStack): ItemId {
   const def = content.items[stack.defId];
-  for (const other of rowsOf(world.items.stacks)) {
-    if (other.id < stack.id && mergeCompatible(stack, other, def)) {
-      other.qty += stack.qty;
-      for (const eventId of stack.provenance) recordProvenance(other, eventId);
-      delete world.items.stacks[stack.id];
-      return other.id;
+  if (!def?.stackable) return stack.id;
+  const merge = (other: ItemStack): ItemId => {
+    other.qty += stack.qty;
+    for (const eventId of stack.provenance) recordProvenance(other, eventId);
+    delete world.items.stacks[stack.id];
+    return other.id;
+  };
+  // Inside a pass with a live index, the first compatible stack in ascending id order is the first
+  // in the index's list for this location (every live indexed stack sits in the list of its
+  // current location: moves drop the index), or else among the ids created since it was built.
+  const pass = inventoryPasses.get(world);
+  if (pass?.index) {
+    for (const other of pass.index.at[locKey(stack.location)] ?? [])
+      if (world.items.stacks[other.id] === other && other.id < stack.id && mergeCompatible(stack, other, def))
+        return merge(other);
+    for (let id = pass.counter + 1; id < stack.id; id++) {
+      const other = world.items.stacks[id as ItemId];
+      if (other && mergeCompatible(stack, other, def)) return merge(other);
     }
+    return stack.id;
   }
+  for (const other of rowsOf(world.items.stacks))
+    if (other.id < stack.id && mergeCompatible(stack, other, def)) return merge(other);
   return stack.id;
 }
 

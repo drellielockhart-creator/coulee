@@ -111,6 +111,77 @@ describe('food forecast: household ration decisions', () => {
     expect(w.log.events.some((e) => e.kind === 'provisions.rations' && e.data.householdId === hid)).toBe(true);
   });
 
+  // Ellie, 2026-10-14: short rations go back to full only if the larder lasts the restore
+  // threshold at FULL rations; judged at the cut ration, a restored household was cut again.
+  describe('a return to full rations is judged at full rations', () => {
+    const setup = () => {
+      const sim = simFor({ seed: 42, hours: 24 });
+      const w = sim.world;
+      w.provisions.settings.npcBuying = false;
+      const hid = household(sim);
+      const h = w.provisions.households[hid];
+      if (!h) throw new Error('household');
+      h.rationPct = 75;
+      h.shortageStep = 2;
+      const forecast = (qty: number, ration?: number) => {
+        stockPantry(sim, hid, { hardtack: qty });
+        return withInventoryPass(w, () =>
+          planReadiness(w, sim.content, { householdId: hid }, w.time, RATION_RESTORE_DAYS + 1, false, ration),
+        ).daysOfFoodTenths;
+      };
+      return { sim, w, hid, h, forecast };
+    };
+
+    it('a larder that covers the restore horizon at 75% but not at full rations stays at 75%', () => {
+      const { sim, w, hid, h, forecast } = setup();
+      let qty = 10;
+      while (forecast(qty) < RATION_RESTORE_DAYS * 10 + 5) qty += 5;
+      const full = forecast(qty, 100);
+      expect(full).toBeLessThan(RATION_RESTORE_DAYS * 10 - 5);
+      expect(forecast(qty)).toBeGreaterThanOrEqual(RATION_RESTORE_DAYS * 10);
+      const start = w.log.lastId;
+      runHours(sim, 1); // day 1, hour 0
+      expect(h.rationPct).toBe(75);
+      expect(h.rationRestore).toMatchObject({ day: 1 });
+      expect(h.rationRestore?.fullDaysTenths).toBeLessThan(RATION_RESTORE_DAYS * 10);
+      expect(
+        w.log.events.some((e) => e.id > start && e.kind === 'provisions.rations' && e.data.householdId === hid),
+      ).toBe(false);
+      // The readout says why rations stayed cut, with the full-ration forecast's figure (P1).
+      const r = withInventoryPass(w, () => planReadiness(w, sim.content, { householdId: hid }, w.time, 30, true));
+      expect(r.rations?.pct).toBe(75);
+      expect(
+        r.rations?.explain.terms.some(
+          (t) => t.label === 'Days of food at full rations then, tenths' && t.value === h.rationRestore?.fullDaysTenths,
+        ),
+      ).toBe(true);
+      expect(r.warnings.some((line) => line.includes('Rations stay at 75%') && line.includes('at full rations'))).toBe(
+        true,
+      );
+    });
+
+    it('a larder that covers the restore horizon at full rations is restored and not cut the next day', () => {
+      const { sim, w, hid, h, forecast } = setup();
+      let qty = 10;
+      while (forecast(qty, 100) < RATION_RESTORE_DAYS * 10 + 5) qty += 5;
+      const start = w.log.lastId;
+      runHours(sim, 1); // day 1, hour 0
+      expect(h.rationPct).toBe(100);
+      expect(h.rationRestore).toBeUndefined();
+      const restored = w.log.events.find(
+        (e) => e.id > start && e.kind === 'provisions.rations' && e.data.householdId === hid,
+      );
+      expect(
+        restored?.explain?.terms.find((t) => t.label === 'Days of food at full rations, tenths')?.value,
+      ).toBeGreaterThanOrEqual(RATION_RESTORE_DAYS * 10);
+      runHours(sim, 24); // day 2, hour 0
+      expect(h.rationPct).toBe(100);
+      expect(
+        w.log.events.some((e) => e.id > start && e.kind === 'provisions.shortage' && e.data.householdId === hid),
+      ).toBe(false);
+    });
+  });
+
   it('a bedridden member does not make a full larder look empty', () => {
     const sim = simFor({ seed: 42, hours: 24 });
     const w = sim.world;

@@ -94,14 +94,27 @@ export function walkMinutes(world: World, content: Pick<ContentBundle, 'sites'>,
 
 /** Labor level of the actor's current activity ('light' when none). */
 export function laborOf(world: World, ctx: Pick<SimContext, 'content'>, actorId: ActorId): 'rest' | 'light' | 'heavy' {
+  return laborDoing(world, ctx, actorId, world.activity.byActor[actorId]?.activityId);
+}
+
+/** `laborOf` as if the actor were doing `activityId` (the needs ledger's per-minute split). */
+export function laborDoing(
+  world: World,
+  ctx: Pick<SimContext, 'content'>,
+  actorId: ActorId,
+  activityId: string | null | undefined,
+): 'rest' | 'light' | 'heavy' {
   if (!canAct(world, actorId)) return 'rest';
-  const id = world.activity.byActor[actorId]?.activityId;
-  return (id ? ctx.content.activities[id]?.labor : undefined) ?? 'light';
+  return (activityId ? ctx.content.activities[activityId]?.labor : undefined) ?? 'light';
 }
 
 export function isAsleep(world: World, ctx: Pick<SimContext, 'content'>, actorId: ActorId): boolean {
-  const id = world.activity.byActor[actorId]?.activityId;
-  return id ? (ctx.content.activities[id]?.asleep ?? false) : false;
+  return asleepDoing(ctx, world.activity.byActor[actorId]?.activityId);
+}
+
+/** `isAsleep` for an actor doing `activityId`. */
+export function asleepDoing(ctx: Pick<SimContext, 'content'>, activityId: string | null | undefined): boolean {
+  return activityId ? (ctx.content.activities[activityId]?.asleep ?? false) : false;
 }
 
 /** True if hour h is inside a [from, to) block, handling wrap past midnight. */
@@ -488,7 +501,7 @@ export function relocateForCare(
     });
 }
 
-export { recomputeOccupancy } from './state.ts';
+export { type ActorActivity, recomputeOccupancy } from './state.ts';
 export * from './tactical.ts';
 export * from './travel.ts';
 export * from './travel-rules.ts';

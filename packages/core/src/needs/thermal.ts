@@ -46,9 +46,10 @@ export function heatPlaces(world: World, ctx: SimContext): Record<number, number
   const heated = fixedDerivation(world, 'heat:places', () =>
     idsOf<PlaceId>(world.places).filter((id) => processesPlace(world, id)),
   );
+  const hearths = sortedHearths(ctx.content);
   for (const pid of heated) {
     const place = requiredRow(world.places, pid);
-    const hearth = sortedHearths(ctx.content).find((h) => h.place_tags.some((tag) => place.tags.includes(tag)));
+    const hearth = hearths.find((h) => h.place_tags.some((tag) => place.tags.includes(tag)));
     if (!hearth) {
       temperatures[pid] = air;
       if (regional) regional[pid] = air;

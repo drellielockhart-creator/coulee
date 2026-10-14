@@ -44,7 +44,7 @@ import {
   withProjectionMeals,
 } from './meals.ts';
 import { nutritionHour } from './nutrition.ts';
-import { RATION_LEASE } from './rules.ts';
+import { RATION_LEASE, RATION_RESTORE_DAYS } from './rules.ts';
 import { minutesUntil, spoilageFactors } from './spoilage.ts';
 import { type DayIntake, emptyNutrition } from './state.ts';
 import { airTempF } from './temperature.ts';
@@ -69,14 +69,15 @@ export function planReadiness(
   now: number,
   horizonDays = 366,
   details = true,
+  /** Project at this ration instead of the holder's own: a restore is judged at full rations (2026-10-14). */
+  atRationPct?: number,
 ): Readiness {
   const members = membersOf(world, holder);
   const stacks = holderStacks(world, holder);
+  const ration = atRationPct ?? rationOf(world, holder);
   const result: Readiness = {
     kcalOnHand: 0,
-    kcalPerDay: Math.round(
-      (members.reduce((n, id) => n + dailyKcal(world, content, id, now), 0) * rationOf(world, holder)) / 100,
-    ),
+    kcalPerDay: Math.round((members.reduce((n, id) => n + dailyKcal(world, content, id, now), 0) * ration) / 100),
     daysOfFoodTenths: 0,
     daysOfFuelTenths: null,
     spoilsFirst: null,
@@ -238,11 +239,13 @@ export function planReadiness(
       ? { ...original, today: copyIntake(original.today), history: original.history.map(copyIntake) }
       : emptyNutrition(Math.floor(now / 1440));
     const nutrition = projection.provisions.nutrition[id];
-    if (nutrition) nutrition.rationPct = world.provisions.nutrition[id]?.rationPct ?? 100;
+    if (nutrition)
+      nutrition.rationPct =
+        'actorId' in holder && holder.actorId === id ? ration : (world.provisions.nutrition[id]?.rationPct ?? 100);
   }
   if ('householdId' in holder) {
     const h = world.provisions.households[holder.householdId];
-    if (h) projection.provisions.households[holder.householdId] = { ...h };
+    if (h) projection.provisions.households[holder.householdId] = { ...h, rationPct: ration };
   }
   const fuelStart = details ? holderSupply(world, content, holder, 'fire') : 0;
   let fuelDay = 0,
@@ -266,7 +269,7 @@ export function planReadiness(
   );
   // Orders change who eats, not what exists: the readout projects the kit as if it is eaten.
   const pass = { energy: new Map<string, number>(), explain: false, hypothetical: true };
-  const rationPct = rationOf(world, holder);
+  const rationPct = ration;
   // The projection's own hem state: verified charms only, never written back (13 §5.7).
   const hems = world.fae?.charms ? forecastHems(world, content, members, stacks) : undefined;
   // Kernels consume the context synchronously. Share callbacks, but retain a fresh
@@ -440,6 +443,19 @@ export function rationStanding(
   if (!h) return undefined;
   const lease = h.rationLease;
   const terms = [term('policy', 'Ration percent', h.rationPct)];
+  const date = (day: number) => formatDate(asGameMinute(day * 1440));
+  // Short rations that reached the restore threshold at the cut ration but not at full rations
+  // (household.ts, 2026-10-14): name the full-ration forecast that kept them cut.
+  const refused = h.rationPct < 100 ? h.rationRestore : undefined;
+  if (refused)
+    terms.push(
+      term('food', 'Forecast at full rations made on day', refused.day),
+      term('food', 'Days of food at full rations then, tenths', refused.fullDaysTenths),
+      term('policy', 'Days at full rations a restore needs', RATION_RESTORE_DAYS),
+    );
+  const refusal = refused
+    ? `Rations stay at ${h.rationPct}%: on ${date(refused.day)} the larder would have lasted ${(refused.fullDaysTenths / 10).toFixed(1)} days at full rations, short of the ${RATION_RESTORE_DAYS} a return to full rations needs.`
+    : undefined;
   if (!lease)
     return {
       rations: {
@@ -452,6 +468,7 @@ export function rationStanding(
           'decided',
         ),
       },
+      ...(refusal ? { warning: refusal } : {}),
     };
   terms.push(
     term('food', 'Forecast made on day', lease.day),
@@ -461,14 +478,13 @@ export function rationStanding(
     term('food', 'Planned kcal a day', lease.kcalPerDay),
     term('policy', 'Rechecked at once if the larder falls faster than percent of plan', RATION_LEASE.guardPct),
   );
-  const date = (day: number) => formatDate(asGameMinute(day * 1440));
   return {
     rations: {
       pct: h.rationPct,
       heldUntilDay: lease.untilDay,
       explain: mealExplain('Rations held on a standing forecast', [...subjects], h.rationPct, terms, 'held'),
     },
-    warning: `Rations held at ${h.rationPct}% on the forecast of ${date(lease.day)}: ${(lease.daysTenths / 10).toFixed(1)} days of food; rechecked by ${date(lease.untilDay)}, or the first morning the larder falls faster than planned${h.rationPct < 100 ? ' or gains food' : ''}.`,
+    warning: `Rations held at ${h.rationPct}% on the forecast of ${date(lease.day)}: ${(lease.daysTenths / 10).toFixed(1)} days of food; rechecked by ${date(lease.untilDay)}, or the first morning the larder falls faster than planned${h.rationPct < 100 ? ' or gains food' : ''}.${refusal ? ` ${refusal}` : ''}`,
   };
 }
 
