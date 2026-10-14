@@ -1,6 +1,6 @@
 # Next session: how to pick up
 
-_Updated 2026-10-13, late evening (wave 11). The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
+_Updated 2026-10-14 (wave 13). The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
 
 ## Where things stand
 
@@ -142,6 +142,29 @@ _Updated 2026-10-13, late evening (wave 11). The repo is https://github.com/drel
     - a standing forecast misses non-kcal losses (cookware, tinder, woodpile) for up to the lease length;
     - Iron Ford household 6's projected thirst swings;
     - the needs module copies all actors per walking actor (O(n²) at county): next perf target.
+
+## Wave 13 (2026-10-14; `main` green, 1,057 tests, `0446981`; replay `rulesVersion` 7)
+Ellie said to focus on perf. Three Claude agents, each with a Claude review:
+- **perf-needs:** EXACT wins (the needs ledger's O(n²) actor copy, one inventory index per hour, index-backed `tryMerge`, rota grouping); county −18%.
+  - **Ellie's decision:** restores are judged at full rations (a 30-day full-ration forecast). A refused restore shops toward a target derived from that forecast (kcal only).
+  - Report: `docs/impl/perf/2026-10-14-needs.md`.
+- **perf-psyche:** EXACT incremental memory digests (Iron Ford −3–6%; single write path enforced by `memory-digests.test.ts`). The idle-mind cadence was a negative result (no gain) and was removed; the prototype is in `b2ed909`. Report: `docs/impl/perf/2026-10-14-psyche.md`.
+- **perf-social:**
+  - Lazy talk rendering (`TalkRef`, `social.talkWords`); repeat identity includes the news slots.
+  - Call candidates: acquaintances, kin, the 3 nearest households, plus up to 3 "isolated or new" households. County calls now actually land.
+  - Escalating loan-return duties (fae fetch plus the social return).
+  - Dormancy gated on *live* persecutions only (`region/coarse.ts`).
+  - Report: `docs/impl/perf/2026-10-14-social.md`.
+- **Combined (this host):**
+  - Iron Ford 42 30 d ≈ 10.4 ms/h (17.6 at the start of wave 11), ≈ 260 µs/actor-h. Psyche 4.0, provisions 3.0, social 2.0.
+  - County bench, 24 h after a 48 h warmup: seed 41 92 ms/h, seed 42 89 ms/h, ≈ 205 µs per hourly actor. Provisions 38 and psyche 24 dominate; provisions here are the early-county forecast burst.
+  - **Still ~7× over the 30 µs budget.** Further gains need coarser or less frequent per-actor simulation: a design call for Ellie.
+- **Open follow-ups:**
+  - belief grudge urges (insult/dun) propose absent targets and starve duties;
+  - persecution rows are never retired (they no longer block dormancy);
+  - credit headroom in poor gen towns by winter;
+  - the talk-repeat guard is 17% per seed (the 15% target is a mean);
+  - the early-county forecast burst (every household forecasts on days 1–3).
 
 ## Next
 1. **Ellie decides** on the remaining perf proposals (psyche cadence, lazy talk, callers), per-actor coarsening, and the ration-restore question (above).
