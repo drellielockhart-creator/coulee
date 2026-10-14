@@ -102,9 +102,7 @@ export function agencyOf(world: World, id: ActorId): AgencyState {
 }
 export function setAgency(world: World, id: ActorId, state: AgencyState): void {
   const p = world.psyche.byActor[id];
-  if (!p) return;
-  p.agency = state;
-  delete p.pace;
+  if (p) p.agency = state;
 }
 export function authorizeAct(
   world: World,
@@ -219,7 +217,6 @@ export function applyStandingOrders(
 ): boolean {
   const p = world.psyche.byActor[actorId];
   if (!p) return false;
-  delete p.pace;
   if (data.agencyMode) p.agencyMode = data.agencyMode;
   p.standingOrders = {
     ...data.orders,

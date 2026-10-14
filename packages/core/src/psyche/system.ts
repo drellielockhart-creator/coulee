@@ -22,7 +22,7 @@
  * slight), never into ostentatious kindness. Social executes the defense urge with the
  * interactions of its `defense_interactions` row, which must name hostile/exposing acts.
  */
-import { currentActivity, isAsleep, minuteBudget, occupants, walkMinutes, withRoutineMemo } from '../activity/api.ts';
+import { currentActivity, minuteBudget, walkMinutes, withRoutineMemo } from '../activity/api.ts';
 import { formProjection, suspicionOf } from '../belief/api.ts';
 import type { ContentBundle, DefenseId } from '../content.ts';
 import type { Explain } from '../explain.ts';
@@ -61,22 +61,12 @@ import {
   arbitrate,
   arbitrationExplain,
   dominantVoice,
-  noiseAmplitude,
   type OptionInput,
   opposes,
   optionsFromThoughts,
   type ScoredOption,
   supports,
 } from './arbitrate.ts';
-import {
-  DEFENSE_REFRACTORY_MINUTES,
-  defenseDue,
-  idleCadenceEnabled,
-  idleCandidate,
-  NIGHT_END_HOUR,
-  paceSignature,
-  touchedSinceLastPass,
-} from './cadence.ts';
 import {
   candidateExplains,
   type DefenseCandidate,
@@ -150,9 +140,6 @@ function psychePass(world: World, ctx: SimContext): void {
     applyStandingOrders(world, cmd.actorId, cmd.data);
   }
   const idx = buildTagIndex(ctx.content);
-  // Cadence for idle minds (cadence.ts): who was spoken to, struck or near a scene since the last pass.
-  // Off (the default) the cadence is inert: no bookkeeping, every mind runs its full pass.
-  const pace = idleCadenceEnabled() ? { touched: touchedSinceLastPass(world, ctx) } : undefined;
   for (const id of idsOf<ActorId>(world.psyche.byActor)) {
     if (!processesActor(world, id)) continue;
     const p = world.psyche.byActor[id];
@@ -166,7 +153,7 @@ function psychePass(world: World, ctx: SimContext): void {
     // makes the calendar win sleep unconditionally and leaves thoughts/anxiety unaged;
     // physiology then correctly accounts for the wrong activity. Use the same decision
     // clock as the shared hourly ledger, water and meal kernels.
-    psycheHour(world, ctx, id, idx, undefined, pace);
+    psycheHour(world, ctx, id, idx);
   }
   if (ctx.isNewDay) psycheDaily(world, ctx);
 }
@@ -182,37 +169,15 @@ function realDrives(content: ContentBundle): Set<string> {
 // One actor-hour
 // ---------------------------------------------------------------------------------------------
 
-export function psycheHour(
-  world: World,
-  ctx: SimContext,
-  actorId: ActorId,
-  idx?: TagIndex,
-  minutes?: number,
-  pace?: { touched: ReadonlySet<ActorId> | null },
-): void {
+export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?: TagIndex, minutes?: number): void {
   // The Mind and the gathered proposals read the same routine: derive it once (no state changes between).
-  let sig: number | undefined;
-  /** Base-score lead of the standing choice over noise and compromise reach (cadence.ts). */
-  let slack = -1;
   const gathered = withRoutineMemo(world, ctx, actorId, () => {
-    const p0 = world.psyche.byActor[actorId];
-    // Only a sleeper can idle next hour: others keep no pace record (cadence.ts).
-    if (pace && p0 && minutes === undefined) {
-      if (isAsleep(world, ctx, actorId)) {
-        sig = paceSignature(world, ctx, actorId, p0);
-        if (idleCandidate(world, ctx, actorId, p0, pace.touched, sig)) return 'idle' as const;
-      } else if (p0.pace) delete p0.pace;
-    }
     const mind = mindFor(world, ctx, actorId, idx);
     if (!mind) return null;
     const prevChosen = mind.p.chosen;
     return { mind, prevChosen, external: minutes === undefined ? externalProposals(mind) : [] };
   });
   if (!gathered) return;
-  if (gathered === 'idle') {
-    idleHour(world, ctx, actorId, idx ?? buildTagIndex(ctx.content), sig as number);
-    return;
-  }
   const m = gathered.mind;
   const { p, content } = m;
   const fearDrives = realDrives(content);
@@ -300,8 +265,6 @@ export function psycheHour(
     }
     chosenUrge = out.urge;
     mode = out.mode;
-    if (sig !== undefined)
-      slack = out.rolled ? -1 : decisionSlack(world, ctx, actorId, res, held ? allowed : res.winner, held);
     for (const [t, f] of out.satisfaction) sat.set(t, f);
     const voice: ChoiceVoice =
       mode === 'command'
@@ -406,7 +369,7 @@ export function psycheHour(
   }
 
   // 3. Frustration and anxiety.
-  bookFrustration(m, chosenUrge, sat, fearDrives, res !== null);
+  bookFrustration(m, chosenUrge, sat, fearDrives, res);
   personaStrain(m);
   discharge(m, mode);
 
@@ -419,93 +382,6 @@ export function psycheHour(
 
   // 5. End of hour.
   decayThoughts(p);
-  if (sig !== undefined) p.pace = { at: ctx.now, sig, slack, full: ctx.now };
-}
-
-/**
- * How far the standing choice leads its nearest rival before noise, less what the hour's noise
- * (two draws of ±amplitude) and the compromise window (a close contest of opposite voices is
- * re-rolled every hour) could take back; −1 when there was no contest or a check was rolled.
- * A held mind's rivals are the other options its standing orders allow.
- */
-function decisionSlack(
-  world: World,
-  ctx: SimContext,
-  actorId: ActorId,
-  res: ArbitrationResult,
-  pick: ScoredOption | undefined,
-  held: boolean,
-): number {
-  if (!pick) return -1;
-  let rival: number | null = null;
-  for (const o of res.options) {
-    if (o === pick || (held && !standingUrge(world, ctx, actorId, o.urge))) continue;
-    if (rival === null || o.base > rival) rival = o.base;
-  }
-  const amp = noiseAmplitude(world.psyche.byActor[actorId]?.ego ?? 50);
-  return rival === null ? 1000 : pick.base - rival - COMPROMISE_WINDOW - 2 * amp;
-}
-
-/** Thought keys the hourly gathering renews (proposals, rules, prohibitions). */
-const GATHERED = ['ext:', 'rule:', 'forbid:'];
-
-/**
- * The last pass renewed (or bore) this gathered thought: renewal replaces its reasons, so after
- * that pass's decay its only fading is exactly one hour's step.
- */
-function renewedLastPass(t: Thought): boolean {
-  if (t.key === undefined || !GATHERED.some((k) => t.key?.startsWith(k))) return false;
-  const fade = t.reasons.filter((r) => r.source === 'decay');
-  return fade.length === 1 && fade[0]?.value === -t.decayPerHour;
-}
-
-/**
- * An idle hour (cadence.ts): the situation is the last hour's, so the gathering would renew the
- * same thoughts to the same values and the standing choice would stand. Renew those thoughts
- * from their own record (the renewed state: its reasons without the hour's fading), book the
- * same frustration, persona strain and discharge, fire a defense if one comes due, and age every
- * thought. `chosen` is left as decided (its Explain and `at` stay the arbitration's own).
- */
-function idleHour(world: World, ctx: SimContext, actorId: ActorId, idx: TagIndex, sig: number): void {
-  const p = world.psyche.byActor[actorId] as ActorPsyche;
-  const actor = world.actors[actorId];
-  const chosen = p.chosen;
-  if (!actor || !chosen) return;
-  const present = occupants(world, actor.placeId).filter((o) => o !== actorId && world.actors[o]?.alive === true);
-  let audience = 0;
-  for (const o of present) if (world.actors[o]?.householdId !== actor.householdId) audience++;
-  const m: Mind = {
-    world,
-    ctx,
-    content: ctx.content,
-    idx,
-    cal: ctx.cal,
-    actorId,
-    actor,
-    p,
-    block: null,
-    asleep: true,
-    present,
-    audience,
-    known: [],
-  };
-  for (const t of p.thoughts) {
-    if (!renewedLastPass(t)) continue;
-    const i = t.reasons.findIndex((r) => r.source === 'decay');
-    t.intensity -= t.reasons[i]?.value ?? 0;
-    t.reasons.splice(i, 1);
-  }
-  const fearDrives = realDrives(ctx.content);
-  bookFrustration(m, chosen.urge, new Map(), fearDrives, true);
-  personaStrain(m);
-  discharge(m, p.lastMode);
-  if (defenseDue(p, ctx.now)) {
-    const full = withRoutineMemo(world, ctx, actorId, () => mindFor(world, ctx, actorId, idx));
-    if (full)
-      maybeDefend(full, fearDrives, !authorizeAct(world, actorId, { kind: 'consequential' }, { kind: 'own' }).ok);
-  }
-  decayThoughts(p);
-  p.pace = { at: ctx.now, sig, slack: p.pace?.slack ?? -1, full: p.pace?.full ?? ctx.now };
 }
 
 function emitThought(m: Mind, t: Thought): void {
@@ -544,7 +420,9 @@ function emitThought(m: Mind, t: Thought): void {
  *   already doing it                       + 50
  *   the other person is here / isn't       + 50 / − 300
  */
-/** Base weight of sleep pressure in the small hours (until NIGHT_END_HOUR, cadence.ts) (plus half the rest deficit). */
+/** Midnight to this hour, the sleep-pressure term applies when the calendar says bed. */
+const NIGHT_END_HOUR = 5;
+/** Base weight of sleep pressure in the small hours (plus half the rest deficit). */
 const NIGHT_BASE = 300;
 
 export function realityOf(m: Mind, u: Urge): Array<{ source: string; label: string; value: number }> {
@@ -602,8 +480,6 @@ interface Decision {
   explain: Explain;
   /** Satisfaction (f, percent) granted to thoughts by a compromise or sublimation. */
   satisfaction: Map<Thought, number>;
-  /** A compromise or sublimation check was rolled (its die is redrawn every hour: no idling). */
-  rolled?: boolean;
 }
 
 /** Plain win, command, compromise (10 §5.3), sublimation (10 §5.3), or impulse (10 §5.4). */
@@ -611,7 +487,6 @@ function decide(m: Mind, res: ArbitrationResult): Decision {
   const { p, actorId, ctx, content } = m;
   const satisfaction = new Map<Thought, number>();
   const w = res.winner;
-  let rolled = false;
   if (res.command) {
     const explain = arbitrationExplain(
       actorId,
@@ -667,7 +542,6 @@ function decide(m: Mind, res: ArbitrationResult): Decision {
       const tension = Math.min(idOpt.idSupport, (seOpt?.superegoSupport ?? 0) + idOpt.superegoOpposition);
       const dc = 10 + Math.floor(tension / 100);
       const roll = ctx.rng('psyche', mixKey(actorId, SALT_COMPROMISE)).d20();
-      rolled = true;
       const total = roll + em - band;
       const check: Explain = {
         kind: 'check',
@@ -692,7 +566,7 @@ function decide(m: Mind, res: ArbitrationResult): Decision {
       };
       if (total < dc) {
         const explain = arbitrationExplain(actorId, `${w.name}`, res, w.key, 'chosen', [check]);
-        return { urge: w.urge, mode: 'plain', winner: w, explain, satisfaction, rolled };
+        return { urge: w.urge, mode: 'plain', winner: w, explain, satisfaction };
       }
       for (const t of p.thoughts) {
         if (t.voice === 'id') satisfaction.set(t, c.id_pct);
@@ -719,7 +593,6 @@ function decide(m: Mind, res: ArbitrationResult): Decision {
       const tpl = sublimationFor(m, d);
       if (!tpl) continue;
       const roll = ctx.rng('psyche', mixKey(actorId, SALT_SUBLIMATE, hashString32(d))).d20();
-      rolled = true;
       const total = roll + em;
       const check: Explain = {
         kind: 'check',
@@ -750,7 +623,7 @@ function decide(m: Mind, res: ArbitrationResult): Decision {
     w.key,
     'chosen',
   );
-  return { urge: w.urge, mode, winner: w, explain, satisfaction, rolled };
+  return { urge: w.urge, mode, winner: w, explain, satisfaction };
 }
 
 function sublimationFor(m: Mind, drive: string): { label: string; urge: Urge; id: string } | null {
@@ -793,7 +666,7 @@ function bookFrustration(
   chosen: Urge | null,
   sat: Map<Thought, number>,
   fearDrives: ReadonlySet<string>,
-  contested: boolean,
+  res: ArbitrationResult | null,
 ): void {
   const { p, content, ctx } = m;
   const frustrated: Frustration[] = [];
@@ -827,7 +700,7 @@ function bookFrustration(
     } else if (t.voice === 'id' && t.drive !== undefined) satisfiedDrives.add(t.drive);
   }
   // Only arbitrations with a real contest book anxiety; with no options nothing was refused.
-  if (contested) {
+  if (res) {
     const liveFear = p.thoughts.filter((t) => t.voice === 'id' && t.drive !== undefined && fearDrives.has(t.drive));
     const acc = accrueAnxiety(p, frustrated, fearDrives, liveFear);
     const remaining = minuteBudget(m.world, m.actorId).remaining;
@@ -1104,8 +977,9 @@ export function defenseSituation(m: Mind, fearDrives: ReadonlySet<string>): Defe
  * A discharged mind needs time before it reaches for another defense (10 §7.1 tuning): without a
  * refractory hour count, an anxious actor defended every other hour and the village was all
  * displaced insults. Defenses still fire on a bad day; they no longer fire all day.
- * (DEFENSE_REFRACTORY_MINUTES lives in cadence.ts, which also asks whether a defense is due.)
  */
+const DEFENSE_REFRACTORY_MINUTES = 8 * 60;
+
 function maybeDefend(m: Mind, fearDrives: ReadonlySet<string>, commandHolds: boolean): void {
   const { p, ctx, actorId, content } = m;
   const theta = defenseThreshold(p.ego);

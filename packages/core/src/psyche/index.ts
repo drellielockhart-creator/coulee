@@ -12,7 +12,6 @@ export {
 } from './anxiety.ts';
 export * from './api.ts';
 export { type ArbitrationResult, arbitrate, type OptionInput, type ScoredOption } from './arbitrate.ts';
-export { idleCadenceEnabled, setIdleCadence } from './cadence.ts';
 export * from './commands.ts';
 export { type DefenseCandidate, type DefenseSituation, defenseCandidates, TIER_RANK } from './defenses.ts';
 export * from './events.ts';
