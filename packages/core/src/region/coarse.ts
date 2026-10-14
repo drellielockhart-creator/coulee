@@ -15,6 +15,9 @@ import type { World } from '../world.ts';
 import { updateDormantOwners } from './dormant.ts';
 import { actorSite, withDailySites } from './processing.ts';
 
+/** A persecution fed within this long keeps its target's site hourly (see eligibleSites). */
+const PERSECUTION_WARM_MINUTES = 7 * 1440;
+
 /** A site is indivisible until cross-site meals, jobs, charms and journeys gain interval contracts. */
 export function eligibleSites(world: World): Set<string> {
   const candidates = new Set(world.region?.definition.nodes.map((n) => n.site) ?? []);
@@ -91,6 +94,12 @@ export function eligibleSites(world: World): Set<string> {
     }
   }
   for (const p of world.belief.persecutions) {
+    // Only a live process holds its target's site awake: one that has climbed a rung, has a step
+    // waiting, or has heat and was fed within the week. A cold rung-0 suspicion (no heat, a holder
+    // or two) no longer pins a site hourly forever (review wave 13: rows are never removed).
+    const live =
+      p.rung >= 1 || p.pending !== null || (p.heat > 0 && world.time - p.lastFuelAt <= PERSECUTION_WARM_MINUTES);
+    if (!live) continue;
     if (p.target.kind === 'actor') candidates.delete(actorSite(world, p.target.id));
     if (p.target.kind === 'household')
       candidates.delete(world.places[world.households[p.target.id]?.homePlaceId ?? 0]?.siteId ?? '');

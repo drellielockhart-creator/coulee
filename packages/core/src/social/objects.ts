@@ -608,7 +608,12 @@ export function loanUrges(world: World, ctx: SimContext, actorId: ActorId): Urge
       const lender = world.actors[loan.lenderId];
       if (!world.households[loan.lenderHouseholdId]) continue;
       const duty = world.fae?.ablation?.loanDuty ?? 350 + normStrength(world, actorId, 'duty') * 4;
-      const overdue = ctx.now > loan.dueAt ? 150 : 0;
+      // The duty presses as the day nears and harder once it is past (review wave 13: a flat +150
+      // lost to chores and grudges until the loan breached): +10 an hour over the last half day,
+      // then 150 + 50 an hour overdue, to at most +500.
+      const nearing = Math.min(12, Math.max(0, Math.floor((ctx.now - (loan.dueAt - 720)) / 60))) * 10;
+      const overdue =
+        (ctx.now > loan.dueAt ? Math.min(500, 150 + Math.floor((ctx.now - loan.dueAt) / 60) * 50) : 0) + nearing;
       const home = world.households[loan.lenderHouseholdId]?.homePlaceId;
       const returnDef = ctx.content.interactions.return_item;
       // The loan is between households (13 §6.1): the lender first, else any grown member of the
@@ -637,7 +642,7 @@ export function loanUrges(world: World, ctx: SimContext, actorId: ActorId): Urge
           intensity: Math.min(1000, duty + overdue),
           label: `It's due back to ${lender?.name.given ?? 'the lender'}; bring it`,
           source: 'social',
-          reasons: [term('psyche', 'Loan due', duty), term('psyche', 'Overdue', overdue)],
+          reasons: [term('psyche', 'Loan due', duty), term('psyche', 'Due soon or overdue', overdue)],
         });
       else if (
         day &&
@@ -653,7 +658,7 @@ export function loanUrges(world: World, ctx: SimContext, actorId: ActorId): Urge
           intensity: Math.min(1000, duty + overdue - 50),
           label: `It's due back; take it round to ${lender?.name.given ?? 'the lender'}'s`,
           source: 'social',
-          reasons: [term('psyche', 'Loan due', duty), term('psyche', 'Overdue', overdue)],
+          reasons: [term('psyche', 'Loan due', duty), term('psyche', 'Due soon or overdue', overdue)],
         });
     }
     if (loan.lenderId === actorId && ctx.now > loan.dueAt + 720) {

@@ -47,8 +47,15 @@ vi.mock('../../core/src/belief/api.ts', async (importOriginal) => {
 
 const content = baseContent();
 const ctxOf = (sim: Sim) => makeContext(sim.world, sim.content, []);
+/** Social acts with their words: an act stores them by reference and they are rendered on read. */
+const voiced = <E extends Extract<Event, { kind: 'social.interaction' }>>(e: E): E => ({
+  ...e,
+  data: { ...e.data, ...(social.talkWords(content, e.data) ?? {}) },
+});
 const interactions = (w: World) =>
-  w.log.events.filter((e): e is Extract<Event, { kind: 'social.interaction' }> => e.kind === 'social.interaction');
+  w.log.events
+    .filter((e): e is Extract<Event, { kind: 'social.interaction' }> => e.kind === 'social.interaction')
+    .map(voiced);
 
 describe('social: loans require money in hand', () => {
   it.each(['lend', 'borrow'] as const)('%s checks the lender, including the shared cash box', (id) => {
@@ -734,7 +741,8 @@ describe('social: talk lines (playtest 2026-10-11: verbs return content)', () =>
       mode: 'urge',
       via: 'urge',
     });
-    const ev = s.world.log.events.find((e) => e.id === out.eventId) as Interaction | undefined;
+    const found = s.world.log.events.find((e) => e.id === out.eventId) as Interaction | undefined;
+    const ev = found ? voiced(found) : undefined;
     expect(out.told).toBe(false);
     expect(ev?.data.told).toBe(false);
     const reply = ev?.data.lines?.find((l) => l.speakerId === b)?.text ?? '';

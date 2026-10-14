@@ -680,42 +680,47 @@ describe('fae slice 1b: the loan chain (13 §6.1)', () => {
     expect(passed).not.toBeNull();
   }, 240000);
 
-  it('a keeper at 90 attachment with honesty ≥ 60 lends on terms, every loan comes back on the day, and a refusal is weighed, never a veto (12 weeks; the year rota is in the report)', () => {
-    // Financially grounded money loans remove seed 1's charm-loan demand. Wave 13's ration top-up
-    // (a refused restore shops) left seed 5 with no sack loan in 12 weeks; seed 3 exercises three returns.
-    const { sim, c, edwin } = keepers(3);
-    runHours(sim, 24 * 7 * 12);
-    const loans = sim.world.social.objectLoans ?? [];
-    expect(loans.length).toBeGreaterThanOrEqual(1);
-    for (const l of loans) {
-      if (l.status === 'open') continue;
-      expect(l.status).toBe('returned');
-      expect(l.breachedAt).toBeNull();
-      expect(required(l.closedAt)).toBeLessThanOrEqual(l.dueAt + 1440);
-    }
-    expect(Object.values(sim.world.social.rotas ?? {}).every((r) => r.breaches === 0)).toBe(true);
-    // Fed on credit, the sack stays dear to its keeper (attachment at its cap). A beg it refuses is
-    // still an arbitration: attachment is weighed against neighborliness, trust and need (13 §5.6).
-    const refused = sim.world.log.events.find(
-      (e) =>
-        e.kind === 'social.interaction' &&
-        (e.data as { interactionId: string; success: boolean }).interactionId === 'beg_loan' &&
-        !(e.data as { success: boolean }).success,
-    );
-    if (refused) {
-      const why = JSON.stringify(refused.explain);
-      if (why.includes('Keep it (attachment')) expect(why).toContain('Neighborliness');
-      else {
-        // A failed petition roll can stop the request before the keeper's
-        // attachment arbitration. That is a check failure, not a keeper veto.
-        const petition = refused.explain?.children?.find((e) => e.kind === 'check' && e.dc);
-        expect(petition?.total).toBeLessThan(petition?.dc?.total ?? -1000);
+  it.each([3, 5, 8])(
+    'a keeper at 90 attachment with honesty ≥ 60 lends on terms, every loan comes back on the day, and a refusal is weighed, never a veto (12 weeks; the year rota is in the report; seed %i)',
+    (seed) => {
+      // Financially grounded money loans remove seed 1's charm-loan demand. Seed 5 is the wave 13
+      // regression (it may lend nothing after the wave 13 ration top-up; then it only guards breaches): a borrower who left the sack in the house must fetch it as the day nears (the
+      // fetch duty escalates) rather than lose to chores until the loan breaches. Seed 8: seven returns.
+      const { sim, c, edwin } = keepers(seed);
+      runHours(sim, 24 * 7 * 12);
+      const loans = sim.world.social.objectLoans ?? [];
+      expect(loans.length).toBeGreaterThanOrEqual(1);
+      for (const l of loans) {
+        if (l.status === 'open') continue;
+        expect(l.status).toBe('returned');
+        expect(l.breachedAt).toBeNull();
+        expect(required(l.closedAt)).toBeLessThanOrEqual(l.dueAt + 1440);
       }
-    }
-    // Refusal has costs (wave 6): the honest keeper ends up lending, and attachment eases while the
-    // sack is out on loan; it remains a preference, not a veto, never gone.
-    expect(c.attachment[edwin] ?? 0).toBeGreaterThan(0);
-  }, 240000);
+      expect(Object.values(sim.world.social.rotas ?? {}).every((r) => r.breaches === 0)).toBe(true);
+      // Fed on credit, the sack stays dear to its keeper (attachment at its cap). A beg it refuses is
+      // still an arbitration: attachment is weighed against neighborliness, trust and need (13 §5.6).
+      const refused = sim.world.log.events.find(
+        (e) =>
+          e.kind === 'social.interaction' &&
+          (e.data as { interactionId: string; success: boolean }).interactionId === 'beg_loan' &&
+          !(e.data as { success: boolean }).success,
+      );
+      if (refused) {
+        const why = JSON.stringify(refused.explain);
+        if (why.includes('Keep it (attachment')) expect(why).toContain('Neighborliness');
+        else {
+          // A failed petition roll can stop the request before the keeper's
+          // attachment arbitration. That is a check failure, not a keeper veto.
+          const petition = refused.explain?.children?.find((e) => e.kind === 'check' && e.dc);
+          expect(petition?.total).toBeLessThan(petition?.dc?.total ?? -1000);
+        }
+      }
+      // Refusal has costs (wave 6): the honest keeper ends up lending, and attachment eases while the
+      // sack is out on loan; it remains a preference, not a veto, never gone.
+      expect(c.attachment[edwin] ?? 0).toBeGreaterThan(0);
+    },
+    240000,
+  );
 });
 
 describe('fae slice 1b: culpability and refutation (13 §5.3)', () => {

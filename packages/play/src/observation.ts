@@ -85,13 +85,21 @@ export function eventView(e: Event, pc: ActorId, mode: ObservationMode, view?: E
   const summary: string = described.text;
   // What was said (social talk lines): the act on social.interaction, the news itself on the
   // private belief.transmitted (only its teller and hearer perceive it).
-  const words =
-    (e.kind === 'social.interaction' || e.kind === 'belief.transmitted') && e.data.lines
-      ? {
-          line: e.data.line ?? '',
-          lines: e.data.lines.map((l) => ({ speaker: l.speaker, speakerId: l.speakerId, text: l.text })),
-        }
-      : {};
+  // The act's words are stored by reference and rendered here, exactly as they were chosen.
+  const said =
+    e.kind === 'social.interaction' || e.kind === 'belief.transmitted'
+      ? view
+        ? social.talkWords(view.content, e.data)
+        : e.data.lines
+          ? { line: e.data.line ?? '', lines: e.data.lines }
+          : null
+      : null;
+  const words = said
+    ? {
+        line: said.line,
+        lines: said.lines.map((l) => ({ speaker: l.speaker, speakerId: l.speakerId, text: l.text })),
+      }
+    : {};
   // Who spoke first: a command's own words are the player's exchange, printed before the rest.
   const by =
     e.kind === 'social.interaction'

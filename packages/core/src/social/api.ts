@@ -21,11 +21,13 @@ import {
   owedFavors,
   refreshBase,
 } from './opinion.ts';
-import { relationsBetween } from './pairs.ts';
+import { relationsBetween, relationsOf } from './pairs.ts';
 import type { Memory, MemoryInput, OpinionReason, Relationship } from './state.ts';
+import { renderTalk as renderTalkWords } from './talk.ts';
 import { tuningOf } from './tuning.ts';
 import { areKinBy } from './volition.ts';
 
+export type { TalkRef } from './events.ts';
 export { resolveInteraction } from './interact.ts';
 export { decayOneDay, encodeSalience, memoryDigest } from './memory.ts';
 export {
@@ -39,7 +41,32 @@ export {
   reasonStrength,
 } from './opinion.ts';
 export { dailyStrife, isEstranged, mediationHour, strifeCount, wearinessPermille } from './strife.ts';
-export { composeExchange, type Exchange, moodOf, referTo, type TalkFacts, type TalkTurn } from './talk.ts';
+export {
+  chooseExchange,
+  composeExchange,
+  type Exchange,
+  moodOf,
+  referTo,
+  renderTalk,
+  type TalkFacts,
+  type TalkTurn,
+} from './talk.ts';
+
+/**
+ * What was said in an event's data, in words: the stored `lines` (the private telling, older
+ * logs) or the act's talk reference rendered now (exactly the words chosen when it was said).
+ */
+export function talkWords(
+  content: ContentBundle,
+  data: {
+    line?: string;
+    lines?: Array<{ speaker: string; speakerId: ActorId; text: string }>;
+    talk?: import('./events.ts').TalkRef;
+  },
+): { line: string; lines: Array<{ speaker: string; speakerId: ActorId; text: string }> } | null {
+  if (data.lines) return { line: data.line ?? '', lines: data.lines };
+  return data.talk ? renderTalkWords(content, data.talk) : null;
+}
 export { tuningOf } from './tuning.ts';
 export { proposeSocialUrges } from './urges.ts';
 export { attraction, eligible, makePair, requiresFail, volition } from './volition.ts';
@@ -145,6 +172,45 @@ const KIN: ReadonlySet<string> = new Set(['parent', 'sibling', 'spouse', 'cousin
 /** Kin by structural edge (the period default set; `areKinBy` reads social_tuning.kin_kinds). */
 export function areKin(world: World, a: ActorId, b: ActorId): boolean {
   return relationsBetween(world, a, b).some((r) => KIN.has(r.kind));
+}
+
+/** Everyone `a` is kin to by structural edge (as `areKin`), unordered, each once. Pair-indexed. */
+export function kinOf(world: World, a: ActorId): ActorId[] {
+  const out: ActorId[] = [];
+  for (const r of relationsOf(world, a)) {
+    if (!KIN.has(r.kind)) continue;
+    const other = r.a === a ? r.b : r.a;
+    if (other !== a && !out.includes(other)) out.push(other);
+  }
+  return out;
+}
+
+/** The people `a` holds an opinion record of (met, or known by name), in the record's key order. */
+export function acquaintanceIds(world: World, a: ActorId): ActorId[] {
+  const rec = world.social.opinions[a];
+  if (!rec) return [];
+  const out: ActorId[] = [];
+  for (const k in rec) out.push(Number(k) as ActorId);
+  return out;
+}
+
+/**
+ * How many people outside their own household `a` has met (some familiarity, or a tie the
+ * scenario seeded), counting at most to `cap`: a cheap "is new here" test (a household whose
+ * grown members know almost nobody). A name known only by hearsay does not count.
+ */
+export function knownOutsideHousehold(world: World, a: ActorId, cap: number): number {
+  const rec = world.social.opinions[a];
+  const home = world.actors[a]?.householdId;
+  if (!rec) return 0;
+  let n = 0;
+  for (const k in rec) {
+    const op = rec[k];
+    if (!op || (op.familiarity <= 0 && !op.reasons.some((r) => r.cites.kind === 'seed'))) continue;
+    if (world.actors[Number(k)]?.householdId === home) continue;
+    if (++n >= cap) return n;
+  }
+  return n;
 }
 export { areKinBy };
 

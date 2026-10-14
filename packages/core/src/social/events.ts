@@ -4,6 +4,31 @@
 import type { EventOf } from '../events/base.ts';
 import type { ActorId, ItemId, MemoryId, PlaceId } from '../ids.ts';
 
+/**
+ * The words of an exchange by reference (perf wave 13): which talk line turns were chosen, the
+ * seed of each line's word and alternative choices, and the slot values the chosen words use,
+ * captured when they were said. `renderTalk` (social api) turns it into exactly the text that
+ * was chosen, at any later time, from content alone. Plain JSON; seeds are uint32 integers.
+ */
+export interface TalkRef {
+  /** Turn by turn: talk line id, its turn index, the line's seed, who said it, in which scope. */
+  turns: Array<{ line: string; n: number; seed: number; who: ActorId; by: 'initiator' | 'target'; s: number }>;
+  /**
+   * Per scope (0: the exchange's line; 1: a repeat-aware reply, said between the same two with
+   * speaker and listener as its initiator and target): the scope's initiator and target names,
+   * their cultures (their idiom, `#word#`), the world slot values the turns use (`you:initiator`
+   * is how the initiator addresses the target), and the act's own values they use (`facts`).
+   */
+  scopes: Array<{
+    ni: string;
+    nt: string;
+    ci?: string;
+    ct?: string;
+    slots: Record<string, string>;
+    facts?: Record<string, string>;
+  }>;
+}
+
 export type SocialEvent =
   | EventOf<
       'social.want_known',
@@ -72,6 +97,9 @@ export type SocialEvent =
         line?: string;
         /** What was said, turn by turn (1–3). Overhearable: never a rumor's content (that rides on belief.transmitted). */
         lines?: Array<{ speaker: string; speakerId: ActorId; text: string }>;
+        /** What was said, by reference (perf wave 13: words are rendered on demand, `renderTalk`).
+         * New events carry this instead of `line`/`lines`; views render it. */
+        talk?: TalkRef;
         /** A news-carrying act: whether anything was told (the words are on the belief.transmitted it caused). */
         told?: boolean;
         /** An item-specific act's item (13 §6.1): the chronicle keys charm stories by it. */

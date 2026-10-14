@@ -97,7 +97,7 @@ describe('wave 5 social review regressions', () => {
     expect(social.debtOf(s.w, s.target, s.pc).cents).toBe(100 - cash);
     expect(s.w.provisions.purses[s.target]).toBe(before + cash);
     expect(events.filter((e) => e.kind === 'provisions.cash_transfer')).toHaveLength(cash ? 1 : 0);
-    const text = event.data.line ?? '';
+    const text = social.talkWords(s.c, event.data)?.line ?? '';
     expect(text).toContain(cash === 100 ? "We're square" : `$${((100 - cash) / 100).toFixed(2)}`);
     if (cash > 0) expect(text).toContain(`$${(cash / 100).toFixed(2)}`);
     const rewarded = social.reasonsOf(s.w, s.target, s.pc).some((r) => r.delta.trust > 0);
