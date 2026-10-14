@@ -353,6 +353,8 @@ export const OccupationSchema = z.strictObject({
   description: z.string().default(''),
   /** Venue tags a workplace must have (resolved against the actor's household/scenario). */
   workplace_tags: z.array(id()).default([]),
+  /** Household trades may work at home without an outside employer. */
+  work_at_home: z.boolean().optional(),
   wage_cents_per_day: nonNegInt().default(0),
   skills: z.array(ref()).default([]),
   /** Office/role tags for institutions (04 §9.3): 'preacher', 'jp', 'editor', 'storekeeper'... */

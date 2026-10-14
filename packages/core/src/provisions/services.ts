@@ -147,3 +147,17 @@ export function boardMeal(world: World, ctx: SimContext, actorId: ActorId): bool
   transferCash(world, ctx, actorId, keeper.id, service.meal_cents, 'Tavern meal');
   return true;
 }
+
+/** Zero-time meal refusal; pantry/preparation failure is still checked by the real executor. */
+export function boardMealAvailability(world: World, content: ContentBundle, actorId: ActorId): string | null {
+  const actor = world.actors[actorId];
+  if (!actor) return 'No diner';
+  const service = serviceAt(world, content, actor.placeId);
+  if (service?.meal_cents === undefined) return 'No meals sold here';
+  if (!storeOpen(world, content, actor.placeId)) return 'No meal available: the kitchen is closed';
+  if (cashOf(world, actorId) < service.meal_cents) return 'Cannot afford a tavern meal';
+  if (world.provisions.nutrition[actorId]?.lastMealAt === world.time) return 'You have already eaten this hour';
+  if (world.provisions.pendingMeals?.some((m) => m.plates.some((p) => p.id === actorId)))
+    return 'Your meal is already being prepared';
+  return null;
+}

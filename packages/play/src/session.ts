@@ -225,7 +225,11 @@ export class PlaySession {
       return this.actAtInstant(command, mode);
     // Settings take no game time (playtest r2): the order is logged and applied at once, through
     // the same setters the systems use, so a replay applies it identically.
-    if (command.kind === 'core.standing_orders' || command.kind === 'provisions.set_rations')
+    if (
+      command.kind === 'core.standing_orders' ||
+      command.kind === 'provisions.set_rations' ||
+      command.kind === 'provisions.mark_for_sale'
+    )
       return this.settle(command, mode);
     const socialSave =
       command.kind === 'core.urge' && command.data.urge.kind === 'interaction' ? this.save() : undefined;
@@ -234,6 +238,7 @@ export class PlaySession {
       command.kind.startsWith('fae.') && command.kind !== 'fae.signs' && command.kind !== 'fae.investigate'
         ? this.save()
         : undefined;
+    const mealSave = command.kind === 'provisions.board_meal' ? this.save() : undefined;
     const previous = this.observe(mode);
     this.addressed = [];
     const moneyStart = this.money.length,
@@ -298,6 +303,8 @@ export class PlaySession {
         detail = {
           prices: o.store.stock ?? [],
           freight: o.store.freight,
+          bids: o.store.bids,
+          buyingCashCents: o.store.buyingCashCents,
           ...(/^\d+$/.test(arg) ? { page: Number(arg) } : arg ? { filter: arg } : {}),
         };
       } else if (d.query === 'plan')
@@ -459,7 +466,16 @@ export class PlaySession {
       );
       if (rejected?.kind === 'provisions.command_rejected' || rejected?.kind === 'needs.command_rejected')
         warning = rejected.data.reason;
-      else if (command.kind === 'provisions.pack') {
+      if (mealSave && warning) {
+        const restored = PlaySession.load(this.base, mealSave);
+        this.sim = restored.sim;
+        this.known = restored.known;
+        this.knowledge = restored.knowledge;
+        this.metrics = restored.metrics;
+        this.money = restored.money;
+        this.changes = restored.changes;
+        return this.fail(warning, mode);
+      } else if (command.kind === 'provisions.pack') {
         const name = (id: number) => {
           const stack = this.sim.world.items.stacks[id as never];
           return stack ? (this.sim.content.items[stack.defId]?.name ?? 'item') : 'item';
@@ -651,6 +667,12 @@ export class PlaySession {
       const refused = provisions.applyRations(w, pc, command.data.householdId, command.data.rationPct);
       if (refused) return this.fail(refused, mode);
       notice = `Rations set to ${command.data.rationPct}% (they were ${was}%).`;
+    } else if (command.kind === 'provisions.mark_for_sale') {
+      if (!items.markForSale(w, pc, command.data.itemId, command.data.forSale))
+        return this.fail('You are not carrying that', mode);
+      notice = command.data.forSale
+        ? 'Marked for sale; automatic meals will leave it intact.'
+        : 'Available for meals again.';
     } else return this.fail('Not a setting', mode);
     this.changes = { elapsed: 0, money: [], needs: [], events: [], skipped: 0 };
     this.entries.push({

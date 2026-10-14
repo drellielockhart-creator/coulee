@@ -11,6 +11,8 @@ import type { World } from '../world.ts';
 export type ActivitySource = 'init' | 'schedule' | 'urge' | 'command';
 
 export interface ActorActivity {
+  /** An ordered paid shift survives waiting, bounded by its original day. */
+  workShift?: { until: number; issuer: import('../psyche/agency.ts').Issuer };
   /** Current activity, or null before the first hour. */
   activityId: ActivityId | null;
   /** Where the activity happens (== ActorCore.placeId unless traveling). */

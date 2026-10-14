@@ -102,3 +102,28 @@ item = "morels_fresh"
 store_tag = "store"
 buy_cents = 6
 capacity = 30
+
+# The smith needs a striker; the captain hires surface and underground extra hands.
+[[hiring_rule]]
+id = "smith_hands"
+workplace_tag = "smithy"
+employer_occupations = ["blacksmith"]
+months = [1,2,3,4,5,6,7,8,9,10,11,12]
+hands = 1
+daily_cents = 75
+from_hour = 6
+to_hour = 18
+hours = 8
+dc = 10
+
+[[hiring_rule]]
+id = "mine_hands"
+workplace_tag = "mine"
+employer_occupations = ["mine_captain"]
+months = [1,2,3,4,5,6,7,8,9,10,11,12]
+hands = 2
+daily_cents = 90
+from_hour = 6
+to_hour = 17
+hours = 8
+dc = 10

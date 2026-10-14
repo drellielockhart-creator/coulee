@@ -9,7 +9,17 @@ import { type ItemStackView, viewStacks } from '../items/view.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { ViewOptions } from '../viewmodel-types.ts';
 import type { World } from '../world.ts';
-import { priceAt, type Readiness, readinessOf, serviceAt, storeOpen } from './api.ts';
+import {
+  hiringOffer,
+  pieceStock,
+  priceAt,
+  type Readiness,
+  readinessOf,
+  saleBid,
+  serviceAt,
+  storeCash,
+  storeOpen,
+} from './api.ts';
 
 export interface NutritionView {
   kcalToday: number;
@@ -58,6 +68,9 @@ export interface StockLineView {
 }
 
 export interface ProvisionsPlaceView {
+  bids?: Array<{ defId: string; name: string; cents: number; room: number }>;
+  buyingCashCents?: number;
+  hiring?: string[];
   open?: boolean;
   hours?: { opens: number; closes: number };
   bedCents?: number;
@@ -151,16 +164,35 @@ export function viewProvisionsPlace(
   if (!opts.omniscient && opts.perspective !== null && world.actors[opts.perspective]?.placeId !== placeId)
     return { stock: null };
   const service = serviceAt(world, content, placeId);
+  const hiring = rowsOf(world.actors).flatMap((a) => {
+    const offer = hiringOffer(world, content, a.id);
+    return offer?.hands && world.places[offer.workplaceId]?.siteId === world.places[placeId]?.siteId
+      ? [
+          `${a.name.given} ${a.name.family} at ${world.places[offer.workplaceId]?.name}: ${offer.hands} extra hand${offer.hands === 1 ? '' : 's'}, ${offer.rule.daily_cents}¢/${offer.rule.hours}h day (ask there; Sunday unpaid)`,
+        ]
+      : [];
+  });
   const trade = service
     ? {
+        hiring,
         open: storeOpen(world, content, placeId),
         hours: { opens: service.opens, closes: service.closes },
         ...(service.bed_cents !== undefined ? { bedCents: service.bed_cents } : {}),
         ...(service.meal_cents !== undefined ? { mealCents: service.meal_cents } : {}),
       }
-    : {};
+    : { hiring };
   const store = world.provisions.stores[placeId];
   if (!store) return { stock: null, ...trade };
+  const bids = Object.values(content.pieceRates ?? {})
+    .filter((r) => world.places[placeId]?.tags.includes(r.store_tag))
+    .map((r) => ({
+      defId: r.item,
+      name: content.items[r.item]?.name ?? r.item,
+      cents: saleBid(world, content, placeId, r.item) ?? 0,
+      room: Math.max(0, r.capacity - pieceStock(world, placeId, r.item)),
+    }));
+  const buyingCashCents = storeCash(world, placeId, opts.perspective ?? undefined);
+  const counter = { ...trade, bids, buyingCashCents };
   const stock = stacksAt(world, { kind: 'place', placeId }).map((s) => ({
     itemId: s.id,
     defId: s.defId,
@@ -169,7 +201,7 @@ export function viewProvisionsPlace(
     priceCents: priceAt(world, content, placeId, s.defId) ?? 0,
   }));
   const restock = store.restockId ? content.restocks?.[store.restockId] : undefined;
-  if (!restock) return { stock, ...trade };
+  if (!restock) return { stock, ...counter };
   // The same calendar the economy delivers on (economy.ts householdDay): day 0 never delivers.
   const today = Math.floor(world.time / 1440);
   const dueDay = (Math.floor(today / restock.every_days) + 1) * restock.every_days;
@@ -177,7 +209,7 @@ export function viewProvisionsPlace(
   const have = new Set(stock.filter((l) => l.qty > 0).map((l) => l.defId));
   return {
     stock,
-    ...trade,
+    ...counter,
     freight: {
       everyDays: restock.every_days,
       dueDay,

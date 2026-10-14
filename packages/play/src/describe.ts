@@ -351,8 +351,8 @@ export function describeEvent(world: World, content: ContentBundle, pc: ActorId,
       const d = e.data;
       return out(
         d.accepted
-          ? `${actorName(d.employerId)} hires ${d.workerId === pc ? 'you' : actorName(d.workerId)} at ${cents(d.dailyCents ?? 0)} per ${d.hours}-hour day, paid ${d.pay}; work ${d.fromHour}:00–${d.toHour}:00 at ${world.places[d.workplaceId ?? 0]?.name ?? 'the workplace'}, until ${dayText(d.endsAt ?? 0)}`
-          : `${actorName(d.employerId)} refuses paid work: ${d.reason}`,
+          ? `${actorName(d.employerId)} hires ${d.workerId === pc ? 'you' : actorName(d.workerId)} at ${cents(d.dailyCents ?? 0)} per ${d.hours}-hour day, paid ${d.pay}; work ${d.fromHour}:00–${d.toHour}:00 at ${world.places[d.workplaceId ?? 0]?.name ?? 'the workplace'}, until ${dayText(d.endsAt ?? 0)}. Sunday is unpaid; ${d.pay === 'weekly' ? 'weekly wages settle on Saturday, even if you quit' : 'this daily term covers one paid day'}`
+          : `${actorName(d.employerId)} declines to hire ${d.workerId === pc ? 'you' : actorName(d.workerId)}: ${d.reason}`,
       );
     }
     case 'provisions.employment_ended':

@@ -4,7 +4,7 @@ import { productionHour } from '../activity/production.ts';
 import { commandsFor } from '../command.ts';
 import { commitHems, hemSet } from '../fae/hem.ts';
 import type { ActorId } from '../ids.ts';
-import { carriedBy, inventoryIndex, moveStack, withInventoryPass } from '../items/api.ts';
+import { carriedBy, inventoryIndex, markForSale, moveStack, withInventoryPass } from '../items/api.ts';
 import { rootLocation } from '../items/containers.ts';
 import { canAct, needValue } from '../needs/api.ts';
 import { authorizeAct, chosenUrge, standingOrders } from '../psyche/api.ts';
@@ -159,6 +159,18 @@ export function executeProvisionCommands(world: World, ctx: SimContext): Set<Act
       continue;
     }
     switch (cmd.kind) {
+      case 'provisions.mark_for_sale':
+        if (
+          !authorizeAct(
+            world,
+            actor.id,
+            { kind: cmd.kind },
+            { kind: 'command', issuer: cmd.issuer ?? { kind: 'player' } },
+          ).ok ||
+          !markForSale(world, actor.id, cmd.data.itemId, cmd.data.forSale)
+        )
+          reject('You are not carrying that');
+        break;
       case 'provisions.hire_on':
         hireOn(world, ctx, actor.id, cmd.data.employerId, cmd.data.term);
         break;

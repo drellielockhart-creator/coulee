@@ -182,3 +182,11 @@ export function arbitrateShortCommand(world: World, ctx: SimContext, actorId: Ac
 }
 
 export { psycheSystem as regionPsycheHour } from './system.ts';
+
+/** Forget an activity duty that has been completed or withdrawn. */
+export function discardActivityThoughts(world: World, actorId: ActorId, activityId: string): void {
+  const state = world.psyche.byActor[actorId];
+  if (!state) return;
+  state.thoughts = state.thoughts.filter((t) => t.urge.kind !== 'activity' || t.urge.activityId !== activityId);
+  if (state.chosen?.urge.kind === 'activity' && state.chosen.urge.activityId === activityId) state.chosen = null;
+}

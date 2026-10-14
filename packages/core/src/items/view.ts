@@ -12,6 +12,7 @@ import { loadReport } from './encumbrance.ts';
 import type { ItemLocation } from './state.ts';
 
 export interface ItemStackView {
+  forSale?: boolean;
   id: number;
   defId: string;
   name: string;
@@ -53,6 +54,7 @@ export function viewStacks(world: World, content: ContentBundle, loc: ItemLocati
   return stacksDeep(world, loc).map(({ stack: s, depth }) => {
     const def = content.items[s.defId];
     return {
+      ...(s.forSale ? { forSale: true } : {}),
       id: s.id,
       defId: s.defId,
       name: def?.name ?? s.defId,

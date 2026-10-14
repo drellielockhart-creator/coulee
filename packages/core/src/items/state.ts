@@ -25,6 +25,8 @@ export type ItemLocation =
 export type LitMode = 'auto' | 'on' | 'off';
 
 export interface ItemStack {
+  /** Reserved trade goods; automatic meals leave these intact. */
+  forSale?: boolean;
   id: ItemId;
   defId: ItemDefId;
   qty: number;

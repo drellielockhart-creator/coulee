@@ -320,7 +320,10 @@ it('reduced winter freight carries its remainder: kettles and firewood still arr
       makeContext(w, sim.content, [], (e) => events.push(e)),
     );
     const restocks = events.filter((e) => e.kind === 'provisions.restock' && e.data.placeId === store.placeId);
-    let paid = 0;
+    // Cash retained for piece bids can also pay other venues' freight: account for every delivery.
+    const paid = events
+      .filter((e) => e.kind === 'provisions.restock')
+      .reduce((n, e) => n + Number(e.data.cashPaidCents ?? 0), 0);
     for (const e of restocks) {
       const d = e.data as { defId: string; qty: number; costCents: number; cashPaidCents: number };
       expect(Number.isInteger(d.qty) && d.qty > 0).toBe(true);
@@ -328,7 +331,6 @@ it('reduced winter freight carries its remainder: kettles and firewood still arr
       const unit = Math.round(((sim.content.items[d.defId]?.value_cents ?? 0) * restock.wholesale_pct) / 100);
       expect(d.costCents).toBe(unit * d.qty);
       delivered[d.defId] = (delivered[d.defId] ?? 0) + d.qty;
-      paid += d.cashPaidCents;
     }
     for (const defId of defs) expect(stockAt(defId)).toBeLessThanOrEqual(target(defId));
     // Conservation: the county's cash fell by exactly what the wholesaler was paid.

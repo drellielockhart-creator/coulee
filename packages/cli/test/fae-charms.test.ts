@@ -44,6 +44,7 @@ import { makeDetectCtx } from '../../core/src/chronicle/system.ts';
 import { charmCommand, offeringErrands } from '../../core/src/fae/actions.ts';
 import { ensureCharm, knownRecord, setConservationProbe } from '../../core/src/fae/charms.ts';
 import { culpabilityDaily } from '../../core/src/fae/culpability.ts';
+import { claimProp, evaluateDesire } from '../../core/src/fae/desire.ts';
 import { checkShortfall, countStock } from '../../core/src/fae/discovery.ts';
 import { dawnDraw, findDrawSource, isDawnHour } from '../../core/src/fae/draws.ts';
 import { forecastCharms, forecastHems } from '../../core/src/fae/forecast.ts';
@@ -629,6 +630,19 @@ function keepers(seed: number) {
   c.virtue = 7;
   c.attachment[edwin] = 90;
   required(sim.world.psyche.byActor[edwin]).norms.honesty = 70;
+  // Seed an informed, honest neighbor's interest; loan acceptance should not depend on
+  // town food/cash balance creating that interest by chance (wave 10 D).
+  const neighbor = actor(sim, 'johanne_moe');
+  required(sim.world.psyche.byActor[neighbor]).norms.honesty = 70;
+  knownRecord(sim.world, neighbor, c.itemId).observed = sim.world.time;
+  const keptBy = internProp(sim.world, 'has', [
+    { kind: 'actor', id: edwin },
+    { kind: 'item', id: c.itemId },
+  ]);
+  const ctx = makeContext(sim.world, sim.content, []);
+  ensureBelief(sim.world, ctx, neighbor, keptBy).credence = 90;
+  ensureBelief(sim.world, ctx, neighbor, claimProp(sim.world, c, 'feeds')).credence = 90;
+  evaluateDesire(sim.world, sim.content, neighbor, c);
   return { sim, c, edwin };
 }
 

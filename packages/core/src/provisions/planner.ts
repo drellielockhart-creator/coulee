@@ -94,7 +94,7 @@ export function planReadiness(
   const kitchen = kitchenOf(world, content, holder);
   for (const stack of stacks) {
     const food = content.items[stack.defId]?.food;
-    if (!food || foodServings(content, stack) === 0) continue;
+    if (!food || stack.forSale || foodServings(content, stack) === 0) continue;
     fresh ||= food.fresh >= 10;
     const recipes = recipesFor(world, content, holder, stack, 1, false, undefined, prepBudget(holder), kitchen);
     const usable = recipes.filter((r) => r.missing.length === 0);

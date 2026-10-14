@@ -89,8 +89,9 @@ it('interleaved zero-effect round trips preserve needs across work and sleep tra
   expect(findNonIntegers(sessionSimOf(walked).world)).toEqual([]);
 });
 
-it.each(['market', 'cooking', 'travel', 'journey'])(
-  'buy and sell preserve a %s lock and cannot unlock work',
+// Wave 10 D7 permits transactions during a market visit (economy-wave10.test.ts).
+it.each(['cooking', 'travel', 'journey'])(
+  'buy and sell preserve a %s lock and cannot unlock a work activity or spend any minutes',
   (kind) => {
     const s = noon();
     ask(s, 'go Pratt');
@@ -100,7 +101,6 @@ it.each(['market', 'cooking', 'travel', 'journey'])(
       w = sim.world,
       pc = s.playerId;
     const state = required(w.activity.byActor[pc]);
-    if (kind === 'market') order(s, 'go_to_market');
     if (kind === 'cooking') activity.reservePreparation(w, makeContext(w, sim.content, []), pc, 120);
     if (kind === 'travel')
       state.travel = { from: state.placeId, to: state.placeId, arrive: asGameMinute(w.time + 120) };
@@ -152,7 +152,7 @@ it.each(['market', 'cooking', 'travel', 'journey'])(
       activity.shortAct(w, makeContext(w, sim.content, [command]), pc, 5);
       expect(s.hash).toBe(before);
     }
-    if (kind === 'market' || kind === 'cooking') {
+    if (kind === 'cooking') {
       expect(
         s.act({ kind: 'core.urge', actorId: pc, data: { urge: { kind: 'activity', activityId: 'chop_wood' } } }).ok,
       ).toBe(false);

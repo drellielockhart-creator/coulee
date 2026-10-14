@@ -196,6 +196,7 @@ export interface EmploymentContract {
   startedAt: number;
   endsAt: number;
   ended?: 'quit' | 'dismissed' | 'term_end';
+  endedAt?: number;
 }
 
 export interface ProvisionsState {
@@ -224,10 +225,13 @@ export interface ProvisionsState {
   /** Last signed term per worker; ended terms suppress legacy workplace wage inference. */
   contracts?: Record<number, EmploymentContract>;
   hiringAttempts?: Record<string, number>;
+  /** Last departure day per worker/employer pair; survives hiring elsewhere. */
+  employmentDepartures?: Record<string, number>;
   /** Ended jobs retain their named debtor when a worker hires on elsewhere. */
   wageArrears?: Array<{
     workerId: ActorId;
     employerId: ActorId;
+    pay?: 'daily' | 'weekly';
     account: { payerId: HouseholdId; earnedCents: number; carry: number; day: number; minutes: number };
   }>;
   employment?: Record<

@@ -6,7 +6,7 @@ export const HELP = `Short walks, purchase lines and chats spend minutes within 
 Eat defaults to ONE serving; use eat hardtack 2 for two. Need effects settle once per hour; a partly spent hour uses its dominant activity.
 Out on open ground with bedding, sleep makes camp where you stand; wait follows your lodging order, returning to a nearby paid or own bed when available.
 look | signs | investigate <sign id> | actions [page] | go <place name/id> | talk <person> | <interaction> <person>
-hire <employer> [daily|weekly] | quit | dismiss <worker>
+hire <employer> [daily|weekly] | quit | dismiss <worker> | for sale <item> | keep <item>
 buy <item> [qty] | sell <item> [qty] | eat <item> [servings] [method] | cook <item> [servings] [method]
 drink | fill <canteen/kettle> | empty <canteen/kettle> | fetch water | meal | sleep | wake | rest | work | wait <Nh|Nd> | wait until <HH:00|dawn|morning|noon|dusk|night|tomorrow>
 Springs, creeks, rivers and fords are water: drink raw there and fill your vessels (a litre weighs a kilo: a fill stops where you could no longer walk, and empty pours a vessel out); fetch water walks to the nearest.
@@ -182,6 +182,7 @@ ${o.epilogue ?? ''}`;
           `Board: bed $${(o.store.bedCents / 100).toFixed(2)} until noon; meal $${((o.store.mealCents ?? 0) / 100).toFixed(2)} (type meal).`,
         ]
       : []),
+    ...(o.store.hiring?.length ? [`Hiring notices: ${o.store.hiring.join('; ')}`] : []),
     o.place.description,
     ...o.remains.map((r) => `${r.buried ? 'Grave' : 'Body'}: ${r.name}.`),
     // What is asked of her, in full: what a yes undertakes (playtest r2: "a favor with an obligation").
@@ -399,6 +400,21 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
     );
   };
   const pc = o.self.id;
+  if ((verb === 'for' && words[0] === 'sale') || verb === 'keep') {
+    const query = verb === 'keep' ? tail : words.slice(1).join(' ');
+    const matches = o.self.inventory.carried.filter(
+      (s) => normalized(s.name).includes(normalized(query)) || String(s.id) === query,
+    );
+    return matches.length === 1 && matches[0]
+      ? {
+          kind: 'provisions.mark_for_sale',
+          actorId: pc,
+          data: { itemId: asItemId(matches[0].id), forSale: verb !== 'keep' },
+        }
+      : matches.length
+        ? `Which stack? ${matches.map((s) => `${s.name} (#${s.id})`).join('; ')}`
+        : 'You are not carrying that';
+  }
   if (verb === 'route' || verb === 'travel')
     return find(
       o.actions.filter((a) => a.id.startsWith(`${verb}:`)),
@@ -544,6 +560,7 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
       actorId: pc,
       data: { householdId: null, rationPct: Number(verb === 'set' ? words[1] : tail) },
     };
+  if (verb === 'meal') return { kind: 'provisions.board_meal', actorId: pc, data: {} };
   if (verb === 'drink') return drinkRefusal(o);
   if (verb === 'fill' || verb === 'refill') {
     if (!tail) return 'Fill what? Use fill <canteen, kettle or other vessel>';
@@ -699,7 +716,12 @@ export function parseText(line: string, o: Observation, page = 0): Command | str
     const q = normalized(target);
     const exact = o.present.filter((p) => normalized(p.name) === q || String(p.id) === q);
     const matches = exact.length ? exact : o.present.filter((p) => normalized(p.name).includes(q));
-    if (matches.length !== 1 || !matches[0]) return 'Name one person present here';
+    if (!target) return 'Name an employer present here; look shows hiring notices';
+    if (matches.length > 1) return `Which person? ${matches.map((p) => p.name).join('; ')}`;
+    if (!matches[0]) {
+      const known = o.knownPeople.find((p) => normalized(p.name).includes(q));
+      return `${known?.name ?? target} is not here; ask in person`;
+    }
     return verb === 'hire'
       ? { kind: 'provisions.hire_on', actorId: pc, data: { employerId: matches[0].id, term: pay } }
       : { kind: 'provisions.dismiss', actorId: pc, data: { workerId: matches[0].id } };
@@ -786,9 +808,17 @@ export function renderDetail(detail: unknown): string {
       prices: Observation['store']['stock'];
       page?: number;
       filter?: string;
+      bids?: Observation['store']['bids'];
+      buyingCashCents?: number;
       freight?: Observation['store']['freight'];
     };
-    const list = renderPrices(d.prices, d.page, d.filter);
+    const bids = (d.bids ?? []).filter(
+      (b) => !d.filter || normalized(b.name).includes(normalized(d.filter)) || b.defId.includes(d.filter),
+    );
+    const bidText = bids.length
+      ? `\nPiece bids (first unit; each additional unit fills demand; cash available $${((d.buyingCashCents ?? 0) / 100).toFixed(2)}):\n${bids.map((b) => `${b.name}: $${(b.cents / 100).toFixed(2)}; room for ${b.room}`).join('\n')}`
+      : '';
+    const list = renderPrices(d.prices, d.page, d.filter) + bidText;
     return d.freight ? `${freightLine(d.freight)}\n${list}` : list;
   }
   if (detail && typeof detail === 'object' && 'selfSummary' in detail) {

@@ -98,10 +98,10 @@ describe('ordinary newcomer income', () => {
       expect(required(w.provisions.employment?.[worker]).earnedCents).toBe(owed);
       expect(hire()).toBe(false);
       expect(provisions.countyCash(w)).toBe(initial);
-      // Move real money back to the debtor, then collect the preserved claim next morning.
+      // Move real money back to the debtor, then collect the preserved weekly claim on Saturday.
       w.provisions.purses[worker] = required(w.provisions.purses[worker]) - owed;
       w.provisions.purses[employer] = owed;
-      w.time = asGameMinute(2 * 1440);
+      w.time = asGameMinute(6 * 1440);
       employmentHour(w, ctx());
       expect(required(w.provisions.employment?.[worker]).earnedCents).toBe(0);
       expect(provisions.countyCash(w)).toBe(initial);
@@ -133,7 +133,7 @@ describe('ordinary newcomer income', () => {
     const cash = provisions.countyCash(w);
     w.provisions.purses[worker] = required(w.provisions.purses[worker]) - owed;
     w.provisions.purses[employer] = owed;
-    w.time = asGameMinute(2 * 1440);
+    w.time = asGameMinute(6 * 1440);
     employmentHour(w, ctx());
     expect(w.provisions.wageArrears).toEqual([]);
     expect(provisions.countyCash(w)).toBe(cash);
