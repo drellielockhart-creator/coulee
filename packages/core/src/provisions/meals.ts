@@ -137,6 +137,43 @@ export function dailyKcalParts(
   now: number,
   detail = true,
 ): DailyNeedParts {
+  return scheduledNeedDay(
+    world,
+    content,
+    id,
+    now,
+    Object.values(content.needs).find((n) => n.intake?.unit === 'kcal'),
+    detail,
+  );
+}
+
+/**
+ * One scheduled day of any need, hour by hour (the same loop as dailyKcal): the points each hour
+ * spends at the need's labor, sleep, values, traits and weather terms (energy needs also scale by
+ * age and people), and whether the schedule has them asleep. A decision's projection charges
+ * thirst from it between meals (planner.ts quietHours).
+ */
+export function scheduledNeedHours(
+  world: World,
+  content: ContentBundle,
+  id: ActorId,
+  now: number,
+  needId: string,
+): { points: number[]; asleep: boolean[] } {
+  const hours = { points: [] as number[], asleep: [] as boolean[] };
+  if (content.needs[needId]) scheduledNeedDay(world, content, id, now, content.needs[needId], false, hours);
+  return hours;
+}
+
+function scheduledNeedDay(
+  world: World,
+  content: ContentBundle,
+  id: ActorId,
+  now: number,
+  need: ContentBundle['needs'][string] | undefined,
+  detail: boolean,
+  hours?: { points: number[]; asleep: boolean[] },
+): DailyNeedParts {
   const parts: DailyNeedParts = {
     kcal: 0,
     hours: { heavy: 0, light: 0, rest: 0, asleep: 0 },
@@ -149,20 +186,22 @@ export function dailyKcalParts(
   if (!a?.alive) return parts;
   const cal = calendarAt(asGameMinute(now));
   const schedule = content.occupations[a.occupationId]?.schedule ?? [];
-  const hunger = Object.values(content.needs).find((n) => n.intake?.unit === 'kcal');
-  if (!hunger?.intake) {
+  if (!need?.intake) {
     parts.kcal = BASE_KCAL_PER_DAY;
     return parts;
   }
   // These factors are constant across the 24 schedule slots. Keep multiplication
   // order below unchanged: rounding the hourly result is part of the food rules.
   let values = 100;
-  for (const clause of hunger.value_pct) values += clause.per_step_pct * a.values[clause.value];
+  for (const clause of need.value_pct) values += clause.per_step_pct * a.values[clause.value];
   const valueFactor = Math.max(0, values) / 100;
-  const physiology = (agePct(yearsBetween(a.born, cal.t)) * peopleKcalPct(content.peoples[a.ancestryId])) / 10000;
+  const physiology =
+    need.intake.unit === 'kcal'
+      ? (agePct(yearsBetween(a.born, cal.t)) * peopleKcalPct(content.peoples[a.ancestryId])) / 10000
+      : 1;
   if (detail) {
     let person = valueFactor * physiology;
-    for (const trait of a.traits) person *= (hunger.trait_pct[trait] ?? 100) / 100;
+    for (const trait of a.traits) person *= (need.trait_pct[trait] ?? 100) / 100;
     parts.personPct = Math.round(person * 100);
   }
   let total = 0;
@@ -177,22 +216,27 @@ export function dailyKcalParts(
     );
     const activity = block ? content.activities[block.activity] : undefined;
     let points =
-      ((hunger.decay_per_hour * hunger.labor_pct[activity?.labor ?? 'light']) / 100) *
-      (activity?.asleep ? hunger.asleep_pct / 100 : 1);
+      ((need.decay_per_hour * need.labor_pct[activity?.labor ?? 'light']) / 100) *
+      (activity?.asleep ? need.asleep_pct / 100 : 1);
     points *= valueFactor;
-    for (const trait of a.traits) points *= (hunger.trait_pct[trait] ?? 100) / 100;
+    for (const trait of a.traits) points *= (need.trait_pct[trait] ?? 100) / 100;
     points *= physiology;
     hourlyCal.hour = hour;
     const air = airTempF(hourlyCal, world);
     let weather = 100;
-    for (const clause of hunger.temperature_pct)
+    for (const clause of need.temperature_pct)
       if (
         (clause.below_f === undefined || air < clause.below_f) &&
         (clause.above_f === undefined || air > clause.above_f)
       )
         weather += clause.pct - 100;
-    const kcal = Math.round((points * Math.max(0, weather)) / 100) * hunger.intake.per_point;
+    const rounded = Math.round((points * Math.max(0, weather)) / 100);
+    const kcal = rounded * need.intake.per_point;
     total += kcal;
+    if (hours) {
+      hours.points.push(rounded);
+      hours.asleep.push(activity?.asleep ?? false);
+    }
     if (detail) {
       const labor = activity?.asleep ? 'asleep' : (activity?.labor ?? 'light');
       parts.hours[labor]++;
@@ -371,6 +415,19 @@ export function prepBudget(holder: Holder): number {
 function sortedHearths(content: ContentBundle): Array<ContentBundle['hearths'][string] | undefined> {
   return sortedKeys(content.hearths).map((key) => content.hearths[key]);
 }
+/** The first hearth (key order) whose tags the place carries: what heats it and cooks there. */
+export function hearthAt(
+  world: World,
+  content: ContentBundle,
+  placeId: PlaceId | undefined,
+): ContentBundle['hearths'][string] | undefined {
+  const tags = placeId === undefined ? undefined : world.places[placeId]?.tags;
+  return tags ? sortedHearths(content).find((h) => h?.place_tags.some((tag) => tags.includes(tag))) : undefined;
+}
+/** Fire-supply minutes a lit hearth burns per hour at this air temperature (05 §6.3). */
+export function hearthBurn(hearth: ContentBundle['hearths'][string], airF: number): number {
+  return hearth.burn_base + Math.floor((hearth.burn_per_10f * Math.max(0, hearth.ref_f - airF)) / 10);
+}
 export function kitchenOf(
   world: World,
   content: ContentBundle,
@@ -382,9 +439,7 @@ export function kitchenOf(
   const stacks = holderStacks(world, holder, index);
   const placeId =
     'householdId' in holder ? world.households[holder.householdId]?.homePlaceId : world.actors[holder.actorId]?.placeId;
-  const hearth = sortedHearths(content).find((h) =>
-    h?.place_tags.some((tag) => placeId !== undefined && world.places[placeId]?.tags.includes(tag)),
-  );
+  const hearth = hearthAt(world, content, placeId);
   const memo: Record<string, number> = {};
   for (const stack of stacks)
     for (const key of Object.keys(content.items[stack.defId]?.affordances ?? {}))
@@ -423,8 +478,7 @@ export function kitchenOf(
       for (let offset = start; offset < end; ) {
         const t = now + offset,
           length = Math.min(end - offset, 60 - (t % 60));
-        const air = airTempF(calendarAt(asGameMinute(t)), world);
-        const hourly = hearth.burn_base + Math.floor((hearth.burn_per_10f * Math.max(0, hearth.ref_f - air)) / 10);
+        const hourly = hearthBurn(hearth, airTempF(calendarAt(asGameMinute(t)), world));
         fuel += Math.ceil((hourly * length) / 60);
         offset += length;
       }

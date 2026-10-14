@@ -62,49 +62,47 @@ Several persons at Dunleavy's Tavern report the following: The broom leans brist
 
 **A Debt Pressed** Mrs. A. Pratt has pressed Mr. E. Fenn for $2.49, and in company. The account is long standing and the patience short.
 
-*Monday, the 16th of April, 1855. The new moon: dark nights, and the old folks bar the door a little earlier.*
+*Monday, the 16th of April, 1855. New moon. The coulee is black after sundown.*
 
 A curious report reaches us from Dunleavy's Tavern: The cream saucer stands beneath the bench, quite dry.
 
-*Tuesday, the 17th of April, 1855. New moon. The coulee is black after sundown.*
+*Tuesday, the 17th of April, 1855. The new moon: dark nights, and the old folks bar the door a little earlier.*
 
-**Threats at Parsonage** Mr. E. Hurd was heard to threaten Mrs. I. Tveit at Parsonage on Tuesday in the afternoon. The threat was not specific as to means, but quite specific as to intent.
+Mr. E. Hurd threatened Mrs. I. Tveit at Parsonage on Tuesday in the afternoon, and the village is not slow to remark it.
 
-*Wednesday, the 18th of April, 1855. The new moon: dark nights, and the old folks bar the door a little earlier.*
+*Wednesday, the 18th of April, 1855. New moon. The coulee is black after sundown.*
 
-**Ill Luck** We are sorry to report that Captain Hurd's root cellar went to rot. The older folk are not surprised, and say why, and are not asked to.
+**Ill Luck** It is reported that Captain Hurd's root cellar went to rot. The superstitious have not been slow to remark that it is not the first such thing this season.
 
 *Thursday, the 19th of April, 1855, under the waxing crescent. Rain in the afternoon.*
 
-*Friday, the 20th of April, 1855. The waxing crescent.*
+*Friday, the 20th of April, 1855; the waxing crescent.*
 
-**A Brawl at Pratt & Daughter, Outfitters** We regret to state that Mrs. A. Pratt struck at Mr. J. Brenner at Pratt & Daughter, Outfitters on Friday in the afternoon and was handled roughly for the trouble.
+**A Brawl at Pratt & Daughter, Outfitters** A scuffle at Pratt & Daughter, Outfitters on Friday in the afternoon: Mrs. A. Pratt swung, and Mr. J. Brenner did not stay where he was put. Honors were not even.
 
-*Saturday, the 21st of April, 1855; the waxing crescent.*
+*Saturday, the 21st of April, 1855. The waxing crescent.*
 
-**A Heavy Loss** A heavy loss is reported: the Tveits' best cow sickened and died. Neighbors are asked to remember it when the subscription paper comes round.
+**Ill Luck** It is our unpleasant duty to note that the Tveits' best cow sickened and died. The older folk are not surprised, and say why, and are not asked to.
 
 > *The Almanac.* Eight matters worth the printing. Prices stood at the counter: potatoes at 1¢ the lb, cornmeal at 3¢ the lb and dry beans at 4¢ the lb. Divine service drew eighteen to Iron Ford Lutheran Church, nine to Trevenna House and six to Kvale Ridge Church. Market drew seven to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on two days, the glass near 58 at noon.
 
-**A Brawl at Dunleavy's Tavern** A scuffle at Dunleavy's Tavern on Saturday of an evening: Mrs. N. Dunleavy swung, and Mr. J. Brenner did not stay where he was put. Honors were not even.
+**A Brawl at Dunleavy's Tavern** Mrs. N. Dunleavy sought a fight with Mr. J. Brenner at Dunleavy's Tavern on Saturday of an evening and found one. The result was not what Mrs. N. Dunleavy had planned.
 
-**Peace Made** It gives us pleasure to note that Mr. M. Dunleavy and Mr. J. Brenner have made up their difference at Dunleavy's Tavern; the hand was offered, and taken.
+**Peace Made** It is agreeable to relate that Mr. M. Dunleavy and Mr. J. Brenner have made up their difference at Dunleavy's Tavern; the hand was offered, and taken.
 
 ## Week 4: April 22 to 28, 1855
 
-*Sunday, the 22nd of April, 1855. The Sabbath, and the waxing crescent.*
+*Sunday, the 22nd of April, 1855, the Lord's day. The waxing crescent.*
+
+**A Debt Pressed** We are told on good authority that Mrs. A. Pratt has begun to dun Mrs. M. Bell for 20¢. Such matters are best settled before the neighbors discover them, which in this case they have.
 
 **A Good Neighbor** Mrs. D. Pascoe has been busy with kindnesses this month; five are known to the village. The county could stand a dozen like.
 
 *Monday, the 23rd of April, 1855, under the first quarter. Rain from the morning on.*
 
-Mr. J. Pike and Mrs. N. Dunleavy made their peace at Dunleavy's Tavern on Monday in the afternoon.
-
 *Tuesday, the 24th of April, 1855. The first quarter.*
 
 > *The Almanac.* A traveler notes Huldra's Shelf. Bells move through the bluestem without bending it.
-
-**A Debt Pressed** Report comes to us that Mr. L. Vance has begun to dun Mr. Josiah Trevenna for $280.00. Such matters are best settled before the neighbors discover them, which in this case they have.
 
 *Wednesday, the 25th of April, 1855; the first quarter.*
 
@@ -112,35 +110,23 @@ Mr. J. Pike and Mrs. N. Dunleavy made their peace at Dunleavy's Tavern on Monday
 
 **Ill Luck** It is reported that a fever took hold of Brigid in the Dunleavys' house. The superstitious have not been slow to remark that it is not the first such thing this season.
 
-**Talk** Whispers have begun to go about concerning Mr. J. Brenner. We do not repeat them. We observe only that they are going.
-
 Our readers may judge the account from Pratt & Daughter, Outfitters. A loop of red thread hangs from the pantry latch.
-
-**A Poor Aim at Dunleavy's Tavern** Miss H. Fenn attempted to put an insult upon Mr. A. Whitcomb at Dunleavy's Tavern on Thursday of an evening, but misjudged the room. The laugh, we hear, went the other way.
 
 *Friday, the 27th of April, 1855, under the waxing gibbous.*
 
 **A Heavy Loss** A heavy loss is reported: someone has been at the Pascoes' smokehouse. Neighbors are asked to remember it when the subscription paper comes round.
 
-**Hard Words at Dunleavy's Tavern** A correspondent informs us that a plain-spoken difference passed between Mr. J. Brenner and Mr. L. Vance at Dunleavy's Tavern on Friday of an evening, the former giving the latter an insult that was heard by the whole room.
+*Saturday, the 28th of April, 1855; the waxing gibbous.*
 
-**A Fight at Dunleavy's Tavern** We regret to state that Mr. L. Vance and Mr. J. Brenner came to blows at Dunleavy's Tavern on Friday of an evening. Mr. L. Vance had the better of it. Neighbors parted them; the damage was chiefly to dignity.
-
-*Saturday, the 28th of April, 1855. The waxing gibbous.*
-
-> *The Almanac.* Eleven matters of note this week. Posted at the store: cornmeal at 3¢ the lb, potatoes at 1¢ the lb and dry beans at 4¢ the lb. Divine service drew twenty to Iron Ford Lutheran Church, nine to Trevenna House and seven to Kvale Ridge Church. Market drew five to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on one day, the glass near 60 at noon.
-
-**Peace Made** A quarrel of some standing between Mr. K. Strauss and Mr. Josiah Trevenna was ended on Saturday in the afternoon. The village is divided between relief and disappointment.
+> *The Almanac.* Five matters of note this week. Posted at the store: cornmeal at 3¢ the lb, potatoes at 1¢ the lb and dry beans at 4¢ the lb. Divine service drew twenty to Iron Ford Lutheran Church, nine to Trevenna House and seven to Kvale Ridge Church. Market drew five to Pratt & Daughter, Outfitters. Market day was kept. Weather: rain on one day, the glass near 60 at noon.
 
 ## Week 5: April 29 to May 5, 1855
 
-*Sunday, the 29th of April, 1855, the Lord's day. The waxing gibbous.*
+*Sunday, the 29th of April, 1855. The Sabbath, and the waxing gibbous.*
 
-**A Poor Aim at Brenner House** Mr. K. Brenner had a speech ready for Mr. J. Brenner at Brenner House and got through half of it. The rest was lost to laughter, at his own expense.
+**All Over the Ford** The story that "the Tveits' best cow sickened and died" is now all over the ford. Whether true or not, it has reached those who matter least to refute it and most to repeat it.
 
 > *The Almanac.* Entered beside Glover Farm in the weekly register: A neat plait has appeared in the loose straw by the door.
-
-**A Good Neighbor** Mr. Josiah Trevenna has been busy with kindnesses this month; five are known to the village. The county could stand a dozen like.
 
 *Monday, the 30th of April, 1855. The full moon, which the Norwegians watch and the Cornish do not discuss.*
 
@@ -194,19 +180,19 @@ Our readers may judge the account from Pratt & Daughter, Outfitters. A loop of r
 
 **April 15.** Repression, and the others in turn: the mind has a drawer of such things, and Hester Fenn had been through them all in two weeks.
 
+**April 20.** It looked like generosity. In fact Jory Trevenna could not bear to watch Bartholomew Pascoe go without, and that is a different thing, and a rarer.
+
 **April 21.** Pastor Tveit formed a grudge against an unknown hand, and set its aim at their going. It was not mentioned. It was merely the way Pastor Tveit walked past the gate afterward.
 
 **April 21.** Ingrid Tveit formed a grudge against an unknown hand, and set its aim at their going. It was not mentioned. It was merely the way Ingrid Tveit walked past the gate afterward.
 
-**April 21.** Behind the doors this week: 790 meals eaten, 26 cold, about 2413 calories to the head. The town lived mostly on cornmeal, potatoes and fine milled flour. Spoiled and wasted: clabber and whole milk.
-
-**April 21.** Jory Trevenna never told anyone what the kindness cost in time and trouble.
+**April 21.** Behind the doors this week: 787 meals eaten, 28 cold, about 2415 calories to the head. The town lived mostly on cornmeal, potatoes and fine milled flour. Spoiled and wasted: clabber and whole milk.
 
 ### Week 4
 
-**April 24.** The louder Captain Trevenna spoke against it, the more it was plain to anyone who listened closely what he was afraid of.
+**April 23.** The louder Captain Trevenna spoke against it, the more it was plain to anyone who listened closely what he was afraid of.
 
-**April 25.** It was Johann Brenner who was said to be at fault. It was Hester Fenn who needed it to be so: laying it at another's door, in the language of a later day, projection.
+**April 25.** It was Bartholomew Pascoe who was said to be at fault. It was Hester Fenn who needed it to be so: laying it at another's door, in the language of a later day, projection.
 
 **April 25.** Edwin Fenn could not bear a thing in his own heart and found it, quite sincerely, in Lydia Pratt. He would have been astonished to hear it called a defense.
 
@@ -218,20 +204,14 @@ Our readers may judge the account from Pratt & Daughter, Outfitters. A loop of r
 
 **April 26.** Lucius Vance formed a grudge against an unknown hand, and set its aim at their hurt. It was not mentioned. It was merely the way Lucius Vance walked past the gate afterward.
 
-**April 26.** Pastor Tveit was coming apart at a seam nobody could see. Three defenses in three weeks, and the relief wearing thin. The village took it for ill temper.
+**April 27.** Bartholomew Pascoe had stopped trusting his own reasons, and went on giving them. Six defenses in two weeks, and the village was told it was nerves.
 
-**April 28.** Week 4, as the larders knew it: 777 meals (50 cold); stores ran short twice; the cellars lost clabber and whole milk.
+**April 28.** Week 4, as the larders knew it: 768 meals (57 cold); stores ran short once; the cellars lost clabber and whole milk.
 
 ### Week 5
 
-**April 29.** Of the twenty good turns Konrad Strauss did in three weeks, not one was mentioned at the store. That was the point of them.
+**April 29.** It passed through six mouths in seven days, and grew a little in each. Nobody lied, exactly. Everybody improved it.
 
-**April 29.** Michael Dunleavy went to bed parched, and said nothing of it. A person can bear a good deal on the quiet.
+**April 29.** Captain Trevenna had a name for it, kept to Captain Trevenna: not charity, but a debt to someone long dead.
 
-**April 29.** Johann Brenner's anger was meant for someone larger, and it settled on Minnie Fenn. Nothing was said, yet.
-
-**April 30.** The anger was meant for someone larger. In Gussie Pratt's mind it had found Nora Dunleavy instead, who had done nothing at all to earn it.
-
-**April 30.** Johann Brenner's anger was meant for someone larger, and it settled on Demelza Pascoe. Nothing was said, yet.
-
-**April 30.** The anger was meant for someone larger. In Captain Trevenna's mind it had found Michael Dunleavy instead, who had done nothing at all to earn it.
+**April 30.** It was Johanne Moe who was said to be at fault. It was Captain Trevenna who needed it to be so: laying it at another's door, in the language of a later day, projection.

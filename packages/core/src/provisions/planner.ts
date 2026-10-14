@@ -4,16 +4,17 @@ import { provisionCalendar as calendarAt } from './calendar.ts';
 import { scheduledBlock } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { forecastCharms, forecastHems } from '../fae/forecast.ts';
-import { rowsOf } from '../ids.ts';
-import { withInventoryPass } from '../items/api.ts';
-import { projectWaterHour } from '../needs/api.ts';
-import { withFixedMembership } from '../region/api.ts';
+import { type ActorId, rowsOf } from '../ids.ts';
+import { consumeSupply, pantryOf, supplyUnits, withInventoryPass } from '../items/api.ts';
+import { needValue, projectWaterHour, rousedBy, satisfyNeed } from '../needs/api.ts';
+import { authorizeAct, standingOrders } from '../psyche/api.ts';
+import { processesPlace, withFixedMembership } from '../region/api.ts';
 import { rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import { asGameMinute } from '../time.ts';
 import type { World } from '../world.ts';
 import type { Readiness } from './api.ts';
-import { waterHour } from './api.ts';
+import { drinkingWater, drinkWater, heatingFuel, waterHour } from './api.ts';
 import { replenishDomestic } from './economy.ts';
 import { devicesHour, type PlacementMemo, storageHour } from './environment.ts';
 import {
@@ -24,6 +25,8 @@ import {
   dueMeal,
   foodServings,
   type Holder,
+  hearthAt,
+  hearthBurn,
   holderStacks,
   holderSupply,
   kitchenOf,
@@ -33,6 +36,7 @@ import {
   prepBudget,
   rationOf,
   recipesFor,
+  scheduledNeedHours,
   serveMeal,
   waterAvailable,
   withProjectionMeals,
@@ -40,6 +44,7 @@ import {
 import { nutritionHour } from './nutrition.ts';
 import { minutesUntil, spoilageFactors } from './spoilage.ts';
 import { type DayIntake, emptyNutrition } from './state.ts';
+import { airTempF } from './temperature.ts';
 
 const copyIntake = (day: DayIntake): DayIntake => ({ ...day, foods: [...day.foods], groups: [...day.groups] });
 
@@ -147,7 +152,8 @@ export function planReadiness(
       hearthLit: world.region ? {} : { ...world.needs.hearthLit },
       placeTempF: world.region ? {} : { ...world.needs.placeTempF },
     },
-    activity: { ...world.activity, byActor: {} },
+    // The eaters' routine only: this hour's spent minutes and journeys belong to the live world.
+    activity: { ...world.activity, byActor: {}, minuteBudgets: undefined, journeys: undefined },
     provisions: {
       ...world.provisions,
       nutrition: {},
@@ -205,7 +211,11 @@ export function planReadiness(
         debtBands: { ...needs.debtBands },
       };
     const activity = world.activity.byActor[id];
-    if (activity) projection.activity.byActor[id] = { ...activity, travel: null };
+    // At home for the whole forecast: no journey, and none of this hour's walk.
+    if (activity) {
+      const { hourlyWalk: _walked, ...routine } = activity;
+      projection.activity.byActor[id] = { ...routine, travel: null };
+    }
     const original = world.provisions.nutrition[id];
     projection.provisions.nutrition[id] = original
       ? { ...original, today: copyIntake(original.today), history: original.history.map(copyIntake) }
@@ -250,6 +260,8 @@ export function planReadiness(
       saltPoints -= event.data.delta;
     return 0 as never;
   };
+  const mealHours = Array.from({ length: 24 }, (_, h) => dueMeal(projection, content, holder, h) !== undefined);
+  const quiet = quietHours(projection, content, holder, members, placement, hems);
   // The eaters, their household and places are fixed for the projection: memoize membership.
   withFixedMembership(projection, () =>
     withProjectionMeals(projection, () =>
@@ -268,32 +280,53 @@ export function planReadiness(
             rng: projectionRng,
             emit: projectionEmit,
           };
-          if (ctx.isNewDay && 'householdId' in holder) replenishDomestic(projection, ctx, holder.householdId);
           projection.time = t;
-          for (const id of members) {
-            const state = projection.activity.byActor[id];
-            if (state && (state.lockedUntil ?? 0) <= t)
-              state.activityId = scheduledBlock(projection, ctx, id, cal)?.activity ?? null;
+          // A decision steps the hours between meals as quiet hours (quietHours below);
+          // day starts, meals and every readout hour run the full kernels.
+          if (!details && hour !== 0 && cal.hour !== 0 && !mealHours[cal.hour]) {
+            const woke = quiet.hour(ctx);
+            // Plates reach whoever is awake and home: the hour they are ready, and for a plate
+            // left waiting, the hour someone wakes (the only change at a decision's fixed table).
+            const pending = projection.provisions.pendingMeals ?? [];
+            if (pending.some((m) => m.completesAt <= t && (m.completesAt > t - 60 || woke))) {
+              for (const id of members) {
+                const state = projection.activity.byActor[id];
+                if (state && (state.lockedUntil ?? 0) <= t)
+                  state.activityId = scheduledBlock(projection, ctx, id, cal)?.activity ?? null;
+              }
+              preparationHour(projection, ctx);
+            }
+          } else {
+            quiet.flush(ctx);
+            if (ctx.isNewDay && 'householdId' in holder) replenishDomestic(projection, ctx, holder.householdId);
+            for (const id of members) {
+              const state = projection.activity.byActor[id];
+              if (state && (state.lockedUntil ?? 0) <= t)
+                state.activityId = scheduledBlock(projection, ctx, id, cal)?.activity ?? null;
+            }
+            const fuelBefore = details && hour < 24 ? holderSupply(projection, content, holder, 'fire') : 0;
+            projectWaterHour(projection, ctx);
+            nutritionHour(projection, ctx);
+            storageHour(projection, ctx, placement, hems);
+            preparationHour(projection, ctx);
+            waterHour(projection, ctx);
+            if (hasDevices) devicesHour(projection, ctx);
+            const meal = dueMeal(projection, content, holder, cal.hour);
+            if (meal) {
+              // The same per-plate rounding as serveMeal: this is the energy the meal is sized to.
+              windowTarget += members.reduce(
+                (n, id) =>
+                  n + Math.round((mealEnergy(projection, ctx, id, pass) * rationPct * meal.share_pct) / 10_000),
+                0,
+              );
+              // As at the live table (system.ts): whoever still waits on a plate sits this meal out;
+              // the rest eat. One sleeping child's late supper must not cancel everyone's breakfast.
+              const diners = members.filter((id) => !awaitingMeal(projection, id));
+              if (diners.length) serveMeal(projection, ctx, holder, diners, meal.share_pct, meal.cold, undefined, pass);
+            }
+            if (details && hour < 24)
+              fuelDay += Math.max(0, fuelBefore - holderSupply(projection, content, holder, 'fire'));
           }
-          const fuelBefore = details && hour < 24 ? holderSupply(projection, content, holder, 'fire') : 0;
-          projectWaterHour(projection, ctx);
-          nutritionHour(projection, ctx);
-          storageHour(projection, ctx, placement, hems);
-          preparationHour(projection, ctx);
-          waterHour(projection, ctx);
-          if (hasDevices) devicesHour(projection, ctx);
-          const meal = dueMeal(projection, content, holder, cal.hour);
-          if (meal) {
-            // The same per-plate rounding as serveMeal: this is the energy the meal is sized to.
-            windowTarget += members.reduce(
-              (n, id) => n + Math.round((mealEnergy(projection, ctx, id, pass) * rationPct * meal.share_pct) / 10_000),
-              0,
-            );
-            if (!members.some((id) => awaitingMeal(projection, id)))
-              serveMeal(projection, ctx, holder, members, meal.share_pct, meal.cold, undefined, pass);
-          }
-          if (details && hour < 24)
-            fuelDay += Math.max(0, fuelBefore - holderSupply(projection, content, holder, 'fire'));
           // A cold noon piece may fail while the two hot meals still cover 80% of the ration.
           // Judge a complete 24-hour window, including preparation completions, against the
           // documented daily 50% threshold. A partial day is never mistaken for exhaustion.
@@ -366,4 +399,130 @@ function needLegibility(
   result.warnings.push(
     `Daily need runs ${kcal(low)}–${kcal(high)} kcal this week: the heavier days carry ${high.hours.heavy} h of heavy labor${heavy.length ? ` (${heavy.join(', ')})` : ''} against ${low.hours.heavy} h.`,
   );
+}
+
+/**
+ * The hours between a decision's meals (P8, 2026-10-13 food forecast). A ration decision only
+ * asks how many days the meals can be served, so between day starts and mealtimes it charges
+ * the same rules without the per-hour kernel passes:
+ *
+ * - storage runs the storage kernel itself, every hour (rain, drying, spoilage, vermin);
+ * - thirst is the scheduled day's hourly need (`scheduledNeedHours`, the ledger's own terms)
+ *   for each eater; whoever would drink (below 600, awake or roused) drinks with `drinkWater`
+ *   from the same household water the cooking uses, exactly as the water kernel would;
+ * - the home hearth burns `hearthBurn` each hour it would be lit, paid from the pantry in one
+ *   draw when the woodpile covers the whole span, otherwise hour by hour with `heatingFuel`;
+ * - hourly devices step only if they burn fuel or water.
+ *
+ * Meals, preparation, cooking fires, nutrition and the day's water and wood stay on the full
+ * hourly kernels at the hours they fall due; `flush` settles thirst and heat before each one.
+ */
+function quietHours(
+  projection: World,
+  content: ContentBundle,
+  holder: Holder,
+  members: readonly ActorId[],
+  placement: PlacementMemo,
+  hems: import('../fae/hem.ts').HemSet | undefined,
+) {
+  const thirst = Object.values(content.needs).find((n) => n.intake?.unit === 'ml');
+  const perPoint = thirst?.intake?.per_point ?? 2;
+  const home = 'householdId' in holder ? projection.households[holder.householdId]?.homePlaceId : undefined;
+  const hearth = home !== undefined ? hearthAt(projection, content, home) : undefined;
+  const heats = hearth?.fuel_from === 'household' && home !== undefined && processesPlace(projection, home);
+  const pantry = 'householdId' in holder ? pantryOf(holder.householdId) : undefined;
+  const devices = rowsOf(projection.items.stacks).some((s) =>
+    (content.items[s.defId]?.consumes ?? []).some(
+      (c) => (c.per === 'hour' || c.per === 'day') && (c.kind === 'fire' || c.kind === 'water'),
+    ),
+  );
+  // The water kernel's own gate: whoever may not act on their own and has no standing order to
+  // drink is not served (no commands exist inside a projection).
+  const drinkers = members.filter(
+    (id) =>
+      authorizeAct(projection, id, { kind: 'consequential' }, { kind: 'own' }).ok ||
+      standingOrders(projection, id).drink,
+  );
+  const tables = new Map<string, { points: number[]; asleep: boolean[] }>();
+  const owed = new Map<ActorId, number>();
+  let heat: Array<{ t: number; wanted: number }> = [];
+  const settleThirst = (ctx: SimContext, id: ActorId) => {
+    const points = owed.get(id) ?? 0;
+    if (!points || !thirst) return;
+    owed.set(id, 0);
+    satisfyNeed(projection, ctx, id, thirst.id, -points, { label: 'Hourly water expenditure', quiet: true });
+  };
+  const settleHeat = (ctx: SimContext) => {
+    if (!heat.length || home === undefined || !hearth || !pantry) return;
+    const hours = heat;
+    heat = [];
+    // Sequential credit, as hour after hour of heatingFuel would compute it.
+    const fire = projection.provisions.fires[home];
+    let until = fire?.lit ? (fire.until ?? ctx.now + fire.fuelMinutes) : 0;
+    let total = 0;
+    for (const { t, wanted } of hours) {
+      total += Math.ceil((wanted * Math.max(0, 60 - Math.max(0, until - t))) / 60);
+      until = Math.max(until, t + 60);
+    }
+    projection.needs.hearthLit ??= {};
+    if (supplyUnits(projection, content, pantry, hearth.fuel_kind) >= total) {
+      consumeSupply(projection, content, pantry, hearth.fuel_kind, total);
+      const last = hours[hours.length - 1]?.t ?? ctx.now;
+      projection.provisions.fires[home] = { placeId: home, lit: true, until, fuelMinutes: until - last };
+      projection.needs.hearthLit[home] = 1;
+      return;
+    }
+    // Short of wood: the hearth goes out on the first hour the pile cannot pay, as hourly.
+    for (const { t, wanted } of hours) {
+      const paid = heatingFuel(projection, { ...ctx, now: asGameMinute(t) }, home, pantry, hearth.fuel_kind, wanted);
+      if (paid === null) delete projection.needs.hearthLit[home];
+      else projection.needs.hearthLit[home] = 1;
+    }
+  };
+  return {
+    /** One quiet hour; true when an eater's schedule wakes them this hour. */
+    hour(ctx: SimContext): boolean {
+      storageHour(projection, ctx, placement, hems);
+      if (devices) devicesHour(projection, ctx);
+      if (heats && hearth) {
+        const air = airTempF(ctx.cal, projection);
+        const occupied = members.some((id) => projection.actors[id]?.alive);
+        if (air < hearth.when_below_f && (!hearth.occupied_only || occupied)) {
+          const wanted = hearthBurn(hearth, air);
+          if (wanted > 0) heat.push({ t: ctx.now, wanted });
+        } else {
+          settleHeat(ctx);
+          if (home !== undefined && projection.needs.hearthLit) delete projection.needs.hearthLit[home];
+        }
+      }
+      if (!thirst) return false;
+      const day = Math.floor(ctx.now / 1440) * 1440;
+      let woke = false;
+      for (const id of members) {
+        const key = `${day}:${id}`;
+        let table = tables.get(key);
+        if (!table) {
+          table = scheduledNeedHours(projection, content, id, day, thirst.id);
+          tables.set(key, table);
+        }
+        woke ||= ctx.cal.hour > 0 && !!table.asleep[ctx.cal.hour - 1] && !table.asleep[ctx.cal.hour];
+        owed.set(id, (owed.get(id) ?? 0) + (table.points[ctx.cal.hour] ?? 0));
+        if (!drinkers.includes(id) || !projection.actors[id]?.alive) continue;
+        const value = needValue(projection, id, thirst.id) - (owed.get(id) ?? 0);
+        if (value >= 600) continue;
+        settleThirst(ctx, id);
+        if (table.asleep[ctx.cal.hour] && !rousedBy(projection, content, id)) continue;
+        const ml = Math.min(
+          drinkingWater(projection, content, id),
+          Math.max(0, Math.ceil((900 - needValue(projection, id, thirst.id)) * perPoint)),
+        );
+        if (ml > 0) drinkWater(projection, ctx, id, ml);
+      }
+      return woke;
+    },
+    flush(ctx: SimContext) {
+      settleHeat(ctx);
+      for (const id of members) settleThirst(ctx, id);
+    },
+  };
 }

@@ -38,6 +38,7 @@ import { serviceAt, storeOpen } from './services.ts';
 
 /** Money outside the store (loans, repayments): see economy.ts. */
 export { cashOf, purchase, synchronizeStoreTabs, transferCash } from './economy.ts';
+export { hearthAt, hearthBurn } from './meals.ts';
 
 import { yearsBetween } from '../time.ts';
 import {

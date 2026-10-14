@@ -86,6 +86,20 @@ export interface HouseholdProvisions {
   shortageStep: number;
   /** Day index of the last shortage notice, or null. */
   lastShortageDay: number | null;
+  /**
+   * The standing of the last ration forecast (rules.ts RATION_LEASE): through `untilDay` the
+   * household keeps `pct` without re-projecting, while the larder (`larderKcal` on `day`) holds
+   * out at the planned `kcalPerDay` and the table still seats `members`. Absent in earlier saves
+   * and whenever the last forecast left no days to spare.
+   */
+  rationLease?: {
+    day: number;
+    untilDay: number;
+    pct: number;
+    larderKcal: number;
+    kcalPerDay: number;
+    members: number;
+  };
 }
 
 export interface Store {

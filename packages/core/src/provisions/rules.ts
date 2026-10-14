@@ -69,6 +69,16 @@ export const RATION_STEPS = [
   { belowDays: 21, pct: 90 },
 ] as const;
 export const RATION_RESTORE_DAYS = 30;
+/** Below this many days of food a household gets a shortage notice every day (household.ts). */
+export const SHORTAGE_NOTICE_DAYS = 4;
+/**
+ * A ration forecast with days to spare holds for them (2026-10-13 food forecast): a forecast of
+ * D days that leaves the ration in place stands until D - (next cut) - `safetyDays` days have
+ * passed, at most `maxDays`. It is re-checked at once if the larder falls faster than `guardPct`
+ * of the planned daily need, gains food while rations are short (a restore may be due), or the
+ * table changes. Full-ration forecasts look `horizonDays` ahead.
+ */
+export const RATION_LEASE = { horizonDays: 36, safetyDays: 1, maxDays: 14, guardPct: 125 } as const;
 
 /** Shopping (03 §8): top up to this many days when the larder dips under the trigger; errands run at this hour. */
 export const SHOPPING = {

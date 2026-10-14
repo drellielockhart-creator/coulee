@@ -1710,6 +1710,7 @@ describe('iron_ford seed 42', () => {
     // Wave 10 A: current-hour minute accounting, sustainable Rest and awake-only timely meals change routines and stories.
     // Wave 10 B: refusal/defeat memories now name the responder as doer; real introductions and shareable food also change encounters.
     // Wave 10 D: capped shelves, local hiring and cash reserves change supplies, meals and downstream stories.
+    // Wave 12 food forecast: ration decisions step quiet hours, let a sleeping diner's plate wait without cancelling the table's meal, and let a forecast with days to spare stand, shifting ration cuts and downstream stories.
     await expect(md30).toMatchFileSnapshot('./__snapshots__/chronicle-iron_ford-42-30d.md');
     assertNoLeak(sim);
     for (const e of nonHeading(sim.world)) noArtifacts(e.text);
