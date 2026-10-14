@@ -1,7 +1,8 @@
 import { isAsleep } from '../activity/api.ts';
 import { beliefOf, internProp, observe } from '../belief/api.ts';
 import { skillCheck } from '../checks.ts';
-import { term } from '../explain.ts';
+import { noteNudge } from '../director/api.ts';
+import { type ExplainTerm, term } from '../explain.ts';
 import type { ActorId } from '../ids.ts';
 import { asEventId } from '../ids.ts';
 import { addAnxiety, addThought, psycheOf } from '../psyche/api.ts';
@@ -11,6 +12,7 @@ import type { SimContext } from '../sim/context.ts';
 import { addMemory } from '../social/api.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
+import { thresholdTilt } from './api.ts';
 import type { Episode } from './state.ts';
 export function omenCheck(
   world: World,
@@ -20,6 +22,7 @@ export function omenCheck(
   skill: string,
   dc: number,
   salt: number,
+  extraDc: ExplainTerm[] = [],
 ) {
   if (!ctx.rngAt) throw new Error('Fae checks require canonical-time RNG');
   const a = world.actors[id];
@@ -57,6 +60,7 @@ export function omenCheck(
         ),
       );
   }
+  dcTerms.push(...extraDc);
   return skillCheck(
     ctx.content,
     a,
@@ -78,7 +82,20 @@ export function noticeEpisode(world: World, ctx: SimContext, e: Episode): void {
     if ((world.fae.cooldowns[`text:actor:${a.id}:${e.text}`] ?? -1) > ctx.now) continue;
     const cooldown = `actor:${a.id}:${e.family}`;
     if ((world.fae.cooldowns[cooldown] ?? -10000) > ctx.now) continue;
-    const result = omenCheck(world, ctx, e, a.id, 'perception', d.notice_dc, 0xfae2);
+    // N9 (Director discovery steer): at most DC −2 on noticing, never where the PC could see.
+    const tilt = thresholdTilt(world, 'fae.notice', e.snapshot.placeId, [a.id], [e.snapshot.placeId]);
+    const result = omenCheck(
+      world,
+      ctx,
+      e,
+      a.id,
+      'perception',
+      d.notice_dc,
+      0xfae2,
+      tilt ? [term('director', 'Director discovery steer (N9)', -tilt.amount)] : [],
+    );
+    if (tilt && result.success && result.margin < tilt.amount)
+      noteNudge(world, tilt.bias, a.id, 'unnoticed', 'noticed', true);
     e.observers[a.id] = {
       noticed: result.success,
       read: false,

@@ -40,13 +40,15 @@ cli
   .option('--hours <n>', 'Hours to simulate')
   .option('--out <dir>', 'Output directory (default runs/<scenario>-<seed>)')
   .option('--mods <list>', 'Content mods, comma-separated', { default: 'base' })
-  .option('--director-personality <id>', 'D0: land_itself only', { default: 'land_itself' })
-  .option('--director-foresight <mode>', 'off | tiltable | full (observational in D0)', { default: 'tiltable' })
+  .option('--director <id>', 'Director personality: land_itself (default, budget 0) | almanac')
+  .option('--director-personality <id>', 'Alias of --director', { default: 'land_itself' })
+  .option('--director-foresight <mode>', 'off | tiltable | full', { default: 'tiltable' })
   .option('--profile', 'Time each system and print ms per game-hour')
   .option('--no-events', 'Do not write events.jsonl (it is large: hundreds of MB per simulated year)')
   .option('--save', 'Also write save.json (the World as JSON: what a saved game holds)')
   .action(
     (o: {
+      director?: string;
       directorPersonality?: string;
       directorForesight?: string;
       scenario: string;
@@ -64,7 +66,7 @@ cli
       const content = loadContentOrThrow(modsOf(o.mods));
       const spec = {
         director: director.directorSettings({
-          personality: o.directorPersonality as 'land_itself',
+          personality: (o.director ?? o.directorPersonality) as director.PersonalityId,
           foresight: o.directorForesight as director.Foresight,
         }),
         scenarioId: String(o.scenario),
@@ -125,7 +127,7 @@ cli
       if (o.profile) {
         const d = director.directorReport(res.sim.world);
         console.log(
-          `  Director D0: τ ${d?.tau_fast}/${d?.tau_slow}; ${d?.pacing}; dead air ${d?.dead_air.hours} h / ${d?.dead_air.days} days; guns ${d?.guns.planted} planted, ${d?.guns.expired_unseen} expired unseen`,
+          `  Director ${d?.settings.personality}: τ ${d?.tau_fast}/${d?.tau_slow}; ${d?.pacing}; dead air ${d?.dead_air.hours} h / ${d?.dead_air.days} days; guns ${d?.guns.planted} planted, ${d?.guns.expired_unseen} expired unseen`,
         );
         if (d) {
           for (const [month, m] of Object.entries(d.months))
@@ -135,6 +137,10 @@ cli
           console.log(`    Threads opened/resolved/abandoned: ${JSON.stringify(d.patterns)}`);
           console.log(`    Guns: ${JSON.stringify(d.guns)}; longest dead air ${d.dead_air.longest_hours} h`);
           console.log(`    Top 10 threads by peak daily interest: ${JSON.stringify(d.top_threads)}`);
+          if (d.nudges)
+            console.log(
+              `    Nudges: budget ${d.nudges.budget}; ${JSON.stringify(d.nudges.totals)}; cycles ${JSON.stringify(d.nudges.cycle)}`,
+            );
         }
         const actors = Object.keys(res.sim.world.actors).length;
         for (const [id, t] of Object.entries(timers).sort((a, b) => b[1] - a[1]))
@@ -286,7 +292,8 @@ cli
   .option('--jsonl', 'One JSON Command in, one JSON observation out')
   .option('--replay <file>', 'Replay commands.jsonl and verify every state hash')
   .option('--god', 'Reveal ground truth')
-  .option('--director-personality <id>', 'D0: land_itself only', { default: 'land_itself' })
+  .option('--director <id>', 'Director personality: land_itself (default, budget 0) | almanac')
+  .option('--director-personality <id>', 'Alias of --director', { default: 'land_itself' })
   .option('--director-foresight <mode>', 'off | tiltable | full (recorded at creation)', { default: 'tiltable' })
   .option('--scenario <id>', 'Authored id or gen:town', { default: 'iron_ford' })
   .option('--seed <n>', 'Simulation seed', { default: 42 })

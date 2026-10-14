@@ -9,6 +9,7 @@
 import { isAsleep } from '../activity/api.ts';
 import { internProp, observe, reportMisfortune } from '../belief/api.ts';
 import { skillCheck } from '../checks.ts';
+import { noteNudge } from '../director/api.ts';
 import { term } from '../explain.ts';
 import type { ActorId, HouseholdId, PlaceId } from '../ids.ts';
 import { pantryOf, stacksDeep } from '../items/api.ts';
@@ -17,6 +18,7 @@ import { addAnxiety } from '../psyche/api.ts';
 import { hashString32, mixKey } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
+import { thresholdTilt } from './api.ts';
 import { charmDefOf, keeperOf, knownRecord } from './charms.ts';
 import type { DrawCase } from './state.ts';
 import { checkCharmLoss } from './theft.ts';
@@ -76,6 +78,8 @@ export function checkShortfall(
       : unitsAt(world, sourceLoc(dc), dc.def);
     const missingPct = Math.floor((missing * 100) / Math.max(1, stock + missing));
     const dcValue = Math.max(5, 15 - 2 * Math.floor(missingPct / 10));
+    // N9 (Director discovery steer): at most DC −2, off-screen only (the shortfall, never a person).
+    const tilt = thresholdTilt(world, 'fae.shortfall', householdId, [actorId], [a.placeId]);
     const skill = ['perception', 'trade_milling', 'bargain'].sort(
       (x, y) => (a.sheet.skills[y] ?? 0) - (a.sheet.skills[x] ?? 0) || (x < y ? -1 : 1),
     )[0] as string;
@@ -91,7 +95,10 @@ export function checkShortfall(
               : 'A dusting on the sill',
         skill,
         dc: 15,
-        dcTerms: [term('item', `${missingPct}% of the ${dc.def} missing`, dcValue - 15)],
+        dcTerms: [
+          term('item', `${missingPct}% of the ${dc.def} missing`, dcValue - 15),
+          ...(tilt ? [term('director', 'Director discovery steer (N9)', -tilt.amount)] : []),
+        ],
         knowledge: 'self',
       },
       ctx.rng(
@@ -100,6 +107,7 @@ export function checkShortfall(
       ),
     );
     if (!res.success) continue;
+    if (tilt && res.margin < tilt.amount) noteNudge(world, tilt.bias, actorId, 'missed', 'found', true);
     const units = missing;
     for (const bin of bins) {
       bin.discovered += bin.undiscovered;

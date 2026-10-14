@@ -94,7 +94,7 @@ export function applyPatch(prev: ViewModel, p: VmPatch): ViewModel {
   };
 }
 
-export function useSim(scenarioId: string, seed: number, initialSave?: string): SimHandle {
+export function useSim(scenarioId: string, seed: number, initialSave?: string, director?: string): SimHandle {
   const worker = useRef<Worker | null>(null);
   const nextId = useRef(1);
   const waiting = useRef(new Map<number, (r: QueryResult) => void>());
@@ -179,6 +179,7 @@ export function useSim(scenarioId: string, seed: number, initialSave?: string): 
       seed,
       withPlayer: true,
       ...(firstSave.current ? { save: firstSave.current } : {}),
+      ...(director ? { director } : {}),
     };
     w.postMessage(init);
     return () => {
@@ -187,7 +188,7 @@ export function useSim(scenarioId: string, seed: number, initialSave?: string): 
       queries.clear();
       acts.clear();
     };
-  }, [scenarioId, seed]);
+  }, [scenarioId, seed, director]);
 
   const send = useCallback((m: ToWorker) => worker.current?.postMessage(m), []);
   const setSpeed = useCallback((speed: Speed) => send({ type: 'set_speed', speed }), [send]);
@@ -253,9 +254,15 @@ export function useSim(scenarioId: string, seed: number, initialSave?: string): 
           if (r.ok) setAlerts([]);
           resolve(r);
         };
-        send({ type: 'init', scenarioId, seed, withPlayer: true, ...(save ? { save } : {}) });
+        send({
+          type: 'init',
+          scenarioId,
+          seed,
+          withPlayer: true,
+          ...(save ? { save } : { ...(director ? { director } : {}) }),
+        });
       }),
-    [send, scenarioId, seed],
+    [send, scenarioId, seed, director],
   );
   return {
     vm,

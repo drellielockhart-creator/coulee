@@ -1,4 +1,14 @@
-import { createSim, director, findNonIntegers, needs, provisions, restoreSim, runHours, stateHash } from '@coulee/core';
+import {
+  createSim,
+  director,
+  findNonIntegers,
+  needs,
+  provisions,
+  restoreSim,
+  runHours,
+  social,
+  stateHash,
+} from '@coulee/core';
 import { describe, expect, it } from 'vitest';
 import { EMA_ALPHA_Q16, emaQ16 } from '../../core/src/director/fixed.ts';
 import { pacingStep } from '../../core/src/director/system.ts';
@@ -16,6 +26,10 @@ import { makeContext } from '../../core/src/sim/sim.ts';
 import { observation } from '../../play/src/observation.ts';
 import { baseContent, simFor } from './helpers.ts';
 
+function memoriesFor(sim: ReturnType<typeof simFor>) {
+  const focus = sim.world.director?.focus;
+  return focus == null ? [] : social.memoriesOf(sim.world, focus);
+}
 function required<T>(value: T | null | undefined): T {
   if (value == null) throw new Error('Missing test fixture');
   return value;
@@ -161,7 +175,7 @@ describe('Director D0 is observational', () => {
     );
     recordProjection(sim.world, { ...base, id: th.id, state: 'Resolved', firedAt: 2880 });
     const resolved = st.patterns.debt?.resolved;
-    updateThreads(sim.world, 8 * 1440, new Set(), true);
+    updateThreads(sim.world, 8 * 1440, new Set(), true, memoriesFor(sim));
     expect(st.threads[th.id]).toBeUndefined();
     recordProjection(sim.world, { ...base, id: th.id, state: 'Resolved', firedAt: 2880 });
     expect(st.patterns.debt?.resolved).toBe(resolved);
@@ -212,14 +226,14 @@ describe('Director D0 is observational', () => {
       firedAt: null,
     };
     recordProjection(sim.world, p);
-    updateThreads(sim.world, 60, new Set([999999]), true);
+    updateThreads(sim.world, 60, new Set([999999]), true, memoriesFor(sim));
     expect(st.threads[900]?.state).toBe('Foreshadowed');
     expect(st.threads[900]?.guns[0]?.seen_by_player).toBe(true);
     recordProjection(sim.world, { ...p, state: 'Resolved', last_advanced: 2880, firedAt: 2880 });
     expect(st.guns).toMatchObject({ planted: 1, seen: 1, fired: 1, expired: 0 });
     expect(st.patterns.debt).toEqual({ opened: 1, resolved: 1, abandoned: 0 });
     recordProjection(sim.world, { ...p, id: 901, guns: [{ event: 999998, at: 0, salience: 700, window: [1, 3] }] });
-    updateThreads(sim.world, 4 * 1440, new Set(), true);
+    updateThreads(sim.world, 4 * 1440, new Set(), true, memoriesFor(sim));
     expect(st.guns.expired_unseen).toBe(1);
     const th = required(st.threads[901]);
     th.callbacks = [{ owner: pc, memory: 123, salience: 800 }];
@@ -241,7 +255,7 @@ describe('Director D0 is observational', () => {
     const legacy = JSON.parse(JSON.stringify(stripped(a.world)));
     const migrated = restoreSim(a.content, legacy);
     expect(migrated.world.director?.settings).toEqual({ personality: 'land_itself', foresight: 'tiltable' });
-    expect(() => director.directorSettings({ personality: 'almanac' as 'land_itself' })).toThrow('land_itself');
+    expect(() => director.directorSettings({ personality: 'hearthside' as 'land_itself' })).toThrow('almanac');
     expect(Object.keys(baseContent().directorPersonalities)).toHaveLength(7);
     for (const foresight of ['off', 'tiltable', 'full'] as const) {
       const s = createSim(baseContent(), { scenarioId: 'iron_ford', seed: 1, director: { foresight } });

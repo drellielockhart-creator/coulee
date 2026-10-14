@@ -5,10 +5,11 @@ import { rowsOf } from '../ids.ts';
 import { eventsSince } from '../events/index.ts';
 import { asEventId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
-import { perceivedEvents } from '../social/api.ts';
+import { memoriesOf, perceivedEvents } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { EMA_ALPHA_Q16, emaQ16 } from './fixed.ts';
 import { assess } from './ledger.ts';
+import { personalityOf, planDay, seasonalPacing } from './plan.ts';
 import { createDirectorState, type DirectorState, type MonthlyMetrics } from './state.ts';
 import { measureTension } from './tension.ts';
 import { rankThreads, updateThreads } from './threads.ts';
@@ -104,7 +105,10 @@ export function directorSystem(world: World, ctx: SimContext): void {
       st.focus !== null &&
       Object.values(t.actors).includes(st.focus),
   );
-  pacingStep(st, ctx.now, curve, threatResolved);
+  const personality = personalityOf(ctx.content, st);
+  if (personality && personality.budget_per_day > 0 && personality.curve === 'seasonal')
+    seasonalPacing(st, ctx, personality);
+  else pacingStep(st, ctx.now, curve, threatResolved);
   st.events.push({
     id: asEventId(++st.event_seq),
     t: ctx.now,
@@ -115,7 +119,13 @@ export function directorSystem(world: World, ctx: SimContext): void {
     data: { tau: st.tau, tau_fast: st.tau_fast, tau_slow: st.tau_slow, pacing: st.pacing, terms: measure.terms },
   });
   if (st.events.length > 1) st.events.splice(0, st.events.length - 1);
-  updateThreads(world, ctx.now, new Set(seen.map((e) => e.id as number)), ctx.isNewDay || first);
+  updateThreads(
+    world,
+    ctx.now,
+    new Set(seen.map((e) => e.id as number)),
+    ctx.isNewDay || first,
+    st.focus === null ? [] : memoriesOf(world, st.focus),
+  );
   const key = `${ctx.cal.year}-${String(ctx.cal.month).padStart(2, '0')}`;
   st.months[key] ??= newMonth();
   const month = st.months[key];
@@ -169,8 +179,12 @@ export function directorSystem(world: World, ctx: SimContext): void {
         subjects: st.focus === null ? [] : [st.focus],
         terms: [],
         total: 0,
-        outcome: 'No nudge; land_itself has zero budget.',
+        outcome:
+          st.plan === undefined && !(personality && personality.budget_per_day > 0)
+            ? 'No nudge; land_itself has zero budget.'
+            : `Planned under ${st.settings.personality}`,
       },
     });
+    planDay(world, ctx);
   }
 }

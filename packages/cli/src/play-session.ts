@@ -78,7 +78,7 @@ export function sessionCLI(content: ContentBundle, o: PlayOptions, line?: string
       const session = PlaySession.create(content, {
         source: o.scenario,
         director: director.directorSettings({
-          personality: o.directorPersonality as 'land_itself',
+          personality: (o.director ?? o.directorPersonality) as director.PersonalityId,
           foresight: o.directorForesight as director.Foresight,
         }),
         seed: Number(o.seed),

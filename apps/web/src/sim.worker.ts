@@ -437,6 +437,11 @@ function answer(query: Extract<ToWorker, { type: 'query' }>['query']): QueryResu
   }
 }
 
+/** New-game Director option; absent means the Land Itself (the default). */
+function directorOf(id: string | undefined) {
+  return id ? { director: { personality: id as 'land_itself' | 'almanac' } } : {};
+}
+
 self.onmessage = async (ev: MessageEvent<ToWorker>) => {
   const msg = ev.data;
   try {
@@ -447,7 +452,7 @@ self.onmessage = async (ev: MessageEvent<ToWorker>) => {
         try {
           next = msg.save
             ? PlaySession.load(c, msg.save)
-            : PlaySession.create(c, { source: msg.scenarioId, seed: msg.seed });
+            : PlaySession.create(c, { source: msg.scenarioId, seed: msg.seed, ...directorOf(msg.director) });
         } catch (e) {
           // A save from another build or content: say so, and keep playing what is running.
           const message = e instanceof Error ? e.message : String(e);
@@ -457,7 +462,7 @@ self.onmessage = async (ev: MessageEvent<ToWorker>) => {
           }
           if (!msg.save) throw e;
           post({ type: 'load_failed', message });
-          next = PlaySession.create(c, { source: msg.scenarioId, seed: msg.seed });
+          next = PlaySession.create(c, { source: msg.scenarioId, seed: msg.seed, ...directorOf(msg.director) });
         }
         session = next;
         pauseSelf();

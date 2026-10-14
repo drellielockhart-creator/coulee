@@ -162,6 +162,7 @@ Daily work runs when `ctx.isNewDay` (00:00), and `chronicle` sees the day's last
 | belief, social | `fae/api.ts effectiveFi / charmTransferred / noteItemInteraction` | Protected-site-safe FI for tells and charm custody/interaction notifications; fae owns magical truth |
 | provisions planner | `fae/forecast.ts forecastCharms / forecastHems` | Knowledge-gated charm projection; verified hems use the ordinary storage kernel |
 | web, cli | `packages/play` | Shared Commands, fair/god observations, interrupts, replay/save/fork and storefront/food-ledger queries |
+| belief, social, activity, fae | `director/api.ts liveBiases / optionTiltFor / windowPickFor / thresholdTiltFor / hasLiveBias / noteNudge` | Director bias hooks (D1). Owners import only from `director/api.ts` and expose their own typed hooks (`belief.carrierWeight`, `social.optionTilt / windowPick`, `fae.thresholdTilt`). Consults are pure and return nothing for a decision the PC takes part in or shares a place with; `noteNudge` is called once, where the owner commits the decision (`commitTransmit`, `loansDaily`, the skill check's outcome, `activity.settleDirectorChoices`). N4 never weights a predicate whose mutation closure reaches a charge, kind or supernatural claim, nor a fact about the PC; N9 never keys the PC's household |
 | cli, play source | `packages/worldgen` | Versioned town records installed by `townContent`; county v3 returns layers/graph/hashes/QA and ford-town context |
 
 **Mutation rights on shared core data:**
@@ -852,6 +853,19 @@ God observations and CLI manifests expose analytics; fair observations expose no
 **Acceptance:** `just check`; unchanged Iron Ford golden; stripped-world hashes against
 pre-D0 at Iron Ford 42 (30/365d), generated towns 7/19 (90d), neighbors 42 (30d);
 year-run baseline for Iron Ford and generated towns 7/19, measured Director ms/hour.
+
+### module:director — D1 safe nudges (2026-10-13)
+
+Owner additions: `packages/cli/test/director-d1.test.ts`, `content/base/director/moves.toml` (`directorMoves`).
+**Bias hooks** live as data in optional `World.director.plan` (absent for the Land Itself, so its saves
+and stripped hashes match D0) and are consulted by their owners at decision time, defaulting to no bias:
+`belief.carrierWeight` (N4, gossip topic choice in `planTransmit`, ≤ +50%, held facts only, never a
+kind/charge predicate), `social.optionTilt` (N8: `companyUrge` venue, `activity.callTarget`; ≤ 15% of the
+best), `social.windowPick` (N6: item-loan breach inside [due+12h, due+3d]), `fae.thresholdTilt` (N9: omen
+notice and draw shortfall, DC −2, never the PC's household). The generic forms are exported from
+`director/api.ts` (see §1.4); consults are pure and the Ledger row is written where the decision commits. Every hook returns nothing when
+the PC takes part in the decision or shares its place (the fair gate); a changed outcome writes an
+omniscient Ledger row in `plan.nudges`. Personalities: `land_itself` (default everywhere) and `almanac`.
 
 ### M5 slice 2f — dormant settlement ownership (2026-10-13)
 

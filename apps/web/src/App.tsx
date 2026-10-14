@@ -43,8 +43,10 @@ const TABS: { id: DossierTab; label: string }[] = [
 ];
 
 export function App() {
-  const scenario = new URLSearchParams(window.location.search).get('scenario') ?? 'iron_ford';
-  const sim = useSim(scenario, 42);
+  const params = new URLSearchParams(window.location.search);
+  const scenario = params.get('scenario') ?? 'iron_ford';
+  // New-game Director option (`?director=almanac`); the Land Itself by default.
+  const sim = useSim(scenario, 42, undefined, params.get('director') ?? undefined);
   return (
     <SimCtx.Provider value={sim}>
       {sim.error ? (

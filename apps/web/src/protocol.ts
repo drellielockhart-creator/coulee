@@ -164,7 +164,15 @@ export interface PlayState {
 export type ToWorker =
   | { type: 'query'; id: number; query: Query }
   /** Start a new arrival (or resume `save`, a `PlaySession.save()` string). */
-  | { type: 'init'; scenarioId: string; seed: number; withPlayer: boolean; save?: string }
+  | {
+      type: 'init';
+      scenarioId: string;
+      seed: number;
+      withPlayer: boolean;
+      save?: string;
+      /** Director personality for a new game (`?director=almanac`); a save keeps its own. */
+      director?: string;
+    }
   | { type: 'set_speed'; speed: Speed }
   /** Let the clock run `hours` (each hour is an `advance(60)` in the log). */
   | { type: 'step'; hours: number }

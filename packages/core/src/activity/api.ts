@@ -4,13 +4,22 @@
 
 import { grudgeTargetsOf } from '../belief/grudges.ts';
 import type { ActivityDef, ContentBundle, ScheduleBlock } from '../content.ts';
+import { hasLiveBias, noteNudge, optionTiltFor, type Tilt } from '../director/api.ts';
 import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
 import { canAct } from '../needs/api.ts';
 import { activeEmployment, employmentDayMinutes, workAvailability } from '../provisions/api.ts';
 import { authorizeAct, standingOrders } from '../psyche/api.ts';
 import { mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
-import { areKin, familiarityOf, isAcquainted, isEstranged, opinionLabel, opinionOf } from '../social/api.ts';
+import {
+  areKin,
+  familiarityOf,
+  isAcquainted,
+  isEstranged,
+  opinionLabel,
+  opinionOf,
+  settleVenueNudge,
+} from '../social/api.ts';
 import { type CalendarInfo, dayIndex, latestBirthDay, MINUTES_PER_DAY, yearsBetween } from '../time.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -280,7 +289,69 @@ export function callTarget(world: World, actorId: ActorId): ActorId | null {
   if (cands.length === 0) return null;
   const day = dayIndex(world.time);
   const r = rng(world.meta.seed, 'activity', day * MINUTES_PER_DAY, mixKey(actorId, day, SALT_CALL));
-  return r.weighted(cands, (c) => c.weight)?.targetId ?? null;
+  const plain = r.weighted(cands, (c) => c.weight)?.targetId ?? null;
+  return tiltCall(world, actorId, cands, day, plain)?.pick ?? plain;
+}
+
+/**
+ * N8 (Director route crossing, `optionTilt`): a favoured household's candidates (only those
+ * already willing to be called on, weight > 0) gain at most 15% of the best weight, and the
+ * same day's roll is read again. Pure: only with a live bias for this caller, out of the PC's
+ * sight, and only ever moving the call onto a favoured household. `settleCallNudge` records it.
+ */
+function tiltCall(
+  world: World,
+  actorId: ActorId,
+  cands: CallChoice[],
+  day: number,
+  plain: ActorId | null,
+): { pick: ActorId; plain: ActorId | null; bias: Tilt['bias'] } | null {
+  const here = world.actors[actorId]?.placeId;
+  const tilt = optionTiltFor(world, 'call_target', actorId, 'household', here === undefined ? [] : [here]);
+  if (!tilt) return null;
+  const top = Math.max(0, ...cands.map((c) => c.weight));
+  const found: Tilt['bias'][] = [];
+  const tilted = cands.map((c) => {
+    const t = c.weight > 0 ? tilt(world.actors[c.targetId]?.householdId ?? -1) : null;
+    if (!t) return c;
+    found.push(t.bias);
+    return { targetId: c.targetId, weight: c.weight + Math.floor((top * t.amount) / 1000) };
+  });
+  const bias = found[0];
+  if (bias === undefined) return null;
+  const r = rng(world.meta.seed, 'activity', day * MINUTES_PER_DAY, mixKey(actorId, day, SALT_CALL));
+  const pick = r.weighted(tilted, (c) => c.weight)?.targetId ?? null;
+  // The tilt may only move the call onto a favoured household, never reshuffle the others.
+  const favoured = (id: ActorId | null) => id !== null && tilt(world.actors[id]?.householdId ?? -1) !== null;
+  if (pick === null || pick === plain || !favoured(pick) || favoured(plain)) return null;
+  return { pick, plain, bias };
+}
+
+/**
+ * The activity system committed a change of activity: record any Director choice it carries
+ * (an N8 call or company venue). Called once at commitment, never from a query.
+ */
+export function settleDirectorChoices(
+  world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+  activityId: string,
+  placeId: PlaceId,
+  urged: boolean,
+): void {
+  if (!world.director?.plan?.biases.length) return;
+  const def = ctx.content.activities[activityId];
+  if (def?.at === 'kin' && hasLiveBias(world, 'option', 'call_target', actorId)) {
+    const cands = callCandidates(world, actorId);
+    const day = dayIndex(world.time);
+    const r = rng(world.meta.seed, 'activity', day * MINUTES_PER_DAY, mixKey(actorId, day, SALT_CALL));
+    const plain = r.weighted(cands, (c) => c.weight)?.targetId ?? null;
+    const t = tiltCall(world, actorId, cands, day, plain);
+    const home = t ? world.households[world.actors[t.pick]?.householdId ?? -1]?.homePlaceId : undefined;
+    if (t && home === placeId) noteNudge(world, t.bias, actorId, t.plain ?? 'nobody', t.pick);
+  }
+  // A venue counts only when the lonely actor's own urge won arbitration.
+  if (urged) settleVenueNudge(world, ctx, actorId, activityId, placeId);
 }
 
 /** Call candidates with their weights (ascending ids); exported for the dossier and tests. */

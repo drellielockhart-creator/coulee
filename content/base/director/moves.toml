@@ -1,0 +1,147 @@
+# Ripening moves (DIRECTOR-PLAN §3.3; 05 §8.6): which nudge can advance a pattern, for which
+# role, at what cost (05 §8.3 catalog). Patterns scapegoat, faekin_suspicion and defense_fired
+# are refused by the schema (no faekin exposure; minds are read, never steered, in D1).
+# Charm threads take no N4: talk of charms is the road to suspicion (05 §8.3); belief's
+# nudgeablePredicate also refuses any claim that can mutate into a charge, kind or uncanny one.
+# amount: per mille for N4 (topic score) and N8 (of the best option); DC points for N9;
+# minutes for N6 (negative = sooner; suppress_amount = the delay when pacing holds a threat back).
+
+# --- threats: ripened in BUILD (the top threat thread), held back by N6 in RELAX and PEAK
+[[move]]
+id = "feud_witness_talks"
+pattern = "feud"
+nudge = "N4"
+category = "threat"
+process = "gossip"
+amount = 500
+cost = 2
+
+[[move]]
+id = "feud_crosses_path"
+pattern = "feud"
+nudge = "N8"
+category = "threat"
+process = "company_venue"
+amount = 150
+cost = 3
+
+[[move]]
+id = "betrayal_told"
+pattern = "betrayal"
+nudge = "N4"
+category = "threat"
+process = "gossip"
+amount = 500
+cost = 2
+
+[[move]]
+id = "debt_talked_of"
+pattern = "debt"
+nudge = "N4"
+category = "threat"
+process = "gossip"
+amount = 500
+cost = 2
+
+[[move]]
+id = "charm_loan_due"
+pattern = "charm"
+nudge = "N6"
+category = "threat"
+process = "loan_breach"
+amount = -720
+suppress_amount = 2880
+cost = 2
+expires_hours = 72
+
+[[move]]
+id = "charm_shortfall_found"
+pattern = "charm"
+nudge = "N9"
+category = "threat"
+process = "fae.shortfall"
+amount = 2
+cost = 1
+
+# --- social and opportunity: RELAX and FADE
+[[move]]
+id = "whispers_carry"
+pattern = "whispers"
+nudge = "N4"
+category = "social"
+process = "gossip"
+amount = 500
+cost = 2
+
+[[move]]
+id = "friend_comes_by"
+pattern = "friendship"
+nudge = "N8"
+category = "social"
+process = "company_venue"
+amount = 150
+cost = 3
+
+[[move]]
+id = "kindness_told"
+pattern = "kindness"
+nudge = "N4"
+category = "opportunity"
+process = "gossip"
+amount = 500
+cost = 2
+
+[[move]]
+id = "kindness_calls"
+pattern = "kindness"
+nudge = "N8"
+category = "opportunity"
+process = "call_target"
+amount = 150
+cost = 3
+
+[[move]]
+id = "courtship_talked_of"
+pattern = "courtship"
+nudge = "N4"
+category = "social"
+process = "gossip"
+amount = 500
+cost = 2
+
+[[move]]
+id = "courtship_crosses_path"
+pattern = "courtship"
+nudge = "N8"
+category = "social"
+process = "company_venue"
+amount = 150
+cost = 3
+
+[[move]]
+id = "fortune_talked_of"
+pattern = "reversal"
+nudge = "N4"
+category = "opportunity"
+process = "gossip"
+amount = 500
+cost = 2
+
+# --- discovery: an uncanny sign at a thread's place is noticed (RELAX; BUILD foreshadowing)
+[[move]]
+id = "charm_sign_noticed"
+pattern = "charm"
+nudge = "N9"
+category = "discovery"
+process = "fae.notice"
+amount = 2
+cost = 1
+
+[[move]]
+id = "whispers_sign_noticed"
+pattern = "whispers"
+nudge = "N9"
+category = "discovery"
+process = "fae.notice"
+amount = 2
+cost = 1

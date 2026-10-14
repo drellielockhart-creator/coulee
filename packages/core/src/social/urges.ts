@@ -12,6 +12,7 @@
 import { isAsleep, occupants } from '../activity/api.ts';
 import { shortName } from '../actor.ts';
 import type { ActivityDef, InteractionDef } from '../content.ts';
+import { type Bias, hasLiveBias, noteNudge, optionTiltFor } from '../director/api.ts';
 import { term } from '../explain.ts';
 import { type ActorId, idsOf, type PlaceId, sortedKeys } from '../ids.ts';
 import { needValue } from '../needs/api.ts';
@@ -50,24 +51,102 @@ function activityFits(world: World, ctx: SimContext, actorId: ActorId, act: Acti
   return true;
 }
 
-function companyUrge(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal | null {
+type Venue = { activityId: string; placeId: PlaceId; friends: number; tag: string };
+function friendsAt(world: World, actorId: ActorId, pid: PlaceId): number {
+  let friends = 0;
+  for (const o of occupants(world, pid)) if (o !== actorId && opinionOf(world, actorId, o).affection > 0) friends++;
+  return friends;
+}
+/** The undirected choice: the venue with the most friends (ties: seek_company order, place id). */
+function plainVenue(world: World, ctx: SimContext, actorId: ActorId): Venue | null {
   const t = tuningOf(ctx.content);
-  const company = needValue(world, actorId, 'company');
-  if (company >= t.company_seek_below || t.seek_company.length === 0) return null;
-  let best: { activityId: string; placeId: PlaceId; friends: number; tag: string } | null = null;
+  let best: Venue | null = null;
   for (const s of t.seek_company) {
     const act = ctx.content.activities[s.activity];
     if (!act || !activityFits(world, ctx, actorId, act)) continue;
     for (const pid of idsOf<PlaceId>(world.places)) {
       const p = world.places[pid];
       if (!p?.tags.includes(s.tag)) continue;
-      let friends = 0;
-      for (const o of occupants(world, pid)) {
-        if (o !== actorId && opinionOf(world, actorId, o).affection > 0) friends++;
-      }
+      const friends = friendsAt(world, actorId, pid);
       if (!best || friends > best.friends) best = { activityId: s.activity, placeId: pid, friends, tag: s.tag };
     }
   }
+  return best;
+}
+/**
+ * N8 (Director route crossing): a favoured venue whose company score is within 15% of the best
+ * (ties included) is chosen instead. Pure: consulted only when a bias is live for this actor and
+ * the PC cannot see the choice. The urge's reasons are unchanged; the Ledger explains it once
+ * the activity is committed (`settleVenueNudge`).
+ */
+function tiltVenue(world: World, ctx: SimContext, actorId: ActorId, best: Venue): { venue: Venue; bias: Bias } | null {
+  const here = world.actors[actorId]?.placeId;
+  const tilt = optionTiltFor(world, 'company_venue', actorId, 'place', here === undefined ? [] : [here]);
+  if (!tilt) return null;
+  for (const s of tuningOf(ctx.content).seek_company) {
+    const act = ctx.content.activities[s.activity];
+    if (!act || !activityFits(world, ctx, actorId, act)) continue;
+    for (const pid of idsOf<PlaceId>(world.places)) {
+      if (pid === best.placeId || !world.places[pid]?.tags.includes(s.tag)) continue;
+      const b = tilt(pid);
+      if (!b) continue;
+      const friends = friendsAt(world, actorId, pid);
+      if (friends * 1000 + floorDiv(best.friends * 1000 * b.amount, 1000) < best.friends * 1000) continue;
+      return { venue: { activityId: s.activity, placeId: pid, friends, tag: s.tag }, bias: b.bias };
+    }
+  }
+  return null;
+}
+/**
+ * While a Director bias is live for this actor, one already keeping company at a fitting venue
+ * stays there rather than leaving the moment the fair gate (the PC now present) hides the bias.
+ * Without a live bias this never applies, so undirected runs are unchanged.
+ */
+function stayingVenue(world: World, ctx: SimContext, actorId: ActorId): Venue | null {
+  if (!hasLiveBias(world, 'option', 'company_venue', actorId)) return null;
+  const state = world.activity.byActor[actorId];
+  const here = world.actors[actorId]?.placeId;
+  if (!state || here === undefined || state.placeId !== here || state.travel) return null;
+  for (const s of tuningOf(ctx.content).seek_company) {
+    if (state.activityId !== s.activity || !world.places[here]?.tags.includes(s.tag)) continue;
+    const act = ctx.content.activities[s.activity];
+    if (!act || !activityFits(world, ctx, actorId, act)) continue;
+    return { activityId: s.activity, placeId: here, friends: friendsAt(world, actorId, here), tag: s.tag };
+  }
+  return null;
+}
+/** Where a lonely actor would seek company, with any Director tilt applied (pure; no Ledger). */
+export function seekCompanyVenue(
+  world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+): { venue: Venue; plain: Venue; bias: Bias | null } | null {
+  const plain = plainVenue(world, ctx, actorId);
+  if (!plain) return null;
+  const stay = stayingVenue(world, ctx, actorId);
+  if (stay) return { venue: stay, plain, bias: null };
+  const tilted = tiltVenue(world, ctx, actorId, plain);
+  return tilted ? { venue: tilted.venue, plain, bias: tilted.bias } : { venue: plain, plain, bias: null };
+}
+/** The activity system committed `activityId` at `placeId`: record an N8 venue change, if any. */
+export function settleVenueNudge(
+  world: World,
+  ctx: SimContext,
+  actorId: ActorId,
+  activityId: string,
+  placeId: PlaceId,
+): void {
+  if (!hasLiveBias(world, 'option', 'company_venue', actorId)) return;
+  const r = seekCompanyVenue(world, ctx, actorId);
+  if (!r?.bias || r.venue.activityId !== activityId || r.venue.placeId !== placeId) return;
+  if (r.plain.placeId !== placeId) noteNudge(world, r.bias, actorId, r.plain.placeId, placeId);
+}
+
+function companyUrge(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal | null {
+  const t = tuningOf(ctx.content);
+  const company = needValue(world, actorId, 'company');
+  if (company >= t.company_seek_below || t.seek_company.length === 0) return null;
+  const best = seekCompanyVenue(world, ctx, actorId)?.venue;
   if (!best) return null;
   const intensity = clampInt(floorDiv((t.company_seek_below - company) * 1000, t.company_seek_below), 50, 900);
   const place = world.places[best.placeId];

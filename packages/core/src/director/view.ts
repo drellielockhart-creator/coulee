@@ -51,6 +51,7 @@ export function directorReport(world: World) {
       .map((t) => ({ id: t.id, pattern: t.pattern, interest: t.interest, state: t.state, actors: { ...t.actors } })),
     ledger: st.ledger.map((l) => ({ ...l })),
     ledger_compacted: st.ledger_compacted,
+    ...(st.plan ? { nudges: nudgeReport(st.plan) } : {}),
   };
 }
 function structuredPatterns(patterns: NonNullable<World['director']>['patterns']) {
@@ -58,4 +59,18 @@ function structuredPatterns(patterns: NonNullable<World['director']>['patterns']
 }
 export function directorView(world: World, omniscient: boolean) {
   return omniscient ? directorReport(world) : null;
+}
+
+/** "Show the Director's hand" (god view, manifest, epilogue): budget, live biases, the nudge Ledger. */
+function nudgeReport(plan: NonNullable<NonNullable<World['director']>['plan']>) {
+  return {
+    budget: plan.budget,
+    reserved: plan.reserved,
+    totals: Object.fromEntries(Object.entries(plan.totals).map(([k, v]) => [k, { ...v }])),
+    cycle: { ...plan.cycle },
+    mercy_wanted: plan.mercy_wanted,
+    biases: plan.biases.map((b) => ({ ...b })),
+    ledger: plan.nudges.map((n) => ({ ...n, rationale: { ...n.rationale } })),
+    ledger_compacted: plan.nudges_compacted,
+  };
 }

@@ -1,4 +1,5 @@
 import type { Place } from '../actor.ts';
+import { pcHousehold, type Tilt, thresholdTiltFor } from '../director/api.ts';
 import type { PlaceId } from '../ids.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
@@ -32,6 +33,33 @@ export function episodesAt(world: World, placeId: PlaceId) {
       return e && e.snapshot.placeId === placeId && e.traceEnd >= world.time ? [e] : [];
     });
 }
+
+/**
+ * Director hook N9 (DIRECTOR-PLAN §2), defaulting to no bias: `thresholdTilt(process, key)`,
+ * at most DC −2 on an unseen detect check of a sign or a shortfall. Never consulted for a
+ * concealed attribute, and nothing the PC could perceive.
+ */
+export function thresholdTilt(
+  world: World,
+  proc: 'fae.notice' | 'fae.shortfall',
+  key: number,
+  actors: readonly number[],
+  places: readonly number[],
+): Tilt | null {
+  if (proc === 'fae.shortfall') {
+    // A find in the PC's own household reaches the PC's mind (misfortune, memories): never.
+    if (key === pcHousehold(world)) return null;
+    return thresholdTiltFor(
+      world,
+      proc,
+      key,
+      'household',
+      [...actors, ...(world.households[key as never]?.memberIds ?? [])],
+      places,
+    );
+  }
+  return thresholdTiltFor(world, proc, key, 'place', actors, places);
+}
 export {
   charmKeepWeight,
   charmTransferred,
@@ -49,3 +77,13 @@ export { tieWindow } from './tend.ts';
 export { auditCharmTheft, recordCharmTheft } from './theft.ts';
 export { loanTerms, nextSundayNoon } from './urges.ts';
 export { type CharmCard, charmView, describe, signs } from './view.ts';
+
+/** Households with an open, not yet discovered draw on their stores (Director N9 targeting; read-only). */
+export function undiscoveredDrawHouseholds(world: World): number[] {
+  const out = new Set<number>();
+  for (const k of Object.keys(world.fae.drawCases ?? {}).sort()) {
+    const dc = world.fae.drawCases?.[k];
+    if (dc && !dc.accepted && dc.undiscovered > 0 && dc.householdId !== null) out.add(dc.householdId);
+  }
+  return [...out].sort((a, b) => a - b);
+}
