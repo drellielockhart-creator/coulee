@@ -1,6 +1,6 @@
 # Next session: how to pick up
 
-_Updated 2026-10-13, evening. The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
+_Updated 2026-10-13, late evening (wave 11). The repo is https://github.com/drellielockhart-creator/coulee; `main` is the integration branch._
 
 ## Where things stand
 
@@ -105,11 +105,36 @@ _Updated 2026-10-13, evening. The repo is https://github.com/drellielockhart-cre
   - The **real budget** is per tier: T1 400 actors ≤ 40 ms/h on a mid phone, about ≤ 30 µs per actor-hour on desktop. Today it is about 660 µs, roughly 20× over. See the correction at the end of M5-PLAN.
 - **Codex quota ran out** at about 18:15 PT on 2026-10-13 and resets on 2026-10-20, unless Ellie uses a banked reset. Use Claude subagents until then. They can edit code but not create report files, so save their final messages (`scratchpad/save-report.py` pattern).
 
+## Wave 11 (2026-10-13, late evening; `main` green, 1,037 tests, `f6258e1`)
+- **Perf 4** (`wave11/perf4`, Claude; reviewed by a second Claude): all hashes, chronicles and stats identical. Iron Ford 17.6 → 14.7 ms/h; county seed 41 (400 T1 + 2,400 T3) 280 → 123 ms/h, i.e. **~280 µs per T1 actor-hour, still ~9× over 30 µs**. Report: `docs/impl/perf/2026-10-13-wave4-hourly.md`.
+  - **Behavior-changing proposals, awaiting Ellie:** daily-step ration projection (25–40%), skip proposal gathering for sleeping or locked minds (10–12%), lazy talk rendering (5–7%), callers drawn from acquaintances and kin (6% at county). Even all four leave T1 5–6× over budget, so reaching the target needs coarser or less frequent simulation per actor: a design decision.
+  - **LOW hardening from the review:**
+    - the `social/pairs.ts` index assumes edges change only by push or replace;
+    - the venue index is keyed by `places` identity, and the 16-entry cap thrashes under projections;
+    - `items/api.ts` `at` is prototype-chained (no `Object.keys`);
+    - `talk.ts` `WHEN_ORDER` needs `satisfies keyof When`;
+    - module caches retain old worlds (use a WeakMap).
+- **Director D1** (`wave11/director-d1`): bias hooks N4 carrierWeight, N6 windowPick, N8 optionTilt and N9 thresholdTilt behind a fair-dice gate; a daily planner over `content/base/director/moves.toml`; the **Almanac** personality (`--director almanac`, web `?director=almanac`). The Land Itself stays the default, so the golden is unchanged. Report: `docs/impl/director/2026-10-13-d1.md`.
+  - **Claude review fixes:**
+    - no N9 tilt on the PC's household;
+    - the N4 mutation closure (no fact that can mutate into a charge, people claim or supernatural claim; none about the PC);
+    - N8 no longer ping-pongs;
+    - the Ledger records only on commit (`activity.settleDirectorChoices`);
+    - owners import only `director/api.ts`.
+  - **Effect so far: none on dead air.** Only 3 of 90 BUILDs reached a peak, and the budget sits at its 30 cap because few tilts change an outcome. The year tables predate the review fixes, so rerun them.
+  - **Open for D2:**
+    - `kept_drawing` and `benefited_from` (charm-draw gossip) still pass the N4 filter; add a content tag to exclude them;
+    - under-spending and BUILDs that fizzle; N3/N10/N11/N12;
+    - Hearthside, Hidebehind and Circuit Rider;
+    - the exogenous era pressures (DIRECTOR-PLAN §4), which is where dead air will actually move;
+    - a god-only Explain for N8 and N6, and the `full` foresight setting;
+    - commanded playtests.
+
 ## Next
-1. **In flight:** the hourly-sim perf campaign (Claude) on `wave11/perf4` (`../coulee-w11-perf`): hash-identical structural wins first, with behavior-changing ideas listed separately.
-2. **T3 follow-up:** aggregate shopping, restock and trade so generated towns survive dormancy; grudge fidelity; then enable T3 automatically.
-3. **Director D1:** bias hooks plus N4/N6/N8/N9, the Almanac, the visible-dice invariant; then the era pressures from DIRECTOR-PLAN §4.
-4. **r4 playtests** after the perf and D1 work, with helper scripts confined to each agent's own playtest directory.
+1. **Ellie decides** on the perf proposals and on per-actor coarsening (above).
+2. **Director D2:** era pressures first (the "incident deck"), then the under-spend and fizzle fixes, then the charm-draw content tag.
+3. **T3 follow-up:** aggregate shopping, restock and trade so generated towns survive dormancy; grudge fidelity; then enable T3 automatically.
+4. **r4 playtests**, including an Almanac run, with helper scripts confined to each agent's own playtest directory.
 5. **M6 slice 3** (firearms, injuries, bleeding, treatment).
 6. **Open from r3 (deferred):** news crossing between sites (M5 slice 5), empty roads (M5 slice 4 and the Director), gen:town evenings (routine tuning), bacon dominance.
 
