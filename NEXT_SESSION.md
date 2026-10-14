@@ -130,8 +130,21 @@ _Updated 2026-10-13, late evening (wave 11). The repo is https://github.com/drel
     - a god-only Explain for N8 and N6, and the `full` foresight setting;
     - commanded playtests.
 
+## Wave 12 (2026-10-13, night; `main` green, 1,043 tests)
+- **Cheaper food forecasts** (Ellie's pick from the perf proposals; `wave12/food-forecast`, Claude, with a Claude review). Report: `docs/impl/perf/2026-10-13-food-forecast.md`.
+  - **What changed:** standing forecasts (bounded by a 125% larder-drop guard, shown in the readiness readout with an Explain); quiet-hour projection; lean days instead of false "out of food".
+  - **Planner bugs fixed:** the live diner rule, and no live walking or tactical state leaking into projections.
+  - **Speed:** about 17–22% faster (Iron Ford 13.7 → 11.2 ms/h; county 131 → 102).
+  - **Balance:** better hunger, far fewer false 50% cuts, no deaths.
+  - **Replay `rulesVersion` is now 5.** The golden was refreshed.
+  - **Open for Ellie:** restoring full rations is judged at the cut ration, so a household can be restored and then cut again the next day. Should it be judged at full instead?
+  - **Open risks:**
+    - a standing forecast misses non-kcal losses (cookware, tinder, woodpile) for up to the lease length;
+    - Iron Ford household 6's projected thirst swings;
+    - the needs module copies all actors per walking actor (O(n²) at county): next perf target.
+
 ## Next
-1. **Ellie decides** on the perf proposals and on per-actor coarsening (above).
+1. **Ellie decides** on the remaining perf proposals (psyche cadence, lazy talk, callers), per-actor coarsening, and the ration-restore question (above).
 2. **Director D2:** era pressures first (the "incident deck"), then the under-spend and fizzle fixes, then the charm-draw content tag.
 3. **T3 follow-up:** aggregate shopping, restock and trade so generated towns survive dormancy; grudge fidelity; then enable T3 automatically.
 4. **r4 playtests**, including an Almanac run, with helper scripts confined to each agent's own playtest directory.
