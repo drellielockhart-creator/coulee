@@ -1,7 +1,7 @@
 import { isAsleep } from '../activity/api.ts';
 import { beliefOf, internProp, observe } from '../belief/api.ts';
 import { skillCheck } from '../checks.ts';
-import { noteNudge, thresholdTiltFor } from '../director/bias.ts';
+import { noteNudge } from '../director/api.ts';
 import { type ExplainTerm, term } from '../explain.ts';
 import type { ActorId } from '../ids.ts';
 import { asEventId } from '../ids.ts';
@@ -12,6 +12,7 @@ import type { SimContext } from '../sim/context.ts';
 import { addMemory } from '../social/api.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
+import { thresholdTilt } from './api.ts';
 import type { Episode } from './state.ts';
 export function omenCheck(
   world: World,
@@ -82,7 +83,7 @@ export function noticeEpisode(world: World, ctx: SimContext, e: Episode): void {
     const cooldown = `actor:${a.id}:${e.family}`;
     if ((world.fae.cooldowns[cooldown] ?? -10000) > ctx.now) continue;
     // N9 (Director discovery steer): at most DC −2 on noticing, never where the PC could see.
-    const tilt = thresholdTiltFor(world, 'fae.notice', e.snapshot.placeId, 'place', [a.id], [e.snapshot.placeId]);
+    const tilt = thresholdTilt(world, 'fae.notice', e.snapshot.placeId, [a.id], [e.snapshot.placeId]);
     const result = omenCheck(
       world,
       ctx,

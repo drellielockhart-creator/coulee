@@ -58,6 +58,16 @@ export function liveBiases(world: World, c: Consult): readonly Bias[] {
   return out;
 }
 
+/** Is any bias live for this chooser, regardless of the fair gate? (Continuity checks only.) */
+export function hasLiveBias(world: World, hook: HookKind, proc: string, subject: number): boolean {
+  const plan = world.director?.plan;
+  if (!plan || plan.biases.length === 0) return false;
+  return plan.biases.some(
+    (b) =>
+      b.hook === hook && b.process === proc && b.expires > world.time && (b.subject === null || b.subject === subject),
+  );
+}
+
 export function pcPlace(world: World): PlaceId | null {
   const pc = directorFocus(world);
   return pc === null ? null : (world.actors[pc]?.placeId ?? null);
@@ -155,12 +165,12 @@ export function noteNudge(
   before: number | string,
   after: number | string,
   foresaw = false,
+  stamp = `${target}:${after}:${Math.floor(world.time / 1440)}`,
 ): void {
   const st = world.director;
   const plan = st?.plan;
   if (!st || !plan) return;
-  // An hourly re-decision of the same outcome is one effect, not one per hour.
-  const stamp = `${target}:${after}:${Math.floor(world.time / 1440)}`;
+  // A re-decision of the same outcome is one effect (by default one per target, outcome and day).
   if (b.last_effect === stamp) return;
   b.last_effect = stamp;
   b.effects++;

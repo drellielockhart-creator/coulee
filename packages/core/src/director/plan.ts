@@ -11,7 +11,7 @@
  * - the PC is never a subject, and every hook refuses a decision the PC could perceive;
  * - no psyche writes; no fabricated rumor (N4 only weights a fact the carrier already holds).
  */
-import { beliefOf, WORTH_TELLING } from '../belief/api.ts';
+import { beliefOf, nudgeablePredicate, WORTH_TELLING } from '../belief/api.ts';
 import type { ContentBundle } from '../content.ts';
 import { undiscoveredDrawHouseholds } from '../fae/api.ts';
 import { type ActorId, idsOf, type PropId, rowsOf } from '../ids.ts';
@@ -140,9 +140,10 @@ function carriersFor(
   const out = new Map<number, Array<{ holder: ActorId; prop: PropId; credence: number; id: number; juicy: number }>>();
   if (actors.size === 0) return out;
   const households = new Map<number, number>();
+  const pcHousehold = pc === null ? undefined : world.actors[pc]?.householdId;
   for (const id of [...actors].sort((a, b) => a - b)) {
     const hh = world.actors[id as ActorId]?.householdId;
-    if (hh !== undefined && !households.has(hh)) households.set(hh, id);
+    if (hh !== undefined && hh !== pcHousehold && !households.has(hh)) households.set(hh, id);
   }
   for (const id of idsOf(world.belief.beliefs)) {
     const b = world.belief.beliefs[id];
@@ -157,9 +158,12 @@ function carriersFor(
       else if (a.kind === 'household') about ??= households.get(a.id);
       if (about !== undefined) break;
     }
-    if (about === undefined) continue;
+    if (about === undefined || about === pc) continue;
+    // Never about the PC; never a claim that is, or can mutate into, a charge, kind or uncanny one.
+    if (prop.args.some((a) => a.kind === 'actor' && a.id === pc)) continue;
+    if (!nudgeablePredicate(content, prop.pred)) continue;
     const pred = content.predicates[prop.pred];
-    if (!pred || pred.kind_of !== undefined || pred.charge) continue;
+    if (!pred) continue;
     // Only what is worth the telling at all: the hook never revives a dull or stale topic.
     if (pred.juiciness * 10 < 2 * WORTH_TELLING) continue;
     if (!world.actors[b.holderId]?.alive) continue;
@@ -184,8 +188,9 @@ function targetsFor(
   switch (move.process) {
     case 'gossip': {
       const index = carriers();
-      // Facts about the other participants first; talk about the PC last.
-      for (const subject of Object.values(th.actors).sort((a, b) => Number(a === pc) - Number(b === pc) || a - b)) {
+      // Facts about the other participants, never about the PC.
+      for (const subject of Object.values(th.actors).sort((a, b) => a - b)) {
+        if (subject === pc) continue;
         // Any holder of the fact may voice it (the hook iterates each carrier's own beliefs):
         // the juiciest, best-believed fact on the most tongues that the town has not yet heard.
         const byProp = new Map<number, number>();
@@ -214,16 +219,17 @@ function targetsFor(
           l.status === 'open' &&
           l.breachedAt === null &&
           actors.has(l.borrowerId) &&
-          l.borrowerId !== pc &&
-          l.lenderId !== pc,
+          l.borrowerHouseholdId !== pcHousehold &&
+          l.lenderHouseholdId !== pcHousehold,
       );
       return loan ? [{ subject: loan.borrowerId, key: null, toward_pc: false }] : [];
     }
     case 'fae.shortfall': {
       const open = new Set(undiscoveredDrawHouseholds(world));
+      // Never the PC's own household: a find there reaches the PC's mind (misfortune, memories).
       const hh = Object.values(th.actors)
         .map((id) => world.actors[id]?.householdId)
-        .filter((h): h is NonNullable<typeof h> => h !== undefined && open.has(h))
+        .filter((h): h is NonNullable<typeof h> => h !== undefined && h !== pcHousehold && open.has(h))
         .sort((a, b) => a - b)[0];
       return hh === undefined ? [] : [{ subject: null, key: hh, toward_pc: false }];
     }

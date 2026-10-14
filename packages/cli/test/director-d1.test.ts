@@ -90,6 +90,7 @@ describe('Director D1: fair dice', () => {
     let place: PlaceId | undefined = sim.world.actors[pc]?.placeId;
     let perceived = 0,
       offscreen = 0;
+    const tilted = new Set<number>();
     for (let h = 1; h < 30 * 24; h++) {
       ensurePlan(st).budget = director.BUDGET_CAP;
       runHours(sim, 1);
@@ -103,6 +104,21 @@ describe('Director D1: fair dice', () => {
           perceived++;
           expect(n, `${e.kind} #${e.id} is perceivable by the PC`).toBe(0);
         } else offscreen += n;
+        if (n > 0) tilted.add(e.id);
+      }
+    }
+    // No tilted outcome writes into the PC's mind: no memory or belief evidence cites it, and
+    // nothing the Ledger changed concerns the PC or the PC's household.
+    for (const m of social.memoriesOf(sim.world, pc)) expect(tilted.has(m.eventId as number)).toBe(false);
+    const pcHousehold = sim.world.actors[pc]?.householdId;
+    for (const row of required(st.plan).nudges) {
+      if (row.process === 'fae.shortfall') {
+        const bias = required(st.plan).biases.find((x) => x.id === row.bias);
+        if (bias) expect(bias.key).not.toBe(pcHousehold);
+      }
+      if (row.nudge === 'N4') {
+        const prop = sim.world.belief.props[sim.world.belief.beliefs[row.after as never]?.propId as never];
+        expect(prop?.args.some((a) => a.kind === 'actor' && a.id === pc)).toBe(false);
       }
     }
     const totals = required(st.plan).totals;
@@ -132,7 +148,7 @@ describe('Director D1: fair dice', () => {
     expect(social.windowPick(sim.world, 'loan_breach', a, [a, b], [], [100, 200], 150).at).toBe(200); // own window
     // The PC present (T0), or a party: nothing.
     expect(director.optionTiltFor(sim.world, 'company_venue', a, 'place', [here])).toBeNull();
-    expect(fae.thresholdTilt(sim.world, 'fae.notice', elsewhere, 'place', [a, pc], [elsewhere])).toBeNull();
+    expect(fae.thresholdTilt(sim.world, 'fae.notice', elsewhere, [a, pc], [elsewhere])).toBeNull();
     required(sim.world.actors[b]).placeId = here;
     expect(social.windowPick(sim.world, 'loan_breach', a, [a, b], [], [100, 200], 150)).toEqual({
       at: 150,
@@ -245,14 +261,123 @@ describe('Director D1: personalities and settings', () => {
   it('foresight off pays at placement; tiltable reserves until a tilt changes something', () => {
     const off = almanac(42, 'iron_ford', 'off');
     const tilt = almanac(42, 'iron_ford', 'tiltable');
-    runHours(off, 25);
-    runHours(tilt, 25);
+    runHours(off, 97);
+    runHours(tilt, 97);
     const p0 = required(off.world.director?.plan),
       p1 = required(tilt.world.director?.plan);
     const placed = (p: typeof p0) => Object.values(p.totals).reduce((n, t) => n + t.placed, 0);
     expect(placed(p0)).toBeGreaterThan(0);
     expect(p0.reserved).toBe(0);
     expect(Object.values(p0.totals).reduce((n, t) => n + t.charged, 0)).toBe(placed(p0));
-    expect(p1.reserved).toBeGreaterThan(0);
+    // Tiltable: whatever is placed and not yet charged is held in reserve.
+    const live = p1.biases.filter((b) => !b.charged && (b.group ?? b.id) === b.id);
+    expect(p1.reserved).toBe(live.reduce((n, b) => n + b.cost, 0));
+    expect(placed(p1)).toBeGreaterThan(0);
   }, 120_000);
 });
+
+describe('Director D1: review regressions', () => {
+  it('N9 never steers a shortfall in the PC household, nor one a household member could show the PC', () => {
+    const sim = almanac(42);
+    runHours(sim, 1);
+    const { pc, a, elsewhere, here } = apart(sim);
+    const pcHh = required(sim.world.actors[pc]).householdId;
+    const npcHh = required(sim.world.actors[a]).householdId;
+    expect(npcHh).not.toBe(pcHh);
+    bias(sim, { hook: 'threshold', process: 'fae.shortfall', nudge: 'N9', key: pcHh, amount: 2 });
+    bias(sim, { hook: 'threshold', process: 'fae.shortfall', nudge: 'N9', key: npcHh, amount: 2 });
+    expect(fae.thresholdTilt(sim.world, 'fae.shortfall', pcHh, [a], [elsewhere])).toBeNull();
+    for (const m of required(sim.world.households[npcHh]).memberIds) required(sim.world.actors[m]).placeId = elsewhere;
+    expect(fae.thresholdTilt(sim.world, 'fae.shortfall', npcHh, [a], [elsewhere])?.amount).toBe(2);
+    // A member of the searched household standing with the PC: refused.
+    const member = required(required(sim.world.households[npcHh]).memberIds.find((m) => m !== a) ?? a);
+    required(sim.world.actors[member]).placeId = here;
+    expect(fae.thresholdTilt(sim.world, 'fae.shortfall', npcHh, [a], [elsewhere])).toBeNull();
+    // The planner never keys the PC household, even for a thread that names a household member.
+    const st = required(sim.world.director);
+    const plan = ensurePlan(st);
+    plan.biases = [];
+    plan.budget = director.BUDGET_CAP;
+    st.pacing = 'BUILD';
+    const mate = required(sim.world.households[pcHh]).memberIds.find((m) => m !== pc) ?? pc;
+    sim.world.fae.drawCases = {
+      x: { accepted: false, undiscovered: 3, householdId: pcHh } as never,
+      y: { accepted: false, undiscovered: 3, householdId: npcHh } as never,
+    };
+    st.threads[999_998] = {
+      ...required(Object.values(st.threads)[0] ?? forgedThread()),
+      id: 999_998,
+      pattern: 'charm',
+      actors: { keeper: mate, neighbor: a },
+      interest: 1_000_000,
+      closed_at: null,
+      state: 'Active',
+    };
+    plan.cycle.target = 999_998;
+    director.planDay(sim.world, makeContext(sim.world, sim.content, []));
+    const shortfall = plan.biases.filter((b) => b.process === 'fae.shortfall');
+    expect(shortfall.map((b) => b.key)).toEqual([npcHh]);
+  }, 60_000);
+
+  it('N4 refuses a claim that can mutate into a charge, and any fact about the PC', () => {
+    const sim = almanac(42);
+    runHours(sim, 1);
+    const { pc, a, b, elsewhere } = apart(sim);
+    expect(belief.nudgeablePredicate(sim.content, 'keeps_charms')).toBe(false); // → deals_with_fae → witch
+    expect(belief.nudgeablePredicate(sim.content, 'drinks')).toBe(true);
+    const charms = belief.internProp(sim.world, 'keeps_charms', [{ kind: 'actor', id: b }]);
+    const aboutPc = belief.internProp(sim.world, 'drinks', [{ kind: 'actor', id: pc }]);
+    for (const key of [charms, aboutPc])
+      bias(sim, { hook: 'carrier', process: 'gossip', nudge: 'N4', key, amount: 500 });
+    const weigh = required(belief.carrierWeight(sim.world, sim.content, a, b, elsewhere));
+    expect(weigh(charms)).toBeNull();
+    expect(weigh(aboutPc)).toBeNull();
+    for (const m of Object.values(sim.content.directorMoves ?? {}))
+      if (m.nudge === 'N4') expect(m.pattern, m.id).not.toBe('charm');
+  }, 60_000);
+
+  it('N8 company venue: a biased actor already keeping company there stays, without a fresh nudge', () => {
+    const sim = almanac(42);
+    runHours(sim, 1);
+    const { pc, a, here } = apart(sim);
+    const tavern = required(Object.values(sim.world.places).find((p) => p.tags.includes('tavern')));
+    const ctx = makeContext(sim.world, sim.content, []);
+    required(sim.world.actors[pc]).placeId = tavern.id;
+    required(sim.world.actors[a]).placeId = tavern.id;
+    const state = required(sim.world.activity.byActor[a]);
+    state.activityId = 'drink_at_tavern';
+    state.placeId = tavern.id;
+    state.travel = null;
+    // No live bias: the undirected choice stands (unchanged runs).
+    const plain = required(social.seekCompanyVenue(sim.world, ctx, a)).plain;
+    expect(required(social.seekCompanyVenue(sim.world, ctx, a)).venue).toEqual(plain);
+    bias(sim, { hook: 'option', process: 'company_venue', nudge: 'N8', subject: a, toward_pc: true, amount: 150 });
+    // The PC now shares the venue, so the gate hides the bias; the actor still does not leave.
+    const r = required(social.seekCompanyVenue(sim.world, ctx, a));
+    expect(r.venue.placeId).toBe(tavern.id);
+    expect(r.bias).toBeNull();
+    void here;
+  }, 60_000);
+});
+
+function forgedThread(): Thread {
+  return {
+    id: 0,
+    pattern: 'charm',
+    actors: {},
+    places: [],
+    opened_at: 0,
+    last_advanced: 0,
+    stakes_pm: 0,
+    player_involvement_pm: 0,
+    open_questions: [],
+    state: 'Active',
+    guns: [],
+    callbacks: [],
+    interest: 0,
+    interest_explain: null,
+    closed_at: null,
+    last_fact: 0,
+    level: 0,
+  };
+}

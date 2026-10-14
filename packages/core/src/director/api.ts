@@ -1,6 +1,28 @@
 import type { World } from '../world.ts';
 import { createDirectorState, type DirectorSettings, directorSettings } from './state.ts';
 
+/**
+ * Bias hooks for owning modules (DIRECTOR-PLAN §2). Owners import these from here only, consult
+ * them purely at decision time, and call `noteNudge` once the decision is committed.
+ */
+export {
+  type Consult,
+  directorFocus,
+  favours,
+  hasLiveBias,
+  liveBiases,
+  noteNudge,
+  OPTION_TILT_MAX_PM,
+  optionTiltFor,
+  pcHousehold,
+  pcPerceives,
+  pcPlace,
+  THRESHOLD_TILT_MAX,
+  type Tilt,
+  thresholdTiltFor,
+  windowPickFor,
+} from './bias.ts';
+export type { Bias } from './state.ts';
 export { recordProjection } from './threads.ts';
 export { directorReport } from './view.ts';
 export function configureDirector(world: World, settings: Partial<DirectorSettings>): void {

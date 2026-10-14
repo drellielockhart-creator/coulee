@@ -11,7 +11,7 @@
 import { isAsleep } from '../activity/api.ts';
 import { formGrudge, internProp, observe } from '../belief/api.ts';
 import type { InteractionDef } from '../content.ts';
-import { noteNudge, windowPickFor } from '../director/bias.ts';
+import { noteNudge, windowPickFor } from '../director/api.ts';
 import type { Explain } from '../explain.ts';
 import { term } from '../explain.ts';
 import {
@@ -520,7 +520,7 @@ export function loansDaily(world: World, ctx: SimContext): void {
       fallback,
     );
     if (pick.bias && ctx.now >= fallback !== ctx.now >= pick.at)
-      noteNudge(world, pick.bias, loan.borrowerId, fallback, pick.at);
+      noteNudge(world, pick.bias, loan.borrowerId, fallback, pick.at, false, `${loan.id}:${pick.at}`);
     if (ctx.now < pick.at) continue;
     loan.breachedAt = ctx.now;
     const rota = world.social.rotas?.[rotaKey(loan.itemId, loan.lenderHouseholdId, loan.borrowerHouseholdId)];

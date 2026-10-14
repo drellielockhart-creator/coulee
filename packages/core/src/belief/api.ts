@@ -9,8 +9,7 @@ import { abilityMod } from '../actor.ts';
 // close an import cycle through the sifting code.
 import { argForm, householdForms, itemSubjectName } from '../chronicle/names.ts';
 import type { ContentBundle, PredicateId } from '../content.ts';
-import { favours, liveBiases, noteNudge } from '../director/bias.ts';
-import type { Bias } from '../director/state.ts';
+import { type Bias, directorFocus, favours, liveBiases, noteNudge } from '../director/api.ts';
 import { term } from '../explain.ts';
 import {
   type ActorId,
@@ -218,6 +217,30 @@ export interface TransmitPlan {
   director?: { biasId: number; pm: number; flipped: boolean; plainBeliefId: number | null };
 }
 
+/**
+ * May the Director weight talk of this predicate (N4)? Not if it, or anything a telling can
+ * mutate it into (exaggeration, supernaturalization, moralization, truncation, transitively),
+ * is a charge, a kind (people) claim, supernatural or magic, or concerns who holds a thing (a
+ * charm): a weighted rumor must never become a witch or faekin rumor in the mouth (05 §8.3).
+ */
+export function nudgeablePredicate(content: ContentBundle, predId: PredicateId): boolean {
+  const seen = new Set<string>();
+  const stack: string[] = [predId];
+  while (stack.length) {
+    const id = stack.pop() as string;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const pred = content.predicates[id];
+    if (!pred) return false;
+    if (pred.charge || pred.kind_of !== undefined || pred.supernatural || pred.magic) return false;
+    // Talk of who holds what thing (a charm) is the road to suspicion: never weighted.
+    if (pred.args.includes('item')) return false;
+    for (const next of [pred.exaggerates_to, pred.supernaturalizes_to, pred.truncates_to, ...pred.moralizes_to])
+      if (next !== undefined) stack.push(next);
+  }
+  return true;
+}
+
 /** N4's plausibility envelope: at most +50% on a topic score the carrier already rates worth telling. */
 export const CARRIER_WEIGHT_MAX_PM = 500;
 
@@ -242,10 +265,12 @@ export function carrierWeight(
     places: placeId === null ? [] : [placeId],
   });
   if (live.length === 0) return null;
+  const pc = directorFocus(world);
   return (propId) => {
     const prop = world.belief.props[propId];
-    const pred = prop ? content.predicates[prop.pred] : undefined;
-    if (!pred || pred.kind_of !== undefined || pred.charge) return null;
+    if (!prop || !nudgeablePredicate(content, prop.pred)) return null;
+    // Never talk about the PC on the Director's account.
+    if (prop.args.some((a) => a.kind === 'actor' && a.id === pc)) return null;
     const b = live.find((x) => favours(world, x, propId, 'key'));
     return b ? { pm: Math.min(CARRIER_WEIGHT_MAX_PM, Math.max(0, b.amount)), bias: b } : null;
   };

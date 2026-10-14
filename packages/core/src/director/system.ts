@@ -5,7 +5,7 @@ import { rowsOf } from '../ids.ts';
 import { eventsSince } from '../events/index.ts';
 import { asEventId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
-import { perceivedEvents } from '../social/api.ts';
+import { memoriesOf, perceivedEvents } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { EMA_ALPHA_Q16, emaQ16 } from './fixed.ts';
 import { assess } from './ledger.ts';
@@ -119,7 +119,13 @@ export function directorSystem(world: World, ctx: SimContext): void {
     data: { tau: st.tau, tau_fast: st.tau_fast, tau_slow: st.tau_slow, pacing: st.pacing, terms: measure.terms },
   });
   if (st.events.length > 1) st.events.splice(0, st.events.length - 1);
-  updateThreads(world, ctx.now, new Set(seen.map((e) => e.id as number)), ctx.isNewDay || first);
+  updateThreads(
+    world,
+    ctx.now,
+    new Set(seen.map((e) => e.id as number)),
+    ctx.isNewDay || first,
+    st.focus === null ? [] : memoriesOf(world, st.focus),
+  );
   const key = `${ctx.cal.year}-${String(ctx.cal.month).padStart(2, '0')}`;
   st.months[key] ??= newMonth();
   const month = st.months[key];

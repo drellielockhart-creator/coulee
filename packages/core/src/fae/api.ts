@@ -1,4 +1,5 @@
 import type { Place } from '../actor.ts';
+import { pcHousehold, type Tilt, thresholdTiltFor } from '../director/api.ts';
 import type { PlaceId } from '../ids.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
@@ -38,7 +39,27 @@ export function episodesAt(world: World, placeId: PlaceId) {
  * at most DC −2 on an unseen detect check of a sign or a shortfall. Never consulted for a
  * concealed attribute, and nothing the PC could perceive.
  */
-export { thresholdTiltFor as thresholdTilt } from '../director/bias.ts';
+export function thresholdTilt(
+  world: World,
+  proc: 'fae.notice' | 'fae.shortfall',
+  key: number,
+  actors: readonly number[],
+  places: readonly number[],
+): Tilt | null {
+  if (proc === 'fae.shortfall') {
+    // A find in the PC's own household reaches the PC's mind (misfortune, memories): never.
+    if (key === pcHousehold(world)) return null;
+    return thresholdTiltFor(
+      world,
+      proc,
+      key,
+      'household',
+      [...actors, ...(world.households[key as never]?.memberIds ?? [])],
+      places,
+    );
+  }
+  return thresholdTiltFor(world, proc, key, 'place', actors, places);
+}
 export {
   charmKeepWeight,
   charmTransferred,

@@ -11,7 +11,7 @@ import type { SimContext } from '../sim/context.ts';
 import { interactionAvailability, prepareReliefTravel, reliefReservations } from '../social/api.ts';
 import { addHours } from '../time.ts';
 import type { World } from '../world.ts';
-import { minuteBudget, noteCall, resolveActivityPlace, walkMinutes } from './api.ts';
+import { minuteBudget, noteCall, resolveActivityPlace, settleDirectorChoices, walkMinutes } from './api.ts';
 import { blockActive, observanceActive, routineFor } from './calendar.ts';
 import { requiredRow } from './definitions.ts';
 import { activityExplain } from './explain.ts';
@@ -234,6 +234,9 @@ export function activitySystem(world: World, ctx: SimContext): void {
         ? chosen.explain
         : routine?.explain;
     const explain = rawExplain ? activityExplain(rawExplain) : undefined;
+    // Director N8 is recorded where the choice is committed, before the actor moves.
+    if (world.director?.plan && (state.activityId !== activityId || state.placeId !== placeId))
+      settleDirectorChoices(world, ctx, id, activityId, placeId, source === 'urge');
     const from = actor.placeId;
     const changed = state.activityId !== activityId || state.placeId !== placeId;
     // The walk takes real time: distance on the site grid at a walking pace, slowed by the load.

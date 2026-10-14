@@ -1,7 +1,7 @@
 import type { OpenProjection } from '../chronicle/api.ts';
 import { normalizeExplain, term } from '../explain.ts';
 import { idsOf, rowsOf } from '../ids.ts';
-import { memoriesOf } from '../social/api.ts';
+import type { Memory } from '../social/state.ts';
 import type { World } from '../world.ts';
 import type { DirectorState, Thread } from './state.ts';
 
@@ -205,10 +205,17 @@ export function scoreThread(st: DirectorState, th: Thread, now: number) {
 export function rankThreads(a: Thread, b: Thread): number {
   return b.interest - a.interest || a.id - b.id;
 }
-export function updateThreads(world: World, now: number, seen: ReadonlySet<number>, daily: boolean): void {
+/** `memories`: the focus actor's memories (social's `memoriesOf`), read by the caller so this
+ * file and `director/api.ts` import no owning module at runtime (owners import the api). */
+export function updateThreads(
+  world: World,
+  now: number,
+  seen: ReadonlySet<number>,
+  daily: boolean,
+  memories: readonly Memory[],
+): void {
   const st = world.director;
   if (!st) return;
-  const memories = st.focus === null ? [] : memoriesOf(world, st.focus);
   const memoryEvents = new Set(memories.flatMap((m) => (m.eventId === null ? [] : [m.eventId as number])));
   st.recent_resolutions = st.recent_resolutions.filter((r) => now - r.at <= 30 * DAY);
   for (const id of idsOf(st.threads)) {

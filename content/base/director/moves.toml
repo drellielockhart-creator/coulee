@@ -1,6 +1,8 @@
 # Ripening moves (DIRECTOR-PLAN §3.3; 05 §8.6): which nudge can advance a pattern, for which
 # role, at what cost (05 §8.3 catalog). Patterns scapegoat, faekin_suspicion and defense_fired
 # are refused by the schema (no faekin exposure; minds are read, never steered, in D1).
+# Charm threads take no N4: talk of charms is the road to suspicion (05 §8.3); belief's
+# nudgeablePredicate also refuses any claim that can mutate into a charge, kind or uncanny one.
 # amount: per mille for N4 (topic score) and N8 (of the best option); DC points for N9;
 # minutes for N6 (negative = sooner; suppress_amount = the delay when pacing holds a threat back).
 
@@ -60,15 +62,6 @@ category = "threat"
 process = "fae.shortfall"
 amount = 2
 cost = 1
-
-[[move]]
-id = "charm_talked_of"
-pattern = "charm"
-nudge = "N4"
-category = "threat"
-process = "gossip"
-amount = 500
-cost = 2
 
 # --- social and opportunity: RELAX and FADE
 [[move]]

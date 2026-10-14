@@ -6,6 +6,7 @@
  * volatile), strength = cited memory salience | 10 × cited belief credence | 1000.
  */
 import type { ContentBundle, DefenseId } from '../content.ts';
+import { type Bias, optionTiltFor, type Tilt, windowPickFor } from '../director/api.ts';
 import { type ActorId, type EventId, idsOf, type MemoryId } from '../ids.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { World } from '../world.ts';
@@ -305,11 +306,31 @@ export function perceivedEvents(
 }
 
 /**
- * Director hooks (DIRECTOR-PLAN §2), defaulting to no bias. `optionTilt` (N8) for an NPC's
- * choice among valid places to go, at most 15% of the best option's score; `windowPick` (N6)
- * for when something lands inside its own window. Both return nothing for a decision the PC
- * could perceive (fair dice).
+ * Director hooks (DIRECTOR-PLAN §2), defaulting to no bias, both pure: `optionTilt` (N8) for an
+ * NPC's choice among valid places or households, at most 15% of the best option's score;
+ * `windowPick` (N6) for when something lands inside its own window. Both return nothing for a
+ * decision the PC could perceive (fair dice). `settleVenueNudge` records a committed N8 venue.
  */
-export { optionTiltFor as optionTilt, windowPickFor as windowPick } from '../director/bias.ts';
+export function optionTilt(
+  world: World,
+  proc: string,
+  chooser: ActorId,
+  kind: 'place' | 'household',
+  places: readonly number[],
+): ((option: number) => Tilt | null) | null {
+  return optionTiltFor(world, proc, chooser, kind, places);
+}
+export function windowPick(
+  world: World,
+  proc: string,
+  subject: number,
+  actors: readonly number[],
+  places: readonly number[],
+  span: readonly [number, number],
+  fallback: number,
+): { at: number; bias: Bias | null } {
+  return windowPickFor(world, proc, subject, actors, places, span, fallback);
+}
 export { dormantMarriage, dormantSocialDecay } from './dormant.ts';
 export { settleDebt as settleRegionalDebt } from './opinion.ts';
+export { seekCompanyVenue, settleVenueNudge } from './urges.ts';
