@@ -145,3 +145,9 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
 
 /** Owner-scoped physical household pass: meals/preparation/storage, production and transfers. */
 export { provisionsSystem as householdProcessingHour } from './system.ts';
+
+/** A refused return to full rations stands as a shopping trigger (rules.ts `shoppingDays`). */
+export function restoreRefused(world: World, householdId: HouseholdId): boolean {
+  const h = world.provisions.households[householdId];
+  return h !== undefined && h.rationPct < 100 && h.rationRestore !== undefined;
+}

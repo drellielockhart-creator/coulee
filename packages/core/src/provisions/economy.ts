@@ -15,7 +15,7 @@ import type { SimContext } from '../sim/context.ts';
 import { addOpinionReason, areKin, debtOf, extendCredit, opinionOf, reliefRules } from '../social/api.ts';
 import type { World } from '../world.ts';
 import { priceAt } from './api.ts';
-import { householdEconomyDay } from './household.ts';
+import { householdEconomyDay, restoreRefused } from './household.ts';
 import {
   dailyKcal,
   foodServings,
@@ -476,7 +476,7 @@ export function shoppingHour(world: World, ctx: SimContext): void {
     if (!h || !buyer) continue;
     const members = membersOf(world, { householdId: household.id });
     const need = members.reduce((n, id) => n + dailyKcal(world, ctx.content, id, ctx.now), 0);
-    const horizon = shoppingDays(ctx.cal.month),
+    const horizon = shoppingDays(ctx.cal.month, restoreRefused(world, household.id)),
       holder = { householdId: household.id };
     let kitchen = kitchenOf(world, ctx.content, holder, ctx.now);
     // Buying food which cannot be cooked is not a useful errand. Replace exhausted

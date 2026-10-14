@@ -41,6 +41,7 @@ export { cashOf, purchase, synchronizeStoreTabs, transferCash } from './economy.
 export { hearthAt, hearthBurn } from './meals.ts';
 
 import { yearsBetween } from '../time.ts';
+import { restoreRefused } from './household.ts';
 import {
   dailyKcal,
   drawWater,
@@ -239,9 +240,11 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
     }
     const { daily, larder } = supply;
     const urgent = larder < daily * SHOPPING.urgentDays;
+    // Only the refused restore asks for this errand: the larder is above the ordinary trigger.
+    const toRestore = larder >= daily * shoppingDays(ctx.cal.month).trigger;
     if (
       (household.headId === actorId || !canAct(world, household.headId) || urgent) &&
-      larder < daily * shoppingDays(ctx.cal.month).trigger
+      larder < daily * shoppingDays(ctx.cal.month, restoreRefused(world, household.id)).trigger
     ) {
       const intensity = urgent ? 950 : 800;
       const store = bestIntentStore(world, ctx, actorId);
@@ -253,10 +256,24 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
           urge: { kind: 'activity', activityId: activity.id, placeId: store.placeId },
           voice: 'superego',
           intensity,
-          label: urgent ? 'The pantry is nearly bare: go to the store' : 'The pantry is running low: buy provisions',
+          label: urgent
+            ? 'The pantry is nearly bare: go to the store'
+            : toRestore
+              ? 'Rations stay short until the larder lasts at full rations: buy provisions'
+              : 'The pantry is running low: buy provisions',
           source: 'provisions',
           norm: 'duty',
-          reasons: [term('food', urgent ? 'Nearly bare shelves' : 'Household provision duty', intensity)],
+          reasons: [
+            term(
+              'food',
+              urgent
+                ? 'Nearly bare shelves'
+                : toRestore
+                  ? 'Short rations held: provision duty'
+                  : 'Household provision duty',
+              intensity,
+            ),
+          ],
         });
     }
   }

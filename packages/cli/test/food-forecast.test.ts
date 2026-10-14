@@ -8,10 +8,11 @@ import { describe, expect, it } from 'vitest';
 import { asHouseholdId, type HouseholdId } from '../../core/src/ids.ts';
 import { deleteStack, pantryOf, stacksDeep, withInventoryPass } from '../../core/src/items/api.ts';
 import { newStack } from '../../core/src/items/state.ts';
+import { proposeProvisionUrges } from '../../core/src/provisions/api.ts';
 import { holderStacks } from '../../core/src/provisions/meals.ts';
 import { planReadiness } from '../../core/src/provisions/planner.ts';
 import { RATION_LEASE, RATION_RESTORE_DAYS, RATION_STEPS } from '../../core/src/provisions/rules.ts';
-import { runHours, type Sim } from '../../core/src/sim/sim.ts';
+import { makeContext, runHours, type Sim } from '../../core/src/sim/sim.ts';
 import { simFor } from './helpers.ts';
 
 /** A household of more than one member at a roofed home (a house). */
@@ -156,6 +157,17 @@ describe('food forecast: household ration decisions', () => {
         ),
       ).toBe(true);
       expect(r.warnings.some((line) => line.includes('Rations stay at 75%') && line.includes('at full rations'))).toBe(
+        true,
+      );
+      // The refused restore is a shopping trigger: in store hours the head is sent to top up,
+      // though the larder is above the ordinary 21-day trigger.
+      runHours(sim, 9);
+      expect(h.rationRestore).toBeDefined();
+      const head = w.households[hid]?.headId;
+      if (head === undefined) throw new Error('head');
+      w.provisions.settings.npcBuying = true;
+      const urges = proposeProvisionUrges(w, makeContext(w, sim.content, []), head);
+      expect(urges.some((u) => u.label.startsWith('Rations stay short until the larder lasts at full rations'))).toBe(
         true,
       );
     });

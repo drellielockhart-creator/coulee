@@ -98,6 +98,13 @@ export const SHOPPING = {
   winterDays: 90,
   reserveCents: 100,
   reservePct: 15,
+  /**
+   * A household whose return to full rations was refused (household.ts `rationRestore`: the P8
+   * forecast at full rations fell short of RATION_RESTORE_DAYS) tops up toward this many days at
+   * full rations, though its larder is above the trigger: otherwise the 21-day trigger and the
+   * 28-day target leave it on short rations with no errand that could restore them (2026-10-14).
+   */
+  restoreTopUpDays: 32,
 } as const;
 
 /** A storekeeper who shuns a customer (04 §9.2 rung 3): this percent of the shelf price, and no credit. */
@@ -197,8 +204,14 @@ export function kcalPerServing(food: NonNullable<ItemDef['food']>): number {
 }
 
 /** Shopping horizon (trigger and target days) for the month: ordinary, or laying in for winter. */
-export function shoppingDays(month: number): { trigger: number; target: number } {
-  return SHOPPING.winterStockMonths.includes(month)
+export function shoppingDays(month: number, restoreRefused = false): { trigger: number; target: number } {
+  const days = SHOPPING.winterStockMonths.includes(month)
     ? { trigger: SHOPPING.winterTriggerDays, target: SHOPPING.winterDays }
     : { trigger: SHOPPING.triggerDays, target: SHOPPING.targetDays };
+  // A refused restore is a shopping trigger: top up past the restore threshold at full rations.
+  if (!restoreRefused) return days;
+  return {
+    trigger: Math.max(days.trigger, SHOPPING.restoreTopUpDays),
+    target: Math.max(days.target, SHOPPING.restoreTopUpDays),
+  };
 }
