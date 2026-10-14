@@ -91,6 +91,11 @@ export interface Readiness {
   needExplain?: import('../explain.ts').Explain;
   /** One eater: the lowest and highest daily need over the coming week, kcal at current rations. */
   needRange?: { min: number; max: number };
+  /**
+   * The household's ration and what it rests on (P1/P8): decided each day start, or held on a
+   * standing forecast until `heldUntilDay` (planner.ts rationStanding). Readouts only.
+   */
+  rations?: { pct: number; heldUntilDay?: number; explain: import('../explain.ts').Explain };
 }
 
 export type ReadinessHolder = { actorId: ActorId } | { householdId: HouseholdId };

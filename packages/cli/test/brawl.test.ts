@@ -241,8 +241,8 @@ describe('M6 a brawl with an ending', () => {
     expect(session.act(attack.command).ok).toBe(true);
     for (let n = 0; n < 4; n++) session.act(parseText('resume', session.observe()));
     const oldLog = session.commandLog;
-    expect(oldLog[0].rulesVersion).toBe(4);
-    for (const version of [1, 2, 3]) {
+    expect(oldLog[0].rulesVersion).toBe(5);
+    for (const version of [1, 2, 3, 4]) {
       oldLog[0].rulesVersion = version;
       expect(() => PlaySession.replay(content, oldLog)).toThrow('Unsupported replay rules version');
     }

@@ -1,17 +1,18 @@
 import { provisionCalendar as calendarAt } from './calendar.ts';
 /** A private forward inventory simulation. No mutation of the caller, and no separate meal math. */
 
-import { scheduledBlock } from '../activity/api.ts';
+import { isAsleep, scheduledBlock } from '../activity/api.ts';
 import type { ContentBundle } from '../content.ts';
+import { term } from '../explain.ts';
 import { forecastCharms, forecastHems } from '../fae/forecast.ts';
 import { type ActorId, rowsOf } from '../ids.ts';
 import { consumeSupply, pantryOf, supplyUnits, withInventoryPass } from '../items/api.ts';
-import { needValue, projectWaterHour, rousedBy, satisfyNeed } from '../needs/api.ts';
+import { canAct, needsFrozen, needValue, projectWaterHour, rousedBy, satisfyNeed } from '../needs/api.ts';
 import { authorizeAct, standingOrders } from '../psyche/api.ts';
 import { processesPlace, withFixedMembership } from '../region/api.ts';
 import { rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
-import { asGameMinute } from '../time.ts';
+import { asGameMinute, formatDate } from '../time.ts';
 import type { World } from '../world.ts';
 import type { Readiness } from './api.ts';
 import { drinkingWater, drinkWater, heatingFuel, waterHour } from './api.ts';
@@ -31,6 +32,7 @@ import {
   holderSupply,
   kitchenOf,
   mealEnergy,
+  mealExplain,
   membersOf,
   preparationHour,
   prepBudget,
@@ -42,10 +44,22 @@ import {
   withProjectionMeals,
 } from './meals.ts';
 import { nutritionHour } from './nutrition.ts';
+import { RATION_LEASE } from './rules.ts';
 import { minutesUntil, spoilageFactors } from './spoilage.ts';
 import { type DayIntake, emptyNutrition } from './state.ts';
 import { airTempF } from './temperature.ts';
 
+/** This many short days running mean the larder is spent, whatever is left in it (planReadiness). */
+const LEAN_STREAK = 3;
+/** Food energy in a holder's stores, prepared or not (as the larder guard counts it). */
+function stockKcal(world: World, content: ContentBundle, holder: Holder): number {
+  let kcal = 0;
+  for (const stack of holderStacks(world, holder)) {
+    const food = content.items[stack.defId]?.food;
+    if (food && !stack.forSale) kcal += Math.round((foodServings(content, stack) * food.kcal) / food.servings);
+  }
+  return kcal;
+}
 const copyIntake = (day: DayIntake): DayIntake => ({ ...day, foods: [...day.foods], groups: [...day.groups] });
 
 export function planReadiness(
@@ -137,6 +151,9 @@ export function planReadiness(
   // Only owned slices are cloned; neither social nor belief state is touched by this kernel.
   const projection: World = {
     ...world,
+    // A forecast never runs inside a live tactical frame.
+    tactical: undefined,
+    backgroundTactical: undefined,
     // A private forecast has no live processing owner.
     region: world.region ? { ...world.region, processing: undefined } : undefined,
     items: { counters: { ...world.items.counters }, stacks: Object.create(null) },
@@ -235,6 +252,10 @@ export function planReadiness(
     saltPoints = 0;
   /** Each judged day's planned energy: the figure the readout prints is their mean (P1). */
   const targets: number[] = [];
+  /** Short days awaiting a verdict, and the lean days that proved transient. */
+  const streak: Array<{ day: number; kcal: number; target: number }> = [];
+  const leanDays: Array<{ day: number; kcal: number; target: number }> = [];
+  let charmsAtHorizon: ReturnType<typeof forecastCharms> | undefined;
   // Cap at a year: huge debug inventories must not freeze a view query. Report the cap plainly.
   // Household decisions pass a shorter horizon: they only compare against the ration thresholds.
   const horizon = Math.max(1, Math.min(366, Math.floor(horizonDays)));
@@ -266,10 +287,14 @@ export function planReadiness(
   withFixedMembership(projection, () =>
     withProjectionMeals(projection, () =>
       withInventoryPass(projection, () => {
-        for (let hour = 0; hour < 24 * horizon; hour++) {
+        // Short last days look past the horizon to tell lean days from the end.
+        for (let hour = 0; hour < 24 * (horizon + Math.min(streak.length, LEAN_STREAK - 1)); hour++) {
           const t = asGameMinute(Math.floor(now / 60) * 60 + hour * 60),
             cal = calendarAt(t);
           projectionTime = t;
+          // Charm rows cover the horizon only, not the days looked past it for a verdict.
+          if (hour === 24 * horizon && details && world.fae?.charms && hems)
+            charmsAtHorizon = forecastCharms(world, content, members, stacks, hems);
           const ctx: SimContext = {
             content,
             now: t,
@@ -289,6 +314,8 @@ export function planReadiness(
             // left waiting, the hour someone wakes (the only change at a decision's fixed table).
             const pending = projection.provisions.pendingMeals ?? [];
             if (pending.some((m) => m.completesAt <= t && (m.completesAt > t - 60 || woke))) {
+              // Settle the span's heat and thirst first: a plate is delivered into the hour as it is.
+              quiet.flush(ctx);
               for (const id of members) {
                 const state = projection.activity.byActor[id];
                 if (state && (state.lockedUntil ?? 0) <= t)
@@ -313,15 +340,19 @@ export function planReadiness(
             if (hasDevices) devicesHour(projection, ctx);
             const meal = dueMeal(projection, content, holder, cal.hour);
             if (meal) {
+              // The live table's rule (system.ts): whoever cannot act, sleeps, or still waits on a
+              // plate sits this meal out; the rest eat. The meal is judged against the diners' plates
+              // only, so a bedridden member's share is never "missing". Orders are not consulted: a
+              // readout projects what exists as if it is eaten (`pass.hypothetical`).
+              const diners = members.filter(
+                (id) => canAct(projection, id) && !isAsleep(projection, ctx, id) && !awaitingMeal(projection, id),
+              );
               // The same per-plate rounding as serveMeal: this is the energy the meal is sized to.
-              windowTarget += members.reduce(
+              windowTarget += diners.reduce(
                 (n, id) =>
                   n + Math.round((mealEnergy(projection, ctx, id, pass) * rationPct * meal.share_pct) / 10_000),
                 0,
               );
-              // As at the live table (system.ts): whoever still waits on a plate sits this meal out;
-              // the rest eat. One sleeping child's late supper must not cancel everyone's breakfast.
-              const diners = members.filter((id) => !awaitingMeal(projection, id));
               if (diners.length) serveMeal(projection, ctx, holder, diners, meal.share_pct, meal.cold, undefined, pass);
             }
             if (details && hour < 24)
@@ -330,10 +361,21 @@ export function planReadiness(
           // A cold noon piece may fail while the two hot meals still cover 80% of the ration.
           // Judge a complete 24-hour window, including preparation completions, against the
           // documented daily 50% threshold. A partial day is never mistaken for exhaustion.
+          // A short day with a day's food still in the larder is a lean day (rain on a
+          // farmstead's tinder, a cooking-water shortfall), not an empty larder. The larder runs
+          // out on a short day without a day's food left, or on the first of LEAN_STREAK short
+          // days running. Lean days that pass are named in the readout (P1).
           if (hour % 24 === 23) {
             targets.push(windowTarget);
-            if (windowKcal * 2 < windowTarget) break;
-            foodHours = hour + 1;
+            if (windowKcal * 2 < windowTarget) {
+              if (stockKcal(projection, content, holder) < windowTarget) break;
+              streak.push({ day: Math.floor(hour / 24) + 1, kcal: windowKcal, target: windowTarget });
+              if (streak.length >= LEAN_STREAK) break;
+            } else {
+              leanDays.push(...streak);
+              streak.length = 0;
+              foodHours = hour + 1;
+            }
             windowKcal = 0;
             windowTarget = 0;
           }
@@ -341,11 +383,15 @@ export function planReadiness(
       }),
     ),
   );
-  result.daysOfFoodTenths = Math.round((foodHours * 10) / 24);
+  result.daysOfFoodTenths = Math.round((Math.min(foodHours, 24 * horizon) * 10) / 24);
   // Internal decisions need only the projected horizon, not the seven-day
   // readout and conditional charm descriptions. Meal/storage rules above are identical.
   if (!details) return result;
   if (targets.length) result.kcalPerDay = Math.round(targets.reduce((n, t) => n + t, 0) / targets.length);
+  for (const d of leanDays.slice(0, 2))
+    result.warnings.push(
+      `A lean day ahead: day ${d.day} brings ${d.kcal} of ${d.target} kcal (a fire, its tinder, water or time falls short that day); the larder lasts past it.`,
+    );
   // Water carried, with the salt the projected meals add (P8: salt meat costs water).
   const saltPerDay = Math.round(
     (saltPoints * (thirst?.intake?.per_point ?? 2)) / Math.max(1, Math.ceil(Math.max(foodHours, 24) / 24)),
@@ -364,14 +410,66 @@ export function planReadiness(
     );
   needLegibility(world, content, members, now, rationPct, result);
   if (world.fae?.charms && hems) {
-    const rows = forecastCharms(world, content, members, stacks, hems);
+    const rows = charmsAtHorizon ?? forecastCharms(world, content, members, stacks, hems);
     if (rows.length) result.charms = rows;
   }
   result.daysOfFuelTenths = fuelDay > 0 ? Math.floor((fuelStart * 10) / fuelDay) : null;
   if (foodHours >= 24 * horizon) result.warnings.push(`Food horizon capped at ${horizon} days.`);
   // The most urgent line first: hosts show only the first few.
+  // P1/P8: the ration the household keeps, and on what forecast, beside the readout's own figure.
+  const householdId = 'householdId' in holder ? holder.householdId : world.actors[holder.actorId]?.householdId;
+  const standing = householdId === undefined ? undefined : rationStanding(world, householdId, members);
+  if (standing) {
+    result.rations = standing.rations;
+    if (standing.warning) result.warnings.unshift(standing.warning);
+  }
   if (result.daysOfFoodTenths < 40) result.warnings.unshift('Less than four days of usable food at current rations.');
   return result;
+}
+
+/**
+ * The household's ration and the forecast it rests on (household.ts, RATION_LEASE): a standing
+ * forecast names its day, its figure, when it is rechecked, and the larder guard that breaks it.
+ */
+export function rationStanding(
+  world: World,
+  householdId: import('../ids.ts').HouseholdId,
+  subjects: readonly ActorId[],
+): { rations: NonNullable<Readiness['rations']>; warning?: string } | undefined {
+  const h = world.provisions.households[householdId];
+  if (!h) return undefined;
+  const lease = h.rationLease;
+  const terms = [term('policy', 'Ration percent', h.rationPct)];
+  if (!lease)
+    return {
+      rations: {
+        pct: h.rationPct,
+        explain: mealExplain(
+          "Rations decided at each day start on the day's forecast",
+          [...subjects],
+          h.rationPct,
+          terms,
+          'decided',
+        ),
+      },
+    };
+  terms.push(
+    term('food', 'Forecast made on day', lease.day),
+    term('food', 'Days of food then, tenths', lease.daysTenths),
+    term('food', 'Rechecked by day', lease.untilDay),
+    term('food', 'Larder kcal then', lease.larderKcal),
+    term('food', 'Planned kcal a day', lease.kcalPerDay),
+    term('policy', 'Rechecked at once if the larder falls faster than percent of plan', RATION_LEASE.guardPct),
+  );
+  const date = (day: number) => formatDate(asGameMinute(day * 1440));
+  return {
+    rations: {
+      pct: h.rationPct,
+      heldUntilDay: lease.untilDay,
+      explain: mealExplain('Rations held on a standing forecast', [...subjects], h.rationPct, terms, 'held'),
+    },
+    warning: `Rations held at ${h.rationPct}% on the forecast of ${date(lease.day)}: ${(lease.daysTenths / 10).toFixed(1)} days of food; rechecked by ${date(lease.untilDay)}, or the first morning the larder falls faster than planned${h.rationPct < 100 ? ' or gains food' : ''}.`,
+  };
 }
 
 /**
@@ -458,7 +556,8 @@ function quietHours(
     heat = [];
     // Sequential credit, as hour after hour of heatingFuel would compute it.
     const fire = projection.provisions.fires[home];
-    let until = fire?.lit ? (fire.until ?? ctx.now + fire.fuelMinutes) : 0;
+    // An old save's fire has no `until`: its minutes run from the span's first hour.
+    let until = fire?.lit ? (fire.until ?? (hours[0]?.t ?? ctx.now) + fire.fuelMinutes) : 0;
     let total = 0;
     for (const { t, wanted } of hours) {
       total += Math.ceil((wanted * Math.max(0, 60 - Math.max(0, until - t))) / 60);
@@ -506,12 +605,16 @@ function quietHours(
           tables.set(key, table);
         }
         woke ||= ctx.cal.hour > 0 && !!table.asleep[ctx.cal.hour - 1] && !table.asleep[ctx.cal.hour];
+        // Under the hill time runs otherwise: no thirst, no drinking (needsFrozen, as the ledger).
+        if (!projection.actors[id]?.alive || needsFrozen(projection, content, id)) continue;
         owed.set(id, (owed.get(id) ?? 0) + (table.points[ctx.cal.hour] ?? 0));
-        if (!drinkers.includes(id) || !projection.actors[id]?.alive) continue;
+        if (!drinkers.includes(id) || !canAct(projection, id)) continue;
         const value = needValue(projection, id, thirst.id) - (owed.get(id) ?? 0);
         if (value >= 600) continue;
         settleThirst(ctx, id);
-        if (table.asleep[ctx.cal.hour] && !rousedBy(projection, content, id)) continue;
+        // A cook held at the hearth past the schedule is awake, whatever the schedule says.
+        const locked = (projection.activity.byActor[id]?.lockedUntil ?? 0) > ctx.now;
+        if (!locked && table.asleep[ctx.cal.hour] && !rousedBy(projection, content, id)) continue;
         const ml = Math.min(
           drinkingWater(projection, content, id),
           Math.max(0, Math.ceil((900 - needValue(projection, id, thirst.id)) * perPoint)),

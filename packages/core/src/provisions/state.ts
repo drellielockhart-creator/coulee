@@ -96,6 +96,8 @@ export interface HouseholdProvisions {
     day: number;
     untilDay: number;
     pct: number;
+    /** The forecast's days of food, tenths (shown in readouts). */
+    daysTenths: number;
     larderKcal: number;
     kcalPerDay: number;
     members: number;

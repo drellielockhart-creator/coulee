@@ -38,8 +38,11 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
     !world.provisions.settings.autoRations ||
     !members.length ||
     !authorizeAct(world, household.headId, { kind: 'consequential' }, { kind: 'own' }).ok
-  )
+  ) {
+    // No decision is made today, so no forecast can stand for one.
+    delete h.rationLease;
     return;
+  }
   // The ration decision only compares against its thresholds: at full rations the question is
   // "below the first cut?"; on short rations, "below the next cut, or back above restore?".
   const day = ctx.cal.dayIndex;
@@ -105,17 +108,22 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
   h.rationPct = pct;
   h.shortageStep = pct === 100 ? 0 : pct === 90 ? 1 : pct === 75 ? 2 : 3;
   // Only a forecast made at the ration it leaves in place can stand for it (a restore was judged
-  // at the cut ration). It stands until the next cut, or the daily shortage notice, could fall due.
+  // at the cut ration). It stands no longer than the next cut, or the daily shortage notice, could
+  // fall due even if the larder ran down at the guard's limit (guardPct of plan) every day:
+  // D - spare x guardPct / 100 >= next cut + safety.
   const nextCut = Math.max(SHORTAGE_NOTICE_DAYS, ...RATION_STEPS.filter((s) => s.pct < pct).map((s) => s.belowDays));
   const spare = Math.min(
     RATION_LEASE.maxDays,
-    Math.floor(readiness.daysOfFoodTenths / 10) - nextCut - RATION_LEASE.safetyDays,
+    Math.floor(
+      ((readiness.daysOfFoodTenths - (nextCut + RATION_LEASE.safetyDays) * 10) * 100) / (RATION_LEASE.guardPct * 10),
+    ),
   );
   if (pct === before && spare > 0)
     h.rationLease = {
       day,
       untilDay: day + spare,
       pct,
+      daysTenths: readiness.daysOfFoodTenths,
       larderKcal: larderKcal(world, ctx, householdId),
       kcalPerDay: readiness.kcalPerDay,
       members: members.length,

@@ -111,6 +111,44 @@ describe('food forecast: household ration decisions', () => {
     expect(w.log.events.some((e) => e.kind === 'provisions.rations' && e.data.householdId === hid)).toBe(true);
   });
 
+  it('a bedridden member does not make a full larder look empty', () => {
+    const sim = simFor({ seed: 42, hours: 24 });
+    const w = sim.world;
+    const h = Object.values(w.households).find(
+      (x) => x && x.memberIds.length === 2 && w.places[x.homePlaceId]?.kind === 'house',
+    );
+    if (!h) throw new Error('no two-person household');
+    const hid = asHouseholdId(h.id);
+    stockPantry(sim, hid, { hardtack: 300, salt_pork: 40, cornmeal: 150 });
+    const sick = h.memberIds[1];
+    const needs = sick === undefined ? undefined : w.needs.byActor[sick];
+    if (!needs) throw new Error('needs');
+    needs.survival = { vigor: 0, wounds: 0, hours: {}, recovering: 0, collapsed: true, stasis: false };
+    const [decide, readout] = withInventoryPass(w, () => [
+      planReadiness(w, sim.content, { householdId: hid }, w.time, RATION_LEASE.horizonDays, false),
+      planReadiness(w, sim.content, { householdId: hid }, w.time, RATION_LEASE.horizonDays, true),
+    ]);
+    expect(decide?.daysOfFoodTenths).toBeGreaterThanOrEqual(210);
+    expect(readout?.daysOfFoodTenths).toBeGreaterThanOrEqual(210);
+    expect(decision(decide?.daysOfFoodTenths ?? 0, 100)).toBe(100);
+  });
+
+  it('the readout names the standing forecast its household keeps rations on (P1)', () => {
+    const sim = simFor({ seed: 42, hours: 24 });
+    const w = sim.world;
+    const hid = household(sim);
+    stockPantry(sim, hid, { hardtack: 400, salt_pork: 60, cornmeal: 200 });
+    runHours(sim, 1);
+    const lease = w.provisions.households[hid]?.rationLease;
+    expect(lease).toBeDefined();
+    const r = withInventoryPass(w, () => planReadiness(w, sim.content, { householdId: hid }, w.time, 30, true));
+    expect(r.rations?.heldUntilDay).toBe(lease?.untilDay);
+    expect(r.rations?.explain.terms.some((t) => t.label === 'Rechecked by day' && t.value === lease?.untilDay)).toBe(
+      true,
+    );
+    expect(r.warnings.some((line) => line.startsWith('Rations held at 100% on the forecast of'))).toBe(true);
+  });
+
   it('near the threshold the decision forecast agrees with the hourly readout', () => {
     const sim = simFor({ seed: 42, hours: 24 });
     const w = sim.world;
