@@ -3,6 +3,7 @@ import { type ActorId, type HouseholdId, idsOf, type PlaceId, rowsOf } from '../
 import { rootLocation } from '../items/containers.ts';
 import type { ItemStack } from '../items/state.ts';
 import type { World } from '../world.ts';
+import { validateDormantState } from './dormant.ts';
 
 export type ProcessingOwner = 'hourly' | 'daily';
 export interface ProcessingState {
@@ -40,7 +41,7 @@ export function isDailyProcessing(world: World): boolean {
 export function processesSite(world: World, site: string): boolean {
   if (!world.region) return true;
   const scope = scopes.get(world);
-  return scope ? scope.sites.has(site) : !world.region.processing?.sites?.[site];
+  return scope ? scope.sites.has(site) : !world.region.processing?.sites?.[site] && !world.region.dormant?.sites[site];
 }
 export function actorSite(world: World, id: number): string {
   const actor = world.actors[id];
@@ -85,16 +86,26 @@ export function processingPlaces(world: World) {
 export function processingBuckets(world: World): {
   hourly: { actors: ActorId[]; households: HouseholdId[] };
   daily: { actors: ActorId[]; households: HouseholdId[] };
+  dormant: { actors: ActorId[]; households: HouseholdId[] };
 } {
   const hourly = { actors: [] as ActorId[], households: [] as HouseholdId[] };
   const daily = { actors: [] as ActorId[], households: [] as HouseholdId[] };
+  const dormant = { actors: [] as ActorId[], households: [] as HouseholdId[] };
   for (const id of idsOf<ActorId>(world.actors))
-    (world.region?.processing?.sites?.[actorSite(world, id)] ? daily : hourly).actors.push(id);
+    (world.region?.dormant?.sites[actorSite(world, id)]
+      ? dormant
+      : world.region?.processing?.sites?.[actorSite(world, id)]
+        ? daily
+        : hourly
+    ).actors.push(id);
   for (const h of rowsOf(world.households))
-    (world.region?.processing?.sites?.[world.places[h.homePlaceId]?.siteId ?? ''] ? daily : hourly).households.push(
-      h.id,
-    );
-  return { hourly, daily };
+    (world.region?.dormant?.sites[world.places[h.homePlaceId]?.siteId ?? '']
+      ? dormant
+      : world.region?.processing?.sites?.[world.places[h.homePlaceId]?.siteId ?? '']
+        ? daily
+        : hourly
+    ).households.push(h.id);
+  return { hourly, daily, dormant };
 }
 
 /** Shared daily economy entry point calls this BEFORE drawing any stock or changing rations.
@@ -130,6 +141,7 @@ export function claimHouseholdEconomyDay(
 export function validateRegionState(world: World): void {
   const region = world.region;
   if (!region) return;
+  if (region.dormant) validateDormantState(world);
   if (region.version !== 1) throw new Error('Unsupported regional version');
   if (region.census && region.census.version !== 1) throw new Error('Unsupported regional census version');
   if (region.lod && region.lod.version !== 1) throw new Error('Unsupported regional LOD version');

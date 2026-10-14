@@ -67,7 +67,9 @@ export function refreshCensus(world: World): void {
     member.alive = member.alive && actor.alive && !member.death;
     member.observedThrough = Math.max(
       member.observedThrough,
-      world.region?.processing?.sites?.[actorSite(world, actor.id)]?.through ?? world.time,
+      world.region?.dormant?.sites[actorSite(world, actor.id)]?.through ??
+        world.region?.processing?.sites?.[actorSite(world, actor.id)]?.through ??
+        world.time,
     );
     const death = world.needs.byActor[member.actorId]?.survival?.death;
     if (death) {

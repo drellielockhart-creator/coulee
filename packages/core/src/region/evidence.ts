@@ -6,6 +6,8 @@ import type { MemoryInput } from '../social/state.ts';
 import type { World } from '../world.ts';
 import { ensureCensus } from './census.ts';
 import { settleDailySites } from './coarse.ts';
+import { settleDormantSites, wakeDormantSite } from './dormant.ts';
+import { actorSite } from './processing.ts';
 
 /** The producer supplies an already-perceived, resolved cause snapshot and a stable cause key.
  * Never call this merely because an event occurred at a distant site. No event lookup is needed. */
@@ -105,6 +107,8 @@ export function hydrateCensusEvidence(world: World, ctx: SimContext, actorId?: A
 /** A visit reuses the full sheet. It cannot reconstruct stocks, settle a debt twice, or revive the dead. */
 export function promoteCensusActor(world: World, ctx: SimContext, actorId: ActorId) {
   if (world.tactical?.frame && world.tactical.frame.phase !== 'settled') return world.actors[actorId] ?? null;
+  settleDormantSites(world, ctx, true);
+  wakeDormantSite(world, ctx, actorSite(world, actorId));
   settleDailySites(world, ctx);
   const census = ensureCensus(world);
   const member = census?.members[actorId];

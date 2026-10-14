@@ -272,3 +272,7 @@ export function tensionNeeds(world: World, content: import('../content.ts').Cont
 }
 
 import { maxVigor as tensionMaxVigor } from './survival.ts';
+
+export { dormantNeeds } from './dormant.ts';
+export { survivalHour as dormantSurvivalHour } from './survival.ts';
+export { die as recordRegionalDeath } from './survival-social.ts';

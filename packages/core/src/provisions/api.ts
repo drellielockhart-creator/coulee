@@ -1091,3 +1091,5 @@ export function tensionProvisions(world: World, content: ContentBundle, id: Acto
     cash: cashOf(world, id),
   };
 }
+
+export { dormantHouseholdMeal, dormantNutritionDay, dormantPantries, finishDormantMeals } from './dormant.ts';

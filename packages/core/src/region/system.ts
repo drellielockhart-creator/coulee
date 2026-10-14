@@ -19,6 +19,7 @@ export function regionSystem(world: World, ctx: SimContext): void {
       .filter(
         (e) =>
           e.hydratedMemoryId === null &&
+          world.region?.lod?.actors[e.memory.ownerId]?.processing !== 'T3' &&
           e.decay?.forgottenAt == null &&
           (world.region?.lod?.actors[e.memory.ownerId]?.selected !== 'T2' || world.time - e.memory.at >= 2880),
       )

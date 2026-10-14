@@ -12,16 +12,17 @@ import type { SimContext } from '../sim/context.ts';
 import { regionSocialHour } from '../social/api.ts';
 import { asGameMinute, calendarAt } from '../time.ts';
 import type { World } from '../world.ts';
+import { updateDormantOwners } from './dormant.ts';
 import { actorSite, withDailySites } from './processing.ts';
 
 /** A site is indivisible until cross-site meals, jobs, charms and journeys gain interval contracts. */
-function eligibleSites(world: World): Set<string> {
+export function eligibleSites(world: World): Set<string> {
   const candidates = new Set(world.region?.definition.nodes.map((n) => n.site) ?? []);
   for (const actor of rowsOf(world.actors)) {
     const home = actorSite(world, actor.id);
     const actual = world.places[actor.placeId]?.siteId ?? '';
     if (
-      world.region?.lod?.actors[actor.id]?.selected !== 'T2' ||
+      !['T2', 'T3'].includes(world.region?.lod?.actors[actor.id]?.selected ?? '') ||
       actual !== home ||
       (world.activity.journeys?.[actor.id]?.status && world.activity.journeys[actor.id]?.status !== 'arrived') ||
       world.tactical?.frame?.live.includes(actor.id)
@@ -154,6 +155,8 @@ export function settleDailySites(world: World, boundary: SimContext): void {
 export function updateProcessingOwners(world: World, ctx: SimContext): void {
   if (!world.region || (world.tactical?.frame && world.tactical.frame.phase !== 'settled')) return;
   const eligible = eligibleSites(world);
+  updateDormantOwners(world, ctx, eligible);
+  for (const site of Object.keys(world.region.dormant?.sites ?? {})) eligible.delete(site);
   const old = world.region.processing?.sites ?? {};
   if (ctx.now % 1440 === 0 || Object.keys(old).some((site) => !eligible.has(site))) settleDailySites(world, ctx);
   for (const site of Object.keys(old)) if (!eligible.has(site)) delete old[site];
@@ -166,10 +169,12 @@ export function updateProcessingOwners(world: World, ctx: SimContext): void {
   for (const actor of rowsOf(world.actors)) {
     const row = world.region.lod?.actors[actor.id];
     if (row)
-      row.processing = world.region.processing?.sites?.[actorSite(world, actor.id)]
-        ? 'T2'
-        : row.selected === 'T0'
-          ? 'T0'
-          : 'T1';
+      row.processing = world.region.dormant?.sites[actorSite(world, actor.id)]
+        ? 'T3'
+        : world.region.processing?.sites?.[actorSite(world, actor.id)]
+          ? 'T2'
+          : row.selected === 'T0'
+            ? 'T0'
+            : 'T1';
   }
 }

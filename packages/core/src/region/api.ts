@@ -110,3 +110,6 @@ export function pinnedPursuit(world: World, pc: ActorId, hostiles: readonly Acto
 }
 
 import { routeDistances as tensionRouteDistances } from './lod.ts';
+
+export * from './dormant.ts';
+export * from './dormant-state.ts';

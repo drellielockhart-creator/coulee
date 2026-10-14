@@ -450,3 +450,43 @@ export function rootOf(world: World, stack: ItemStack): ItemLocation {
 export { campContext, campSleepActivity, campThermal } from './camping.ts';
 export { loadCheckTerms, loadFatigue, loadReport, movableRoomG, movementDelay } from './encumbrance.ts';
 export { type BinIron, binIron, ferrousG, isHearthGear } from './iron.ts';
+
+/** Independent regional sites may borrow disjoint inventory tables during one aggregate
+ * pass. Objects/counters stay authoritative; commit reconciles creations/deletions once.
+ * Shared recipes then index a settlement, rather than the county, after every new stack. */
+export function regionalInventories(world: World, sites: ReadonlySet<string>) {
+  const tables: Record<string, World['items']['stacks']> = {};
+  const originals: Record<string, ItemId[]> = {};
+  for (const site of sites) {
+    tables[site] = {};
+    originals[site] = [];
+  }
+  for (const stack of allStacks(world)) {
+    const root = rootLocation(world, stack);
+    const place =
+      root.kind === 'place'
+        ? root.placeId
+        : root.kind === 'household'
+          ? world.households[root.householdId]?.homePlaceId
+          : world.households[world.actors[root.actorId]?.householdId ?? 0]?.homePlaceId;
+    const site = world.places[place ?? 0]?.siteId ?? '';
+    const table = tables[site];
+    if (!table) continue;
+    table[stack.id] = stack;
+    originals[site]?.push(stack.id);
+  }
+  const worlds: Record<string, World> = {};
+  for (const site of [...sites].sort())
+    worlds[site] = { ...world, items: { ...world.items, stacks: tables[site] ?? {} } };
+  return {
+    worlds,
+    commit: () => {
+      for (const site of [...sites].sort()) {
+        const table = worlds[site]?.items.stacks ?? {};
+        for (const id of originals[site] ?? []) if (!table[id]) delete world.items.stacks[id];
+        for (const stack of rowsOf(table)) world.items.stacks[stack.id] = stack;
+      }
+      invalidateInventory(world);
+    },
+  };
+}

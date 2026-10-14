@@ -303,3 +303,6 @@ export function perceivedEvents(
   }
   return seen;
 }
+
+export { dormantMarriage, dormantSocialDecay } from './dormant.ts';
+export { settleDebt as settleRegionalDebt } from './opinion.ts';

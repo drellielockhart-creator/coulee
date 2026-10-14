@@ -1,6 +1,7 @@
 import type { ActorId } from '../ids.ts';
 import type { World } from '../world.ts';
 import { locationOf } from './api.ts';
+import { dormantNews } from './dormant.ts';
 
 /** Slice 1 knows roads between known nodes. No county raster or bearings are installed yet. */
 export function regionMapView(world: World, perspective: ActorId) {
@@ -40,8 +41,9 @@ export function regionMapView(world: World, perspective: ActorId) {
             status: location.status,
           }
         : null,
-    // Regional dated reports have no storage in slice 1. Never infer them from hidden state.
-    reports: [] as Array<{ nodeId: string; at: number; text: string }>,
+    reports: nodes.flatMap((n) =>
+      dormantNews(world, n.site, perspective).map((f) => ({ nodeId: n.id, at: f.at, text: f.text })),
+    ),
   };
 }
 

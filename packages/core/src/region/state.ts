@@ -9,6 +9,7 @@ export interface SiteRecord {
   installedAt: number;
 }
 export interface RegionState {
+  dormant?: import('./dormant-state.ts').DormantState;
   processing?: import('./processing.ts').ProcessingState;
   census?: CensusState;
   lod?: LodState;
@@ -60,7 +61,7 @@ export interface CensusState {
     };
   }>;
 }
-export type RegionTier = 'T0' | 'T1' | 'T2';
+export type RegionTier = 'T0' | 'T1' | 'T2' | 'T3';
 export interface LodRecord {
   /** Relevance policy result; processing reports the actual interval owner. */
   selected: RegionTier;
