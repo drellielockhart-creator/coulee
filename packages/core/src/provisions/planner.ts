@@ -484,7 +484,7 @@ export function rationStanding(
       heldUntilDay: lease.untilDay,
       explain: mealExplain('Rations held on a standing forecast', [...subjects], h.rationPct, terms, 'held'),
     },
-    warning: `Rations held at ${h.rationPct}% on the forecast of ${date(lease.day)}: ${(lease.daysTenths / 10).toFixed(1)} days of food; rechecked by ${date(lease.untilDay)}, or the first morning the larder falls faster than planned${h.rationPct < 100 ? ' or gains food' : ''}.${refusal ? ` ${refusal}` : ''}`,
+    warning: `Rations held at ${h.rationPct}% on the forecast of ${date(lease.day)}: ${(lease.daysTenths / 10).toFixed(1)} days of food at ${lease.pct}%; rechecked by ${date(lease.untilDay)}, or the first morning the larder falls faster than planned${h.rationPct < 100 ? ' or gains food' : ''}.${refusal ? ` ${refusal}` : ''}`,
   };
 }
 

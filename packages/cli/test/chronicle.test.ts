@@ -1714,6 +1714,7 @@ describe('iron_ford seed 42', () => {
     // Wave 12 review: forecasts seat only the diners the live table would, ride out lean days, and stand no longer than the larder guard allows; the April stores never run short.
     // Wave 13 ration restore (Ellie, 2026-10-14): short rations go back to full only when the larder lasts 30 days at full rations, so three April households stay cut a while longer, shifting downstream draws.
     // Wave 13 top-up: a refused restore sends the household to the store toward 32 days at full rations, shifting April errands, meals and stories.
+    // Wave 13 review: the top-up target is the larder the refusing full-ration forecast would need (raw kcal scaled by that forecast), kcal only, shifting April errands and stories.
     await expect(md30).toMatchFileSnapshot('./__snapshots__/chronicle-iron_ford-42-30d.md');
     assertNoLeak(sim);
     for (const e of nonHeading(sim.world)) noArtifacts(e.text);

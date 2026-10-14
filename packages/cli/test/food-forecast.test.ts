@@ -8,10 +8,11 @@ import { describe, expect, it } from 'vitest';
 import { asHouseholdId, type HouseholdId } from '../../core/src/ids.ts';
 import { deleteStack, pantryOf, stacksDeep, withInventoryPass } from '../../core/src/items/api.ts';
 import { newStack } from '../../core/src/items/state.ts';
-import { proposeProvisionUrges } from '../../core/src/provisions/api.ts';
+import { applyRations, proposeProvisionUrges } from '../../core/src/provisions/api.ts';
+import { restoreTopUpKcal } from '../../core/src/provisions/household.ts';
 import { holderStacks } from '../../core/src/provisions/meals.ts';
 import { planReadiness } from '../../core/src/provisions/planner.ts';
-import { RATION_LEASE, RATION_RESTORE_DAYS, RATION_STEPS } from '../../core/src/provisions/rules.ts';
+import { RATION_LEASE, RATION_RESTORE_DAYS, RATION_STEPS, SHOPPING } from '../../core/src/provisions/rules.ts';
 import { makeContext, runHours, type Sim } from '../../core/src/sim/sim.ts';
 import { simFor } from './helpers.ts';
 
@@ -170,6 +171,39 @@ describe('food forecast: household ration decisions', () => {
       expect(urges.some((u) => u.label.startsWith('Rations stay short until the larder lasts at full rations'))).toBe(
         true,
       );
+    });
+
+    it('the top-up target is set in the larder kcal the refusing forecast made too few days of', () => {
+      const { w, hid, h } = setup();
+      const daily = 5000;
+      // A forecast that made 15.0 days of a 60,000 kcal larder: 32 forecast days need 60,000 x 32 / 15 kcal.
+      h.rationRestore = { day: 1, fullDaysTenths: 150, larderKcal: 60_000 };
+      expect(restoreTopUpKcal(w, hid, daily)).toBe(Math.ceil((SHOPPING.restoreTopUpDays * 60_000 * 10) / 150));
+      // Capped at restoreTopUpCapDays of need, and nothing once the household is back on full rations.
+      h.rationRestore = { day: 1, fullDaysTenths: 10, larderKcal: 600_000 };
+      expect(restoreTopUpKcal(w, hid, daily)).toBe(daily * SHOPPING.restoreTopUpCapDays);
+      h.rationPct = 100;
+      expect(restoreTopUpKcal(w, hid, daily)).toBeUndefined();
+    });
+
+    it('a ration the household sets itself clears the standing forecast and the refused restore', () => {
+      const { w, hid, h } = setup();
+      h.rationRestore = { day: 1, fullDaysTenths: 250, larderKcal: 100_000 };
+      h.rationLease = {
+        day: 1,
+        untilDay: 5,
+        pct: 75,
+        daysTenths: 310,
+        larderKcal: 100_000,
+        kcalPerDay: 4000,
+        members: 2,
+      };
+      const head = w.households[hid]?.headId;
+      if (head === undefined) throw new Error('head');
+      expect(applyRations(w, head, hid, 90)).toBeNull();
+      expect(h.rationPct).toBe(90);
+      expect(h.rationRestore).toBeUndefined();
+      expect(h.rationLease).toBeUndefined();
     });
 
     it('a larder that covers the restore horizon at full rations is restored and not cut the next day', () => {

@@ -9,7 +9,7 @@ import type { World } from '../world.ts';
 import { larderKcal, replenishDomestic } from './economy.ts';
 import { mealExplain, membersOf } from './meals.ts';
 import { planReadiness } from './planner.ts';
-import { RATION_LEASE, RATION_RESTORE_DAYS, RATION_STEPS, SHORTAGE_NOTICE_DAYS } from './rules.ts';
+import { RATION_LEASE, RATION_RESTORE_DAYS, RATION_STEPS, SHOPPING, SHORTAGE_NOTICE_DAYS } from './rules.ts';
 
 /** Canonical day-start work. Exactly once in regional worlds, including save/load and promotion.
  * Both schedulers must use this entry point; the receipt checks the active household owner before drawing any stock. */
@@ -79,7 +79,12 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
     if (full.daysOfFoodTenths >= RATION_RESTORE_DAYS * 10) {
       pct = 100;
       restoreDaysTenths = full.daysOfFoodTenths;
-    } else h.rationRestore = { day, fullDaysTenths: full.daysOfFoodTenths };
+    } else
+      h.rationRestore = {
+        day,
+        fullDaysTenths: full.daysOfFoodTenths,
+        larderKcal: larderKcal(world, ctx, householdId),
+      };
   }
   if (
     pct < h.rationPct ||
@@ -146,8 +151,19 @@ function decideRations(world: World, ctx: SimContext, householdId: HouseholdId):
 /** Owner-scoped physical household pass: meals/preparation/storage, production and transfers. */
 export { provisionsSystem as householdProcessingHour } from './system.ts';
 
-/** A refused return to full rations stands as a shopping trigger (rules.ts `shoppingDays`). */
-export function restoreRefused(world: World, householdId: HouseholdId): boolean {
+/**
+ * A refused return to full rations is a shopping trigger. Its target is the larder (kcal, the
+ * same measure the errand and the buying step use) that the refusing forecast says would last
+ * `SHOPPING.restoreTopUpDays` at full rations: the larder then, scaled by what the P8 forecast
+ * made of it (raw kcal per forecast day), so food it cannot cook or keep is not counted twice.
+ * Capped at `restoreTopUpCapDays` of full-ration need. Undefined when no restore was refused.
+ */
+export function restoreTopUpKcal(world: World, householdId: HouseholdId, dailyKcal: number): number | undefined {
   const h = world.provisions.households[householdId];
-  return h !== undefined && h.rationPct < 100 && h.rationRestore !== undefined;
+  const refused = h && h.rationPct < 100 ? h.rationRestore : undefined;
+  if (!refused) return undefined;
+  const cap = dailyKcal * SHOPPING.restoreTopUpCapDays;
+  if (refused.larderKcal === undefined || refused.fullDaysTenths <= 0)
+    return Math.min(cap, dailyKcal * SHOPPING.restoreTopUpDays);
+  return Math.min(cap, Math.ceil((SHOPPING.restoreTopUpDays * refused.larderKcal * 10) / refused.fullDaysTenths));
 }

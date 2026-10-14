@@ -237,7 +237,7 @@ Every doc uses these terms with these meanings.
     - **speeding up the hourly sim** (T0/T1 per-actor cost).
 
     She did **not** choose a statistical T2 (T2 keeps its validated hourly-decision fidelity) or a smaller default county.
-- **2026-10-14 (Ellie):** **A household on short rations is judged at full rations before it goes back to full:** the larder must last the restore threshold (30 days) eating full plates, not at the cut ration, so a restored household is not cut again the next day (`provisions/household.ts`). A refused restore is itself a shopping trigger: the household tops up toward 32 days at full rations (`rules.ts SHOPPING.restoreTopUpDays`), so it is not left on short rations between the 21-day trigger and the 30-day restore.
+- **2026-10-14 (Ellie):** **A household on short rations is judged at full rations before it goes back to full:** the larder must last the restore threshold (30 days) eating full plates, not at the cut ration, so a restored household is not cut again the next day (`provisions/household.ts`). A refused restore is itself a shopping trigger: the household tops up its larder toward what the refusing full-ration forecast would make last 32 days (kcal only; `rules.ts SHOPPING.restoreTopUpDays`, `household.ts restoreTopUpKcal`), so it is not left on short rations between the 21-day trigger and the 30-day restore.
 
 ## Things Ellie has said she'll decide later
 - ~~The roster of fantasy peoples/ancestries~~ (decided 2026-10-10: humans, elves, shadow-faekin, goblins). Fuller lore for each people is still to come from Ellie.

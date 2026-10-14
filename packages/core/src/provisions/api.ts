@@ -41,7 +41,7 @@ export { cashOf, purchase, synchronizeStoreTabs, transferCash } from './economy.
 export { hearthAt, hearthBurn } from './meals.ts';
 
 import { yearsBetween } from '../time.ts';
-import { restoreRefused } from './household.ts';
+import { restoreTopUpKcal } from './household.ts';
 import {
   dailyKcal,
   drawWater,
@@ -242,9 +242,10 @@ export function proposeProvisionUrges(world: World, ctx: SimContext, actorId: Ac
     const urgent = larder < daily * SHOPPING.urgentDays;
     // Only the refused restore asks for this errand: the larder is above the ordinary trigger.
     const toRestore = larder >= daily * shoppingDays(ctx.cal.month).trigger;
+    const topUp = restoreTopUpKcal(world, household.id, daily);
     if (
       (household.headId === actorId || !canAct(world, household.headId) || urgent) &&
-      larder < daily * shoppingDays(ctx.cal.month, restoreRefused(world, household.id)).trigger
+      (!toRestore || (topUp !== undefined && larder < topUp))
     ) {
       const intensity = urgent ? 950 : 800;
       const store = bestIntentStore(world, ctx, actorId);
@@ -1100,7 +1101,10 @@ export function applyRations(
   if (householdId !== null) {
     const h = world.provisions.households[householdId];
     if (actor.householdId !== householdId || !h) return 'Cannot set another household’s rations';
+    // A set ration is the household's own decision: no forecast stands for it.
     h.rationPct = rationPct;
+    delete h.rationLease;
+    delete h.rationRestore;
     return null;
   }
   const n = world.provisions.nutrition[actorId];
