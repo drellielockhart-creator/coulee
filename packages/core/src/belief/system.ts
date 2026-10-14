@@ -1,6 +1,6 @@
 import { isAsleep } from '../activity/api.ts';
 /** Hourly evidence/attribution; daily pressure, forgetting, grudges, and Commons. */
-import { rowsOf } from '../ids.ts';
+import { rowsOf, sortedKeys } from '../ids.ts';
 import { canAct } from '../needs/api.ts';
 import { authorizeAct } from '../psyche/api.ts';
 import {
@@ -122,7 +122,7 @@ function daily(world: World, ctx: SimContext): void {
     }
   }
   for (const household of processingHouseholds(world)) {
-    for (const key of Object.keys(ctx.content.misfortunes).sort()) {
+    for (const key of sortedKeys(ctx.content.misfortunes)) {
       const def = ctx.content.misfortunes[key];
       if (!def || def.base_permille_per_household_day <= 0) continue;
       // Only what the household has can go wrong (misfortunes.toml `requires`).

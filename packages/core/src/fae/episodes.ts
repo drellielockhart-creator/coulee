@@ -1,3 +1,4 @@
+import { placesInSite } from '../activity/api.ts';
 import type { Place } from '../actor.ts';
 import type { ContentBundle } from '../content.ts';
 import { rowsOf } from '../ids.ts';
@@ -48,7 +49,7 @@ export function snapshotWindow(
     c.isSabbath &&
     c.hour >= 6 &&
     c.hour < 13 &&
-    rowsOf(world.places).some((b) => {
+    placesInSite(world, p.siteId).some((b) => {
       const range = ctx.content.places[b.defId]?.bell_range_tiles ?? 0;
       return (
         range > 0 && b.siteId === p.siteId && (b.x - p.x) * (b.x - p.x) + (b.y - p.y) * (b.y - p.y) <= range * range
@@ -83,7 +84,7 @@ export function snapshotWindow(
   const scale = tr + lr > 950 ? 950 / (tr + lr) : 1;
   tr = Math.round(tr * scale);
   lr = Math.round(lr * scale);
-  const leadPlaces = rowsOf(world.places).filter(
+  const leadPlaces = placesInSite(world, p.siteId).filter(
     (q) =>
       q.id !== p.id && q.siteId === p.siteId && !isProtectedSite(q) && effectiveFi(world, q, asGameMinute(at)) >= 2,
   );

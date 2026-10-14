@@ -4,8 +4,9 @@ import { requiredRow } from '../activity/definitions.ts';
 import type { NeedId } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
 import type { ActorId, EventId } from '../ids.ts';
-import { rowsOf } from '../ids.ts';
+import { rowsOf, sortedKeys } from '../ids.ts';
 import { foodSeekingUrge } from '../provisions/api.ts';
+import { fixedDerivation } from '../region/processing.ts';
 import type { SimContext } from '../sim/context.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
@@ -105,8 +106,7 @@ function intake(
   cause: NeedCause,
 ): void {
   if (!world.actors[actorId]?.alive || !world.needs.byActor[actorId] || !Number.isFinite(amount) || amount <= 0) return;
-  const def = Object.keys(ctx.content.needs)
-    .sort()
+  const def = sortedKeys(ctx.content.needs)
     .map((key) => requiredRow(ctx.content.needs, key))
     .find((n) => n.intake?.unit === unit);
   if (!def?.intake) return;
@@ -149,7 +149,7 @@ export function drink(world: World, ctx: SimContext, actorId: ActorId, ml: numbe
 export function proposeNeedUrges(world: World, ctx: SimContext, actorId: ActorId): UrgeProposal[] {
   if (!world.actors[actorId]?.alive) return [];
   const out: UrgeProposal[] = proposeCareUrges(world, ctx, actorId);
-  for (const key of Object.keys(ctx.content.needs).sort()) {
+  for (const key of sortedKeys(ctx.content.needs)) {
     const def = requiredRow(ctx.content.needs, key);
     const value = needValue(world, actorId, key);
     for (const urge of def.urges) {
@@ -206,7 +206,7 @@ export function rousedBy(
 ): string | null {
   const n = world.needs.byActor[actorId];
   if (!n) return null;
-  for (const key of Object.keys(content.needs).sort()) {
+  for (const key of sortedKeys(content.needs)) {
     const def = content.needs[key];
     const value = n.values[key] ?? def?.initial ?? NEED_MAX;
     const band = def?.bands.filter((b) => value < b.below).sort((a, b) => a.below - b.below)[0];
@@ -225,7 +225,7 @@ export function projectWaterHour(world: World, ctx: SimContext): void {
   const temperatures = heatPlaces(world, ctx),
     air = ambientTemperatureF(ctx.cal, world);
   if (!ctx.content.needs.thirst) return;
-  for (const actor of rowsOf(world.actors)) {
+  for (const actor of fixedDerivation(world, 'actors:rows', () => rowsOf(world.actors))) {
     const n = world.needs.byActor[actor.id];
     if (!actor.alive || !n) continue;
     const ledger = hourlyLedger(

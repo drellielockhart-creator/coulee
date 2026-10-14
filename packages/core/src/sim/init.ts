@@ -1,3 +1,4 @@
+import { forgetVenueIndex } from '../activity/venues.ts';
 import { createDirectorState, type DirectorSettings } from '../director/state.ts';
 import { focusDirector } from '../director/system.ts';
 import { idsOf } from '../ids.ts';
@@ -211,6 +212,7 @@ export function installSite(world: World, content: ContentBundle, siteId: string
       model: def.model ?? null,
       faeIntensity: def.fae_intensity ?? site?.fae_intensity ?? 0,
     };
+    forgetVenueIndex(world);
     world.index.placeByDef[def.id] = id;
   }
 }
@@ -237,6 +239,7 @@ function installTransitPlaces(world: World) {
       model: null,
       faeIntensity: 0,
     };
+    forgetVenueIndex(world);
     transit[id] = pid;
   }
   return transit;

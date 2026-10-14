@@ -41,6 +41,26 @@ export type PlacementMemo = Record<
  * containers and spills their turned rain; the live sim passes the fae hem set and commits it
  * afterwards, the planner passes its own projected copy.
  */
+function rootPlace(
+  world: World,
+  campShelter: ReadonlyMap<number, boolean>,
+  stackId: ItemId,
+): { exposed: boolean; underFly: boolean } {
+  const st = world.items.stacks[stackId];
+  if (!st) return { exposed: false, underFly: false };
+  const root = rootLocation(world, st);
+  const place =
+    root.kind === 'actor'
+      ? world.actors[root.actorId]?.placeId
+      : root.kind === 'household'
+        ? world.households[root.householdId]?.homePlaceId
+        : root.placeId;
+  return {
+    exposed: place !== undefined && isOutdoorsPlace(world.places[place]?.kind ?? 'wild'),
+    underFly: root.kind === 'actor' && campShelter.get(root.actorId) === true,
+  };
+}
+
 export function storageHour(
   world: World,
   ctx: SimContext,
@@ -58,27 +78,12 @@ export function storageHour(
         campShelter.set(actor.id, campThermal(world, ctx.content, actor.id, true, index).shelter >= 20);
     }
   }
-  const rootPlace = (stackId: ItemId): { exposed: boolean; underFly: boolean } => {
-    const st = world.items.stacks[stackId];
-    if (!st) return { exposed: false, underFly: false };
-    const root = rootLocation(world, st);
-    const place =
-      root.kind === 'actor'
-        ? world.actors[root.actorId]?.placeId
-        : root.kind === 'household'
-          ? world.households[root.householdId]?.homePlaceId
-          : root.placeId;
-    return {
-      exposed: place !== undefined && isOutdoorsPlace(world.places[place]?.kind ?? 'wild'),
-      underFly: root.kind === 'actor' && campShelter.get(root.actorId) === true,
-    };
-  };
   const hemsOn = raining && hems !== undefined && Object.keys(hems.byContainer).length > 0;
   // Every hour, rain or not: a dry hour ends a hem's block (13 §5.8), so a later shower pays anew.
   if (hems && Object.keys(hems.byContainer).length > 0)
     openHemHour(world, ctx.content, hems, (id) => {
       if (!raining) return false;
-      const r = rootPlace(id);
+      const r = rootPlace(world, campShelter, id);
       return r.exposed && !r.underFly;
     });
   for (const stack of allStacks(world)) {
@@ -183,7 +188,7 @@ export function storageHour(
       (id) => {
         const st = world.items.stacks[id];
         if (!st) return false;
-        const r = rootPlace(id);
+        const r = rootPlace(world, campShelter, id);
         const prot = protectionsOf(world, ctx.content, st);
         const own = ctx.content.items[st.defId]?.container?.protects ?? [];
         return r.exposed && !r.underFly && ![...prot, ...own].some((p) => p === 'waterproof' || p === 'airtight');

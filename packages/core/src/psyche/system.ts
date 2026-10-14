@@ -22,11 +22,11 @@
  * slight), never into ostentatious kindness. Social executes the defense urge with the
  * interactions of its `defense_interactions` row, which must name hostile/exposing acts.
  */
-import { currentActivity, minuteBudget, walkMinutes } from '../activity/api.ts';
+import { currentActivity, minuteBudget, walkMinutes, withRoutineMemo } from '../activity/api.ts';
 import { formProjection, suspicionOf } from '../belief/api.ts';
 import type { ContentBundle, DefenseId } from '../content.ts';
 import type { Explain } from '../explain.ts';
-import { type ActorId, idsOf } from '../ids.ts';
+import { type ActorId, idsOf, sortedKeys } from '../ids.ts';
 import { campContext, campSleepActivity, loadReport, withInventoryPass } from '../items/api.ts';
 import { needValue } from '../needs/api.ts';
 import { isWaterSource, lodgingPlace } from '../provisions/api.ts';
@@ -161,7 +161,7 @@ function psychePass(world: World, ctx: SimContext): void {
 /** Drives whose frustration books realistic anxiety (fear). */
 function realDrives(content: ContentBundle): Set<string> {
   const s = new Set<string>();
-  for (const d of Object.keys(content.drives ?? {}).sort()) if (content.drives[d]?.anxiety_pool === 'real') s.add(d);
+  for (const d of sortedKeys(content.drives)) if (content.drives[d]?.anxiety_pool === 'real') s.add(d);
   return s;
 }
 
@@ -170,14 +170,21 @@ function realDrives(content: ContentBundle): Set<string> {
 // ---------------------------------------------------------------------------------------------
 
 export function psycheHour(world: World, ctx: SimContext, actorId: ActorId, idx?: TagIndex, minutes?: number): void {
-  const m = mindFor(world, ctx, actorId, idx);
-  if (!m) return;
+  // The Mind and the gathered proposals read the same routine: derive it once (no state changes between).
+  const gathered = withRoutineMemo(world, ctx, actorId, () => {
+    const mind = mindFor(world, ctx, actorId, idx);
+    if (!mind) return null;
+    const prevChosen = mind.p.chosen;
+    return { mind, prevChosen, external: minutes === undefined ? externalProposals(mind) : [] };
+  });
+  if (!gathered) return;
+  const m = gathered.mind;
   const { p, content } = m;
   const fearDrives = realDrives(content);
-  const prevChosen = p.chosen;
+  const prevChosen = gathered.prevChosen;
 
   // 1. Thoughts.
-  const external = minutes === undefined ? externalProposals(m) : [];
+  const external = gathered.external;
   const commands = commandProposals(m, ctx.commands);
   const candidates: Candidate[] = [
     ...external.map((e) => proposalCandidate(e, 'ext')),
@@ -425,7 +432,7 @@ export function realityOf(m: Mind, u: Urge): Array<{ source: string; label: stri
     const act = m.content.activities[u.activityId];
     const at = new Map<string, number>();
     const driveRelief = new Set<string>();
-    for (const did of Object.keys(m.content.drives ?? {}).sort()) {
+    for (const did of sortedKeys(m.content.drives)) {
       const d = m.content.drives[did];
       if (!d) continue;
       const relieves = intersects(d.relief_tags, tags);
@@ -434,7 +441,7 @@ export function realityOf(m: Mind, u: Urge): Array<{ source: string; label: stri
         if (relieves) driveRelief.add(n.need);
       }
     }
-    for (const nid of Object.keys(m.content.needs ?? {}).sort()) {
+    for (const nid of sortedKeys(m.content.needs)) {
       const thr = at.get(nid) ?? 500;
       const v = needValue(m.world, m.actorId, nid);
       if (v >= thr) continue;
@@ -514,7 +521,7 @@ function decide(m: Mind, res: ArbitrationResult): Decision {
     for (const t of idOpt.opposers) if (t.voice === 'superego' && t.norm) seNorms.add(t.norm);
     const idTags = urgeTags(m.idx, idOpt.urge);
     const seTags = seOpt ? urgeTags(m.idx, seOpt.urge) : [];
-    for (const cid of Object.keys(content.compromises ?? {}).sort()) {
+    for (const cid of sortedKeys(content.compromises)) {
       const c = content.compromises[cid];
       if (!c) continue;
       const idHit = c.id_side.drives.some((d) => idDrives.has(d)) || intersects(c.id_side.tags, idTags);
@@ -620,7 +627,7 @@ function decide(m: Mind, res: ArbitrationResult): Decision {
 }
 
 function sublimationFor(m: Mind, drive: string): { label: string; urge: Urge; id: string } | null {
-  for (const sid of Object.keys(m.content.sublimations ?? {}).sort()) {
+  for (const sid of sortedKeys(m.content.sublimations)) {
     const s = m.content.sublimations[sid];
     if (!s || s.drive !== drive) continue;
     if (!evalWhen(m, s.when).ok) continue;
@@ -816,7 +823,7 @@ export function defenseSituation(m: Mind, fearDrives: ReadonlySet<string>): Defe
   const trait = traits[0];
   if (trait !== undefined) {
     let drive: string | null = null;
-    for (const did of Object.keys(content.drives ?? {}).sort()) {
+    for (const did of sortedKeys(content.drives)) {
       if (content.drives[did]?.shadow_traits.includes(trait) && (p.frustration[did] ?? 0) >= 1) {
         drive = did;
         break;
@@ -859,9 +866,7 @@ export function defenseSituation(m: Mind, fearDrives: ReadonlySet<string>): Defe
   }
 
   // Displacement: anger at a blocked object, out on someone safer who is here.
-  const displaceableDrives = Object.keys(content.drives ?? {})
-    .sort()
-    .filter((d) => content.drives[d]?.displaceable);
+  const displaceableDrives = sortedKeys(content.drives).filter((d) => content.drives[d]?.displaceable);
   // Frustration itself feeds Choler (10 §3.2): a choleric temper (rage weight ≥ 60) with
   // neurotic anxiety banked is ready to kick the dog even without a named grievance.
   const choleric = displaceableDrives.some(
@@ -991,7 +996,7 @@ function maybeDefend(m: Mind, fearDrives: ReadonlySet<string>, commandHolds: boo
 function opposingNorm(m: Mind, drive: string): string | undefined {
   const d = m.content.drives[drive];
   let best: { id: string; s: number } | undefined;
-  for (const nid of Object.keys(m.content.norms ?? {}).sort()) {
+  for (const nid of sortedKeys(m.content.norms)) {
     const n = m.content.norms[nid];
     if (!n) continue;
     const hit = n.forbids.some((f) => intersects(f.tags, d?.relief_tags ?? []));

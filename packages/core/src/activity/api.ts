@@ -3,21 +3,26 @@
  */
 
 import { grudgeTargetsOf } from '../belief/grudges.ts';
-import type { ContentBundle, ScheduleBlock } from '../content.ts';
+import type { ActivityDef, ContentBundle, ScheduleBlock } from '../content.ts';
 import { type ActorId, type HouseholdId, idsOf, type PlaceId } from '../ids.ts';
 import { canAct } from '../needs/api.ts';
 import { activeEmployment, employmentDayMinutes, workAvailability } from '../provisions/api.ts';
 import { authorizeAct, standingOrders } from '../psyche/api.ts';
 import { mixKey, rng } from '../rng.ts';
 import type { SimContext } from '../sim/context.ts';
-import { areKin, familiarityOf, isEstranged, opinionLabel, opinionOf } from '../social/api.ts';
-import { type CalendarInfo, dayIndex, MINUTES_PER_DAY, yearsBetween } from '../time.ts';
+import { areKin, familiarityOf, isAcquainted, isEstranged, opinionLabel, opinionOf } from '../social/api.ts';
+import { type CalendarInfo, dayIndex, latestBirthDay, MINUTES_PER_DAY, yearsBetween } from '../time.ts';
 import type { UrgeProposal } from '../urge.ts';
 import type { World } from '../world.ts';
 import { blockActive, monthMatches, type Routine, routineFor } from './calendar.ts';
+
+export { withRoutineMemo } from './calendar.ts';
+export { placesInSite, venueCandidates } from './venues.ts';
+
 import { requiredRow } from './definitions.ts';
 import { type ActorActivity, recomputeOccupancy } from './state.ts';
 import { onJourney } from './travel.ts';
+import { venueCandidates } from './venues.ts';
 
 /** Employment owns terms; activity owns where ordinary work happens. */
 export function setWorkplace(world: World, actorId: ActorId, placeId: PlaceId | null): void {
@@ -223,11 +228,12 @@ export function resolveActivityPlace(
     return targetHome ?? home;
   }
   const origin = world.places[home];
-  const candidates = idsOf<PlaceId>(world.places).filter((id) => {
-    const p = requiredRow(world.places, id);
-    if (world.region && p.siteId !== world.places[actor.placeId]?.siteId) return false;
-    return def.at === 'venue' && def.venue_tags.some((t) => p.tags.includes(t));
-  });
+  // Hot path (every actor-hour, every place at county scale): rows directly, no id strings.
+  // The sort below is a total order (ties by id), so table iteration order is irrelevant.
+  const candidates =
+    def.at === 'venue'
+      ? venueCandidates(world, world.region ? world.places[actor.placeId]?.siteId : '', def.venue_tags)
+      : [];
   candidates.sort((a, b) => {
     const pa = requiredRow(world.places, a);
     const pb = requiredRow(world.places, b);
@@ -286,19 +292,25 @@ export function callCandidates(world: World, actorId: ActorId): CallChoice[] {
   const today = dayIndex(world.time);
   const log = world.activity.calls?.[actorId] ?? [];
   const out: CallChoice[] = [];
+  // Every adult of another household is a candidate (county scale: thousands per call). Someone
+  // the caller holds no opinion record of reads as all-zero dimensions with no label (opinionOf),
+  // so only acquaintances need the opinion sum; strangers' familiarity is 0.
+  const grownBy = latestBirthDay(14, world.time);
   for (const id of idsOf<ActorId>(world.actors)) {
     const other = requiredRow(world.actors, id);
     if (!other.alive || other.householdId === actor.householdId) continue;
-    if (yearsBetween(other.born, world.time) < 14) continue;
+    if (dayIndex(other.born) > grownBy) continue; // yearsBetween(other.born, now) < 14
     const home = world.households[other.householdId]?.homePlaceId;
     if (home === undefined || !world.places[home]) continue;
     if (grudges.actors.includes(id) || grudges.households.includes(other.householdId)) continue;
-    const op = opinionOf(world, actorId, id);
-    if (NO_CALL_LABELS.includes(opinionLabel(op))) continue;
+    const known = isAcquainted(world, actorId, id);
+    const affection = known ? opinionOf(world, actorId, id) : null;
+    if (affection && NO_CALL_LABELS.includes(opinionLabel(affection))) continue;
     if (isEstranged(world, actorId, id)) continue;
     const kin = areKin(world, actorId, id);
-    if (op.affection + 20 <= 0 && !kin) continue;
-    let w = Math.max(0, op.affection + 20) + (kin ? 30 : 0) + Math.floor(familiarityOf(world, actorId, id) / 20);
+    const aff = affection?.affection ?? 0;
+    if (aff + 20 <= 0 && !kin) continue;
+    let w = Math.max(0, aff + 20) + (kin ? 30 : 0) + (known ? Math.floor(familiarityOf(world, actorId, id) / 20) : 0);
     for (const c of log) {
       if (c.householdId === other.householdId && today - c.day < CALL_REPEAT_DAYS)
         w = Math.floor((w * CALL_REPEAT_PCT) / 100);
@@ -328,11 +340,22 @@ export function scheduledRoutine(world: World, ctx: SimContext, actorId: ActorId
 
 /** Provisions reserves only hands-on cooking time; unattended soaking and simmering are
  * pending output in provisions, and do not prevent other activities. */
+/** The first `cook` activity in content order; cached per table and revalidated against its
+ * current keys (content-only, bounded, not world state). */
+let cookingCache: { table: object; raw: string[]; def: ActivityDef | undefined } | null = null;
+function cookingActivity(table: SimContext['content']['activities']): ActivityDef | undefined {
+  const raw = Object.keys(table);
+  const hit = cookingCache;
+  if (hit?.table === table && hit.raw.length === raw.length && hit.raw.every((k, i) => k === raw[i])) return hit.def;
+  const def = Object.values(table).find((a) => a.tags.includes('cook'));
+  cookingCache = { table, raw, def };
+  return def;
+}
 export function reservePreparation(world: World, ctx: SimContext, actorId: ActorId, minutes: number): void {
   const state = world.activity.byActor[actorId];
   if (!state || minutes <= 0) return;
   state.lockedUntil = Math.max(state.lockedUntil ?? ctx.now, ctx.now + minutes) as import('../time.ts').GameMinute;
-  const cooking = Object.values(ctx.content.activities).find((a) => a.tags.includes('cook'));
+  const cooking = cookingActivity(ctx.content.activities);
   if (cooking && state.activityId !== cooking.id) {
     state.activityId = cooking.id;
     state.since = ctx.now;

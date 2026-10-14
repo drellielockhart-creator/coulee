@@ -22,6 +22,7 @@ import { giftStack } from './gifts.ts';
 import { type MemoryDigest, memoryDigest } from './memory.ts';
 import { clampInt, floorDiv } from './model.ts';
 import { grievance, hasMet, isAcquainted, opinionOf, opinionRecord, owedCents, owedFavors } from './opinion.ts';
+import { relationsBetween } from './pairs.ts';
 import type { OpinionDims } from './state.ts';
 import { isEstranged, wearinessTerm } from './strife.ts';
 import { ageYears, tuningOf, valueView } from './tuning.ts';
@@ -91,17 +92,12 @@ export const pairGrudge = (p: Pair): number =>
 /** Kin per `kin_kinds` (structural edges), either direction. */
 export function areKinBy(world: World, content: ContentBundle, a: ActorId, b: ActorId): boolean {
   const kinds = tuningOf(content).kin_kinds;
-  for (const r of world.social.relationships) {
-    if (kinds.includes(r.kind) && ((r.a === a && r.b === b) || (r.a === b && r.b === a))) return true;
-  }
-  return false;
+  return relationsBetween(world, a, b).some((r) => kinds.includes(r.kind));
 }
 const pairKin = (p: Pair): boolean => (p.cache.kin ??= areKinBy(p.world, p.content, p.initiator.id, p.target.id));
 
 function edge(world: World, a: ActorId, b: ActorId, kind: string) {
-  return world.social.relationships.find(
-    (r) => r.kind === kind && ((r.a === a && r.b === b) || (r.a === b && r.b === a)),
-  );
+  return relationsBetween(world, a, b).find((r) => r.kind === kind);
 }
 
 function boundElsewhere(world: World, x: ActorId, other: ActorId): boolean {

@@ -52,6 +52,24 @@ export const asChronicleEntryId = (n: number): ChronicleEntryId => n as Chronicl
 // biome-ignore lint/correctness/noUnusedVariables: Id documents the key kind (phantom).
 export type Table<Id extends number, Row> = { [id: number]: Row };
 
+/**
+ * The keys of a content table in sorted order, cached per table object (a pure derivation;
+ * bounded, never world state). The cache is revalidated against the table's current key list
+ * (identity compares, no sort), so a mutated table is never served stale keys. The returned
+ * array is shared: callers must not mutate it.
+ */
+const sortedKeyCache = new Map<object, { raw: string[]; sorted: readonly string[] }>();
+export function sortedKeys(table: Readonly<Record<string, unknown>> | undefined): readonly string[] {
+  if (!table) return [];
+  const raw = Object.keys(table);
+  const hit = sortedKeyCache.get(table);
+  if (hit && hit.raw.length === raw.length && hit.raw.every((k, i) => k === raw[i])) return hit.sorted;
+  if (!hit && sortedKeyCache.size >= 256) sortedKeyCache.clear();
+  const sorted = [...raw].sort();
+  sortedKeyCache.set(table, { raw, sorted });
+  return sorted;
+}
+
 /** Ascending ids of a table (total order on integers). */
 export function idsOf<Id extends number>(table: Table<Id, unknown>): Id[] {
   // ECMAScript (OrdinaryOwnPropertyKeys) lists integer-index keys in ascending numeric order on

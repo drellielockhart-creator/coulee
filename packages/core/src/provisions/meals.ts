@@ -9,7 +9,7 @@ import { isAsleep, reservePreparation } from '../activity/api.ts';
 import { skillCheck } from '../checks.ts';
 import type { ContentBundle, ItemDef } from '../content.ts';
 import { type Explain, intValue, term } from '../explain.ts';
-import { type ActorId, type HouseholdId, type ItemId, type PlaceId, rowsOf } from '../ids.ts';
+import { type ActorId, type HouseholdId, type ItemId, type PlaceId, rowsOf, sortedKeys } from '../ids.ts';
 import {
   appendStacksDeep,
   carriedBy,
@@ -367,6 +367,10 @@ export interface Kitchen {
 export function prepBudget(holder: Holder): number {
   return 'householdId' in holder ? 360 : 120;
 }
+/** Hearth definitions in key order (sorted keys cached and revalidated by `sortedKeys`). */
+function sortedHearths(content: ContentBundle): Array<ContentBundle['hearths'][string] | undefined> {
+  return sortedKeys(content.hearths).map((key) => content.hearths[key]);
+}
 export function kitchenOf(
   world: World,
   content: ContentBundle,
@@ -378,10 +382,9 @@ export function kitchenOf(
   const stacks = holderStacks(world, holder, index);
   const placeId =
     'householdId' in holder ? world.households[holder.householdId]?.homePlaceId : world.actors[holder.actorId]?.placeId;
-  const hearth = Object.keys(content.hearths ?? {})
-    .sort()
-    .map((key) => content.hearths[key])
-    .find((h) => h?.place_tags.some((tag) => placeId !== undefined && world.places[placeId]?.tags.includes(tag)));
+  const hearth = sortedHearths(content).find((h) =>
+    h?.place_tags.some((tag) => placeId !== undefined && world.places[placeId]?.tags.includes(tag)),
+  );
   const memo: Record<string, number> = {};
   for (const stack of stacks)
     for (const key of Object.keys(content.items[stack.defId]?.affordances ?? {}))

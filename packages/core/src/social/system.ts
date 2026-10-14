@@ -21,7 +21,7 @@ import { currentActivity, isAsleep, venues } from '../activity/api.ts';
 import { hasCondition } from '../actor.ts';
 import type { DefenseId, InteractionDef } from '../content.ts';
 import type { Explain } from '../explain.ts';
-import type { ActorId, PlaceId } from '../ids.ts';
+import { type ActorId, type PlaceId, sortedKeys } from '../ids.ts';
 import { withInventoryPass } from '../items/api.ts';
 import { canAct, needValue } from '../needs/api.ts';
 import { authorizeAct, chosenUrge, defenseActLanded, storedDisplacement } from '../psyche/api.ts';
@@ -51,8 +51,7 @@ const SALT_NOISE = 0x701e;
 let spontaneousCache: { content: unknown; defs: InteractionDef[] } | null = null;
 function spontaneousDefs(ctx: SimContext): InteractionDef[] {
   if (spontaneousCache && spontaneousCache.content === ctx.content) return spontaneousCache.defs;
-  const defs = Object.keys(ctx.content.interactions)
-    .sort()
+  const defs = sortedKeys(ctx.content.interactions)
     .map((k) => ctx.content.interactions[k] as InteractionDef)
     .filter((d) => d !== undefined && !d.urge_only);
   spontaneousCache = { content: ctx.content, defs };

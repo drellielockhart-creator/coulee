@@ -27,6 +27,7 @@ import type { World } from '../world.ts';
 import { softenMemories } from './memory.ts';
 import { ZERO_DIMS } from './model.ts';
 import { ensureOpinion, opinionOf, opinionRecord, refreshBase, refreshLabel } from './opinion.ts';
+import { relationsBetween } from './pairs.ts';
 import { ageYears, tuningOf } from './tuning.ts';
 
 const SALT_MEDIATE = 0x3ed1a7e;
@@ -82,10 +83,7 @@ export function wearinessTerm(
 }
 
 export function isEstranged(world: World, a: ActorId, b: ActorId): boolean {
-  for (const r of world.social.relationships) {
-    if (r.kind === 'estranged' && ((r.a === a && r.b === b) || (r.a === b && r.b === a))) return true;
-  }
-  return false;
+  return relationsBetween(world, a, b).some((r) => r.kind === 'estranged');
 }
 
 function sameHouse(world: World, a: ActorId, b: ActorId): boolean {

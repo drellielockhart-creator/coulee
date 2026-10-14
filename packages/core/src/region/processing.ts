@@ -47,8 +47,47 @@ export function actorSite(world: World, id: number): string {
   const actor = world.actors[id];
   return world.places[world.households[actor?.householdId ?? 0]?.homePlaceId ?? 0]?.siteId ?? '';
 }
+/**
+ * Private forward projections (the readiness planner) whose actors, households and places, and
+ * their sites, cannot change for the projection's lifetime. Actor membership is memoized for that
+ * synchronous call only. Unlike `withDailySites` this is not a processing scope: ownership
+ * rules are unchanged, only their repeated derivation is skipped. Never saved.
+ */
+interface FixedMembership {
+  actors?: ActorId[];
+  actorOk: Map<number, boolean>;
+  values: Map<string, unknown>;
+}
+/** A read-only derivation of fixed membership (households, places): memoized only inside
+ * `withFixedMembership`, recomputed on every call otherwise. Callers must not mutate it. */
+export function fixedDerivation<T>(world: World, key: string, compute: () => T): T {
+  const fixed = fixedMemberships.get(world);
+  if (!fixed) return compute();
+  if (fixed.values.has(key)) return fixed.values.get(key) as T;
+  const value = compute();
+  fixed.values.set(key, value);
+  return value;
+}
+const fixedMemberships = new Map<World, FixedMembership>();
+export function withFixedMembership<T>(world: World, run: () => T): T {
+  if (fixedMemberships.has(world)) return run();
+  fixedMemberships.set(world, { actorOk: new Map(), values: new Map() });
+  try {
+    return run();
+  } finally {
+    fixedMemberships.delete(world);
+  }
+}
 export function processesActor(world: World, id: number): boolean {
-  return !world.region || processesSite(world, actorSite(world, id));
+  if (!world.region) return true;
+  const fixed = fixedMemberships.get(world);
+  if (!fixed) return processesSite(world, actorSite(world, id));
+  let ok = fixed.actorOk.get(id);
+  if (ok === undefined) {
+    ok = processesSite(world, actorSite(world, id));
+    fixed.actorOk.set(id, ok);
+  }
+  return ok;
 }
 export function processesHousehold(world: World, id: number): boolean {
   return !world.region || processesSite(world, world.places[world.households[id]?.homePlaceId ?? 0]?.siteId ?? '');
@@ -57,7 +96,7 @@ export function processesPlace(world: World, id: number): boolean {
   return !world.region || processesSite(world, world.places[id]?.siteId ?? '');
 }
 export function processingActorIds(world: World): ActorId[] {
-  const scope = scopes.get(world);
+  const scope = scopes.get(world) ?? fixedMemberships.get(world);
   if (scope?.actors) return [...scope.actors];
   const actors = idsOf<ActorId>(world.actors).filter((id) => processesActor(world, id));
   if (scope) scope.actors = [...actors];

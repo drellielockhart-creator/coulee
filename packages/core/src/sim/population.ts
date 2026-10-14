@@ -1,6 +1,7 @@
 /** Foundation's scoped population hook. No whole-world reinitialization or stock seeding. */
 
 import { initActivityState } from '../activity/state.ts';
+import { forgetVenueIndex } from '../activity/venues.ts';
 import type { ActorCore } from '../actor.ts';
 import { type ActorId, asActorId, asPlaceId, type HouseholdId, rowsOf } from '../ids.ts';
 import { initNeedsState } from '../needs/state.ts';
@@ -95,6 +96,7 @@ export function installRegionalBirth(world: World, ctx: SimContext, motherId: Ac
       model: null,
       faeIntensity: 0,
     };
+    forgetVenueIndex(world);
     world.region.transit[id] = placeId;
   }
   world.social.relationships.push({ a: motherId, b: id, kind: 'parent', since: ctx.now, amountCents: null });

@@ -25,7 +25,7 @@
 import type { DefenseDef } from '@coulee/content/schema';
 import type { ContentBundle, DefenseId } from '../content.ts';
 import type { Explain } from '../explain.ts';
-import type { ActorId } from '../ids.ts';
+import { type ActorId, sortedKeys } from '../ids.ts';
 import type { Rng } from '../rng.ts';
 import type { GameMinute } from '../time.ts';
 import { largestPool, type Pool } from './anxiety.ts';
@@ -88,7 +88,7 @@ export function defenseCandidates(
   sit: DefenseSituation,
 ): DefenseCandidate[] {
   const out: DefenseCandidate[] = [];
-  for (const id of Object.keys(content.defenses ?? {}).sort() as DefenseId[]) {
+  for (const id of sortedKeys(content.defenses) as readonly DefenseId[]) {
     const def = content.defenses[id];
     if (!def) continue;
     if (p.ego < egoGate(def, p.insight)) continue;

@@ -49,6 +49,26 @@ export function nutritionHour(world: World, ctx: SimContext): void {
   }
 }
 
+function flipCondition(
+  ctx: SimContext,
+  actor: World['actors'][number] & {},
+  id: string,
+  on: boolean,
+  label: string,
+  value: number,
+  terms: () => ExplainTerm[],
+  reason?: string,
+): void {
+  setCondition(actor, id, on);
+  ctx.emit({
+    kind: 'provisions.nutrition',
+    data: { actorId: actor.id, condition: id, on, ...(reason ? { reason } : {}) },
+    roles: [{ actor: actor.id, role: 'subject' }],
+    visibility: 'private',
+    explain: mealExplain(label, [actor.id], value, terms(), on ? 'on' : 'off'),
+  });
+}
+
 function nutritionDay(
   world: World,
   ctx: SimContext,
@@ -56,58 +76,37 @@ function nutritionDay(
   n: NonNullable<World['provisions']['nutrition'][number]>,
 ): void {
   {
+    const wasDrunk = n.intoxication >= ALCOHOL.drunkOn || hasCondition(actor, 'drunk');
+    n.intoxication = Math.max(0, n.intoxication - ALCOHOL.decayPerHour);
+    // Hot path (every actor-hour): the Explain closures exist only when a condition flips.
+    const drunk = n.intoxication >= (hasCondition(actor, 'drunk') ? ALCOHOL.drunkOff : ALCOHOL.drunkOn);
+    if (hasCondition(actor, 'drunk') !== drunk)
+      flipCondition(ctx, actor, 'drunk', drunk, 'Alcohol in the bloodstream', n.intoxication, () => [
+        term('alcohol', 'Intoxication points', n.intoxication),
+        term('threshold', 'On threshold', ALCOHOL.drunkOn),
+        term('threshold', 'Recovery threshold', ALCOHOL.drunkOff),
+      ]);
+    if (wasDrunk && n.intoxication < ALCOHOL.drunkOff)
+      n.hungoverUntil = asGameMinute(ctx.now + ALCOHOL.hungoverHours * 60);
+    const hungover = n.hungoverUntil !== null && ctx.now < n.hungoverUntil;
+    if (hasCondition(actor, 'hungover') !== hungover)
+      flipCondition(ctx, actor, 'hungover', hungover, 'Morning after drinking', n.intoxication, () => [
+        term('time', 'Current game minute', ctx.now),
+        term('time', 'Hangover ends at minute', n.hungoverUntil ?? ctx.now),
+        term('alcohol', 'Recovery below intoxication', ALCOHOL.drunkOff),
+        term('time', 'Hangover hours', ALCOHOL.hungoverHours),
+      ]);
+    if (!ctx.isNewDay || n.today.dayIndex >= ctx.cal.dayIndex) return;
     const condition = (
       id: string,
       on: boolean,
       label: string,
       value: number,
-      terms: ExplainTerm[] | (() => ExplainTerm[]) = [],
+      terms: () => ExplainTerm[],
       reason?: string,
     ) => {
-      if (hasCondition(actor, id) === on) return;
-      setCondition(actor, id, on);
-      ctx.emit({
-        kind: 'provisions.nutrition',
-        data: { actorId: actor.id, condition: id, on, ...(reason ? { reason } : {}) },
-        roles: [{ actor: actor.id, role: 'subject' }],
-        visibility: 'private',
-        explain: mealExplain(
-          label,
-          [actor.id],
-          value,
-          typeof terms === 'function' ? terms() : terms,
-          on ? 'on' : 'off',
-        ),
-      });
+      if (hasCondition(actor, id) !== on) flipCondition(ctx, actor, id, on, label, value, terms, reason);
     };
-    const wasDrunk = n.intoxication >= ALCOHOL.drunkOn || hasCondition(actor, 'drunk');
-    n.intoxication = Math.max(0, n.intoxication - ALCOHOL.decayPerHour);
-    condition(
-      'drunk',
-      n.intoxication >= (hasCondition(actor, 'drunk') ? ALCOHOL.drunkOff : ALCOHOL.drunkOn),
-      'Alcohol in the bloodstream',
-      n.intoxication,
-      () => [
-        term('alcohol', 'Intoxication points', n.intoxication),
-        term('threshold', 'On threshold', ALCOHOL.drunkOn),
-        term('threshold', 'Recovery threshold', ALCOHOL.drunkOff),
-      ],
-    );
-    if (wasDrunk && n.intoxication < ALCOHOL.drunkOff)
-      n.hungoverUntil = asGameMinute(ctx.now + ALCOHOL.hungoverHours * 60);
-    condition(
-      'hungover',
-      n.hungoverUntil !== null && ctx.now < n.hungoverUntil,
-      'Morning after drinking',
-      n.intoxication,
-      () => [
-        term('time', 'Current game minute', ctx.now),
-        term('time', 'Hangover ends at minute', n.hungoverUntil ?? ctx.now),
-        term('alcohol', 'Recovery below intoxication', ALCOHOL.drunkOff),
-        term('time', 'Hangover hours', ALCOHOL.hungoverHours),
-      ],
-    );
-    if (!ctx.isNewDay || n.today.dayIndex >= ctx.cal.dayIndex) return;
     const targets = nutritionTargets(ctx.content);
     const day = n.today;
     if (day.needKcal === 0) day.needKcal = dailyKcal(world, ctx.content, actor.id, day.dayIndex * 1440);

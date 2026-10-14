@@ -3,7 +3,7 @@ import { isAsleep, laborOf, recomputeOccupancy } from '../activity/api.ts';
 import { requiredRow } from '../activity/definitions.ts';
 import type { ContentBundle } from '../content.ts';
 import type { Explain, ExplainTerm } from '../explain.ts';
-import type { ActorId } from '../ids.ts';
+import { type ActorId, sortedKeys } from '../ids.ts';
 import { campThermal, type InventoryIndex, inventoryIndex, loadFatigue } from '../items/api.ts';
 import { energyAgePct, nutritionRestLoss } from '../provisions/api.ts';
 import { isDailyProcessing, processingActorIds } from '../region/processing.ts';
@@ -298,7 +298,7 @@ export function needsSystem(world: World, ctx: SimContext): void {
   const temperatures =
     (isDailyProcessing(world) ? undefined : world.tactical?.frame?.temperatures) ?? heatPlaces(world, ctx);
   const air = ambientTemperatureF(ctx.cal, world);
-  const keys = Object.keys(ctx.content.needs).sort();
+  const keys = sortedKeys(ctx.content.needs);
   const inventory = world.items?.stacks ? inventoryIndex(world) : undefined;
   for (const id of processingActorIds(world)) {
     const actor = requiredRow(world.actors, id);
